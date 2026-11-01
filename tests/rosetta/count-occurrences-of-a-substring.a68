@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Count occurrences of a substring", ALGOL 68 solution count-occurrences-of-a-substring.alg.
   https://rosettacode.org/wiki/Count_occurrences_of_a_substring#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/count-occurrences-of-a-substring.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc count_string_in_string = (string needle, haystack)int: (
   int start_pos:=LWB haystack, next, out_:=0;
   for count while string_in_string(needle, next, haystack[start_pos:]) do

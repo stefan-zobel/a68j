@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Count in factors", ALGOL 68 solution count-in-factors.alg.
   https://rosettacode.org/wiki/Count_in_factors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/count-in-factors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 op +:= = (ref flex []int a, int b) void:
    begin
       [UPB a + 1] int c;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "First-class functions/Use numbers analogously", ALGOL 68 solution first-class-functions-use-numbers-analogously.alg.
   https://rosettacode.org/wiki/First-class_functions/Use_numbers_analogously#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/first-class-functions-use-numbers-analogously.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 real
   x  := 2,
   xi := 0.5,

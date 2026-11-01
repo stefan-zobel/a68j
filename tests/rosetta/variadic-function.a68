@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Variadic function", ALGOL 68 solution variadic-function.alg.
   https://rosettacode.org/wiki/Variadic_function#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/variadic-function.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 main:(
   mode Strint = union(string, int, proc(ref file)void, void);
 

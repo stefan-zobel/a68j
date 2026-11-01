@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "CRC-32", ALGOL 68 solution crc-32.alg.
   https://rosettacode.org/wiki/CRC-32#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/crc-32.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 [0:255]bits crc_table;
 bool crc_table_computed := false;
 

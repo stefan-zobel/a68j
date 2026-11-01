@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers which are the cube roots of the product of their proper divisors", ALGOL 68 solution numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.alg.
   https://rosettacode.org/wiki/Numbers_which_are_the_cube_roots_of_the_product_of_their_proper_divisors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some numbers which are the cube roots of the product of their   }
       {      proper divisors                                                 }
       { the Online Encyclopedia of Integer Sequences states that these       }

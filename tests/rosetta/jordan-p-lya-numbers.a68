@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Jordan-P?lya numbers", ALGOL 68 solution jordan-p-lya-numbers.alg.
   https://rosettacode.org/wiki/Jordan-P%C3%B3lya_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/jordan-p-lya-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Jordan-Pólya numbers - translation of XPL0 via EasyLang }
 
     [ 1 : 11 ]int f; f[ 1 ] := 1; for i from 2 to UPB f do f[ i ] := f[ i - 1 ] * i od;

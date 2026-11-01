@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Arithmetic derivative", ALGOL 68 solution arithmetic-derivative-2.alg.
   https://rosettacode.org/wiki/Arithmetic_derivative#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-derivative-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 for n from -99 to 100 do
     int l := 0, f := 3, z := ABS n;
     while z >= 2 do

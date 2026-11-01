@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Greatest common divisor", ALGOL 68 solution greatest-common-divisor.alg.
   https://rosettacode.org/wiki/Greatest_common_divisor#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/greatest-common-divisor.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
   proc gcd = (int m, n) int: (
     if int a = ABS m, b = ABS n;

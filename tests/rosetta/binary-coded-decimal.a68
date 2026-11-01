@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Binary coded decimal", ALGOL 68 solution binary-coded-decimal.alg.
   https://rosettacode.org/wiki/Binary_coded_decimal#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/binary-coded-decimal.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { implements packed BCD arithmetic                                     }
     int x99 = ( 9 * 16 ) + 9;           { maximum unsigned 2-digit BCD value }
     { structure to hold BCD values                                           }

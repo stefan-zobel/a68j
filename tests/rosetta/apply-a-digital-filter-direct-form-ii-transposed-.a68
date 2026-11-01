@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Apply a digital filter (direct form II transposed)", ALGOL 68 solution apply-a-digital-filter-direct-form-ii-transposed-.alg.
   https://rosettacode.org/wiki/Apply_a_digital_filter_(direct_form_II_transposed)#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/apply-a-digital-filter-direct-form-ii-transposed-.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { apply a digital filter }
     proc filter = ( []real a, b, signal, ref[]real result )void:
          if LWB a /= LWB b OR LWB a /= LWB signal OR LWB a /= LWB result then

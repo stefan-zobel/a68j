@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sum data type", ALGOL 68 solution sum-data-type-1.alg.
   https://rosettacode.org/wiki/Sum_data_type#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sum-data-type-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Leaf = int;
 mode Node = struct( Tree left, Tree right );
 mode Tree = union( void, Leaf, ref Node );

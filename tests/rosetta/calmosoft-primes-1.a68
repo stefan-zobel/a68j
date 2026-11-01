@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "CalmoSoft primes", ALGOL 68 solution calmosoft-primes-1.alg.
   https://rosettacode.org/wiki/CalmoSoft_primes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/calmosoft-primes-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the longest sequence of primes < 100 that sums to a prime       }
       { called Calmosoft primes                                              }
     []int prime = (  2,  3,  5,  7, 11, 13, 17, 19, 23, 29, 31, 37

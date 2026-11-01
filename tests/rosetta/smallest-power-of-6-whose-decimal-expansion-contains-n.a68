@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Smallest power of 6 whose decimal expansion contains n", ALGOL 68 solution smallest-power-of-6-whose-decimal-expansion-contains-n.alg.
   https://rosettacode.org/wiki/Smallest_power_of_6_whose_decimal_expansion_contains_n#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/smallest-power-of-6-whose-decimal-expansion-contains-n.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the smallest k such that the decimal representation of 6^k contains n for 0 <= n <= 21 }
     { returns s blank-padded on the right to at least len characters }
     proc right_pad = ( string s, int len )string:

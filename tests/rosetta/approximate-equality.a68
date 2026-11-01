@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Approximate equality", ALGOL 68 solution approximate-equality.alg.
   https://rosettacode.org/wiki/Approximate_equality#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/approximate-equality.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { test REAL values for approximate equality }
     { returns TRUE if value is approximately equal to other, FALSE otherwide }
     proc approx_equals = ( real value, real other, real epsilon )bool: ABS ( value - other ) < epsilon;

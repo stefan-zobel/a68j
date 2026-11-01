@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Empty directory", ALGOL 68 solution empty-directory.alg.
   https://rosettacode.org/wiki/Empty_directory#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/empty-directory.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { returns TRUE if the specified directory is empty, FALSE if it doesn't exist or is non-empty }
 proc is_empty_directory = ( string directory )bool:
      if NOT file_is_directory( directory )

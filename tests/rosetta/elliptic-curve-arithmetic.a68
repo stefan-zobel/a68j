@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Elliptic curve arithmetic", ALGOL 68 solution elliptic-curve-arithmetic.alg.
   https://rosettacode.org/wiki/Elliptic_curve_arithmetic#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/elliptic-curve-arithmetic.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { elliptic curve arithmetic     - translation of the C sample }
 
     int  bx0 = 7;

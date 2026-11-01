@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "File extension is in extensions list", ALGOL 68 solution file-extension-is-in-extensions-list.alg.
   https://rosettacode.org/wiki/File_extension_is_in_extensions_list#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/file-extension-is-in-extensions-list.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { returns the length of str                                         }
 op   LENGTH = ( string str )int: ( UPB str - LWB str ) + 1;
 { returns TRUE if str ends with ending FALSE otherwise              }

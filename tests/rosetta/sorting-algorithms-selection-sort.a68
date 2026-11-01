@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Selection sort", ALGOL 68 solution sorting-algorithms-selection-sort.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Selection_sort#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-selection-sort.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Data = ref char;
 
 proc in_place_selection_sort = (ref[]Data a)void:

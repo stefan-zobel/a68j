@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "SEND + MORE = MONEY", ALGOL 68 solution send-+-more-=-money.alg.
   https://rosettacode.org/wiki/SEND_%2B_MORE_%3D_MONEY#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/send-+-more-=-money.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { solve the SEND+MORE=MONEY puzzle - translation of the Julia sample }
   int m = 1;
   op C = ( int n )char: REPR ( ABS "0" + n ); { convert integer to a digit }

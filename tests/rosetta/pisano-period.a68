@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pisano period", ALGOL 68 solution pisano-period.alg.
   https://rosettacode.org/wiki/Pisano_period#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pisano-period.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the Pisano period of some primes and composites                 }
 
     int max_number = 180;                  { maximum number we will consider }

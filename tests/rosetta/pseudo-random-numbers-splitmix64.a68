@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pseudo-random numbers/Splitmix64", ALGOL 68 solution pseudo-random-numbers-splitmix64.alg.
   https://rosettacode.org/wiki/Pseudo-random_numbers/Splitmix64#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pseudo-random-numbers-splitmix64.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { generate some pseudo random numbers using Splitmix64 }
     { note that although LONG INT is 64 bits in Algol 68G, LONG BITS is longer than 64 bits }
     long bits mask_64    = long 16rffffffffffffffff;

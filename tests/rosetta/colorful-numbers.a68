@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Colorful numbers", ALGOL 68 solution colorful-numbers.alg.
   https://rosettacode.org/wiki/Colorful_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/colorful-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find colourful numbers: numbers where the product of every sub-group }
       { of digits is uniue ( non-negative numbers only )                     }
       { note that (as stated in the task) for multi-digit numbers, the       }

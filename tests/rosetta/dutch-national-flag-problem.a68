@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Dutch national flag problem", ALGOL 68 solution dutch-national-flag-problem.alg.
   https://rosettacode.org/wiki/Dutch_national_flag_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/dutch-national-flag-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Dutch national flag problem: sort a set of randomly arranged red, white and blue balls into order }
       { ball sets are represented by STRING items, red by "R", white by "W" and blue by "B" }
     { returns the balls sorted into red, white and blue order }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Factorize string into Lyndon words", ALGOL 68 solution factorize-string-into-lyndon-words.alg.
   https://rosettacode.org/wiki/Factorize_string_into_Lyndon_words#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/factorize-string-into-lyndon-words.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Factorize a string into Lyndon words - translated of the Python sample }
 
     proc chen_fox_lyndon_factorization = ( string s )[]string:

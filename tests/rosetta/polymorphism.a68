@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Polymorphism", ALGOL 68 solution polymorphism.alg.
   https://rosettacode.org/wiki/Polymorphism#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/polymorphism.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Algol 68 provides for polymorphic operators but not procedures             }
 
 { define the CIRCLE and POINT modes                                          }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Solve triangle solitaire puzzle", ALGOL 68 solution solve-triangle-solitaire-puzzle.alg.
   https://rosettacode.org/wiki/Solve_triangle_solitaire_puzzle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/solve-triangle-solitaire-puzzle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { solve a triangle solitaire puzzle - translation of the Go sample     }
 
     mode Solution = struct( int peg, over, land );

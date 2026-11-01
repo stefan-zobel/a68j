@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Most frequent k chars distance", ALGOL 68 solution most-frequent-k-chars-distance.alg.
   https://rosettacode.org/wiki/Most_frequent_k_chars_distance#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/most-frequent-k-chars-distance.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { "Most frequent k chars distance": translation of the FreeBASIC sample,   }
       { but retains the original order of the characters with the same frequency }
 

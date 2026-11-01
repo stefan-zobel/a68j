@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Isqrt (integer square root) of X", ALGOL 68 solution isqrt-integer-square-root-of-x.alg.
   https://rosettacode.org/wiki/Isqrt_(integer_square_root)_of_X#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/isqrt-integer-square-root-of-x.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Integer square roots }
      
     { returns the integer square root of x; x must be >= 0                   }

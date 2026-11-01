@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Monte Carlo methods", ALGOL 68 solution monte-carlo-methods.alg.
   https://rosettacode.org/wiki/Monte_Carlo_methods#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/monte-carlo-methods.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc pi = (int throws)real:
 begin
    int inside := 0;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Matrix multiplication", ALGOL 68 solution matrix-multiplication.alg.
   https://rosettacode.org/wiki/Matrix_multiplication#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/matrix-multiplication.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Field = long real; { field type is LONG REAL }
 int default_upb:=3;
 mode Vector = [default_upb]Field;

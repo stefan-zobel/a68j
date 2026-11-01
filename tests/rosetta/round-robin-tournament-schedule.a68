@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Round-robin tournament schedule", ALGOL 68 solution round-robin-tournament-schedule.alg.
   https://rosettacode.org/wiki/Round-robin_tournament_schedule#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/round-robin-tournament-schedule.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { round-robin tournament schedule - translation of XPL0 }
     int n = 12;            { number of players (must be even) }
     [ 1 : n ]int player;

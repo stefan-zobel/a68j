@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Modified random distribution", ALGOL 68 solution modified-random-distribution.alg.
   https://rosettacode.org/wiki/Modified_random_distribution#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/modified-random-distribution.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Modified random distribution - translation of the Wren sample }
 
     next_random; { initialise the random number generator }

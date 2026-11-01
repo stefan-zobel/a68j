@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Modular exponentiation", ALGOL 68 solution modular-exponentiation.alg.
   https://rosettacode.org/wiki/Modular_exponentiation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/modular-exponentiation.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     
    mode Lli = long long int;	{ For brevity }

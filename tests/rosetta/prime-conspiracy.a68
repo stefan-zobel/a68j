@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Prime conspiracy", ALGOL 68 solution prime-conspiracy.alg.
   https://rosettacode.org/wiki/Prime_conspiracy#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/prime-conspiracy.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { extend CLEAR and ELEM to operate on rows of BITS }
 op   CLEAR = ( int n, ref[]bits b )ref[]bits:
      begin

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Longest common prefix", ALGOL 68 solution longest-common-prefix.alg.
   https://rosettacode.org/wiki/Longest_common_prefix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-prefix.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { find the longest common prefix of two strings }
 prio COMMONPREFIX = 1;
 op   COMMONPREFIX = ( string a, b )string:

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Multiple regression", ALGOL 68 solution multiple-regression.alg.
   https://rosettacode.org/wiki/Multiple_regression#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/multiple-regression.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Multiple Regression - trnslation of the VB.NET sample but using the }
       { "to reduced row echelon form" routine from the Reduced row echelon Task }
 

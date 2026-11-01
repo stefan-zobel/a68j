@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Test integerness", ALGOL 68 solution test-integerness.alg.
   https://rosettacode.org/wiki/Test_integerness#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/test-integerness.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { set the required precision of LONG LONG values using    }
 { "PR precision n PR" if required                         }
 { PR precision 24 PR } { not requied for ALGOL 68 Genie   }

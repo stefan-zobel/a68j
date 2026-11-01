@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Compiler/Simple file inclusion pre processor", ALGOL 68 solution compiler-simple-file-inclusion-pre-processor.alg.
   https://rosettacode.org/wiki/Compiler/Simple_file_inclusion_pre_processor#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/compiler-simple-file-inclusion-pre-processor.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Algol 68 pre-processor                                                      }
 { Processes "read" pragmas in an Algol 68 upper stropping source              }
 {    It is assumed _ is allowd in tags and bold words                         }

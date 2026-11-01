@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Check that file exists", ALGOL 68 solution check-that-file-exists.alg.
   https://rosettacode.org/wiki/Check_that_file_exists#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/check-that-file-exists.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Check files and directories exist                               }
 
 { check a file exists by attempting to open it for input          }

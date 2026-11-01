@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Binomial transform", ALGOL 68 solution binomial-transform.alg.
   https://rosettacode.org/wiki/Binomial_transform#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/binomial-transform.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { binomial transform - translation of the C sample                     }
     { returns factorial n, n must be at most 20                              }
     proc factorial = ( int n )long int:

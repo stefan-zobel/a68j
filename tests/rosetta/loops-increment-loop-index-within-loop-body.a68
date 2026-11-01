@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Loops/Increment loop index within loop body", ALGOL 68 solution loops-increment-loop-index-within-loop-body.alg.
   https://rosettacode.org/wiki/Loops/Increment_loop_index_within_loop_body#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/loops-increment-loop-index-within-loop-body.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns TRUE if n is prime, FALSE otherwise }
     proc is_prime = ( long int n )bool:

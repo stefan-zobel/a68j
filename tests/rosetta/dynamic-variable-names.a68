@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Dynamic variable names", ALGOL 68 solution dynamic-variable-names.alg.
   https://rosettacode.org/wiki/Dynamic_variable_names#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/dynamic-variable-names.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Simulate dynamic variables using an array, translation of the FreeBASIC sample }
 
     mode Dynamicvariable = struct( string name, value );

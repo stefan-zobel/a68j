@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Camel case and snake case", ALGOL 68 solution camel-case-and-snake-case.alg.
   https://rosettacode.org/wiki/Camel_case_and_snake_case#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/camel-case-and-snake-case.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { convert camel case to and from snake case }
     { returns c converted to uppercase if it is lowercase, c otherwise }
     op   TOUPPER = ( char c )string:

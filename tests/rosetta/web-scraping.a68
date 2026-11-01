@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Web scraping", ALGOL 68 solution web-scraping.alg.
   https://rosettacode.org/wiki/Web_scraping#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/web-scraping.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 string
    domain="tycho.usno.navy.mil",
    page="cgi-bin/timer.pl";

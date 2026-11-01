@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Klarner-Rado sequence", ALGOL 68 solution klarner-rado-sequence.alg.
   https://rosettacode.org/wiki/Klarner-Rado_sequence#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/klarner-rado-sequence.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find elements of the Klarner-Rado sequence                           }
       {    - if n is an element, so are 2n + 1 and 3n + 1                    }
     int max_element = 100 000 000;

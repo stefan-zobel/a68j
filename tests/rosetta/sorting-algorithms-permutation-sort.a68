@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Permutation sort", ALGOL 68 solution sorting-algorithms-permutation-sort.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Permutation_sort#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-permutation-sort.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { permutation sort - permutation code based on the EasyLang sample     }
 
     { generates an initial permutation of a to b                             }

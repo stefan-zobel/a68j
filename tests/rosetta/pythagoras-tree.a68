@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pythagoras tree", ALGOL 68 solution pythagoras-tree.alg.
   https://rosettacode.org/wiki/Pythagoras_tree#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pythagoras-tree.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { draw a pythagoras tree, using SVG                                    }
 
     mode Pos = real;                             { MODE holding a coordinate }

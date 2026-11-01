@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Stack", ALGOL 68 solution stack-3.alg.
   https://rosettacode.org/wiki/Stack#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/stack-3.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { -*- coding: utf-8 -*- }
 mode Dietitem = struct(
   string food, annual_quantity, units, real cost

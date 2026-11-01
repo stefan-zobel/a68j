@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Catalan numbers", ALGOL 68 solution catalan-numbers-1.alg.
   https://rosettacode.org/wiki/Catalan_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/catalan-numbers-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { print some catalan numbers                                           }
     proc print_catalan = ( long int n, cn )void:
          print( ( whole( n, -3 ), ": ", whole( cn, 0 ), newline ) );

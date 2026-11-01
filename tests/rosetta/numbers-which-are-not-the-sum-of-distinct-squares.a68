@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers which are not the sum of distinct squares", ALGOL 68 solution numbers-which-are-not-the-sum-of-distinct-squares.alg.
   https://rosettacode.org/wiki/Numbers_which_are_not_the_sum_of_distinct_squares#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-which-are-not-the-sum-of-distinct-squares.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { find the integers that can't be expressed as the sum of distinct squares
    it can be proved that if 120-324 can be expressed as the sum of distinct
    squares then all integers greater than 129 can be so expressed

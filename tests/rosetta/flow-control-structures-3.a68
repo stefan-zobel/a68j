@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Flow-control structures", ALGOL 68 solution flow-control-structures-3.alg.
   https://rosettacode.org/wiki/Flow-control_structures#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/flow-control-structures-3.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 string final_state = (
   int condition;
   proc do_something = void: condition := 1 + ENTIER (3 * random);

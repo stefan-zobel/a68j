@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Bin given limits", ALGOL 68 solution bin-given-limits.alg.
   https://rosettacode.org/wiki/Bin_given_limits#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/bin-given-limits.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { count the number pf items that fall into "bins" given he limits }
     { returns an array of "bins" containing the counts of the data items }
     {         that fall into the bins given the limits                   }

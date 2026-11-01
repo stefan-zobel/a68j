@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Infinity", ALGOL 68 solution infinity.alg.
   https://rosettacode.org/wiki/Infinity#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/infinity.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 printf(($"max int: "gl$,max_int));
 printf(($"long max int: "gl$,long_max_int));
 printf(($"long long max int: "gl$,long_long_max_int));

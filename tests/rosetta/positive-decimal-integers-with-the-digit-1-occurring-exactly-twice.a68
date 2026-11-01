@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Positive decimal integers with the digit 1 occurring exactly twice", ALGOL 68 solution positive-decimal-integers-with-the-digit-1-occurring-exactly-twice.alg.
   https://rosettacode.org/wiki/Positive_decimal_integers_with_the_digit_1_occurring_exactly_twice#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/positive-decimal-integers-with-the-digit-1-occurring-exactly-twice.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers where the digit 1 occurs twice, up to 999 }
     [ 1 : 999 ]bool double_1; for i to UPB double_1 do double_1[ i ] := false od;
     { generte the numbers                                      }

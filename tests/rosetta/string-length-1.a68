@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "String length", ALGOL 68 solution string-length-1.alg.
   https://rosettacode.org/wiki/String_length#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/string-length-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 bits bits_ := bits_pack((true, true, false, false)); { packed array of BOOL }
 bytes bytes_ := bytes_pack("Hello, world"); { packed array of CHAR }
 print((

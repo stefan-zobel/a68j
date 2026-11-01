@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Averages/Median", ALGOL 68 solution averages-median.alg.
   https://rosettacode.org/wiki/Averages/Median#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/averages-median.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int max_elements = 1000000;
 
 { Return the k-th smallest item in array x of length len }

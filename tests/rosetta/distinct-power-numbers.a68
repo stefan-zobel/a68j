@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Distinct power numbers", ALGOL 68 solution distinct-power-numbers.alg.
   https://rosettacode.org/wiki/Distinct_power_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/distinct-power-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show in order, distinct values of a^b where 2 <= a <= b <= 5        }
     int max_number = 5;
     int min_number = 2;

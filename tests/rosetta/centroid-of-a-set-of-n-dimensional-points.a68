@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Centroid of a set of N-dimensional points", ALGOL 68 solution centroid-of-a-set-of-n-dimensional-points.alg.
   https://rosettacode.org/wiki/Centroid_of_a_set_of_N-dimensional_points#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/centroid-of-a-set-of-n-dimensional-points.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the centroid of some N-dimensional points                       }
 
     { returns the centroid of points                                         }

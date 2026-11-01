@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Mandelbrot set", ALGOL 68 solution mandelbrot-set.alg.
   https://rosettacode.org/wiki/Mandelbrot_set#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/mandelbrot-set.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int pix = 300, max_iter = 256, real zoom = 0.33 / pix;
 [-pix : pix, -pix : pix] int plane;
 compl ctr = 0.05 I 0.75 { center of set };

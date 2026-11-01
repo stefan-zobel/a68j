@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sum of divisors", ALGOL 68 solution sum-of-divisors.alg.
   https://rosettacode.org/wiki/Sum_of_divisors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-divisors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { sum the divisors of the first 100 positive integers                  }
 
     { computes the sum of the divisors of v using the prime factorisation    }

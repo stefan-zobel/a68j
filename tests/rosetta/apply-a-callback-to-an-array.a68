@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Apply a callback to an array", ALGOL 68 solution apply-a-callback-to-an-array.alg.
   https://rosettacode.org/wiki/Apply_a_callback_to_an_array#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/apply-a-callback-to-an-array.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
  proc call_back_proc = (int location, int value)void:
  (
    printf(($"array["g"] = "gl$, location, value))

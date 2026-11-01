@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Strip whitespace from a string/Top and tail", ALGOL 68 solution strip-whitespace-from-a-string-top-and-tail-2.alg.
   https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/strip-whitespace-from-a-string-top-and-tail-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {
   string_trim
   Trim leading and trailing whitespace from string.

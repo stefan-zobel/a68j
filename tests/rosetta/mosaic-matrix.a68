@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Mosaic matrix", ALGOL 68 solution mosaic-matrix.alg.
   https://rosettacode.org/wiki/Mosaic_matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/mosaic-matrix.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { draw a "mosaic matrix" - one with a 1 in the top-left and then  }
       { alternating with another character vertically and horizontally  }
 

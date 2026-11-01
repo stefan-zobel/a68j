@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Move-to-front algorithm", ALGOL 68 solution move-to-front-algorithm.alg.
   https://rosettacode.org/wiki/Move-to-front_algorithm#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/move-to-front-algorithm.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { move the character at text pos to the front of text                         }
 { note text pos is based from 0                                               }
 proc move_to_front = ( string text, int text_pos )string:

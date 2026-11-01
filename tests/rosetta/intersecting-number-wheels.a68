@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Intersecting number wheels", ALGOL 68 solution intersecting-number-wheels.alg.
   https://rosettacode.org/wiki/Intersecting_number_wheels#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/intersecting-number-wheels.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { a number wheel element                                                  }
     mode Nwelement = union( char { wheel name }, int { wheel value } );

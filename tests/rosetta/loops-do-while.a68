@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Loops/Do-while", ALGOL 68 solution loops-do-while.alg.
   https://rosettacode.org/wiki/Loops/Do-while#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/loops-do-while.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 for value while
   print(value);
 { WHILE } value MOD 6 /= 0 do

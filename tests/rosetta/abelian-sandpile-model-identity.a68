@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Abelian sandpile model/Identity", ALGOL 68 solution abelian-sandpile-model-identity.alg.
   https://rosettacode.org/wiki/Abelian_sandpile_model/Identity#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/abelian-sandpile-model-identity.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { model Abelian sandpiles }
     { represents a sandpile }
     int elements = 3;

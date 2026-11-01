@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Product of min and max prime factors", ALGOL 68 solution product-of-min-and-max-prime-factors.alg.
   https://rosettacode.org/wiki/Product_of_min_and_max_prime_factors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/product-of-min-and-max-prime-factors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the product of the min and max prime factors of some numbers }
     int max_number = 100; { maximum number we will consider               }
     { sieve the primes to max number                                      }

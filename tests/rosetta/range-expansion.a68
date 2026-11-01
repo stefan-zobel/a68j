@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Range expansion", ALGOL 68 solution range-expansion.alg.
   https://rosettacode.org/wiki/Range_expansion#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/range-expansion.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Yieldint = proc(int)void;
 
 mode Range = struct(int lwb, upb);

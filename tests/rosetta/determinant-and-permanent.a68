@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Determinant and permanent", ALGOL 68 solution determinant-and-permanent.alg.
   https://rosettacode.org/wiki/Determinant_and_permanent#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/determinant-and-permanent.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { matrix determinant and permanent }
       { - translated from the Phix sample, via EasyLang }
 

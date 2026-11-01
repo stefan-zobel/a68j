@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Fractran", ALGOL 68 solution fractran.alg.
   https://rosettacode.org/wiki/Fractran#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/fractran.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { as the numbers required for finding the first 20 primes are quite large, }
 { we use Algol 68G's LONG LONG INT with a precision of 200 digits          }
  

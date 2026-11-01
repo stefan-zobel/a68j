@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Knapsack problem/Unbounded", ALGOL 68 solution knapsack-problem-unbounded.alg.
   https://rosettacode.org/wiki/Knapsack_problem/Unbounded#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/knapsack-problem-unbounded.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Bounty = struct(string name, int value, weight, volume);
 
 []Bounty items = (

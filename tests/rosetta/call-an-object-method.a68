@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Call an object method", ALGOL 68 solution call-an-object-method.alg.
   https://rosettacode.org/wiki/Call_an_object_method#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/call-an-object-method.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { demonstrate a possible method of simulating class & instance methods  }
     { declare a "class"                                                       }
     mode Animal = struct( string                 species

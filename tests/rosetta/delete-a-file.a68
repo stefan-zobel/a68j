@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Delete a file", ALGOL 68 solution delete-a-file.alg.
   https://rosettacode.org/wiki/Delete_a_file#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/delete-a-file.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
   { note the pathnames and commands are Windows specific - adjust for other systems }
   string root = "\", del  = "del ", rmdir = "rmdir ";

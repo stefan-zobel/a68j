@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "De Polignac numbers", ALGOL 68 solution de-polignac-numbers.alg.
   https://rosettacode.org/wiki/De_Polignac_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/de-polignac-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some De Polignac Numbers - positive odd numbers that can't be    }
       { written as p + 2^n for some prime p and integer n                     }
     int max_number = 500 000; { maximum number we will consider               }

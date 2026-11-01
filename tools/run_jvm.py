@@ -176,12 +176,13 @@ def main():
         jvm = [a.java, "-XX:+UseSerialGC"] + (["-XX:TieredStopAtLevel=1"] if a.jit == "c1" else []) + aot_opts
         cmd = jvm + ["-jar", a.jar] + opts_for(f) + ["-run", f]
         # Module packets ({ dg-modules }): compiled to classes and .m68 export
-        # data in a temporary directory, which goes on the class path.
-        mods, mdir = modtest.modules_for(f), None
+        # data in a temporary directory, which goes on the class path.  The
+        # bundled modules (modtest.BUNDLED) come with the jar.
+        mods, mdir = [m for m in modtest.modules_for(f) if m not in modtest.BUNDLED], None
         if mods:
             mdir = tempfile.mkdtemp(prefix="a68j-mod-")
             for m in mods:
-                src = os.path.join(os.path.dirname(f), m + ".a68")
+                src = modtest.module_source(f, m)
                 dest = os.path.join(mdir, "lib" + m + ".jar") if a.modules_as_jars else mdir
                 c = subprocess.run(jvm + ["-jar", a.jar, "-I" + mdir] + opts_for(src) + [src, "-d", dest],
                                    capture_output=True, env=env, timeout=a.timeout)

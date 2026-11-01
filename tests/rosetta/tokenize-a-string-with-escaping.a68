@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Tokenize a string with escaping", ALGOL 68 solution tokenize-a-string-with-escaping.alg.
   https://rosettacode.org/wiki/Tokenize_a_string_with_escaping#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/tokenize-a-string-with-escaping.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns s parsed according to delimiter and escape                      }
     proc parse_with_escapes = ( string s, char delimiter, escape )[]string:

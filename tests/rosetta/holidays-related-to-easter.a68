@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Holidays related to Easter", ALGOL 68 solution holidays-related-to-easter.alg.
   https://rosettacode.org/wiki/Holidays_related_to_Easter#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/holidays-related-to-easter.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Year = int, Month = int, Week = int, Day = int;
 
 mode Date = struct(

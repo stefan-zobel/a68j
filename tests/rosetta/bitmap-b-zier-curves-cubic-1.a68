@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Bitmap/B?zier curves/Cubic", ALGOL 68 solution bitmap-b-zier-curves-cubic-1.alg.
   https://rosettacode.org/wiki/Bitmap/B%C3%A9zier_curves/Cubic#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/bitmap-b-zier-curves-cubic-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { -*- coding: utf-8 -*- }
 
 cubic_bezier of class_image :=

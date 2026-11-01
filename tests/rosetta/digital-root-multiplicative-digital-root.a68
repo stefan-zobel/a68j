@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Digital root/Multiplicative digital root", ALGOL 68 solution digital-root-multiplicative-digital-root.alg.
   https://rosettacode.org/wiki/Digital_root/Multiplicative_digital_root#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/digital-root-multiplicative-digital-root.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Multiplicative Digital Roots                                              }
     { structure to hold the results of calculating the digital root & persistence }
     mode Dr = struct( int root, int persistence );

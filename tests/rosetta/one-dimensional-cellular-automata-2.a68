@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "One-dimensional cellular automata", ALGOL 68 solution one-dimensional-cellular-automata-2.alg.
   https://rosettacode.org/wiki/One-dimensional_cellular_automata#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/one-dimensional-cellular-automata-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int stop_generation = 9;
 int upb_universe = 20;
 FORMAT alive_or_dead = $b("#","_")$;

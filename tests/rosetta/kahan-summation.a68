@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Kahan summation", ALGOL 68 solution kahan-summation.alg.
   https://rosettacode.org/wiki/Kahan_summation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/kahan-summation.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Kahan summation - Algol 68 doesn't have a float decimal mode, however as    }
 { only 6 digits of precision are required and assuming INT is 32 bits, we can }
 { emulate this fairly easily                                                  }

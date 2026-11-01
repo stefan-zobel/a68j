@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Solve a Holy Knight's tour", ALGOL 68 solution solve-a-holy-knights-tour.alg.
   https://rosettacode.org/wiki/Solve_a_Holy_Knight's_tour#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/solve-a-holy-knights-tour.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { the vertical position changes of the moves                             }
 {                 nne  ne  se sse ssw  sw  nw nnw                        }
 []int offset_v = ( -2, -1,  1,  2,  2,  1, -1, -2 );

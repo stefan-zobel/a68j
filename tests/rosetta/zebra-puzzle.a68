@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Zebra puzzle", ALGOL 68 solution zebra-puzzle.alg.
   https://rosettacode.org/wiki/Zebra_puzzle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/zebra-puzzle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { attempt to solve Einstein's Riddle - the Zebra puzzle                     }
     int unknown   = 0, same    = -1;

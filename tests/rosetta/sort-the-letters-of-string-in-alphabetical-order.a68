@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sort the letters of string in alphabetical order", ALGOL 68 solution sort-the-letters-of-string-in-alphabetical-order.alg.
   https://rosettacode.org/wiki/Sort_the_letters_of_string_in_alphabetical_order#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sort-the-letters-of-string-in-alphabetical-order.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns s with the characters sorted into lexicographic order          }
     op   LSORT = ( string s )string:

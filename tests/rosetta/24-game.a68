@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "24 game", ALGOL 68 solution 24-game.alg.
   https://rosettacode.org/wiki/24_game#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/24-game.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { play the 24 game - present the user with 4 digits and invite them to  }
       { enter an expression using the digits that evaluates to 24             }
 

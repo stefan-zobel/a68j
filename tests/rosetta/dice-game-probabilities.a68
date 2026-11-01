@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Dice game probabilities", ALGOL 68 solution dice-game-probabilities.alg.
   https://rosettacode.org/wiki/Dice_game_probabilities#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/dice-game-probabilities.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Dice game probabilities - translation of Action! }
 
     proc roll = ( int sides, ndice )int:

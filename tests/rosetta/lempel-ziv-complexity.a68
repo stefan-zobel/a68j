@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Lempel?Ziv complexity", ALGOL 68 solution lempel-ziv-complexity.alg.
   https://rosettacode.org/wiki/Lempel%E2%80%93Ziv_complexity#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/lempel-ziv-complexity.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Lempel-Ziv complexity                                                }
 
     { MODE to hold the results of LZ                                         }

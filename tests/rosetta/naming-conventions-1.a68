@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Naming conventions", ALGOL 68 solution naming-conventions-1.alg.
   https://rosettacode.org/wiki/Naming_conventions#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/naming-conventions-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode ℵ SIMPLEOUT = union (≮ℒ int≯, ≮ℒ real≯, ≮ℒ compl≯, bool, ≮ℒ bits≯, char, [ ] char);
 proc ℓ cos = (ℒ real x) ℒ real: ¢ a ℒ real_value_close_to_the_cosine_of 'x' ¢;
 

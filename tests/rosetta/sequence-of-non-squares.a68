@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sequence of non-squares", ALGOL 68 solution sequence-of-non-squares.alg.
   https://rosettacode.org/wiki/Sequence_of_non-squares#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sequence-of-non-squares.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc non_square = (int n)int: n + ENTIER(0.5 + sqrt(n));
 
 main: (

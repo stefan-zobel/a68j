@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers with equal rises and falls", ALGOL 68 solution numbers-with-equal-rises-and-falls.alg.
   https://rosettacode.org/wiki/Numbers_with_equal_rises_and_falls#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-with-equal-rises-and-falls.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns TRUE if the number of digits in n followed by a higher digit (rises)  }
     {              equals the number of digits followed by a lower digit (falls)    }

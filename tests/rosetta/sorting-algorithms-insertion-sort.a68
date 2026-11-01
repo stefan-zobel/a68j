@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Insertion sort", ALGOL 68 solution sorting-algorithms-insertion-sort.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Insertion_sort#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-insertion-sort.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Data = ref char;
 
 proc in_place_insertion_sort = (ref[]Data item)void:

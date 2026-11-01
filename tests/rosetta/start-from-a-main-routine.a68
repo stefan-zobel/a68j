@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Start from a main routine", ALGOL 68 solution start-from-a-main-routine.alg.
   https://rosettacode.org/wiki/Start_from_a_main_routine#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/start-from-a-main-routine.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     print( ( "Hello, World!", newline ) )
 end

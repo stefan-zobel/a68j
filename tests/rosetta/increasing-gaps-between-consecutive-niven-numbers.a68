@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Increasing gaps between consecutive Niven numbers", ALGOL 68 solution increasing-gaps-between-consecutive-niven-numbers.alg.
   https://rosettacode.org/wiki/Increasing_gaps_between_consecutive_Niven_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/increasing-gaps-between-consecutive-niven-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show where the gaps increase in the series of Niven numbers }
       { ( numbers divisible by the sum of their digits ) }
     int n_count := 0;

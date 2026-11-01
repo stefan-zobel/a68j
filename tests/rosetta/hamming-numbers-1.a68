@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Hamming numbers", ALGOL 68 solution hamming-numbers-1.alg.
   https://rosettacode.org/wiki/Hamming_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/hamming-numbers-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
  
 
 mode Series = flex [1 : 0] Unt, { Initially, no elements }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Polynomial long division", ALGOL 68 solution polynomial-long-division.alg.
   https://rosettacode.org/wiki/Polynomial_long_division#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-long-division.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { polynomial division                                         }
       { in this polynomials are represented by []INT items where    }
       { the coefficients are in order of increasing powers, i.e.,   }

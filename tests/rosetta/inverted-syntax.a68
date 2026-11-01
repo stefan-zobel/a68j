@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Inverted syntax", ALGOL 68 solution inverted-syntax.alg.
   https://rosettacode.org/wiki/Inverted_syntax#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/inverted-syntax.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Inverted assignment                                                                       }
 { Assignment in Algol 68 is via ":=" which is automaically provided for all modes (types)   }
 { However we could define e.g. "=:" as an inverted assignment operator but we would need to }

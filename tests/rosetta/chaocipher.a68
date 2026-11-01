@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Chaocipher", ALGOL 68 solution chaocipher.alg.
   https://rosettacode.org/wiki/Chaocipher#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/chaocipher.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Chaocipher, translated from the Kotlin with permutations as in Ada   }
 
     string lalphabet = "HXUCZVAMDSLKPEFJRIGTWOBNYQ";

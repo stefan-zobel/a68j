@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Display an outline as a nested table", ALGOL 68 solution display-an-outline-as-a-nested-table-1.alg.
   https://rosettacode.org/wiki/Display_an_outline_as_a_nested_table#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/display-an-outline-as-a-nested-table-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Show an outline as a wiki or HTML table                              }
     mode Onode = struct( string text, int indent, ref Onode next, child );
     ref Onode nil_node = nil;

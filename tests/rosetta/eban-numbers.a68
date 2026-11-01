@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Eban numbers", ALGOL 68 solution eban-numbers.alg.
   https://rosettacode.org/wiki/Eban_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/eban-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Eban numbers - translated from the Lua and Phix samples               }
 
     mode Interval = struct( int start, end_, bool print );

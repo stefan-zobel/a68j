@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "9 billion names of God the integer", ALGOL 68 solution 9-billion-names-of-god-the-integer.alg.
   https://rosettacode.org/wiki/9_billion_names_of_God_the_integer#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/9-billion-names-of-god-the-integer.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int number_of_rows = 123;
 mode Nameg = long int;
 

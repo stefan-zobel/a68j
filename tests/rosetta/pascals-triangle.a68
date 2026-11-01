@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pascal's triangle", ALGOL 68 solution pascals-triangle.alg.
   https://rosettacode.org/wiki/Pascal's_triangle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pascals-triangle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 prio MINLWB = 8, MAXUPB = 8;
 op MINLWB = ([]int a,b)int: (LWB a<LWB b|LWB a|LWB b),
    MAXUPB = ([]int a,b)int: (UPB a>UPB b|UPB a|UPB b);

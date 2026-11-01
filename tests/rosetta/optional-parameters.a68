@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Optional parameters", ALGOL 68 solution optional-parameters.alg.
   https://rosettacode.org/wiki/Optional_parameters#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/optional-parameters.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { as the options have distinct types (INT, BOOL and PROC( STRING, STRING )INT) the       }
 { easiest way to support these optional parameters in Algol 68 would be to have an array }
 { with elements of these types                                                           }

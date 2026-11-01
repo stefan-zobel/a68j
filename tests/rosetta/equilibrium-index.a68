@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Equilibrium index", ALGOL 68 solution equilibrium-index.alg.
   https://rosettacode.org/wiki/Equilibrium_index#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/equilibrium-index.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Yieldint = proc(int)void;
 
 proc gen_equilibrium_index = ([]int arr, Yieldint yield)void:

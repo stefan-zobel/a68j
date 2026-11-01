@@ -10,17 +10,18 @@ ROSETTACODEDATA is a checkout of https://github.com/acmeism/RosettaCodeData
   OUT/<name>.a68        the program prepared for ga68, in SUPPER stropping
                         (the GNU notation, the default of ga68):
 
-    { dg-modules "rcprelude" }
+    { dg-modules "genietransput" }
     { origin, licence }
-    access Rc_Prelude (
+    access Genie_Transput (
     <solution>
     )
 
 The solutions are written for Algol 68 Genie, so the preparation makes
 these changes, and only these:
 
-  * the program runs inside an access clause of the module Rc_Prelude
-    (rcprelude.a68), which provides print, newline, stand out, ...;
+  * the program runs inside an access clause of the module Genie_Transput
+    (backend/lib/genietransput.a68, bundled with a68j), which provides
+    print, newline, stand out, ...;
   * an apostrophe in a string denotation is written '' (in ga68 the
     apostrophe starts a string break);
   * pragmats are removed (PR precision=... PR and the like), except
@@ -36,14 +37,14 @@ OUT/index.tsv lists every solution with its task and what happened to it.
 import argparse, os, re, sys, urllib.parse
 import a68supper
 
-HEADER = """{{ dg-modules "rcprelude" }}
+HEADER = """{{ dg-modules "genietransput" }}
 {{ Rosetta Code, task "{task}", ALGOL 68 solution {file}.
   https://rosettacode.org/wiki/{url}#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/{name}.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }}
-ACCESS RC_PRELUDE (
+ACCESS GENIE_TRANSPUT (
 """
 FOOTER = "\n)\n"
 

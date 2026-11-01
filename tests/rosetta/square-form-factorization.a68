@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Square form factorization", ALGOL 68 solution square-form-factorization.alg.
   https://rosettacode.org/wiki/Square_form_factorization#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/square-form-factorization.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Daniel Shanks's Square Form Factorization (SquFoF) - based on the Wren sample }
 
     mode Integer = long int;                                  { large enough INT type }

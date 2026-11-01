@@ -70,7 +70,7 @@ def main():
             os.makedirs(mdir, exist_ok=True)
         for m in mods:
             o = os.path.join(mdir, m + ".o")
-            msrc = os.path.join(os.path.dirname(f), m + ".a68")
+            msrc = modtest.module_source(f, m)
             mc = subprocess.run([a.ga68, "-B" + bdir, "-L" + a.libdir, "-I" + mdir] + a.cflags.split() + opts_for(msrc) + ["-c", msrc, "-o", o],
                                 capture_output=True, env=env)
             merr += mc.stderr.decode("latin-1")

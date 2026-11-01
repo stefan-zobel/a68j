@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Maximum difference between adjacent elements of list", ALGOL 68 solution maximum-difference-between-adjacent-elements-of-list.alg.
   https://rosettacode.org/wiki/Maximum_difference_between_adjacent_elements_of_list#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/maximum-difference-between-adjacent-elements-of-list.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the maximum difference between consecutive list elements         }
     { returns the maximum difference between pairs of elements of list        }
     op   MAXDELTA = ( []real list )real:

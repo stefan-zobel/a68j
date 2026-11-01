@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Cheryl's birthday", ALGOL 68 solution cheryls-birthday.alg.
   https://rosettacode.org/wiki/Cheryl's_birthday#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/cheryls-birthday.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Cheryl's birthday puzzle                                       }
 
     [ 1 : 4, 1 : 6 ]int   dates   { non-zero indicates a possible date }

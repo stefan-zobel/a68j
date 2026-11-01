@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Quicksort", ALGOL 68 solution sorting-algorithms-quicksort.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Quicksort#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-quicksort.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {--- Swap function ---}
 proc swap = (ref []int array, int first, int second) void:
 (

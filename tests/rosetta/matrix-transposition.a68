@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Matrix transposition", ALGOL 68 solution matrix-transposition.alg.
   https://rosettacode.org/wiki/Matrix_transposition#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/matrix-transposition.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 main:(
 
   [,]real m=((1,  1,  1,   1),

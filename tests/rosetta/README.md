@@ -20,7 +20,6 @@ Code page (linked in the header of each prepared file).
 ```
 orig/<name>.a68     the solution unchanged, as on Rosetta Code
 <name>.a68          the same solution, prepared for ga68, in GNU notation (SUPPER)
-rcprelude.a68       module Rc_Prelude: print, newline, stand out ... (GNU notation)
 index.tsv           all solutions with task and result of the preparation
 results.tsv         result per solution: what ga68 does, what the JVM does, note
 notes.tsv           explanation of the known differences (for results.tsv)
@@ -38,9 +37,11 @@ tests/rosetta/passing.md` generates `passing.md` and `passing.txt` from
 The solutions are written for Algol 68 Genie. `tools/rosetta_prep.py`
 turns them into programs for ga68 and changes only the following:
 
-- The program runs inside an access clause of the module `Rc_Prelude`
-  (`access Rc_Prelude ( <solution> )`). ga68 has only the simple POSIX output
-  (`puts`, `fputs`); on top of it the module emulates `print`, `put`,
+- The program runs inside an access clause of the module `Genie_Transput`
+  (`access Genie_Transput ( <solution> )`), which is bundled with a68j
+  (`backend/lib/genietransput.a68`, see `docs/genie-transput.md`). ga68 has
+  only the simple POSIX output (`puts`, `fputs`); on top of it the module
+  emulates `print`, `put`,
   `write`, `newline`, `space`, `stand out`/`stand error`, `char in string`,
   `is digit` etc. of Algol 68 Genie. Numbers are printed as there
   (right-aligned with sign, `REAL` in floating-point form).
@@ -57,8 +58,9 @@ turns them into programs for ga68 and changes only the following:
   notation of GNU Algol 68 and the default of ga68 (`tools/a68supper.py`,
   see below).
 
-Every prepared file starts with `{ dg-modules "rcprelude" }`; the test
-scripts then compile the module first. Line n of the solution is line
+Every prepared file starts with `{ dg-modules "genietransput" }`; for
+ga68 the test scripts then compile the module from `backend/lib` first,
+a68j has it built in (`tools/modtest.py`). Line n of the solution is line
 n + 8 of the prepared file.
 
 ### GNU notation (SUPPER)

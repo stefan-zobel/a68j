@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Comma quibbling", ALGOL 68 solution comma-quibbling.alg.
   https://rosettacode.org/wiki/Comma_quibbling#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/comma-quibbling.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { returns a string ( assumed to be of space-separated words ) with the words  }
 { separated by ", ", except for the last which is separated from the rest by  }
 { " and ". The list is enclosed by braces                                     }

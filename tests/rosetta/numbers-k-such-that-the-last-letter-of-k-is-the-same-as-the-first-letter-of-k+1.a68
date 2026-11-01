@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers k such that the last letter of k is the same as the first letter of k+1", ALGOL 68 solution numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.alg.
   https://rosettacode.org/wiki/Numbers_k_such_that_the_last_letter_of_k_is_the_same_as_the_first_letter_of_k%2B1#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers k where the name of k ends with the start of k + 1      }
 
     []char unit_start =       (      "o", "t", "t", "f", "f", "s", "s", "e", "n" );

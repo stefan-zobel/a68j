@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Variable declaration reset", ALGOL 68 solution variable-declaration-reset.alg.
   https://rosettacode.org/wiki/Variable_declaration_reset#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/variable-declaration-reset.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     []int s = ( 1, 2, 2, 3, 4, 4, 5 );
     for i from LWB s to UPB s do

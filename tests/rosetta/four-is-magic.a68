@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Four is magic", ALGOL 68 solution four-is-magic.alg.
   https://rosettacode.org/wiki/Four_is_magic#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/four-is-magic.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { construct number names from a number                                  }
     mode Number = long int;        { adjust to suit, must be at least 64 bits }
     op TOINT = ( Number n )int: SHORTEN n;                   { adjust to suit }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "McNuggets problem", ALGOL 68 solution mcnuggets-problem.alg.
   https://rosettacode.org/wiki/McNuggets_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/mcnuggets-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { Solve the McNuggets problem: find the largest n <= 100 for which there }
     { are no non-negative integers x, y, z such that 6x + 9y + 20z = n       }

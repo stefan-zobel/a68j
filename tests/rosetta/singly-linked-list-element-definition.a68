@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Singly-linked list/Element definition", ALGOL 68 solution singly-linked-list-element-definition.alg.
   https://rosettacode.org/wiki/Singly-linked_list/Element_definition#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/singly-linked-list-element-definition.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { -*- coding: utf-8 -*- }
 { REQUIRES:
   MODE OBJVALUE = ~ # Mode/type of actual obj to be stacked #

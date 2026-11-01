@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Ethiopian multiplication", ALGOL 68 solution ethiopian-multiplication.alg.
   https://rosettacode.org/wiki/Ethiopian_multiplication#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/ethiopian-multiplication.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc halve = (ref int x)void: x := ABS(BIN x SHR 1);
 proc doublit = (ref int x)void: x := ABS(BIN x SHL 1);
 proc iseven = ({CONST} int x)bool: NOT ODD x;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "XML/Output", ALGOL 68 solution xml-output-2.alg.
   https://rosettacode.org/wiki/XML/Output#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/xml-output-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 <C haracter R emarks><C haracter_name="April">B ubbly: I&apos;m &gt; T am_and &lt;= E mily</C haracter>
 <C haracter_name="Tam O&apos;Shanter">B urns: &quot;W hen_chapman_billies_leave_the_street ...</C haracter>
 <C haracter_name="Emily">S hort &amp; shrift</C haracter>

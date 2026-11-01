@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Host introspection", ALGOL 68 solution host-introspection.alg.
   https://rosettacode.org/wiki/Host_introspection#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/host-introspection.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int max_abs_bit = ABS(BIN 1 SHL 1)-1;
 int bits_per_char = ENTIER (ln(max_abs_char+1)/ln(max_abs_bit+1));
 int bits_per_int = ENTIER (1+ln(max_int+1.0)/ln(max_abs_bit+1));

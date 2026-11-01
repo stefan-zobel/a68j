@@ -2,6 +2,23 @@
 which module packets a program needs and which extra options it has."""
 import os, re
 
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# The modules bundled with a68j-backend.jar that are written in plain
+# Algol 68 without Java (backend/lib/<name>.a68, a subset of
+# Intrinsics.BUNDLED_MODULES).  A program names them in { dg-modules } like
+# any other packet: for ga68 the source in backend/lib is compiled, while
+# a68j has them built in, so run_jvm.py does not compile them.
+BUNDLED = ("genietransput",)
+
+
+def module_source(path, m):
+    """The source of the module packet m of the program path: the bundled
+    source for a bundled module, otherwise m.a68 next to the program."""
+    if m in BUNDLED:
+        return os.path.join(ROOT, "backend", "lib", m + ".a68")
+    return os.path.join(os.path.dirname(path), m + ".a68")
+
 
 def modules_for(path):
     """The module packet names of the { dg-modules "a b" } mark, or []."""

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Rhonda numbers", ALGOL 68 solution rhonda-numbers.alg.
   https://rosettacode.org/wiki/Rhonda_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/rhonda-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some Rhonda numbers: numbers n in base b such that the product  }
       { of the digits of n is b * the sum of the prime factors of n          }
 

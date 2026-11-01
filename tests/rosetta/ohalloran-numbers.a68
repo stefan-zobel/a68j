@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "O'Halloran numbers", ALGOL 68 solution ohalloran-numbers.alg.
   https://rosettacode.org/wiki/O'Halloran_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/ohalloran-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find O'Halloran numbers - numbers that cannot be the surface area of  }
       {                           a cuboid with integer dimensions            }
     int count        := 0;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Mutual recursion", ALGOL 68 solution mutual-recursion.alg.
   https://rosettacode.org/wiki/Mutual_recursion#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/mutual-recursion.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc (int)int m; { ONLY required for ELLA ALGOL 68RS - an official subset OF full ALGOL 68 }
 
 proc f = (int n)int:

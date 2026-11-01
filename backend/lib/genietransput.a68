@@ -1,28 +1,60 @@
 { dg-options "-fstropping=supper" }
 
-{ rcprelude.a68 - the part of the Algol 68 Genie transput that the
-  Rosetta Code programs use most, written on top of the POSIX prelude
-  of ga68.
+{ genietransput.a68 - the module Genie_Transput of a68j: the part of the
+  Algol 68 Genie transput that programs use most (print, newline, put,
+  stand out ...), written on top of the POSIX prelude of ga68.
 
-  The Rosetta Code solutions are written for Algol 68 Genie, whose
-  standard prelude has the transput of the Revised Report (print,
-  newline, stand out, ...).  ga68 has only the simple POSIX string
-  transput, so the test driver runs every program inside an access
-  clause of this module:
+  ga68, and a68j with it, has no transput of the Revised Report: there is
+  no print, newline, put or format in the standard prelude, only the simple
+  string output of the POSIX prelude (puts, putchar, fputs ...).  This
+  module provides the familiar procedures for programs written for Algol 68
+  Genie:
 
-      access Rc_Prelude ( <program> )
+      access Genie_Transput (
+          print (("x = ", x, newline))
+      )
+
+  It is bundled with a68j-backend.jar (like Lists and Hashmaps), so a68j
+  needs nothing else.  It is written in plain Algol 68 without Java, so the
+  same source also compiles with ga68 as an ordinary module:
+
+      ga68 -c genietransput.a68
+      ga68 -I. prog.a68 genietransput.o
+
+  The name is not Transput because ga68 reserves the module name TRANSPUT
+  for libga68 (a68-lang.cc).
+
+  What it provides:
+
+      File, stand_in, stand_out, stand_error   the three standard channels
+                               (a File is a struct (int fd, int line), not
+                               the file of the Revised Report)
+      int_width, real_width, exp_width ...     the environment enquiries of
+                               the transput (RR 10.3.1.1)
+      newline, space, newpage, backspace       layout procedures
+      Outitem                  the modes print and put accept
+      put (f, items), print (items), write (items)
+      char_in_string, last_char_in_string, string_in_string
+                               string searching (RR 10.3.2.4, Algol 68 Genie)
+      is_upper, is_lower, is_alpha, is_digit, is_alnum, is_space,
+      is_xdigit, to_upper, to_lower
+                               character classes (Algol 68 Genie); they
+                               consider ASCII letters and digits only
 
   The layout of printed values follows Algol 68 Genie: integers are
-  right-aligned with a sign in a field of int width + 1 characters,
-  reals are printed in floating-point style, booleans as T and F.
-  Only output is provided; reading needs real input, which the tests
-  do not have.
+  right-aligned with a sign in a field of int width + 1 characters, reals
+  are printed in floating-point style, booleans and bits as T and F.
 
-  [,] char is not among the printable modes: a union with both string
-  and [,] char makes ga68 crash in a conformity clause (internal
-  compiler error in verify_gimple). }
+  Not provided: reading (read, get), opening files (open, establish),
+  formats ($...$, printf), and values of mode long long real (80-bit
+  long long real is out of scope for a68j).  [,] char is not among the printable modes: a union with both
+  string and [,] char makes ga68 crash in a conformity clause (internal
+  compiler error in verify_gimple).
 
-module Rc_Prelude =
+  The Rosetta Code tests (tests/rosetta) run every program inside an
+  access clause of this module. }
+
+module Genie_Transput =
 def
     { Files.  Only the three standard channels exist. }
 

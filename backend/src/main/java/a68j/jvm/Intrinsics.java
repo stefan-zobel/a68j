@@ -57,7 +57,7 @@ final class Intrinsics {
      * (backend/lib/*.a68, compiled by build.sh to classes a68j.lib.X and
      * export data /a68j/lib/x.m68, see Compile#bundledLibDir).
      */
-    static final java.util.Set<String> BUNDLED_MODULES = java.util.Set.of("LISTS", "HASHMAPS");
+    static final java.util.Set<String> BUNDLED_MODULES = java.util.Set.of("LISTS", "HASHMAPS", "GENIETRANSPUT");
 
     /** The class of the module with the given name. */
     static String moduleClass(String module) {

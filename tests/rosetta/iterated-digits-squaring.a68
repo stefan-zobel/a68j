@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Iterated digits squaring", ALGOL 68 solution iterated-digits-squaring.alg.
   https://rosettacode.org/wiki/Iterated_digits_squaring#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/iterated-digits-squaring.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { count how many numbers up to 100 000 000 have squared digit sums of 89                }
 
 { compute a table of the sum of the squared digits of the numbers 00 to 99              }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Decorate-sort-undecorate idiom", ALGOL 68 solution decorate-sort-undecorate-idiom.alg.
   https://rosettacode.org/wiki/Decorate-sort-undecorate_idiom#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/decorate-sort-undecorate-idiom.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Schwartzian transform - decorate a list of strings, sort them and    }
       { undecorate them                                                      }
 

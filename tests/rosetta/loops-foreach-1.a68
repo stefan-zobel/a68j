@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Loops/Foreach", ALGOL 68 solution loops-foreach-1.alg.
   https://rosettacode.org/wiki/Loops/Foreach#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/loops-foreach-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 []union(string, int, proc(ref file)void) collection = ("Mary","Had",1,"little","lamb.",new_line);
 
 for index from LWB collection to UPB collection do

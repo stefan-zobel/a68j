@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Eisenstein primes", ALGOL 68 solution eisenstein-primes.alg.
   https://rosettacode.org/wiki/Eisenstein_primes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/eisenstein-primes.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Eisenstein primes - translated from the FreeBASIC and Wren samples   }
 
     proc is_prime = ( int n )bool:

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Middle three digits", ALGOL 68 solution middle-three-digits.alg.
   https://rosettacode.org/wiki/Middle_three_digits#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/middle-three-digits.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { we define a UNION MODE so that our middle 3 digits PROC can }
     { return either an integer on success or a error message if   }

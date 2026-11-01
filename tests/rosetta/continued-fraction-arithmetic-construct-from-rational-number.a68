@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Continued fraction/Arithmetic/Construct from rational number", ALGOL 68 solution continued-fraction-arithmetic-construct-from-rational-number.alg.
   https://rosettacode.org/wiki/Continued_fraction/Arithmetic/Construct_from_rational_number#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/continued-fraction-arithmetic-construct-from-rational-number.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { construct continued fraction representations of rational numbers }
       { Translated from the C sample                                     }
       { Uses code from the Arithmetic/Rational task                      }

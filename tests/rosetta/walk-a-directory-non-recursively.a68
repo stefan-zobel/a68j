@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Walk a directory/Non-recursively", ALGOL 68 solution walk-a-directory-non-recursively.alg.
   https://rosettacode.org/wiki/Walk_a_directory/Non-recursively#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/walk-a-directory-non-recursively.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int match=0, no_match=1, out_of_memory_error=2, other_error=3;
 
 []string directory = get_directory(".");

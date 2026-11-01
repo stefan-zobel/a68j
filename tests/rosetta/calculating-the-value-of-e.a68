@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Calculating the value of e", ALGOL 68 solution calculating-the-value-of-e.alg.
   https://rosettacode.org/wiki/Calculating_the_value_of_e#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/calculating-the-value-of-e.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { calculate an approximation to e }
     long real epsilon = 1.0e-15;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Text processing/Max licenses in use", ALGOL 68 solution text-processing-max-licenses-in-use.alg.
   https://rosettacode.org/wiki/Text_processing/Max_licenses_in_use#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/text-processing-max-licenses-in-use.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc report = (ref file file_in)int: (
 
   mode Time = [19]char;

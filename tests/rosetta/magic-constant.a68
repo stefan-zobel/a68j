@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Magic constant", ALGOL 68 solution magic-constant.alg.
   https://rosettacode.org/wiki/Magic_constant#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/magic-constant.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some magic constants - the row, column and diagonal sums of a magin square }
       { translation of the Free Basic sample with the Julia/Wren inverse function }
     { returns the magic constant of a magic square of order n + 2 }

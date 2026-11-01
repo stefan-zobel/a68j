@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Tupper's self-referential formula", ALGOL 68 solution tuppers-self-referential-formula.alg.
   https://rosettacode.org/wiki/Tupper's_self-referential_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/tuppers-self-referential-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { plot Tupper's self-referential formula
             need to find x, y such that:
               1/2 < floor( mod( (y/17)*2^ - ( 17x - mod(y,17) ), 2 ) )

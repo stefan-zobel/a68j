@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Combinations with repetitions/Square digit chain", ALGOL 68 solution combinations-with-repetitions-square-digit-chain.alg.
   https://rosettacode.org/wiki/Combinations_with_repetitions/Square_digit_chain#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/combinations-with-repetitions-square-digit-chain.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Combinations with repetitions: Square digit chain }
       { translated from the Kotlin sample                 }
 

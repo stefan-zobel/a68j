@@ -11,7 +11,7 @@ The conversion follows the lexical rules of the ga68 scanner
   * reserved words are written in lower case: BEGIN -> begin, INT -> int;
   * mode indicants declared in the program and module indicants are
     capitalised: MODE NODE = ... -> mode Node = ...,
-    ACCESS RC_PRELUDE -> access Rc_Prelude;
+    ACCESS GENIE_TRANSPUT -> access Genie_Transput;
   * all other bold words (operators and priorities) stay in upper case:
     ABS, UPB, ELEM, PLUSAB, a user-defined OP DIVISORSUM;
   * a tag whose taggles are separated by blanks gets underscores instead,

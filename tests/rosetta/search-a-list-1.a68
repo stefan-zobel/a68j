@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Search a list", ALGOL 68 solution search-a-list-1.alg.
   https://rosettacode.org/wiki/Search_a_list#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/search-a-list-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
  FORMAT hay_stack := $c("Zig","Zag","Wally","Ronald","Bush","Krusty","Charlie","Bush","Bozo")$;
 
  file needle_exception; string ref_needle;

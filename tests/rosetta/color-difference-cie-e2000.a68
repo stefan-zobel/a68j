@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Color Difference CIE ?E2000", ALGOL 68 solution color-difference-cie-e2000.alg.
   https://rosettacode.org/wiki/Color_Difference_CIE_%CE%94E2000#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/color-difference-cie-e2000.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Color Difference CIE ΔE2000 }
 
 {  # the latest ALGOL 68 Genie has hypot and atan2, uncomment these procedures   #

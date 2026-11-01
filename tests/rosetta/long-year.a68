@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Long year", ALGOL 68 solution long-year.alg.
   https://rosettacode.org/wiki/Long_year#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/long-year.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find "long years" - years which have 53 weeks this is equivalent to }
       { finding years where 1st Jan or 31st Dec are Thursdays               }
     { returns the day of the week of the specified date (d/m/y), Sunday = 1 }

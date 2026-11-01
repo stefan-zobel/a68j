@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Thue-Morse", ALGOL 68 solution thue-morse.alg.
   https://rosettacode.org/wiki/Thue-Morse#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/thue-morse.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { "flips" the "bits" in a string (assumed to contain only "0" and "1" characters) }
 op  FLIP = ( string s )string:
     begin

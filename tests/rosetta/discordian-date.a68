@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Discordian date", ALGOL 68 solution discordian-date.alg.
   https://rosettacode.org/wiki/Discordian_date#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/discordian-date.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin {   DISCORDIAN DATE CALCULATION - TRANSLATION OF MAD VIA ALGOL W    }
     int      gmonth, gday, gyear;
     []string holys  = []string( "MUNG", "MOJO",  "SYA",   "ZARA", "MALA" )[ at 0 ];

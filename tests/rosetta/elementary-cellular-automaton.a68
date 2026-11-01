@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Elementary cellular automaton", ALGOL 68 solution elementary-cellular-automaton.alg.
   https://rosettacode.org/wiki/Elementary_cellular_automaton#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/elementary-cellular-automaton.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { elementary cellular automaton }
     { returns the next state from state using rule s must be at least 2 characters long
             and consist of # and - only

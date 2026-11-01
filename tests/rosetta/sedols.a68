@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "SEDOLs", ALGOL 68 solution sedols.alg.
   https://rosettacode.org/wiki/SEDOLs#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sedols.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 []int sedol_weights = (1, 3, 1, 7, 3, 9);
 string reject = "AEIOUaeiou";
 

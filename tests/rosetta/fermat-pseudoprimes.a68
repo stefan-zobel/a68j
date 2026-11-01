@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Fermat pseudoprimes", ALGOL 68 solution fermat-pseudoprimes.alg.
   https://rosettacode.org/wiki/Fermat_pseudoprimes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/fermat-pseudoprimes.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some Fermat pseudo primes: x is a Fermat pseudoprime in base a   }
       { if a^(x-1) - 1 is divisible by x and x is not prime                   }
 

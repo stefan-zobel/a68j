@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Twin primes", ALGOL 68 solution twin-primes.alg.
   https://rosettacode.org/wiki/Twin_primes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/twin-primes.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { count twin primes (where p and p - 2 are prime)                             }
       { set heap memory size for Algol 68G                          }

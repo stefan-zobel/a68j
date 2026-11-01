@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "General FizzBuzz", ALGOL 68 solution general-fizzbuzz.alg.
   https://rosettacode.org/wiki/General_FizzBuzz#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/general-fizzbuzz.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { generalised FizzBuzz                                        }
     { prompts for an integer, reads it and returns it               }
     proc read_an_integer = ( string prompt )int:

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Native shebang", ALGOL 68 solution native-shebang.alg.
   https://rosettacode.org/wiki/Native_shebang#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/native-shebang.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {!/usr/bin/a68g --script }
 { -*- coding: utf-8 -*- }
 

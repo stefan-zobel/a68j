@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Idiomatically determine all the lowercase and uppercase letters", ALGOL 68 solution idiomatically-determine-all-the-lowercase-and-uppercase-letters.alg.
   https://rosettacode.org/wiki/Idiomatically_determine_all_the_lowercase_and_uppercase_letters#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/idiomatically-determine-all-the-lowercase-and-uppercase-letters.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 string lc := "";
 string uc := "";
 for c from 0 to max_abs_char do

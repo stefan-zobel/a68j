@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers with prime digits whose sum is 13", ALGOL 68 solution numbers-with-prime-digits-whose-sum-is-13.alg.
   https://rosettacode.org/wiki/Numbers_with_prime_digits_whose_sum_is_13#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-with-prime-digits-whose-sum-is-13.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { find numbers whose digits are prime and whose digit sum is 13   }
     { as noted by the Wren sample, the digits can only be 2, 3, 5, 7  }

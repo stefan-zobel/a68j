@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Cantor set", ALGOL 68 solution cantor-set.alg.
   https://rosettacode.org/wiki/Cantor_set#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/cantor-set.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { draw a Cantor Set using ASCII                                            }
     int    lines     = 5; { number of lines for the set                        }

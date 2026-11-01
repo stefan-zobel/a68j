@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Calendar - for "REAL" programmers", ALGOL 68 solution calendar---for-real-programmers.alg.
   https://rosettacode.org/wiki/Calendar_-_for_%22REAL%22_programmers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/calendar---for-real-programmers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 ' '
 
 'proc' PRINT CALENDAR = ('int' YEAR, PAGE WIDTH)'void': 'begin'

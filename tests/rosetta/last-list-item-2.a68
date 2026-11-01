@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Last list item", ALGOL 68 solution last-list-item-2.alg.
   https://rosettacode.org/wiki/Last_list_item#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/last-list-item-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the last element after repeatedly adding the sum }
       { of the two smallest elements and removing them }
     [ 1 : 9 ]int a := ( 6, 81, 243, 14, 25, 49, 123, 69, 11 );

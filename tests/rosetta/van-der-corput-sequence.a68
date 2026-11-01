@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Van der Corput sequence", ALGOL 68 solution van-der-corput-sequence.alg.
   https://rosettacode.org/wiki/Van_der_Corput_sequence#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/van-der-corput-sequence.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show members of the van der Corput sequence in various bases         }
       { translated from the C sample                                         }
 

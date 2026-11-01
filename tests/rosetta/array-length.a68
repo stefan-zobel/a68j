@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Array length", ALGOL 68 solution array-length.alg.
   https://rosettacode.org/wiki/Array_length#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/array-length.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { UPB returns the upper bound of an array, LWB the lower bound }
 []string fruits = ( "apple", "orange" );
 print( ( ( UPB fruits - LWB fruits ) + 1, newline ) ) { prints 2 }

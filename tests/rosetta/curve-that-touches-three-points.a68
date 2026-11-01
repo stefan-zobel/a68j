@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Curve that touches three points", ALGOL 68 solution curve-that-touches-three-points.alg.
   https://rosettacode.org/wiki/Curve_that_touches_three_points#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/curve-that-touches-three-points.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { draw a curve that passes through 3 points - translated from the Ada  }
       { sample - finds the centre and radius of a circle through the points  }
 

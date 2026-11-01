@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Align columns", ALGOL 68 solution align-columns.alg.
   https://rosettacode.org/wiki/Align_columns#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/align-columns.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 string nl = REPR 10;
 string text_in_list := "Given$a$text$file$of$many$lines,$where$fields$within$a$line$"+nl+
   "are$delineated$by$a$single$''dollar''$character,$write$a$program"+nl+

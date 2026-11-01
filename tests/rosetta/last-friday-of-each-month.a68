@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Last Friday of each month", ALGOL 68 solution last-friday-of-each-month.alg.
   https://rosettacode.org/wiki/Last_Friday_of_each_month#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/last-friday-of-each-month.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the last Friday in each month of a year             }
     { returns true if year is a leap year, false otherwise       }
     { assumes year is in the Gregorian Calendar                  }

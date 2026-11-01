@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Matrix with two diagonals", ALGOL 68 solution matrix-with-two-diagonals.alg.
   https://rosettacode.org/wiki/Matrix_with_two_diagonals#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/matrix-with-two-diagonals.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { draw a matrix with 1s on the diagonals and 0s elsewhere         }
     { draws a matrix with height and width = n with 1s on the diagonals }
     proc draw_2_diagonals = ( int n )void:

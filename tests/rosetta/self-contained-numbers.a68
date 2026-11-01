@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Self-contained numbers", ALGOL 68 solution self-contained-numbers.alg.
   https://rosettacode.org/wiki/Self-contained_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/self-contained-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some self-contained numbers: odd numbers whose Collatz sequence }
       {      contains an even multiple of the number itself                  }
 

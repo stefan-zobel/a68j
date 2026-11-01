@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Ordered words", ALGOL 68 solution ordered-words-1.alg.
   https://rosettacode.org/wiki/Ordered_words#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/ordered-words-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc ordered = (string s)bool:
   begin
     for i to UPB s - 1 do if s[i] > s[i+1] then return_false fi od;

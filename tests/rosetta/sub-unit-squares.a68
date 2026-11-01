@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sub-unit squares", ALGOL 68 solution sub-unit-squares.alg.
   https://rosettacode.org/wiki/Sub-unit_squares#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sub-unit-squares.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some sub-unit squares: squares which are still squares when 1 }
       { is subtracted from each of their digits                            }
       { the sub-unit squares must end in 36 (see task discussion) and so   }

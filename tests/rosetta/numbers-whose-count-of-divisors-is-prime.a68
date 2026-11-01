@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers whose count of divisors is prime", ALGOL 68 solution numbers-whose-count-of-divisors-is-prime.alg.
   https://rosettacode.org/wiki/Numbers_whose_count_of_divisors_is_prime#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-whose-count-of-divisors-is-prime.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers with prime divisor counts                         }
     int max_number            := 1 000;
     to 2 do

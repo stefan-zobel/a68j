@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Determine if a string has all the same characters", ALGOL 68 solution determine-if-a-string-has-all-the-same-characters.alg.
   https://rosettacode.org/wiki/Determine_if_a_string_has_all_the_same_characters#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-has-all-the-same-characters.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { return the position of the first different character in s           }
     {     or UPB s + 1 if all the characters are the same                 }

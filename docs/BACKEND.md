@@ -373,7 +373,8 @@ A Java object is a name that refers to nothing: its class extends
 like `REF STRUCT (INT intlist java object)` differ only in the field name,
 so module keys (`Intrinsics.moduleKey`) include the field names of
 structures. The bundled Algol 68 modules (`Intrinsics.BUNDLED_MODULES`:
-`Lists`, `backend/lib/lists.a68`) are compiled by `build.sh` to
+`Lists`, `Hashmaps` and `Genie_Transput`, `backend/lib/*.a68`; the last one
+uses no Java, see `docs/genie-transput.md`) are compiled by `build.sh` to
 `a68j.lib.X` with their export data in the jar (`Compile.bundledLibDir`).
 
 Not supported (`Gen.Unsupported`, the compiler stops): partial
@@ -467,14 +468,15 @@ files in a temporary directory). `tests/extra/` holds additional programs for
 cases the testsuite does not cover (division by zero, rowed names, PAR,
 direct variables, unions across modules and stropping regimes, UTF-8
 strings, copying of united rows, MODAB, deep recursion, unboxed rows and
-names, initial values of generators); their native
+names, initial values of generators, the bundled module `Genie_Transput`); their native
 results are recorded the same way (`--native /home/me/native-extra`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for
 ga68 by `tools/rosetta_prep.py` and converted to SUPPER stropping by
-`tools/a68supper.py`: each runs inside `access Rc_Prelude (...)`,
-a module that provides the Algol 68 Genie transput (`print`, `newline`, ...)
-on top of ga68's POSIX prelude. The runners take `--default-opts` (options
+`tools/a68supper.py`: each runs inside `access Genie_Transput (...)`,
+the bundled module that provides the Algol 68 Genie transput (`print`,
+`newline`, ...) on top of ga68's POSIX prelude (for ga68 the runners compile
+it from `backend/lib`, `tools/modtest.py`). The runners take `--default-opts` (options
 for files without `dg-options`, e.g. `-fstropping=upper` for UPPER
 programs); `run_jvm.py` also `--jit tiered` (full JIT instead of C1 only)
 and `--aot auto|none|FILE` (the AOT cache, see below), and

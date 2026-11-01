@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Longest palindromic substrings", ALGOL 68 solution longest-palindromic-substrings.alg.
   https://rosettacode.org/wiki/Longest_palindromic_substrings#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/longest-palindromic-substrings.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the longest palindromic substring of a string }
     { returns the length of s }
     op   LENGTH = ( string s )int: ( UPB s + 1 ) - LWB s;

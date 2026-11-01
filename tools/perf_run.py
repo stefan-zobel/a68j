@@ -7,7 +7,10 @@ import json,os,subprocess,sys,time,glob
 J=sys.argv[1]; O=sys.argv[2]; res={}
 env=dict(os.environ); env.pop('JAVA_TOOL_OPTIONS',None); env['LC_ALL']='C'
 R=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests', 'rosetta')
-RCMOD=os.environ.get('RCMOD', '/tmp/rcmod')
+# RCMOD: a directory with the module Rcprelude, only for programs compiled
+# before the Rosetta tests used the bundled module Genie_Transput.
+RCMOD=os.environ.get('RCMOD', '')
+CP=J + (':' + RCMOD if RCMOD else '')
 import glob
 LIST=sys.argv[4] if len(sys.argv) > 4 else None
 files=open(LIST).read().split() if LIST else sorted(glob.glob(os.path.join(R, '*.a68')))
@@ -18,7 +21,7 @@ for f in files:
     if not cls: continue
     t0=time.monotonic()
     try:
-        p=subprocess.run(['java','-XX:+UseSerialGC','-cp',f'{J}:{RCMOD}:{d}',cls[0]],capture_output=True,stdin=subprocess.DEVNULL,cwd=R,env=env,timeout=60)
+        p=subprocess.run(['java','-XX:+UseSerialGC','-cp',f'{CP}:{d}',cls[0]],capture_output=True,stdin=subprocess.DEVNULL,cwd=R,env=env,timeout=60)
         rc=p.returncode
     except subprocess.TimeoutExpired: rc='timeout'
     res[n]=(round(time.monotonic()-t0,3),rc)

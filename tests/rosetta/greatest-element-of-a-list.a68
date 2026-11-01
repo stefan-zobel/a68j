@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Greatest element of a list", ALGOL 68 solution greatest-element-of-a-list.alg.
   https://rosettacode.org/wiki/Greatest_element_of_a_list#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/greatest-element-of-a-list.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
 mode Flt = real; { substitute any array type with ">" defined }
 

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Wavelet Matrix", ALGOL 68 solution wavelet-matrix-1.alg.
   https://rosettacode.org/wiki/Wavelet_Matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/wavelet-matrix-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { wavelet_matrix.incl.a68: Translated from the FreeBASIC sample              }
 
     { BitRank class for rank operations                                      }

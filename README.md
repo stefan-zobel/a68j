@@ -52,7 +52,7 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 471 of 472 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 26 of 26 |
+| a68j's own differential tests (`tests/extra`) | 27 of 27 |
 | Rosetta Code programs that ga68 runs | 534 identical, 2 equal up to floating-point rounding, 7 open, of 543 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 44 of 44, JDK 25 and JDK 28 |
@@ -60,7 +60,10 @@ Hello, world!
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
-prelude (`puts`, `putchar`, `fputs` ...). 80-bit
+prelude (`puts`, `putchar`, `fputs` ...). The bundled module
+`Genie_Transput` provides `print`, `newline`, `put` and `stand_out` in the
+style of Algol 68 Genie on top of it, for a68j and ga68 alike
+([docs/genie-transput.md](docs/genie-transput.md)). 80-bit
 `long long real` is out of scope.
 
 ## Requirements
@@ -252,6 +255,7 @@ The detailed documentation is in `docs/`:
 - `docs/libraries-and-startup.md`: module libraries as jars.
 - `docs/optimizations.md`: optimizations.
 - `docs/java-modules.md`: Java interop and the bundled modules.
+- `docs/genie-transput.md`: the bundled module `Genie_Transput` (`print`, `newline`, ...).
 - `docs/par-and-sema.md`: parallel clauses.
 - `docs/editor.md`: grammar and HTML renderer.
 

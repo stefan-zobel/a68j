@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sort using a custom comparator", ALGOL 68 solution sort-using-a-custom-comparator.alg.
   https://rosettacode.org/wiki/Sort_using_a_custom_comparator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sort-using-a-custom-comparator.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { define the MODE that will be sorted }
 mode Sitem = string;
 {--- Swap function ---}

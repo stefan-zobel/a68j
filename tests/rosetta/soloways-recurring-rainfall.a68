@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Soloway's recurring rainfall", ALGOL 68 solution soloways-recurring-rainfall.alg.
   https://rosettacode.org/wiki/Soloway's_recurring_rainfall#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/soloways-recurring-rainfall.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { read a sequence of integers, terminated by 99999 and output their average }
     int end_value       = 99999;
     int sum            := 0;

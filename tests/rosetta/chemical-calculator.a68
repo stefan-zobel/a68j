@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Chemical calculator", ALGOL 68 solution chemical-calculator.alg.
   https://rosettacode.org/wiki/Chemical_calculator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/chemical-calculator.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { chemical calculator - calculate the molar mass of compounds                           }
     { MODE to hold element symbols and masses                                                 }
     mode Atom = struct( string symbol, real mass, ref Atom next );

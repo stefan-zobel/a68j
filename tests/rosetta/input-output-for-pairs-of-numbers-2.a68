@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Input/Output for pairs of numbers", ALGOL 68 solution input-output-for-pairs-of-numbers-2.alg.
   https://rosettacode.org/wiki/Input/Output_for_pairs_of_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/input-output-for-pairs-of-numbers-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { read a number from stand in then read and add that many pairs of numbers from stand in      }
 { and write the sum to stand out. If non integer data is supplied, a runtime error will occur }
 { This version does not allow the pairs of numbers to be spread over several lines            }

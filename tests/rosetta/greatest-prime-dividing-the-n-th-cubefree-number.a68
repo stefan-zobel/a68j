@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Greatest prime dividing the n-th cubefree number", ALGOL 68 solution greatest-prime-dividing-the-n-th-cubefree-number.alg.
   https://rosettacode.org/wiki/Greatest_prime_dividing_the_n-th_cubefree_number#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/greatest-prime-dividing-the-n-th-cubefree-number.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the largest prime factor of some cubefree numbers - translation of EasyLang }
    proc maxprimcubefree = ( int numin )int: begin
       int num := numin, t := 2, count := 0;

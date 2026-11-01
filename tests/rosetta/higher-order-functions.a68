@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Higher-order functions", ALGOL 68 solution higher-order-functions.alg.
   https://rosettacode.org/wiki/Higher-order_functions#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/higher-order-functions.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc first = (proc(long real)long real f) long real:
 (
   f(1) + 2

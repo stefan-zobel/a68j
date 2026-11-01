@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "File input/output", ALGOL 68 solution file-input-output.alg.
   https://rosettacode.org/wiki/File_input/output#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/file-input-output.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc copy_file_v1 = (string in_name, out_name)void: (
   { note: algol68toc-1.18 - can compile, but not run v1 }
   int errno;

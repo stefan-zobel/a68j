@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Rosetta Code/Rank languages by popularity", ALGOL 68 solution rosetta-code-rank-languages-by-popularity-2.alg.
   https://rosettacode.org/wiki/Rosetta_Code/Rank_languages_by_popularity#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/rosetta-code-rank-languages-by-popularity-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 char line_feed = REPR 10, carriage_return = REPR 13;
 string crlf = carriage_return + line_feed;
 string domain = "rosettacode.org",

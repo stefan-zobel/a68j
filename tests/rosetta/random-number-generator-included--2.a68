@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Random number generator (included)", ALGOL 68 solution random-number-generator-included--2.alg.
   https://rosettacode.org/wiki/Random_number_generator_(included)#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/random-number-generator-included--2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc long_next_random = (ref long int a)long real: { some suitable next random number };
 int long_last_random := { some initial random number };
 proc long_random = long real: long_next_random(long_last_random);

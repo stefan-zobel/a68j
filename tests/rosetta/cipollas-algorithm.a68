@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Cipolla's algorithm", ALGOL 68 solution cipollas-algorithm.alg.
   https://rosettacode.org/wiki/Cipolla's_algorithm#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/cipollas-algorithm.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Cipolla's algorithm - translation of the EasyLang sample }
     mode Integer = long int;
     op   SQRT    = ( Integer x )long real: long_sqrt( x );

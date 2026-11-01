@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Magic numbers", ALGOL 68 solution magic-numbers.alg.
   https://rosettacode.org/wiki/Magic_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/magic-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { count magic numbers: numbers divisible by the count of digits and    }
       { each left substring is also divisible by the count of its digits     }
     { returns the magic numbers of length m length that can be formed by      }

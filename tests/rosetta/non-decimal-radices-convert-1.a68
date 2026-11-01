@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Non-decimal radices/Convert", ALGOL 68 solution non-decimal-radices-convert-1.alg.
   https://rosettacode.org/wiki/Non-decimal_radices/Convert#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/non-decimal-radices-convert-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int base = 16, from_dec = 26;
 bits to_bits;
 

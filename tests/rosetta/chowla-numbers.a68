@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Chowla numbers", ALGOL 68 solution chowla-numbers.alg.
   https://rosettacode.org/wiki/Chowla_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/chowla-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some Chowla numbers ( Chowla n = sum of divisors of n exclusing n and 1 ) }
 
     { returns the divisor sums of [1 n], the sums exclude 1 and n }

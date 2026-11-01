@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Aliquot sequence classifications", ALGOL 68 solution aliquot-sequence-classifications.alg.
   https://rosettacode.org/wiki/Aliquot_sequence_classifications#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/aliquot-sequence-classifications.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { aliquot sequence classification                                         }
     { maximum sequence length we consider                                     }

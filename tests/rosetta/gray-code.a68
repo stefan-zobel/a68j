@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Gray code", ALGOL 68 solution gray-code.alg.
   https://rosettacode.org/wiki/Gray_code#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/gray-code.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
    op GRAY = (bits b) bits : b XOR (b SHR 1);	{ Convert to Gray code }
    op YARG = (bits g) bits :			{ Convert from Gray code }

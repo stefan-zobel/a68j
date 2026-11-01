@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Fast Fourier transform", ALGOL 68 solution fast-fourier-transform-1.alg.
   https://rosettacode.org/wiki/Fast_Fourier_transform#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/fast-fourier-transform-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 prio DICE = 9; { ideally = 11 }
 
 op DICE = ([]SCALAR in_, int step)[]SCALAR: (

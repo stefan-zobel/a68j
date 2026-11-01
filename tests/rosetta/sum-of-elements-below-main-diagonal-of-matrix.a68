@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sum of elements below main diagonal of matrix", ALGOL 68 solution sum-of-elements-below-main-diagonal-of-matrix.alg.
   https://rosettacode.org/wiki/Sum_of_elements_below_main_diagonal_of_matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-elements-below-main-diagonal-of-matrix.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { sum the elements below the main diagonal of a matrix  }
     { returns the sum of the elements below the main diagonal }
     { of m, m must be a square matrix                         }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Best shuffle", ALGOL 68 solution best-shuffle.alg.
   https://rosettacode.org/wiki/Best_shuffle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/best-shuffle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { shuffle a string so as many as possible characters are moved }
     proc best_shuffle = ( string orig )string:
     begin

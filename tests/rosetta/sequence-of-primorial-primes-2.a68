@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sequence of primorial primes", ALGOL 68 solution sequence-of-primorial-primes-2.alg.
   https://rosettacode.org/wiki/Sequence_of_primorial_primes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sequence-of-primorial-primes-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some primorial primes - primes that are p - 1 or p + 1      }
       {      for some primorial p                                        }
 

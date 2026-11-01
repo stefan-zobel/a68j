@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sum of squares", ALGOL 68 solution sum-of-squares-2.alg.
   https://rosettacode.org/wiki/Sum_of_squares#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-squares-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 []real data = (3, 1, 4, 1, 5, 9);
 
 proc map = ( proc(real)real func, []real argv)real:

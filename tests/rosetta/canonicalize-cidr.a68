@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Canonicalize CIDR", ALGOL 68 solution canonicalize-cidr.alg.
   https://rosettacode.org/wiki/Canonicalize_CIDR#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/canonicalize-cidr.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show IPv4 addresses in CIDR notation in canonical form }
     { mode to hold an IPv4 address in CIDR notation }
     mode Cidr = struct( long bits address

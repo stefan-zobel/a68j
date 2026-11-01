@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Doubly-linked list/Element insertion", ALGOL 68 solution doubly-linked-list-element-insertion.alg.
   https://rosettacode.org/wiki/Doubly-linked_list/Element_insertion#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/doubly-linked-list-element-insertion.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {!/usr/local/bin/a68g --script }
 
 { SEMA do link OF splice = LEVEL 1 }

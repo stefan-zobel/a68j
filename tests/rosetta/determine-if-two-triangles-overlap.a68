@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Determine if two triangles overlap", ALGOL 68 solution determine-if-two-triangles-overlap.alg.
   https://rosettacode.org/wiki/Determine_if_two_triangles_overlap#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-two-triangles-overlap.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { test for overlapping 2D triangles - using the code from the Algol 68 }
       { sample for the Check if two polygons overlap task, the code of which }
       { is based on a translation of that tasks' Go which is a translation   }

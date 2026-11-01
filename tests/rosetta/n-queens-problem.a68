@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "N-queens problem", ALGOL 68 solution n-queens-problem.alg.
   https://rosettacode.org/wiki/N-queens_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/n-queens-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { N-queens problem }
 int ofs = 1, { Algol68 normally uses array offset of 1 }
     dim = 8; { dim X dim chess board }

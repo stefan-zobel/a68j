@@ -29,15 +29,15 @@ If the target of `-d` ends in `.jar`, the compiler writes there instead of
 into a directory:
 
 ```sh
-java -jar backend/a68j-backend.jar tests/rosetta/rcprelude.a68 -d lib/librcprelude.jar
+java -jar backend/a68j-backend.jar tests/extra/modunions.a68 -d lib/libmodunions.jar
 ```
 
 The jar then contains:
 
 ```
 META-INF/MANIFEST.MF
-Rcprelude.class                  the compiled module code
-a68j/exports/rcprelude.m68       the interface, byte for byte like ga68's .a68_exports
+Modunions.class                  the compiled module code
+a68j/exports/modunions.m68       the interface, byte for byte like ga68's .a68_exports
 ```
 
 If the jar already exists, it is extended (entries with the same name are
@@ -55,17 +55,17 @@ end searches every directory given with `-I` and `-L` in this order:
    `.a68_exports`)
 
 `X` is the file name that ga68 derives from the module name
-(`Rc_Prelude` → `rcprelude`), or the name from `-fmodules-map`. If a jar
+(`Mod_Unions` → `modunions`), or the name from `-fmodules-map`. If a jar
 that was found contains no interface, that is an error and the search
 stops there, exactly as for an object file without export data.
 
 ```sh
 # compile and run right away
-java -jar backend/a68j-backend.jar -I lib -run tests/rosetta/100-prisoners.a68
+java -jar backend/a68j-backend.jar -I lib -run tests/extra/modules-union-1.a68
 
 # compile and run separately
-java -jar backend/a68j-backend.jar -I lib tests/rosetta/factorions.a68 -d out
-java -cp backend/a68j-backend.jar:lib/librcprelude.jar:out Factorions
+java -jar backend/a68j-backend.jar -I lib tests/extra/modules-union-1.a68 -d out
+java -cp backend/a68j-backend.jar:lib/libmodunions.jar:out ModulesUnion1
 ```
 
 With `-run`, a68j puts the jars on the class path itself. These are the

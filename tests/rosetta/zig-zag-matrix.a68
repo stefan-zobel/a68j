@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Zig-zag matrix", ALGOL 68 solution zig-zag-matrix.alg.
   https://rosettacode.org/wiki/Zig-zag_matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/zig-zag-matrix.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc zig_zag = (int n)[,]int: (
     proc move = (ref int i, j)void: (
         if j < n then

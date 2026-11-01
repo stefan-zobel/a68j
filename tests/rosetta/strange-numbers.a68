@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Strange numbers", ALGOL 68 solution strange-numbers.alg.
   https://rosettacode.org/wiki/Strange_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/strange-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show some strange numbers - numbers whose digits differ by a prime }
     { returns TRUE if n is strange, FALSE otherwise                        }
     proc is_strange = ( int n )bool:

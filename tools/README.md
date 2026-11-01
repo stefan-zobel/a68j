@@ -26,7 +26,7 @@ and first runtime error line on the JVM as the native ga68 executable.
 |---|---|
 | `run_native.py` | compiles and runs programs with ga68 and records the results, one `DIR/<name>.json` per program |
 | `run_jvm.py` | compiles and runs the same programs with `backend/a68j-backend.jar` and compares them with the results of `run_native.py` (`--native DIR` is required) |
-| `modtest.py` | helper module of both runners: module packets (`dg-modules`) and module map options of the multi-packet tests |
+| `modtest.py` | helper module of both runners: module packets (`dg-modules`, including the bundled module `genietransput` from `backend/lib`) and module map options of the multi-packet tests |
 | `compare.py` | compares the token stream, the syntax tree or the tree after semantic analysis of the front end with ga68, for every `.a68` file below a directory |
 | `ga68-token-dump.patch` | patch for ga68 that writes the dumps `compare.py` compares (enabled by environment variables); the a68j side is `a68j.tools.TokenDump` and `a68j.tools.SyntaxDump` |
 | `mutate.py` | writes mutated copies of programs (random byte insertions, deletions, case flips, truncations) to test the error paths of the scanner against ga68 |

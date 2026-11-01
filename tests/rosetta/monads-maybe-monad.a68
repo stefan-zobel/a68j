@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Monads/Maybe monad", ALGOL 68 solution monads-maybe-monad.alg.
   https://rosettacode.org/wiki/Monads/Maybe_monad#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/monads-maybe-monad.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
 
     { This is a translation of the Javascript sample, main differences are because Algol 68    }

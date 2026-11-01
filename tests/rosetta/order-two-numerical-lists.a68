@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Order two numerical lists", ALGOL 68 solution order-two-numerical-lists.alg.
   https://rosettacode.org/wiki/Order_two_numerical_lists#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/order-two-numerical-lists.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { compare lists (rows) of integers }
     { returns TRUE if there is an element in a that is < the corresponding }
     { element in b and all previous elements are equal; FALSE otherwise    }

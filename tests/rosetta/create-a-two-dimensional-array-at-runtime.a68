@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Create a two-dimensional array at runtime", ALGOL 68 solution create-a-two-dimensional-array-at-runtime.alg.
   https://rosettacode.org/wiki/Create_a_two-dimensional_array_at_runtime#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/create-a-two-dimensional-array-at-runtime.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 main:(
   print("Input two positive whole numbers separated by space and press newline:");
   [read_int,read_int] int array;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sailors, coconuts and a monkey problem", ALGOL 68 solution sailors-coconuts-and-a-monkey-problem.alg.
   https://rosettacode.org/wiki/Sailors,_coconuts_and_a_monkey_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sailors-coconuts-and-a-monkey-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Sailors, coconuts a and a monkey problem - translation of Kotlin     }
 
     int coconuts := 11;

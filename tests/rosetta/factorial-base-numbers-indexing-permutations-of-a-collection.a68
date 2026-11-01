@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Factorial base numbers indexing permutations of a collection", ALGOL 68 solution factorial-base-numbers-indexing-permutations-of-a-collection.alg.
   https://rosettacode.org/wiki/Factorial_base_numbers_indexing_permutations_of_a_collection#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/factorial-base-numbers-indexing-permutations-of-a-collection.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { factorial base numbers indexing permutations of a collection }
       { - translated from the Phix/FreeBASIC samples }
 

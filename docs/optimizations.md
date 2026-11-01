@@ -277,13 +277,12 @@ entirely an error of measurement, for two reasons:
 Correct is:
 
 ```sh
-# 1. compile the module Rcprelude once
-java -jar backend/a68j-backend.jar tests/rosetta/rcprelude.a68 -d /tmp/rcmod
-# 2. compile all programs (this may run in parallel)
+# 1. compile all programs (this may run in parallel; the module
+#    Genie_Transput they use comes with the jar)
 ls tests/rosetta/*.a68 | JAR=backend/a68j-backend.jar OUT=/tmp/perf xargs -P 8 -n 1 sh tools/perf_compile.sh
-# 3. run them one after the other and save the times
+# 2. run them one after the other and save the times
 python3 tools/perf_run.py backend/a68j-backend.jar /tmp/perf /tmp/perf.json
-# 4. compare two versions alternately (5 runs each, the minimum counts;
+# 3. compare two versions alternately (5 runs each, the minimum counts;
 #    STAT=median for the median, see section 7)
 A_JAR=old.jar A_DIR=/tmp/perf-old B_JAR=new.jar B_DIR=/tmp/perf python3 tools/perf_ab.py name1 name2 ...
 ```

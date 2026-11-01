@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "URL decoding", ALGOL 68 solution url-decoding.alg.
   https://rosettacode.org/wiki/URL_decoding#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/url-decoding.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { returns c decoded as a hex digit }
 proc hex_value = ( char c )int: if   c >= "0" AND c <= "9" then        ABS c - ABS "0"
                                 elif c >= "A" AND c <= "F" then 10 + ( ABS c - ABS "A" )

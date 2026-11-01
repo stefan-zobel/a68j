@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Rodrigues? rotation formula", ALGOL 68 solution rodrigues-rotation-formula.alg.
   https://rosettacode.org/wiki/Rodrigues%E2%80%99_rotation_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/rodrigues-rotation-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Rodrigues' Rotation Formula }
     mode Vector = [ 3 ]real;
     mode Matrix = [ 3 ]Vector;

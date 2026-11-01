@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Kempner numbers", ALGOL 68 solution kempner-numbers.alg.
   https://rosettacode.org/wiki/Kempner_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/kempner-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Kempner numbers - translation of XPL0 }
 
     [ 1 : 20 ]long int fa;                  { will hold the factors found by PROC prime factors }

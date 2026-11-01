@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Prime numbers of measurement", ALGOL 68 solution prime-numbers-of-measurement.alg.
   https://rosettacode.org/wiki/Prime_numbers_of_measurement#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/prime-numbers-of-measurement.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Prime numbers of measurement - translated from the EasyLang sample }
     [ 1 : 1000 ]int prmeas;
     prmeas[ 1 ] := 1;

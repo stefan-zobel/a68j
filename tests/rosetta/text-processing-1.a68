@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Text processing/1", ALGOL 68 solution text-processing-1.alg.
   https://rosettacode.org/wiki/Text_processing/1#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/text-processing-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int no_data := 0;               { Current run of consecutive flags<0 in lines of file }
 int no_data_max := -1;          { Max consecutive flags<0 in lines of file }
 flex[0]string no_data_max_line; { ... and line number(s) where it occurs }

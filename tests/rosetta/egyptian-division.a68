@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Egyptian division", ALGOL 68 solution egyptian-division.alg.
   https://rosettacode.org/wiki/Egyptian_division#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/egyptian-division.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { performs Egyptian division of dividend by divisor, setting quotient and remainder }
     { this uses 32 bit numbers, so a table of 32 powers of 2 should be sufficient       }

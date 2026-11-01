@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Proper divisors", ALGOL 68 solution proper-divisors-2.alg.
   https://rosettacode.org/wiki/Proper_divisors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/proper-divisors-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { count proper divisors using a sieve-like approach              }
     { find the first/only number in 1 : 20 000 and 1 : 64 000 000 with }
     { the most divisors                                                }

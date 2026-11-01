@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Compare a list of strings", ALGOL 68 solution compare-a-list-of-strings.alg.
   https://rosettacode.org/wiki/Compare_a_list_of_strings#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/compare-a-list-of-strings.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 []string list1 = ("AA","BB","CC");
 []string list2 = ("AA","AA","AA");
 []string list3 = ("AA","CC","BB");

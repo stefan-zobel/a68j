@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Shift list elements to left by 3", ALGOL 68 solution shift-list-elements-to-left-by-3.alg.
   https://rosettacode.org/wiki/Shift_list_elements_to_left_by_3#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/shift-list-elements-to-left-by-3.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { shifts in place the elements of a left by n                          }
     prio <<:= = 1;

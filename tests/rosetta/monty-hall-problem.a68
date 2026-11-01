@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Monty Hall problem", ALGOL 68 solution monty-hall-problem.alg.
   https://rosettacode.org/wiki/Monty_Hall_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/monty-hall-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 int trials=100 000;
 
 proc brand = (int n)int: 1 + ENTIER (n * random);

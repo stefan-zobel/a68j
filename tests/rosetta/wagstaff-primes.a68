@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Wagstaff primes", ALGOL 68 solution wagstaff-primes.alg.
   https://rosettacode.org/wiki/Wagstaff_primes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/wagstaff-primes.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some Wagstaff primes: primes of the form ( 2^p + 1 ) / 3 }
       {                            where p is an odd prime            }
     int max_wagstaff = 10; { number of Wagstaff primes to find        }

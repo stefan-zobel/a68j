@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Hashtron inference", ALGOL 68 solution hashtron-inference.alg.
   https://rosettacode.org/wiki/Hashtron_inference#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/hashtron-inference.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Hashtron Inference - translated from the Go sample }
 
     { operators, modes, etc., to allow bit manipulation on unsigned INT values }

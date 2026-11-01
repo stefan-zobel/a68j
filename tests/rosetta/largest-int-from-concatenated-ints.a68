@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Largest int from concatenated ints", ALGOL 68 solution largest-int-from-concatenated-ints.alg.
   https://rosettacode.org/wiki/Largest_int_from_concatenated_ints#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/largest-int-from-concatenated-ints.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     op TOINT = ( string s)int:
     begin

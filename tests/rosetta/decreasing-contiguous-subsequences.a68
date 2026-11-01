@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Decreasing contiguous subsequences", ALGOL 68 solution decreasing-contiguous-subsequences.alg.
   https://rosettacode.org/wiki/Decreasing_contiguous_subsequences#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/decreasing-contiguous-subsequences.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find non-ascending subsequences in a list of integer values and      }
       { count those with the percentage change in various ranges             }
 

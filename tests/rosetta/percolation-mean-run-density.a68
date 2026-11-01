@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Percolation/Mean run density", ALGOL 68 solution percolation-mean-run-density.alg.
   https://rosettacode.org/wiki/Percolation/Mean_run_density#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/percolation-mean-run-density.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
 
     { just generate 0s and 1s without storing them }

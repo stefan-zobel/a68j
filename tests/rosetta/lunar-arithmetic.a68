@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Lunar arithmetic", ALGOL 68 solution lunar-arithmetic.alg.
   https://rosettacode.org/wiki/Lunar_arithmetic#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/lunar-arithmetic.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Lunar arithmetic                                                     }
 
     int max_lunar_digits = ENTIER log( max_int ); { maximum number of digits }

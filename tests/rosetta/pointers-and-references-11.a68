@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pointers and references", ALGOL 68 solution pointers-and-references-11.alg.
   https://rosettacode.org/wiki/Pointers_and_references#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pointers-and-references-11.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 [30]char hay_stack := "straw straw needle straw straw";
 ref[]char needle = hay_stack[13:18];
 needle[2:3] := "oo";

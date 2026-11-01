@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Seven-sided dice from five-sided dice", ALGOL 68 solution seven-sided-dice-from-five-sided-dice.alg.
   https://rosettacode.org/wiki/Seven-sided_dice_from_five-sided_dice#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/seven-sided-dice-from-five-sided-dice.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc dice5 = int:
   1 + ENTIER (5*random);
 

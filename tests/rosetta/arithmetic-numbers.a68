@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Arithmetic numbers", ALGOL 68 solution arithmetic-numbers.alg.
   https://rosettacode.org/wiki/Arithmetic_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find arithmetic numbers - numbers whose average divisor is an integer }
       { i.e. sum of divisors MOD count of divisors = 0                        }
     int max_number            = 500 000;    { maximum number we will consider }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Formatted numeric output", ALGOL 68 solution formatted-numeric-output-2.alg.
   https://rosettacode.org/wiki/Formatted_numeric_output#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/formatted-numeric-output-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 (
   op UNSUPPRESS = ( string v )string: { replace leading spaces with zeros }
      if   LWB v > UPB v

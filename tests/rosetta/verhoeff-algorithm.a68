@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Verhoeff algorithm", ALGOL 68 solution verhoeff-algorithm.alg.
   https://rosettacode.org/wiki/Verhoeff_algorithm#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/verhoeff-algorithm.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { The Verhoeff algorithm - translated from the Wren sample via FreeBASIC }
 
     [,]int d   = ( ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 )

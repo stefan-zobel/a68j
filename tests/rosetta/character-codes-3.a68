@@ -1,10 +1,10 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Character codes", ALGOL 68 solution character-codes-3.alg.
   https://rosettacode.org/wiki/Character_codes#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/character-codes-3.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
  make_conv(tape, stand_conv(stand_out_channel))
 )

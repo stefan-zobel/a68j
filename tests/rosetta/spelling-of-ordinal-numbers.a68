@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Spelling of ordinal numbers", ALGOL 68 solution spelling-of-ordinal-numbers.alg.
   https://rosettacode.org/wiki/Spelling_of_ordinal_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/spelling-of-ordinal-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { construct number names from a number                                  }
     []string units
            = ( "one", "two",  "three", "four", "five", "six", "seven", "eight", "nine" );

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Lucas-Lehmer test", ALGOL 68 solution lucas-lehmer-test.alg.
   https://rosettacode.org/wiki/Lucas-Lehmer_test#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/lucas-lehmer-test.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
  
 
 proc is_prime = ( int p )bool:

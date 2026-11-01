@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Centre and radius of a circle passing through 3 points in a plane", ALGOL 68 solution centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane.alg.
   https://rosettacode.org/wiki/Centre_and_radius_of_a_circle_passing_through_3_points_in_a_plane#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the centre and radius of a circle through 3 points                                     }
       { follows the lines of the C++ code at                                                        }
       { https://www.geeksforgeeks.org/equation-of-circle-when-three-points-on-the-circle-are-given/ }

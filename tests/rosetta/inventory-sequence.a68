@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Inventory sequence", ALGOL 68 solution inventory-sequence.alg.
   https://rosettacode.org/wiki/Inventory_sequence#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/inventory-sequence.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find elements of the inventory sequence                                }
 
     int next_to_show :=  1 000;           { next value to show first element > }

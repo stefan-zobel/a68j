@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Thiele's interpolation formula", ALGOL 68 solution thieles-interpolation-formula.alg.
   https://rosettacode.org/wiki/Thiele's_interpolation_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/thieles-interpolation-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc raise_exception = ([]string msg)void: ( putf(stand_error,("Exception:", $" "g$, msg, $l$)); stop );
 
 { The MODE of lx and ly here should really be a UNION of "something REAL",

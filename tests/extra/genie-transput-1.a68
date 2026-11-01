@@ -1,0 +1,49 @@
+{ dg-modules "genietransput" }
+{ The bundled module Genie_Transput (backend/lib/genietransput.a68): every
+  mode that print accepts, the layout procedures, put on stand_error, the
+  environment enquiries, string searching and the character classes.
+  ga68 compiles the module from backend/lib (tools/modtest.py), a68j has
+  it built into the jar. }
+access Genie_Transput (
+    print (("int:", 42, -7, 0, newline));
+    print (("long int:", long 1234567890123, newline));
+    print (("long long int:", long long 5, newline));
+    print (("real:", 3.25, -0.5, 1e10, newline));
+    print (("long real:", long 2.5, newline));
+    print (("bool:", true, false, " char:", "x", " string:", "abc", newline));
+    print (("bits:", 16r5, newline));
+    print (("long bits:", long 16r3, newline));
+    print (("[] int:", []int (1, 2, 3), newline));
+    print (("[] long int:", []long int (long 7, long 8), newline));
+    print (("[] real:", []real (1.5, 2.5), newline));
+    print (("[] long real:", []long real (long 0.25), newline));
+    print (("[] bool:", []bool (true, false, true), newline));
+    print (("[] string:", []string ("ab", "cd"), newline));
+    print (("[] bits:", []bits (16r1, 16r2), newline));
+    [2, 2] int m := ((1, 2), (3, 4));
+    print (("[,] int:", m, newline));
+    print (("[,] real:", [,]real ((0.5, 1.5), (2.5, 3.5)), newline));
+    print (("[,] bool:", [,]bool ((true, false), (false, true)), newline));
+    print (("space", space, "|", newline));
+    write (("write", newline));
+    put (stand_out, ("put", newline));
+    put (stand_error, ("to stand_error", newline));
+    print (("lines so far:", line of stand_out, newline));
+    print (("widths:", int_width, long_int_width, long_long_int_width,
+            real_width, long_real_width, exp_width, newline));
+
+    int pos := 0;
+    print ((char_in_string ("l", pos, "hello"), pos, newline));
+    print ((last_char_in_string ("l", pos, "hello"), pos, newline));
+    print ((string_in_string ("lo", pos, "hello"), pos, newline));
+    print ((string_in_string ("xy", pos, "hello"), pos, newline));
+    print ((char_in_string ("o", nil, "hello"), newline));
+
+    string s = "aZ5 'tf?";
+    for i from LWB s to UPB s
+    do char c = s[i];
+       print ((is_upper (c), is_lower (c), is_alpha (c), is_digit (c),
+               is_alnum (c), is_space (c), is_xdigit (c), " ",
+               to_upper (c), to_lower (c), newline))
+    od
+)

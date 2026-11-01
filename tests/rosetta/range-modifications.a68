@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Range modifications", ALGOL 68 solution range-modifications.alg.
   https://rosettacode.org/wiki/Range_modifications#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/range-modifications.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Range = struct (int lwb, upb);
 op LWB = (Range r) int: lwb of r;
 op UPB = (Range r) int: upb of r;

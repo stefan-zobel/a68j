@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Perfect numbers", ALGOL 68 solution perfect-numbers.alg.
   https://rosettacode.org/wiki/Perfect_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/perfect-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc is_perfect = (int candidate)bool: (
   int sum :=1;
   for f1 from 2 to ENTIER ( sqrt(candidate)*(1+2*small_real) ) while

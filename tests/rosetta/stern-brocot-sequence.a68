@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Stern-Brocot sequence", ALGOL 68 solution stern-brocot-sequence.alg.
   https://rosettacode.org/wiki/Stern-Brocot_sequence#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/stern-brocot-sequence.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find members of the Stern-Brocot sequence: starting from 1, 1 the     }
       { subsequent members are the previous two members summed followed by    }
       { the previous                                                          }

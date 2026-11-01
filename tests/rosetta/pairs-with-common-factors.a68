@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pairs with common factors", ALGOL 68 solution pairs-with-common-factors.alg.
   https://rosettacode.org/wiki/Pairs_with_common_factors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pairs-with-common-factors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { finds elements of the sequence a(n) where a(n) is number of pairs    }
       { (x,y) where 1 < x < y <= n that have at least one common prime       }
       { factor. The sequence elements can be calculated by:                  }

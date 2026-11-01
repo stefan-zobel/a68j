@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Find the intersection of two lines", ALGOL 68 solution find-the-intersection-of-two-lines.alg.
   https://rosettacode.org/wiki/Find_the_intersection_of_two_lines#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/find-the-intersection-of-two-lines.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { mode to hold a point }
     mode Point = struct( real x, y );

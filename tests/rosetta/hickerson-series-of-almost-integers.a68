@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Hickerson series of almost integers", ALGOL 68 solution hickerson-series-of-almost-integers.alg.
   https://rosettacode.org/wiki/Hickerson_series_of_almost_integers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/hickerson-series-of-almost-integers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { determine whether the first few Hickerson numbers really are "near integers" }
 { The Hickerson number n is defined by: h(n) = n! / ( 2 * ( (ln 2)^(n+1) ) )   }
 {                                   so: h(1) = 1 / ( 2 * ( ( ln 2 ) ^ 2 )      }

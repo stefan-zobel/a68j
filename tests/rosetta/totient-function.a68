@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Totient function", ALGOL 68 solution totient-function.alg.
   https://rosettacode.org/wiki/Totient_function#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/totient-function.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns the number of integers k where 1 <= k <= n that are mutually prime to n }
     proc totient = ( int n )int:

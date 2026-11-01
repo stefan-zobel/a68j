@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "FASTA format", ALGOL 68 solution fasta-format.alg.
   https://rosettacode.org/wiki/FASTA_format#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/fasta-format.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { read FASTA format data from standard input and write the results to  }
       { standard output - only the ">" line start is handled                 }
 

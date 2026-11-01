@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Super-d numbers", ALGOL 68 solution super-d-numbers.alg.
   https://rosettacode.org/wiki/Super-d_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/super-d-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Super-d numbers - translation of the FreeBASIC sample }
 
     []string rd = ( "1", "22", "333", "4444", "55555", "666666", "7777777", "88888888", "999999999" );

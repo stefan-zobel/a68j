@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Wordle comparison", ALGOL 68 solution wordle-comparison.alg.
   https://rosettacode.org/wiki/Wordle_comparison#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/wordle-comparison.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { utility functions: }
 
 proc join = ([]string row, string joiner) string:

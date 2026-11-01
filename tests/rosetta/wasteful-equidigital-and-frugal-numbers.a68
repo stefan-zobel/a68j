@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Wasteful, equidigital and frugal numbers", ALGOL 68 solution wasteful-equidigital-and-frugal-numbers.alg.
   https://rosettacode.org/wiki/Wasteful,_equidigital_and_frugal_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/wasteful-equidigital-and-frugal-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { wasteful, equidigital and frugal numbers - translation of the EasyLang sample }
 
   int wasteful = 1, equidigital = 2, frugal = 3;

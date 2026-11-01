@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Gnome sort", ALGOL 68 solution sorting-algorithms-gnome-sort.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Gnome_sort#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-gnome-sort.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 mode Sortstruct = int;
 
 proc inplace_gnome_sort = (ref[]Sortstruct list)ref[]Sortstruct:

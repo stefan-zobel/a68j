@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Stirling numbers of the first kind", ALGOL 68 solution stirling-numbers-of-the-first-kind.alg.
   https://rosettacode.org/wiki/Stirling_numbers_of_the_first_kind#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/stirling-numbers-of-the-first-kind.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { show some (unsigned) Stirling numbers of the first kind          }
 
     { specify the precision of LONG LONG INT, we need about 160 digits   }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Chinese zodiac", ALGOL 68 solution chinese-zodiac.alg.
   https://rosettacode.org/wiki/Chinese_zodiac#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/chinese-zodiac.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Chinese Zodiac }
     { returns s right-padded with blanks to w characters, or s if s is already at least w characters long }
     prio PAD = 1;

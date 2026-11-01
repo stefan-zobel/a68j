@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Dividuus numbers", ALGOL 68 solution dividuus-numbers.alg.
   https://rosettacode.org/wiki/Dividuus_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/dividuus-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some Dividuus Numbers: numbers divisible by their digit sum, digit product, }
       { digital root and multiplicative root                                             }
 

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Munchausen numbers", ALGOL 68 solution munchausen-numbers-2.alg.
   https://rosettacode.org/wiki/Munchausen_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/munchausen-numbers-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { Find all Munchausen numbers - note 11*(9^9) has only 10 digits so there are no    }
 { Munchausen numbers with 11+ digits                                                }
 { table of Nth powers - note 0^0 is 0 for Munchausen numbers, not 1                 }

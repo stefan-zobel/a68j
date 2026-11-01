@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Detect division by zero", ALGOL 68 solution detect-division-by-zero.alg.
   https://rosettacode.org/wiki/Detect_division_by_zero#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/detect-division-by-zero.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc raise_exception= ([]string args)void: (
   put(stand_error, ("Exception: ",args, newline));
   stop

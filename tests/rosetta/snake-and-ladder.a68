@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Snake and ladder", ALGOL 68 solution snake-and-ladder.alg.
   https://rosettacode.org/wiki/Snake_and_ladder#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/snake-and-ladder.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Snakes and ladders game }
     { create the board }
     int max_square = 100;

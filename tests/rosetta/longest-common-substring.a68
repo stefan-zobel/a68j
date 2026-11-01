@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Longest common substring", ALGOL 68 solution longest-common-substring.alg.
   https://rosettacode.org/wiki/Longest_common_substring#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-substring.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { returns the longest common substring of s and t }
     proc longest_common_substring = ( string s, t )string:

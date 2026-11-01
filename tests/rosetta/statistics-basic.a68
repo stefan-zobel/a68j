@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Statistics/Basic", ALGOL 68 solution statistics-basic.alg.
   https://rosettacode.org/wiki/Statistics/Basic#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/statistics-basic.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { calculate the mean and standard deviation of some data and draw a    }
       { histogram of the data                                                }
 

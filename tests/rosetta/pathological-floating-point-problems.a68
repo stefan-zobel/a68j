@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Pathological floating point problems", ALGOL 68 solution pathological-floating-point-problems.alg.
   https://rosettacode.org/wiki/Pathological_floating_point_problems#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pathological-floating-point-problems.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
 
     { show the sizes of REAL, LONG REAL and LONG LONG real }

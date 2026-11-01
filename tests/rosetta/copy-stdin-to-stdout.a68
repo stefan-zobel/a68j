@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Copy stdin to stdout", ALGOL 68 solution copy-stdin-to-stdout.alg.
   https://rosettacode.org/wiki/Copy_stdin_to_stdout#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/copy-stdin-to-stdout.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     bool at_eof := false;
     { set the EOF handler for stand in to a procedure that sets "at eof" to true }

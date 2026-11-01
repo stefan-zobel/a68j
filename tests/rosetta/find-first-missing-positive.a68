@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Find first missing positive", ALGOL 68 solution find-first-missing-positive.alg.
   https://rosettacode.org/wiki/Find_first_missing_positive#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/find-first-missing-positive.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the lowest positive integer not present in various arrays }
     { returns the lowest positive integer not present in r }
     proc min_missing_positive = ( []int r )int:

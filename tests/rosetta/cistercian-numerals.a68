@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Cistercian numerals", ALGOL 68 solution cistercian-numerals.alg.
   https://rosettacode.org/wiki/Cistercian_numerals#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/cistercian-numerals.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { draw some Cistercian Numerals                                        }
 
     int ch = 6;       { height of the representation of a Cistercian Numeral }

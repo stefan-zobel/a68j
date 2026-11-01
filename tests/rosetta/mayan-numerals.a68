@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Mayan numerals", ALGOL 68 solution mayan-numerals.alg.
   https://rosettacode.org/wiki/Mayan_numerals#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/mayan-numerals.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { print Mayan numerals                                                   }
     { Mayan numerals are base-20 positional numbers, each digit consists of  }

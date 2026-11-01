@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "GSTrans string conversion", ALGOL 68 solution gstrans-string-conversion.alg.
   https://rosettacode.org/wiki/GSTrans_string_conversion#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/gstrans-string-conversion.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { GSTrans string conversion                                            }
     op   UNQUOTE = ( string s )string:                  { returns s unquoted }
          if LWB s >= UPB s then s

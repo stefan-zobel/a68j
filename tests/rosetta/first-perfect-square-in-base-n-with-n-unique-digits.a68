@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "First perfect square in base n with n unique digits", ALGOL 68 solution first-perfect-square-in-base-n-with-n-unique-digits.alg.
   https://rosettacode.org/wiki/First_perfect_square_in_base_n_with_n_unique_digits#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/first-perfect-square-in-base-n-with-n-unique-digits.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the first perfect square in base n with n unique digits n=1..16 }
     [ 0 : 15 ]bits dmask; { masks for recording the digits in a BITS string  }
     dmask[ 0 ] := 16r1;

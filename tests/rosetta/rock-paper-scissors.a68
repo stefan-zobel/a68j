@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Rock-paper-scissors", ALGOL 68 solution rock-paper-scissors.alg.
   https://rosettacode.org/wiki/Rock-paper-scissors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/rock-paper-scissors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { rock/paper/scissors game                                             }
     { counts of the number of times the player has chosen each move        }

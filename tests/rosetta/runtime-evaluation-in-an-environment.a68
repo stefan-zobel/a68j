@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Runtime evaluation/In an environment", ALGOL 68 solution runtime-evaluation-in-an-environment.alg.
   https://rosettacode.org/wiki/Runtime_evaluation/In_an_environment#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/runtime-evaluation-in-an-environment.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc eval_with_x = (string code, int a, b)string:
 	(int x=a; evaluate(code) ) + (int x=b; evaluate(code));
 print((eval_with_x("2 ** x", 3, 5), new_line))

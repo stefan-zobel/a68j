@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Berlekamp?Massey algorithm", ALGOL 68 solution berlekamp-massey-algorithm.alg.
   https://rosettacode.org/wiki/Berlekamp%E2%80%93Massey_algorithm#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/berlekamp-massey-algorithm.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Berlekamp–Massey algorithm - translation of the FreeBASIC sample     }
 
     int mdl = 2;

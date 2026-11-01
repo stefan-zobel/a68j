@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Haversine formula", ALGOL 68 solution haversine-formula.alg.
   https://rosettacode.org/wiki/Haversine_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/haversine-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {!/usr/local/bin/a68g --script }
 
 real r = 20 000/pi + 6.6 { km },

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Forest fire", ALGOL 68 solution forest-fire.alg.
   https://rosettacode.org/wiki/Forest_fire#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/forest-fire.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 long real tree_prob = 0.55, { original tree probability }
           f_prob =    0.01, { new combustion probability }
           p_prob =    0.01; { tree creation probability }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Find prime n such that reversed n is also prime", ALGOL 68 solution find-prime-n-such-that-reversed-n-is-also-prime.alg.
   https://rosettacode.org/wiki/Find_prime_n_such_that_reversed_n_is_also_prime#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/find-prime-n-such-that-reversed-n-is-also-prime.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find primes whose reversed digits are also prime         }
     int max_number = 500;   { largest prime we will reverse      }
     int max_prime  = 1 000; { enough primes to handle reversing  }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Associative array/Iteration", ALGOL 68 solution associative-array-iteration.alg.
   https://rosettacode.org/wiki/Associative_array/Iteration#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/associative-array-iteration.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { associative array handling using hashing                                   }
 
 { the modes allowed as associative array element values - change to suit     }

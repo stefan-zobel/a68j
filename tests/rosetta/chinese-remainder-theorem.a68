@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Chinese remainder theorem", ALGOL 68 solution chinese-remainder-theorem.alg.
   https://rosettacode.org/wiki/Chinese_remainder_theorem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/chinese-remainder-theorem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Chinese remainder theorewm - translated from the C sample             }
 
     proc mul_inv = ( int a_in, b_in )int:

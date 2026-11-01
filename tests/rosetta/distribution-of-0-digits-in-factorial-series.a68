@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Distribution of 0 digits in factorial series", ALGOL 68 solution distribution-of-0-digits-in-factorial-series.alg.
   https://rosettacode.org/wiki/Distribution_of_0_digits_in_factorial_series#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/distribution-of-0-digits-in-factorial-series.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { calculate the mean of the proportions of 0 digits out of the total   }
       { digits in factorials - translated from the Phix sample via FreeBASIC }
 

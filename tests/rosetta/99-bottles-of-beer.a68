@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "99 bottles of beer", ALGOL 68 solution 99-bottles-of-beer.alg.
   https://rosettacode.org/wiki/99_bottles_of_beer#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/99-bottles-of-beer.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 for bottles from 99 by -1 to 1 do
     string bottles_now = whole(bottles,0) + " bottle" + if bottles = 1 then "" else "s" fi;
     string bottles_left = if bottles = 1 then "No more" else whole(bottles-1,0) fi

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Gapful numbers", ALGOL 68 solution gapful-numbers.alg.
   https://rosettacode.org/wiki/Gapful_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/gapful-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find some gapful numbers - numbers divisible by f*10 + b }
       { where f is the first digit and b is the final digit      }
     { unary GAPFUL operator - returns TRUE  if n is gapful       }

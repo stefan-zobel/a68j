@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Runtime evaluation", ALGOL 68 solution runtime-evaluation-2.alg.
   https://rosettacode.org/wiki/Runtime_evaluation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/runtime-evaluation-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { procedure to call the Algol 68G evaluate procedure                    }
 { the environment of the evaluation will be the caller's environment    }
 { with "code", "x" and "y" defined as the procedure parameters          }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Man or boy test", ALGOL 68 solution man-or-boy-test.alg.
   https://rosettacode.org/wiki/Man_or_boy_test#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/man-or-boy-test.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc a = (int in_k, proc int xl, x2, x3, x4, x5) int:(
   int k := in_k;
   proc b = int: a(k-:=1, b, xl, x2, x3, x4);

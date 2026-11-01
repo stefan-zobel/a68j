@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Euler's sum of powers conjecture", ALGOL 68 solution eulers-sum-of-powers-conjecture.alg.
   https://rosettacode.org/wiki/Euler's_sum_of_powers_conjecture#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/eulers-sum-of-powers-conjecture.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { max number will be the highest integer we will consider                    }
 int max_number = 250;
 

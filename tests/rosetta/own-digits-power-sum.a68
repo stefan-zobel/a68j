@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Own digits power sum", ALGOL 68 solution own-digits-power-sum.alg.
   https://rosettacode.org/wiki/Own_digits_power_sum#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/own-digits-power-sum.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     { counts of used digits, check is a copy used to check the number is an own digit power sum }
     [ 0 : 9 ]int used, check; for i from 0 to 9 do check[ i ] := 0 od;

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Compiler/code generator", ALGOL 68 solution compiler-code-generator.alg.
   https://rosettacode.org/wiki/Compiler/code_generator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/compiler-code-generator.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { RC Compiler code generator }
 {
     this writes a .NET IL assembler source to standard output.

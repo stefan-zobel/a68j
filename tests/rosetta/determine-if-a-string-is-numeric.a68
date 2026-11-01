@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Determine if a string is numeric", ALGOL 68 solution determine-if-a-string-is-numeric.alg.
   https://rosettacode.org/wiki/Determine_if_a_string_is_numeric#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-is-numeric.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 proc is_numeric = (ref string string_) bool: (
   bool out_ := true;
   proc call_back_false = (ref file f)bool: (out_:= false; true);

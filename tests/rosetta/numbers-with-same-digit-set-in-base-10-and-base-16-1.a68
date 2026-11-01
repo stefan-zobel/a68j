@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers with same digit set in base 10 and base 16", ALGOL 68 solution numbers-with-same-digit-set-in-base-10-and-base-16-1.alg.
   https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-with-same-digit-set-in-base-10-and-base-16-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers that use the same digits in decimal and hexadecimal      }
       { translation of the Algol W sample                                     }
     int max_number = 100 000;

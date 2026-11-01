@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Walsh matrix", ALGOL 68 solution walsh-matrix.alg.
   https://rosettacode.org/wiki/Walsh_matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/walsh-matrix.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { construct Walsh Matrices                                             }
   { BEGIN code from the Kronecker product task                             }
     { multiplies in-place the elements of the matrix a by the scaler b       }

@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sorting algorithms/Cocktail sort with shifting bounds", ALGOL 68 solution sorting-algorithms-cocktail-sort-with-shifting-bounds.alg.
   https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort_with_shifting_bounds#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-cocktail-sort-with-shifting-bounds.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { cocktail sort with shifting bounds                                   }
 
     { sorts data, using a cocktail sort with shifting bounds                 }

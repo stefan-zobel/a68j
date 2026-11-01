@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Weird numbers", ALGOL 68 solution weird-numbers.alg.
   https://rosettacode.org/wiki/Weird_numbers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/weird-numbers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find wierd numbers - abundant but not semiperfect numbers - translation of Go }
     { returns the divisors of n in descending order }
     proc divisors = ( int n )[]int:

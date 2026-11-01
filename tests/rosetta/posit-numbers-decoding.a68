@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Posit numbers/decoding", ALGOL 68 solution posit-numbers-decoding.alg.
   https://rosettacode.org/wiki/Posit_numbers/decoding#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/posit-numbers-decoding.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { decode posit format numbers - translated from the FreeBASIC sample }
 
     { returns a formatted representation of v}

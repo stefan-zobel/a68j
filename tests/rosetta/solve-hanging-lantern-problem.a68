@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Solve hanging lantern problem", ALGOL 68 solution solve-hanging-lantern-problem.alg.
   https://rosettacode.org/wiki/Solve_hanging_lantern_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/solve-hanging-lantern-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the number of ways of taking down columns of lanterns          }
     { translation of the Python "Math" sample                               }
 

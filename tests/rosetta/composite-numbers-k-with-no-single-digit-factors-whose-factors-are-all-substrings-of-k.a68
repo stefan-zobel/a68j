@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Composite numbers k with no single digit factors whose factors are all substrings of k", ALGOL 68 solution composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k.alg.
   https://rosettacode.org/wiki/Composite_numbers_k_with_no_single_digit_factors_whose_factors_are_all_substrings_of_k#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find composite k with no single digit factors whose factors are all substrings of k }
     { returns TRUE if the string representation of f is a substring of k str, FALSE otherwise }
     proc is_substring = ( string k_str, int f )bool:

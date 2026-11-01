@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Minimum multiple of m where digital sum equals m", ALGOL 68 solution minimum-multiple-of-m-where-digital-sum-equals-m.alg.
   https://rosettacode.org/wiki/Minimum_multiple_of_m_where_digital_sum_equals_m#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/minimum-multiple-of-m-where-digital-sum-equals-m.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find the smallest m where mn = digit sum of n, n in 1 .. 70 }
     { returns the digit sum of n, n must be >= 0 }
     op   DIGITSUM = ( int n )int:

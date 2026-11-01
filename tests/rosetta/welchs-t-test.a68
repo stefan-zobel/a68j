@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Welch's t-test", ALGOL 68 solution welchs-t-test.alg.
   https://rosettacode.org/wiki/Welch's_t-test#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/welchs-t-test.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Welch's t-test - translation of the Go and Kotlin samples             }
 
     proc gammak = ( real d )real:        { ALGOL 68 Genie has a builtin gamma }

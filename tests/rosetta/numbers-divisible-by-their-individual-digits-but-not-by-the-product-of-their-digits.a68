@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers divisible by their individual digits, but not by the product of their digits", ALGOL 68 solution numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits.alg.
   https://rosettacode.org/wiki/Numbers_divisible_by_their_individual_digits,_but_not_by_the_product_of_their_digits#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers divisible by their digits but not the product of their digits }
     int max_number    = 999;
     int number_count := 0;

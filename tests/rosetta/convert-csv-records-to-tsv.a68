@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Convert CSV records to TSV", ALGOL 68 solution convert-csv-records-to-tsv.alg.
   https://rosettacode.org/wiki/Convert_CSV_records_to_TSV#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/convert-csv-records-to-tsv.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { convert lines of CSV to TSV }
     char nul = REPR  0;
     char tab = REPR  9;

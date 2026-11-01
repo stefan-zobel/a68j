@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Roman numerals/Decode", ALGOL 68 solution roman-numerals-decode.alg.
   https://rosettacode.org/wiki/Roman_numerals/Decode#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/roman-numerals-decode.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
     proc roman_to_int = (string roman) int:
     begin
         proc roman_digit_value = (char roman_digit) int:

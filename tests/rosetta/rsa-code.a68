@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "RSA code", ALGOL 68 solution rsa-code.alg.
   https://rosettacode.org/wiki/RSA_code#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/rsa-code.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 {
    First cut.  Doesn't yet do blocking and deblocking.  Also, as
    encryption and decryption are identical operations but for the

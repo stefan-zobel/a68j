@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Averages/Mean time of day", ALGOL 68 solution averages-mean-time-of-day.alg.
   https://rosettacode.org/wiki/Averages/Mean_time_of_day#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/averages-mean-time-of-day.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Mean time of day mapping time to angles                      }
 
     { code from the Averages/Mean angle task - angles are in degrees }

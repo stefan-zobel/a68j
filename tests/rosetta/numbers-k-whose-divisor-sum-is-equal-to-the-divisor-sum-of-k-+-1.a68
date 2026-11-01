@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Numbers k whose divisor sum is equal to the divisor sum of k + 1", ALGOL 68 solution numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1.alg.
   https://rosettacode.org/wiki/Numbers_k_whose_divisor_sum_is_equal_to_the_divisor_sum_of_k_%2B_1#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Find n such that the divisor sum of n = the divisor sum of n + 1   }
     int max_number         = 1 000 000;  { maximum number we will consider }
     [ 1 : max_number ]int ds;                  { table of the divisor sums }

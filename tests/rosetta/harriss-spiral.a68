@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Harriss Spiral", ALGOL 68 solution harriss-spiral.alg.
   https://rosettacode.org/wiki/Harriss_Spiral#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/harriss-spiral.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { Harriss Spiral in SVG - translation of EasyLang/Processing samples   }
 
     proc hex1    = ( int d )string: if d < 10 then REPR( ABS "0" + d ) else REPR( ABS "a" + ( d - 10 ) ) fi;

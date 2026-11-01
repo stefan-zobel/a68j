@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Sequence: nth number with exactly n divisors", ALGOL 68 solution sequence:-nth-number-with-exactly-n-divisors.alg.
   https://rosettacode.org/wiki/Sequence:_nth_number_with_exactly_n_divisors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sequence-nth-number-with-exactly-n-divisors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin
     int max_number = 500 000; { maximum number we will count the divisors of }
     { form a table of proper divisor counts                                  }

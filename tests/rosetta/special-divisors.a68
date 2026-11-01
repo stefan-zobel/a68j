@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Special divisors", ALGOL 68 solution special-divisors.alg.
   https://rosettacode.org/wiki/Special_divisors#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/special-divisors.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 begin { find numbers where reverse(d) divides reverse(n) for all divisors d }
       { of n                                                                }
     { returns n with the digits reversed                                    }

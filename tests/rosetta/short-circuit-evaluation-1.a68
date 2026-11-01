@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Short-circuit evaluation", ALGOL 68 solution short-circuit-evaluation-1.alg.
   https://rosettacode.org/wiki/Short-circuit_evaluation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/short-circuit-evaluation-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 prio ORELSE = 2, ANDTHEN = 3; { user defined operators }
 op ORELSE =  (bool a, proc bool b)bool: ( a | a | b ),
    ANDTHEN = (bool a, proc bool b)bool: ( a | b | a );

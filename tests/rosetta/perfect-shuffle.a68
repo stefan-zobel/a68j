@@ -1,11 +1,11 @@
-{ dg-modules "rcprelude" }
+{ dg-modules "genietransput" }
 { Rosetta Code, task "Perfect shuffle", ALGOL 68 solution perfect-shuffle.alg.
   https://rosettacode.org/wiki/Perfect_shuffle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/perfect-shuffle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Rc_Prelude (
+access Genie_Transput (
 { returns an array of the specified length, initialised to an ascending sequence of integers }
 op   DECK = ( int length )[]int:
      begin
