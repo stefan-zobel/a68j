@@ -1,0 +1,8 @@
+before
+tests/java/nest-java-trace.a68:11: runtime error: Java exception java.lang.IllegalStateException: cannot load data.txt, caused by java.io.FileNotFoundException: data.txt
+java.lang.IllegalStateException: cannot load data.txt
+	at demo.Fail.wrapped(Fail.java:12)
+	at NestJavaTrace.program(nest-java-trace.a68:11)
+	at NestJavaTrace.run0(nest-java-trace.a68)
+Caused by: java.io.FileNotFoundException: data.txt
+exit 134

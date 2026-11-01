@@ -1,0 +1,12 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ a68j-env: A68J_JAVA_TRACE=1 }
+{ With the environment variable A68J_JAVA_TRACE set, the runtime error for
+  a Java exception is followed by the Java stack trace of the exception and
+  its causes (tests/java/demo/Fail.java). The test runner leaves out the
+  frames of the JDK and of a68j; the frames of the program and of the Java
+  class stay. }
+begin
+   proc (string) int load = nest Java "demo.Fail.wrapped";
+   puts ("before'n");
+   puts (whole (load ("data.txt"), 0) + "'n")
+end

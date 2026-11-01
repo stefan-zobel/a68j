@@ -4,8 +4,8 @@ The state of the Java integration (`-fnest-java`, `nest Java "…"` formal
 holes, the modules `Lists` and `Hashmaps`) is described in
 [java-modules.md](java-modules.md). This file has two parts: what is still
 open in the integration itself (part A), and ideas for further modules
-backed by Java APIs (part B). None of the open points blocks the use of
-the integration; A1 is done and kept here as a record.
+backed by Java APIs (part B). All points of part A are done; they are
+kept here as a record.
 
 ## Part A. Open points
 
@@ -37,7 +37,12 @@ chance. A `char` is a code point, so the `int` is now preferred, and a
 character beyond U+FFFF is no longer cut to 16 bits (test
 `nest-java-char`).
 
-### A2. Optional Java stack trace
+### A2. Optional Java stack trace (done)
+
+Done on 1 Nov 2026: with the environment variable `A68J_JAVA_TRACE` set,
+`Rt.abortJava` prints the Java stack trace after the runtime error
+message (java-modules.md, "Java exceptions"; test `nest-java-trace`). The
+original note:
 
 A Java exception ends the program with a runtime error that gives the
 Algol 68 position, the exception and its causes (java-modules.md,
@@ -48,7 +53,13 @@ message.
 
 This is a debugging aid only; the message without it stays as it is.
 
-### A3. Class initialization errors on the static field path
+### A3. Class initialization errors on the static field path (done)
+
+Done on 1 Nov 2026: the `getstatic` is in the same exception handler as
+the calls (`GenJava.guarded`), so the program ends with a runtime error at
+the formal hole that names the `ExceptionInInitializerError` and its
+cause (test `nest-java-init-error`, class `tests/java/demo/Broken.java`).
+The original note:
 
 A formal hole `nest Java "Class.member"` whose mode is not a procedure
 reads a public static field (`GenJava.method`, the branch for non-procedure

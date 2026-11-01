@@ -64,7 +64,7 @@ public final class Rt {
         if (pass != null) {
             return pass;
         }
-        throw abort(file, line, javaMessage(t));
+        throw abortJava(file, line, t);
     }
 
     /**
@@ -82,12 +82,34 @@ public final class Rt {
         }
         StackWalker.StackFrame f = algolFrame(1);
         if (f != null) {
-            throw abort(SOURCE.get(f.getDeclaringClass()), f.getLineNumber(), javaMessage(t));
+            throw abortJava(SOURCE.get(f.getDeclaringClass()), f.getLineNumber(), t);
         }
-        if (file == null) {
-            throw abortWithoutPosition(javaMessage(t));
+        throw abortJava(file, line, t);
+    }
+
+    /**
+     * Whether the runtime error for a Java exception is followed by the Java
+     * stack trace of the exception: if the environment variable
+     * A68J_JAVA_TRACE is set (to any value), a debugging aid for the authors
+     * of Java modules (docs/java-modules.md, "Java exceptions").
+     */
+    private static final boolean JAVA_TRACE = System.getenv("A68J_JAVA_TRACE") != null;
+
+    /**
+     * The runtime error for the Java exception T at FILE:LINE (no position
+     * if FILE is null), followed by the Java stack trace of T if {@link
+     * #JAVA_TRACE}; status 134. Does not return.
+     */
+    private static RuntimeException abortJava(String file, int line, Throwable t) {
+        OUT.flush();
+        String where = file == null ? programName : file + ":" + line;
+        System.err.print(where + ": runtime error: " + javaMessage(t) + "\n");
+        if (JAVA_TRACE) {
+            t.printStackTrace(System.err);
         }
-        throw abort(file, line, javaMessage(t));
+        System.err.flush();
+        Runtime.getRuntime().halt(134);
+        return new IllegalStateException();
     }
 
     /**

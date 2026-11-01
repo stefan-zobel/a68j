@@ -40,7 +40,10 @@ java -jar backend/a68j-backend.jar -fnest-java -run prog.a68
   `"java.util.ArrayList::add"` and `"java.awt.Point::x"` (section 1b).
 - **Other mode:** the static field is read, such as `Math.PI`, once, where
   the formal hole is elaborated. `"Class::field"` with a procedure mode
-  reads it at every call and can also write it (section 1b).
+  reads it at every call and can also write it (section 1b). If reading
+  the field initializes the class and its static initializer throws, that
+  is a runtime error at the formal hole, as for a Java exception in a call
+  (section 1, "Java exceptions").
 - **Errors:** a wrong class name or modes that do not fit are a
   **compile-time error**, e.g.
   `fatal error: no public static Java method 'java.lang.Math.nosuch' fits the mode proc (real) real`.
@@ -128,6 +131,27 @@ hole that the module calls itself inside a public procedure, the position
 is the call in the module, as for any runtime error in a procedure of a
 module.
 
+**The Java stack trace.** The message does not show where in the Java
+code the exception was thrown. For the authors of Java modules the
+runtime prints the Java stack trace of the exception and its causes after
+the message if the environment variable `A68J_JAVA_TRACE` is set, to any
+value. The runtime reads it when the program runs, so it works with
+`-run` and for a program compiled to class files alike:
+
+```
+$ A68J_JAVA_TRACE=1 java -cp a68j-backend.jar:out:classes Prog
+prog.a68:11: runtime error: Java exception java.lang.IllegalStateException: cannot load data.txt, caused by java.io.FileNotFoundException: data.txt
+java.lang.IllegalStateException: cannot load data.txt
+	at demo.Fail.wrapped(Fail.java:12)
+	at Prog.program(prog.a68:11)
+	...
+```
+
+The frames of the classes compiled from Algol 68 carry the source file
+and line, as in the message. Without the variable the message stays as it
+is. The variable concerns Java exceptions only, not the errors that Java
+code reports itself with `JavaObject.error` (section 5).
+
 **What passes through.** These are not Java exceptions, and they go on
 through the Java method:
 
@@ -144,7 +168,9 @@ through the Java method:
   something else instead gives a runtime error.
 
 **How it is compiled.** The call instruction alone is in an exception
-handler (catch all). The handler calls `Rt.javaException` (direct calls)
+handler (catch all); so is the `getstatic` that reads a static field for a
+formal hole of a mode that is not a procedure, since it may run the static
+initializer of the class. The handler calls `Rt.javaException` (direct calls)
 or `Rt.javaExceptionOfCaller` (bridge and adapter methods) and throws
 what they return. They return the exceptions that pass through; for any
 other exception they print the message and halt. Nothing else changes on
@@ -762,8 +788,9 @@ such a module.
 ## 6. Tests
 
 `tests/java/`, run by `tools/java_tests.sh [JAVA]`. Options are in the
-first line as `{ a68j-options: … }`, the expected output and status in
-`X.out`. The script first compiles the modules `tests/java/modules/X.a68`
+first line as `{ a68j-options: … }`, environment variables for the run in
+an optional second line `{ a68j-env: NAME=VALUE … }`, the expected output
+and status in `X.out`. The script first compiles the modules `tests/java/modules/X.a68`
 into `tests/java/lib/libX.jar` (with `-fnest-java`), for the programs
 that access them (`-I tests/java/lib`).
 
@@ -783,6 +810,8 @@ that access them (`-I tests/java/lib`).
 | `nest-java-exception-fn` | a Java functional object that throws when it is called as an Algol 68 procedure |
 | `nest-java-exception-callback` | a Java exception in a Java method called by a callback: the position of that inner call |
 | `nest-java-exception-par` | a unit waiting in `Thread.sleep` when another unit jumps out of the parallel clause: the interruption ends the unit, the jump goes on |
+| `nest-java-init-error` | the static initializer of a class throws when a formal hole reads a static field (`tests/java/demo/Broken.java`): runtime error at the formal hole, with the cause |
+| `nest-java-trace` | `A68J_JAVA_TRACE=1`: the Java stack trace after the message (the test runner leaves out the frames of the JDK and of a68j, see `tools/java_tests.sh`) |
 | `nest-java-objects` | constructors and instance methods of the JDK (section 1b): `ArrayList`, `Iterator`, `String`, `StringBuilder`, `HashMap`, `AbstractMap.SimpleEntry`, `Map.Entry`; `nil` for `null`, `is`, rows of objects, a `Consumer`, procedure values and an operator |
 | `nest-java-objects-nil` | an instance method called on `nil` |
 | `nest-java-objects-class` | an object of the wrong class, through a procedure value |

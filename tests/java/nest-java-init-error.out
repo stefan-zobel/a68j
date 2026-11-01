@@ -1,0 +1,3 @@
+before
+tests/java/nest-java-init-error.a68:7: runtime error: Java exception java.lang.ExceptionInInitializerError, caused by java.lang.NumberFormatException: For input string: "none"
+exit 134

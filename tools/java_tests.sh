@@ -3,7 +3,12 @@
 # bundled modules Lists and Hashmaps. The modules tests/java/modules/X.a68
 # are compiled first, into tests/java/lib/libX.jar. Every program X.a68 is
 # compiled and run, and its output and exit status are compared with X.out.
-# Options come from a first line "{ a68j-options: ... }".
+# Options come from a first line "{ a68j-options: ... }", environment
+# variables for the run from a second line "{ a68j-env: NAME=VALUE ... }".
+# With an a68j-env line, the frames of the JDK and of a68j itself are left
+# out of a Java stack trace in the output ("\tat java.base/...",
+# "\tat a68j...", "\t... N more"), as their line numbers change with the
+# JDK and with a68j; the frames of the program and of its Java classes stay.
 # Usage: tools/java_tests.sh [JAVA].
 cd "$(dirname "$0")/.."
 JAVA=${1:-java}
@@ -24,8 +29,13 @@ done
 for f in tests/java/*.a68; do
   b=${f%.a68}
   opts=$(sed -n '1s/^{ a68j-options: \(.*\) }$/\1/p' "$f")
-  timeout 60 "$JAVA" -cp $JAR a68j.jvm.Compile $opts -run "$f" > "$tmp" 2>&1; st=$?
-  out=$(grep -v '^Picked up' "$tmp"; echo "exit $st")
+  env=$(sed -n '2s/^{ a68j-env: \(.*\) }$/\1/p' "$f")
+  env $env timeout 60 "$JAVA" -cp $JAR a68j.jvm.Compile $opts -run "$f" > "$tmp" 2>&1; st=$?
+  if [ -n "$env" ]; then
+    out=$(grep -v -e '^Picked up' -e '^	at java\.base/' -e '^	at a68j\.' -e '^	\.\.\. [0-9]* more$' "$tmp"; echo "exit $st")
+  else
+    out=$(grep -v '^Picked up' "$tmp"; echo "exit $st")
+  fi
   if [ "$out" = "$(cat "$b.out")" ]; then pass=$((pass + 1)); else echo "FAIL $f"; echo "$out" | head -5; fail=$((fail + 1)); fi
 done
 echo "java tests: $pass passed, $fail failed"

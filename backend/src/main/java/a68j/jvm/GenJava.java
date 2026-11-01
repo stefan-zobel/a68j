@@ -105,7 +105,15 @@ final class GenJava {
                 throw new Gen.Fatal(p, "no public static Java field '" + denotation(p) + "' fits the mode "
                         + a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT));
             }
-            g.cb.getstatic(desc(f.getDeclaringClass()), f.getName(), desc(f.getType()));
+            // The getstatic may initialize the class: an exception in its
+            // static initializer (ExceptionInInitializerError, then
+            // NoClassDefFoundError on later uses) is a runtime error at the
+            // formal hole, as for the calls (guarded).
+            ClassDesc owner = desc(f.getDeclaringClass());
+            String name = f.getName();
+            ClassDesc type = desc(f.getType());
+            boolean bundled = g.thisClass.packageName().equals("a68j.lib");
+            guarded(g.cb, code -> code.getstatic(owner, name, type), file(p), line(p), bundled);
             convertFromJava(g, g.cb, f.getType(), f.getGenericType(), m);
         }
     }

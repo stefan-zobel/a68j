@@ -1,0 +1,9 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ The static initializer of a Java class throws when a formal hole reads a
+  public static field of the class (tests/java/demo/Broken.java): a runtime
+  error at the formal hole, with the exception and its cause, status 134. }
+begin
+   puts ("before'n");
+   int limit = nest Java "demo.Broken.LIMIT";
+   puts ("not reached " + whole (limit, 0) + "'n")
+end

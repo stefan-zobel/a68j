@@ -1,0 +1,20 @@
+# Line endings: every text file is stored with LF and checked out with LF
+# on every platform, also on Windows with core.autocrlf=true. The shell
+# scripts (build.sh, tools/*.sh) only run with LF, and the expected outputs
+# of the tests (*.out, tests/rosetta/results.tsv) are compared byte for byte
+# with the output of the programs, which ends its lines with LF. A source
+# with CR LF would also shift the columns in the compiler's messages.
+* text=auto eol=lf
+
+# Binary files: never converted and never diffed as text.
+*.jar   binary
+*.class binary
+*.m68   binary
+*.vsix  binary
+*.png   binary
+*.jpg   binary
+*.gif   binary
+*.ico   binary
+*.zip   binary
+*.gz    binary
+*.tgz   binary
