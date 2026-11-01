@@ -41,8 +41,10 @@ Hello, world!
   `nest Java "java.lang.Math.cbrt"` binds a Java method like ga68's
   `nest C` binds a C function. Algol 68 procedures can be passed as Java
   functional interfaces (a comparator for `Arrays.sort`, say) and come
-  back as procedures. Two bundled modules, `Lists` and `Hashmaps`, provide
-  growable lists and hash maps built on it.
+  back as procedures. Constructors and instance methods are bound as
+  method references (`nest Java "java.util.ArrayList::new"`), so objects of
+  the JDK can be used directly. Two bundled modules, `Lists` and
+  `Hashmaps`, provide growable lists and hash maps built on it.
 
 ## Status
 
@@ -50,10 +52,10 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 471 of 472 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 23 of 23 |
+| a68j's own differential tests (`tests/extra`) | 26 of 26 |
 | Rosetta Code programs that ga68 runs | 534 identical, 2 equal up to floating-point rounding, 7 open, of 543 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 19 of 19, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 31 of 31, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 
 Not supported, as in ga68: formatted transput (`$…$` formats). 80-bit
@@ -141,7 +143,20 @@ rows as arrays that are copied back after the call:
 java -jar a68j-backend.jar -fnest-java -run java-sort.a68
 Wirth Koster Lindsey van Wijngaarden
 ```
- The bundled module `Lists` offers growable lists
+
+Objects of any Java class are used through method references:
+`Class::new` is a constructor, `Class::name` an instance method called on
+the first parameter. In Algol 68 such an object is a name, and Java's
+`null` is `nil`:
+
+[![java-objects.a68](images/java-objects.svg)](examples/java-objects.a68)
+
+```sh
+java -jar a68j-backend.jar -fnest-java -run java-objects.a68
+[Koster, Lindsey, Wirth, van Wijngaarden]
+```
+
+The bundled module `Lists` offers growable lists
 (`Intlist`, `Reallist`, `Stringlist`, …). `Hashmaps` offers hash maps for
 `int`, `long int` and `string` keys (`String_int_map`, …). They need no
 option:

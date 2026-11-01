@@ -1205,8 +1205,9 @@ public final class MoidsMisc {
             return true;
         } else if (m.attribute == ROW_SYMBOL || m.attribute == FLEX_SYMBOL) {
             Moid e = m.attribute == FLEX_SYMBOL ? m.sub.sub : m.sub;
+            // A row of names: an array of Java objects (a68j.rt.JavaHandle).
             return m.dim <= 1 && (e == a68.modes.BOOL || e == a68.modes.CHAR || isIntegral(a68, e)
-                    || isBits(a68, e) || isReal(a68, e) || e == a68.modes.STRING);
+                    || isBits(a68, e) || isReal(a68, e) || e == a68.modes.STRING || e.attribute == REF_SYMBOL);
         } else if (m.attribute == PROC_SYMBOL) {
             // Also as a parameter or result: a functional interface on the
             // Java side (docs/java-modules.md).

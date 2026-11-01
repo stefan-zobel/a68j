@@ -1,0 +1,3 @@
+before
+tests/java/nest-java-objects-nil.a68:9: runtime error: Java method java.util.ArrayList::size called on NIL
+exit 134

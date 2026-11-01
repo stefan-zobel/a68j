@@ -1,0 +1,3 @@
+got it
+tests/java/nest-java-objects-class.a68:21: runtime error: Java object of java.lang.StringBuilder where a java.util.ArrayList is expected
+exit 134

@@ -11,24 +11,28 @@ package a68j.rt;
 public abstract class JavaObject extends Ref {
     /**
      * A runtime error in a Java method called from Algol 68: the message and
-     * status 134 as for other runtime errors, but without a position (the
-     * method does not know where it was called from).
+     * status 134 as for other runtime errors. The position is that of the
+     * Algol 68 code that called the method, found on the stack (see
+     * Rt#abortAtCaller); for the bundled modules Lists and Hashmaps that of
+     * the program that used the operator. Does not return; the result is
+     * only there for {@code throw JavaObject.error(...)}.
      */
     public static RuntimeException error(String text) {
-        Rt.OUT.flush();
-        System.err.print(Rt.programName + ": runtime error: " + text + "\n");
-        System.err.flush();
-        Runtime.getRuntime().halt(134);
-        return new IllegalStateException();
+        throw Rt.abortAtCaller(text);
+    }
+
+    /** The name of the Java class of this object, for the messages. */
+    protected String javaClassName() {
+        return getClass().getName();
     }
 
     @Override
     public final Object get() {
-        throw error("attempt to dereference a Java object (" + getClass().getName() + ")");
+        throw error("attempt to dereference a Java object (" + javaClassName() + ")");
     }
 
     @Override
     public final void set(Object v) {
-        throw error("attempt to assign to a Java object (" + getClass().getName() + ")");
+        throw error("attempt to assign to a Java object (" + javaClassName() + ")");
     }
 }

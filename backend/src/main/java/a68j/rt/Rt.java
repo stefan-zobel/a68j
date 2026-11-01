@@ -71,7 +71,7 @@ public final class Rt {
      * As {@link #javaException}, for a Java method called by a bridge or
      * adapter method, which is called through a procedure value and does not
      * know where from: the position is that of the innermost activation of
-     * Algol 68 code below the method that calls this ({@link #callerOf});
+     * Algol 68 code below the method that calls this ({@link #algolFrame});
      * FILE:LINE (the formal hole) if there is none, no position if FILE is
      * null.
      */
@@ -80,17 +80,37 @@ public final class Rt {
         if (pass != null) {
             return pass;
         }
-        StackWalker.StackFrame f = callerOf(StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+        StackWalker.StackFrame f = algolFrame(1);
         if (f != null) {
             throw abort(SOURCE.get(f.getDeclaringClass()), f.getLineNumber(), javaMessage(t));
         }
         if (file == null) {
-            OUT.flush();
-            System.err.print(programName + ": runtime error: " + javaMessage(t) + "\n");
-            System.err.flush();
-            Runtime.getRuntime().halt(134);
+            throw abortWithoutPosition(javaMessage(t));
         }
         throw abort(file, line, javaMessage(t));
+    }
+
+    /**
+     * A runtime error that Java code called from Algol 68 reports itself
+     * (JavaObject#error, the conversions of JavaConv): the position is that
+     * of the innermost activation of Algol 68 code on the stack ({@link
+     * #algolFrame}), none if there is none. Does not return.
+     */
+    public static RuntimeException abortAtCaller(String text) {
+        StackWalker.StackFrame f = algolFrame(0);
+        if (f != null) {
+            throw abort(SOURCE.get(f.getDeclaringClass()), f.getLineNumber(), text);
+        }
+        throw abortWithoutPosition(text);
+    }
+
+    /** A runtime error without a position: "prog: runtime error: TEXT", status 134. */
+    static RuntimeException abortWithoutPosition(String text) {
+        OUT.flush();
+        System.err.print(programName + ": runtime error: " + text + "\n");
+        System.err.flush();
+        Runtime.getRuntime().halt(134);
+        return new IllegalStateException();
     }
 
     /**
@@ -145,18 +165,41 @@ public final class Rt {
         }
     };
 
+    private static final StackWalker WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
     /**
      * The innermost frame of Algol 68 code (a class with A68_SOURCE, a line
-     * number) below the method that called the method of Rt that calls
-     * this, that is, the code that called that method through a procedure
-     * value; the frames of the runtime and of other Java code in between are
-     * skipped. Null if there is none.
+     * number) on the stack, below the frames of Rt and JavaObject and SKIP
+     * more frames (1 for the bridge or adapter method that called the Java
+     * method, see #javaExceptionOfCaller); the frames of other Java code in
+     * between are skipped too. The line is the last line number entry before
+     * the call, the line of the unit or call.
+     *
+     * <p>The frames of the bundled modules (Lists, Hashmaps: classes in the
+     * package a68j.lib) count as part of the runtime, as their source is not
+     * the user's: a missing key in {@code k ELEM m} is reported at the
+     * program's ELEM, not in hashmaps.a68. Only if there is no other frame of
+     * Algol 68 code is a frame of a bundled module taken. Null if there is
+     * none at all.
      */
-    private static StackWalker.StackFrame callerOf(StackWalker w) {
-        return w.walk(s -> s.dropWhile(f -> f.getDeclaringClass() == Rt.class)
-                .skip(1)
-                .filter(f -> f.getLineNumber() > 0 && SOURCE.get(f.getDeclaringClass()) != null)
-                .findFirst().orElse(null));
+    private static StackWalker.StackFrame algolFrame(int skip) {
+        return WALKER.walk(s -> {
+            StackWalker.StackFrame bundled = null;
+            var it = s.dropWhile(f -> f.getDeclaringClass() == Rt.class || f.getDeclaringClass() == JavaObject.class)
+                    .skip(skip)
+                    .filter(f -> f.getLineNumber() > 0 && SOURCE.get(f.getDeclaringClass()) != null)
+                    .iterator();
+            while (it.hasNext()) {
+                StackWalker.StackFrame f = it.next();
+                if (!f.getDeclaringClass().getPackageName().equals("a68j.lib")) {
+                    return f;
+                }
+                if (bundled == null) {
+                    bundled = f;
+                }
+            }
+            return bundled;
+        });
     }
 
     public static RuntimeException assertFailure(String file, int line) {

@@ -1,0 +1,11 @@
+{ a68j-options: -fnest-java }
+{ A Java exception thrown by a constructor is a runtime error at the call. }
+begin
+   mode Arraylist = ref Arraylist_object;
+   mode Arraylist_object = struct (int arraylist_java_object);
+   proc (int) Arraylist new_list_with = nest Java "java.util.ArrayList::new";
+   Arraylist ok = new_list_with (4);
+   puts ("ok'n");
+   Arraylist bad = new_list_with (-1);
+   puts ("not reached'n")
+end

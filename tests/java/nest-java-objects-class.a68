@@ -1,0 +1,22 @@
+{ a68j-options: -fnest-java }
+{ A Java object of another class than the method wants (here through a
+  result of mode Object) is a runtime error at the call. }
+begin
+   mode Arraylist = ref Arraylist_object;
+   mode Arraylist_object = struct (int arraylist_java_object);
+   mode Builder = ref Builder_object;
+   mode Builder_object = struct (int builder_java_object);
+   mode Hashmap = ref Hashmap_object;
+   mode Hashmap_object = struct (int hashmap_java_object);
+   proc Hashmap new_map = nest Java "java.util.HashMap::new";
+   proc (Hashmap, string, Builder) Builder put = nest Java "java.util.HashMap::put";
+   proc (Hashmap, string) Arraylist lookup = nest Java "java.util.HashMap::get";
+   proc Builder new_builder = nest Java "java.lang.StringBuilder::new";
+   proc (Arraylist) int size = nest Java "java.util.ArrayList::size";
+   proc (Arraylist) int f := size;
+   Hashmap m = new_map;
+   put (m, "b", new_builder);
+   Arraylist l = lookup (m, "b");
+   puts ("got it'n");
+   puts (whole (f (l), 0) + "'n")
+end

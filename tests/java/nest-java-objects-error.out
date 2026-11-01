@@ -1,0 +1,3 @@
+tests/java/nest-java-objects-error.a68:6:33: fatal error: no public Java constructor 'java.util.AbstractList::new' fits the mode proc ref struct (int abstractlistjavaobject)
+compilation terminated.
+exit 1

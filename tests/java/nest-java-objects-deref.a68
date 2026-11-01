@@ -1,0 +1,10 @@
+{ a68j-options: -fnest-java }
+{ A Java object cannot be dereferenced; the message names its class. }
+begin
+   mode Arraylist = ref Arraylist_object;
+   mode Arraylist_object = struct (int arraylist_java_object);
+   proc Arraylist new_list = nest Java "java.util.ArrayList::new";
+   Arraylist l = new_list;
+   Arraylist_object o = l;
+   puts ("not reached'n")
+end

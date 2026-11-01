@@ -45,6 +45,12 @@ import java.util.List;
  * <li>another mode: the value of the public static field {@code member}.
  * </ul>
  *
+ * {@code nest Java "pkg.Class::member"} and {@code "pkg.Class::new"} are
+ * read as method references in Java (procedure modes only): a public static
+ * method, a public instance method whose object is the first parameter, or a
+ * public constructor ({@link Target}). An object of a class that does not
+ * extend a68j.rt.Ref is an a68j.rt.JavaHandle in Algol 68.
+ *
  * The class is looked up when the program is compiled ({@link #loader}), so
  * a wrong name or a mismatch of the modes is a compile-time error.
  *
@@ -69,22 +75,9 @@ final class GenJava {
         if (!g.a68.options().nestJava || !MoidsCheck.isJavaHole(p)) {
             throw new Gen.Unsupported(p, "formal hole");
         }
-        String spec = denotation(p);
-        int dot = spec.lastIndexOf('.');
-        if (dot <= 0 || dot == spec.length() - 1) {
-            throw new Gen.Fatal(p, "invalid Java formal hole '" + spec + "', expected 'package.Class.member'");
-        }
-        String className = spec.substring(0, dot);
-        String member = spec.substring(dot + 1);
-        Class<?> c;
-        try {
-            c = Class.forName(className, false, loader);
-        } catch (ClassNotFoundException | LinkageError e) {
-            throw new Gen.Fatal(p, "Java class '" + className + "' not found");
-        }
         Moid m = JType.base(p.type);
         if (m.attribute == Attribute.PROC_SYMBOL) {
-            Method target = method(g, p);
+            Target target = method(g, p);
             String bridge = "j" + g.javaBridges.size();
             g.javaBridges.add(clb -> emitBridge(g, clb, bridge, target, m, p));
             g.cb.new_(Gen.CD_CLOSURE);
@@ -94,14 +87,19 @@ final class GenJava {
             g.cb.aconst_null();
             g.cb.invokespecial(Gen.CD_CLOSURE, "<init>", MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
         } else {
+            String[] parts = spec(p);
+            if (parts[2] != null) {
+                throw new Gen.Fatal(p, "the Java method reference '" + denotation(p) + "' needs a procedure mode");
+            }
+            Class<?> c = javaClass(p, parts[0]);
             Field f;
             try {
-                f = c.getField(member);
+                f = c.getField(parts[1]);
             } catch (NoSuchFieldException e) {
                 f = null;
             }
             if (f == null || !Modifier.isStatic(f.getModifiers()) || fromJava(g, f.getType(), f.getGenericType(), m) < 0) {
-                throw new Gen.Fatal(p, "no public static Java field '" + spec + "' fits the mode "
+                throw new Gen.Fatal(p, "no public static Java field '" + denotation(p) + "' fits the mode "
                         + a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT));
             }
             g.cb.getstatic(desc(f.getDeclaringClass()), f.getName(), desc(f.getType()));
@@ -110,29 +108,72 @@ final class GenJava {
     }
 
     /**
-     * The Java method of the formal hole P of a procedure mode (resolved once
-     * per hole; a missing class or method is a compile-time error).
+     * The parts of the formal hole P: the class name, the member and, for a
+     * method reference ("Class::member", "Class::new"), "::" (else null).
      */
-    static Method method(Gen g, Node p) {
-        Method cached = g.javaMethods.get(p);
+    private static String[] spec(Node p) {
+        String spec = denotation(p);
+        int colons = spec.indexOf("::");
+        if (colons > 0 && colons + 2 < spec.length() && spec.indexOf(':', colons + 2) < 0
+                && spec.indexOf('.', colons + 2) < 0) {
+            return new String[] {spec.substring(0, colons), spec.substring(colons + 2), "::"};
+        }
+        int dot = spec.lastIndexOf('.');
+        if (colons >= 0 || dot <= 0 || dot == spec.length() - 1) {
+            throw new Gen.Fatal(p, "invalid Java formal hole '" + spec
+                    + "', expected 'package.Class.member', 'package.Class::member' or 'package.Class::new'");
+        }
+        return new String[] {spec.substring(0, dot), spec.substring(dot + 1), null};
+    }
+
+    /**
+     * The class NAME of the formal hole P. A nested class may be written
+     * with dots as in Java ("java.util.Map.Entry" for java.util.Map$Entry).
+     */
+    private static Class<?> javaClass(Node p, String name) {
+        String n = name;
+        while (true) {
+            try {
+                return Class.forName(n, false, loader);
+            } catch (ClassNotFoundException | LinkageError e) {
+                int dot = n.lastIndexOf('.');
+                if (dot <= 0) {
+                    throw new Gen.Fatal(p, "Java class '" + name + "' not found");
+                }
+                n = n.substring(0, dot) + "$" + n.substring(dot + 1);
+            }
+        }
+    }
+
+    /**
+     * The Java method or constructor of the formal hole P of a procedure mode
+     * (resolved once per hole; a missing class or method is a compile-time
+     * error).
+     */
+    static Target method(Gen g, Node p) {
+        Target cached = g.javaMethods.get(p);
         if (cached != null) {
             return cached;
         }
-        String spec = denotation(p);
-        int dot = spec.lastIndexOf('.');
-        if (dot <= 0 || dot == spec.length() - 1) {
-            throw new Gen.Fatal(p, "invalid Java formal hole '" + spec + "', expected 'package.Class.member'");
-        }
-        Class<?> c;
-        try {
-            c = Class.forName(spec.substring(0, dot), false, loader);
-        } catch (ClassNotFoundException | LinkageError e) {
-            throw new Gen.Fatal(p, "Java class '" + spec.substring(0, dot) + "' not found");
-        }
-        Method target = findMethod(g, c, spec.substring(dot + 1), JType.base(p.type));
-        if (target == null) {
-            throw new Gen.Fatal(p, "no public static Java method '" + spec + "' fits the mode "
-                    + a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT));
+        String[] parts = spec(p);
+        Class<?> c = javaClass(p, parts[0]);
+        Moid m = JType.base(p.type);
+        String mode = a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT);
+        Target target;
+        if (parts[2] == null) {
+            target = findMethod(g, c, parts[1], m);
+            if (target == null) {
+                throw new Gen.Fatal(p, "no public static Java method '" + denotation(p) + "' fits the mode " + mode);
+            }
+        } else {
+            if (!Modifier.isPublic(c.getModifiers())) {
+                throw new Gen.Fatal(p, "Java class '" + parts[0] + "' is not public");
+            }
+            target = findReference(g, c, parts[1], m, denotation(p));
+            if (target == null) {
+                throw new Gen.Fatal(p, (parts[1].equals("new") ? "no public Java constructor '" : "no public Java method '")
+                        + denotation(p) + "' fits the mode " + mode);
+            }
         }
         g.javaMethods.put(p, target);
         return target;
@@ -149,10 +190,10 @@ final class GenJava {
      * ({@link #guarded}).
      */
     static void directCall(Gen g, Node hole, List<Node> args, Moid ret, Node at) {
-        Method target = method(g, hole);
+        Target target = method(g, hole);
         Moid m = JType.base(hole.type);
-        Class<?>[] ps = target.getParameterTypes();
-        Type[] gps = target.getGenericParameterTypes();
+        Class<?>[] ps = target.params();
+        Type[] gps = target.gparams();
         int i = 0;
         List<Runnable> after = new ArrayList<>();
         for (Pack z = m.pack; z != null; z = z.next, i++) {
@@ -166,25 +207,27 @@ final class GenJava {
                 GenUnits.copyIfValue(g, a.type);
             }
             g.adjust(a.type, z.type, a);
-            Runnable r = convertToJava(g, g.cb, JType.base(z.type), ps[i], gps[i]);
+            Runnable r = convertArgument(g, g.cb, target, i, JType.base(z.type));
             if (r != null) {
                 after.add(r);
             }
         }
-        Class<?> owner = target.getDeclaringClass();
-        guarded(g.cb, c -> c.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface()),
-                file(at), line(at), false);
+        // In the bundled modules (Lists, Hashmaps) the position is that of
+        // the program that called the module, found on the stack as for the
+        // errors that their Java methods report (Rt#abortAtCaller).
+        boolean bundled = g.thisClass.packageName().equals("a68j.lib");
+        guarded(g.cb, target::invoke, file(at), line(at), bundled);
         after.forEach(Runnable::run);
         Moid r = JType.base(m.sub);
         if (r == g.a68.modes.VOID) {
-            Class<?> rt = target.getReturnType();
+            Class<?> rt = target.ret();
             if (rt == long.class || rt == double.class) {
                 g.cb.pop2();
             } else if (rt != void.class) {
                 g.cb.pop();
             }
         } else {
-            convertFromJava(g, g.cb, target.getReturnType(), target.getGenericReturnType(), r);
+            convertFromJava(g, g.cb, target.ret(), target.gret(), r);
         }
         g.adjust(m.sub, ret, hole);
     }
@@ -206,30 +249,160 @@ final class GenJava {
      * procedure mode M; of several the one with the lowest cost (see
      * {@link #toJava}), of those the first.
      */
-    private static Method findMethod(Gen g, Class<?> c, String name, Moid m) {
-        List<Moid> params = new ArrayList<>();
-        for (Pack z = m.pack; z != null; z = z.next) {
-            params.add(JType.base(z.type));
-        }
-        Method best = null;
+    private static Target findMethod(Gen g, Class<?> c, String name, Moid m) {
+        Target best = null;
         int bestCost = Integer.MAX_VALUE;
         for (Method x : c.getMethods()) {
-            if (!x.getName().equals(name) || !Modifier.isStatic(x.getModifiers())
-                    || x.getParameterCount() != params.size()) {
-                continue;
+            if (x.getName().equals(name) && Modifier.isStatic(x.getModifiers())) {
+                Target t = Target.ofStatic(x, null);
+                int cost = cost(g, t, m);
+                if (cost >= 0 && cost < bestCost) {
+                    best = t;
+                    bestCost = cost;
+                }
             }
-            int cost = fromJava(g, x.getReturnType(), x.getGenericReturnType(), JType.base(m.sub));
-            Class<?>[] ps = x.getParameterTypes();
-            Type[] gps = x.getGenericParameterTypes();
-            for (int i = 0; cost >= 0 && i < ps.length; i++) {
-                cost = add(cost, toJava(g, params.get(i), ps[i], gps[i], true));
+        }
+        return best;
+    }
+
+    /**
+     * The method reference C::NAME (SPEC) for the procedure mode M, as in
+     * Java: for NAME "new" a public constructor of C (not abstract), else a
+     * public static method NAME of C with the parameters of M, or a public
+     * instance method NAME of C whose object is the first parameter of M (for
+     * an interface also the public methods of Object). Of several that fit
+     * the one with the lowest cost, of those the first; null if none fits.
+     */
+    private static Target findReference(Gen g, Class<?> c, String name, Moid m, String spec) {
+        List<Target> candidates = new ArrayList<>();
+        if (name.equals("new")) {
+            if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
+                for (java.lang.reflect.Constructor<?> k : c.getConstructors()) {
+                    candidates.add(Target.ofConstructor(k, c, spec));
+                }
             }
+        } else {
+            List<Method> ms = new ArrayList<>(List.of(c.getMethods()));
+            if (c.isInterface()) {
+                ms.addAll(List.of(Object.class.getMethods()));
+            }
+            for (Method x : ms) {
+                if (!x.getName().equals(name) || x.isBridge()) {
+                    continue;
+                }
+                candidates.add(Modifier.isStatic(x.getModifiers()) ? Target.ofStatic(x, spec)
+                        : Target.ofInstance(x, c, spec));
+            }
+        }
+        Target best = null;
+        int bestCost = Integer.MAX_VALUE;
+        for (Target t : candidates) {
+            int cost = cost(g, t, m);
             if (cost >= 0 && cost < bestCost) {
-                best = x;
+                best = t;
                 bestCost = cost;
             }
         }
         return best;
+    }
+
+    /** The cost of calling T for the procedure mode M (see {@link #toJava}), or NO. */
+    private static int cost(Gen g, Target t, Moid m) {
+        if (t.params().length != count(m)) {
+            return NO;
+        }
+        int cost = fromJava(g, t.ret(), t.gret(), JType.base(m.sub));
+        int i = 0;
+        for (Pack z = m.pack; cost >= 0 && z != null; z = z.next, i++) {
+            cost = add(cost, toJava(g, JType.base(z.type), t.params()[i], t.gparams()[i], true));
+        }
+        return cost;
+    }
+
+    /**
+     * What the formal hole of a procedure mode calls: a static method, an
+     * instance method (its object is the first parameter of the procedure)
+     * or a constructor of OWNER. PARAMS and GPARAMS are the Java types (and
+     * generic types) of the parameters of the procedure, the object first
+     * for an instance method; RET and GRET those of the result (OWNER for a
+     * constructor). SPEC is the formal hole as written, for the messages
+     * (null for "Class.member").
+     */
+    record Target(java.lang.reflect.Executable x, Kind kind, Class<?> owner, String spec, Class<?>[] params,
+            Type[] gparams, Class<?> ret, Type gret) {
+        enum Kind { STATIC, INSTANCE, NEW }
+
+        static Target ofStatic(Method x, String spec) {
+            return new Target(x, Kind.STATIC, x.getDeclaringClass(), spec, x.getParameterTypes(),
+                    x.getGenericParameterTypes(), x.getReturnType(), x.getGenericReturnType());
+        }
+
+        /** The instance method X called on an object of C (C may be a subclass of the class of X). */
+        static Target ofInstance(Method x, Class<?> c, String spec) {
+            Class<?>[] ps = new Class<?>[x.getParameterCount() + 1];
+            Type[] gps = new Type[ps.length];
+            ps[0] = c;
+            gps[0] = c;
+            System.arraycopy(x.getParameterTypes(), 0, ps, 1, ps.length - 1);
+            System.arraycopy(x.getGenericParameterTypes(), 0, gps, 1, ps.length - 1);
+            return new Target(x, Kind.INSTANCE, c, spec, ps, gps, x.getReturnType(), x.getGenericReturnType());
+        }
+
+        static Target ofConstructor(java.lang.reflect.Constructor<?> k, Class<?> c, String spec) {
+            return new Target(k, Kind.NEW, c, spec, k.getParameterTypes(), k.getGenericParameterTypes(), c, c);
+        }
+
+        /**
+         * The call, with the converted arguments on the operand stack (the
+         * object first for an instance method). A constructor takes them into
+         * locals, so that they are evaluated before the new object is made
+         * (no uninitialized object on the stack while they are evaluated).
+         */
+        void invoke(CodeBuilder code) {
+            switch (kind) {
+                case STATIC -> code.invokestatic(desc(owner), x.getName(), methodDesc((Method) x), owner.isInterface());
+                case INSTANCE -> {
+                    if (owner.isInterface()) {
+                        code.invokeinterface(desc(owner), x.getName(), methodDesc((Method) x));
+                    } else {
+                        code.invokevirtual(desc(owner), x.getName(), methodDesc((Method) x));
+                    }
+                }
+                case NEW -> {
+                    int[] slots = new int[params.length];
+                    for (int i = params.length - 1; i >= 0; i--) {
+                        TypeKind k = TypeKind.from(desc(params[i]));
+                        slots[i] = code.allocateLocal(k);
+                        code.storeLocal(k, slots[i]);
+                    }
+                    code.new_(desc(owner));
+                    code.dup();
+                    ClassDesc[] ds = new ClassDesc[params.length];
+                    for (int i = 0; i < params.length; i++) {
+                        ds[i] = desc(params[i]);
+                        code.loadLocal(TypeKind.from(ds[i]), slots[i]);
+                    }
+                    code.invokespecial(desc(owner), "<init>", MethodTypeDesc.of(CD_void, ds));
+                }
+            }
+        }
+    }
+
+    /**
+     * Convert the argument I of mode M on the stack for the call of T (see
+     * {@link #convertToJava}). The object of an instance method given by a
+     * name is checked: NIL and an object of another class are runtime errors
+     * (JavaConv#receiver).
+     */
+    private static Runnable convertArgument(Gen g, CodeBuilder code, Target t, int i, Moid m) {
+        if (t.kind() == Target.Kind.INSTANCE && i == 0 && m.attribute == Attribute.REF_SYMBOL) {
+            code.ldc(desc(t.owner()));
+            code.ldc(t.spec());
+            code.invokestatic(CD_CONV, "receiver", MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class, CD_String));
+            code.checkcast(desc(t.owner()));
+            return null;
+        }
+        return convertToJava(g, code, m, t.params()[i], t.gparams()[i]);
     }
 
     // ------------------------------------------------------------------
@@ -247,6 +420,18 @@ final class GenJava {
     private static boolean isString(Gen g, Moid m) {
         var md = g.a68.modes;
         return m == JType.base(md.STRING) || m == md.ROW_CHAR || m == md.FLEX_ROW_CHAR;
+    }
+
+    /**
+     * Whether a value of the name mode M can be a Java object of any class
+     * (an a68j.rt.JavaHandle): any name except a name of a row or of a
+     * string, which are passed as arrays or as names (section 1a of
+     * docs/java-modules.md).
+     */
+    private static boolean isJavaName(Gen g, Moid m) {
+        Moid r = JType.base(m.sub);
+        return !isString(g, r) && rowElement(r) == null && r.attribute != Attribute.ROW_SYMBOL
+                && r.attribute != Attribute.FLEX_SYMBOL;
     }
 
     /** Does not fit (a cost). */
@@ -302,7 +487,11 @@ final class GenJava {
                 // A name of a row: copied in and out.
                 return add(COPY, array(g, re, j));
             }
-            return a68j.rt.Ref.class.isAssignableFrom(j) || j.isAssignableFrom(a68j.rt.Ref.class) ? EXACT : NO;
+            if (a68j.rt.Ref.class.isAssignableFrom(j) || j.isAssignableFrom(a68j.rt.Ref.class)) {
+                return EXACT;
+            }
+            // A Java object of any class (a68j.rt.JavaHandle), checked when it is passed.
+            return isJavaName(g, m) && !j.isPrimitive() ? OBJECT : NO;
         }
         if (!j.isPrimitive()) {
             return objectFits(g, j, m) ? OBJECT : NO;
@@ -368,7 +557,11 @@ final class GenJava {
             return array(g, e, j);
         }
         if (m.attribute == Attribute.REF_SYMBOL) {
-            return a68j.rt.Ref.class.isAssignableFrom(j) ? EXACT : j == Object.class ? OBJECT : NO;
+            if (a68j.rt.Ref.class.isAssignableFrom(j)) {
+                return EXACT;
+            }
+            // Any other object in a JavaHandle (an Object may also be a name).
+            return j == Object.class || isJavaName(g, m) && !j.isPrimitive() ? OBJECT : NO;
         }
         if (!j.isPrimitive()) {
             return objectFits(g, j, m) ? OBJECT : NO;
@@ -402,7 +595,7 @@ final class GenJava {
             return false;
         }
         if (m.attribute == Attribute.REF_SYMBOL) {
-            return j.isAssignableFrom(box) || box.isAssignableFrom(j);
+            return j.isAssignableFrom(box) || box.isAssignableFrom(j) || isJavaName(g, m);
         }
         return j.isAssignableFrom(box) || JType.of(g.a68, m) == JType.FLOAT && j.isAssignableFrom(Double.class);
     }
@@ -589,13 +782,12 @@ final class GenJava {
      * on the stack when it happens, see Rt#javaExceptionOfCaller), or at
      * HOLE if there is none.
      */
-    private static void emitBridge(Gen g, java.lang.classfile.ClassBuilder clb, String name, Method target, Moid m,
+    private static void emitBridge(Gen g, java.lang.classfile.ClassBuilder clb, String name, Target target, Moid m,
             Node hole) {
         clb.withMethodBody(name, Gen.MT_ROUTINE, ClassFile.ACC_PRIVATE | ClassFile.ACC_STATIC, code -> {
             CodeBuilder save = g.cb;
             g.cb = code;
-            Class<?>[] ps = target.getParameterTypes();
-            Type[] gps = target.getGenericParameterTypes();
+            Class<?>[] ps = target.params();
             int i = 0;
             List<Runnable> after = new ArrayList<>();
             for (Pack z = m.pack; z != null; z = z.next, i++) {
@@ -609,18 +801,16 @@ final class GenJava {
                     // caller may pass one without a copy, GenUnits#ownedValue).
                     GenUnits.copyIfValue(g, z.type);
                 }
-                Runnable r = convertToJava(g, code, JType.base(z.type), ps[i], gps[i]);
+                Runnable r = convertArgument(g, code, target, i, JType.base(z.type));
                 if (r != null) {
                     after.add(r);
                 }
             }
-            Class<?> owner = target.getDeclaringClass();
-            guarded(code, c -> c.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface()),
-                    file(hole), line(hole), true);
+            guarded(code, target::invoke, file(hole), line(hole), true);
             after.forEach(Runnable::run);
             Moid r = JType.base(m.sub);
             if (r == g.a68.modes.VOID) {
-                Class<?> rt = target.getReturnType();
+                Class<?> rt = target.ret();
                 if (rt == long.class || rt == double.class) {
                     code.pop2();
                 } else if (rt != void.class) {
@@ -628,7 +818,7 @@ final class GenJava {
                 }
                 code.aconst_null();
             } else {
-                convertFromJava(g, code, target.getReturnType(), target.getGenericReturnType(), r);
+                convertFromJava(g, code, target.ret(), target.gret(), r);
                 g.box(r);
             }
             code.areturn();
@@ -684,7 +874,16 @@ final class GenJava {
                     }
                 };
             }
-            if (j != a68j.rt.Ref.class && j != Object.class) {
+            if (a68j.rt.Ref.class.isAssignableFrom(j)) {
+                if (j != a68j.rt.Ref.class) {
+                    code.checkcast(desc(j));
+                }
+            } else if (j == Object.class) {
+                // The object of a JavaHandle, any other name as it is.
+                code.invokestatic(CD_CONV, "unwrap", MethodTypeDesc.of(CD_Object, Gen.CD_REF));
+            } else {
+                code.ldc(desc(j));
+                code.invokestatic(CD_CONV, "javaObject", MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class));
                 code.checkcast(desc(j));
             }
             return null;

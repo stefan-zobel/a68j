@@ -1,0 +1,8 @@
+{ a68j-options: -fnest-java }
+{ A constructor of an abstract class does not fit: compile-time error. }
+begin
+   mode Abstractlist = ref Abstractlist_object;
+   mode Abstractlist_object = struct (int abstractlist_java_object);
+   proc Abstractlist new_list = nest Java "java.util.AbstractList::new";
+   skip
+end

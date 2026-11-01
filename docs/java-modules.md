@@ -1,11 +1,9 @@
 # Java from Algol 68: `nest Java` and the modules `Lists` and `Hashmaps`
 
-As of 31 Oct 2026. An extension of a68j over ga68. Without the option
+As of 1 Nov 2026. An extension of a68j over ga68. Without the option
 `-fnest-java` a68j behaves exactly like ga68. The modules `Lists` and
 `Hashmaps` can be used without the option, because they come with the
 jar.
-
-Concept and further ideas: `docs/konzept-java-apis-und-par.md`.
 
 ## 1. Formal holes: `nest Java "Class.member"`
 
@@ -36,7 +34,9 @@ java -jar backend/a68j-backend.jar -fnest-java -run prog.a68
 
 - **Procedure mode:** the static method whose parameters and result fit
   the mode is looked up; with overloading, the cheapest fitting one
-  (section 1a, "Which method").
+  (section 1a, "Which method"). Constructors and instance methods are
+  written as method references, `"java.util.ArrayList::new"` and
+  `"java.util.ArrayList::add"` (section 1b).
 - **Other mode:** the static field is read, such as `Math.PI`.
 - **Errors:** a wrong class name or modes that do not fit are a
   **compile-time error**, e.g.
@@ -69,7 +69,8 @@ java -cp backend/a68j-backend.jar:classes:out Prog
 | `[] int`, `[] long int`, `[] real`, `[] long real`, `[] bool` | `int[]`, `long[]`, `float[]`, `double[]`, `boolean[]` (copied) |
 | `[] string` | `String[]` (copied) |
 | any row | also `a68j.rt.Row` (unchanged, not copied) |
-| `ref M` (a name) | `a68j.rt.Ref` or a subclass: an output parameter (an `IntCell` for `ref int`) or a Java object (`a68j.rt.JavaObject`) |
+| `ref M` (a name) | `a68j.rt.Ref` or a subclass: an output parameter (an `IntCell` for `ref int`) or a Java object (`a68j.rt.JavaObject`); also a Java object of any class (section 1b) |
+| `[] ref M` | an array of Java objects (section 1b) |
 | `void` (result) | any result, which is discarded |
 
 Section 1a adds procedures (functional interfaces), names of rows (Java
@@ -143,8 +144,13 @@ the normal path, and an exception handler costs nothing as long as no
 exception is thrown.
 
 A Java method can also report an error itself with
-`throw JavaObject.error("…")` (section 5). That message has no position
-yet (section 7).
+`throw JavaObject.error("…")` (section 5). Its position is found on the
+stack in the same way: the innermost Algol 68 code that called the
+method. The bundled modules `Lists` and `Hashmaps` count as part of the
+runtime here (their classes are in the package `a68j.lib`): a missing key
+in `k ELEM m` is reported at the `ELEM` in the program, not in the source
+of the module. The same holds for a Java exception in a call that one of
+these modules makes.
 
 ## 1a. Procedures and functional interfaces, names of rows, Java objects
 
@@ -255,6 +261,86 @@ Tests: `tests/java/nest-java-fn.a68` (all of the above with
 out of a comparator through `Arrays.sort`, a runtime error in a callback),
 `nest-java-fn-error.a68` (a procedure that does not fit `Predicate<String>`).
 
+## 1b. Objects of any Java class: constructors and instance methods
+
+A formal hole written as a **method reference** of Java names a
+constructor or an instance method. Classes of the JDK and of libraries can
+so be used without a wrapper class of their own (section 5):
+
+```
+mode Arraylist = ref Arraylist_object;
+mode Arraylist_object = struct (int arraylist_java_object);
+proc Arraylist new_list = nest Java "java.util.ArrayList::new";
+proc (Arraylist, string) bool add = nest Java "java.util.ArrayList::add";
+proc (Arraylist, int) string get = nest Java "java.util.ArrayList::get";
+proc (Arraylist) int size = nest Java "java.util.ArrayList::size";
+
+Arraylist l = new_list;
+add (l, "Algol"); add (l, "68");
+puts (get (l, 0) + " " + whole (size (l), 0) + "'n")       { Algol 2 }
+```
+
+What `"Class::name"` means, as in Java:
+
+- **`Class::new`:** a public constructor of the class (not of an abstract
+  class or an interface). Its parameters are those of the procedure mode,
+  and the result is the new object.
+- **`Class::name`:** a public instance method `name`, called on the
+  **first parameter**, the others are its parameters; or a public static
+  method `name` with all the parameters. The methods of `Object`
+  (`toString`, `equals` …) also count for an interface.
+- As for `"Class.member"` the cheapest fitting one is taken (section 1a,
+  "Which method"); a procedure mode is required. Nested classes are
+  written with dots as in Java, e.g. `"java.util.Map.Entry::getKey"` for
+  the class `java.util.Map$Entry`, and so also with `"Class.member"`.
+- The object may be of other modes too, as far as they fit the class:
+  `proc (string) int length = nest Java "java.lang.String::length"`.
+
+**The objects.** A Java object whose class does not extend
+`a68j.rt.Ref` is an `a68j.rt.JavaHandle` in Algol 68 (a subclass of
+`a68j.rt.JavaObject`), a name as in section 2. It wraps the object on the
+way to Algol 68, and the Java method gets the object itself back, never
+the handle. So:
+
+- Java `null` is `nil`, both ways.
+- `is` and `isnt` compare the objects, as `==` in Java: for a
+  `StringBuilder` `b`, `append (b, "x") is b`.
+- Any object goes where Java wants an `Object` or a type variable (the `E`
+  of `ArrayList<E>`), e.g. `HashMap::put` and `HashMap::get` with
+  `Arraylist` values. An object of the wrong class is noticed only when it
+  is passed to a method that wants another class: a runtime error,
+  `runtime error: Java object of java.lang.StringBuilder where a java.util.ArrayList is expected`.
+- A method called on `nil` is a runtime error at the call:
+  `runtime error: Java method java.util.ArrayList::size called on NIL`.
+- Rows of names are arrays of Java objects:
+  `proc ([] Builder) List as_list = nest Java "java.util.Arrays.asList"`,
+  `proc (List) [] Builder to_row = nest Java "java.util.List::toArray"`.
+- Dereferencing and assigning are runtime errors as in section 2; the
+  message names the class of the object:
+  `attempt to dereference a Java object (java.util.ArrayList)`.
+- Java exceptions of constructors and methods are runtime errors as for
+  static methods (section 1, "Java exceptions").
+
+Only names of other modes than rows and strings can be Java objects; a
+name of a row is passed as an array (section 1a).
+
+**How it is compiled.** An instance method is called with
+`invokevirtual`, or `invokeinterface` for an interface, on the class
+named in the formal hole. Before the call the object is checked and taken
+out of its handle (`JavaConv.receiver`); other parameters of a class type
+with `JavaConv.javaObject`, `Object` parameters with `JavaConv.unwrap`.
+For a constructor the converted arguments go into locals first, then
+`new`, `dup`, the arguments and `invokespecial`. A result whose class
+does not extend `Ref` goes through `JavaConv.objRef`, which makes the
+handle (`backend/.../jvm/GenJava.java`, `Target`).
+
+**Speed.** `java.util.ArrayList` with 1 000 000 `add` and 5 000 000 `get`
+of `int` elements (boxed as `Integer`): 0.36 to 0.54 s with the start of
+the JVM; the same with the `Intlist` of section 3 (unboxed), 0.21 to
+0.25 s.
+
+Tests: `tests/java/nest-java-objects.a68` and `nest-java-objects-*.a68`.
+
 ## 2. Java objects in Algol 68
 
 Algol 68 has no mode for "any Java object". a68j takes a **name that
@@ -274,6 +360,9 @@ names works:
 - **What is a runtime error:** dereferencing (`Intlist_object o = l`) and
   assigning, with the message
   `runtime error: attempt to dereference a Java object (a68j.jlib.IntList)`.
+
+Objects of other Java classes, such as those of the JDK, are wrapped in an
+`a68j.rt.JavaHandle` (section 1b).
 
 The structure with the field `intlist_java_object` is never made. It only
 makes the mode unique: two modes that differ only in the name of a field
@@ -341,9 +430,9 @@ sorted by character codes, like the comparison operators for STRING do.
 
 **Errors:** an index outside `[1 : UPB l]`, `POP` on an empty list or an
 operation on `nil` ends the program with
-`runtime error: index 2 out of range [1:1] of Intlist` (status 134). The
-line number is missing, because the Java method does not know where it
-was called from.
+`prog.a68:5: runtime error: index 2 out of range [1:1] of Intlist`
+(status 134). The position is that of the operator in the program; the
+runtime finds it on the stack (section 1, "Java exceptions").
 
 ### Speed
 
@@ -441,7 +530,7 @@ next time. A string key that is only a slice (`line[3:10] ELEM m`) is
 hashed and compared in place and copied only when it is inserted.
 
 **Errors:** `k ELEM m` for a missing key ends the program with
-`runtime error: key 2 not in Int_string_map` (status 134).
+`prog.a68:6: runtime error: key 2 not in Int_string_map` (status 134).
 
 ### A character is not a string
 
@@ -499,7 +588,10 @@ compiles `lists` before `hashmaps`, because `Hashmaps` accesses `Lists`.
 
 ## 5. Writing Java modules of your own
 
-The recipe after which `Lists` is built:
+For a class whose methods fit as they are, method references are enough
+(section 1b). A class of your own is worth it when the operations should
+be unboxed, or need more than one call of Java. The recipe after which
+`Lists` is built:
 
 1. **Java class:** a class that extends `a68j.rt.JavaObject`, with public
    **static** methods. The object is the first parameter. Errors are
@@ -552,30 +644,36 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `nest-java-exception-fn` | a Java functional object that throws when it is called as an Algol 68 procedure |
 | `nest-java-exception-callback` | a Java exception in a Java method called by a callback: the position of that inner call |
 | `nest-java-exception-par` | a unit waiting in `Thread.sleep` when another unit jumps out of the parallel clause: the interruption ends the unit, the jump goes on |
+| `nest-java-objects` | constructors and instance methods of the JDK (section 1b): `ArrayList`, `Iterator`, `String`, `StringBuilder`, `HashMap`, `AbstractMap.SimpleEntry`, `Map.Entry`; `nil` for `null`, `is`, rows of objects, a `Consumer`, procedure values and an operator |
+| `nest-java-objects-nil` | an instance method called on `nil` |
+| `nest-java-objects-class` | an object of the wrong class, through a procedure value |
+| `nest-java-objects-new` | a Java exception in a constructor |
+| `nest-java-objects-deref` | dereferencing a Java object of the JDK |
+| `nest-java-objects-error` | the constructor of an abstract class: compile-time error |
 | `lists-basic` | all operations on `Intlist`, `is`, `nil`, `AT` |
 | `lists-kinds` | the other five modes, copies in a `Stringlist` |
 | `lists-speed` | 1 000 000 elements |
-| `lists-error` | an index out of bounds |
+| `lists-error` | an index out of bounds, with the position in the program |
 | `lists-nil` | dereferencing a Java object |
 | `hashmaps-basic` | all operations on `String_int_map`, slices as keys, names across growth and removal |
 | `hashmaps-kinds` | all 18 modes |
 | `hashmaps-lists` | `Lists` through `access pub`, `HAS` and `REMOVE` on lists, strings as keys |
 | `hashmaps-both` | `access Lists, Hashmaps`: the message as in ga68 |
-| `hashmaps-error` | a missing key with `ELEM` |
+| `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 25 of 25 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 31 of 31 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
 - Typed entries also for public formal holes of a module
   (`pub proc (int) int f = nest Java "…"`); today they go through the
   boxed procedure value.
-- Positions in the error messages that Java methods report themselves
-  (`JavaObject.error`). The lookup on the stack that Java exceptions use
-  would also work there.
-- Instance methods and constructors (today only static methods and
-  fields), so that JDK objects can be used without a wrapper class of
-  their own.
+- Fields of objects (`"Class::field"` is not a field), and static fields
+  through `::`.
+- Generic element types are not checked: the `String`s of a
+  `List<String>` are converted when they are read as `string`, another
+  object there is a runtime error only then.
 - Done on 1 Nov 2026: procedures as parameters (functional interfaces),
-  see section 1a.
+  see section 1a; constructors and instance methods, section 1b; positions
+  for the errors of `JavaObject.error`, section 1.

@@ -1,0 +1,91 @@
+{ a68j-options: -fnest-java }
+{ Objects of the JDK without a wrapper class of their own: constructors
+  (Class::new), instance methods (Class::method, the object is the first
+  parameter), static methods through ::, nested classes, NIL for null,
+  IS on the objects, procedure values and operators (docs/java-modules.md,
+  section 1b). }
+begin
+   mode Arraylist = ref Arraylist_object;
+   mode Arraylist_object = struct (int arraylist_java_object);
+   mode Iterator = ref Iterator_object;
+   mode Iterator_object = struct (int iterator_java_object);
+   mode Builder = ref Builder_object;
+   mode Builder_object = struct (int builder_java_object);
+   mode Hashmap = ref Hashmap_object;
+   mode Hashmap_object = struct (int hashmap_java_object);
+   mode Entry = ref Entry_object;
+   mode Entry_object = struct (int entry_java_object);
+
+   proc Arraylist new_list = nest Java "java.util.ArrayList::new";
+   proc (int) Arraylist new_list_with = nest Java "java.util.ArrayList::new";
+   proc (Arraylist, string) bool add = nest Java "java.util.ArrayList::add";
+   proc (Arraylist, int) string get = nest Java "java.util.ArrayList::get";
+   proc (Arraylist) int size = nest Java "java.util.ArrayList::size";
+   proc (Arraylist, proc (string, string) int) void sort = nest Java "java.util.ArrayList::sort";
+   proc (Arraylist) string show = nest Java "java.util.ArrayList::toString";
+   proc (Arraylist) Iterator iterator = nest Java "java.util.ArrayList::iterator";
+   proc (Iterator) bool has_next = nest Java "java.util.Iterator::hasNext";
+   proc (Iterator) string next = nest Java "java.util.Iterator::next";
+   prio ADD = 1;
+   op (Arraylist, string) bool ADD = nest Java "java.util.ArrayList::add";
+
+   Arraylist l = new_list_with (10);
+   for i from 1 to 5 do add (l, whole (i * i * 7 MOD 10, 0) + "x") od;
+   l ADD "zz";
+   puts (show (l) + " size " + whole (size (l), 0) + " third " + get (l, 2) + "'n");
+   sort (l, (string a, b) int: (a < b | -1 |: a > b | 1 | 0));
+   puts (show (l) + "'n");
+   Iterator it = iterator (l);
+   while has_next (it) do puts (next (it) + ";") od;
+   puts ("'n");
+
+   { The procedure values (the bridge methods). }
+   proc (Arraylist) int f := size;
+   proc (Arraylist, string) bool g := add;
+   g (l, "last");
+   puts ("through values: " + whole (f (l), 0) + "'n");
+
+   { Instance methods of String on a string; a static method through ::. }
+   proc (string) int length = nest Java "java.lang.String::length";
+   proc (string, string) bool starts = nest Java "java.lang.String::startsWith";
+   proc (string) string upper = nest Java "java.lang.String::toUpperCase";
+   proc (string) int parse = nest Java "java.lang.Integer::parseInt";
+   puts (whole (length ("Algol"), 0) + " " + (starts ("Algol 68", "Al") | "yes" | "no") + " "
+         + upper ("van wijngaarden") + " " + whole (parse ("68") + 1, 0) + "'n");
+
+   { A method that yields its object: IS compares the Java objects. }
+   proc Builder new_builder = nest Java "java.lang.StringBuilder::new";
+   proc (Builder, string) Builder append = nest Java "java.lang.StringBuilder::append";
+   proc (Builder) string text = nest Java "java.lang.StringBuilder::toString";
+   Builder b = new_builder;
+   Builder b2 = append (append (b, "ab"), "cd");
+   puts (text (b) + " " + (b2 is b | "same" | "other") + " " + (new_builder isnt b | "new" | "?") + "'n");
+
+   { Rows of Java objects; Java objects for the procedure of a Consumer;
+     a constructor as a procedure value. }
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc ([] Builder) List as_list = nest Java "java.util.Arrays.asList";
+   proc (List) [] Builder to_row = nest Java "java.util.List::toArray";
+   proc (List, proc (Builder) void) void for_each = nest Java "java.util.List::forEach";
+   List bl = as_list ((b, new_builder, append (new_builder, "x")));
+   [] Builder br = to_row (bl);
+   puts (whole (UPB br, 0) + (br[1] is b | " b first" | " ?") + "'n");
+   for_each (bl, (Builder x) void: puts ("<" + text (x) + ">"));
+   puts ("'n");
+   proc Arraylist mk := new_list;
+   puts (show (mk) + "'n");
+
+   { null is NIL; Object parameters and results; a nested class. }
+   proc Hashmap new_map = nest Java "java.util.HashMap::new";
+   proc (Hashmap, string, Arraylist) Arraylist put = nest Java "java.util.HashMap::put";
+   proc (Hashmap, string) Arraylist lookup = nest Java "java.util.HashMap::get";
+   Hashmap m = new_map;
+   put (m, "list", l);
+   puts ((lookup (m, "list") is l | "found l" | "?") + " " + (lookup (m, "none") is nil | "nil" | "?") + "'n");
+   proc (string, int) Entry entry = nest Java "java.util.AbstractMap.SimpleEntry::new";
+   proc (Entry) string key = nest Java "java.util.Map.Entry::getKey";
+   proc (Entry) int value = nest Java "java.util.Map.Entry::getValue";
+   Entry e = entry ("answer", 42);
+   puts (key (e) + "=" + whole (value (e) + 0, 0) + "'n")
+end

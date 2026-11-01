@@ -1,0 +1,13 @@
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc List new_list = nest Java "java.util.ArrayList::new";
+   proc (List, string) bool add = nest Java "java.util.ArrayList::add";
+   proc (List, proc (string, string) int) void sort = nest Java "java.util.ArrayList::sort";
+   proc (List) string show = nest Java "java.util.ArrayList::toString";
+   proc (string, string) int compare = nest Java "java.lang.String::compareTo";
+   List l = new_list;
+   add (l, "Wirth"); add (l, "van Wijngaarden"); add (l, "Lindsey"); add (l, "Koster");
+   sort (l, compare);
+   puts (show (l) + "'n")
+end

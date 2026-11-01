@@ -1,0 +1,2 @@
+tests/java/nest-java-objects-deref.a68:8: runtime error: attempt to dereference a Java object (java.util.ArrayList)
+exit 134

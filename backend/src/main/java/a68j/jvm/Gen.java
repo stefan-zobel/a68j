@@ -184,7 +184,7 @@ public final class Gen {
      */
     final java.util.Set<Tag> valueConsts = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     /** The Java method of each Java formal hole of a procedure mode, once resolved. */
-    final Map<Node, java.lang.reflect.Method> javaMethods = new IdentityHashMap<>();
+    final Map<Node, GenJava.Target> javaMethods = new IdentityHashMap<>();
     final Deque<Routine> work = new ArrayDeque<>();
     /** Loops to be emitted as methods of their own (see {@link Outline}). */
     final Deque<Outline.Job> loopJobs = new ArrayDeque<>();

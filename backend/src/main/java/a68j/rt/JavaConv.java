@@ -172,12 +172,47 @@ public final class JavaConv {
         return Row.ofString(o == null ? "" : o.toString());
     }
 
-    /** A name from a Java object: a68j.rt.Ref (a Java object of a module or a name), NIL for null. */
+    /**
+     * A name from a Java object: NIL for null, an a68j.rt.Ref as it is (a
+     * name, or a Java object of a module), any other object in a JavaHandle.
+     */
     public static Ref objRef(Object o) {
         if (o == null || o instanceof Ref) {
             return (Ref) o;
         }
-        throw wrongValue(o, "name");
+        return new JavaHandle(o);
+    }
+
+    /** The Java object for the name R: the object of a JavaHandle, else R itself (null for NIL). */
+    public static Object unwrap(Ref r) {
+        return r instanceof JavaHandle h ? h.value : r;
+    }
+
+    /**
+     * The Java object for the name R where Java wants a C ({@link #unwrap}):
+     * null for NIL; a runtime error if the object is not a C.
+     */
+    public static Object javaObject(Ref r, Class<?> c) {
+        if (r == null || c.isInstance(r) && Ref.class.isAssignableFrom(c)) {
+            return r;
+        }
+        Object o = unwrap(r);
+        if (c.isInstance(o)) {
+            return o;
+        }
+        throw JavaObject.error((r instanceof JavaObject ? "Java object of " + o.getClass().getName() : "a name")
+                + " where a " + c.getName() + " is expected");
+    }
+
+    /**
+     * The object on which the Java method WHAT (Class::method) is called:
+     * {@link #javaObject}, but NIL is a runtime error.
+     */
+    public static Object receiver(Ref r, Class<?> c, String what) {
+        if (r == null) {
+            throw JavaObject.error("Java method " + what + " called on NIL");
+        }
+        return javaObject(r, c);
     }
 
     private static RuntimeException nullValue(String mode) {
@@ -200,6 +235,7 @@ public final class JavaConv {
             case 'f' -> comp == Float.class ? v : (Object) (double) (Float) v;
             case 'c' -> (char) (int) (Integer) v;
             case 's' -> ((Row) v).asString();
+            case 'r' -> javaObject((Ref) v, comp);
             default -> v;
         };
     }

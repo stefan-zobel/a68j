@@ -1,0 +1,10 @@
+{ a68j-options: -fnest-java }
+{ An instance method called on NIL is a runtime error at the call. }
+begin
+   mode Arraylist = ref Arraylist_object;
+   mode Arraylist_object = struct (int arraylist_java_object);
+   proc (Arraylist) int size = nest Java "java.util.ArrayList::size";
+   Arraylist l = nil;
+   puts ("before'n");
+   puts (whole (size (l), 0) + "'n")
+end
