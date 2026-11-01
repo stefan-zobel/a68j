@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Non-decimal radices/Convert", ALGOL 68 solution non-decimal-radices-convert-2.alg.
+  https://rosettacode.org/wiki/Non-decimal_radices/Convert#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/non-decimal-radices-convert-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string numeric_alpha = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+proc raise_value_error = ([]string args)void: (
+  put(stand_error, "Value error");
+  string sep := ": ";
+  for index to UPB args - 1 do put(stand_error, (sep, args[index])); sep:=", " od;
+  new_line(stand_error);
+  stop
+);
+
+proc base_n = (int num, base)string: (
+  proc base_n = (int num, base)string:
+    ( num = 0 | "" |  base_n(num OVER base, base) + numeric_alpha[@0][num MOD base]);
+  ( num = 0 | "0" |: num > 0 | base_n(num, base) | "-" + base_n(-num, base) )
+);
+
+proc unsigned_int = (string repr, int base)int:
+  if UPB repr < LWB repr then 0 else
+    int pos;
+    if NOT char_in_string(repr[UPB repr], pos, numeric_alpha) then
+      raise_value_error("CHAR """+repr[UPB repr]+""" not valid")
+    fi;
+    unsigned_int(repr[:UPB repr-1], base) * base + pos - 1
+  fi
+;
+
+proc int_ = (string repr, int base)int:
+  ( repr[LWB repr]="-" | -unsigned_int(repr[LWB repr + 1:], base) | unsigned_int(repr, base) );
+
+[]int test = (-256, -255, -26, -25, 0, 25, 26, 255, 256);
+for index to UPB test do
+  int k = test[index];
+  string s = base_n(k,16); { returns the string 1a }
+  int i = int_(s,16);  { returns the integer 26 }
+  print((k," => ", s, " => ", i, new_line))
+od
+)

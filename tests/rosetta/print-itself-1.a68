@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Print itself", ALGOL 68 solution print-itself-1.alg.
+  https://rosettacode.org/wiki/Print_itself#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/print-itself-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+if  file input_file;
+    string file_name = "printItself.a68";
+    open( input_file, file_name, stand_in_channel ) /= 0
+then
+    { failed to open the file                                              }
+    print( ( "Unable to open """ + file_name + """", newline ) )
+else
+    { file opened OK                                                       }
+    bool at_eof := false;
+    on_logical_file_end( input_file     { set the EOF handler for the file }
+                       , ( ref file f )bool:
+                         begin
+                             { note that we reached EOF on the latest read }
+                             { and return TRUE so processing can continue  }
+                             at_eof := true
+                         end
+                       );
+    while string line;
+          get( input_file, ( line, newline ) );
+          NOT at_eof
+    do
+        print( ( line, newline ) )
+    od;
+    close( input_file )
+fi
+)

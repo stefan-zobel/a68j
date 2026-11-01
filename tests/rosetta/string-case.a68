@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "String case", ALGOL 68 solution string-case.alg.
+  https://rosettacode.org/wiki/String_case#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/string-case.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+{ Demonstrate toupper and tolower for standard ALGOL 68
+strings.  This does not work for multibyte character sets. }
+
+int l2u = ABS "A" - ABS "a";
+
+proc to_upper = (char c)char:
+  (ABS "a" > ABS c | c |: ABS c > ABS "z" | c | REPR ( ABS c + l2u ));
+
+proc to_lower = (char c)char:
+  (ABS "A" > ABS c | c |: ABS c > ABS "Z" | c | REPR ( ABS c - l2u ));
+
+{ Operators can be defined in ALGOL 68 }
+op (char)char TOLOWER = to_lower, TOUPPER = to_upper;
+
+{ upper-cases s in place }
+proc string_to_upper = (ref string s)void:
+    for i from LWB s to UPB s do s[i] := to_upper(s[i]) od;
+
+{ lower-cases s in place }
+proc string_to_lower = (ref string s)void:
+    for i from LWB s to UPB s do s[i] := to_lower(s[i]) od;
+
+main: (
+    string t := "alphaBETA";
+    string_to_upper(t);
+    printf(($"uppercase: "gl$, t));
+    string_to_lower(t);
+    printf(($"lowercase: "gl$, t))
+)
+)

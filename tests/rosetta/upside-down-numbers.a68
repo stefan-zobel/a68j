@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Upside-down numbers", ALGOL 68 solution upside-down-numbers.alg.
+  https://rosettacode.org/wiki/Upside-down_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/upside-down-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find and count upside-down numbers - translation of Phix }
+    proc get_counts = ( int d, ref long int first, last )long int:
+         begin
+             long int count := first := last := 1;
+             for i from 2 to d do
+                 first := last + 1;
+                 if NOT ODD i then count *:= 9 fi;
+                 last := first + count - 1
+             od;
+             count
+         end { get counts } ;
+    proc kth_of_n = ( long int kth, digits, count )string:
+         if   digits = 0 then ""
+         elif digits = 1 then "5"
+         else
+            op D = ( int n )char: REPR ( ABS "0" + n );
+            long int reduced_count := count OVER 9;
+            int      d              = SHORTEN ( ( kth - 1 ) OVER reduced_count );
+            D ( 1 + d ) + kth_of_n( kth - ( d * reduced_count ), digits - 2, reduced_count ) + D ( 9 - d )
+         fi { kth of n } ;
+    proc get_which = ( long int nth_in, ref long int count, first, last, kth, digits )string:
+         begin
+            long int nth := nth_in;
+            digits := count := first := last := 1;
+            while nth > last do
+                first   := last + 1;
+                digits +:= 1;
+                if NOT ODD digits then count *:= 9 fi;
+                last    := first + count - 1
+            od;
+            kth := nth - first + 1;
+            kth_of_n( kth, digits, count )
+         end { get which } ;
+    proc ord = ( long int n )string:
+         if   int d2 = SHORTEN ( n MOD 100 );
+              d2 >= 10 AND d2 <= 20
+         then "th"
+         else case SHORTEN ( n MOD 10 ) in "st", "nd", "rd" out "th" esac
+         fi { ord } ;
+    print( ( "The first 50 upside down numbers:", newline ) );
+    for i to 50 do
+        string ud := get_which( i
+                              , loc long int, loc long int, loc long int
+                              , loc long int, loc long int
+                              );
+        while ( UPB ud - LWB ud ) < 3 do " " +=: ud od;
+        print( ( ud, if i MOD 10 /= 0 then " " else newline fi ) )
+    od;
+    print( ( newline ) );
+    for d to 7 do
+        long int first := 0, last := 0;
+        long int count  = get_counts( d, first, last );
+        print( ( "There are ", whole( count, 0 ), " ", whole( d, 0 )
+               , "-digit upside down numbers (the "
+               , whole( first, 0 ), ord( first ), " to ", whole( last, 0 ), ord( last )
+               , ")", newline
+               )
+             )
+    od;
+    print( ( "(etc...)", newline, newline ) );
+    []long int position = ( 1, 2, 10, 11, 182, 500, 910, 911
+                          , 5 000, 50 000, 500 000, 5 000 000, 50 000 000
+                          , 500 000 000, 5 000 000 000, 50 000 000 000, 500 000 000 000
+                          , 5 000 000 000 000, 50 000 000 000 000, 500 000 000 000 000
+                          , 5 000 000 000 000 000
+                          );
+    for i from LWB position to UPB position do
+        long int w      = position[ i ];
+        long int count := 0, first := 0, last := 0, kth := 0, digits := 0;
+        string   res    = get_which( w, count, first, last, kth, digits );
+        print( ( "The ", whole( w, 0 ), ord( w ), " upside down number"
+               , " is the ", whole( kth, 0 ), ord( kth ), " ", whole( digits, 0 )
+               , "-digit number (", res, ")", newline
+               )
+             )
+    od
+end
+)

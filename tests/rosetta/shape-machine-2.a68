@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Shape-Machine", ALGOL 68 solution shape-machine-2.alg.
+  https://rosettacode.org/wiki/Shape-Machine#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/shape-machine-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    real a      := begin int n; read( n ); n end;
+    real prev_a := if a = 0 then 1 else 0 fi;
+    int  count  := 0;
+    while prev_a /= a
+    do
+        count +:= 1;
+        prev_a := a;
+        print( ( fixed( a +:= 3 *:= 0.86, -16, 14 ), newline ) )
+    od;
+    print( ( whole( count, 0 ), " repetitions" ) )
+end
+)

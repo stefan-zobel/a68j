@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Integer comparison", ALGOL 68 solution integer-comparison.alg.
+  https://rosettacode.org/wiki/Integer_comparison#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/integer-comparison.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main: (
+  int a, b;
+  read((a, space, b, new_line));
+
+  if a <= b OR a LE b { OR a ≤ b } then
+    print((a," is less or equal to ", b, new_line))
+  fi;
+  if a < b OR a LT b then
+    print((a," is less than ", b, new_line))
+  elif a = b OR a EQ b then
+    print((a," is equal to ", b, new_line))
+  elif a > b OR a GT b then
+    print((a," is greater than ", b, new_line))
+  fi;
+  if a /= b OR a NE b { OR a ≠ b } then
+    print((a," is not equal to ", b, new_line))
+  fi;
+  if a >= b OR a GE b { OR a ≥ b } then
+    print((a," is greater or equal to ", b, new_line))
+  fi
+)
+)

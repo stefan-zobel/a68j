@@ -1,0 +1,78 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "CSV to HTML translation", ALGOL 68 solution csv-to-html-translation-1.alg.
+  https://rosettacode.org/wiki/CSV_to_HTML_translation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/csv-to-html-translation-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+[6]string rows := []string(
+    "Character,Speech",
+    "The multitude,The messiah! Show us the messiah!",
+    "Brians mother,<angry>Now you listen here! He''s not the messiah; he''s a very naughty boy! Now go away!</angry>",
+    "The multitude,Who are you?",
+    "Brians mother,I''m his mother; that''s who!",
+    "The multitude,Behold his mother! Behold his mother!"
+);
+
+[max_abs_char]string encoded; for i to UPB encoded do encoded[i]:=REPR i od;
+{ encoded[ABS""""] := "&quot;"; optional }
+  encoded[ABS "&"] := "&amp;";
+  encoded[ABS "<"] := "&lt;";
+{ encoded[ABS ">"] := "&gt;"; optional }
+
+op ENCODE = (string s)string: (
+  string out_ := "";
+  for i to UPB s do out_+:= encoded[ABS s[i] ] od;
+  out_
+);
+
+proc head = (string title)void: (
+  printf((
+    $"<HEAD>"l$,
+      $"<TITLE>"g"</TITLE>"l$, title,
+      $"<STYLE type=""text/css"">"l$,
+        $"TD {background-color:#ddddff; }"l$,
+        $"thead TD {background-color:#ddffdd; text-align:center; }"l$,
+      $"</STYLE>"l$,
+    $"</HEAD>"l$
+  ))
+);
+
+{ define HTML tags using Algol68's "reverent" block structuring }
+proc html = void: print(("<HTML>", new_line)),
+       body = void: print(("<BODY>", new_line)),
+         table = void: print(("<TABLE>", new_line)),
+           table_row = void: print(("<TR>")),
+             th = (string s)void: printf(($"<TH>"g"</TH>"$, s)),
+             td = (string s)void: printf(($"<TD>"g"</TD>"$, s)),
+           elbat_row = void: print(("</TR>", new_line)),
+         elbat = void: print(("</TABLE>", new_line)),
+       ydob = void: print(("</BODY>", new_line)),
+     lmth = void: print(("</HTML>", new_line));
+
+file row_input; string row; char ifs = ",";
+associate(row_input, row); make_term(row_input, ifs);
+
+html;
+  head("CSV to HTML translation - Extra Credit");
+  body;
+    table;
+      for nr to UPB rows do
+        row := rows[nr];
+        table_row;
+          on_logical_file_end(row_input, (ref file row_input)bool: row_end);
+          for nf do
+            string field; get(row_input,field);
+            (nr=1|th|td)(ENCODE field);
+            get(row_input, space)
+          od;
+          row_end: reset(row_input);
+        elbat_row
+      od;
+    elbat;
+  ydob;
+lmth
+)

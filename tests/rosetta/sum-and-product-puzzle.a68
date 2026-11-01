@@ -1,0 +1,137 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sum and product puzzle", ALGOL 68 solution sum-and-product-puzzle.alg.
+  https://rosettacode.org/wiki/Sum_and_product_puzzle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sum-and-product-puzzle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { solve the sum and product puzzle: find X, Y where 1 < X < Y; X + Y <= 100 }
+      { mathematician S knows X + Y and P knows X * Y                             }
+      { S says P doesn't know X and Y, P says they now know X and Y which leads S }
+      { to also know X and Y                                                      }
+      { which leads to the following (from the task)                              }
+      { 1: For every possible sum decomposition of the number X+Y,                }
+      {        the product has in turn more than one product decomposition        }
+      { 2: The number X*Y has only one product decomposition for which 1: is true }
+      { 3: The number X+Y has only one sum decomposition for which 2: is true     }
+
+    { determine the possible sums and products and count their occurences         }
+    int max_n = 98, min_n = 2;
+    [ 0 : max_n * max_n ]int s_count, p_count;
+    [ min_n : max_n, min_n : max_n ]bool candidate;
+    for x from LWB p_count to UPB p_count do p_count[ x ] := s_count[ x ] := 0 od;
+    for x from min_n to max_n do for y from min_n to max_n do candidate[ x, y ] := false od od;
+    for x from min_n to max_n - min_n do
+        for y from x + 1 to max_n - x do
+            s_count[ x + y ] +:= 1;
+            p_count[ x * y ] +:= 1
+        od
+    od;
+
+    { shows the count of the candidates                                          }
+    proc show_candidates = ( string stage )void:
+         begin
+            int c_count := 0;
+            for x from min_n to max_n do
+                for y from min_n to max_n do if candidate[ x, y ] then c_count +:= 1 fi od
+            od;
+            print( ( stage, " ", whole( c_count, - 5 ), " candidate", if c_count = 1 then "" else "s" fi, newline ) )
+        end { show candidates } ;
+
+    { checks 1: is TRUE for x plus y, returns TRUE if it is, FALSE otherwise      }
+    proc all_sums_have_multiple_product_decompositions = ( int x_plus_y )bool:
+         begin
+            bool all_multiple_p := true;
+            for x from min_n to x_plus_y OVER 2 while all_multiple_p do
+                int y = x_plus_y - x;
+                if y > x AND y <= max_n then
+                    { x, y is a sum decomposition of x plus y                     }
+                    if candidate[ x, y ] then all_multiple_p := all_multiple_p AND p_count[ x * y ] > 1 fi
+                fi
+            od;
+            all_multiple_p
+         end { all sums have multiple product decompositions } ;
+
+    { checks 2: is TRUE for x times y, returns TRUE if it is, FALSE otherwise     }
+    proc only_one_product_decomposition = ( int x_times_y )bool:
+         begin
+            int multiple_p := 0;
+            for x from min_n to ENTIER sqrt( x_times_y ) do
+                if x_times_y MOD x = 0 then
+                    int y = x_times_y OVER x;
+                    if y > x AND y <= max_n then
+                        { x, y is a product decomposition of x times y            }
+                        if candidate[ x, y ] then
+                            if all_sums_have_multiple_product_decompositions( x + y ) then
+                                multiple_p +:= 1
+                            fi
+                        fi
+                    fi
+                fi
+            od;
+            multiple_p = 1
+         end { only one product decomposition } ;
+
+    { start off with all min n .. max n as candidates                             }
+    for x from min_n to max_n do
+        for y from x + 1 to max_n do
+            if x + y <= 100 then candidate[ x, y ] := true fi
+        od
+    od;
+    show_candidates( "Sum and product puzzle " );
+
+    { Statement 1: S says P doesn't know X and Y                                  }
+    for x_plus_y from min_n to max_n + min_n do
+        if NOT all_sums_have_multiple_product_decompositions( x_plus_y ) then
+            for x from min_n to x_plus_y OVER 2 do
+                int y = x_plus_y - x;
+                if y > x AND y <= max_n then candidate[ x, y ] := false fi
+            od
+        fi
+    od;
+    show_candidates( "After statement 1      " );
+
+    { Statement 2: P says they now know X and Y                                   }
+    for x_times_y from min_n * ( min_n + 1 ) to max_n * max_n do
+        if NOT only_one_product_decomposition( x_times_y ) then
+            for x from min_n to ENTIER sqrt( x_times_y ) do
+                if x_times_y MOD x = 0 then
+                    int y = x_times_y OVER x;
+                    if y > x AND y <= max_n then candidate[ x, y ] := false fi
+                fi
+            od
+        fi
+    od;
+    show_candidates( "After statement 2      " );
+
+    { Statement 3: S says they now also know X and Y, check 3:                    }
+    for x_plus_y from min_n to max_n + min_n do
+        int multiple_s := 0;
+        for x from min_n to x_plus_y OVER 2 do
+            int y = x_plus_y - x;
+            if y > x AND y <= max_n then
+                { x, y is a sum decomposition of x plus y                         }
+                if candidate[ x, y ] then
+                    if only_one_product_decomposition( x * y ) then multiple_s +:= 1 fi
+                fi
+            fi
+        od;
+        if multiple_s /= 1 then
+            for x from min_n to x_plus_y OVER 2 do
+                int y = x_plus_y - x;
+                if y > x AND y <= max_n then candidate[ x, y ] := false fi
+            od
+        fi
+    od;
+    show_candidates( "After statement 3      " );
+
+    print( ( newline, "solution: " ) );
+    for x from min_n to max_n do
+        for y from min_n to max_n do
+            if candidate[ x, y ] then print( ( whole( x, 0 ), ", ", whole( y, 0 ), newline ) ) fi
+        od
+    od
+
+end
+)

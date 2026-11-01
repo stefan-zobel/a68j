@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Y combinator", ALGOL 68 solution y-combinator-1.alg.
+  https://rosettacode.org/wiki/Y_combinator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/y-combinator-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  mode F = proc(int)int;
+  mode Y = proc(Y)F;
+
+{ compare python Y = lambda f: (lambda x: x(x)) (lambda y: f( lambda *args: y(y)(*args)))}
+  proc y =      (proc(F)F f)F: (  (Y x)F: x(x)) (  (Y z)F: f((int arg )int: z(z)( arg )));
+
+  proc fib = (F f)F: (int n)int: case n in n,n out f(n-1) + f(n-2) esac;
+
+  for i to 10 do print(y(fib)(i)) od
+end
+)

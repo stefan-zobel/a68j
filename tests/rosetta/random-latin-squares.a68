@@ -1,0 +1,89 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Random Latin squares", ALGOL 68 solution random-latin-squares.alg.
+  https://rosettacode.org/wiki/Random_Latin_squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/random-latin-squares.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generate random latin squares }
+
+    { Knuth Shuffle routine from the Knuth Shuffle Task  }
+    {       modified to shufflw a row of a [,]CHAR array }
+    proc knuth_shuffle = (ref[,]char a, int row)void:
+    (
+      proc between = (int l, h)int :
+      (
+        ENTIER (random * ABS (h-l+1) + (l<h|l|h))
+      );
+      for i from LWB a to UPB a do
+        int  j = between(LWB a, UPB a);
+        char t = a[row, i];
+        a[row, i] := a[row, j];
+        a[row, j] := t
+      od
+    );
+
+    { generates a random latin square }
+    proc latin_square = ( int n )[,]char:
+         begin
+            [ 1 : n ]char letters;
+            [ 1 : n, 1 : n ]char result;
+            for col to n do
+                letters[ col ] := REPR ( ABS "A" + ( col - 1 ) )
+            od;
+            for row to n do
+                result[ row, : ] := letters
+            od;
+            knuth_shuffle( result, 1 );
+            for row from 2 to n - 1 do
+                while
+                    knuth_shuffle( result, row );
+                    bool all_different := true;
+                    for prev to row - 1 while all_different do
+                        for col to n
+                        while all_different :=
+                                result[ row, col ] /= result[ prev, col ]
+                        do skip od
+                    od;
+                    NOT all_different
+                do skip od
+            od;
+            { the final row, there is only one possibility for each column }
+            for col to n do
+                [ 1 : n ]char free := letters;
+                for row to n - 1 do
+                    free[ ( ABS result[ row, col ] - ABS "A" ) + 1 ] := REPR 0
+                od;
+                bool found := false;
+                for row from 1 LWB result to 1 UPB result while NOT found do
+                    if free[ row ] /= REPR 0 then
+                        found := true;
+                        result[ n, col ] := free[ row ]
+                    fi
+                od
+            od;
+            result
+         end { latin suare } ;
+
+    { prints a latin square }
+    proc print_square = ( [,]char square )void:
+         for row from 1 LWB square to 1 UPB square do
+             if 2 LWB square <= 2 UPB square then
+                 print( ( square[ row, 2 LWB square ] ) );
+                 for col from 2 LWB square + 1 to 2 UPB square do
+                     print( ( " ", square[ row, col ] ) )
+                 od;
+                 print( ( newline ) )
+             fi
+         od { print square } ;
+
+    next_random;
+    print_square( latin_square(  5 ) );
+    print( ( newline ) );
+    print_square( latin_square(  5 ) );
+    print( ( newline ) );
+    print_square( latin_square( 10 ) )
+
+end
+)

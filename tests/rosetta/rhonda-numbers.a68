@@ -1,0 +1,106 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rhonda numbers", ALGOL 68 solution rhonda-numbers.alg.
+  https://rosettacode.org/wiki/Rhonda_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rhonda-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Rhonda numbers: numbers n in base b such that the product  }
+      { of the digits of n is b * the sum of the prime factors of n          }
+
+    { returns the sum of the prime factors of n                              }
+    proc factor_sum = ( int n )int:
+         begin
+             int result := 0;
+             int v      := ABS n;
+             while v > 1 AND v MOD 2 = 0 do
+                 result +:= 2;
+                 v   OVERAB 2
+             od;
+             for f from 3 by 2 while v > 1 do
+                 while v > 1 AND v MOD f = 0 do
+                     result +:= f;
+                     v   OVERAB f
+                 od
+             od;
+             result
+         end { factor sum } ;
+    { returns the digit product of n in the specified base                   }
+    proc digit_product = ( int n, base )int:
+         if n = 0 then 0
+         else
+             int result := 1;
+             int v      := ABS n;
+             while v > 0 do
+                 result *:= v MOD base;
+                 v   OVERAB base
+             od;
+             result
+         fi { digit product } ;
+    { returns TRUE  if n is a Rhonda number in the specified base,           }
+    {         FALSE otherwise                                                }
+    proc is_rhonda = ( int n, base )bool: base * factor_sum( n ) = digit_product( n, base );
+
+    { returns TRUE if n is prime, FALSE otherwise                            }
+    proc is_prime = ( int n )bool:
+         if   n < 3       then n = 2
+         elif n MOD 3 = 0 then n = 3
+         elif NOT ODD n   then false
+         else
+             int  f          := 5;
+             int  f2         := 25;
+             int  to_next    := 24;
+             bool is_a_prime := true;
+             while f2 <= n AND is_a_prime do
+                 is_a_prime := n MOD f /= 0;
+                 f         +:= 2;
+                 f2        +:= to_next;
+                 to_next   +:= 8
+             od;
+             is_a_prime
+         fi { is prime } ;
+    { returns a string representation of n in the specified base             }
+    proc to_base_string = ( int n, base )string:
+         if n = 0 then "0"
+         else
+             int under_10 = ABS "0";
+             int over_9   = ABS "a" - 10;
+             string result := "";
+             int    v      := ABS n;
+             while v > 0 do
+                 int d = v MOD base;
+                 REPR ( d + if d < 10 then under_10 else over_9 fi ) +=: result;
+                 v OVERAB base
+             od;
+             result
+         fi { to base string } ;
+    { find the first few Rhonda numbers in non-prime bases 2 .. max base     }
+    int max_rhonda = 10;
+    int max_base   = 16;
+    for base from 2 to max_base do
+        if NOT is_prime( base ) then
+            print( ( "The first ", whole( max_rhonda, 0 )
+                   , " Rhonda numbers in base ", whole( base, 0 )
+                   , ":", newline
+                   )
+                 );
+            int r_count := 0;
+            [ 1 : max_rhonda ]int rhonda;
+            for n while r_count < max_rhonda do
+                if is_rhonda( n, base ) then
+                    rhonda[ r_count +:= 1 ] := n
+                fi
+            od;
+            print( ( "    in base 10:" ) );
+            for i to max_rhonda do print( ( " ", whole( rhonda[ i ], 0 ) ) ) od;
+            print( ( newline ) );
+            if base /= 10 then
+                print( ( "    in base ", whole( base, -2 ), ":" ) );
+                for i to max_rhonda do print( ( " ", to_base_string( rhonda[ i ], base ) ) ) od;
+                print( ( newline ) )
+            fi
+        fi
+    od
+end
+)

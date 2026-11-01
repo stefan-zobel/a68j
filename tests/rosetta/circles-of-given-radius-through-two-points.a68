@@ -1,0 +1,116 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Circles of given radius through two points", ALGOL 68 solution circles-of-given-radius-through-two-points.alg.
+  https://rosettacode.org/wiki/Circles_of_given_radius_through_two_points#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/circles-of-given-radius-through-two-points.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ represents a point                                                 }
+mode Point = struct( real x, real y );
+{ returns TRUE if p1 is the same point as p2, FALSE otherwise        }
+op = = ( Point p1, Point p2 )bool: x of p1 = x of p2 AND y of p1 = y of p2;
+
+{ represents a circle with centre c and radius r                     }
+mode Circle = struct( Point c, real r );
+{ returns the difference in x-coordinate of two points               }
+prio XDIFF = 5;
+op   XDIFF = ( Point p1, Point p2 )real: x of p1 - x of p2;
+{ returns the difference in y-coordinate of two points               }
+prio YDIFF = 5;
+op   YDIFF = ( Point p1, Point p2 )real: y of p1 - y of p2;
+{ returns the distance between two points                            }
+op   -     = ( Point p1, Point p2 )real:
+     begin
+        real x_diff   = p1 XDIFF p2;
+        real y_diff   = p1 YDIFF p2;
+        sqrt( ( x_diff * xdiff ) + ( y_diff * y_diff ) )
+     end; { - }
+{ generate a human-readable version of the circle c                  }
+op TOSTRING = ( Circle c )string:
+       ( "radius:"
+       + fixed(      r of c, -8, 4 )
+       + " @("
+       + fixed( x of c of c, -8, 4 )
+       + ", "
+       + fixed( y of c of c, -8, 4 )
+       + ")"
+       );
+
+{ modes to represent the results of the circles procedure ...        }
+{ infinite number of circles                                         }
+mode Infinitecircles = struct( string t, real r );
+{ two possible circles                                               }
+mode Twocircles      = struct( Circle a, Circle b );
+{ one possible circle results in a CIRCLE                            }
+{ no possible circles                                                }
+mode Nocircles       = struct( string reason, Point p1, Point p2, real r );
+{ mode returned by the circles procedure                             }
+mode Possiblecircles = union( Infinitecircles, Twocircles, Circle, Nocircles );
+
+{ returns the circles of radius r that can be drawn through          }
+{         points p1 and p2                                           }
+proc circles = ( Point p1, Point p2, real r )Possiblecircles:
+     if r < 0 then { negative radius - there are no circles          }
+         Nocircles( "negative radius", p1, p2, r )
+     elif p1 = p2 then { coincident points                           }
+         if r = 0.0 then
+             { only one circle of radius 0 is possible               }
+             Circle( p1, 0.0 )
+         else
+             { an infinite number of circles can be drawn through    }
+             { the point                                             }
+             Infinitecircles( "infinite", r )
+         fi
+     else { two possible circles                                     }
+         real distance = p1 - p2;
+         if   distance > 2 * r then
+             { the points are too far apart                          }
+             Nocircles( "points too far apart", p1, p2, r )
+         elif distance = 2 * r then
+             { the points are on the diameter of the circle          }
+             Circle( Point( x of p1 + ( ( p2 XDIFF p1 ) / 2 )
+                          , y of p1 + ( ( p2 YDIFF p1 ) / 2 )
+                          )
+                   , r
+                   )
+         else
+             { it is possible to draw two circles through the points }
+             real half_x_sum      = ( x of p1 + x of p2 ) / 2;
+             real half_y_sum      = ( y of p1 + y of p2 ) / 2;
+             real mirror_distance = sqrt( ( r * r ) - ( ( distance * distance ) / 4 ) );
+             real x_mirror        = ( mirror_distance * ( y of p1 - y of p2 ) ) / distance;
+             real y_mirror        = ( mirror_distance * ( x of p2 - x of p1 ) ) / distance;
+             Twocircles( Circle( Point( half_x_sum + y_mirror, half_y_sum + x_mirror ), r )
+                       , Circle( Point( half_x_sum - y_mirror, half_y_sum - x_mirror ), r )
+                       )
+         fi
+     fi; { circles }
+
+{ test the circles procedure with the examples from the task    }
+
+proc print_circles = ( real x1, y1, x2, y2, r )void:
+     begin
+        case circles( Point( x1, y1 ), Point( x2, y2 ), r )
+          in ( Nocircles       n ): print( ( "No circles : ", reason of n ) )
+           , ( Twocircles      t ): print( ( "Two circles: "
+                                           , TOSTRING a of t
+                                           , ", "
+                                           , TOSTRING b of t
+                                           )
+                                         )
+           , ( Circle          c ): print( ( "One circle : ", TOSTRING c ) )
+           , ( Infinitecircles i ): print( ( "Infinite circles" ) )
+         out begin
+                 print( ( "Unexpected circles result", newline ) );
+                 stop
+             end
+        esac;
+        print( ( newline ) )
+     end; { print circles }
+print_circles( 0.1234, 0.9876,    0.8765, 0.2345,    2.0 );
+print_circles( 0.0000, 2.0000,    0.0000, 0.0000,    1.0 );
+print_circles( 0.1234, 0.9876,    0.1234, 0.9876,    2.0 );
+print_circles( 0.1234, 0.9876,    0.8765, 0.2345,    0.5 );
+print_circles( 0.1234, 0.9876,    0.1234, 0.9876,    0.0 )
+)

@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Stirling numbers of the first kind", ALGOL 68 solution stirling-numbers-of-the-first-kind.alg.
+  https://rosettacode.org/wiki/Stirling_numbers_of_the_first_kind#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/stirling-numbers-of-the-first-kind.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show some (unsigned) Stirling numbers of the first kind          }
+
+    { specify the precision of LONG LONG INT, we need about 160 digits   }
+    { for Stirling numbers of the first kind with n, k = 100             }
+     
+    mode Sint = long long int;
+
+    { returns a triangular matrix of Stirling numbers up to max n, max n }
+    { the numbers are signed if signed is TRUE, unsigned otherwise       }
+    proc make_s1 = ( int max_n, bool signed )ref[,]Sint:
+    begin
+
+        heap[ 0 : max_n, 0 : max_n ]Sint s1;
+        for n from 0 to max_n do for k from 0 to max_n do s1[ n, k ] := 0 od od;
+        s1[ 0, 0 ] := 1;
+        for n from 1 to max_n do s1[ n, 0 ] := 0 od;
+        for n from 1 to max_n do
+            for k from 1 to n do
+                Sint s1_term = ( ( n - 1 ) * s1[ n - 1, k ] );
+                s1[ n, k ] := s1[ n - 1, k - 1 ] + if signed then - s1_term else s1_term fi
+            od
+        od;
+        s1
+    end { make s1 } ;
+    { task requirements:                                                }
+    { print Stirling numbers up to n, k = 12                            }
+    begin
+        int max_stirling = 12;
+        ref[,]Sint s1 = make_s1( max_stirling, false );
+        print( ( "Unsigned Stirling numbers of the first kind:", newline ) );
+        print( ( " k  0" ) );
+        for k to max_stirling do print( ( whole( k, if k < 6 then -10 else -9 fi ) ) ) od;
+        print( ( newline, " n", newline ) );
+        for n from 0 to max_stirling do
+            print( ( whole( n, -2 ), whole( s1[ n, 0 ], -3 ) ) );
+            for k to n do
+                print( ( whole( s1[ n, k ], if k < 6 then -10 else -9 fi ) ) )
+            od;
+            print( ( newline ) )
+        od
+    end;
+    { find the maximum Stirling number with n = 100                     }
+    begin
+        int max_stirling = 100;
+        ref[,]Sint s1 = make_s1( max_stirling, false );
+        Sint max_100 := 0;
+        for k from 0 to max_stirling do
+            if s1[ max_stirling, k ] > max_100 then max_100 := s1[ max_stirling, k ] fi
+        od;
+        print( ( "Maximum Stirling number of the first kind with n = 100:", newline ) );
+        print( ( whole( max_100, 0 ), newline ) )
+    end
+end
+)

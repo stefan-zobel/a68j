@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Exponentiation with infix operators in (or operating on) the base", ALGOL 68 solution exponentiation-with-infix-operators-in-or-operating-on-the-base.alg.
+  https://rosettacode.org/wiki/Exponentiation_with_infix_operators_in_(or_operating_on)_the_base#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/exponentiation-with-infix-operators-in-or-operating-on-the-base.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { show the results of exponentiation and unary minus in various combinations }
+    for x from -5 by 10 to 5 do
+        for p from 2 to 3 do
+            print( ( "x = ", whole( x, -2 ), " p = ", whole( p, 0 ) ) );
+            print( ( "     -x**p  ", whole(   -x**p,  -4 ) ) );
+            print( ( "   -(x)**p  ", whole( -(x)**p,  -4 ) ) );
+            print( ( "   (-x)**p  ", whole( (-x)**p,  -4 ) ) );
+            print( ( "    -(x**p) ", whole(  -(x**p), -4 ) ) );
+            print( ( newline ) )
+        od
+    od
+end
+)

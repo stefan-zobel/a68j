@@ -1,0 +1,89 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Steffensen's method", ALGOL 68 solution steffensens-method.alg.
+  https://rosettacode.org/wiki/Steffensen's_method#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/steffensens-method.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Steffenses's method - translated from the ATS sample }
+
+    mode Optionalreal = union( void, real );
+
+    { Aitken's extrapolation }
+    proc aitken = ( proc(real)real f   { function double to double }
+                  , real           p0  { initial fixed point estimate }
+                  ) real:
+         begin
+            real p1   = f( p0 );
+            real p2   = f( p1 );
+            real p1m0 = p1 - p0;
+            p0 - ( p1m0 * p1m0 ) / ( p2 - ( 2 * p1 ) + p0 )
+         end;
+
+    { finds fixed point p such that f(p) = p }
+    proc steffensen_aitken = ( proc(real)real f { function double to double }
+                             , real pinit       { initial estimate }
+                             , real tol         { tolerance }
+                             , int  maxiter     { maximum number of iterations }
+                             ) Optionalreal:    { return a REAL, IF tolerance is met }
+         begin
+            real p0  := pinit;
+            real p   := aitken( f, p0 );        { first iteration }
+            to max_iter - 1 while ABS ( p - p0 ) > tol do
+                p0   := p;
+                p    := aitken( f, p0 )
+            od;
+            if ABS ( p - p0 ) > tol then empty else p fi
+         end;
+
+    proc de_casteljau = ( real c0      { control point coordinates (one axis) }
+                        , real c1
+                        , real c2
+                        , real t       { the independent parameter }
+                        ) real:        { value of x(t) or y(t) }
+         begin
+            real s   = 1 - t;
+            real c01 = ( s * c0 ) + ( t * c1 );
+            real c12 = ( s * c1 ) + ( t * c2 );
+            ( s * c01 ) + ( t * c12 )
+         end;
+
+    proc x_convex_left_parabola = ( real t )real: de_casteljau( 2, -8, 2, t );
+    proc y_convex_left_parabola = ( real t )real: de_casteljau( 1, 2, 3, t );
+
+    proc implicit_equation = ( real x, y )real: ( 5 * x * x ) + y - 5;
+
+    proc fn = ( real t )real: { find fixed points of this function }
+         begin
+            real x = x_convex_left_parabola( t );
+            real y = y_convex_left_parabola( t );
+            implicit_equation( x, y ) + t
+         end;
+
+    { returns v formatted with 1 digit before thw point and 6 after, with a leading sign only if negative }
+    op FMT = ( real v )string: fixed( v, if v < 0 then -9 else -8 fi, 6 );
+
+    begin
+        real t0 := 0;
+        to 11 do
+            print( ( "t0 = ", FMT t0, " : " ) );
+            case steffensen_aitken( fn, t0, 0.00000001, 1000 )
+              in ( void   ): print( ( "no answer", newline) )
+               , ( real t ):
+                     if real x = x_convex_left_parabola( t )
+                           , y = y_convex_left_parabola( t )
+                           ;
+                        ABS implicit_equation( x, y ) <= 0.000001
+                     then
+                         print( ( "intersection at (", FMT x, ", ", FMT y, ")", newline ) )
+                     else
+                         print( ( "spurious solution", newline ) )
+                     fi
+            esac;
+            t0 +:= 0.1
+        od
+    end
+
+end
+)

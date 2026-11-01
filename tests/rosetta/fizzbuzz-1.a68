@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "FizzBuzz", ALGOL 68 solution fizzbuzz-1.alg.
+  https://rosettacode.org/wiki/FizzBuzz#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fizzbuzz-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  for i to 100 do
+    printf(($gl$,
+      if i %* 15 = 0 then
+        "FizzBuzz"
+      elif i %* 3 = 0 then
+        "Fizz"
+      elif i %* 5 = 0 then
+        "Buzz"
+      else
+        i
+      fi
+    ))
+  od
+)
+)

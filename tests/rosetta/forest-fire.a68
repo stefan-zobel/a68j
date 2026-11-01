@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Forest fire", ALGOL 68 solution forest-fire.alg.
+  https://rosettacode.org/wiki/Forest_fire#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/forest-fire.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+long real tree_prob = 0.55, { original tree probability }
+          f_prob =    0.01, { new combustion probability }
+          p_prob =    0.01; { tree creation probability }
+mode Cell = char; Cell empty_=" ", tree="T", burning="#";
+mode World = [6, 65]Cell;
+
+proc has_burning_neighbours = (World world, int r, c)bool:(
+  for row_shift from -1 to 1 do
+    for col_shift from -1 to 1 do
+      int rs = r + row_shift, cs = c + col_shift;
+      if rs >= LWB world AND rs <= UPB world AND
+          cs >= 2 LWB world AND cs <= 2 UPB world then
+        if world[rs, cs] = burning then true_exit fi
+      fi
+    od
+  od;
+  false exit
+  true_exit: true
+);
+
+proc next_state = (ref World world, ref World next_world)void:(
+  for r from LWB world to UPB world do
+    ref[]Cell row = world[r, ];
+    for c from LWB row to UPB row do
+      ref Cell elem = row[c];
+      next_world[r, c] :=
+        if elem = empty_ then
+          if random<p_prob then tree else empty_ fi
+        elif elem = tree then
+          if has_burning_neighbours(world, r, c) then
+            burning
+          else
+            if random<f_prob then burning else tree fi
+          fi
+        elif elem = burning then
+          empty_
+        fi
+    od
+  od;
+  world := next_world
+);
+
+main:(
+  World world; { create world }
+  for r from LWB world to UPB world do
+    ref []Cell row = world[r, ];
+    for i from LWB row to UPB row do
+      ref Cell el = row[i];
+      el := if random < tree_prob then tree else empty_ fi
+    od
+  od;
+
+  World next_world;
+  for i from 0 to 4 do
+    next_state(world, next_world);
+    printf(($n(2 UPB world)(a)l$, world)); { show world }
+    printf(($gl$, 2 UPB world * "-"))
+  od
+)
+)

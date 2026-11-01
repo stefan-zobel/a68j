@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Yin and yang", ALGOL 68 solution yin-and-yang.alg.
+  https://rosettacode.org/wiki/Yin_and_yang#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/yin-and-yang.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int scale_x=2, scale_y=1;
+char black="#", white=".", clear=" ";
+
+proc print_yin_yang = (real radius)void:(
+
+  proc in_circle = (real centre_x, centre_y, radius, x, y)bool:
+    (x-centre_x)**2+(y-centre_y)**2 <= radius**2;
+
+  proc (real, real)bool
+    in_big_circle = in_circle(0, 0, radius, , ),
+    in_white_semi_circle  = in_circle(0, +radius/2, radius/2, , ),
+    in_small_black_circle = in_circle(0, +radius/2, radius/6, , ),
+    in_black_semi_circle  = in_circle(0, -radius/2, radius/2, , ),
+    in_small_white_circle = in_circle(0, -radius/2, radius/6, , );
+
+  for sy from +ROUND(radius * scale_y) by -1 to -ROUND(radius * scale_y) do
+    for sx from -ROUND(radius * scale_x) to +ROUND(radius * scale_x) do
+      real x=sx/scale_x, y=sy/scale_y;
+      print(
+        if in_big_circle(x, y) then
+            if in_white_semi_circle(x, y) then
+              if in_small_black_circle(x, y) then black else white fi
+            elif in_black_semi_circle(x, y) then
+              if in_small_white_circle(x, y) then white else black fi
+            elif x < 0 then white else black fi
+        else
+          clear
+        fi
+      )
+    od;
+    print(new_line)
+  od
+);
+
+main:(
+  print_yin_yang(17);
+  print_yin_yang(8)
+)
+)

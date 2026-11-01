@@ -1,0 +1,102 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Long multiplication", ALGOL 68 solution long-multiplication-2.alg.
+  https://rosettacode.org/wiki/Long_multiplication#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/long-multiplication-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Digit = int;
+mode Integer = flex[0]Digit; { an arbitary number of digits }
+
+{ "digits" are stored in digit base ten, but 10000 & 2**n (inc hex) can be used }
+int digit_base = 1000;
+
+{ if possible, then print the digit with one character }
+string hex_digit_repr = "0123456789abcdefghijklmnopqrstuvwxyz"[at 0];
+int digit_base_digit_width = ( digit_base <=  UPB hex_digit_repr + 1 | 1 | 1 + ENTIER log(digit_base-1) );
+
+int next_digit = -1; { reverse order so digits appear in "normal" order when printed }
+
+proc raise_value_error = ([]string args)void:
+  ( print(("Value Error: ", args, new_line)); stop );
+
+proc raise_not_implemented_error = ([]string args)void:
+  ( print(("Not implemented Error: ", args, new_line)); stop );
+
+proc raise_integer_not_implemented_error = (string message)Integer:
+  ( raise_not_implemented_error(("INTEGER ", message)); skip );
+
+int half_max_int = max_int OVER 2;
+if digit_base > half_max_int then raise_value_error("INTEGER addition may fail") fi;
+
+int sqrt_max_int = ENTIER sqrt(max_int);
+if digit_base > sqrt_max_int then raise_value_error("INTEGER multiplication may fail") fi;
+
+{ initialise/cast a INTEGER from a LONG LONG INT }
+op INTEGERINIT = (long long int number)Integer:(
+  [1 + ENTIER (SHORTEN SHORTEN long_long_log(ABS number) / log(digit_base))]Digit out_;
+  long long int carry := number;
+  for digit_out from UPB out_ by next_digit to LWB out_ do
+    long long int prev_carry := carry;
+    carry %:= digit_base; { avoid MOD as it doesn't under handle -ve numbers }
+    out_[digit_out] := SHORTEN SHORTEN (prev_carry - carry * digit_base)
+  od;
+  out_
+);
+
+{ initialise/cast a INTEGER from an LONG INT }
+op INTEGERINIT = (long int number)Integer: INTEGERINIT LENG number;
+
+{ initialise/cast a INTEGER from an INT }
+op INTEGERINIT = (int number)Integer: INTEGERINIT LENG LENG number;
+
+{ remove leading zero "digits" }
+op NORMALISE = ([]Digit number)Integer: (
+  int leading_zeros := LWB number - 1;
+  for digit_number from LWB number to UPB number
+    while number[digit_number] = 0 do leading_zeros := digit_number od;
+  if leading_zeros = UPB number then 0 else number[leading_zeros+1:] fi
+);
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{
+  Define a standard representation for the INTEGER mode.  Note: this is
+  rather crude because for a large "digit base" the number is represented as
+  blocks of decimals. It works nicely for powers of ten (10,100,1000,...),
+  but for most larger bases (greater then 35) the repr will be a surprise.
+}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+op REPR = (Digit d)string:
+    if digit_base > UPB hex_digit_repr then
+      string out_ := whole(ABS d, -digit_base_digit_width);
+{ Replace spaces with zeros }
+      for digit_out from LWB out_ to UPB out_ do
+        if out_[digit_out] = " " then out_[digit_out] := "0" fi
+      od;
+      out_
+    else { small enough to represent as ASCII (hex) characters }
+      hex_digit_repr[ABS d]
+    fi;
+
+op REPR = (Integer number)string:(
+  string sep = ( digit_base_digit_width > 1 | "," | "" );
+  int width := digit_base_digit_width + UPB sep;
+  [width * UPB number - UPB sep]char out_;
+  int leading_zeros := LWB out_ - 1;
+  for digit to UPB number do
+    int start := digit * width - width + 1;
+    out_[start:start+digit_base_digit_width-1] := REPR number[digit];
+    if digit_base_digit_width /= 1 & digit /= UPB number then
+      out_[start+digit_base_digit_width] := ","
+    fi
+  od;
+
+{ eliminate leading zeros }
+  for digit_out from LWB out_ to UPB out_
+    while out_[digit_out] = "0" OR out_[digit_out] = sep
+  do leading_zeros := digit_out od;
+
+  char sign = ( number[1]<0 | "-" | "+" );
+{ finally return the semi-normalised result }
+  if leading_zeros = UPB out_ then "0" else sign + out_[leading_zeros+1:] fi
+);
+)

@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Finite state machine", ALGOL 68 solution finite-state-machine.alg.
+  https://rosettacode.org/wiki/Finite_state_machine#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/finite-state-machine.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { finite state machine                                                  }
+
+    { mode representing a state in the FSM                                    }
+    mode Fsmstate = struct( int state                    { code for the state }
+                          , proc int next_state     { routine to change state }
+                          );
+    { executes the FSM defined by states, starting from the initial state     }
+    { and terminating when the exit state is reached                          }
+    proc run_fsm = ( []Fsmstate states, int initial_state, exit_state )void:
+         begin
+            int state := initial_state;
+            while state /= exit_state do
+                bool found := false;
+                for s_pos from LWB states to UPB states while NOT found do
+                    if found := state of states[ s_pos ] = state then
+                        state := next_state of states[ s_pos ]
+                    fi
+                od;
+                if NOT found then
+                    { in an invalid state - restart                           }
+                    print( ( "(resetting)", newline ) );
+                    state := initial_state
+                fi
+            od
+         end { run fsm } ;
+
+    begin { test FSM                                                          }
+        { possible states                                                     }
+        int exit_ = 0, ready = 1, waiting = 2, dispense = 3, refunding = 4;
+
+        { prompts the user for a single character code and returns it         }
+        { the user is re-prompted until they enter one of the characters in   }
+        { answers                                                             }
+        proc get_code = ( string prompt, answers )char:
+             begin
+                 char response;
+                 while print( ( prompt, ": " ) );
+                       string answer;
+                       read( ( answer, newline ) );
+                       response := if answer = "" then REPR 0 else answer[ LWB answer ] fi;
+                       if response >= "a" AND response <= "z" then
+                           { convert lowercase response to upper              }
+                           response := REPR ( ABS response + ( ABS "A" - ABS "a" ) )
+                       fi;
+                       NOT char_in_string( response, nil, answers )
+                 do skip od;
+                 response
+             end { get code } ;
+
+        run_fsm( ( ( ready
+                   , int: if "Q" = get_code( "Ready     : Enter D to deposit, Q to Quit", "DQ" )
+                          then exit_
+                          else waiting
+                          fi
+                   )
+                 , ( waiting
+                   , int: if "S" = get_code( "Waiting   : Enter S to Select, R to Refund", "SR" )
+                          then dispense
+                          else refunding
+                          fi
+                   )
+                 , ( dispense
+                   , int: begin void( get_code( "Dispensing: Remove your product and Enter R", "R" ) );
+                                ready
+                          end
+                   )
+                 , ( refunding
+                   , int: begin print( ( "Refunding", newline ) ); ready end
+                   )
+                 )
+               , ready
+               , exit_
+               )
+
+    end
+
+end
+)

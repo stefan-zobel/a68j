@@ -1,0 +1,111 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Doubly-linked list/Traversal", ALGOL 68 solution doubly-linked-list-traversal-1.alg.
+  https://rosettacode.org/wiki/Doubly-linked_list/Traversal#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/doubly-linked-list-traversal-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Node struct - contains next and prev NODE pointers and DATA }
+mode Node = struct(
+    DATA data,
+    ref Node prev,
+    ref Node next
+    );
+
+{ List structure - contains head and tail NODE pointers }
+mode List = struct(
+    ref Node head,
+    ref Node tail
+    );
+
+{ --- PREPEND - Adds a node to the beginning of the list ---}
+prio PREPEND = 1;
+op   PREPEND = (ref List list, DATA data) void:
+(    		
+    heap Node n := (data, nil, nil);
+    if head of list is ref Node(nil) then
+        head of list := tail of list := n
+    else
+        next of n := head of list;
+        prev of head of list := head of list := n
+    fi
+);
+{--- APPEND - Adds a node to the end of the list ---}
+prio APPEND = 1;
+op   APPEND = (ref List list, DATA data) void:
+(
+    heap Node n := (data, nil, nil);
+    if head of list is ref Node(nil) then
+        head of list := tail of list := n
+    else
+        prev of n := tail of list;
+        next of tail of list := tail of list := n
+    fi
+);
+
+{--- REMOVE_FIRST - removes & returns node at end of the list ---}
+prio REMOVE_FIRST = 1;
+op   REMOVE_FIRST = (ref List list) DATA:
+(
+    if head of list isnt ref Node(nil) then
+        DATA d := data of head of list;
+        prev of next of head of list := nil;
+        head of list := next of head of list;
+        d { return d }
+    fi
+);
+{--- REMOVE_LAST: removes & returns node at front of list ---   }
+prio REMOVE_LAST = 1;
+op   REMOVE_LAST = (ref List list) DATA:
+(
+    if head of list isnt ref Node(nil) then
+        DATA d := data of tail of list;
+        next of prev of tail of list := nil;
+        tail of list := prev of tail of list;
+        d { return d }
+    fi
+);
+{--- PURGE - removes all elements from the list ---}
+prio PURGE = 2;
+op   PURGE = (ref List list) void:
+(
+    head of list := tail of list := nil
+);
+
+{--- returns the data at the end of the list ---}
+prio LAST_IN = 2;
+op LAST_IN = (ref List list) DATA: (
+    if head of list isnt ref Node(nil) then
+        data of tail of list
+    fi
+);
+
+{--- returns the data at the front of the list ---}
+prio FIRST_IN  = 2;
+op FIRST_IN = (ref List list) DATA: (
+    if head of list isnt ref Node(nil) then
+        data of head of list
+    fi
+);
+
+{--- Traverses through the list forwards ---}
+proc forward_traversal = (List list) void:
+(
+    ref Node travel := head of list;
+    while travel isnt ref Node(nil) do
+        list_visit(data of travel);
+        travel := next of travel
+    od
+);
+
+{--- Traverses through the list backwards ---}
+proc backward_traversal = (List list) void:
+(
+    ref Node travel := tail of list;
+    while travel isnt ref Node(nil) do
+        list_visit(data of travel);
+        travel := prev of travel
+    od
+)
+)

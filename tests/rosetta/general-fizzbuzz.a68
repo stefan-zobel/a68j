@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "General FizzBuzz", ALGOL 68 solution general-fizzbuzz.alg.
+  https://rosettacode.org/wiki/General_FizzBuzz#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/general-fizzbuzz.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generalised FizzBuzz                                        }
+    { prompts for an integer, reads it and returns it               }
+    proc read_an_integer = ( string prompt )int:
+         begin
+            print( ( prompt ) );
+            int result;
+            read( ( result, newline ) );
+            result
+         end; { read an integer }
+    { prompts for a string, reads it and returns it                 }
+    proc read_a_string = ( string prompt )string:
+         begin
+            print( ( prompt ) );
+            string result;
+            read( ( result, newline ) );
+            result
+         end; { read a string }
+    { mode to hold a factor and associated text                     }
+    mode Fbfactor = struct( int factor, string text );
+    {===============================================================}
+    { quicksort routine for the factors                             }
+    { - from the Algol 68 task sample                               }
+    {---------------------------------------------------------------}
+    {--- Swap function ---}
+    proc swap = (ref[]Fbfactor array, int first, int second) void:
+    (   Fbfactor temp  = array[first];
+        array[first]  := array[second];
+        array[second] := temp
+    );
+    {--- Quick sort 3 arg function ---}
+    proc quick = (ref[]Fbfactor array, int first, int last) void:
+    (   int       smaller := first + 1, larger  := last;
+        Fbfactor  pivot   := array[first];
+        while smaller <= larger do
+            while array[smaller] < pivot AND smaller < last  do smaller +:= 1 od;
+            while array[larger]  > pivot AND larger  > first do larger  -:= 1 od;
+            if smaller < larger then
+                swap(array, smaller, larger);
+                smaller +:= 1;
+                larger  -:= 1
+            else
+                smaller +:= 1
+            fi
+        od;
+        swap(array, first, larger);
+        if first < larger -1 then quick(array, first, larger-1) fi;
+        if last  > larger +1 then quick(array, larger+1, last)  fi
+    );
+    { comparison operators }
+    op < = ( Fbfactor a, b )bool: factor of a < factor of b;
+    op > = ( Fbfactor a, b )bool: factor of a > factor of b;
+    {===============================================================}
+    { get the maximum number to consider                            }
+    int max_number = read_an_integer( "Numbers required: " );
+    { number of factors required                                    }
+    int max_factor = 3;
+    { get the factors and associated words                          }
+    [ max_factor ]Fbfactor factors;
+    for i to max_factor do
+        factor of factors[ i ] := read_an_integer( "Factor " + whole( i, 0 ) + ": " );
+        text of factors  [ i ] := read_a_string( "Text for " + whole( factor of factors[ i ], 0 ) + ": " )
+    od;
+    { sort the factors into order                                   }
+    quick( factors, 1, UPB factors );
+    { play the game                                                 }
+    for n to max_number do
+        string text := "";
+        for factor to max_factor do
+            if n MOD factor of factors[ factor ] = 0 then text +:= text of factors[ factor ] fi
+        od;
+        if text = "" then
+            { no words applicable to n, just show the digits        }
+            text := whole( n, 0 )
+        fi;
+        print( ( text, newline ) )
+    od
+end
+)

@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Averages/Pythagorean means", ALGOL 68 solution averages-pythagorean-means.alg.
+  https://rosettacode.org/wiki/Averages/Pythagorean_means#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/averages-pythagorean-means.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main: (
+  int count:=0;
+  long real f, sum:=0, prod:=1, resum:=0;
+
+  FORMAT real_ = $g(0,4)$; { preferred real format }
+
+  file fbuf; string sbuf; associate(fbuf,sbuf);
+
+  bool opts := true;
+
+  for i to argc do
+    if opts then { skip args up to the - token }
+      opts := argv(i) NE "-"
+    else
+      rewind(fbuf); sbuf := argv(i); get(fbuf,f);
+      count +:= 1;
+      sum +:= f;
+      prod *:= f;
+      resum +:= 1/f
+    fi
+  od;
+  printf(($"c: "f(real)l"s: "f(real)l"p: "f(real)l"r: "f(real)l$,count,sum,prod,resum));
+  printf(($"Arithmetic mean = "f(real)l$,sum/count));
+  printf(($"Geometric mean = "f(real)l$,prod**(1/count)));
+  printf(($"Harmonic mean = "f(real)l$,count/resum))
+)
+)

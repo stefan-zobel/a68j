@@ -1,0 +1,72 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ramer-Douglas-Peucker line simplification", ALGOL 68 solution ramer-douglas-peucker-line-simplification.alg.
+  https://rosettacode.org/wiki/Ramer-Douglas-Peucker_line_simplification#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ramer-douglas-peucker-line-simplification.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Ramer Douglas Peucker algotithm - translated from the Go sample      }
+
+    mode Point = struct( real x, y );
+
+    prio APPEND = 1;
+    op   APPEND = ( []Point a, b )[]Point:        { append two POINT  arrays }
+         begin
+             int len_a = ( UPB a - LWB a ) + 1;
+             int len_b = ( UPB b - LWB b ) + 1;
+             [ 1 : lena + len_b ]Point result;
+             result[           : len_a ] := a;
+             result[ len_a + 1 :       ] := b;
+             result
+         end { APPEND } ;
+
+    proc rdp = ( []Point l, real epsilon )[]Point:   { Ramer Douglas Peucker }
+         begin                                                   { algorithm }
+            int   x     := 0;
+            real  d_max := -1;
+            Point p1     = l[ LWB l ];
+            Point p2     = l[ UPB l ];
+            real  x21    = x of p2 - x of p1;
+            real  y21    = y of p2 - y of p1;
+            real  p2xp1y = x of p2 * y of p1;
+            real  p2yp1x = y of p2 * x of p1;
+            for i from LWB l to UPB l do
+                Point p = l[ i ];
+                if real d := ABS ( y21 * x of p - x21 * y of p + p2xp1y - p2yp1x); d > d_max
+                then
+                    x     := i;
+                    d_max := d
+                fi
+            od;
+            if d_max > epsilon then
+                rdp( l[ : x ], epsilon ) APPEND rdp( l[ x + 1 : ],     epsilon )
+            else
+                []Point( l[ LWB l ], l[ UPB l ] )
+            fi
+         end { rdp } ;
+
+    op   FMT = ( real v )string:           { formsts v with up to 2 decimals }
+         begin
+            string result := fixed( ABS v, 0, 2 );
+            if result[ LWB result ] = "." then "0" +=: result fi;
+            while result[ UPB result ] = "0" do result := result[ : UPB result - 1 ] od;
+            if result[ UPB result ] = "." then result := result[ : UPB result - 1 ] fi;
+            if v < 0 then "-" + result else result fi
+         end { FMT } ;
+    op   SHOW = ( []Point a )void:               { prints an array of points }
+         begin
+            print( ( "[" ) );
+            for i from LWB a to UPB a do
+                print( ( " ( ", FMT x of a[ i ], ", ",  FMT y of a[ i ], " )" ) )
+            od;
+            print( ( " ]" ) )
+         end { SHOW } ;
+
+    SHOW rdp( ( ( 0, 0 ), ( 1, 0.1 ), ( 2, -0.1 ), ( 3, 5 ), ( 4, 6 )
+              , ( 5, 7 ), ( 6, 8.1 ), ( 7,  9   ), ( 8, 9 ), ( 9, 9 )
+              )
+            , 1
+            )
+end
+)

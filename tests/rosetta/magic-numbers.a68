@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Magic numbers", ALGOL 68 solution magic-numbers.alg.
+  https://rosettacode.org/wiki/Magic_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/magic-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { count magic numbers: numbers divisible by the count of digits and    }
+      { each left substring is also divisible by the count of its digits     }
+    { returns the magic numbers of length m length that can be formed by      }
+    { adding a digit to the elements of prev m                               }
+    proc next_magic = ( []long long int prev_m, int m_length )[]long long int:
+         begin
+            flex[ 1 : 2 000 ]long long int m;
+            int m_pos := 0;
+            for i from LWB prev_m to UPB prev_m do
+                long long int n := prev_m[ i ] * 10;
+                for d from 0 by if ODD m_length then 1 else 2 fi to 9 do
+                    if ( n + d ) MOD m_length = 0 then
+                        if m_pos >= UPB m then
+                            { need a bigger magic number buffer              }
+                            [ 1 : UPB m + 1000 ]long long int new_m;
+                            new_m[ 1 : UPB m ] := m;
+                            m                  := new_m
+                        fi;
+                        m[ m_pos +:= 1 ] := n + d
+                    fi
+                od
+            od;
+            m[ 1 : m_pos ]
+         end { next magic } ;
+    { returns TRUE if n is pandigital (1-9), FALSE otherwise                 }
+    proc is_pandigital1 = ( long long int n )bool:
+         begin
+            int v := SHORTEN SHORTEN n;
+            [ 0 : 9 ]int digit_count := []int( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )[ at 0 ];
+            while digit_count[ v MOD 10 ] +:= 1;
+                  ( v OVERAB 10 ) > 0
+            do skip od;
+            bool result := digit_count[ 0 ] = 0;
+            for i from 1 to 9 while result := digit_count[ i ] = 1 do skip od;
+            result
+         end { is pandigital1 } ;
+    { find the magic numbers                                                 }
+    print( ( "Magic number counts by number of digits:", newline ) );
+    int m_count := 0;                        { total number of magic numbers }
+    int d_count := 1;                                     { number of digits }
+    flex[ 1 : 10 ]long long int magic := ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
+    flex[ 1 :  0 ]long long int magic9;
+    long long int max_magic := -1;
+    while UPB magic >= LWB magic do
+        print( ( whole( d_count, -5 ), ": ", whole( UPB magic, -9 ), newline ) );
+        m_count  +:= UPB magic;
+        max_magic := magic[ UPB magic ];
+        if   d_count = 1 then
+            { exclude 0 from the 1 digit magic numbers to find the 2 digit   }
+            magic := ( 1, 2, 3, 4, 5, 6, 7, 8, 9 )
+        elif d_count = 9 then
+            { save the 9 digit magic numbers so we can find the pandigitals  }
+            magic9 := magic
+        fi;
+        magic := next_magic( magic, d_count +:= 1 )
+    od;
+    print( ( "Total:", whole( m_count, -10 ), " magic numbers", newline ) );
+    print( ( "Largest is ", whole( max_magic, 0 ), newline ) );
+    { find the minimally pandigital magic numbers                            }
+    [ 1 : UPB magic9 ]long long int pd_magic;
+    int pd_pos := 0;
+    for i from LWB pd_magic to UPB pd_magic do
+        if is_pandigital1( magic9[ i ] ) then
+            pd_magic[ pd_pos +:= 1 ] := magic9[ i ]
+        fi
+    od;
+    print( ( "Minimally pandigital 1-9 magic numbers: " ) );
+    for i to pd_pos do
+        print( ( whole( pd_magic[ i ], 0 ) ) )
+    od;
+    print( ( newline ) );
+    print( ( "Minimally pandigital 0-9 magic numbers: " ) );
+    for i to pd_pos do
+        print( ( whole( pd_magic[ i ] * 10, 0 ) ) )
+    od;
+    print( ( newline ) )
+end
+)

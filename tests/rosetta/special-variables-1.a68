@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Special variables", ALGOL 68 solution special-variables-1.alg.
+  https://rosettacode.org/wiki/Special_variables#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/special-variables-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+FORMAT f = $g": ["g"]"l$;
+
+printf((f,
+  "pi", pi,
+  "random", random, { actually a procedure }
+
+  "flip", flip,
+  "flop", flop,
+  "TRUE", true,
+  "FALSE", false,
+
+  "error char", error_char,
+  "null character", null_character,
+{   "NIL", NIL, NIL is not printable END }
+
+{ "lengths" details how many distinctive precisions are permitted. }
+{ e.g. int length = 3 suggests 3 distincts types: }
+{      INT, LONG INT, and LONG LONG INT }
+  "bits shorths", bits_shorths,
+  "bits lengths", bits_lengths,
+  "bytes shorths", bytes_shorths,
+  "bytes lengths", bytes_lengths,
+  "int shorths", int_shorths,
+  "int lengths", int_lengths,
+  "real shorths", real_shorths,
+  "real lengths", real_lengths,
+
+  "max abs char", max_abs_char,
+{ short/long int/real also possible }
+  "max int", max_int,
+  "small real", small_real,
+  "max real", max_real,
+
+{ "width" indicates how many characters are require to prepresent the value }
+{ short/long bits/bytes/int/real also possible }
+  "bits width", bits_width,
+  "bytes width", bytes_width,
+  "int width", int_width,
+  "real width", real_width,
+  "exp width", exp_width
+));
+
+{ ALL the following are actually procedures }
+print((
+  "space: [", space, "]", new_line,
+  "new line: [", new_line, "]", new_line,
+  "new page: [", new_page, "]", new_line
+{ the following are standard, but not implemented in algol68g
+  "char number: [", char number, "]", new line,
+  "line number: [", line number, "]", new line,
+  "page number: [", page number, "]", new line
+END }
+));
+skip
+)

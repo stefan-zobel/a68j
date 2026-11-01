@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Doubly-linked list/Element definition", ALGOL 68 solution doubly-linked-list-element-definition.alg.
+  https://rosettacode.org/wiki/Doubly-linked_list/Element_definition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/doubly-linked-list-element-definition.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ REQUIRES:
+  MODE OBJVALUE = ~ # Mode/type of actual obj to be queued #
+END }
+
+mode Objlink = struct(
+  ref Objlink next,
+  ref Objlink prev,
+  OBJVALUE value { ... etc. required }
+);
+
+proc obj_link_new = ref Objlink: heap Objlink;
+
+proc obj_link_free = (ref Objlink free)void:
+   prev of free := next of free := obj_queue_empty { give the garbage collector a big hint }
+)

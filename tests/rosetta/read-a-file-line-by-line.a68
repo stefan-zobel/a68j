@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Read a file line by line", ALGOL 68 solution read-a-file-line-by-line.alg.
+  https://rosettacode.org/wiki/Read_a_file_line_by_line#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/read-a-file-line-by-line.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+file foobar;
+int errno = open(foobar, "Read_a_file_line_by_line.a68", stand_in_channel);
+
+string line;
+FORMAT line_fmt = $gl$;
+
+proc mount_next_tape = (ref file file_)bool: (
+  print("Please mount next tape or q to quit");
+  if read_char = "q" then done else true fi
+);
+
+on_physical_file_end(foobar, mount_next_tape);
+on_logical_file_end(foobar, (ref file skip_)bool: done);
+
+for count do
+  getf(foobar, (line_fmt, line));
+  printf(($g(0)": "$, count, line_fmt, line))
+od;
+done: skip
+)

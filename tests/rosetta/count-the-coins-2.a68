@@ -1,0 +1,41 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Count the coins", ALGOL 68 solution count-the-coins-2.alg.
+  https://rosettacode.org/wiki/Count_the_coins#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/count-the-coins-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{
+   Rosetta Code 'Count the coins'
+   This uses what I believe are the ideas behind the 'much faster, probably
+   harder to read' Haskell version.
+}
+
+begin
+   proc ways_to_make_change = ([] int denoms, int amount) long int:
+   begin
+      [0:amount] long int counts, new_counts;
+
+      for i from 0 to amount do counts[i] := (i = 0 | 1 | 0) od;
+
+      for i from LWB denoms to UPB denoms do
+         int denom = denoms[i];
+         for j from 0 to amount do new_counts[j] := 0 od;
+         for j from 0 to amount do
+            if long int count = counts[j]; count > 0 then
+               for k from j + denom by denom to amount do
+                  new_counts[k] +:= count
+               od
+            fi;
+            counts[j] +:= new_counts[j]
+         od
+      od;
+      counts[amount]
+   end;
+
+   print((ways_to_make_change((1, 5, 10, 25), 100), newline));
+   print((ways_to_make_change((1, 5, 10, 25, 50, 100), 10000), newline));
+   print((ways_to_make_change((1, 5, 10, 25, 50, 100), 100000), newline))
+end
+)

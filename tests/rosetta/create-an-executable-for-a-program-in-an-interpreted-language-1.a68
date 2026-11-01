@@ -1,0 +1,126 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Create an executable for a program in an interpreted language", ALGOL 68 solution create-an-executable-for-a-program-in-an-interpreted-language-1.alg.
+  https://rosettacode.org/wiki/Create_an_executable_for_a_program_in_an_interpreted_language#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/create-an-executable-for-a-program-in-an-interpreted-language-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+if  { create an executable to run a program with Algol 68G                   }
+    { a C program is created that writes the source to a temporary file and  }
+    { then calls a the Algol 68G interpreter to run it                       }
+
+    { get the temporary file path, the path to the interpreter, the source   }
+    { file and the path for the generated C source                           }
+    string temp_file_path, algol_68g_path, a68_source, c_source;
+    print( ( "Temporary file path                      (target system) : " ) );
+    read( ( temp_file_path, newline ) );
+    print( ( "Command to run the Algol 68G interpreter (target system) : " ) );
+    read( ( algol_68g_path, newline ) );
+    print( ( "Algol 68 source                            (this system) : " ) );
+    read( ( a68_source, newline ) );
+    print( ( "C source to generate                       (this system) : " ) );
+    read( ( c_source, newline ) );
+
+    file input_source_file, output_source_file;
+
+    open( input_source_file, a68_source, stand_in_channel ) /= 0
+then
+    { failed to open the Algol 68 source file                                }
+    print( (  "Unable to open """ + a68_source + """", newline ) )
+elif if open( output_source_file, c_source, stand_out_channel ) = 0
+     then
+         { opened OK - file already exists and will be overwritten           }
+         false
+     else
+         { failed to open the file - try creating a new file                 }
+         establish( output_source_file, c_source, stand_out_channel ) /= 0
+     fi
+then
+    { failed to open the C source file                                       }
+    print( ( "Unable to open """ + c_source + """", newline ) );
+    close( input_source_file )
+else
+    { files opened OK                                                        }
+
+    { returns line with any ' or \ characters preceded by \                  }
+    proc add_escapes = ( string line )string:
+         begin
+            [ 1 : ( ( UPB line + 1 ) - LWB line ) * 2 ]char output_line;
+            int o_pos := 0;
+            for l_pos from LWB line to UPB line do
+                char c = line[ l_pos ];
+                if c = "\" OR c = """" then
+                    { must escape this character in C                        }
+                    output_line[ o_pos +:= 1 ] := "\"
+                fi;
+                output_line[ o_pos +:= 1 ] := c
+            od;
+            output_line[ 1 : o_pos ]
+         end { add escapes } ;
+
+    { writes line to the output source file                                  }
+    proc emit = ( string line )void:
+         put( output_source_file, ( line, newline ) );
+
+    bool at_eof := false;
+    { set the EOF handler for the input file                                 }
+    on_logical_file_end( input_source_file
+                       , ( ref file f )bool:
+                           begin
+                               { note that we reached EOF on the latest read }
+                               at_eof := true;
+                               { return TRUE so processing can continue      }
+                               true
+                           end
+                         );
+
+    { include headers, output routine and the start of the main routine      }
+    emit( "#include <stdio.h>" );
+    emit( "#include <errno.h>" );
+    emit( "static void w( char * line, FILE * tf )" );
+    emit( "{fputs( line, tf );" );
+    emit( " if( errno != 0 ){ perror( ""temp"" );exit( 2 ); }" );
+    emit( "}" );
+    emit( "int main( int argc, char ** argv )" );
+    emit( "{FILE * tf = fopen( """
+        + add_escapes( temp_file_path )
+        + """, ""w"" );"
+        );
+    emit( " if( tf == NULL ){ perror( ""temp"" );exit( 1 ); }" );
+    { output code to write the Algol 68 source to the temporary file         }
+    while string line;
+          get( input_source_file, ( line, newline ) );
+          NOT at_eof
+    do
+        if line /= "" then
+            { line is not empty                                              }
+            emit( " w( """ + add_escapes( line ) + "\n"", tf );" )
+        fi
+    od;
+    close( input_source_file );
+    { code to close the temporary file and interpret it then delete it       }
+    emit( " fclose( tf );" );
+    emit( " system( """
+        + add_escapes( algol_68g_path )
+        + " "
+        + add_escapes( temp_file_path )
+        + """ );"
+        );
+    emit( " remove( """ + add_escapes( temp_file_path ) + """ );" );
+    emit( "}" );
+    close( output_source_file );
+
+    print( ( newline
+           , c_source
+           , " generated"
+           , newline
+           , "This can now be compiled for the target system "
+           , "(possibly via cross-compilation)"
+           , newline
+           , "using a suitable C compiler"
+           , newline
+           )
+         )
+fi
+)

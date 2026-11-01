@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Guess the number", ALGOL 68 solution guess-the-number.alg.
+  https://rosettacode.org/wiki/Guess_the_number#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/guess-the-number.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:
+(
+    int n;
+    int g;
+    n := ENTIER (random*10+1);
+    proc puts = (string string_)void: putf(standout, ($gl$,string_));
+    puts("I''m thinking of a number between 1 and 10.");
+    puts("Try to guess it! ");
+    do
+        readf(($g$, g));
+        if g = n then break
+        else
+          puts("That''s not my number. ");
+          puts("Try another guess!")
+        fi
+    od;
+    break:
+    puts("You have won! ")
+)
+)

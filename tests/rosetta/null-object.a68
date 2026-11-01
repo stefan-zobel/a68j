@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Null object", ALGOL 68 solution null-object.alg.
+  https://rosettacode.org/wiki/Null_object#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/null-object.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ref string no_result = nil;
+string result := "";
+
+if no_result :=: nil then print(("no result :=: NIL", new_line)) fi;
+if result :/=: nil then print(("result :/=: NIL", new_line)) fi;
+
+if no_result is nil then print(("no result IS NIL", new_line)) fi;
+if result isnt nil then print(("result ISNT NIL", new_line)) fi;
+
+{ using the UNESCO/IFIP/WG2.1 ALGOL 68 character set
+  result := °;
+  IF REF STRING(result) :≠: ° THEN print(('result ≠ °', new line)) FI;
+END }
+
+{ Note the following gotcha: }
+
+ref string var := nil;
+if var isnt nil then print(("The address of var ISNT NIL",new_line)) fi;
+if var is ref string(nil) then print(("The address of var IS REF STRING(NIL)",new_line)) fi
+)

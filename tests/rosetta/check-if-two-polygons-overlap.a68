@@ -1,0 +1,128 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Check if two polygons overlap", ALGOL 68 solution check-if-two-polygons-overlap.alg.
+  https://rosettacode.org/wiki/Check_if_two_polygons_overlap#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/check-if-two-polygons-overlap.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { test for overlapping 2D polygons                                     }
+      { - based on a translation Go which is a translation of Wren           }
+
+    { In the following a polygon is represented as a row of vertices         }
+    { and a vertex ( POINT ) by a pair of x, y coordinates in the plane      }
+
+    mode Point      = struct( real x,   y   );
+    mode Projection = struct( real min, max );
+    mode Polygon    = flex[ 1 : 0 ]Point;
+
+    prio DOT = 3;
+    op   DOT = ( Point v, other )real:
+         ( x of v * x of other ) + ( y of v * y of other );
+
+    { returns the axes of the polygon defined by poly                        }
+    op  AXES = ( Polygon poly )[]Point:
+        begin
+            [ LWB poly : UPB poly ]Point result;
+            for i from LWB poly to UPB poly do
+                int j = if i = UPB poly then LWB poly else i + 1 fi;
+                Point vertex1 = poly[ i ];
+                Point vertex2 = poly[ j ];
+                Point edge    = ( x of vertex1 - x of vertex2, y of vertex1 - y of vertex2 );
+                result[ i ]  := ( - y of edge, x of edge )
+            od;
+            result
+         end { AXES } ;
+
+    { returns the projection of poly onto axis                               }
+    prio PROJECTONTO = 3;
+    op   PROJECTONTO = ( Polygon poly, Point axis )Projection:
+         begin
+             real min := axis DOT poly[ LWB poly ];
+             real max := min;
+             for i from LWB poly + 1 to UPB poly do
+                 real p = axis DOT poly[ i ];
+                 if   p < min then
+                     min := p
+                 elif p > max then
+                     max := p
+                 fi
+             od;
+             Projection( min, max )
+         end { PROJECTONTO } ;
+
+    prio OVERLAPS = 5;
+    { returns TRUE if the projections proj1 and proj2 overlap,               }
+    {         FALSE otherrwise                                               }
+    op   OVERLAPS = ( Projection proj1, proj2 )bool:
+         if   max of proj1 < min of proj2 then false
+         elif max of proj2 < min of proj1 then false
+         else                                  true
+         fi { OVERLAPS } ;
+
+    { returns TRUE if the ppolygons poly1 and poly2 overlap,                 }
+    {         FALSE otherrwise                                               }
+    op   OVERLAPS = ( Polygon poly1, poly2 )bool:
+         begin
+            []Point axes1 = AXES poly1, axes2 = AXES poly2;
+            bool does_overlap := true;
+            for a from LWB axes1 to UPB axes1 while does_overlap do
+                does_overlap := ( poly1 PROJECTONTO axes1[ a ] )
+                       OVERLAPS ( poly2 PROJECTONTO axes1[ a ] )
+            od;
+            for a from LWB axes2 to UPB axes2 while does_overlap do
+                does_overlap := ( poly1 PROJECTONTO axes2[ a ] )
+                       OVERLAPS ( poly2 PROJECTONTO axes2[ a ] )
+            od;
+            does_overlap
+         end { OVERLAPS } ;
+
+    { returns x as a string without trailing 0 decoimals                     }
+    op TOSTRING = ( real x )string:
+         begin
+            string v       := fixed( x, -14, 11 );
+            int    end_pos := UPB v;
+            while if end_pos < LWB v then false else v[ end_pos ] = "0" fi do
+                end_pos -:= 1
+            od;
+            if end_pos >= LWB v then
+                if v[ end_pos ] = "." then end_pos -:= 1 fi
+            fi;
+            int start_pos := LWB v;
+            while if start_pos > end_pos then false else v[ start_pos ] = " " fi do
+                start_pos +:= 1
+            od;
+            if end_pos < start_pos then "0" else v[ start_pos : end_pos ] fi
+         end { TOSTRING } ;
+
+    { returns a string representation of the POINT p                         }
+    op   TOSTRING = ( Point p )string: "( " + TOSTRING x of p + ", " + TOSTRING y of p + " )";
+
+    { returns a string representation of the points of p                     }
+    op   TOSTRING = ( Polygon p )string:
+         begin
+            string result    := "(", separator := "";
+            for i from LWB p to UPB p do
+                result   +:= separator + " " + TOSTRING p[ i ];
+                separator := ","
+            od;
+            result + " )"
+         end { TOSTRING } ;
+
+
+    begin { test cases                                                       }
+        Polygon poly1 = ( ( 0, 0 ), ( 0, 2 ), ( 1, 4 ), ( 2, 2 ), ( 2, 0 ) )
+              , poly2 = ( ( 4, 0 ), ( 4, 2 ), ( 5, 4 ), ( 6, 2 ), ( 6, 0 ) )
+              , poly3 = ( ( 1, 0 ), ( 1, 2 ), ( 5, 4 ), ( 9, 2 ), ( 9, 0 ) )
+              ;
+        []string yn = []string( "no", "yes" )[ at 0 ];
+        print( ( "poly1 = ", TOSTRING poly1, newline ) );
+        print( ( "poly2 = ", TOSTRING poly2, newline ) );
+        print( ( "poly3 = ", TOSTRING poly3, newline ) );
+        print( ( newline ) );
+        print( ( "poly1 and poly2 overlap? ", yn[ ABS ( poly1 OVERLAPS poly2 ) ], newline ) );
+        print( ( "poly1 and poly3 overlap? ", yn[ ABS ( poly1 OVERLAPS poly3 ) ], newline ) );
+        print( ( "poly2 and poly3 overlap? ", yn[ ABS ( poly2 OVERLAPS poly3 ) ], newline ) )
+    end
+end
+)

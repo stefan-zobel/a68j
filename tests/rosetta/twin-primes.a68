@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Twin primes", ALGOL 68 solution twin-primes.alg.
+  https://rosettacode.org/wiki/Twin_primes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/twin-primes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { count twin primes (where p and p - 2 are prime)                             }
+      { set heap memory size for Algol 68G                          }
+    { sieve of Eratosthenes: sets s[i] to TRUE if i is a prime, FALSE otherwise   }
+    proc sieve = ( ref[]bool s )void:
+         begin
+            for i to UPB s do s[ i ] := true od;
+            s[ 1 ] := false;
+            for i from 2 to ENTIER sqrt( UPB s ) do
+                if s[ i ] then for p from i * i by i to UPB s do s[ p ] := false od fi
+            od
+         end { sieve } ;
+    { find the maximum number to search for twin primes                           }
+    int max;
+    print( ( "Maximum: " ) );
+    read( ( max, newline ) );
+    int max_number = max;
+    { construct a sieve of primes up to the maximum number                        }
+    [ 1 : max_number ]bool primes;
+    sieve( primes );
+    { count the twin primes                                                       }
+    { note 2 cannot be one of the primes in a twin prime pair, so we start at 3   }
+    int twin_count := 0;
+    for p from 3 by 2 to max_number - 1 do if primes[ p ] AND primes[ p - 2 ] then twin_count +:= 1 fi od;
+    print( ( "twin prime pairs below  ", whole( max_number, 0 ), ": ", whole( twin_count, 0 ), newline ) )
+end
+)

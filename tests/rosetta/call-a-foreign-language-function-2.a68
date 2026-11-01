@@ -1,0 +1,76 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Call a foreign-language function", ALGOL 68 solution call-a-foreign-language-function-2.alg.
+  https://rosettacode.org/wiki/Call_a_foreign-language_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/call-a-foreign-language-function-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   mode Passwd = struct (string name, passwd, int uid, gid, string gecos, dir, shell);
+   proc getpwnam = (string name) Passwd :
+   begin
+      file c_source;
+      create (c_source, stand_out_channel);
+      putf (c_source, ($gl$,
+"#include <sys/types.h>",
+"#include <pwd.h>",
+"#include <stdio.h>",
+"main ()",
+"{",
+"  char name[256];",
+"  scanf (""%s"", name);",
+"  struct passwd *pass = getpwnam (name);",
+"  if (pass == (struct passwd *) NULL) {",
+"    putchar (''\n'');",
+"  } else {",
+"    printf (""%s\n"", pass->pw_name);",
+"    printf (""%s\n"", pass->pw_passwd);",
+"    printf (""%d\n"", pass->pw_uid);",
+"    printf (""%d\n"", pass->pw_gid);",
+"    printf (""%s\n"", pass->pw_gecos);",
+"    printf (""%s\n"", pass->pw_dir);",
+"    printf (""%s\n"", pass->pw_shell);",
+"  }",
+"}"
+		       ));
+      string source_name = idf (c_source);
+      string bin_name = source_name + ".bin";
+      int child_pid = execve_child ("/usr/bin/gcc",
+				    ("gcc", "-x", "c", source_name, "-o", bin_name),
+				    "");
+      wait_pid (child_pid);
+      PIPE p = execve_child_pipe (bin_name, "Ding dong, a68g calling", "");
+      put (write of p, (name, newline));
+      string line;
+      Passwd result;
+      if get (read of p, (line, newline)); line = ""
+      then
+	 result := ("", "", -1, -1, "", "", "")
+	 {
+         Return to sender, address unknown.
+         No such number, no such zone.
+	 }
+      else
+	 name of result := line;
+	 get (read of p, (passwd of result, newline));
+	 get (read of p, (uid of result, newline));
+	 get (read of p, (gid of result, newline));
+	 get (read of p, (gecos of result, newline));
+	 get (read of p, (dir of result, newline));
+	 get (read of p, (shell of result, newline))
+      fi;
+      close (write of p);			{ Sundry cleaning up. }
+      close (read of p);
+      execve_child ("/bin/rm", ("rm", "-f", source_name, bin_name), "");
+      result
+   end;
+   Passwd mr_root = getpwnam ("root");
+   if name of mr_root = ""
+   then
+      print (("Oh dear, we seem to be rootless.", newline))
+   else
+      printf (($2(g,":"), 2(g(0),":"), 2(g,":"), gl$, mr_root))
+   fi
+end
+)

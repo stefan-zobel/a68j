@@ -1,0 +1,53 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Zeckendorf number representation", ALGOL 68 solution zeckendorf-number-representation.alg.
+  https://rosettacode.org/wiki/Zeckendorf_number_representation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/zeckendorf-number-representation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ print some Zeckendorf number representations                             }
+
+{ We handle 32-bit numbers, the maximum fibonacci number that can fit in a }
+{ 32 bit number is F(45)                                                   }
+
+{ build a table of 32-bit fibonacci numbers                                }
+[ 45 ]int fibonacci;
+fibonacci[ 1 ] := 1;
+fibonacci[ 2 ] := 2;
+for i from 3 to UPB fibonacci do fibonacci[ i ] := fibonacci[ i - 1 ] + fibonacci[ i - 2 ] od;
+
+{ returns the Zeckendorf representation of n or "?" if one cannot be found }
+proc to_zeckendorf = ( int n )string:
+     if n = 0 then
+        "0"
+     else
+        string result := "";
+        int    f_pos  := UPB fibonacci;
+        int    rest   := ABS n;
+        { find the first non-zero Zeckendorf digit                        }
+        while f_pos > LWB fibonacci AND rest < fibonacci[ f_pos ] do
+            f_pos -:= 1
+        od;
+        { if we found a digit, build the representation                   }
+        for f from f_pos by -1 to LWB fibonacci do
+            if rest < fibonacci[ f ] then
+                result +:= "0"
+            else
+                result +:= "1";
+                rest   -:= fibonacci[ f ]
+            fi
+        od;
+        if rest = 0 then
+            { found a representation                                      }
+            result
+        else
+            { can't find a representation                                 }
+            "?"
+        fi
+     fi; { to zeckendorf }
+
+for i from 0 to 20 do
+    print( ( whole( i, -3 ), " ", to_zeckendorf( i ), newline ) )
+od
+)

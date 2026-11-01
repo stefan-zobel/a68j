@@ -1,0 +1,104 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Execute Brain****", ALGOL 68 solution execute-brain--1.alg.
+  https://rosettacode.org/wiki/Execute_Brain****#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/execute-brain--1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Brain**** -> Algol 68 transpiler }
+      { a single line of Brain**** code is prompted for and read from }
+      { standard input, the generated code is written to standard output }
+      { the original code is included in the output as a comment }
+
+    { transpiles the Brain**** code in code list to Algol 68 }
+    proc generate = ( string code_list )void:
+    begin
+
+        proc emit  = ( string code )void: print( ( code, newline ) );
+        proc emit1 = ( string code )void:
+             print( ( if need_semicolon then ";" else "" fi
+                    , newline, indent, code
+                    )
+                  );
+        proc next  = char: if   c_pos > c_max
+                           then "$"
+                           else char result = code_list[ c_pos ];
+                                c_pos +:= 1;
+                                result
+                           fi;
+
+        { address and data modes and the data space }
+        emit( "BEGIN" );
+        emit( "  MODE DADDR = INT; # data address #" );
+        emit( "  MODE DATA  = INT;" );
+        emit( "  DATA zero  = 0;" );
+        emit( "  [-255:255]DATA data;  # finite data space #" );
+        emit( "  FOR i FROM LWB data TO UPB data DO data[i] := zero OD;" );
+        emit( "  DADDR addr := ( UPB data + LWB data ) OVER 2;" );
+
+        { actual code }
+
+        string indent         := "  ";
+        bool   need_semicolon := false;
+        int    c_pos          := LWB code_list;
+        int    c_max           = UPB code_list;
+        char   c              := next;
+        while c /= "$" do
+            if   c = "?"
+            then emit1( "SKIP" );
+                 need_semicolon := true;
+                 while ( c := next ) = "?" do skip od
+            elif c = "<" OR c = ">"
+            then char op_code   = c;
+                 char assign_op = if c = ">" then "+" else "-" fi;
+                 int incr      := 1;
+                 while ( c := next ) = op_code do incr +:= 1 od;
+                 emit1( "addr " + assign_op + ":= " + whole( incr, 0 ) );
+                 need_semicolon := true
+            elif c = "+" OR c = "-"
+            then char op_code   = c;
+                 int incr      := 1;
+                 while ( c := next ) = op_code do incr +:= 1 od;
+                 emit1( "data[ addr ] " + op_code + ":= " + whole( incr, 0 ) );
+                 need_semicolon := true
+            elif c = "."
+            then emit1( "print( ( REPR data[ addr ] ) )" );
+                 need_semicolon := true;
+                 c              := next
+            elif c = ","
+            then emit1( "data[ addr ] := ABS read char" );
+                 need_semicolon := true;
+                 c              := next
+            elif c = "["
+            then emit1( "WHILE data[ addr ] /= zero DO" );
+                 indent        +:= "  ";
+                 need_semicolon := false;
+                 c              := next
+            elif c = "]"
+            then need_semicolon := false;
+                 indent         := indent[ LWB indent + 2 : ];
+                 emit1( "OD" );
+                 need_semicolon := true;
+                 c              := next
+            else
+                 print( ( "Invalid op code: """, c, """", newline ) );
+                 c              := next
+            fi
+        od;
+        emit( "" );
+        emit( "END" )
+
+    end { gen } ;
+
+    { get the code to transpile and output it as a comment at the start }
+    { of the code }
+    print( ( "CO BF> " ) );
+    string bf_code;
+    read( ( bf_code, newline ) );
+    print( ( newline, bf_code, newline, "CO", newline ) );
+    { transpile the code }
+    generate( bf_code )
+
+end
+)

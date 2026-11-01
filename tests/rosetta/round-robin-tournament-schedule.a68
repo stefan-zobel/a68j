@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Round-robin tournament schedule", ALGOL 68 solution round-robin-tournament-schedule.alg.
+  https://rosettacode.org/wiki/Round-robin_tournament_schedule#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/round-robin-tournament-schedule.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { round-robin tournament schedule - translation of XPL0 }
+    int n = 12;            { number of players (must be even) }
+    [ 1 : n ]int player;
+    for i to n do player[ i ] := i od;
+    for round to n - 1 do
+        print( ( whole( round, 0 ), ":" ) );
+        for i to n OVER 2 do
+            print( ( REPR 9, whole( player[ i ], 0 ) ) )
+        od;
+        print( ( newline ) );
+        for i from n by -1 to ( n OVER 2 ) + 1 do
+            print( ( REPR 9, whole( player[ i ], 0 ) ) )
+        od;
+        print( ( newline, newline ) );
+        int nth_player   = player[ n ];
+        player[ 3 : n ] := player[ 2 : n - 1 ];
+        player[ 2     ] := nth_player
+    od
+end
+)

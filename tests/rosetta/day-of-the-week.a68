@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Day of the week", ALGOL 68 solution day-of-the-week.alg.
+  https://rosettacode.org/wiki/Day_of_the_week#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/day-of-the-week.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ example from: http://www.xs4all.nl/~jmvdveer/algol.html - GPL }
+int sun=0 { , mon=1, tue=2, wed=3, thu=4, fri=5, sat=6 };
+
+proc day_of_week = (int year, month, day) int: (
+  { Day of the week by Zeller’s Congruence algorithm from 1887 }
+  int y := year, m := month, d := day, c;
+  if m <= 2 then
+    m +:= 12; y -:= 1
+  fi;
+  c := y OVER 100;
+  y %*:= 100;
+  (d - 1 + ((m + 1) * 26) OVER 10 + y + y OVER 4 + c OVER 4 - 2 * c) MOD 7
+);
+
+test:(
+  print("December 25th is a Sunday in:");
+  for year from 2008 to 2121 do
+    int wd = day_of_week(year, 12, 25);
+    if wd = sun then print(whole(year,-5)) fi
+  od;
+  new_line(stand_out)
+)
+)

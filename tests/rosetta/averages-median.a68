@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Averages/Median", ALGOL 68 solution averages-median.alg.
+  https://rosettacode.org/wiki/Averages/Median#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/averages-median.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int max_elements = 1000000;
+
+{ Return the k-th smallest item in array x of length len }
+proc quick_select = (int k, ref[]real x) real:
+   begin
+
+      proc swap = (int a, b) void:
+         begin
+	    real t = x[a];
+	    x[a] := x[b]; x[b] := t
+         end;
+
+      int left := 1, right := UPB x;
+      int pos, i;
+      real pivot;
+
+      while left < right do
+	 pivot := x[k];
+	 swap (k, right);
+	 pos := left;
+	 for i from left to right do
+	    if x[i] < pivot then
+	       swap (i, pos);
+	       pos +:= 1
+	    fi
+	 od;
+	 swap (right, pos);
+	 if pos = k then break fi;
+	 if pos < k then left := pos + 1
+	 else right := pos - 1
+         fi
+      od;
+break:
+      skip;
+      x[k]
+   end;
+
+ { Initialize random length REAL array with random doubles }
+ int length = ENTIER (next_random * max_elements);
+ [length]real x;
+ for i to length do
+    x[i] := (next_random * 1e6 - 0.5e6)
+ od;
+
+ real median :=
+    if NOT ODD length then
+       { Even number of elements, median is average of middle two }
+       (quick_select (length % 2, x) + quick_select(length % 2 - 1, x)) / 2
+    else
+       { select middle element }
+       quick_select(length % 2, x)
+    fi;
+
+ { Sanity testing of median }
+ int less := 0, more := 0, eq := 0;
+ for i to length do
+    if x[i] < median then less +:= 1
+    elif x[i] > median then more +:= 1
+    else eq +:= 1
+    fi
+ od;
+ print (("length: ", whole (length,0), new_line, "median: ", median, new_line,
+	 "<: ", whole (less,0), new_line,
+	 ">: ", whole (more, 0), new_line,
+	 "=: ", whole (eq, 0), new_line))
+)

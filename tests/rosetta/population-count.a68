@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Population count", ALGOL 68 solution population-count.alg.
+  https://rosettacode.org/wiki/Population_count#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/population-count.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns the population count (number of bits on) of the non-negative       }
+{ integer n                                                                  }
+proc population_count = ( long int n )int:
+     begin
+        long int number := n;
+        int      result := 0;
+        while number > 0 do
+            if ODD number then result +:= 1 fi;
+            number OVERAB 2
+        od;
+        result
+     end { population } ;
+
+{ population count of 3^0, 3^1, 3*2, ..., 3^29                               }
+long int  power_of_three := 1;
+print( ( "3^x pop counts:" ) );
+from 0 to 29 do
+    print( ( " ", whole( population_count( power_of_three ), 0 ) ) );
+    power_of_three *:= 3
+od;
+print( ( newline ) );
+{ print the first thirty evil numbers (even population count)                }
+int evil_count := 0;
+print( ( "evil numbers  :" ) );
+for n from 0 while evil_count < 30 do
+    if NOT ODD population_count( n ) then
+        print( ( " ", whole( n, 0 ) ) );
+        evil_count +:= 1
+    fi
+od;
+print( ( newline ) );
+{ print the first thirty odious numbers (odd population count)               }
+int odious_count := 0;
+print( ( "odious numbers:" ) );
+for n while odious_count < 30 do
+    if ODD population_count( n ) then
+        print( ( " ", whole( n, 0 ) ) );
+        odious_count +:= 1
+    fi
+od;
+print( ( newline ) )
+)

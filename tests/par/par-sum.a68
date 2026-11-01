@@ -1,0 +1,13 @@
+{ Four units add to a shared total; a semaphore makes the additions exclusive. }
+begin
+   sema mutex = LEVEL 1;
+   int total := 0;
+   proc addrange = (int lo, hi) void:
+      for i from lo to hi
+      do DOWN mutex; total +:= i; UP mutex
+      od;
+   par (addrange (1, 10000), addrange (10001, 20000),
+        addrange (20001, 30000), addrange (30001, 40000));
+   puts ("total = " + whole (total, 0) + "'n");
+   puts ("level mutex = " + whole (LEVEL mutex, 0) + "'n")
+end

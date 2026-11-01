@@ -1,0 +1,166 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Kahan summation", ALGOL 68 solution kahan-summation.alg.
+  https://rosettacode.org/wiki/Kahan_summation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/kahan-summation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Kahan summation - Algol 68 doesn't have a float decimal mode, however as    }
+{ only 6 digits of precision are required and assuming INT is 32 bits, we can }
+{ emulate this fairly easily                                                  }
+
+{ MODE DEC is a float decimal with 6 digits                                   }
+{ We normalise the mantissa so that the first digit is non-zero if            }
+{ the number is not 0                                                         }
+{ so e.g.  1 is represented as 100000 E0                                      }
+{         10 is represented as 100000 E1                                      }
+{ etc.                                                                        }
+{ we only provide enough operations for the task                              }
+
+mode Dec = struct( bool negative, int mantissa, int exponent );
+
+{ constructs a string representation of a DEC number                          }
+op TOSTRING = ( Dec number )string:
+    if mantissa of number = 0
+    then
+        { number is zero }
+        " 0.00000E +0"
+    else
+        { non-zero number }
+        string result = whole( mantissa of number, 0 );
+        ( if negative of number
+          then
+              { number is negative - show leading "-" sign }
+              "-"
+          else
+              { positive number - show leading space }
+              " "
+          fi
+        + result[ 1 : 1 ]
+        + "."
+        + result[ 2 :   ]
+        + "E"
+        + whole( exponent of number, 3 )
+        )
+    fi
+;
+
+{ negates a DEC number                                                        }
+op - = ( Dec a )Dec: ( NOT negative of a, mantissa of a, exponent of a );
+
+{ adds two DEC numbers                                                        }
+op + = ( Dec a, Dec b )Dec:
+    if exponent of a < exponent of b
+    then
+        { the left operand has a smaller exponent than the right,             }
+        { reverse the operands                                                }
+        b + a
+
+    else
+        { the left operand's exponent is at least as big as the right's       }
+
+        { removes a digit from a DEC number with rounding, the exponent is    }
+        { unchanged                                                           }
+        op REDUCE = ( Dec ka )Dec: ( negative of ka
+                                   , ( ( mantissa of ka OVER 10 )
+                                       + if mantissa of ka MOD 10 > 4 then 1 else 0 fi
+                                     )
+                                   , exponent of ka
+                                   );
+        { adds an extra digit to a DEC number, exponent is unchanged          }
+        op EXTEND = ( Dec ka )Dec: ( negative of ka, mantissa of ka * 10, exponent of ka );
+        { signs the mantissa                                                  }
+        op APPLYSIGN = ( Dec ka )Dec:( false
+                                     , if negative of ka then - mantissa of ka else mantissa of ka fi
+                                     , exponent of ka
+                                     );
+        { unsigns the mantissa and sets negative accordingly                  }
+        op EXTRACTSIGN = ( Dec ka )Dec: ( mantissa of ka < 0, ABS ( mantissa of ka ), exponent of ka );
+
+        { give each number an extra digit                                     }
+        Dec result  := EXTEND a;
+        Dec operand := EXTEND b;
+
+        { scale the values so that they have the same exponent                }
+
+        while exponent of operand < exponent of result
+        do
+            operand := REDUCE operand;
+            exponent of operand PLUSAB 1
+        od;
+
+        { sign the mantissas                                                  }
+        result  := APPLYSIGN result;
+        operand := APPLYSIGN operand;
+
+        { add                                                                 }
+        mantissa of result PLUSAB mantissa of operand;
+
+        { remove the extra digit, round and unsign the mantissa               }
+        result := REDUCE EXTRACTSIGN result;
+
+        { if the mantissa is < 100000 and not 0, increase the mantissa and    }
+        { reduce the exponent so that the first digit is not 0                }
+        if mantissa of result /= 0
+        then
+            { non-zero mantissa - scale if necessary                          }
+            while mantissa of result < 100000
+            do
+                mantissa of result TIMESAB 10;
+                exponent of result MINUSAB  1
+            od
+        fi;
+
+        result
+
+    fi { + }
+;
+
+{ subtracts two DEC numbers                                                   }
+op - = ( Dec a, Dec b )Dec: a + ( - b );
+
+{ performs Kahan summation on an array of DEC numbers                         }
+{ The numbers must be ordered highest to lowest                               }
+{ Algorithm as per the Wikipaedia page, except we start with sum              }
+{ set to the first element of the list, not 0                                 }
+op KAHANSUM = ( []Dec a )Dec:
+    begin
+
+        Dec sum := a[LWB a];
+        Dec c   := ( false, 0, 0 );
+
+        for i from LWB a + 1 to UPB a
+        do
+            Dec y := a[i] - c;
+            Dec t := sum + y;
+            c     := ( t - sum ) - y;
+            sum   := t
+        od;
+
+        sum
+    end { KAHANSUM }
+;
+
+{ test the Kahan summation and 6 digit decimal floating point                 }
+begin
+
+    { construct DEC values a = 10000.0, b = 3.14159, c = 2.71828              }
+
+    Dec a := ( false, 100000, 4 );
+    Dec b := ( false, 314159, 0 );
+    Dec c := ( false, 271828, 0 );
+
+    { simple sum }
+    print( ( "Simple: ", TOSTRING a, " + ", TOSTRING b, " + ", TOSTRING c, " = ", TOSTRING ( ( a + b ) + c )
+           , newline
+           )
+         );
+    { Kahan }
+    []Dec list = ( a, b, c );
+    print( ( "Kahan : ", TOSTRING a, " + ", TOSTRING b, " + ", TOSTRING c, " = ", TOSTRING KAHANSUM list
+           , newline
+           )
+         )
+end
+)

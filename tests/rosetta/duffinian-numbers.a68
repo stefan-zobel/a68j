@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Duffinian numbers", ALGOL 68 solution duffinian-numbers.alg.
+  https://rosettacode.org/wiki/Duffinian_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/duffinian-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find Duffinian numbers: non-primes relatively prime to their divisor count }
+    int max_number            := 500 000;      { largest number we will consider   }
+    { iterative Greatest Common Divisor routine, returns the gcd of m and n        }
+    proc gcd = ( int m, n )int:
+         begin
+            int a := ABS m, b := ABS n;
+            while b /= 0 do
+                int new_a = b;
+                b        := a MOD b;
+                a        := new_a
+            od;
+            a
+         end { gcd } ;
+    { construct a table of the divisor counts                                      }
+    [ 1 : max_number ]int ds; for i to UPB ds do ds[ i ] := 1 od;
+    for i from 2 to UPB ds
+        do for j from i by i to UPB ds do ds[ j ] +:= i od
+    od;
+    { set the divisor counts of non-Duffinian numbers to 0                         }
+    ds[ 1 ] := 0;  { 1 is not Duffinian                                            }
+    for n from 2 to UPB ds do
+        if int nds = ds[ n ];
+           if nds = n + 1 then true else gcd( n, nds ) /= 1 fi
+        then
+            { n is prime or is not relatively prime to its divisor sum             }
+            ds[ n ] := 0
+        fi
+    od;
+    { show the first 50 Duffinian numbers                                          }
+    print( ( "The first 50 Duffinian numbers:", newline ) );
+    int dcount := 0;
+    for n while dcount < 50 do
+        if ds[ n ] /= 0
+        then { found a Duffinian number                                            }
+            print( ( " ", whole( n, -3) ) );
+            if ( dcount +:= 1 ) MOD 25 = 0 then print( ( newline ) ) fi
+        fi
+    od;
+    print( ( newline ) );
+    { show the duffinian triplets below UPB ds                                     }
+    print( ( "The Duffinian triplets up to ", whole( UPB ds, 0 ), ":", newline ) );
+    dcount := 0;
+    for n from 3 to UPB ds do
+        if ds[ n - 2 ] /= 0 AND ds[ n - 1 ] /= 0 AND ds[ n ] /= 0
+        then { found a Duffinian triplet                                           }
+            print( ( " (", whole( n - 2, -7 ), " ", whole( n - 1, -7 ), " ", whole( n, -7 ), ")" ) );
+            if ( dcount +:= 1 ) MOD 4 = 0 then print( ( newline ) ) fi
+        fi
+    od
+end
+)

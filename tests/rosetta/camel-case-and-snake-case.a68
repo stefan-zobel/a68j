@@ -1,0 +1,123 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Camel case and snake case", ALGOL 68 solution camel-case-and-snake-case.alg.
+  https://rosettacode.org/wiki/Camel_case_and_snake_case#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/camel-case-and-snake-case.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { convert camel case to and from snake case }
+    { returns c converted to uppercase if it is lowercase, c otherwise }
+    op   TOUPPER = ( char c )string:
+         if c >= "a" AND c <= "z" then REPR( ( ABS c - ABS "a" ) + ABS "A" ) else c fi;
+    { returns c converted to lowercase if it is uppercase, c otherwise }
+    op   TOLOWER = ( char c )string:
+         if c >= "A" AND c <= "Z" then REPR( ( ABS c - ABS "A" ) + ABS "a" ) else c fi;
+    { returns the camel case identifier c in snake case }
+    op   CAMELTOSNAKE = ( string c )string: c CAMELTOBREAK "_";
+    { returns the camel case identifier c in kebab case }
+    op   CAMELTOKEBAB = ( string c )string: c CAMELTOBREAK "-";
+    { returns TRUE if c is a "break" character ( " ", "-" or "_" ), FALSE otherwise }
+    op   ISBREAK = ( char c )bool: c = " " OR c = "-" OR c = "_";
+    { returns the indentifier id (which is assumed to be in Camel case) }
+    {         converted to snake or kebab case depending on break char }
+    prio CAMELTOBREAK = 9; { CAMELTOBREAK is dyadic so need a priority }
+    op   CAMELTOBREAK = ( string id, char break_char )string:
+         begin
+            string result := "";
+            string orig    = TRIM id; { remove leading and trailing spaces }
+            bool   first  := true;
+            int    c_pos  := LWB orig;
+            while c_pos <= UPB orig do
+                char c = orig[ c_pos ];
+                if c >= "A" AND c <= "Z" then
+                    { have an uppercase letter }
+                    if NOT first then result +:= break_char fi;
+                    result +:= TOLOWER c
+                elif ISBREAK c then
+                    { replace one or more spaces and break characters by a single break }
+                    bool have_break := true;
+                    while c_pos <= UPB orig AND have_break do
+                        if have_break := ISBREAK orig[ c_pos ] then c_pos +:= 1 fi
+                    od;
+                    if c_pos <= UPB orig then
+                        { the identifier didn't end wih a break }
+                        result +:= break_char + TOLOWER orig[ c_pos ]
+                    fi
+                else
+                    { lowercase or punctuation }
+                    result +:= c
+                fi;
+                first  := false;
+                c_pos +:= 1
+            od;
+            result
+         end { CAMELTOBREAK } ;
+    { returns the identifier id ( which is assumed to be in snake/kebab/space case ) }
+    {         converted to Camel case }
+    op   TOCAMEL = ( string id )string:
+         begin
+            string result := "";
+            string orig    = TRIM id; { remove leading and trailing spaces }
+            int    c_pos  := LWB orig;
+            while  c_pos <= UPB orig do
+                char c = orig[ c_pos ];
+                if c >= "A" AND c <= "Z" then
+                    { uppercase letter - leave as is }
+                    result +:= c
+                elif NOT ISBREAK c then
+                    { not a break - convert to lower case if necessary and move to the next }
+                    result +:= TOLOWER c
+                else
+                    { have a separator - skip all subsequent separators and upcase the follower }
+                    bool have_break := true;
+                    while c_pos <= UPB orig AND have_break do
+                        if have_break := ISBREAK orig[ c_pos ] then c_pos +:= 1 fi
+                    od;
+                    if c_pos <= UPB orig then
+                        { the identifier didn't end with a break character }
+                        result +:= TOUPPER orig[ c_pos ]
+                    fi
+                fi;
+                c_pos +:= 1
+            od;
+            result
+         end { TOCAMEL } ;
+    { returns s left-padded to len characters or s if s is already that long }
+    prio PAD = 9;
+    op   PAD = ( int len, string s )string:
+         if    int s_len = ( UPB s - LWB s ) + 1;
+               s_len >= len
+         then s
+         else
+             string result := s;
+             from s_len + 1 to len do " " +=: result od;
+             result
+         fi { PAD } ;
+    { returns s with leading and trailing spaces removed }
+    op   TRIM = ( string s )string:
+         begin
+             int left  := LWB s;
+             int right := UPB s;
+             while if left  > right then false else s[ left  ] = " " fi do left  +:= 1 od;
+             while if right < left  then false else s[ right ] = " " fi do right -:= 1 od;
+             s[ left : right ]
+         end { TRIM } ;
+    { task test cases }
+    []string identifier = ( "snakeCase", "snake_case", "variable_10_case", "variable10Case", "ɛrgo rE tHis"
+                          , "hurry-up-joe!", "c://my-docs/happy_Flag-Day/12.doc", "  spaces  "
+                          );
+    print( ( "to snake case:", newline ) );
+    for i from LWB identifier to UPB identifier do
+        print( ( 40 PAD identifier[ i ], " -> ", CAMELTOSNAKE identifier[ i ], newline ) )
+    od;
+    print( ( "to Camel case:", newline ) );
+    for i from LWB identifier to UPB identifier do
+        print( ( 40 PAD identifier[ i ], " -> ",      TOCAMEL identifier[ i ], newline ) )
+    od;
+    print( ( "to kebab case:", newline ) );
+    for i from LWB identifier to UPB identifier do
+        print( ( 40 PAD identifier[ i ], " -> ", CAMELTOKEBAB identifier[ i ], newline ) )
+    od
+end
+)

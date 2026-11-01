@@ -1,0 +1,80 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cheryl's birthday", ALGOL 68 solution cheryls-birthday.alg.
+  https://rosettacode.org/wiki/Cheryl's_birthday#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cheryls-birthday.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Cheryl's birthday puzzle                                       }
+
+    [ 1 : 4, 1 : 6 ]int   dates   { non-zero indicates a possible date }
+                       := ( (  0, 15, 16,  0,  0, 19 )    { may        }
+                          , (  0,  0,  0, 17, 18,  0 )    { june       }
+                          , ( 14,  0, 16,  0,  0,  0 )    { july       }
+                          , ( 14, 15,  0, 17,  0,  0 )    { august     }
+                          );
+    []string month_name = ( "May", "June", "July", "August" );
+    print( ( "Cheryl tells Albert the month and Bernard the day", newline ) );
+    print( ( "Albert doesn''t know the date and knows Bernard doesn''t either", newline ) );
+    for d to 2 UPB dates do     { elimiate the months with unique days }
+        int day_count := 0;
+        int day       := 0;
+        int month     := 0;
+        for m to 1 UPB dates do
+            if dates[ m, d ] /= 0 then
+                day_count +:= 1;
+                day        := dates[ m, d ];
+                month      := m
+            fi
+        od;
+        if day_count = 1 then
+            print( ( "  Eliminating ", month_name[ month ], ", ", whole( day, 0 ), "th is unique", newline ) );
+            for p to 2 UPB dates do dates[ month, p ] := 0 od
+        fi
+    od;
+    print( ( "Bernard now knows the date", newline ) );
+    for d to 2 UPB dates do    { eliminate the days that aren't unique }
+        int day_count := 0;
+        int day       := 0;
+        int month     := 0;
+        for m to 1 UPB dates do
+            if dates[ m, d ] /= 0 then
+                day_count +:= 1;
+                day        := dates[ m, d ];
+                month      := m
+            fi
+        od;
+        if day_count > 1 then
+            print( ( "  Eliminating ", whole( day, 0 ), "th, it is non-unique", newline ) );
+            for p to 1 UPB dates do dates[ p, d ] := 0 od
+        fi
+    od;
+    print( ( "Albert now knows the date", newline ) );
+    for m to 1 UPB dates do    { eliminate months with non-unique days }
+        int day_count := 0;
+        int day       := 0;
+        int month     := 0;
+        for d to 2 UPB dates do
+            if dates[ m, d ] /= 0 then
+                day_count +:= 1;
+                day        := dates[ m, d ];
+                month      := m
+            fi
+        od;
+        if day_count > 1 then
+            print( ( "  Eliminating ", month_name[ m ], ", it has multiple days", newline ) );
+            for p to 2 UPB dates do dates[ m, p ] := 0 od
+        fi
+    od;
+    print( ( "Cheryl''s birthday: " ) );         { show the solution(s) }
+    for m to 1 UPB dates do
+        for d to 2 UPB dates do
+            if dates[ m, d ] /= 0 then
+                print( ( " ", month_name[ m ], " ", whole( dates[ m, d ], 0 ), "th" ) )
+            fi
+        od
+    od;
+    print( ( newline ) )
+end
+)

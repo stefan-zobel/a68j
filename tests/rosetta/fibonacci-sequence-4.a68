@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fibonacci sequence", ALGOL 68 solution fibonacci-sequence-4.alg.
+  https://rosettacode.org/wiki/Fibonacci_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fibonacci-sequence-4.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Yieldint = proc(int)void;
+
+proc gen_fibonacci = (int n, Yieldint yield)void: (
+  int even:=0, odd:=1;
+  yield(even);
+  yield(odd);
+  for i from odd+1 to n do
+    yield( (ODD i|odd|even) := odd + even )
+  od
+);
+
+main:(
+  { FOR INT n IN } gen_fibonacci(30, { ) DO ( }
+  {}   (int n)void:(
+        print((" ",whole(n,0)))
+  { OD } ));
+    print(new_line)
+)
+)

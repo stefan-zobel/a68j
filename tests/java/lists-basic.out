@@ -1,0 +1,12 @@
+UPB 20, LWB 1
+5 ELEM l = 25
+after AT: -1 1036
+POP: 400, UPB 19
+sorted: -1 1 3 4 5 7 9 16 49 64 81 100 121 144 169 196 225 256 289 324 361 1036
+l INDEX 49: 9, l INDEX 2: 0
+m: 3 20
+l is l: yes, l is m: no
+1 AT m is 1 AT m: yes
+n is nil: yes
+after CLEAR: 0
+exit 0

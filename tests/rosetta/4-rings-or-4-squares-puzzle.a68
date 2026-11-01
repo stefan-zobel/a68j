@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "4-rings or 4-squares puzzle", ALGOL 68 solution 4-rings-or-4-squares-puzzle.alg.
+  https://rosettacode.org/wiki/4-rings_or_4-squares_puzzle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/4-rings-or-4-squares-puzzle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { solve the 4 rings or 4 squares puzzle                                             }
+    { we need to find solutions to the equations: a + b = b + c + d = d + e + f = f + g }
+    { where a, b, c, d, e, f, g in lo : hi ( not necessarily unique )                   }
+    { depending on show, the solutions will be printed or not                           }
+    proc four_rings = ( int lo, hi, bool allow_duplicates, show )void:
+    begin
+        int  solutions := 0;
+        { calculate field width for printinhg solutions }
+        int  width := -1;
+        int  max := ABS if ABS lo > ABS hi then lo else hi fi;
+        while max > 0 do
+            width -:= 1;
+            max OVERAB 10
+        od;
+        { find solutions }
+        for a from lo to hi do
+            for b from lo to hi do
+                if allow_duplicates OR a /= b then
+                    int t = a + b;
+                    for c from lo to hi do
+                        if allow_duplicates OR ( a /= c AND b /= c ) then
+                            int d = t - ( b + c );
+                            if  d >= lo AND d <= hi
+                            AND (  allow_duplicates
+                                OR ( a /= d AND b /= d AND c /= d )
+                                )
+                            then
+                                for e from lo to hi do
+                                    if allow_duplicates
+                                    OR ( a /= e AND b /= e AND c /= e AND d /= e )
+                                    then
+                                        int g = d + e;
+                                        int f = t - g;
+                                        if  f >= lo AND f <= hi
+                                        AND g >= lo AND g <= hi
+                                        AND (  allow_duplicates
+                                            OR (   a /= f AND b /= f AND c /= f
+                                               AND d /= f AND e /= f
+                                               AND a /= g AND b /= g AND c /= g
+                                               AND d /= g AND e /= g AND f /= g
+                                               )
+                                            )
+                                        then
+                                            solutions +:= 1;
+                                            if show then
+                                                print( ( whole( a, width ), whole( b, width )
+                                                       , whole( c, width ), whole( d, width )
+                                                       , whole( e, width ), whole( f, width )
+                                                       , whole( g, width ), newline
+                                                       )
+                                                     )
+                                            fi
+                                        fi
+                                    fi
+                                od { e }
+                            fi
+                        fi
+                    od { c }
+                fi
+            od { b }
+        od { a } ;
+        print( ( whole( solutions, 0 )
+               , if allow_duplicates then " non-unique" else " unique" fi
+               , " solutions in "
+               , whole( lo, 0 )
+               , " to "
+               , whole( hi, 0 )
+               , newline
+               , newline
+               )
+             )
+    end { four rings } ;
+
+    { find the solutions as required for the task }
+    four_rings( 1, 7, false, true  );
+    four_rings( 3, 9, false, true  );
+    four_rings( 0, 9, true,  false )
+end
+)

@@ -1,0 +1,76 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Align columns", ALGOL 68 solution align-columns.alg.
+  https://rosettacode.org/wiki/Align_columns#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/align-columns.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string nl = REPR 10;
+string text_in_list := "Given$a$text$file$of$many$lines,$where$fields$within$a$line$"+nl+
+  "are$delineated$by$a$single$''dollar''$character,$write$a$program"+nl+
+  "that$aligns$each$column$of$fields$by$ensuring$that$words$in$each$"+nl+
+  "column$are$separated$by$at$least$one$space."+nl+
+  "Further,$allow$for$each$word$in$a$column$to$be$either$left$"+nl+
+  "justified,$right$justified,$or$center$justified$within$its$column.";
+
+mode Page = flex[0,0]string;
+Page page;
+
+proc flex_page = (Page in_page, int row, col)Page:(
+  heap flex[row, col]string out_page;
+  out_page[:1 UPB in_page, :2 UPB in_page] := in_page;
+  for r to row do
+    for c from 2 UPB in_page + 1 to col do out_page[r,c]:="" od
+  od;
+  for r from 1 UPB in_page + 1 to row do
+    for c from 1 to col do out_page[r,c]:="" od
+  od;
+  out_page
+);
+
+file text_in_file;
+associate(text_in_file, text_in_list);
+make_term(text_in_file, "$");
+
+on_physical_file_end(text_in_file, (ref file skip_)bool: stop_iteration);
+on_logical_file_end(text_in_file, (ref file skip_)bool: stop_iteration);
+bool at_eol := false;
+on_line_end(text_in_file, (ref file skip_)bool: at_eol := true);
+for row do
+  at_eol := false;
+  for col while NOT at_eol do
+    string tok := "";
+    getf(text_in_file, ($gx$,tok));
+    if tok NE "" OR NOT at_eol then
+      if row > 1 UPB page then page := flex_page(page, row, 2 UPB page) fi;
+      if col > 2 UPB page then page := flex_page(page, 1 UPB page, col) fi;
+      page[row,col]:=tok
+    fi
+  od
+od;
+stop_iteration:
+  skip;
+
+begin
+  proc aligner = (Page in_page, proc (string,int)string alignf)void:(
+    Page al_page := in_page;
+    for col to 2 UPB page do
+      int max_len:=0; for row to UPB al_page do if UPB al_page[row,col]>max_len then max_len:=UPB al_page[row,col] fi od;
+      for row to UPB al_page do al_page[row,col] := alignf(page[row,col], maxlen) od
+    od;
+    printf(($n(UPB page)(n(2 UPB page -1)(gx)gl)$,al_page))
+  );
+
+  proc left = (string in_, int len)string: in_ + " "*(len - UPB in_),
+       right = (string in_, int len)string: " "*(len - UPB in_) + in_,
+       centre = (string in_, int len)string: ( int pad=len-UPB in_;  pad%2*" "+ in_ + (pad-pad%2)*" " );
+
+  []struct(string name, proc(string,int)string align) aligners = (("Left",left), ("right",right), ("Centre",centre));
+
+  for index to UPB aligners do
+    print((new_line, "# ",name of aligners[index]," Column-aligned output:",new_line));
+    aligner(page, align of aligners[index])
+  od
+end
+)

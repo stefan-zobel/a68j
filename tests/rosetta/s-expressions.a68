@@ -1,0 +1,136 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "S-expressions", ALGOL 68 solution s-expressions.alg.
+  https://rosettacode.org/wiki/S-expressions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/s-expressions.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ S-Expressions }
+char nl = REPR 10;
+{ mode representing an S-expression }
+mode Sexpr = struct( union( void, string, ref Sexpr ) element, ref Sexpr next );
+{ creates an initialises an SEXPR }
+proc new_s_expr = ref Sexpr: heap Sexpr := ( empty, nil );
+{ reports an error }
+proc error = ( string msg )void: print( ( "**** ", msg, newline ) );
+{ S-expression reader - reads and returns an S-expression from the string s }
+proc s_reader = ( string s )ref Sexpr:
+     begin
+        proc at_end      = bool: s_pos > UPB s;
+        proc curr        = char: if at_end then REPR 0 else s[ s_pos ] fi;
+        proc skip_spaces = void: while NOT at_end AND ( curr = " " OR curr = nl ) do s_pos +:= 1 od;
+        proc end_of_list = bool: at_end OR curr = ")";
+        int s_pos := LWB s;
+        int t_pos;
+        [ ( UPB s - LWB s ) + 1 ]char token; { token text - large enough to hold the whole string if necessary }
+        { adds the current character to the token }
+        proc add_curr    = void: token[ t_pos +:= 1 ] := curr;
+        { get an s expression element from s }
+        proc get_element = ref Sexpr:
+             begin
+                ref Sexpr result = new_s_expr;
+                skip_spaces;
+                { get token text }
+                if   at_end then
+                    { no element }
+                    element of result := empty
+                elif curr = "("  then
+                    s_pos +:= 1;
+                    skip_spaces;
+                    if NOT end_of_list
+                    then
+                        ref Sexpr nested_expression = get_element;
+                        ref Sexpr element_pos      := nested_expression;
+                        element of result          := nested_expression;
+                        skip_spaces;
+                        while NOT end_of_list
+                        do
+                            element_pos := next of element_pos := get_element;
+                            skip_spaces
+                        od
+                    fi;
+                    if curr = ")" then
+                        s_pos +:= 1
+                    else
+                        error( "Missing "")""" )
+                    fi
+                elif curr = ")" then
+                    s_pos +:= 1;
+                    error( "Unexpected "")""" );
+                    element of result := empty
+                else
+                    { quoted or unquoted string }
+                    t_pos := LWB token - 1;
+                    if curr /= """" then
+                        { unquoted string }
+                        while add_curr;
+                              s_pos +:= 1;
+                              NOT at_end AND curr /= " " AND curr /= "("
+                                         AND curr /= ")" AND curr /= """"
+                                         AND curr /= nl
+                        do skip od
+                    else
+                        { quoted string }
+                        while add_curr;
+                              s_pos +:= 1;
+                              NOT at_end AND curr /= """"
+                        do skip od;
+                        if curr /= """" then
+                            { missing string quote }
+                            error( "Unterminated string: <<" + token[ : t_pos ] + ">>" )
+                        else
+                            { have the closing quote }
+                            add_curr;
+                            s_pos +:= 1
+                        fi
+                    fi;
+                    element of result := token[ : t_pos ]
+                fi;
+                result
+             end { get element } ;
+
+        ref Sexpr s_expr = get_element;
+        skip_spaces;
+        if NOT at_end then
+            { extraneuos text after the expression }
+            error( "Unexpected text at end of expression: " + s[ s_pos : ] )
+        fi;
+
+        s_expr
+     end { s reader } ;
+{ prints an S expression }
+proc s_writer = ( ref Sexpr s_expr )void:
+     begin
+        { prints an S expression with a suitable indent }
+        proc print_indented_s_expression = ( ref Sexpr s_expression, int indent )void:
+             begin
+                ref Sexpr s_pos := s_expression;
+                while ref Sexpr( s_pos ) isnt ref Sexpr( nil ) do
+                    to indent do print( ( " " ) ) od;
+                    case element of s_pos
+                    in  (void       ): print( ( "()", newline ) )
+                     ,  (string    s): print( ( s,    newline ) )
+                     ,  (ref Sexpr e): begin
+                                          print( ( "(", newline ) );
+                                          print_indented_s_expression( e, indent + 4 );
+                                          to indent do print( ( " " ) ) od;
+                                          print( ( ")", newline ) )
+                                      end
+                    out
+                        error( "Unexpected S expression element" )
+                    esac;
+                    s_pos := next of s_pos
+                od
+             end { print indented s expression } ;
+
+        print_indented_s_expression( s_expr, 0 )
+     end { s writer } ;
+{ test the eader and writer with the example from the task }
+s_writer( s_reader( "((data ""quoted data"" 123 4.5)"
+                  + nl
+                  + " (data (!@# (4.5) ""(more"" ""data)"")))"
+                  + nl
+                  )
+        )
+)

@@ -1,0 +1,60 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polymorphic copy", ALGOL 68 solution polymorphic-copy.alg.
+  https://rosettacode.org/wiki/Polymorphic_copy#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polymorphic-copy.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { Algol 68 doesn't have classes and inheritence as such, however structures }
+    { can contain procedures and different instances of a structure can have    }
+    { different versons of the procedure                                        }
+    { this allows us to simulate inheritence by creating structure instances    }
+    { with different procedures                                                 }
+
+    { the following declares a type (MODE) HORSE with two constructors, one for }
+    { a standard horse and one for a zebra (the "derived class").               }
+    { The standard horse has its print procedure set to thw print horse         }
+    { procedure (the "base class" method). zebras get the print zebra procedure }
+    { (the "derived class" method). A convenience operator (PRINT) is defined   }
+    { to simplify calling the horse/zebra print method of its horse parameter   }
+    { = this PRINT operator is independent of which actual print method the     }
+    { horse has - it just saved typeing "( print OF h )( h )" everywhere we     }
+    { need to call the print method (euivalent to h.print(h) in e.g. C, Java,   }
+    { etc.)                                                                     }
+
+    { "class" }
+    mode Horse = struct( string name, proc(Horse)void print );
+    { constructors }
+    proc new_horse   = ( string name )Horse: ( name, print_horse );
+    proc new_zebra   = ( string name )Horse: ( name, print_zebra );
+    { print methods: one for a standard horse and one for a zebra }
+    proc print_horse = ( Horse  h    )void: print( ( "horse: ", name of h ) );
+    proc print_zebra = ( Horse  h    )void: print( ( "zebra: ", name of h ) );
+    { print operator }
+    op   PRINT       = ( Horse  h    )void: ( print of h )( h );
+
+    { declare and construct some horses and zebras }
+    Horse h1 := new_horse( "silver blaze" );
+    Horse z1 := new_zebra( "stripy" );
+    Horse z2 := new_zebra( "second zebra" );
+
+    { show their values }
+    PRINT h1; print( ( newline ) );
+    PRINT z1; print( ( newline ) );
+    PRINT z2; print( ( newline ) );
+    print( ( "----", newline ) );
+
+    { change the second zebra to be a copy of the first zebra }
+    z2 := z1;
+    PRINT z1; print( ( newline ) );
+    PRINT z2; print( ( newline ) );
+    print( ( "----", newline ) );
+
+    { change the name of the first zebra leaving z2 unchanged }
+    name of z1 := "ed";
+    PRINT z1; print( ( newline ) );
+    PRINT z2; print( ( newline ) )
+end
+)

@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sort primes from list to a list", ALGOL 68 solution sort-primes-from-list-to-a-list-2.alg.
+  https://rosettacode.org/wiki/Sort_primes_from_list_to_a_list#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sort-primes-from-list-to-a-list-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { sort primes from a list to a list - translation of EasyLang }
+
+    proc is_prime = ( int n )bool:
+         if   n < 2 then false
+         elif NOT ODD n then n = 2
+         else
+            int root_n = ENTIER sqrt( n );
+            bool result := true;
+            for i from 3 by 2 to root_n while result := n MOD i /= 0 do skip od;
+            result
+         fi { is prime } ;
+
+    proc insert = ( int v, ref[]int d, ref int d_pos )void:
+         begin
+            int i_pos := d_pos;
+            d_pos +:= 1;
+            if i_pos > LWB d then
+                while i_pos > LWB d AND d[ i_pos ] > v do
+                    d[ i_pos + 1 ] := d[ i_pos ];
+                    i_pos -:= 1
+                od
+            fi;
+            d[ i_pos + 1 ] := v
+         end { insert } ;
+
+    []int list = ( 2, 43, 81, 122, 63, 13, 7, 95, 103 );
+    [ LWB list : UPB list ]int sorted_primes;
+    int prime_pos := LWB list - 1;
+    for l_pos from LWB list to UPB list do
+        int p = list[ l_pos ];
+        if is_prime( p ) then insert( p, sorted_primes, prime_pos ) fi
+    od;
+    for l_pos from LWB sorted_primes to prime_pos do
+        print( ( " ", whole( sorted_primes[ l_pos ], 0 ) ) )
+    od;
+    print( ( newline ) )
+
+end
+)

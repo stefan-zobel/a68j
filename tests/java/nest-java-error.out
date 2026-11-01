@@ -1,0 +1,3 @@
+tests/java/nest-java-error.a68:4:25: fatal error: no public static Java method 'java.lang.Math.nosuch' fits the mode proc (real) real
+compilation terminated.
+exit 1

@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Floyd's triangle", ALGOL 68 solution floyds-triangle.alg.
+  https://rosettacode.org/wiki/Floyd's_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/floyds-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ procedure to print a Floyd's Triangle with n lines                        }
+proc floyds_triangle = ( int n )void:
+begin
+
+    { the triangle should be left aligned with the individual numbers     }
+    { right-aligned with only one space before the number in the final    }
+    { row                                                                 }
+
+    { calculate the number of the highest number that will be printed     }
+    { ( the sum of the integers 1, 2, ... n )                             }
+    int max_number = ( n * ( n + 1 ) ) OVER 2;
+
+    { determine the widths required to print the numbers of the final row }
+    [ n ]int widths;
+    int number := max_number + 1;
+    for col from n by -1 to 1 do
+        widths[ col ] := - ( UPB whole( number -:= 1, 0 ) + 1 )
+    od;
+
+    { print the triangle                                                  }
+    int element := 0;
+    for row to n do
+        for col to row do
+            print( ( whole( element +:= 1, widths[ col ] ) ) )
+        od;
+        print( ( newline ) )
+    od
+
+end; { floyds triangle }
+
+floyds_triangle(  5 );
+print( ( newline ) );
+floyds_triangle( 14 )
+)

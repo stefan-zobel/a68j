@@ -1,0 +1,236 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Knight's tour", ALGOL 68 solution knights-tour.alg.
+  https://rosettacode.org/wiki/Knight's_tour#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/knights-tour.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Non-recursive Knight's Tour with Warnsdorff's algorithm                }
+{ If there are multiple choices, backtrack if the first choice doesn't   }
+{ find a solution                                                        }
+
+{ the size of the board                                                  }
+int board_size = 8;
+{ the vertical position changes of the moves                             }
+{                  nne, nee, see, sse, ssw, sww, nww, nnw                }
+[]int offset_v = (  -2,  -1,   1,   2,   2,   1,  -1,  -2 );
+{ the horizontal position changes of the moves                           }
+{                  nne, nee, see, sse, ssw, sww, nww, nnw                }
+[]int offset_h = (   1,   2,   2,   1,  -1,  -2,  -2,  -1 );
+
+int lowest_move  = LWB offset_v;
+int highest_move = UPB offset_v;
+
+mode Square = struct( int move      { the number of the move that caused }
+                                    { the knight to reach this square    }
+                    , int direction { the direction of the move that     }
+                                    { brought the knight here - one of   }
+                                    { nne, nee, see, sse, ssw, sww, nww  }
+                                    { or nnw - used for backtracking     }
+                                    { zero for the first move            }
+                    );
+
+{ the board }
+[ board_size, board_size ]Square board;
+
+{ initialises the board so there are no used squares }
+proc initialise_board = void:
+    for row from 1 LWB board to 1 UPB board
+    do
+        for col from 2 LWB board to 2 UPB board
+        do
+            board[ row, col ] := ( 0, 0 )
+        od
+    od; { initialise board }
+
+int iterations := 0;
+int backtracks := 0;
+
+{ prints the board }
+proc print_tour = void:
+begin
+    print( ( "       a   b   c   d   e   f   g   h", newline ) );
+    print( ( "   +--------------------------------", newline ) );
+    for row from 1 UPB board by -1 to 1 LWB board
+    do
+        print( ( whole( row, -3 ) ) );
+        print( ( "|" ) );
+        for col from 2 LWB board to 2 UPB board
+        do
+            print( ( " " ) );
+            print( ( whole( move of board[ row, col ], -3 ) ) )
+        od;
+        print( ( newline ) )
+    od
+end; { print tour }
+
+{ determines whether a move to the specified row and column is possible }
+proc can_move_to = ( int row, int col )bool:
+    if row > 1 UPB board
+    OR row < 1 LWB board
+    OR col > 2 UPB board
+    OR col < 2 LWB board
+    then
+        { the position is not on the board                              }
+        false
+    else
+        { the move is legal, check the square is unoccupied             }
+        move of board[ row, col ] = 0
+    fi;
+
+{ used to hold counts of the number of moves that could be made in each }
+{ direction from the current square                                     }
+[ lowest_move : highest_move ]int possible_move_count;
+
+{ sets the elements of possible move count to the number of moves that  }
+{ could be made in each direction from the specified row and col        }
+proc count_moves_in_each_direction_from = ( int row, int col )void:
+    for move_direction from lowest_move to highest_move
+    do
+        int new_row = row + offset_v[ move_direction ];
+        int new_col = col + offset_h[ move_direction ];
+        if NOT can_move_to( new_row, new_col )
+        then
+            { can't move to this square }
+            possible_move_count[ move_direction ] := -1
+        else
+            { a move in this direction is possible }
+            { - count the number of moves that could be made from it }
+            possible_move_count[ move_direction ] := 0;
+            for subsequent_move from lowest_move to highest_move
+            do
+                if can_move_to( new_row + offset_v[ subsequent_move ]
+                              , new_col + offset_h[ subsequent_move ]
+                              )
+                then
+                    { have a possible subsequent move }
+                    possible_move_count[ move_direction ] +:= 1
+                fi
+            od
+        fi
+    od;
+
+{ update the board to the first knight's tour found starting from       }
+{ "start row" and "start col".                                          }
+{ return TRUE if one was found, FALSE otherwise                         }
+proc find_tour = ( int start_row, int start_col )bool:
+begin
+    initialise_board;
+    bool result := true;
+    int  move_number  := 1;
+    int  row          := start_row;
+    int  col          := start_col;
+    { the tour will be complete when we have made as many moves            }
+    { as there squares on the board                                        }
+    int  final_move    = ( ( ( 1 UPB board ) + 1 ) - 1 LWB board )
+                       * ( ( ( 2 UPB board ) + 1 ) - 2 LWB board )
+                       ;
+    { the first move is to place the knight on the starting square         }
+    board[ row, col ]  := ( move_number, lowest_move - 1 );
+    { start off with an unknown direction for the best move                }
+    int best_direction := lowest_move - 1;
+    { attempt to find a sequence of moves that will reach each square once }
+    while
+        move_number < final_move AND result
+    do
+        iterations +:= 1;
+        { count the number of moves possible from each possible move       }
+        { from this square                                                 }
+        count_moves_in_each_direction_from( row, col );
+        { find the direction with the lowest number of subsequent moves    }
+        if best_direction < lowest_move
+        then
+            { must find the best direction to move in                      }
+            int lowest_move_count := highest_move + 1;
+            for move_direction from lowest_move to highest_move
+            do
+                if  possible_move_count[ move_direction ] >= 0
+                AND possible_move_count[ move_direction ] <  lowest_move_count
+                then
+                    { have a move with fewer possible subsequent moves     }
+                    best_direction    := move_direction;
+                    lowest_move_count := possible_move_count[ move_direction ]
+                fi
+            od
+        else
+            { following a backtrack - find an alternative with the same    }
+            { lowest number of possible moves - if there are any           }
+            { if there aren't, we will backtrack again                     }
+            int lowest_move_count := possible_move_count[ best_direction ];
+            while
+                best_direction +:= 1;
+                if best_direction > highest_move
+                then
+                    { no more possible moves with the lowest number of     }
+                    { subsequent moves                                     }
+                    false
+                else
+                    { keep looking if the number of moves from this square }
+                    { isn't the lowest                                     }
+                    possible_move_count[ best_direction ] /= lowest_move_count
+                fi
+            do
+                skip
+            od
+        fi;
+        if best_direction  <= highest_move
+        AND best_direction >= lowest_move
+        then
+            { we found a best possible move }
+            int new_row = row + offset_v[ best_direction ];
+            int new_col = col + offset_h[ best_direction ];
+            row               := new_row;
+            col               := new_col;
+            move_number      +:= 1;
+            board[ row, col ] := ( move_number, best_direction );
+            best_direction    := lowest_move - 1
+        else
+            { no more moves from this position - backtrack }
+            if move_number = 1
+            then
+                { at the starting position - no solution }
+                result := false
+            else
+                { not at the starting position - undo the latest move }
+                backtracks  +:= 1;
+                move_number -:= 1;
+                int curr_row := row;
+                int curr_col := col;
+                best_direction := direction of board[ curr_row, curr_col ];
+                row -:= offset_v[ best_direction ];
+                col -:= offset_h[ best_direction ];
+                { reset the square we just backtracked from }
+                board[ curr_row, curr_col ] := ( 0, 0 )
+            fi
+        fi
+    od;
+    result
+end; { find tour }
+
+begin
+    { get the starting position }
+    char  row;
+    char  col;
+    while
+        print( ( "Enter starting row(1-8) and col(a-h): " ) );
+        read ( ( row, col, newline ) );
+        row < "1" OR row > "8" OR col < "a" OR col > "h"
+    do
+        skip
+    od;
+    { calculate the tour from that position, if possible }
+    if find_tour( ABS row - ABS "0", ( ABS col - ABS "a" ) + 1 )
+    then
+        { found a solution }
+        print_tour
+    else
+        { couldn't find a solution }
+        print( ( "Solution not found - iterations: ", iterations
+               , ", backtracks: ", backtracks
+               , newline
+               )
+             )
+    fi
+end
+)

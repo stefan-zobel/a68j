@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Law of cosines - triples", ALGOL 68 solution law-of-cosines---triples.alg.
+  https://rosettacode.org/wiki/Law_of_cosines_-_triples#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/law-of-cosines---triples.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { find all integer sided 90, 60 and 120 degree triangles by finding integer solutions for }
+    {    a^2 + b^2 = c^2, a^2 + b^2 - ab = c^2, a^2 + b^2 + ab = c^2 where a, b, c in 1 .. 13 }
+    int max_side   = 13;                  { max triangle side to consider                     }
+    int max_square = max_side * max_side; { max triangle side squared to consider             }
+    [ 1 : max_square ]int root;           { table of square roots                             }
+    for s to UPB root do root[ s     ] := 0 od;
+    for s to max_side do root[ s * s ] := s od;
+    int tcount := 0;
+    [ 1 : max_square ]int ta, tb, tc, tangle;
+    { prints solutions for the specified angle                                                }
+    proc print_triangles = ( int angle )void:
+    begin
+        int scount := 0;
+        for t to tcount do if tangle[ t ] = angle then scount +:= 1 fi od;
+        print( ( whole( scount, -4 ), " ", whole( angle, -3 ), " degree triangles:", newline ) );
+        for t to tcount do
+            if tangle[ t ] = angle then
+                print( ( "    ", whole( ta[ t ], -3 ), whole( tb[ t ], -3 ), whole( tc[ t ], -3 ), newline ) )
+            fi
+        od
+    end { print triangles } ;
+    { stores the triangle with sides a, b, root[ c2 ] and the specified angle,                }
+    { if it is a solution                                                                     }
+    proc try_triangle = ( int a, b, c2, angle )void:
+        if  c2 <= max_square then
+            { the third side is small enough                                                  }
+            int c = root[ c2 ];
+            if  c /= 0 then
+                { the third side is the square of an integer                                  }
+                tcount +:= 1;
+                ta[     tcount ] := a; tb[ tcount ] := b; tc[ tcount ] := root[ c2 ];
+                tangle[ tcount ] := angle
+            fi
+        fi { try triangle } ;
+    { find all triangles                                                                      }
+    for a to max_side do
+        for b from a to max_side do
+            try_triangle( a, b, ( a * a ) + ( b * b ) - ( a * b ),  60 );
+            try_triangle( a, b, ( a * a ) + ( b * b ),              90 );
+            try_triangle( a, b, ( a * a ) + ( b * b ) + ( a * b ), 120 )
+        od
+    od;
+    { print the solutions                                                                     }
+    print_triangles(  60 );
+    print_triangles(  90 );
+    print_triangles( 120 )
+end
+)

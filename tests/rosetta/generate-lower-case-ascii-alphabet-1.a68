@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generate lower case ASCII alphabet", ALGOL 68 solution generate-lower-case-ascii-alphabet-1.alg.
+  https://rosettacode.org/wiki/Generate_lower_case_ASCII_alphabet#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generate-lower-case-ascii-alphabet-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+    { in ALGOL 68, a STRING is an array of characters with flexible bounds }
+    { so we can declare an array of 26 characters and assign a string      }
+    { containing the lower-case letters to it                              }
+
+    [ 26 ]char lc := "abcdefghijklmnopqrstuvwxyz"
+)

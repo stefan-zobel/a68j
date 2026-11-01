@@ -1,0 +1,125 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Mad Libs", ALGOL 68 solution mad-libs.alg.
+  https://rosettacode.org/wiki/Mad_Libs#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/mad-libs.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Mad Libs style story generation                                      }
+
+    { gets the story template from the file f. The template terminates with  }
+    { a blank line                                                           }
+    { The user is then promoted for the replacements for the <word> markers  }
+    { and the story is printed with the substitutions made                   }
+    proc story = ( ref file f )void:
+    begin
+
+        { a linked list of strings, used to hold the story template          }
+        mode Stringlist = struct( string text, ref Stringlist next );
+
+        { a linked list of pairs of strings, used to hold the replacements   }
+        mode Replacementlist = struct( string word_
+                                     , string replacement
+                                     , ref Replacementlist next
+                                     );
+        { NIL reference for marking the end of a STRINGLIST                  }
+        ref Stringlist      nil_stringlist      = nil;
+        { NIL reference for marking the end of a REPLACEMENTLIST             }
+        ref Replacementlist nil_replacementlist = nil;
+
+        { returns "text" with trailing spaces removed                        }
+        op   RTRIM = ( string text )string:
+             begin
+                int trim_pos := UPB text;
+                for text_pos from UPB text by -1 to LWB text while text[ text_pos ] = " "
+                do
+                    trim_pos := text_pos - 1
+                od;
+                text[ LWB text : trim_pos ]
+            end; { RTRIM }
+
+        { looks for word in the dictionary. If it is found, replacement is   }
+        { set to its replacement and TRUE is returned. If word not present,  }
+        { FALSE is returned - uses recursion                                 }
+        proc find_replacement = ( string word_
+                                , ref string replacement
+                                , ref Replacementlist story_dictionary
+                                ) bool:
+             if   story_dictionary is nil_replacementlist
+             then false
+             elif word_ of story_dictionary = word_
+             then replacement := replacement of story_dictionary;
+                  true
+             else find_replacement( word_, replacement, next of story_dictionary )
+             fi; { find replacement }
+
+
+        { read the story template                                            }
+
+        { the result has a dummy element so "next OF next" is always valid   }
+        ref Stringlist     story_text := heap Stringlist := ( "dummy", nil_stringlist );
+        ref ref Stringlist next  := story_text;
+
+        while { read the story template, terminates with a blank line        }
+              string text;
+              get( f, ( text, newline ) );
+              text := RTRIM text;
+              text /= ""
+        do
+            { add the line to the end of the list }
+            next := ( next of next ) := heap Stringlist := ( text, nil_stringlist )
+        od;
+
+        { find the <word> markers in the story and replace them with the     }
+        { user's chosen text - we ignore the dummy element at the start      }
+
+        ref Replacementlist dictionary := nil_replacementlist;
+        ref Stringlist      line       := story_text;
+
+        while line := next of line;
+              line isnt nil_stringlist
+        do
+            { have a line of text - replace all the <word> markers in it     }
+            string word_, replacement;
+            int start_pos, end_pos;
+            while char_in_string( "<", start_pos, text of line )
+              AND char_in_string( ">", end_pos,   text of line )
+            do
+                { have a marker, get it from the line                        }
+                word_ := ( text of line )[ start_pos : end_pos ];
+                { get its replacement                                        }
+                if NOT find_replacement( word_, replacement, dictionary )
+                then
+                    { we don't already have a replacement for word           }
+                    { get one from the user and add it to the dictionary     }
+                    print( ( "What should replace ", word_, "? " ) );
+                    read( ( replacement, newline ) );
+                    dictionary := heap Replacementlist := ( word_, replacement, dictionary )
+                fi;
+                { replace <word> with the replacement                        }
+                text of line := ( text of line )[ : start_pos - 1 ]
+                              + replacement
+                              + ( text of line )[ end_pos + 1 : ]
+            od
+        od;
+
+        { print the story, ignoring the dummy element at the start           }
+
+        line := story_text;
+        while line := next of line;
+              line isnt nil_stringlist
+        do
+            print( ( text of line, newline ) )
+        od
+
+    end; { story }
+
+    { we read the template from stand in (the keyboard unless it's been  }
+    { redirected) we could prompt the user for a template file name,     }
+    { open it and read that instead...                                   }
+    print( ( "Please Enter the story template terminated by a blank line", newline ) );
+    story( stand_in )
+
+end
+)

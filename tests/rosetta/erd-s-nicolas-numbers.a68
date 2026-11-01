@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Erd?s-Nicolas numbers", ALGOL 68 solution erd-s-nicolas-numbers.alg.
+  https://rosettacode.org/wiki/Erd%C5%91s-Nicolas_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/erd-s-nicolas-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Erdos-Nicolas numbers: numbers equal to the sum of their    }
+      { first k proper divisors but k is not the count of all their proper    }
+      { divisors ( so the numbers aren't perfect )                            }
+    int max_number  = 2 000 000;      { largest number we will consider       }
+    { construct tables of the divisor counts and divisor sums and check for   }
+    { the numbers as we do it - note they will not necessarily be found in    }
+    {                                order                                    }
+    [ 1 : max_number ]int dsum;   for i to UPB dsum   do dsum[   i ] := 1 od;
+    [ 1 : max_number ]int dcount; for i to UPB dcount do dcount[ i ] := 1 od;
+    for i from 2 to UPB dsum
+        do for j from i + i by i to UPB dsum do
+            { have another proper divisor                                     }
+            if dsum[ j ] = j then
+                { the divisor sum is currently equal to the number but is     }
+                { about to increase, so we have an Erdos-Nicolas number       }
+                print( ( whole( j, -10 ), " equals the sum of its first "
+                       , whole( dcount[ j ], 0 ), " divisors"
+                       , newline
+                       )
+                     )
+            fi;
+            dsum[   j ] +:= i;
+            dcount[ j ] +:= 1
+        od
+    od
+end
+)

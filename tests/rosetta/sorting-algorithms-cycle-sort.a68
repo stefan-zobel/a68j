@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Cycle sort", ALGOL 68 solution sorting-algorithms-cycle-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Cycle_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-cycle-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { cycle sort - translated from the Action! sample                      }
+
+    { prints the elements of a                                               }
+    op   SHOW = ( ref[]int a )void:
+         begin
+             print( ( "[" ) );
+             for i from LWB a to UPB a do
+                 print( ( " ", whole( a[ i ], 0 ) ) )
+             od;
+             print( " ]" )
+         end { SHOW } ;
+
+    { swaps a and b                                                          }
+    prio =:= = 1;
+    op   =:= = ( ref int a, b )void: begin int t := a; a := b; b := t end;
+
+    { cycle sorts a                                                          }
+    proc cycle_sort = ( ref[]int a )void:
+         for start_pos from LWB a to UPB a - 1 do
+            int item := a[ start_pos ];
+            int pos  := start_pos;
+            for i from start_pos + 1 to UPB a do
+                if a[ i ] < item then
+                    pos +:= 1
+                fi
+            od;
+            if pos /= start_pos then
+                item =:= a[ pos ];
+                while pos /= start_pos do
+                    pos := start_pos;
+                    for i from start_pos + 1 to UPB a do
+                        if a[ i ] < item then
+                            pos +:= 1
+                        fi
+                    od;
+                    while item = a[ pos ] do
+                        pos +:= 1
+                    od;
+                    a[ pos ] =:= item
+                od
+            fi
+         od { cycle sort } ;
+
+    proc test = ( ref[]int a )void:
+         begin
+             print( ( "Array before sort: " ) ); SHOW a; print( ( newline ) );
+             cycle_sort( a );
+             print( ( "Array after  sort: " ) ); SHOW a; print( ( newline ) )
+         end { test } ;
+
+    begin { tests                                                            }
+        [ 10 ]int a := []int( 1, 4, -1, 0, 3, 7, 4, 8, 20, -6 );
+        [ 21 ]int b := []int( 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+                            , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+                            );
+        [  8 ]int c := []int( 101, 102, 103, 104, 105, 106, 107, 108 );
+        [ 12 ]int d := []int( 1 ,-1, 1,-1, 1, -1, 1, -1, 1, -1, 1, -1 );
+
+        test( a );
+        test( b );
+        test( c );
+        test( d )
+    end
+end
+)

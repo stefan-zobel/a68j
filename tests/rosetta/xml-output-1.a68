@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "XML/Output", ALGOL 68 solution xml-output-1.alg.
+  https://rosettacode.org/wiki/XML/Output#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/xml-output-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns a translation of str suitable for attribute values and content in an XML document }
+op  TOXMLSTRING = ( string str )string:
+    begin
+        string result := "";
+        for pos from LWB str to UPB str do
+            char c = str[ pos ];
+            result +:= if   c = "<"   then "&lt;"
+                       elif c = ">"   then "&gt;"
+                       elif c = "&"   then "&amp;"
+                       elif c = "''"   then "&apos;"
+                       elif c = """"  then "&quot;"
+                       else c
+                       fi
+        od;
+        result
+    end; { TOXMLSTRING }
+
+{ generate a CharacterRemarks XML document from the characters and remarks }
+{ the number of elements in characters and remrks must be equal - this is not checked }
+{ the <?xml?> element is not generated }
+proc generate_character_remarks_document = ( []string characters, remarks )string:
+     begin
+         string result     := "<CharacterRemarks>";
+         int    remark_pos := LWB remarks;
+         for char_pos from LWB characters to UPB characters do
+             result +:= "<Character name=""" + TOXMLSTRING characters[ char_pos ] + """>"
+                      + TOXMLSTRING remarks[ remark_pos ]
+                      + "</Character>"
+                      + REPR 10
+                      ;
+             remark_pos +:= 1
+         od;
+         result +:= "</CharacterRemarks>";
+         result
+     end; { generate character remarks document }
+
+{ test the generation }
+print( ( generate_character_remarks_document( ( "April", "Tam O''Shanter", "Emily" )
+                                            , ( "Bubbly: I''m > Tam and <= Emily"
+                                              , "Burns: ""When chapman billies leave the street ..."
+                                              , "Short & shrift"
+                                              )
+                                            )
+        , newline
+        )
+      )
+)

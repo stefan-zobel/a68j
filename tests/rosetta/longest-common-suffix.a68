@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Longest common suffix", ALGOL 68 solution longest-common-suffix.alg.
+  https://rosettacode.org/wiki/Longest_common_suffix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-suffix.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find the longest common suffix of two strings }
+prio COMMONSUFFIX = 1;
+op   COMMONSUFFIX = ( string a, b )string:
+    begin
+        int a_pos := UPB a; int a_min = LWB a;
+        int b_pos := UPB b; int b_min = LWB b;
+        while
+            if a_pos < a_min OR b_pos < b_min then false
+            else a[ a_pos ] = b[ b_pos ]
+            fi
+        do
+            a_pos -:= 1; b_pos -:= 1
+        od;
+        a[ a_pos + 1 : UPB a ]
+    end { COMMONSUFFIX } ;
+{ get the length of a string }
+op  LEN = ( string a )int: ( UPB a + 1 ) - LWB a;
+{ find the longest common suffix of an array of STRINGs }
+op  LONGESTSUFFIX = ( []string list )string:
+    if  UPB list < LWB list
+    then
+        { no elements }
+        ""
+    elif UPB list = LWB list
+    then
+        { only one element }
+        list[ LWB list ]
+    else
+        { more than one element }
+        string suffix := list[ LWB list ] COMMONSUFFIX list[ 1 + LWB list ];
+        for pos from 2 + LWB list to UPB list while suffix /= "" do
+            string next_suffix := list[ pos ] COMMONSUFFIX suffix;
+            if LEN next_suffix < LEN suffix
+            then
+                { this element has a smaller common suffix }
+                suffix := next_suffix
+            fi
+        od;
+        suffix
+    fi ;
+{ test the LONGESTSUFFIX operator }
+proc test_suffix = ( []string list, string expected_result )void:
+    begin
+        string suffix = LONGESTSUFFIX list;
+        print( ( "longest common suffix of (" ) );
+        for pos from LWB list to UPB list do print( ( " """, list[ pos ], """" ) ) od;
+        print( ( " ) is: """, suffix, """ "
+               , if suffix = expected_result then "as expected" else "NOT AS EXPECTED" fi
+               , newline
+               )
+             )
+    end { test suffix } ;
+[ 1 : 0 ]string empty_list; { for recent versions of Algol 68G, can't just put "()" for an empty list }
+begin
+    test_suffix( ( "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ), "day" );
+    test_suffix( ( "throne", "throne" ), "throne" );
+    test_suffix( ( "throne", "dungeon" ), "" );
+    test_suffix( ( "throne", "", "throne" ), "" );
+    test_suffix( ( "cheese" ), "cheese" );
+    test_suffix( ( "" ), "" );
+    test_suffix( empty_list, "" );
+    test_suffix( ( "prefix", "suffix" ), "fix" );
+    test_suffix( ( "send", "lend" ), "end" )
+end
+)

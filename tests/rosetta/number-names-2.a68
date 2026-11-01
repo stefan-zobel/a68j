@@ -1,0 +1,98 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Number names", ALGOL 68 solution number-names-2.alg.
+  https://rosettacode.org/wiki/Number_names#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/number-names-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Exception = struct(string name, proc void handler);
+Exception value_error = ("Value Error", stop);
+
+proc raise = (Exception exception, string str_error)void: (
+  put(stand_error, (name of exception,": ",str_error, new_line));
+  handler of exception
+);
+
+mode Lint = long long int;
+
+bool locale_euro := true;
+
+proc spell_integer = (Lint n)string: (
+    []string tens = []string (~, ~, "twenty", "thirty", "forty",
+            "fifty", "sixty", "seventy", "eighty", "ninety")[@0];
+
+    []string small = []string ("zero", "one", "two", "three", "four", "five",
+             "six", "seven", "eight", "nine", "ten", "eleven",
+             "twelve", "thirteen", "fourteen", "fifteen",
+             "sixteen", "seventeen", "eighteen", "nineteen")[@0];
+
+    []string bl = []string (~, ~, "m", "b", "tr", "quadr",
+          "quint", "sext", "sept", "oct", "non", "dec")[@0];
+
+    proc nonzero = (string c, Lint n)string:
+        if n = 0 then "" else c + spell_integer(n) fi;
+
+    proc big =(int e, Lint n)string:
+        spell_integer(n) +
+        case e+1 in
+        {0} "",
+        {1} " thousand"
+        out
+            " " +
+            if locale_euro then { handle millard, billard & trillard etc }
+              bl[e OVER 2 + 1 ]+"ill" + case e MOD 2 in "ard" out "ion" esac
+            else
+              bl[e]+"illion"
+            fi
+        esac;
+
+    proc base1000_rev = (Lint in_n, proc (int,Lint)void yield)void: (
+        { generates the value of the digits of n in base 1000 }
+        { (i.e. 3-digit chunks), in reverse. }
+        Lint n := in_n;
+        for e from 0 while n /= 0 do
+            Lint r = n MOD 1000;
+                n := n OVER 1000;
+            yield(e, r)
+        od
+    );
+
+    if n < 1000 then
+      int ssn := SHORTEN SHORTEN n;
+      if ssn < 0 then
+        raise (value_error, "spell integer: negative input"); ~
+      elif ssn < 20 then
+        small[ssn]
+      elif ssn < 100 then
+        int a = ssn OVER 10,
+            b = ssn MOD 10;
+        tens[a] + nonzero("-", b)
+      elif ssn < 1000 then
+        int a = ssn OVER 100,
+            b = ssn MOD 100;
+        small[a] + " hundred" + ( b NE 0 | " and" | "") + nonzero(" ", b)
+      fi
+    else
+        string out_ := "", sep:="";
+      { FOR     e,      x IN } base1000_rev(n, { DO }
+           (int e, Lint x)void:
+                if x NE 0 then
+                    big(e,x) + sep +=: out_;
+                    sep := if e = 0 AND x < 100 then " and " else ", " fi
+                fi
+       )
+     { OD };
+       out_
+    fi
+);
+
+proc example = (Lint n)void:
+  print((whole(n,0),": ", spell_integer(n), new_line));
+
+{ examples }
+Lint prod := 0;
+for i to 6 do prod := prod * 10**i + i; example(prod) od;
+
+example(1278); example(1572); example(2010)
+)

@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Jaro similarity", ALGOL 68 solution jaro-similarity.alg.
+  https://rosettacode.org/wiki/Jaro_similarity#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/jaro-similarity.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Jaro distance - translated from the EasyLang sample                  }
+    proc jaro_distance = ( string s1, s2 )real: begin
+         int len_s1   = ( UPB s1 - LWB s1 ) + 1;
+         int len_s2   = ( UPB s2 - LWB s2 ) + 1;
+         int matchstd = if len_s1 > len_s2 then len_s1 else len_s2 fi OVER 2 - 1;
+         int m := 0, p := 0;
+         for i1 from LWB s1 to UPB s1 do
+             for i2 from LWB s2 to UPB s2 do
+                 if s1[ i1 ] = s2[ i2 ] then
+                     if ABS ( i2 - i1 ) <= matchstd then
+                         m +:= 1;
+                         if i2 = i1 then
+                             p +:= 1
+                         fi
+                     fi
+                 fi
+             od
+         od;
+         int t = ( m - p ) OVER 2;
+         1 / 3 * ( m / len_s1 + m / len_s2 + ( m - t ) / m )
+    end ;
+    proc print_jaro_distance = ( string s1, s2 )void:
+         print( ( s1, " :: ", s2, " -> ", fixed( jaro_distance( s1, s2 ), -6, 2 ), newline ) );
+
+    print_jaro_distance( "MARTHA",    "MARHTA"     );
+    print_jaro_distance( "DIXON",     "DICKSONX"   );
+    print_jaro_distance( "JELLYFISH", "SMELLYFISH" )
+
+end
+)

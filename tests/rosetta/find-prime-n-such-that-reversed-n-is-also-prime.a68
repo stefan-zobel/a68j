@@ -1,0 +1,37 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find prime n such that reversed n is also prime", ALGOL 68 solution find-prime-n-such-that-reversed-n-is-also-prime.alg.
+  https://rosettacode.org/wiki/Find_prime_n_such_that_reversed_n_is_also_prime#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-prime-n-such-that-reversed-n-is-also-prime.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find primes whose reversed digits are also prime         }
+    int max_number = 500;   { largest prime we will reverse      }
+    int max_prime  = 1 000; { enough primes to handle reversing  }
+                            { max number                         }
+    [ 1 : max_prime ]bool p; for n to UPB p do p[ n ] := ODD n od;
+    for i from 3 by 2 to ENTIER sqrt( UPB p ) do
+        if p[ i ] then
+            for s from i * i by i + i to UPB p do p[ s ] := false od
+        fi
+    od;
+    p[ 1 ] := false; p[ 2 ] := true;
+    int count := 0;
+    for n to max_number do
+        if p[ n ] then
+            int r := n MOD 10;
+            int v := n;
+            while ( v OVERAB 10 ) > 0 do
+                r *:= 10 +:= v MOD 10
+            od;
+            if p[ r ] then
+                print( ( " ", whole( n, -3 ) ) );
+                if ( count +:= 1 ) MOD 10 = 0 then print( ( newline ) ) fi
+            fi
+        fi
+    od;
+    print( ( newline, "Found ", whole( count, 0 ) ) );
+    print( ( " reversable primes up to ", whole( max_number, 0 ), newline ) )
+end
+)

@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Empty string", ALGOL 68 solution empty-string.alg.
+  https://rosettacode.org/wiki/Empty_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/empty-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ declare a string variable and assign an empty string to it                  }
+string s := "";
+
+{ test the string is empty                                                    }
+if s = "" then write( ( "s is empty", newline ) ) fi;
+
+{ test the string is not empty                                                }
+if s /= "" then write( ( "s is not empty", newline ) ) fi;
+
+{ as a string is an array of characters, we could also test for emptyness by  }
+{ checking for lower bound > upper bound                                      }
+if LWB s > UPB s then write( ( "s is still empty", newline ) ) fi
+)

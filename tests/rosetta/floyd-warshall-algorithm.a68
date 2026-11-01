@@ -1,0 +1,93 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Floyd-Warshall algorithm", ALGOL 68 solution floyd-warshall-algorithm.alg.
+  https://rosettacode.org/wiki/Floyd-Warshall_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/floyd-warshall-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Floyd-Warshall algorithm - translated from the Lua sample }
+
+    op   FMT = ( real v )string:
+         begin
+            string result := fixed( ABS v, 0, 15 );
+            if result[ LWB result ] = "." then "0" +=: result fi;
+            while result[ UPB result ] = "0" do result := result[ : UPB result - 1 ] od;
+            if result[ UPB result ] = "." then result := result[ : UPB result - 1 ] fi;
+            if v < 0 then "-" else " " fi + result
+         end { FMT } ;
+
+    proc print_result = ( [,]real dist, [,]int nxt )void:
+         begin
+            print( ( "pair     dist    path", newline ) );
+            for i from 1 LWB nxt to 1 UPB nxt do
+                for j from 2 LWB nxt to 2 UPB nxt do
+                    if i /= j then
+                        int    u    := i + 1;
+                        int    v     = j + 1;
+                        print( ( whole( u, 0 ),    " -> ",  whole( v, 0 ), "    "
+                               , FMT dist[ i, j ], "     ", whole( u, 0 )
+                               )
+                             );
+                        while u := nxt[ u - 1, v - 1 ];
+                              print( ( " -> " + whole( u, 0 ) ) );
+                              u /= v
+                        do skip od;
+                        print( ( newline ) )
+                    fi
+                od
+            od
+         end { print result } ;
+
+    proc floyd_warshall = ( [,]int weights, int num_vertices )void:
+         begin
+
+            real infinite = max_real;
+
+            [ 0 : num_vertices - 1, 0 : num_vertices - 1 ]real dist;
+            for i from LWB dist to 1 UPB dist do
+                for j from 2 LWB dist to 2 UPB dist do
+                    dist[ i, j ] := infinite
+                od
+            od;
+
+            for i from 1 LWB weights to 1 UPB weights do
+                { the weights array is one based }
+                []int w = weights[ i, : ];
+                dist[ w[ 1 ] - 1, w[ 2 ] - 1 ] := w[ 3 ]
+            od;
+
+            [ 0 : num_vertices - 1, 0 : num_vertices - 1 ]int nxt;
+            for i from LWB nxt to 1 UPB nxt do
+                for j from 2 LWB nxt to 2 UPB nxt do
+                    nxt[ i, j ] := if i /= j then j + 1 else 0 fi
+                od
+            od;
+
+            for k from 2 LWB dist to 2 UPB dist do
+                for i from 1 LWB dist to 1 UPB dist do
+                    for j from 2 LWB dist to 2 UPB dist do
+                        if dist[ i, k ] /= infinite AND dist[ k, j ] /= infinite then
+                            if dist[ i, k ] + dist[ k, j ] < dist[ i, j ] then
+                                dist[ i, j ] := dist[ i, k ] + dist[ k, j ];
+                                nxt[  i, j ] := nxt[  i, k ]
+                            fi
+                        fi
+                    od
+                od
+             od;
+
+             print_result( dist, nxt )
+         end { floyd warshall } ;
+    begin
+        [,]int weights = ( ( 1, 3, -2 )
+                         , ( 2, 1,  4 )
+                         , ( 2, 3,  3 )
+                         , ( 3, 4,  2 )
+                         , ( 4, 2, -1 )
+                         );
+        int num_vertices = 4;
+        floyd_warshall( weights, num_vertices )
+    end
+end
+)

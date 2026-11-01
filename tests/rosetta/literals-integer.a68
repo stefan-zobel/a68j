@@ -1,0 +1,49 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Literals/Integer", ALGOL 68 solution literals-integer.alg.
+  https://rosettacode.org/wiki/Literals/Integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/literals-integer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+
+  short short int ssdec = short short 727,
+            sshex = ABS short short 16r2d7,
+            ssoct = ABS short short 8r1327,
+            ssbin = ABS short short 2r1011010111;
+
+  short int sdec = short 727,
+            shex = ABS short 16r2d7,
+            soct = ABS short 8r1327,
+            sbin = ABS short 2r1011010111;
+
+  int dec = 727,
+      hex = ABS 16r2d7,
+      oct = ABS 8r1327,
+      bin = ABS 2r1011010111;
+
+  long int ldec = long 727,
+           lhex = ABS long 16r2d7,
+           loct = ABS long 8r1327,
+           lbin = ABS long 2r1011010111;
+
+{
+  LONG LONG INT lldec = LONG LONG 727,
+           llhex = ABS LONG LONG 16r2d7,
+           lloct = ABS LONG LONG 8r1327,
+           llbin = ABS LONG LONG 2r1011010111
+# etc ... #
+END }
+
+  print(("SHORT SHORT INT:", ssdec, sshex, ssoct, ssbin, new_line));
+  print(("      SHORT INT:", sdec, shex, soct, sbin, new_line));
+  print(("            INT:", dec, hex, oct, bin, new_line));
+  print(("       LONG INT:", ldec, lhex, loct, lbin, new_line))
+{ LONG LONG INT not supported by ELLA ALGOL 68RS
+  print(("LONG LONG INT:", new line, lldec, new line, llhex, new line, lloct, new line, llbin, new line))
+# etc ... #
+END }
+
+)
+)

@@ -1,0 +1,4 @@
+begin [3] int r; int k := 0;
+      par begin r[1] := (k +:= 1), r[2] := (k +:= 10), (r[3] := k; puts ("z")) end;
+      for i to 3 do puts (whole (r[i], 0)); puts (" ") od; puts ("'n")
+end

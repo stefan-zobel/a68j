@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cumulative standard deviation", ALGOL 68 solution cumulative-standard-deviation-2.alg.
+  https://rosettacode.org/wiki/Cumulative_standard_deviation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cumulative-standard-deviation-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Stat = struct(
+  long real sum,
+  long real sum2,
+  int num
+);
+
+op INIT = (ref Stat new)ref Stat:
+  (init of class_stat)(new);
+
+mode Classstat = struct(
+  proc (ref Stat, long real {value})void plusab,
+  proc (ref Stat)long real stddev, mean, variance, count,
+  proc (ref Stat)ref Stat init
+);
+
+Classstat class_stat;
+
+plusab of class_stat := (ref Stat self, long real value)void:(
+    num of self +:= 1;
+    sum of self +:= value;
+    sum2 of self +:= value*value
+  );
+
+op +:= = (ref Stat lhs, long real rhs)void: { some syntatic sugar }
+  (plusab of class_stat)(lhs, rhs);
+
+stddev of class_stat := (ref Stat self)long real:
+    long_sqrt((variance of class_stat)(self));
+
+{ could define STDDEV as an operator for more syntatic sugar
+  OP STDDEV = ([]LONG REAL value)LONG REAL: (
+    REF STAT stat = INIT LOC STAT;
+    FOR i FROM LWB value TO UPB value DO
+      stat +:= value[i]
+    OD;
+    (stddev OF class stat)(stat)
+  );
+}
+
+mean of class_stat := (ref Stat self)long real:
+    sum of self/long real(num of self);
+
+variance of class_stat := (ref Stat self)long real:(
+    long real m = (mean of class_stat)(self);
+    sum2 of self/long real(num of self)-m*m
+  );
+
+count of class_stat := (ref Stat self)long real:
+    num of self;
+
+init of class_stat := (ref Stat self)ref Stat:(
+    sum of self := sum2 of self := num of self := 0;
+    self
+  );
+
+{ main } (
+  []long real value = ( 2,4,4,4,5,5,7,9 );
+{  printf(($"standard deviation operator = "g(0,6)l$, STDDEV value));
+}
+  ref Stat stat = INIT loc Stat;
+  for i from LWB value to UPB value do
+    stat +:= value[i];
+    printf(($"value: "g(0,6)," standard dev := "g(0,6)l$, value[i], (stddev of class_stat)(stat)))
+  od;
+{
+  printf(($"standard deviation = "g(0,6)l$, (stddev OF class stat)(stat)));
+  printf(($"mean = "g(0,6)l$, (mean OF class stat)(stat)));
+  printf(($"variance = "g(0,6)l$, (variance OF class stat)(stat)));
+  printf(($"count = "g(0,6)l$, (count OF class stat)(stat)));
+}
+  skip
+)
+)

@@ -1,0 +1,8 @@
+{ a68j-options: -fnest-java }
+{ A Java method that does not fit the mode is a compile-time error. }
+begin
+   proc (real) real f = nest Java "java.lang.Math.nosuch";
+   proc (string) real g = nest Java "java.lang.Math.sqrt";
+   proc (real) real h = nest Java "no.such.Klass.f";
+   skip
+end

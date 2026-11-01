@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Determine if a string is squeezable", ALGOL 68 solution determine-if-a-string-is-squeezable.alg.
+  https://rosettacode.org/wiki/Determine_if_a_string_is_squeezable#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-is-squeezable.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns a squeezed version of s                                     }
+    {         i.e. s with adjacent duplicate c characters removed         }
+    prio SQUEEZE = 9;
+    op   SQUEEZE = ( string s, char c )string:
+         if s = ""
+         then ""   { empty string                                         }
+         else      { non-empty string                                     }
+            [ LWB s : UPB s ]char result;
+            int     r_pos   := LWB result;
+            result[ r_pos ] := s[ LWB s ];
+            for s_pos from LWB s + 1 to UPB s do
+                if  result[ r_pos ] /= s[ s_pos ]
+                OR  result[ r_pos ] /= c
+                then
+                    r_pos +:= 1;
+                    result[ r_pos ] := s[ s_pos ]
+                fi
+            od;
+            result[ LWB result : r_pos ]
+         fi { SQUEEZE } ;
+    { test the SQUEEZE operator                                           }
+    proc test_squeeze = ( string s, char c )void:
+        begin
+            string z = s SQUEEZE c;
+            print( ( "Squeezing """, c, """ in ", "<<<", s, ">>> (length ", whole( ( UPB s + 1 ) - LWB s, 0 ), ")", newline ) );
+            print( ( "       ->        ",         "<<<", z, ">>> (length ", whole( ( UPB z + 1 ) - LWB z, 0 ), ")", newline ) )
+        end { test squeeze } ;
+    { task test cases                                                     }
+    test_squeeze( "",                                                                           " " );
+    test_squeeze( """If I were two-faced, would I be wearing this one?"" --- Abraham Lincoln ", "-" );
+    test_squeeze( "..1111111111111111111111111111111111111111111111111111111111111117777888",   "7" );
+    test_squeeze( "I never give ''em hell, I just tell the truth, and they think it''s hell. ",   "." );
+    string hst =  "                                                    --- Harry S Truman  ";
+    test_squeeze( hst, " " );
+    test_squeeze( hst, "-" );
+    test_squeeze( hst, "r" )
+end
+)

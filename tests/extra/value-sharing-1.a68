@@ -1,0 +1,69 @@
+{ Values bound to identities and parameters (a68j shares them without a copy
+  when they come from another identity or parameter, GenUnits.ownedValue,
+  and builds no SKIP value at the start of a range when the identity cannot
+  be seen before its declaration, GenDecls.skipNotNeeded).  Every value must
+  stay as it was, whatever happens to the names it came from. }
+begin
+   mode Point = struct (int x, y);
+   mode Path = struct (string name, flex [1:0] Point points);
+
+   [3] int a := (1, 2, 3);
+   [] int c = a;                       { a copy of the variable's value }
+   [] int d = c;                       { shared with c: both constant }
+   [] int e = d[2:3];                  { a slice of a constant }
+   a[1] := 100;
+   puts (whole (c[1], 0) + " " + whole (d[1], 0) + " " + whole (e[1], 0) + "'n");
+
+   Path p = ("tri", ((0, 0), (1, 0), (0, 1)));
+   [] Point pts = points of p;
+   Point q = pts[2];
+   puts (name of p + whole (x of q, 0) + whole (UPB pts, 0) + "'n");
+
+   { A variable made from a constant is a copy: changing it leaves the constant. }
+   [3] Point v := pts;
+   x of v[2] := 42;
+   Path w := p;
+   name of w := "changed";
+   (points of w)[1] := (7, 7);
+   puts (whole (x of pts[2], 0) + " " + whole (x of v[2], 0) + " " + name of p + " "
+         + whole (x of (points of p)[1], 0) + " " + whole (x of (points of w)[1], 0) + "'n");
+
+   { Parameters. }
+   proc sum = ([] int r) int: (int s := 0; for i from LWB r to UPB r do s +:= r[i] od; s);
+   proc first = (Path pa) Point: (points of pa)[1];
+   proc twice = ([] int r) [] int: (sum (r), sum (r[2:]));
+   puts (whole (sum (c), 0) + " " + whole (sum (e), 0) + " " + whole (x of first (p), 0)
+         + " " + whole ((twice (d))[2], 0) + "'n");
+
+   { A loop that binds a structure from a row of constants each time. }
+   [] Point corners = ((1, 1), (2, 4), (3, 9));
+   int total := 0;
+   for i to UPB corners do
+      Point cur = corners[i];
+      [] int pair = (x of cur, y of cur);
+      total +:= pair[1] * pair[2]
+   od;
+   puts (whole (total, 0) + "'n");
+
+   { Used before its declaration: still the SKIP value (empty row). }
+   int n := 0;
+   while n < 2 do
+      (n = 1 | puts ("seen " + whole (UPB late, 0) + "'n"));
+      [] int late = (1, 2, 3);
+      n +:= 1
+   od;
+
+   { A jump over the declaration: the SKIP value too. }
+   (
+      goto over;
+      [] int skipped = (5, 6);
+   over:
+      puts ("after jump " + whole (UPB skipped, 0) + "'n")
+   );
+
+   { Seen by an inner routine before the declaration. }
+   proc show = void: puts ("inner " + whole (UPB later, 0) + "'n");
+   show;
+   [] int later = (9, 9);
+   show
+end

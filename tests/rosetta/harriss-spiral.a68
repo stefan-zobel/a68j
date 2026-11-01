@@ -1,0 +1,106 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Harriss Spiral", ALGOL 68 solution harriss-spiral.alg.
+  https://rosettacode.org/wiki/Harriss_Spiral#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/harriss-spiral.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Harriss Spiral in SVG - translation of EasyLang/Processing samples   }
+
+    proc hex1    = ( int d )string: if d < 10 then REPR( ABS "0" + d ) else REPR( ABS "a" + ( d - 10 ) ) fi;
+    proc hex     = ( int v )string: hex1( v OVER 16 ) + hex1( v MOD 16 );
+    proc rgb     = ( int r, g, b )string: "#" + hex( r ) + hex( g ) + hex( b );
+    op   SIND    = ( real x )real: sin( x * pi / 180 );
+    op   COSD    = ( real x )real: cos( x * pi / 180 );
+    prio FMT = 9;
+    op   FMT = ( real v, int dp )string:
+         begin
+            string result = if ENTIER v = v
+                            then whole( v, - dp * 16 )
+                            else fixed( v, - dp * 16, ABS dp )
+                            fi;
+            int v_pos := LWB result;
+            while result[ v_pos ] = " " do v_pos +:= 1 od;
+            result[ v_pos : ]
+         end { FMT } ;
+    proc point   = ( real x, y )string: x FMT 2 + " " + y FMT 2;
+    proc move_to = ( real x, y )string: "M " + point( x, y );
+    proc line_to = ( real x, y )string: "L " + point( x, y );
+    proc start_path = ( int r, g, b, real line_width, x, y )string:
+         ( "  <path stroke-width=''" + line_width FMT 2
+         + "'' stroke=''" + rgb( r, g, b ) + "'' fill=''none'' d=''" + move_to( x, y ) + " "
+         );
+    proc line = ( int r, g, b, real line_width, real x, y, x_end, y_end )void:
+         print( ( start_path( r, g, b, line_width, x, y ), " ", line_to( x_end, y_end ), "''/>"
+                , newline
+                )
+              );
+    proc arc = ( real x_centre, y_centre, ew, eh, start_angle, end_angle, int r, g, b, real line_width )void:
+         begin
+            real rx = ew / 2, ry = ( eh / ew ) * eh / 2;
+            real x     = x_centre + rx * COSD start_angle, y     = y_centre + ry * SIND start_angle;
+            real x_end = x_centre + rx * COSD end_angle,   y_end = y_centre + ry * SIND end_angle;
+            print( ( start_path( r, g, b, line_width, x, y )
+                   , "A ", rx FMT 2, " ", ry FMT 2 , " 0 0 1 ", point( x_end, y_end )
+                   , "''/>", newline
+                   )
+                 )
+         end { arc } ;
+
+    real h  = 600;   { scalable (may be any value) }
+    real hr = 1.325; { Harriss Ratio               }
+
+    proc spiral_section = ( real   x, y, angle, lngth
+                          , int    iteration
+                          , real   line_width
+                          , bool   show_lines
+                          ) void:
+         if iteration > 0 then
+             real start_angle = angle + 45;
+             real end_angle   = start_angle + 90;
+             { Calculate end point of lines }
+             real x_end  = x + lngth * COSD angle;
+             real y_end  = y + lngth * SIND angle;
+             real radius = 1.414 * lngth;
+             spiral_section( x_end, y_end, angle + 90, lngth / hr / hr, iteration - 2, line_width, show_lines );
+             if show_lines then
+                 line( 255, 255, 255, 1, x, y, x_end, y_end )
+             fi;
+             int sn = 1, ew = 2, ns = 3, we = 4;
+             int heading := sn;
+             if ENTIER y_end < ENTIER y then heading := sn fi;
+             if ENTIER x_end < ENTIER x then heading := ew fi;
+             if ENTIER y_end > ENTIER y then heading := ns fi;
+             if ENTIER x_end > ENTIER x then heading := we fi;
+             real l2 = lngth / 2;
+             if   heading = sn then
+                 arc( x - l2, y - l2, radius, radius, start_angle, end_angle, 255, 255,   0, line_width )
+             elif heading = ew then
+                 arc( x - l2, y + l2, radius, radius, start_angle, end_angle, 255,   0,   0, line_width )
+             elif heading = ns then
+                 arc( x + l2, y + l2, radius, radius, start_angle, end_angle,   0,   0, 255, line_width )
+             elif heading = we then
+                 arc( x + l2, y - l2, radius, radius, start_angle, end_angle,   0,   0,   0, line_width )
+             fi;
+             spiral_section( x_end, y_end, angle - 90, lngth / hr, iteration - 1, line_width, show_lines )
+         fi { spiral section };
+
+    proc generate_harriss_spiral = ( int c_width, c_height )void:
+         begin
+            print( ( "<svg xmlns=''http://www.w3.org/2000/svg'' width=''"
+                   , whole( c_width, 0 ), "'' height=''", whole( c_height, 0 ), "''>", newline
+                   , "  <rect width=''100%'' height=''100%'' fill=''#7f7f7f''/>", newline
+                   )
+                 );
+            real start_x = c_width / 2 + 50;
+            real start_y = c_height - 50;
+            real init_len = h / hr / hr;
+            spiral_section( start_x, start_y, -90, init_len, 16, 2, false );
+            print( ( "</svg>", newline ) )
+         end { generate harriss spiral };
+
+    generate_harriss_spiral( 1000, 800 )
+
+end
+)

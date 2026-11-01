@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Equal prime and composite sums", ALGOL 68 solution equal-prime-and-composite-sums.alg.
+  https://rosettacode.org/wiki/Equal_prime_and_composite_sums#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/equal-prime-and-composite-sums.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find n and m where the sums of the first n primes and first m         }
+      { composites where the sums are equal                                   }
+
+    mode Integer = long int;                        { size of INT MODE to use }
+    op   ROOT    = ( long int n )long int: ENTIER long_sqrt( n );
+    { alternative ROOT operators for different sizes of integer would be      }
+    { needed in general, but not for this task, e.g.:                         }
+{  OP   ROOT    = (      INT n )INT:      ENTIER      sqrt( n );            }
+
+
+    proc is_prime = ( Integer n )bool:           { returns TRUE if n is prime }
+         if   n <= 2 then n = 2
+         elif NOT ODD n then false
+         else bool prime := true;
+              Integer  i := 1;
+              Integer  r := ROOT n;
+              while ( i +:= 2 ) <= r AND prime do prime := n MOD i /= 0 od;
+              prime
+         fi { is prime } ;
+
+    begin
+        int     count := 0;
+        Integer n := 2, m := 1, sum_p := 5, sum_c := 4, num_p := 3, num_c := 4;
+        print( ( "             sum    primes composites", newline ) );
+        while count < 8 do
+            if sum_c > sum_p then
+                while NOT is_prime( num_p +:= 2 ) do skip od;
+                sum_p +:= num_p;
+                n     +:= 1
+            fi;
+            if sum_p > sum_c then
+                while is_prime( num_c +:= 1 ) do skip od;
+                sum_c +:= num_c;
+                m     +:= 1
+            fi;
+            if sum_p = sum_c then
+                print( ( whole( sum_p, -16 ), whole( n, -10 ), whole( m, -11 ), newline ) );
+                count +:= 1;
+                if count < 8 then
+                    while is_prime( num_c +:= 1 ) do skip od;
+                    sum_c +:= num_c;
+                    m     +:= 1
+                fi
+            fi
+        od
+    end
+end
+)

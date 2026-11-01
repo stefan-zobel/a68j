@@ -1,0 +1,84 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Playing cards", ALGOL 68 solution playing-cards.alg.
+  https://rosettacode.org/wiki/Playing_cards#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/playing-cards.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Card = struct(string pip, suit); { instance attributes }
+
+{ class members & attributes }
+struct(
+  proc(ref Card, string, string)void init,
+  FORMAT format,
+  proc(ref Card)string repr,
+  []string suits, pips
+) class_card = (
+{ PROC init = } (ref Card self, string pip, suit)void:(
+    pip of self:=pip;
+    suit of self :=suit
+  ),
+{ format = } $"("g" OF "g")"$,
+{ PROC repr = } (ref Card self)string: (
+    heap string out_; putf(BOOK out_,(format of class_card,self)); out_
+  ),
+{ suits = } ("Clubs","Hearts","Spades","Diamonds"),
+{ pips = } ("2","3","4","5","6","7","8","9","10","Jack","Queen","King","Ace")
+);
+
+mode Deck = struct(ref[]Card deck); { instance attributes }
+
+{ class members & attributes }
+struct(
+  proc(ref Deck)void init, shuffle,
+  proc(ref Deck)string repr,
+  proc(ref Deck)Card deal
+) class_deck = (
+
+{ PROC init = } (ref Deck self)void:(
+    heap[ UPB suits of class_card * UPB pips of class_card ]Card new;
+    for suit to UPB suits of class_card do
+      for pip to UPB pips of class_card do
+        new[(suit-1)*UPB pips of class_card + pip] :=
+           ((pips of class_card)[pip], (suits of class_card)[suit])
+      od
+    od;
+    deck of self := new
+  ),
+
+{ PROC shuffle = } (ref Deck self)void:
+    for card to UPB deck of self do
+      Card this_card = (deck of self)[card];
+      int random_card = random_int(LWB deck of self,UPB deck of self);
+      (deck of self)[card] := (deck of self)[random_card];
+      (deck of self)[random_card] := this_card
+    od,
+
+{ PROC repr = } (ref Deck self)string: (
+    FORMAT format = $"("n(UPB deck OF self-1)(f(format OF class card)", ")f(format OF class card)")"$;
+    heap string out_; putf(BOOK out_,(format, deck of self)); out_
+  ),
+
+{ PROC deal = } (ref Deck self)Card: (
+    (shuffle of class_deck)(self);
+    (deck of self)[UPB deck of self]
+  )
+);
+
+{ associate a STRING with a FILE for easy text manipulation }
+op BOOK = (ref string string_)ref file:(
+  heap file book;
+  associate(book, string_);
+  book
+);
+
+{ Pick a random integer between from [lwb..upb] }
+proc random_int = (int lwb, upb)int:
+  ENTIER(random * (upb - lwb + 1) + lwb);
+
+Deck deck;
+(init of class_deck)(deck);
+(shuffle of class_deck)(deck);
+print (((repr of class_deck)(deck), new_line))
+)

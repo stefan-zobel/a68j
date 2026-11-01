@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Hello world/Line printer", ALGOL 68 solution hello-world-line-printer.alg.
+  https://rosettacode.org/wiki/Hello_world/Line_printer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/hello-world-line-printer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   string printer_name = "/dev/lp0";
+   file line_printer;
+   if open (line_printer, printer_name, stand_out_channel) = 0 then
+      put (line_printer, ("Hello world", newline));
+      close (line_printer)
+   else
+      put (stand_error, ("Can''t contact line printer on ", printer_name, newline));
+      put (stand_error, ("Trying to use lpr(1)", newline));
+      PIPE printer_pipe = execve_child_pipe ("lpr", "", "");
+      if pid of printer_pipe < 0 then
+	 put (stand_error, ("Oh dear, that didn''t seem to work either.  Giving up.", newline));
+	 stop
+      fi;
+      put (write of printer_pipe, ("Hello world", newline));
+      close (read of printer_pipe);
+      close (write of printer_pipe)
+   fi
+end
+)

@@ -1,0 +1,29 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Primality by trial division", ALGOL 68 solution primality-by-trial-division.alg.
+  https://rosettacode.org/wiki/Primality_by_trial_division#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/primality-by-trial-division.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  proc is_prime = ( int p )bool:
+    if p <= 1 OR ( NOT ODD p AND p/= 2) then
+      false
+    else
+      bool prime := true;
+      for i from 3 by 2 to ENTIER sqrt(p)
+        while prime := p MOD i /= 0 do skip od;
+      prime
+    fi;
+
+  int upb=100;
+  print((" The primes up to ", whole(upb,-3) ," are:"));
+  for i to upb do
+    if is_prime(i) then
+      print((" ",whole(i,0)))
+    fi
+  od;
+  print((newline))
+end
+)

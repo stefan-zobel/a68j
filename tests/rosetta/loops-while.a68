@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Loops/While", ALGOL 68 solution loops-while.alg.
+  https://rosettacode.org/wiki/Loops/While#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/loops-while.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int i := 1024;
+while i > 0 do
+   print(i);
+   i := i OVER 2
+od
+)

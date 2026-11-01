@@ -1,0 +1,69 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Abundant odd numbers", ALGOL 68 solution abundant-odd-numbers.alg.
+  https://rosettacode.org/wiki/Abundant_odd_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abundant-odd-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some abundant odd numbers - numbers where the proper divisor sum }
+      {                                  is bigger than the number itself     }
+
+    { returns the sum of the proper divisors of n                             }
+    proc divisor_sum = ( int n )int:
+    begin
+        int sum := 1;
+        for d from 2 to ENTIER sqrt( n ) do
+            if n MOD d = 0 then
+                sum +:= d;
+                if int other_d := n OVER d;
+                   other_d /= d
+                then
+                    sum +:= other_d
+                fi
+            fi
+        od;
+        sum
+    end { divisor sum } ;
+    { find numbers required by the task                                       }
+    begin
+        { first 25 odd abundant numbers                                       }
+        int odd_number := 1;
+        int a_count    := 0;
+        int d_sum      := 0;
+        print( ( "The first 25 abundant odd numbers:", newline ) );
+        while a_count < 25 do
+            if ( d_sum := divisor_sum( odd_number ) ) > odd_number then
+                a_count +:= 1;
+                print( ( whole( odd_number, -6 )
+                       , " proper divisor sum: "
+                       , whole( d_sum, 0 )
+                       , newline
+                       )
+                     )
+            fi;
+            odd_number +:= 2
+        od;
+        { 1000th odd abundant number                                          }
+        while a_count < 1 000 do
+            if ( d_sum := divisor_sum( odd_number ) ) > odd_number then
+                a_count +:= 1
+            fi;
+            odd_number +:= 2
+        od;
+        print( ( "1000th abundant odd number:", newline, "    " ) );
+        print( ( whole( odd_number - 2, 0 ), " proper divisor sum: ", whole( d_sum, 0 ), newline ) );
+        { first odd abundant number > one billion                             }
+        odd_number := 1 000 000 001;
+        bool found := false;
+        while NOT found do
+            if ( d_sum := divisor_sum( odd_number ) ) > odd_number then
+                found  := true;
+                print( ( "First abundant odd number > 1 000 000 000:", newline, "    " ) );
+                print( ( whole( odd_number, 0 ), " proper divisor sum: ", whole( d_sum, 0 ), newline ) )
+            fi;
+            odd_number +:= 2
+        od
+    end
+end
+)

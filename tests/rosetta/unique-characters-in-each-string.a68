@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Unique characters in each string", ALGOL 68 solution unique-characters-in-each-string.alg.
+  https://rosettacode.org/wiki/Unique_characters_in_each_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/unique-characters-in-each-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the characters that occur once only in each element of a list  }
+      { of stings                                                           }
+    op UNIQUEINEACH = ( []string s )string:
+       if int required_count = ( UPB s + 1 ) - LWB s;
+          required_count < 1
+       then "" { the list is empty }
+       else    { non-empty list }
+            [ 0 : max_abs_char ]int counts; { counts of used characters     }
+            [ 0 : max_abs_char ]int all;
+            for i from LWB all to UPB all do all[ i ] := 0 od;
+            { count the occurances of the characters in the elements of s   }
+            for i from LWB s to UPB s do
+                for j from LWB counts to UPB counts do counts[ j ] := 0 od;
+                for j from LWB s[ i ] to UPB s[ i ] do
+                    counts[ ABS s[ i ][ j ] ] +:= 1
+                od;
+                for j from LWB counts to UPB counts do
+                    { the character is unique in this string                }
+                    if counts[ j ] = 1 then all[ j ] +:= 1 fi
+                od
+            od;
+            { construct a string of the characters that occur only once     }
+            { in each string                                                }
+            string result := "";
+            for i from LWB all to UPB all do
+                if all[ i ] = required_count then result +:= REPR i fi
+            od;
+            result
+       fi; { UNIQUEINEACH }
+    { task test case                                                        }
+    string unique = UNIQUEINEACH []string( "1a3c52debeffd", "2b6178c97a938stf", "3ycxdb1fgxa2yz" );
+    for c from LWB unique to UPB unique do print( ( " ", unique[ c ] ) ) od; print( ( newline ) )
+end
+)

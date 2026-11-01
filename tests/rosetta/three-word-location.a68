@@ -1,0 +1,97 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Three word location", ALGOL 68 solution three-word-location.alg.
+  https://rosettacode.org/wiki/Three_word_location#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/three-word-location.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { three word location, translation of the Lua sample }
+
+    proc to_word = ( int w )string:
+         begin
+            string word_ := "W" + whole( w, -5 );
+            for i from LWB word_ to UPB word_ do if word_[ i ] = " " then word_[ i ] := "0" fi od;
+            word_
+         end { to word } ;
+
+    proc from_word = ( string word_ )int:
+         begin
+            int result := 0;
+            for i from LWB word_ + 1 to UPB word_ do result *:= 10 +:= ( ABS word_[ i ] - ABS "0" ) od;
+            result
+         end { from number } ;
+
+    int two_to_14 = 2 ^ 14, two_to_22 = 2 ^ 22, int two_to_28 = 2 ^ 28;
+
+    proc to_three_words = ( real lat, lon, ref string word1, word2, word3 )void:
+         begin
+            { convert from lat and lon to positive integers }
+            int ilat = ENTIER( lat * 10000 ) +  900000
+              , ilon = ENTIER( lon * 10000 ) + 1800000
+              ;
+            { build 43 bit number comprising 21 bits (lat) and 22 bits (lon) }
+            long int latlon = ( LENG ilat * two_to_22 ) + LENG ilon;
+
+            { isolate relevant bits }
+            int w1 = SHORTEN ( latlon OVER two_to_28 ) MOD ABS 16r8000
+              , w2 = SHORTEN ( latlon OVER two_to_14 ) MOD ABS 16r4000
+              , w3 = SHORTEN ( latlon                  MOD ABS 16r4000 )
+              ;
+            { convert to word format }
+            word1 := to_word( w1 );
+            word2 := to_word( w2 );
+            word3 := to_word( w3 )
+
+         end { to three words } ;
+
+    proc from_three_words = ( string word1, word2, word3, ref real lat, lon )void:
+         begin
+            int w1 = from_word( word1 )
+              , w2 = from_word( word2 )
+              , w3 = from_word( word3 )
+              ;
+            long int latlon = ( LENG w1 * two_to_28 ) + ( LENG w2 * two_to_14 ) + LENG w3;
+            int      ilat   = SHORTEN ( latlon OVER two_to_22 )
+                   , ilon   = SHORTEN ( latlon MOD  ABS 16r400000 )
+                   ;
+            lat := ( ilat -  900000 ) / 10000;
+            lon := ( ilon - 1800000 ) / 10000
+
+         end { from three wordfs } ;
+
+    begin
+
+        proc show_coordinates = ( real lat, lon )void:
+             begin
+                print( ( "  latitude = ",  fixed( lat, -8, 4 ) ) );
+                print( ( ", longitude = ", fixed( lon, -8, 4 ), newline ) )
+             end { show coordinates } ;
+
+        real lat = 28.3852, lon = -81.5638;
+
+        print( ( "Starting figures:", newline ) );
+        show_coordinates( lat, lon );
+        print( ( newline ) );
+
+        { latitude and longitude to words }
+
+        string w1s := "", w2s := "", w3s := "";
+
+        to_three_words( lat, lon, w1s, w2s, w3s );
+
+        print( ( "Three word location is:", newline ) );
+        print( ( "  ", w1s, " ", w2s, " ", w3s, newline ) );
+        print( ( newline ) );
+
+        { words to latitude and longitude }
+
+        real rlat := -1, rlon := -1;
+        from_three_words( w1s, w2s, w3s, rlat, rlon );
+
+        print( ( "After reversing the procedure:", newline ) );
+        show_coordinates( rlat, rlon );
+        if rlat /= lat OR rlon /= lon then print( ( "**** not as expected", newline ) ) fi
+    end
+end
+)

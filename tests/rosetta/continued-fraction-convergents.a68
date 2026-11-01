@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Continued fraction convergents", ALGOL 68 solution continued-fraction-convergents.alg.
+  https://rosettacode.org/wiki/Continued_fraction_convergents#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/continued-fraction-convergents.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Continued fraction convergents task, translated from the EasyLang sample }
+
+    prio =:= = 1;
+    op   =:= = ( ref int a, b )void: begin int t = a; a := b; b := t end;
+
+    proc convergents = ( real x_in, int maxcomp )[]string: begin
+         real eps = 1e-9; real x := x_in;
+         [ 1 : maxcomp ]int comps; int clen := 0;
+         for i from LWB comps to UPB comps do comps[ i ] := 0 od;
+         for i from LWB comps to UPB comps while int  ipart = ENTIER x;
+                                                 real fpart = x - ipart;
+                                                 comps[ clen +:= 1 ] := ipart;
+                                                 ABS fpart >= eps
+         do
+             x := 1 / fpart
+         od;
+         int numa := 0, denoma := 1, numb := 1, denomb := 0;
+         [ 1 : clen ]string r; int rpos := 0;
+         for c from LWB comps to clen do
+             int comp := comps[ c ];
+             numa    =:= numb;
+             denoma  =:= denomb;
+             numb    +:= comp * numa;
+             denomb  +:= comp * denoma;
+             r[ rpos +:= 1 ] := if denomb = 1 then
+                                    whole( numb, 0 )
+                                else
+                                    whole( numb, 0 ) + "/" + whole( denomb, 0 )
+                                fi
+         od;
+         r
+    end;
+
+    proc test = ( string s, real n )void: begin
+         print( ( s, " = " ) );
+         []string r = convergents( n, 8 );
+         for rpos from LWB r to UPB r do print( ( r[ rpos ], " " ) ) od;
+         print( ( newline ) )
+    end;
+
+    test( "      415/93", 415 / 93 );
+    test( "     649/200", 649 / 200 );
+    test( "     sqrt(2)", sqrt( 2 ) );
+    test( "     sqrt(5)", sqrt( 5 ) );
+    test( "golden ratio", ( sqrt( 5 ) + 1 ) / 2 )
+end
+)

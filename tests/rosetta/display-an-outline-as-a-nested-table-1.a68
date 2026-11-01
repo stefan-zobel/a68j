@@ -1,0 +1,150 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Display an outline as a nested table", ALGOL 68 solution display-an-outline-as-a-nested-table-1.alg.
+  https://rosettacode.org/wiki/Display_an_outline_as_a_nested_table#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/display-an-outline-as-a-nested-table-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Show an outline as a wiki or HTML table                              }
+    mode Onode = struct( string text, int indent, ref Onode next, child );
+    ref Onode nil_node = nil;
+    op   LTRIM = ( string s )string:      { returns s without leading spaces }
+         begin
+            int s_pos := LWB s;
+            while if s_pos > UPB s then false else s[ s_pos ] = " " fi do s_pos +:= 1 od;
+            if s_pos > UPB s then "" else s[ s_pos : ] fi
+         end { LTRIM } ;
+    op   INDENTOF = ( string s )int:  { returns count of leading spaces of s }
+         begin
+            int s_pos := LWB s;
+            while if s_pos > UPB s then false else s[ s_pos ] = " " fi do s_pos +:= 1 od;
+            s_pos - LWB s
+         end { INDENTOF } ;
+
+    { count the total number of columns in tree                              }
+    op   COUNTCOLUMNS = ( ref Onode tree )int:
+         if   child of tree is nil_node
+         then 1
+         else int count := 0;
+              ref Onode next := child of tree;
+              while next isnt nil_node do
+                  count +:= COUNTCOLUMNS next;
+                  next   := next of next
+              od;
+              count
+         fi { COUNTCOLUMNS } ;
+
+    op   TOONODE = ( []string s )ref Onode:
+         if   heap Onode result;
+              LWB s > UPB s
+         then result := ( "", 0, nil_node, nil_node )
+         else result := ( s[ LWB s ], INDENTOF s[ LWB s ], nil_node, nil_node );
+              [ 1 : ( UPB s - LWB s ) + 1 ]ref Onode tstack;
+              for i to UPB tstack do tstack[ i ] := nil_node od;
+              int s_pos := LWB tstack;
+              tstack[ s_pos ] := result;
+              for pos from LWB s + 1 to UPB s do
+                  int indent = INDENTOF s[ pos ];
+                  while indent < indent of tstack[ s_pos ] do s_pos -:= 1 od;
+                  heap Onode next := ( s[ pos ], indent, nil_node, nil_node );
+                  if   indent > indent of tstack[ s_pos ]
+                  then child of tstack[ s_pos ] := next;
+                       tstack[ s_pos +:= 1 ] := next
+                  else if   next of tstack[ s_pos ] is nil_node
+                       then next of tstack[ s_pos ] := next
+                       fi;
+                       tstack[ s_pos ] := next
+                  fi
+              od;
+              result
+         fi { TOONODE } ;
+
+    proc print_tree_table_body = ( ref Onode tree, string tr, rt, open_td, close_td, dt, empty_td )void:
+         begin
+            int       td_max := 0;      { find the maximum elements the rows }
+            ref Onode next   := tree;
+            while next isnt nil_node do
+                td_max +:= COUNTCOLUMNS next;
+                next    := next of next
+            od;
+            [ 1 : td_max ]ref Onode td;  { get the elements of the first row }
+            td_max := 0;
+            next   := tree;
+            while next isnt nil_node do
+                td[ td_max +:= 1 ] := next;
+                next               := next of next
+            od;
+            bool more_rows := true;                      { generate the rows }
+            while more_rows do
+                print( ( tr, newline ) );           { output the current row }
+                for td_pos to td_max do
+                    ref Onode element = td[ td_pos ];
+                    if   element is nil_node
+                    then print( ( empty_td ) )
+                    else int span = COUNTCOLUMNS element;
+                         print( ( open_td ) );
+                         if span > 1 then print( ( " colspan=""", whole( span, 0 ), """" ) ) fi;
+                         print( ( close_td, LTRIM text of element ) );
+                         if dt /= "" then print( ( "</td>" ) ) fi;
+                         print( ( newline ) )
+                    fi
+                od;
+                if rt /= "" then print( ( rt, newline ) ) fi;
+                []ref Onode prev = td[ 1 : td_max ];   { replace td with the }
+                int new_max := 0;    { ... child elements of the current row }
+                more_rows   := false;
+                for td_pos to td_max do
+                    next := if   prev[ td_pos ] is nil_node
+                            then nil_node
+                            else child of prev[ td_pos ]
+                            fi;
+                    td[ new_max +:= 1 ] := next;
+                    if next isnt nil_node then
+                        more_rows := true;
+                        while ( next := next of next ) isnt nil_node do
+                           td[ new_max +:= 1 ] := next
+                        od
+                    fi
+                od;
+                td_max := new_max
+            od
+         end { print tree table body } ;
+
+    { prints tree as an HTML table                                           }
+    proc print_tree_as_html_table = ( ref Onode tree )void:
+         begin
+            print( ( "<table style=""text-align: center"" border=""1"" cellspacing=""0"">", newline ) );
+            print_tree_table_body( tree, "<tr>", "</tr>", "<td", ">", "</td>", "<td/>" );
+            print( ( "</table>", newline ) )
+         end { print tree as html table } ;
+
+    { prints tree as a wiki table  b                                         }
+    proc print_tree_as_wiki_table = ( ref Onode tree )void:
+         begin
+            print( ( "{| class=""wikitable"" style=""text-align: center;""", newline ) );
+            print_tree_table_body( tree, "|-", "", "| ", " | ", "", "|  |" + REPR 10 );
+            print( ( "|}", newline ) )
+         end { print tree as wiki table } ;
+
+    begin
+        ref Onode ex_tree
+            = TOONODE []string( "Display an outline as a nested table."
+                              , "    Parse the outline to a tree,"
+                              , "        measuring the indent of each line,"
+                              , "        translating the indentation to a nested structure,"
+                              , "        and padding the tree to even depth."
+                              , "            (happens during the output in this version)"
+                              , "    count the leaves descending from each node,"
+                              , "        defining the width of a leaf as 1,"
+                              , "        and the width of a parent node as a sum."
+                              , "            (The sum of the widths of its children)"
+                              , "    and write out a table with ''colspan'' values"
+                              , "        either as a wiki table,"
+                              , "        or as HTML."
+                              );
+        print_tree_as_html_table( ex_tree );
+        print_tree_as_wiki_table( ex_tree )
+    end
+end
+)

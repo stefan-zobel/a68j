@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sailors, coconuts and a monkey problem", ALGOL 68 solution sailors-coconuts-and-a-monkey-problem.alg.
+  https://rosettacode.org/wiki/Sailors,_coconuts_and_a_monkey_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sailors-coconuts-and-a-monkey-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Sailors, coconuts a and a monkey problem - translation of Kotlin     }
+
+    int coconuts := 11;
+    for ns from 2 to 9 do
+        [ 1 : ns ]int hidden; for i from 1 to UPB hidden do hidden[ i ] := 0 od;
+        coconuts := ( ( coconuts OVER ns ) * ns ) + 1;
+        bool next_ns := false;
+        while NOT next_ns do
+           int  nc      := coconuts;
+           bool break_s := false;
+           for s to ns while NOT next_ns AND NOT break_s do
+               if nc MOD ns = 1 then
+                   hidden[ s ] := nc OVER ns;
+                   nc -:= hidden[ s ] + 1;
+                   if s = ns AND nc MOD ns = 0 then
+                       print( ( whole( ns, 0 ), " sailors require a minimum of " ) );
+                       print( ( whole( coconuts, 0 ), " coconuts", newline ) );
+                       for t to ns do
+                           print( ( "    Sailor ", whole( t, 0 ) ) );
+                           print( ( " hides ", whole( hidden[ t ], 0 ), newline ) )
+                       od;
+                       print( ( "    The monkey gets ", whole( ns, 0 ), newline ) );
+                       print( ( "    Finally, each sailor takes ", whole( nc OVER ns, 0 ) ) );
+                       print( ( newline, newline ) );
+                       next_ns := true
+                   fi
+               else
+                   break_s := true
+               fi
+           od;
+           if NOT next_ns then coconuts +:= ns fi
+        od
+    od
+
+end
+)

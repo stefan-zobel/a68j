@@ -1,0 +1,72 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generator/Exponential", ALGOL 68 solution generator-exponential-1.alg.
+  https://rosettacode.org/wiki/Generator/Exponential#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generator-exponential-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Yieldvalue = proc(VALUE)void;
+mode Genvalue = proc(Yieldvalue)void;
+
+proc gen_filtered = (Genvalue gen_candidate, gen_exclude, Yieldvalue yield)void: (
+    VALUE candidate; sema have_next_exclude = LEVEL 0;
+    VALUE exclude;   sema get_next_exclude  = LEVEL 0;
+    bool initialise_exclude := true;
+
+    par ( { run each generator in a different thread }
+{ Thread 1 }
+      { FOR VALUE next exclude IN } gen_exclude( { ) DO }
+      {}   (VALUE next_exclude)void: (
+            DOWN get_next_exclude; exclude := next_exclude;
+            if candidate <= exclude then
+                UP have_next_exclude
+            else
+                UP get_next_exclude
+            fi
+      { OD })),
+{ Thread 2 }
+      { FOR VALUE next candidate IN } gen_candidate( { ) DO }
+      {}   (VALUE next_candidate)void: (
+            candidate := next_candidate;
+            if initialise_exclude ORF candidate > exclude then
+                UP get_next_exclude;
+                DOWN have_next_exclude; { wait for result }
+                initialise_exclude := false
+            fi;
+            if candidate < exclude then
+                yield(candidate)
+            fi
+      { OD }))
+    )
+);
+
+proc gen_slice = (Genvalue t, VALUE start, stop, Yieldvalue yield)void: (
+  int index := 0;
+  { FOR VALUE i IN } t( { ) DO }
+  {}   (VALUE i)void: (
+      if   index >= stop then done
+      elif index >= start then yield(i) fi;
+      index +:= 1
+  { OD } ));
+    done: skip
+);
+
+proc get_list = (Genvalue gen)[]VALUE: (
+    int upb := 0;
+    int ups := 2;
+    flex [ups]VALUE out_;
+  { FOR VALUE i IN } gen( { ) DO }
+  {}   (VALUE i)void:(
+        upb +:= 1;
+        if upb > ups then { dynamically grow the array 50% }
+          [ups +:= ups OVER 2]VALUE append; append[:upb-1] := out_; out_ := append
+        fi;
+        out_[upb] := i
+  { OD } ))
+    out_[:upb]
+);
+
+proc powers = (VALUE m, Yieldvalue yield)void:
+    for n from 0 do yield(n ** m) od;
+)

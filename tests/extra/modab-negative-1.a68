@@ -1,0 +1,10 @@
+{ MODAB (%*:=) is the remainder of C in ga68: negative for a negative
+  left operand, unlike MOD, which is never negative. }
+begin int a := -255, b := 7, c := -7, d := 0;
+      a MODAB 256; b %*:= -3; c %*:= 3;
+      puts (whole (a, 0) + " " + whole (b, 0) + " " + whole (c, 0) + "'n");
+      puts (whole (-255 MOD 256, 0) + " " + whole (-7 MOD 3, 0) + "'n");
+      long int la := - long 7; la MODAB long 3;
+      puts (whole (la, 0) + "'n");
+      d := -1; d MODAB 256; puts (whole (d, 0) + "'n")
+end

@@ -1,0 +1,26 @@
+{ Lists of the other element modes. }
+access Lists (
+   Reallist r = new_reallist;
+   for i to 5 do r +:= 1.0 / i od;
+   puts ("reals: " + fixed (3 ELEM r, 0, 4) + " " + whole (UPB r, 0) + "'n");
+   Longreallist lr = longreallist_of ((LENG 3.5, LENG 1.25, LENG 2.0));
+   [] long real sorted = TOROW SORT lr;
+   puts ("long reals sorted: " + fixed (sorted[1], 0, 2) + " " + fixed (sorted[3], 0, 2) + "'n");
+   Longintlist li = new_longintlist;
+   li +:= long_max_int;
+   puts ("long int: " + whole (1 ELEM li, 0) + "'n");
+   Boollist b = boollist_of ((true, false, true, false));
+   puts ("bools sorted: " + (1 ELEM SORT b | "T" | "F") + (4 ELEM b | "T" | "F") + " INDEX true: " + whole (b INDEX true, 0) + "'n");
+   Stringlist s = new_stringlist;
+   string w := "pear";
+   s +:= w;
+   w[1] := "b";
+   s +:= w;
+   s +:= [] string ("apple", "fig");
+   1 AT s := "plum";
+   [] string all = TOROW SORT s;
+   string line := "";
+   for i to UPB all do line +:= " " + all[i] od;
+   puts ("strings sorted:" + line + ", s INDEX ""fig"": " + whole (s INDEX "fig", 0) + "'n");
+   puts ("POP s: " + POP s + ", UPB s: " + whole (UPB s, 0) + "'n")
+)

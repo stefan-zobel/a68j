@@ -1,0 +1,67 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generalised floating point multiplication", ALGOL 68 solution generalised-floating-point-multiplication-1.alg.
+  https://rosettacode.org/wiki/Generalised_floating_point_multiplication#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generalised-floating-point-multiplication-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{               TASK CODE                }
+{ Actual generic mulitplication operator }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{ Alternatively use http://en.wikipedia.org/wiki/Karatsuba_algorithm }
+
+op * = (DIGITS a, b)DIGITS: (
+  DIGITS minus_one = -IDENTITY loc DIGITS,
+         zero = ZERO loc DIGITS,
+         one = IDENTITY loc DIGITS;
+  int order = digit_order of arithmetic;
+  if SIGN a = 0 OR SIGN b = 0 then zero
+{ # Note: The following require the inequality operators #
+  ELIF a = one THEN b
+  ELIF b = one THEN a
+  ELIF a = minus one THEN -b
+  ELIF b = minus one THEN -a
+END }
+  else
+    DIGIT zero = ZERO loc DIGIT;
+    DIGIT one =  IDENTITY loc DIGIT;
+    [order + MSD a+MSD b: LSD a+LSD b]DIGIT a_x_b;
+
+    for place from LSD a+LSD b by order to LSD a+MSD b do
+      a_x_b[place] := zero { pad the MSDs of the result with Zero }
+    od;
+    for place_a from LSD a by order to MSD a do
+      DIGIT digit_a = a[place_a];
+      DIGIT carry := zero;
+      for place_b from LSD b by order to MSD b do
+        DIGIT digit_b = b[place_b];
+        ref DIGIT digit_ab = a_x_b[place_a + place_b];
+        if carry of arithmetic then { used for big number arithmetic }
+          MOID(carry := ( digit_ab +:= carry ));
+          DIGIT prod := digit_a;
+          MOID(carry +:= ( prod *:= digit_b ));
+          MOID(carry +:= ( digit_ab +:= prod ))
+        else { carry = 0 so we can just ignore the carry }
+          DIGIT prod := digit_a;
+          MOID(prod *:= digit_b);
+          MOID(digit_ab +:= prod)
+        fi
+      od;
+      a_x_b[place_a + MSD b + order] := carry
+    od;
+    INITDIGITS a_x_b { normalise }
+  fi
+);
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{  Define the hybrid multiplication  }
+{ operators for the generalised base }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+
+op * = (DIGIT a, DIGITS b)DIGITS: INITDIGITS a * b;
+op * = (DIGITS a, DIGIT b)DIGITS: a * INITDIGITS b;
+
+op *:= = (ref DIGITS lhs, DIGIT arg)DIGITS: lhs := lhs * INITDIGITS arg;
+)

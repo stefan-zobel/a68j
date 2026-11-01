@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ackermann function", ALGOL 68 solution ackermann-function.alg.
+  https://rosettacode.org/wiki/Ackermann_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ackermann-function.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc test_ackermann = void:
+begin
+   proc ackermann = (int m, n)int:
+   begin
+      if m = 0 then
+         n + 1
+      elif n = 0 then
+         ackermann (m - 1, 1)
+      else
+         ackermann (m - 1, ackermann (m, n - 1))
+      fi
+   end { ackermann };
+
+   for m from 0 to 3 do
+      for n from 0 to 6 do
+         print(ackermann (m, n))
+      od;
+      new_line(stand_out)
+   od
+end { test ackermann };
+test_ackermann
+)

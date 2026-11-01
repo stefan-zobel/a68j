@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Filter", ALGOL 68 solution filter.alg.
+  https://rosettacode.org/wiki/Filter#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/filter.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Type = int;
+
+proc select = ([]Type from_, proc(Type)bool where)[]Type:
+begin
+  flex[0]Type result;
+  for key from LWB from_ to UPB from_ do
+    if where(from_[key]) then
+      [UPB result+1]Type new_result;
+      new_result[:UPB result] := result;
+      new_result[UPB new_result] := from_[key];
+      result := new_result
+    fi
+  od;
+  result
+end;
+
+[]Type from_values = (1,2,3,4,5,6,7,8,9,10);
+proc where_even = (Type value)bool: NOT ODD value;
+
+print((select(from_values, where_even), new_line));
+
+{ Or as a simple one line query }
+print((select((1,4,9,16,25,36,49,64,81,100), (Type x)bool: NOT ODD x ), new_line))
+)

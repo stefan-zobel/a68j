@@ -1,0 +1,37 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Overloaded operators", ALGOL 68 solution overloaded-operators.alg.
+  https://rosettacode.org/wiki/Overloaded_operators#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/overloaded-operators.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { Algol 68 allows operator overloading, both of existing operators and new ones  }
+    { Programmer defined operators can be a "bold word" (uppercase word) or a symbol }
+    { Symbolic operators can be one or two characters, optionally followed by := or  }
+    { =:, =: can also be defined as an operator (Allowed in Algol 68G, possibly not  }
+    { in other implementations)                                                      }
+    { the characters allowed in a symbolic operator depends on the implementation    }
+    { but would include +, -, *, /, <, =, >                                          }
+
+    { define a new TOSTRING operator and overload it }
+    op TOSTRING = ( int  n )string:
+       whole( n, 0 ); { returns a string representation of n in the minimum width }
+    op TOSTRING = ( bool bv )string: if bv then "true" else "false" fi;
+    { overide a standard operator }
+    int a = 10, b = 11, c = 21;
+    begin
+        op + = ( int na, int nb )int: na - nb;
+        { + between strings is a standard operator that does string concation }
+        print( ( TOSTRING a, " ""+"" ", TOSTRING b, " = ", TOSTRING ( a + b ), " = " ) );
+        print( ( TOSTRING c, "? ", TOSTRING ( ( a + b ) = c ), newline ) )
+    end;
+    { same print, with the stndard + }
+    print( ( TOSTRING a, "  +  ", TOSTRING b, " = ", TOSTRING ( a + b ), " = " ) );
+    print( ( TOSTRING c, "? ", TOSTRING ( ( a + b ) = c ), newline ) );
+    { overload + to allow a BOOL to be added to an INT }
+    op + = ( int nv, bool bv )int: if bv then nv + 1 else nv fi;
+    print( ( TOSTRING a, " ""+"" ", TOSTRING ( a = 10 ), " = ", TOSTRING ( a + ( a = 10 ) ), newline ) )
+end
+)

@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Zig-zag matrix", ALGOL 68 solution zig-zag-matrix.alg.
+  https://rosettacode.org/wiki/Zig-zag_matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/zig-zag-matrix.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc zig_zag = (int n)[,]int: (
+    proc move = (ref int i, j)void: (
+        if j < n then
+            i := ( i <= 1 | 1 | i-1 );
+            j +:= 1
+        else
+            i +:= 1
+        fi
+    );
+
+    [n, n]int a;
+    int x:=LWB a, y:=LWB a;
+
+    for v from 0 to n**2-1 do
+        a[y, x] := v;
+        if ODD (x + y) then
+            move(x, y)
+        else
+            move(y, x)
+        fi
+    od;
+    a
+);
+
+int dim = 5;
+{IF formatted transput possible THEN
+  FORMAT d = $z-d$;
+  FORMAT row = $"("n(dim-1)(f(d)",")f(d)")"$;
+  FORMAT block = $"("n(dim-1)(f(row)","lx)f(row)")"l$;
+
+  printf((block, zig zag(dim)))
+ELSE}
+  [,]int result = zig_zag(dim);
+  for i to dim do
+    print((if i = 1 then "((" else " (" fi));
+    for j to dim do
+      print(( whole( result[i,j], -3 ), if j /= dim then "," else "" fi ))
+    od;
+    print((if i = dim then "))" else ")," fi, new_line))
+  od
+{FI}
+)

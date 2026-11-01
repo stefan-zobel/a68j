@@ -1,0 +1,146 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Lunar arithmetic", ALGOL 68 solution lunar-arithmetic.alg.
+  https://rosettacode.org/wiki/Lunar_arithmetic#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/lunar-arithmetic.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Lunar arithmetic                                                     }
+
+    int max_lunar_digits = ENTIER log( max_int ); { maximum number of digits }
+                                                  { a lunar number can have  }
+                                                  { if stored in an INT      }
+    [ 1 : max_lunar_digits + 1 ]int lunar_digits;
+
+    prio +> = 6, <* = 7;                        { same priorities as + and * }
+    op   +> = ( int a, b )int:                   { lunar addition of a and b }
+         if a < 0 OR b < 0
+         then print( ( "Lunar numbers must be non-negative", newline ) );
+              stop
+         elif a = b
+         then a
+         else int v1 := a, v2 := b;
+              int d_pos := 0;
+              while v1 > 0 OR v2 > 0 do
+                  int d1 = v1 MOD 10, d2 = v2 MOD 10;
+                  lunar_digits[ d_pos +:= 1 ] := if d1 > d2 then d1 else d2 fi;
+                  v1 OVERAB 10;
+                  v2 OVERAB 10
+              od;
+              int result := lunar_digits[ d_pos ];
+              while ( d_pos -:= 1 ) > 0 do
+                  result *:= 10 +:= lunar_digits[ d_pos ]
+              od;
+              result
+         fi { +> } ;
+    prio +>:= = 1;              { lunar add-and-assign, same priority as +:= }
+    op   +>:= = ( ref int a, int b )ref int: a := a +> b;
+
+    op   <* = ( int a, b )int:             { lunar multiplication of a and b }
+         if a < 0 OR b < 0
+         then printf( ( "Lunar numbers must be non-negative", newline ) );
+              stop
+         elif a = 0 OR b = 0
+         then 0
+         else int v2 := b, multiplier := 1;
+              int result := 0;
+              while v2 > 0 do
+                  int d2     = v2 MOD 10;
+                  int d_pos := 0;
+                  int v1    := a;
+                  while v1 > 0 do
+                      int d1 = v1 MOD 10;
+                      lunar_digits[ d_pos +:= 1 ] := if d1 < d2 then d1 else d2 fi;
+                      v1 OVERAB 10
+                  od;
+                  int p1 := lunar_digits[ d_pos ];
+                  while ( d_pos -:= 1 ) > 0 do
+                      p1 *:= 10 +:= lunar_digits[ d_pos ]
+                  od;
+                  result    +>:= p1 * multiplier;
+                  multiplier *:= 10;
+                  v2 OVERAB 10
+              od;
+              result
+         fi { <* } ;
+    prio <*:= = 1;         { lunar multiply-and-assign, same priority as *:= }
+    op   <*:= = ( ref int a, int b )ref int: a := a <* b;
+
+    op   +> = ( []int a )int:          { lunar addition of the elements of a }
+         begin
+            int result := if UPB a < LWB a then 0 else a[ LWB a ] fi;
+            for a_pos from LWB a + 1 to UPB a do
+                result +>:= a[ a_pos ]
+            od;
+            result
+         end { +> } ;
+    op   CX = ( []int a )int:    { lunar multiplication of the elements of a }
+         begin         { unfortunately, <* isn't a valid unary operator name }
+            int result := if UPB a < LWB a then 0 else a[ LWB a ] fi;
+            for a_pos from LWB a + 1 to UPB a do
+                result <*:= a[ a_pos ]
+            od;
+            result
+         end { CX } ;
+
+    begin { task                                                             }
+        [][]int tests = ( ( 976, 348 ), ( 23, 321 ), ( 232, 35 ), ( 123, 32192, 415, 8 ) );
+        proc show_test = ( []int v, string op_name, int result )void:
+             if UPB v >= LWB v then
+                print( ( whole( v[ LWB v ], -8 ) ) );
+                for v_pos from LWB v + 1 to UPB v do
+                    print( ( " ", op_name, " ", whole( v[ v_pos ], 0 ) ) )
+                od;
+                print( ( " = ", whole( result, 0 ), newline ) )
+             fi { show test } ;
+
+        print( ( "Lunar addition (+>):", newline ) );
+        for t_pos from 1 LWB tests to 1 UPB tests do
+            show_test( tests[ t_pos ], "+>", +> tests[ t_pos ] )
+        od;
+        print( ( "Lunar multiplication (<*):", newline ) );
+        for t_pos from 1 LWB tests to 1 UPB tests do
+            show_test( tests[ t_pos ], "<*", CX tests[ t_pos ] )
+        od;
+        begin
+            print( ( "The first 20 distinct even lunar numbers:", newline, "      " ) );
+            [ 0 : 1000 ]bool even;              { assume they are all < 1001 }
+            for n from LWB even to UPB even do even[ n ] := false od;
+            for n from LWB even to UPB even do
+                if int n2 = n <* 2; n2 <= UPB even then even[ n <* 2 ] := true fi
+            od;
+            int found := 0;
+            for n from LWB even while found < 20 do
+                if even[ n ] then print( ( " ", whole( n, 0 ) ) ); found +:= 1 fi
+            od;
+            print( ( newline ) )
+        end;
+        print( ( "The first 20 lunar squares:", newline, "      " ) );
+        for n from 0 to 19 do print( ( " ", whole( n <* n, 0 ) ) ) od;
+        print( ( newline ) );
+        begin
+            int f_max = if max_lunar_digits >= 18 then 20 elif max_lunar_digits >= 9 then 18 else 9 fi;
+            print( ( "The first ", whole( f_max, 0 ), " lunar factorials:", newline, "      " ) );
+            int lf := 1;
+            for n to f_max do print( ( " ", whole( lf <*:= n, 0 ) ) ) od;
+            print( ( newline ) )
+        end;
+        begin
+            print( ( "First lunar square smaller than the previous: " ) );
+            int prev_square := 0;
+            int this_square := 1;
+            int first_n     := 0;
+            for n from 2 while first_n = 0 do
+                prev_square := this_square;
+                if   this_square := n <* n;
+                     this_square < prev_square
+                then first_n := n
+                fi
+            od;
+            print( ( whole( first_n, 0 ), " squared = ", whole( this_square, 0 ) ) );
+            print( ( ", previous = ", whole( prev_square, 0 ), newline ) )
+        end
+    end
+end
+)

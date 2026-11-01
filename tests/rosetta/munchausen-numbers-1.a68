@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Munchausen numbers", ALGOL 68 solution munchausen-numbers-1.alg.
+  https://rosettacode.org/wiki/Munchausen_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/munchausen-numbers-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Find Munchausen Numbers between 1 and 5000                                        }
+{ note that 6^6 is 46 656 so we only need to consider numbers consisting of 0 to 5   }
+
+{ table of Nth powers - note 0^0 is 0 for Munchausen numbers, not 1                 }
+[]int nth_power = ([]int( 0, 1, 2 * 2, 3 * 3 * 3, 4 * 4 * 4 * 4, 5 * 5 * 5 * 5 * 5 ))[ at 0 ];
+
+int d1 := 0; int d1_part := 0;
+int d2 := 0; int d2_part := 0;
+int d3 := 0; int d3_part := 0;
+int d4 := 1;
+while d1 < 6 do
+    int number           = d1_part + d2_part + d3_part + d4;
+    int digit_power_sum := nth_power[ d1 ]
+                         + nth_power[ d2 ]
+                         + nth_power[ d3 ]
+                         + nth_power[ d4 ];
+    if digit_power_sum = number then
+        print( ( whole( number, 0 ), newline ) )
+    fi;
+    d4 +:= 1;
+    if d4 > 5 then
+        d4       := 0;
+        d3      +:= 1;
+        d3_part +:= 10;
+        if d3 > 5 then
+            d3       := 0;
+            d3_part  := 0;
+            d2      +:= 1;
+            d2_part +:= 100;
+            if d2 > 5 then
+                d2       := 0;
+                d2_part  := 0;
+                d1      +:= 1;
+                d1_part +:= 1000
+            fi
+        fi
+    fi
+od
+)

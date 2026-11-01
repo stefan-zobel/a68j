@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Roman numerals/Encode", ALGOL 68 solution roman-numerals-encode.alg.
+  https://rosettacode.org/wiki/Roman_numerals/Encode#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/roman-numerals-encode.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[]char roman =        "MDCLXVmdclxvi"; { UPPERCASE for thousands }
+[]char adjust_roman = "CCXXmmccxxii";
+[]int arabic =       (1000000, 500000, 100000, 50000, 10000, 5000, 1000, 500, 100, 50, 10, 5, 1);
+[]int adjust_arabic = (100000, 100000,  10000, 10000,  1000, 1000,  100, 100,  10, 10,  1, 1, 0);
+
+proc arabic_to_roman = (int dclxvi)string: (
+  int in_ := dclxvi; { 666 }
+  string out_ := "";
+  for scale to UPB roman while in_ /= 0 do
+    int multiples = in_ OVER arabic[scale];
+    in_ -:= arabic[scale] * multiples;
+    out_ +:= roman[scale] * multiples;
+    if in_ >= -adjust_arabic[scale] + arabic[scale] then
+      in_ -:= -adjust_arabic[scale] + arabic[scale];
+      out_ +:=  adjust_roman[scale] +  roman[scale]
+    fi
+  od;
+  out_
+);
+
+main:(
+  []int test = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30,40,50,60,69,70,
+     80,90,99,100,200,300,400,500,600,666,700,800,900,1000,1009,1444,1666,1945,1997,1999,
+     2000,2008,2500,3000,4000,4999,5000,6666,10000,50000,100000,500000,1000000,max_int);
+  for key to UPB test do
+    int val = test[key];
+    print((val, " - ", arabic_to_roman(val), new_line))
+  od
+)
+)

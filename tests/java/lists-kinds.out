@@ -1,0 +1,7 @@
+reals: .3333 5
+long reals sorted: 1.25 3.50
+long int: 9223372036854775807
+bools sorted: FT INDEX true: 3
+strings sorted: apple bear fig plum, s INDEX "fig": 3
+POP s: plum, UPB s: 3
+exit 0

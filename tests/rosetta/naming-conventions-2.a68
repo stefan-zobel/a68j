@@ -1,0 +1,15 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Naming conventions", ALGOL 68 solution naming-conventions-2.alg.
+  https://rosettacode.org/wiki/Naming_conventions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/naming-conventions-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc long_long_cos = (long long real x) long long real: ¢ a ℒ real_value_close_to_the_cosine_of 'x' ¢;
+
+proc long_long_complex_cos = (long long compl z) long long compl: ¢ a ℒ complex_value_close_to_the_cosine_of 'z' ¢;
+
+proc long_long_arccos = (long long real x) long long real: ¢ if_ ABS x ≤ ℒ 1, a ℒ real_value_close_to_the_inverse_cosine_of
+ 'x', ℒ 0 ≤ ℒ arccos (x) ≤ ℒ pi ¢;
+)

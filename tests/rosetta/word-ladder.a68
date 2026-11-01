@@ -1,0 +1,188 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Word ladder", ALGOL 68 solution word-ladder.alg.
+  https://rosettacode.org/wiki/Word_ladder#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/word-ladder.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ quick implementation of a stack of INT.
+  real program starts after it.
+}
+mode Stack = struct (int top, flex[1:0]int data, int increment);
+
+proc makestack = (int increment)Stack: (1, (), increment);
+
+proc pop = (ref Stack s)int: ( top of s -:= 1; (data of s)[top of s] );
+
+proc push = (ref Stack s, int n)void:
+  begin
+    if top of s > UPB data of s then
+      [ UPB data of s + increment of s ]int tmp;
+      tmp[1 : UPB data of s] := data of s;
+      data of s := tmp
+    fi;
+    (data of s)[top of s] := n;
+    top of s +:= 1
+  end;
+
+proc empty_ = (ref Stack s)bool: top of s <= 1;
+
+proc contents = (ref Stack s)[]int: (data of s)[:top of s - 1];
+
+{ start solution }
+
+[]string words = begin     { load dictionary file into array }
+                   file f;
+                   bool eof := false;
+                   open(f, "unixdict.txt", stand_in_channel);
+                   on_logical_file_end(f, (ref file f)bool: eof := true);
+                   int idx := 1;
+                   flex [1:0] string words;
+                   string word_;
+                   while NOT eof do
+                     get(f, (word_, newline));
+                     if idx > UPB words then
+                       heap [1 : UPB words + 10000]string tmp;
+                       tmp[1 : UPB words] := words;
+                       words := tmp
+                     fi;
+                     words[idx] := word_;
+                     idx +:= 1
+                   od;
+                   words[1:idx-1]
+                 end;
+
+int nwords = UPB words;
+
+int max_word_length = (int mwl := 0;
+                       for i to UPB words do
+                         if mwl < UPB words[i] then mwl := UPB words[i] fi
+                       od;
+                       mwl);
+
+[nwords]flex[0]int neighbors;
+
+[max_word_length]bool precalculated_by_length;
+
+for i to UPB precalculated_by_length do precalculated_by_length[i] := false od;
+
+{ precalculating neighbours takes time, but not doing it is even slower... }
+proc precalculate_neighbors = (int word_length)void:
+  begin
+    [nwords]ref Stack stacks;
+    for i to UPB stacks do stacks[i] := nil od;
+    for i to UPB words do
+      if UPB words[i] = word_length then
+        if ref Stack(stacks[i]) :=: nil then stacks[i] := heap Stack := makestack(10) fi;
+        for j from i + 1 to UPB words do
+          if UPB words[j] = word_length then
+            if neighboring(words[i], words[j]) then
+              push(stacks[i], j);
+              if ref Stack(stacks[j]) :=: nil then stacks[j] := heap Stack := makestack(10) fi;
+              push(stacks[j], i)
+            fi
+          fi
+        od
+      fi
+    od;
+    for i to UPB neighbors do
+      if ref Stack(stacks[i]) :/=: nil then
+        neighbors[i] := contents(stacks[i])
+      fi
+    od;
+    precalculated_by_length [word_length] := true
+  end;
+
+proc neighboring = (string a, b)bool:      { do a & b differ in just 1 char? }
+  begin
+    int diff := 0;
+    for i to UPB a do if a[i] /= b[i] then diff +:= 1 fi od;
+    diff = 1
+  end;
+
+proc word_ladder = (string from_, string to_)[]string:
+  begin
+    if UPB from_ /= UPB to_ then fail fi;
+    int word_length = UPB from_;
+    if word_length < 1 OR word_length > max_word_length then fail fi;
+    if from_ = to_ then fail fi;
+    int start := 0;
+    int destination := 0;
+    for i to UPB words do
+      if UPB words[i] = word_length then
+        if words[i] = from_ then start := i
+        elif words[i] = to_ then destination := i
+        fi
+      fi
+    od;
+    if destination = 0 OR start = 0 then fail fi;
+    if NOT precalculated_by_length [word_length] then
+      precalculate_neighbors(word_length)
+    fi;
+    Stack stack := makestack(1000);
+    [nwords]int distance;
+    [nwords]int previous;
+    for i to nwords do distance[i] := nwords+1; previous[i] := 0 od;
+    int shortest := nwords+1;
+    distance[start] := 0;
+    push(stack, start);
+    while NOT empty_(stack)
+    do
+      int curr := pop(stack);
+      int dist := distance[curr];
+      if dist < shortest - 1 then
+        { find neighbors and add them to the stack }
+        for i from UPB neighbors[curr] by -1 to 1 do
+          int n = neighbors[curr][i];
+          if distance[n] > dist + 1 then
+            distance[n] := dist + 1;
+            previous[n] := curr;
+            if n = destination then
+              shortest := dist + 1
+            else
+              push(stack, n)
+            fi
+          fi
+        od;
+        if curr = destination then shortest := dist fi
+      fi
+    od;
+    int length = distance[destination] + 1;
+    if length > nwords then fail fi;
+    [length]string result;
+    int curr := destination;
+    for i from length by -1 to 1
+    do
+      result[i] := words[curr];
+      curr := previous[curr]
+    od;
+    result exit
+    fail: loc [0] string
+  end;
+
+[][]string pairs = (("boy", "man"), ("bed", "cot"),
+                    ("old", "new"), ("dry", "wet"),
+
+                    ("girl", "lady"), ("john", "jane"),
+                    ("lead", "gold"), ("poor", "rich"),
+                    ("lamb", "stew"), ("kick", "goal"),
+                    ("cold", "warm"), ("nude", "clad"),
+
+                    ("child", "adult"), ("white", "black"),
+                    ("bread", "toast"), ("lager", "stout"),
+                    ("bride", "groom"), ("table", "chair"),
+
+                    ("bubble", "tickle"));
+
+for i to UPB pairs
+do
+  string from_ = pairs[i][1], to_ = pairs[i][2];
+  []string ladder = word_ladder(from_, to_);
+  if UPB ladder = 0
+  then print(("No solution for """ + from_ + """ -> """ + to_ + """", newline))
+  else for j to UPB ladder do print(((j > 1 | "->" | ""), ladder[j])) od;
+       print(newline)
+  fi
+od
+)

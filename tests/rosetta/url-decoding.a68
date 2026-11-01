@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "URL decoding", ALGOL 68 solution url-decoding.alg.
+  https://rosettacode.org/wiki/URL_decoding#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/url-decoding.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns c decoded as a hex digit }
+proc hex_value = ( char c )int: if   c >= "0" AND c <= "9" then        ABS c - ABS "0"
+                                elif c >= "A" AND c <= "F" then 10 + ( ABS c - ABS "A" )
+                                else                            10 + ( ABS c - ABS "a" )
+                                fi;
+
+{ returns the URL encoded string decoded - minimal error handling }
+proc url_decode = ( string encoded )string:
+     begin
+         [ LWB encoded : UPB encoded ]char result;
+         int result_pos  := LWB encoded;
+         int pos         := LWB encoded;
+         int max_pos     := UPB encoded;
+         int max_encoded := max_pos - 3;
+         while pos <= UPB encoded
+         do
+             if encoded[ pos ] /= "%" AND pos <= max_encoded
+             then
+                 { not a coded character }
+                 result[ result_pos ] := encoded[ pos ];
+                 pos +:= 1
+             else
+                 { have an encoded character }
+                 result[ result_pos ] := REPR ( ( 16 * hex_value( encoded[ pos + 1 ] ) )
+                                              +        hex_value( encoded[ pos + 2 ] )
+                                             );
+                 pos +:= 3
+             fi;
+             result_pos +:= 1
+         od;
+         result[ LWB result : result_pos - 1 ]
+     end { url decode } ;
+
+{ test the url decode procedure }
+print( ( url_decode( "http%3A%2F%2Ffoo%20bar%2F" ),                 newline ) );
+print( ( url_decode( "google.com/search?q=%60Abdu%27l-Bah%C3%A1" ), newline ) )
+)

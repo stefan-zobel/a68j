@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sum of divisors", ALGOL 68 solution sum-of-divisors.alg.
+  https://rosettacode.org/wiki/Sum_of_divisors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-divisors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { sum the divisors of the first 100 positive integers                  }
+
+    { computes the sum of the divisors of v using the prime factorisation    }
+    proc divisor_sum = ( int v )int:
+         begin
+            int total := 1, power := 2, n := v;
+            while NOT ODD n do                 { Deal with powers of 2 first }
+                total +:= power;
+                power *:= 2;
+                n  OVERAB 2
+            od;
+            int p := 3;            { Odd prime factors up to the square root }
+            while ( p * p ) <= n do
+                int sum := 1;
+                power   := p;
+                while n MOD p = 0 do
+                    sum   +:= power;
+                    power *:= p;
+                    n  OVERAB p
+                od;
+                p     +:= 2;
+                total *:= sum
+            od;
+            if n > 1 then total *:= n + 1 fi;     { If n > 1 then it's prime }
+            total
+        end { divisor sum } ;
+    begin                                  { show the first 100 divisor sums }
+        int limit = 100;
+        print( ( "Sum of divisors for the first ", whole( limit, 0 ), " positive integers:" ) );
+        for n to limit do
+            if n MOD 10 = 1 then print( ( newline ) ) fi;
+            print( ( " ", whole( divisor_sum( n ), -4 ) ) )
+        od
+    end
+end
+)

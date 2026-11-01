@@ -1,0 +1,83 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Stern-Brocot sequence", ALGOL 68 solution stern-brocot-sequence.alg.
+  https://rosettacode.org/wiki/Stern-Brocot_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/stern-brocot-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find members of the Stern-Brocot sequence: starting from 1, 1 the     }
+      { subsequent members are the previous two members summed followed by    }
+      { the previous                                                          }
+    { iterative Greatest Common Divisor routine, returns the gcd of m and n   }
+    proc gcd = ( int m, n )int:
+         begin
+            int a := ABS m, b := ABS n;
+            while b /= 0 do
+                int new_a = b;
+                b        := a MOD b;
+                a        := new_a
+            od;
+            a
+         end { gcd } ;
+    { returns an array of the Stern-Brocot sequence up to n                   }
+    op   STERNBROCOT = ( int n )[]int:
+         begin
+            [ 1 : if ODD n then n + 1 else n fi ]int result;
+            if n > 0 then
+                result[ 1 ]  := result[ 2 ] := 1;
+                int next_pos := 2;
+                for i from 3 while next_pos < n do
+                    int p1 = result[ i - 1 ];
+                    result[ next_pos +:= 1 ] := p1 + result[ i - 2 ];
+                    result[ next_pos +:= 1 ] := p1
+                od
+            fi;
+            result[ 1 : n ]
+         end { STERNPROCOT } ;
+    flex[ 1 : 0 ]int sb := STERNBROCOT 1000; { start with 1000 elements        }
+                              { if that isn't enough, more will be added later }
+    { show the first 15 elements of the sequence                               }
+    print( ( "The first 15 elements of the Stern-Brocot sequence are:", newline ) );
+    for i to 15 do
+        print( ( whole( sb[ i ], -3 ) ) )
+    od;
+    print( ( newline, newline ) );
+    { find where the numbers 1-10 first appear                                 }
+    int found_10 := 0;
+    [ 10 ]int pos_10; for i to UPB pos_10 do pos_10[ i ] := 0 od;
+    for i to UPB sb while found_10 < 10 do
+        int sb_i = sb[ i ];
+        if sb_i <= UPB pos_10 then
+            if pos_10[ sb_i ] = 0 then
+                { first occurance of this number                               }
+                pos_10[ sb_i ] := i;
+                found_10      +:= 1
+            fi
+        fi
+    od;
+    print( ( "The first positions of 1..", whole( UPB pos_10, 0 ), " in the sequence are:", newline ) );
+    for i to UPB pos_10 do
+        print( ( whole( i, -2 ), ":", whole( pos_10[ i ], 0 ), " " ) )
+    od;
+    print( ( newline, newline ) );
+    { find where the number 100 first appears                                  }
+    bool found_100 := false;
+    for i while NOT found_100 do
+        if i > UPB sb then
+            { need more elements                                               }
+            sb := STERNBROCOT ( UPB sb * 2 )
+        fi;
+        if sb[ i ] = 100 then
+            print( ( "100 first appears at position ", whole( i, 0 ), newline, newline ) );
+            found_100 := true
+        fi
+    od;
+    { check that the pairs of elements up to 1000 are coprime                  }
+    bool all_coprime := true;
+    for i from 2 to 1000 while all_coprime do
+        all_coprime := gcd( sb[ i ], sb[ i - 1 ] ) = 1
+    od;
+    print( ( "Element pairs up to 1000 are ", if all_coprime then "" else "NOT " fi, "coprime", newline ) )
+end
+)

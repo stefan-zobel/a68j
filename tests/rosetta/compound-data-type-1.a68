@@ -1,0 +1,17 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Compound data type", ALGOL 68 solution compound-data-type-1.alg.
+  https://rosettacode.org/wiki/Compound_data_type#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/compound-data-type-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Unionx = union(
+   struct(real r, int i),
+   int,
+   real,
+   struct(int ii),
+   struct(real rr),
+   struct([]real r)
+);
+)

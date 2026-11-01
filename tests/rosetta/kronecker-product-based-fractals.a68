@@ -1,0 +1,66 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Kronecker product based fractals", ALGOL 68 solution kronecker-product-based-fractals.alg.
+  https://rosettacode.org/wiki/Kronecker_product_based_fractals#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/kronecker-product-based-fractals.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Kronecker product based fractals - translated from the Kotlin sample }
+
+    mode Matrix = flex[ 1 : 0, 1 : 0 ]int;
+
+    proc kronecker_product = ( Matrix a_in, b_in )Matrix:
+         begin
+             Matrix a = a_in[ at 0, at 0 ], b = b_in[ at 0, at 0 ];
+             int m   = 1 UPB a + 1, n = 2 UPB a + 1;
+             int p   = 1 UPB b + 1, q = 2 UPB b + 1;
+             int rtn = m * p, ctn = n * q;
+             [ 0 : rtn - 1, 0 : ctn - 1 ]int r;
+             for i from 0 to rtn - 1 do for j from 0 to ctn - 1 do r[ i, j ] := 0 od od;
+             for i from 0 to m - 1 do
+                 for j from 0 to n - 1 do
+                     for k from 0 to p - 1 do
+                         for l from 0 to q - 1 do
+                             r[ p * i + k, q * j + l ] := a[ i, j ] * b[ k, l ]
+                         od
+                     od
+                 od
+             od;
+             r
+         end { kronecker product } ;
+
+    proc kronecker_power = ( Matrix a, int n )Matrix:
+         begin
+             Matrix pow := a;
+             to n - 1 do pow := kronecker_product( pow, a ) od;
+             pow
+         end { kronecker power } ;
+
+    proc show_matrix = ( string text, Matrix m )void:
+         begin
+             print( ( text, " fractal :", newline ) );
+             for i from 1 LWB m to 1 UPB m do
+                 for j from 2 LWB m to 2 UPB m do
+                     print( ( if m[ i, j ] = 1 then "*" else " " fi ) )
+                 od;
+                 print( ( newline ) )
+             od;
+             print( ( newline ) )
+         end { show matrix } ;
+
+    begin
+        Matrix a := Matrix( ( 0, 1, 0 )
+                          , ( 1, 1, 1 )
+                          , ( 0, 1, 0 )
+                          );
+        show_matrix( "Vicsek", kronecker_power( a, 4 ) );
+
+        a := Matrix( ( 1, 1, 1 )
+                   , ( 1, 0, 1 )
+                   , ( 1, 1, 1 )
+                   );
+        show_matrix( "Sierpinski carpet", kronecker_power( a, 4 ) )
+    end
+end
+)

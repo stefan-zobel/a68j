@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Boolean values", ALGOL 68 solution boolean-values.alg.
+  https://rosettacode.org/wiki/Boolean_values#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/boolean-values.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+bool f = false, t = true;
+[]bool ft = (f, t);
+string or = " or ";
+for key to UPB ft do
+  bool val = ft[key];
+  union(void, int) void_ = (val|666|empty);
+  ref string ref_ = (val|heap string|nil);
+  int int_ = ABS val;
+  real real_ = ABS val;
+  compl compl_ = ABS val;
+  bits bits_ = BIN ABS val; { or bitspack(val); }
+  bytes bytes_ = bytes_pack((val|"?"|null_char)*bytes_width);
+  char char_ = (val|"?"|null_char);
+  string string_ = (val|"?"|"");
+
+  print((((val | "TRUE" | "FALSE" ), ": ", val, or, (val|flip|flop), new_line)));
+  print(("  void: ", " => ", (void_|(void):false|true), new_line));
+  print(("   ref: ", " => ", ref_ isnt ref string(nil), new_line));
+  print(("   int: ", int_     , " => ", int_ /= 0, new_line));
+  print(("  real: ", real_    , " => ", real_ /= 0, new_line));
+  print((" compl: ", compl_   , " => ", compl_ /= 0, new_line));
+  print(("  bits: ", bits_    , " => ", ABS bits_ /= 0, or, bits_ /= 2r0, or,
+                     bits_width ELEM bits_, or, []bool(bits_)[bits_width], new_line));
+  print((" bytes: """, string(bytes_)    , """ => ", 1 ELEM bytes_ /= null_char, or,
+                       string(bytes_) /= null_char*bytes_width, or,
+                       string(bytes_)[1] /= null_char, new_line));
+  print(("  char: """, char_  , """ => ", ABS char_ /= 0 , or, char_ /= null_char, new_line));
+  print(("string: """, string_  , """ => ", string_ /= "", or, UPB string_ /= 0, new_line));
+  print((new_line))
+od
+)

@@ -1,0 +1,10 @@
+{ A runtime error in a unit ends the program with its message; the waiting unit is cancelled. }
+begin
+   sema never = LEVEL 0;
+   [1 : 3] int a;
+   par (
+      (DOWN never; puts ("never printed'n")),
+      (puts ("before'n"); a[4] := 1)
+   );
+   puts ("not reached'n")
+end

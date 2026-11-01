@@ -1,0 +1,82 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Prime conspiracy", ALGOL 68 solution prime-conspiracy.alg.
+  https://rosettacode.org/wiki/Prime_conspiracy#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/prime-conspiracy.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ extend CLEAR and ELEM to operate on rows of BITS }
+op   CLEAR = ( int n, ref[]bits b )ref[]bits:
+     begin
+         int w = n OVER bits_width;
+         b[ w ] := ( ( 1 + ( n MOD bits_width ) ) CLEAR b[ w ] );
+         b
+     end { CLEAR } ;
+op   ELEM  = ( int n, ref[]bits b )bool: ( 1 + ( n MOD bits_width ) ) ELEM b[ n OVER bits_width ];
+
+{ constructs a bit array long enough to hold n values }
+op   BITARRAY = ( int n )ref[]bits: heap[ 0 : n OVER bits_width ]bits;
+
+{ construct a BITS value of all TRUE }
+bits all_true = begin
+                    bits v := 16r0;
+                    for bit to bits_width do v := bit SET v od;
+                    v
+                end;
+
+{ initialises a bit array to all TRUE }
+op   SETALL   = ( ref[]bits b )ref[]bits:
+     begin
+         for p from LWB b to UPB b do b[ p ] := all_true od;
+         b
+     end { SETALL } ;
+
+{ construct a sieve initialised to all TRUE apart from the first bit      }
+int sieve_max = 15 500 000; { somewhat larger than the 1 000 000th prime  }
+int prime_max =  1 000 000;
+ref[]bits sieve = 1 CLEAR SETALL BITARRAY sieve_max;
+
+{ sieve the primes }
+for s from 2 to ENTIER sqrt( sieve_max ) do
+    if s ELEM sieve
+    then
+        for p from s * s by s to sieve_max do p CLEAR sieve od
+    fi
+od;
+
+{ count the number of times each combination of                           }
+{ ( last digit of previous prime, last digit of prime ) occurs            }
+[ 0 : 9, 0 : 9 ]int counts;
+for p from 0 to 9 do for n from 0 to 9 do counts[ p, n ] := 0 od od;
+int previous_prime := 2;
+int primes_found   := 1;
+for p from 3 to sieve_max while primes_found < prime_max do
+    if p ELEM sieve
+    then
+        primes_found +:= 1;
+        counts[ previous_prime MOD 10, p MOD 10 ] +:= 1;
+        previous_prime := p
+    fi
+od;
+
+{ print the counts }
+{ there are thus 4 possible final digits: 1, 3, 7, 9                      }
+string labels = "123456789";                   { "labels" for the counts  }
+int total := 0;
+for p to 9 do for n to 9 do total +:= counts[ p, n ] od od;
+print( ( whole( primes_found, 0 ), " primes, last prime considered: ", previous_prime, newline ) );
+for p to 9 do
+    for n to 9 do
+        if counts[ p, n ] /= 0
+        then
+            print( ( labels[ p ], "->", labels[ n ]
+                   , whole( counts[ p, n ], -8 )
+                   , fixed( ( 100 * counts[ p, n ] ) / total, -8, 2 )
+                   , newline
+                   )
+                 )
+        fi
+    od
+od
+)

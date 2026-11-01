@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Subleq", ALGOL 68 solution subleq.alg.
+  https://rosettacode.org/wiki/Subleq#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/subleq.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Subleq program interpreter                                                 }
+{ executes the program specified in code, stops when the instruction pointer }
+{ becomes negative                                                           }
+proc run_subleq = ( []int code )void:
+     begin
+        int   max_memory = 3 * 1024;
+        [ 0 : max_memory - 1 ]int memory;
+        { load the program into memory                                       }
+        { a slice yields a row with LWB 1...                                 }
+        memory[ 0 : UPB code - LWB code ] := code[ at 1 ];
+        { start at instruction 0                                             }
+        int   ip := 0;
+        { execute the instructions until ip is < 0                           }
+        while ip >= 0 do
+            { get three words at ip and advance ip past them                 }
+            int a := memory[ ip     ];
+            int b := memory[ ip + 1 ];
+            int c := memory[ ip + 2 ];
+            ip +:= 3;
+            { execute according to a, b and c                                }
+            if   a = -1 then
+                { input a character to b                                     }
+                char input;
+                get( stand_in, ( input ) );
+                memory[ b ] := ABS input
+            elif b = -1 then
+                { output character from a                                    }
+                print( ( REPR memory[ a ] ) )
+            else
+                { subtract and branch if le 0                                }
+                memory[ b ] -:= memory[ a ];
+                if memory[ b ] <= 0 then
+                    ip := c
+                fi
+            fi
+        od
+     end { run subleq } ;
+
+{ test the interpreter with the hello-world program specified in the task    }
+run_subleq( (  15,  17,  -1,  17,  -1,  -1
+            ,  16,   1,  -1,  16,   3,  -1
+            ,  15,  15,   0,   0,  -1,  72
+            , 101, 108, 108, 111,  44,  32
+            , 119, 111, 114, 108, 100,  33
+            ,  10,   0
+            )
+          )
+)

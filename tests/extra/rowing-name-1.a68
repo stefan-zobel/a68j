@@ -1,0 +1,9 @@
+begin int x := 5;
+      ref [] int r = x;
+      r[1] := 7;
+      puts (whole (x, 0)); puts (" ");
+      x := 9;
+      puts (whole (r[1], 0)); puts (" ");
+      puts (whole (UPB r, 0)); puts ("'n");
+      [] int v = 3; puts (whole (v[1], 0)); puts ("'n")
+end

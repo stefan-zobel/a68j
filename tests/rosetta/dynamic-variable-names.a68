@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dynamic variable names", ALGOL 68 solution dynamic-variable-names.alg.
+  https://rosettacode.org/wiki/Dynamic_variable_names#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dynamic-variable-names.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Simulate dynamic variables using an array, translation of the FreeBASIC sample }
+
+    mode Dynamicvariable = struct( string name, value );
+
+    op   LCASE = ( char c )char:
+         if c >= "A" AND c <= "Z" then REPR( ( ABS c - ABS "A" ) + ABS "a" ) else c fi;
+    op   LCASE = ( string s )string:
+         begin
+             string lc := s;
+             for i from LWB lc to UPB lc do lc[ i ] := LCASE lc[ i ] od;
+             lc
+         end { LCASE } ;
+    op   TRIM = ( string s )string:
+         begin
+             int left := LWB s, right := UPB s;
+             while if left  > right then false else s[ left  ] = " " fi do left  +:= 1 od;
+             while if right < left  then false else s[ right ] = " " fi do right -:= 1 od;
+             s[ left : right ]
+         end { TRIM } ;
+
+    proc find_variable_index = ( []Dynamicvariable dyvar, string v, int n_elements )int:
+         begin
+            string name   = LCASE TRIM v;
+            int index    := LWB dyvar - 1;
+            int max_index = index + n_elements;
+            for i from LWB dyvar to max_index while index < LWB dyvar do
+                if name of dyvar[ i ] = name then index := i fi
+            od;
+            index
+         end { find variable index } ;
+
+    int n;
+    while
+        print( ( "How many variables do you want to create (max 5) " ) );
+        read( ( n, newline ) );
+        n < 0 OR n > 5
+    do skip od;
+
+    [ 1 : n ]Dynamicvariable a;
+
+    print( ( newline, "OK, enter the variable names and their values, below", newline ) );
+
+    for i to n do
+        while
+            print( ( "  Variable ", whole( i, 0 ), newline ) );
+            print( ( "    Name  : " ) );
+            read( ( name of a[ i ], newline ) );
+            name of a[ i ] := LCASE TRIM name of a[ i ];
+            { identifiers should not be case-sensitive in Algol 68 though }
+            { in upper stropped sources (such as this one) they have to   }
+            { be in lower case                                            }
+            find_variable_index( a, name of a[ i ], i - 1 ) > 0
+        do
+            print( ( "  Sorry, you''ve already created a variable of that name, try again", newline ) )
+        od;
+        print( ( "    Value : " ) );
+        read( ( value of a[ i ], newline ) );
+        value of a[ i ] := TRIM value of a[ i ]
+    od;
+
+    print( ( newline, "Press q to quit" ) );
+    while
+        string v;
+        print( ( newline, "Which variable do you want to inspect ? " ) );
+        read( ( v, newline ) );
+        v /= "q" AND v /= "Q"
+    do
+        if  int index = find_variable_index( a, v, n );
+            index = 0
+        then
+            print( ( "Sorry there''s no variable of that name, try again", newline ) )
+        else
+            print( ( "It''s value is ", value of a[ index ], newline ) )
+        fi
+    od
+
+end
+)

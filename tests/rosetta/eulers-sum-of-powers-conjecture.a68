@@ -1,0 +1,54 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Euler's sum of powers conjecture", ALGOL 68 solution eulers-sum-of-powers-conjecture.alg.
+  https://rosettacode.org/wiki/Euler's_sum_of_powers_conjecture#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/eulers-sum-of-powers-conjecture.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ max number will be the highest integer we will consider                    }
+int max_number = 250;
+
+{ Construct a table of the fifth powers of 1 : max number                    }
+[ max_number ]long int fifth;
+for i to max_number do
+    long int i2 =  i * i;
+    fifth[ i ] := i2 * i2 * i
+od;
+
+{ find the first a, b, c, d, e such that a^5 + b^5 + c^5 + d^5 = e^5         }
+{ as the fifth powers are in order, we can use a binary search to determine  }
+{ whether the value is in the table                                          }
+bool found := false;
+for a to max_number while NOT found do
+    for b from a to max_number while NOT found do
+        for c from b to max_number while NOT found do
+            for d from c to max_number while NOT found do
+                long int sum   = fifth[a] + fifth[b] + fifth[c] + fifth[d];
+                int      low  := d;
+                int      high := max_number;
+                while low < high
+                  AND NOT found
+                do
+                    int e := ( low + high ) OVER 2;
+                    if fifth[ e ] = sum
+                    then
+                        { the value at e is a fifth power                    }
+                        found := true;
+                        print( ( ( whole( a, 0 ) + "^5 + " + whole( b, 0 ) + "^5 + "
+                                 + whole( c, 0 ) + "^5 + " + whole( d, 0 ) + "^5 = "
+                                 + whole( e, 0 ) + "^5"
+                                 )
+                               , newline
+                               )
+                             )
+                    elif sum < fifth[ e ]
+                    then high := e - 1
+                    else low  := e + 1
+                    fi
+                od
+            od
+        od
+    od
+od
+)

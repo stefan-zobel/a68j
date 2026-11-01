@@ -1,0 +1,36 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generalised floating point addition", ALGOL 68 solution generalised-floating-point-addition-4.alg.
+  https://rosettacode.org/wiki/Generalised_floating_point_addition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generalised-floating-point-addition-4.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op - = (DIGITS arg)DIGITS: (
+  DIGITS out_ := arg;
+  for digit from LSD arg by digit_order of arithmetic to MSD arg do
+    out_[digit]:= -out_[digit]
+  od;
+  out_
+);
+
+op SIGN = (DIGITS arg)int:
+  if LSD arg - MSD arg  = digit_order of arithmetic then 0 { empty array }
+  else { balanced artihmetic } SIGN arg[MSD arg] fi;
+
+op ABS = (DIGITS arg)DIGITS:
+  if SIGN arg < 0 then -arg else arg fi;
+
+{ derived DIGIT operators }
+op - = (DIGIT a, b)DIGIT: a + -b;
+op -:= = (ref DIGIT a, DIGIT b)DIGIT: a := a + -b;
+
+{ derived DIGITS operators }
+op - = (DIGITS a, b)DIGITS: a + -b;
+op -:= = (ref DIGITS a, DIGITS b)DIGITS: a := a + -b;
+
+{ derived hybrid DIGIT and DIGITS operators }
+op - = (DIGITS a, DIGIT b)DIGITS: a - INITDIGITS b;
+op - = (DIGIT a, DIGITS b)DIGITS: INITDIGITS a - a;
+op -:= = (ref DIGITS lhs, DIGIT arg)DIGITS: lhs := lhs - arg;
+)

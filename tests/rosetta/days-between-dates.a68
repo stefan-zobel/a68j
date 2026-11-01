@@ -1,0 +1,51 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Days between dates", ALGOL 68 solution days-between-dates.alg.
+  https://rosettacode.org/wiki/Days_between_dates#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/days-between-dates.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { calculate the number of days between a pair of dates                 }
+      { based on a translation of the FreeBASIC sample                       }
+
+    [,]string test_cases
+        = ( ( "1902-01-01", "1968-12-25" )
+          , ( "2019-01-01", "2019-01-02" ), ( "2019-01-02", "2019-01-01" )
+          , ( "2019-01-01", "2019-03-01" ), ( "2020-01-01", "2020-03-01" )
+          , ( "1995-11-21", "1995-11-21" ), ( "2090-01-01", "2098-12-25" )
+          );
+
+    proc gregorian = ( int y, m, d )int:
+         begin
+             int n = ( m + 9 ) - ( ( ( m + 9 ) OVER 12 ) * 12 );
+             int w = y - ( n OVER 10 );
+             ( 365 * w ) + ( w OVER 4 ) - ( w OVER 100 ) + ( w OVER 400 )
+                         + ( ( ( n * 306 ) + 5 ) OVER 10 ) + ( d - 1 )
+         end { gregorian } ;
+
+    op TOINT = ( string s )int:
+       begin
+           int v := 0;
+           for s_pos from LWB s to UPB s do
+               v *:= 10 +:= ( ABS s[ s_pos ] - ABS "0" )
+           od;
+           v
+       end { TOINT };
+
+    for n from LWB test_cases to UPB test_cases do
+        string from_date = test_cases[ n, 1 ];
+        string to_date   = test_cases[ n, 2 ];
+        int from_g = gregorian( TOINT from_date[ 1 :  4 ]
+                              , TOINT from_date[ 6 :  7 ]
+                              , TOINT from_date[ 9 : 10 ]
+                              );
+        int to_g   = gregorian( TOINT   to_date[ 1 :  4 ]
+                              , TOINT   to_date[ 6 :  7 ]
+                              , TOINT   to_date[ 9 : 10 ]
+                              );
+        print( ( "Days between ", from_date, " and ", to_date, " is " ) );
+        print( ( whole( to_g - from_g, -5 ), " days", newline ) )
+    od
+end
+)

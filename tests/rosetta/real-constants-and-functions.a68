@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Real constants and functions", ALGOL 68 solution real-constants-and-functions.alg.
+  https://rosettacode.org/wiki/Real_constants_and_functions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/real-constants-and-functions.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+real x:=exp(1), y:=4*atan(1);
+printf(($g(-8,5)"; "$,
+    exp(1),    { e }
+    pi,        { pi }
+    sqrt(x),   { square root }
+    log(x),    { logarithm base 10 }
+    ln(x),     { natural logarithm }
+    exp(x),    { exponential }
+    ABS x,     { absolute value }
+    ENTIER x,  { floor }
+   -ENTIER -x, { ceiling }
+    x ** y     { power }
+))
+)

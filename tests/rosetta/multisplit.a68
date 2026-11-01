@@ -1,0 +1,75 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Multisplit", ALGOL 68 solution multisplit.alg.
+  https://rosettacode.org/wiki/Multisplit#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/multisplit.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ split a string based on a number of separators }
+
+{ MODE to hold the split results }
+mode Splitinfo = struct( string text      { delimited string, may be empty          }
+                       , int    position  { starting position of the token          }
+                       , string delimiter { the delimiter that terminated the token }
+                       );
+{ calculates the length of string s }
+op   LENGTH = ( string s )int: ( UPB s + 1 ) - LWB s;
+{ returns TRUE if s starts with p, FALSE otherwise }
+prio STARTSWITH = 5;
+op   STARTSWITH = ( string s, p )bool: if LENGTH p > LENGTH s then false else s[ LWB s : ( LWB s + LENGTH p ) - 1 ] = p fi;
+{ returns an array of SPLITINFO describing the tokens in str based on the delimiters }
+{ zero-length delimiters are ignored }
+prio SPLIT = 5;
+op   SPLIT = ( string str, []string delimiters )[]Splitinfo:
+     begin
+        { count the number of tokens }
+        { allow there to be as many tokens as characters in the string + 2 }
+        { that would cater for a string composed of delimiters only        }
+        [ 1 : ( UPB str + 3 ) - LWB str ]Splitinfo tokens;
+        int   token_count   := 0;
+        int   str_pos       := LWB str;
+        int   str_max        = UPB str;
+        bool  token_pending := false;
+        { construct the tokens }
+        str_pos       := LWB str;
+        int prev_pos  := LWB str;
+        token_count   := 0;
+        token_pending := false;
+        while str_pos <= str_max
+        do
+            bool found_delimiter := false;
+            for d from LWB delimiters to UPB delimiters while NOT found_delimiter do
+                if LENGTH delimiters[ d ] > 0 then
+                    if found_delimiter := str[ str_pos : ] STARTSWITH delimiters[ d ] then
+                        token_count          +:= 1;
+                        tokens[ token_count ] := ( str[ prev_pos : str_pos - 1 ], prev_pos, delimiters[ d ] );
+                        str_pos              +:= LENGTH delimiters[ d ];
+                        prev_pos              := str_pos;
+                        token_pending         := false
+                    fi
+                fi
+            od;
+            if NOT found_delimiter then
+                { the current character is part of s token }
+                token_pending := true;
+                str_pos      +:= 1
+            fi
+        od;
+        if token_pending then
+            { there is an additional token after the final delimiter }
+            token_count +:= 1;
+            tokens[ token_count ] := ( str[ prev_pos : ], prev_pos, "" )
+        fi;
+        { return an array of the actual tokens }
+        tokens[ 1 : token_count ]
+     end { SPLIT } ;
+
+
+{ test the SPLIT operator }
+[]Splitinfo test_tokens = "a!===b=!=c" SPLIT []string( "==", "!=", "=" );
+for t from LWB test_tokens to UPB test_tokens do
+    Splitinfo token = test_tokens[ t ];
+    print( ( "token: [",  text of token, "] at: ", whole( position of token, 0 ), " delimiter: (", delimiter of token, ")", newline ) )
+od
+)

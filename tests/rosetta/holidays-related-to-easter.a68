@@ -1,0 +1,131 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Holidays related to Easter", ALGOL 68 solution holidays-related-to-easter.alg.
+  https://rosettacode.org/wiki/Holidays_related_to_Easter#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/holidays-related-to-easter.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Year = int, Month = int, Week = int, Day = int;
+
+mode Date = struct(
+  Year year,  {DAY year day, }
+  Month month, Day month_day,{
+  WEEK week,  }Day week_day);
+
+FORMAT mon_fmt =      $c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")$,
+FORMAT week_day_fmt = $c("Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri")$;
+
+proc year_days = (Year year)Day: { Ignore 1752 CE for the moment }
+  ( month_days(year, 2) = 28 | 365 | 366 );
+
+proc month_days = (Year year, Month month) Day:
+  ( month | 31,
+            28 + ABS (year MOD 4 = 0 AND year MOD 100 /= 0 OR year MOD 400 = 0),
+            31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+
+Month year_months = 12;
+Day week_days = 7; { France 1793 to 1805 had 10 day weeks! }
+
+op + = (Date in_date, Day in_days)Date:
+    begin { todo: eliminate loops, handle year <= 1752 }
+       Day days := in_days;
+       Date date := in_date;
+    { Normalize the days to be less then 1 year }
+       while days < 0 do
+         year of date -:= 1;
+         days +:= year_days(year of date)
+       od;
+       while days > year_days(year of date) do
+         days -:= year_days(year of date);
+         year of date +:= 1
+       od;
+       month_day of date +:= days;
+    { Normalize the days to be the same month }
+       while month_day of date > month_days(year of date, month of date) do
+          month_day of date -:= month_days(year of date, month of date);
+          month of date +:= 1;
+          if month of date > year_months then
+             month of date -:= year_months;
+             year of date +:= 1
+          fi
+       od;
+       week_day of date := week_day(date);
+       date
+    end;
+
+op +:= = (ref Date date, Day in_days)Date:
+   date := date + in_days;
+
+proc easter = (Year year)Date:
+   begin
+      {
+         Easter date algorithm from J.M. Oudin (1940), reprinted in:
+         P.K. Seidelmann ed., 'Explanatory Supplement to the Astronomical
+         Almanac' [1992] (Chapter 12, 'Calendars', by L.E. Doggett)
+      }
+      Date date; year of date := year;
+      int c = year OVER 100, n = year MOD 19; { 19 years: Metonic cycle }
+      int i := (c - c OVER 4 - (c - (c - 17) OVER 25) OVER 3 + 19 * n + 15) MOD 30;
+      i -:= (i OVER 28) * (1 - (i OVER 28) * (29 OVER (i + 1)) * ((21 - n) OVER 11));
+      int l = i - (year + year OVER 4 + i + 2 - c + c OVER 4) MOD 7;
+      month of date := 3 + (l + 40) OVER 44;
+      month_day of date := l + 28 - 31 * (month of date OVER 4);
+      week_day of date := week_day(date);
+      date
+   end;
+
+proc week_day = (Date date)Day:
+   { Zeller’s Congruence algorithm from 1887. }
+   begin
+      int year := year of date, month := month of date, month_day := month_day of date, c;
+      (month <= 2 | (month +:= 12, year -:= 1));
+      c := year OVER 100;
+      year MODAB 100;
+      1 + (month_day + ((month + 1) * 26) OVER 10
+         + year + year OVER 4 + c OVER 4 - 2 * c) MOD 7
+   end;
+
+FORMAT wdmdm_fmt = $f(week day fmt)z-dxf(mon fmt)$,
+
+mode Easterrelated = struct(Date easter, ascension, pentecost, trinity, corpus_christi);
+
+proc easter_related_init = (Year year)Easterrelated:
+begin
+  Date date;
+  Easterrelated holidays;
+{ Easter date, always a Sunday. }
+   easter of holidays := date := easter(year);
+{ Ascension day is 39 days after Easter.}
+   ascension of holidays := ( date +:= 39);
+{ Pentecost is 10 days after Ascension day.}
+   pentecost of holidays := date +:= 10;
+{ Trinity is 7 days after Pentecost.}
+   trinity of holidays := date +:= 7;
+{ Corpus Christi is 4 days after Trinity.}
+   corpus_christi of holidays := date +:= 4;
+   holidays
+end;
+
+{ Note: Y10K bug here... :-) }
+FORMAT easter_related_fmt = $g(-4)" Easter: "f(wdmdm fmt) ", Ascension: "f(wdmdm fmt)
+    ", Pentecost: "f(wdmdm fmt) ", Trinity: "f(wdmdm fmt)", Corpus: "f(wdmdm fmt)$;
+
+proc easter_related_print = (Year year)void:
+begin
+  Easterrelated holidays = easter_related_init(year);
+  proc wdmdm = (Date date)struct(Day week_day, Day month_day, Month month):
+    (week_day of date, month_day of date, month of date);
+  printf((easter_related_fmt, year,
+     wdmdm(easter of holidays),  wdmdm(ascension of holidays), wdmdm(pentecost of holidays),
+     wdmdm(trinity of holidays), wdmdm(corpus_christi of holidays),
+  $l$))
+end;
+
+printf (($"Christian holidays, related to Easter, for each centennial from 400 to 2100 CE:"l$));
+for year from 400 by 100 to 2100 do easter_related_print(year) od;
+
+printf (($l"Christian holidays, related to Easter, for years from 2010 to 2020 CE:"l$));
+for year from 2010 to 2020 do easter_related_print(year) od
+)

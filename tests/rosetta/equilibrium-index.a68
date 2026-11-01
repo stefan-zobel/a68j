@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Equilibrium index", ALGOL 68 solution equilibrium-index.alg.
+  https://rosettacode.org/wiki/Equilibrium_index#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/equilibrium-index.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Yieldint = proc(int)void;
+
+proc gen_equilibrium_index = ([]int arr, Yieldint yield)void:
+(
+    int sum := 0;
+    for i from LWB arr to UPB arr do
+        sum +:= arr[i]
+    od;
+
+    int left:=0, right:=sum;
+    for i from LWB arr to UPB arr do
+        right -:= arr[i];
+        if left = right then yield(i) fi;
+        left +:= arr[i]
+    od
+);
+
+test:(
+  []int arr = []int(-7, 1, 5, 2, -4, 3, 0)[@0];
+{ FOR INT index IN } gen_equilibrium_index(arr, { ) DO ( }
+{}   (int index)void:
+     print(index)
+{ OD } );
+  print(new_line)
+)
+)

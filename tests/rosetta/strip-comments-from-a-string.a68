@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Strip comments from a string", ALGOL 68 solution strip-comments-from-a-string.alg.
+  https://rosettacode.org/wiki/Strip_comments_from_a_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/strip-comments-from-a-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+proc trim_comment = (string line, char marker)string:(
+  int index := UPB line+1;
+  char_in_string(marker, index, line);
+  for i from index-1 by -1 to LWB line
+  while line[i]=" " do index := i od;
+  line[:index-1]
+);
+
+char q = """";
+
+print((
+  q, trim_comment("apples, pears # and bananas", "#"), q, new_line,
+  q, trim_comment("apples, pears ; and bananas", ";"), q, new_line,
+  q, trim_comment("apples, pears and bananas  ", ";"), q, new_line,
+  q, trim_comment("    ", ";"), q, new_line, { blank string }
+  q, trim_comment("", ";"), q, new_line  { empty string }
+))
+
+{ Alternatively Algol68g has available "grep"
+;STRING re marker := " *#", line := "apples, pears # and bananas";
+  INT index := UPB line;
+  grep in string(re marker, line, index, NIL);
+  print((q, line[:index-1], q, new line))
+END }
+)

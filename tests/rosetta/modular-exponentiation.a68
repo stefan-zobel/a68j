@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Modular exponentiation", ALGOL 68 solution modular-exponentiation.alg.
+  https://rosettacode.org/wiki/Modular_exponentiation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/modular-exponentiation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    
+   mode Lli = long long int;	{ For brevity }
+   proc mod_power = (Lli base, exponent, modulus) Lli :
+   begin
+      Lli result := 1, b := base, e := exponent;
+      if exponent < 0
+      then
+	 put (stand_error, (("Negative exponent", exponent, newline)))
+      else
+	 while e > 0
+	 do
+	    (ODD e | result := (result * b) MOD modulus);
+	    e OVERAB 2; b := (b * b) MOD modulus
+	 od
+      fi;
+      result
+   end;
+   Lli a = 2988348162058574136915891421498819466320163312926952423791023078876139;
+   Lli b = 2351399303373464486466122544523690094744975233415544072992656881240319;
+   Lli m = 10000000000000000000000000000000000000000;
+   printf (($"Last 40 digits = ", 40dl$, mod_power (a, b, m)))
+end
+)

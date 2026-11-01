@@ -1,0 +1,268 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Quaternion", ALGOL 68 solution quaternion-1.alg.
+  https://rosettacode.org/wiki/Quaternion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/quaternion-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+{ REQUIRES:
+  MODE QUATSCAL = REAL; # Scalar #
+  QUATSCAL quat small scal = small real;
+END }
+
+{ PROVIDES: }
+FORMAT quat_scal_fmt := $g(-0, 4)$;
+FORMAT signed_fmt = $b("+", "")f(quat scal fmt)$;
+
+FORMAT quat_fmt = $f(quat scal fmt)"+"f(quat scal fmt)"i+"f(quat scal fmt)"j+"f(quat scal fmt)"k"$;
+FORMAT squat_fmt = $f(signed fmt)f(signed fmt)"i"f(signed fmt)"j"f(signed fmt)"k"$;
+
+mode Quat = struct(QUATSCAL r, i, j, k);
+Quat i=(0, 1, 0, 0),
+     j=(0, 0, 1, 0),
+     k=(0, 0, 0, 1);
+
+mode Quatcoscal = union(int, short real, short int);
+mode Quatsubscal = union(Quatcoscal, QUATSCAL);
+
+mode Complscal = struct(QUATSCAL r, im);
+{ compatable but not the same }
+mode Isoquat = union([]real, []int, []short real, []short int, []QUATSCAL);
+mode Coquat  = union(Complscal, Quatcoscal, Isoquat);
+mode Subquat = union(Coquat, Quat); { subset is itself }
+
+mode Quaternion = Quat;
+
+proc quat_fix_type_error = (Quat quat, []string msg)bool: (
+  putf(stand_error, ($"Type error:"$,$" "g$, msg, quat_fmt, quat, $l$));
+  stop
+);
+
+{
+For a list of coercions expected in A68 c.f.
+* http://rosettacode.org/wiki/ALGOL_68#Coercion_.28casting.29 # ...
+
+Pre-Strong context: Deproceduring, dereferencing & uniting. e.g. OP arguments
+  * soft(deproceduring for assignment),
+  * weak(dereferencing for slicing and OF selection),
+  * meek(dereferencing for indexing, enquiries and PROC calls),
+  * firm(uniting of OPerators),
+Strong context only: widening (INT=>REAL=>COMPL), rowing (REAL=>[]REAL) & voiding
+  * strong(widening,rowing,voiding for identities/initialisations, arguments and casts et al)
+Key points:
+  * arguments to OPerators do not widen or row!
+  * UNITING is permitted in OP/String ccontext.
+
+There are 4 principle scenerios for most operators:
++---------------+-------------------------------+-------------------------------+
+|  OP e.g. *    |  SCALar                       |  QUATernion                   |
++---------------+-------------------------------+-------------------------------+
+|  SCALar       |  SCAL * SCAL ... inherit      |  SCAL * QUAT                  |
++---------------+-------------------------------+-------------------------------+
+|  QUATernion   |  QUAT * SCAL                  |  QUAT * QUAT                  |
++---------------+-------------------------------+-------------------------------+
+However this is compounded with SUBtypes of the SCALar & isomorphs the QUATernion,
+e.g.
+* SCAL may be a superset of SHORT REAL or INT - a widening coercion is required
+* QUAT may be a superset eg of COMPL or [4]INT
+* QUAT may be a structural isomorph eg of [4]REAL
++---------------+---------------+---------------+---------------+---------------+
+|  OP e.g. *    |  SUBSCAL      |  SCALar       |  COQUAT       |  QUATernion   |
++---------------+---------------+---------------+---------------+---------------+
+|  SUBSCAL      |                               |  inherit      |  SUBSCAT*QUAT |
++---------------+           inherit             +---------------+---------------+
+|  SCALar       |                               |  inherit      |  SCAL * QUAT  |
++---------------+---------------+---------------+---------------+---------------+
+|  COQUAT       |  inherit      |  inherit      |  inherit      |  COQUAT*QUAT  |
++---------------+---------------+---------------+---------------+---------------+
+|  QUATernion   | QUAT*SUBSCAL  |  QUAT*SCAL    | QUAT * COQUAT |  QUAT * QUAT  |
++---------------+---------------+---------------+---------------+---------------+
+Keypoint: if an EXPLICIT QUAT is not involved, then we can simple inherit, OR QUATINIT!
+END }
+
+mode Classquat = struct(
+    proc (ref Quat {new}, QUATSCAL {r}, QUATSCAL {i}, QUATSCAL {j}, QUATSCAL {k})ref Quat new,
+    proc (ref Quat {self})Quat conjugate,
+    proc (ref Quat {self})QUATSCAL norm_sq,
+    proc (ref Quat {self})QUATSCAL norm,
+    proc (ref Quat {self})Quat reciprocal,
+    proc (ref Quat {self})string repr,
+    proc (ref Quat {self})Quat neg,
+    proc (ref Quat {self}, Subquat {other})Quat add,
+    proc (ref Quat {self}, Subquat {other})Quat radd,
+    proc (ref Quat {self}, Subquat {other})Quat sub,
+    proc (ref Quat {self}, Subquat {other})Quat mul,
+    proc (ref Quat {self}, Subquat {other})Quat rmul,
+    proc (ref Quat {self}, Subquat {other})Quat div,
+    proc (ref Quat {self}, Subquat {other})Quat rdiv,
+    proc (ref Quat {self})Quat exp
+);
+
+Classquat class_quat = (
+
+  { PROC new =}(ref Quat new, QUATSCAL r, i, j, k)ref Quat: (
+        { 'Defaults all parts of quaternion to zero' }
+        if new isnt ref Quat(nil) then new else heap Quat fi := (r, i, j, k)
+    ),
+
+  { PROC conjugate =}(ref Quat self)Quat:
+        (r of self, -i of self, -j of self, -k of self),
+
+  { PROC norm sq =}(ref Quat self)QUATSCAL:
+        r of self**2 + i of self**2 + j of self**2 + k of self**2,
+
+  { PROC norm =}(ref Quat self)QUATSCAL:
+        sqrt((norm_sq of class_quat)(self)),
+
+  { PROC reciprocal =}(ref Quat self)Quat:(
+        QUATSCAL n2 = (norm_sq of class_quat)(self);
+        Quat conj = (conjugate of class_quat)(self);
+        (r of conj/n2, i of conj/n2, j of conj/n2, k of conj/n2)
+    ),
+
+  { PROC repr =}(ref Quat self)string: (
+        { 'Shorter form of Quaternion as string' }
+        file f; string s; associate(f, s);
+        putf(f, (squat_fmt, r of self>=0, r of self,
+             i of self>=0, i of self, j of self>=0, j of self, k of self>=0, k of self));
+        close(f);
+        s
+    ),
+
+  { PROC neg =}(ref Quat self)Quat:
+        (-r of self, -i of self, -j of self, -k of self),
+
+  { PROC add =}(ref Quat self, Subquat other)Quat:
+        case other in
+            (Quat other): (r of self + r of other, i of self + i of other, j of self + j of other, k of self + k of other),
+            (Quatsubscal other): (r of self + QUATSCALINIT other, i of self, j of self, k of self)
+        out if quat_fix_type_error(skip,"in add") then skip else stop fi
+        esac,
+
+  { PROC radd =}(ref Quat self, Subquat other)Quat:
+        (add of class_quat)(self, other),
+
+  { PROC sub =}(ref Quat self, Subquat other)Quat:
+        case other in
+            (Quat other): (r of self - r of other, i of self - i of other, j of self - j of other, k of self - k of other),
+            (QUATSCAL other): (r of self - other, i of self, j of self, k of self)
+        out if quat_fix_type_error(self,"in sub") then skip else stop fi
+        esac,
+
+  { PROC mul =}(ref Quat self, Subquat other)Quat:
+        case other in
+            (Quat other):(
+                 r of self*r of other - i of self*i  of other - j of self*j  of other - k of self*k  of other,
+                 r of self*i  of other + i of self*r of other + j of self*k  of other - k of self*j  of other,
+                 r of self*j  of other - i of self*k  of other + j of self*r of other + k of self*i  of other,
+                 r of self*k  of other + i of self*j  of other - j of self*i  of other + k of self*r of other
+            ),
+            (QUATSCAL other): ( r of self * other, i of self * other, j of self * other, k of self * other)
+        out if quat_fix_type_error(self,"in mul") then skip else stop fi
+        esac,
+
+  { PROC rmul =}(ref Quat self, Subquat other)Quat:
+        case other in
+          (Quat other): (mul of class_quat)(loc Quat := other, self),
+          (QUATSCAL other): (mul of class_quat)(self, other)
+        out if quat_fix_type_error(self,"in rmul") then skip else stop fi
+        esac,
+
+  { PROC div =}(ref Quat self, Subquat other)Quat:
+        case other in
+            (Quat other): (mul of class_quat)(self, (reciprocal of class_quat)(loc Quat := other)),
+            (QUATSCAL other): (mul of class_quat)(self, 1/other)
+        out if quat_fix_type_error(self,"in div") then skip else stop fi
+        esac,
+
+  { PROC rdiv =}(ref Quat self, Subquat other)Quat:
+        case other in
+          (Quat other): (div of class_quat)(loc Quat := other, self),
+          (QUATSCAL other): (div of class_quat)(loc Quat := (other, 0, 0, 0), self)
+        out if quat_fix_type_error(self,"in rdiv") then skip else stop fi
+        esac,
+
+  { PROC exp =}(ref Quat self)Quat: (
+    Quat fac := self;
+    Quat sum := 1.0 + fac;
+    for i from 2 to bits_width while ABS(fac + quat_small_scal) /= quat_small_scal do
+      void(sum +:= (fac *:= self / {}QUATSCAL(i)))
+    od;
+    sum
+  )
+);
+
+prio INIT = 1;
+op QUATSCALINIT = (Quatsubscal scal)QUATSCAL:
+  case scal in
+    (int scal): scal,
+    (short int scal): scal,
+    (short real scal): scal
+    out if quat_fix_type_error(skip,"in QUATSCALINIT") then skip else stop fi
+  esac;
+
+op INIT = (ref Quat new, Subquat from_)ref Quat:
+  new :=
+    case from_ in
+      (Quatsubscal scal):(QUATSCALINIT scal, 0, 0, 0)
+      {(COQUAT rijk):(new OF class quat)(LOC QUAT := new, rijk[1], rijk[2], rijk[3], rijk[4]),}
+    out if quat_fix_type_error(skip,"in INIT") then skip else stop fi
+    esac;
+
+
+op QUATINIT = (Coquat lhs)ref Quat: (heap Quat)INIT lhs;
+
+op +    = (Quat q)Quat:   q,
+   -    = (Quat q)Quat:   (neg  of class_quat)(loc Quat := q),
+   CONJ = (Quat q)Quat:   (conjugate of class_quat)(loc Quat := q),
+   ABS  = (Quat q)QUATSCAL:   (norm of class_quat)(loc Quat := q),
+   REPR = (Quat q)string: (repr of class_quat)(loc Quat := q);
+{ missing: Diadic: I, J, K END }
+
+op +:= = (ref Quat a, Quat b)Quat: a:=( add of class_quat)(a, b),
+   +:= = (ref Quat a, Coquat b)Quat: a:=( add of class_quat)(a, b),
+   +=: = (Quat a, ref Quat b)Quat: b:=(radd of class_quat)(b, a),
+   +=: = (Coquat a, ref Quat b)Quat: b:=(radd of class_quat)(b, a);
+{ missing: Worthy PLUSAB, PLUSTO for SHORT/LONG INT QUATSCAL & COMPL }
+
+op -:= = (ref Quat a, Quat b)Quat: a:=( sub of class_quat)(a, b),
+   -:= = (ref Quat a, Coquat b)Quat: a:=( sub of class_quat)(a, b);
+{ missing: Worthy MINUSAB for SHORT/LONG INT }{COQUAT & COMPL }
+
+prio *=: = 1, /=: = 1;
+op *:= = (ref Quat a, Quat b)Quat: a:=( mul of class_quat)(a, b),
+   *:= = (ref Quat a, Coquat b)Quat: a:=( mul of class_quat)(a, b),
+   *=: = (Quat a, ref Quat b)Quat: b:=(rmul of class_quat)(b, a),
+   *=: = (Coquat a, ref Quat b)Quat: b:=(rmul of class_quat)(b, a);
+{ missing: Worthy TIMESAB, TIMESTO for SHORT/LONG INT }{COQUAT & COMPL }
+
+op /:= = (ref Quat a, Quat b)Quat: a:=( div of class_quat)(a, b),
+   /:= = (ref Quat a, Coquat b)Quat: a:=( div of class_quat)(a, b),
+   /=: = (Quat a, ref Quat b)Quat: b:=(rdiv of class_quat)(b, a),
+   /=: = (Coquat a, ref Quat b)Quat: b:=(rdiv of class_quat)(b, a);
+{ missing: Worthy OVERAB, OVERTO for SHORT/LONG INT }{COQUAT & COMPL }
+
+op + = (Quat a, b)Quat:      ( add of class_quat)(loc Quat := a, b),
+   + = (Quat a, Coquat b)Quat: ( add of class_quat)(loc Quat := a, b),
+   + = (Coquat a, Quat b)Quat: (radd of class_quat)(loc Quat := b, a);
+
+op - = (Quat a, b)Quat:      ( sub of class_quat)(loc Quat := a, b),
+   - = (Quat a, Coquat b)Quat: ( sub of class_quat)(loc Quat := a, b),
+   - = (Coquat a, Quat b)Quat:-( sub of class_quat)(loc Quat := b, a);
+
+op * = (Quat a, b)Quat:      ( mul of class_quat)(loc Quat := a, b),
+   * = (Quat a, Coquat b)Quat: ( mul of class_quat)(loc Quat := a, b),
+   * = (Coquat a, Quat b)Quat: (rmul of class_quat)(loc Quat := b, a);
+
+op / = (Quat a, b)Quat:      ( div of class_quat)(loc Quat := a, b),
+   / = (Quat a, Coquat b)Quat: ( div of class_quat)(loc Quat := a, b),
+   / = (Coquat a, Quat b)Quat:
+         ( div of class_quat)(loc Quat := QUATINIT 1, a);
+
+proc quat_exp = (Quat q)Quat:   (exp of class_quat)(loc Quat := q);
+
+skip { missing: quat arc{sin, cos, tan}h, log, exp, ln etc END }
+)

@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Element-wise operations", ALGOL 68 solution element-wise-operations.alg.
+  https://rosettacode.org/wiki/Element-wise_operations#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/element-wise-operations.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+mode Scalar = real;
+FORMAT scalar_fmt = $g(0, 2)$;
+
+mode Matrix = [3, 3]Scalar;
+FORMAT vector_fmt = $"("n(2 UPB LOC MATRIX - 2 LWB LOC MATRIX)(f(scalar fmt)", ")f(scalar fmt)")"$;
+FORMAT matrix_fmt = $"("n(1 UPB LOC MATRIX - 1 LWB LOC MATRIX)(f(vector fmt)","l" ")f(vector fmt)")"$;
+
+proc elementwise_op = (proc(Scalar, Scalar)Scalar op_, Matrix a, union(Scalar, Matrix) b)Matrix: (
+  [LWB a:UPB a, 2 LWB a:2 UPB a]Scalar out_;
+  case b in
+  (Scalar b):
+    for i from LWB out_ to UPB out_ do
+      for j from 2 LWB out_ to 2 UPB out_ do
+        out_[i, j]:=op_(a[i, j], b)
+      od
+    od,
+  (Matrix b):
+    for i from LWB out_ to UPB out_ do
+      for j from 2 LWB out_ to 2 UPB out_ do
+        out_[i, j]:=op_(a[i, j], b[i, j])
+      od
+    od
+  esac;
+  out_
+);
+
+proc plus  = (Scalar a, b)Scalar: a+b,
+     minus = (Scalar a, b)Scalar: a-b,
+     times = (Scalar a, b)Scalar: a*b,
+     div   = (Scalar a, b)Scalar: a/b,
+     pow   = (Scalar a, b)Scalar: a**b;
+
+main:(
+    Scalar scalar := 10;
+    Matrix matrix = (( 7, 11, 13),
+                     (17, 19, 23),
+                     (29, 31, 37));
+
+    printf(($f(matrix fmt)";"l$,
+      elementwise_op(plus,  matrix, scalar),
+      elementwise_op(minus, matrix, scalar),
+      elementwise_op(times, matrix, scalar),
+      elementwise_op(div,   matrix, scalar),
+      elementwise_op(pow,   matrix, scalar),
+
+      elementwise_op(plus,  matrix, matrix),
+      elementwise_op(minus, matrix, matrix),
+      elementwise_op(times, matrix, matrix),
+      elementwise_op(div,   matrix, matrix),
+      elementwise_op(pow,   matrix, matrix)
+  ))
+)
+)

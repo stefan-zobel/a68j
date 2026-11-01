@@ -1,0 +1,99 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Blum integer", ALGOL 68 solution blum-integer.alg.
+  https://rosettacode.org/wiki/Blum_integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/blum-integer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find Blum integers, semi-primes where both factors are 3 mod 4       }
+      {                                   and the factors are distinct       }
+    int max_number = 10 000 000;   { maximum possible Blum we will consider  }
+    [ 1 : max_number ]int upfc;    { table of unique prime factor counts     }
+    [ 1 : max_number ]int lpf;     { table of last prime factors             }
+    for i to UPB upfc do upfc[ i ] := 0; lpf[ i ] := 1 od;
+    for i from 2 to UPB upfc OVER 2 do
+        if upfc[ i ] = 0 then
+            for j from i + i by i to UPB upfc do
+                upfc[ j ] +:= 1;
+                lpf[  j ]  := i
+            od
+        fi
+    od;
+    { returns TRUE if n is a Blum integer, FALSE otherwise                  }
+    proc is_blum = ( int n )bool:
+         if n < 21 then false { the lowest primes modulo 4 that are 3 are   }
+                              { 3 & 7, so 21 is the lowest possible number  }
+         elif NOT ODD n then false
+         else
+            int  v       :=  n;
+            int  f_count :=  0;
+            int  f       :=  3;
+            while f <= v AND f_count < 3 do
+                if v MOD f = 0 then
+                    if f MOD 4 /= 3 then
+                        f_count  := 9 { the prime factor mod 4 isn't 3      }
+                    else
+                        v OVERAB f;
+                        f_count +:= 1
+                    fi;
+                    if v MOD f = 0 then
+                        f_count := 9 { f is not a distinct factor of n      }
+                    fi
+                fi;
+                f +:= 2
+            od;
+            f_count = 2
+        fi { is blum } ;
+
+    { show various Blum integers                                            }
+    print( ( "The first 50 Blum integers:", newline ) );
+    int b_count := 0;
+    [ 0 : 9 ]int last_count := []int( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )[ at 0 ];
+    for i from 21 by 4 while b_count < 400 000 do
+        { Blum integers must be 1 modulo 4                                  }
+        if b_count < 50 then
+            if is_blum( i ) then
+                b_count +:= 1;
+                last_count[ i MOD 10 ] +:= 1;
+                print( ( whole( i, -4 ) ) );
+                if b_count MOD 10 = 0 then print( ( newline ) ) fi
+            fi
+        elif upfc[ i ] = 2 then
+            { two prime factors - could be a Blum integer                    }
+            if lpf[ i ] MOD 4 = 3 then
+                { the last prime factor mod 4 is three                       }
+                if upfc[ i OVER lpf[ i ] ] = 0 then
+                    { and the other prime factor is unique (e.g. not 3^3)    }
+                    b_count +:= 1;
+                    last_count[ i MOD 10 ] +:= 1;
+                    if b_count =  26 828
+                    OR b_count = 100 000
+                    OR b_count = 200 000
+                    OR b_count = 300 000
+                    OR b_count = 400 000
+                    then
+                        print( ( "The ", whole( b_count, -6 )
+                               , "th Blum integer is ", whole( i, -11 )
+                               , newline
+                               )
+                             )
+                    fi
+                fi
+            fi
+        fi
+    od;
+    { show some statistics of the last digits                                }
+    print( ( "For Blum integers up to ", whole( b_count, 0 ), ":", newline ) );
+    for i from LWB last_count to UPB last_count do
+        if last_count[ i ] /= 0 then
+            print( ( "    ", fixed( ( last_count[ i ] * 100 ) / b_count, -8, 3 )
+                   , "% end with ", whole( i, 0 )
+                   , newline
+                   )
+                 )
+        fi
+    od
+
+end
+)

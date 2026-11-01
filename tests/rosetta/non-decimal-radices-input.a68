@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Non-decimal radices/Input", ALGOL 68 solution non-decimal-radices-input.alg.
+  https://rosettacode.org/wiki/Non-decimal_radices/Input#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/non-decimal-radices-input.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:
+(
+  file fbuf; string sbuf;
+
+  op FBUF = (string in_sbuf)ref file: (
+    sbuf := in_sbuf;
+    associate(fbuf, sbuf);
+    fbuf
+  );
+
+  bits num;
+
+  getf(FBUF("0123459"), ($10r7d$, num));
+  printf(($gl$, ABS num)); { prints 123459 }
+
+  getf(FBUF("abcf123"), ($16r7d$, num));
+  printf(($gl$, ABS num)); { prints 180154659 }
+
+  getf(FBUF("7651"), ($8r4d$, num));
+  printf(($gl$, ABS num)); { prints 4009 }
+
+  getf(FBUF("1010011010"), ($2r10d$, num));
+  printf(($gl$, ABS num)) { prints 666 }
+
+)
+)

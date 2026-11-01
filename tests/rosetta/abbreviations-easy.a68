@@ -1,0 +1,98 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Abbreviations, easy", ALGOL 68 solution abbreviations-easy.alg.
+  https://rosettacode.org/wiki/Abbreviations,_easy#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abbreviations-easy.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ "Easy" abbreviations                                                 }
+
+{ returns the next word from text, updating pos                        }
+prio NEXTWORD = 1;
+op   NEXTWORD = ( ref int pos, string text )string:
+     begin
+        { skip spaces }
+        while if pos > UPB text then false else text[ pos ] = " " fi do pos +:= 1 od;
+        { get the word }
+        string word_ := "";
+        while if pos > UPB text then false else text[ pos ] /= " " fi do
+            word_ +:= text[ pos ];
+            pos +:= 1
+        od;
+        word_
+     end { NEXTWORD } ;
+{ returns text converted to upper case                                 }
+op   TOUPPER  = ( string text )string:
+     begin
+        string result := text;
+        for ch_pos from LWB result to UPB result do
+            if is_lower( result[ ch_pos ] ) then result[ ch_pos ] := to_upper( result[ ch_pos ] ) fi
+        od;
+        result
+     end { TOUPPER } ;
+{ returns the minimum abbreviation length of command                   }
+op   MINABLENGTH = ( string command )int:
+     begin
+        int ab_min := LWB command;
+        while if ab_min > UPB command then false else is_upper( command[ ab_min ] ) fi do ab_min +:= 1 od;
+        ab_min - LWB command
+     end { MINABLENGTH } ;
+{ searches for word in command table and returns the full command      }
+{ matching the possible abbreviation or *error* if there is no match   }
+prio EXPAND  = 1;
+op   EXPAND  = ( string command_table, word_ )string:
+     if word_ = ""
+     then { empty word }
+        ""
+     else { non-empty word }
+        int    word_len    = ( UPB word_ + 1 ) - LWB word_;
+        string upper_word := TOUPPER word_;
+        string result     := "*error*";
+        int    pos        := LWB command_table;
+        while  string command := pos NEXTWORD command_table;
+               if command = ""
+               then { end of command table }
+                   false
+               elif word_len < MINABLENGTH command OR word_len > ( ( UPB command + 1 ) - LWB command )
+               then { word is too short or too long - try the next command }
+                   true
+               elif upper_word = TOUPPER command[ LWB command : ( LWB command - 1 ) + word_len ]
+               then { found the command }
+                   result := TOUPPER command;
+                   false
+               else { word doexn't match - try the next command }
+                   true
+               fi
+        do skip od;
+        result
+     fi { EXPAND } ;
+{ tests the EXPAND operator                                            }
+proc test_expand = ( string words, command_table )void:
+     begin
+        string results := "", separator := "";
+        int    pos   := LWB words;
+        while string word_ = pos NEXTWORD words; word_ /= "" do
+            results +:= separator + ( command_table EXPAND word_ );
+            separator := " "
+        od;
+        print( ( "Input:  ", words, newline ) );
+        print( ( "Output: ", results, newline ) )
+     end { test expand } ;
+
+begin { task test cases                                                }
+    { table of "commands"                                              }
+    {     - upper-case indicates the mminimum abbreviation             }
+    string command_table
+         = "Add ALTer  BAckup Bottom  CAppend Change SCHANGE  CInsert CLAst COMPress COpy "
+         + "COUnt COVerlay CURsor DELete CDelete Down DUPlicate Xedit EXPand EXTract Find "
+         + "NFind NFINDUp NFUp CFind FINdup FUp FOrward GET Help HEXType Input POWerinput "
+         + "Join SPlit SPLTJOIN  LOAD  Locate CLocate  LOWercase UPPercase  LPrefix MACRO "
+         + "MErge MODify MOve MSG Next Overlay PARSE PREServe PURge PUT PUTD  Query  QUIT "
+         + "READ  RECover REFRESH RENum REPeat  Replace CReplace  RESet  RESTore  RGTLEFT "
+         + "RIght LEft  SAVE  SET SHift SI  SORT  SOS  STAck STATus  TOP TRAnsfer Type Up"
+         ;
+    test_expand( "riG   rePEAT copies  put mo   rest    types   fup.    6       poweRin", command_table );
+    test_expand( "",                                                                      command_table )
+end
+)

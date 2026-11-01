@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Host introspection", ALGOL 68 solution host-introspection.alg.
+  https://rosettacode.org/wiki/Host_introspection#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/host-introspection.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int max_abs_bit = ABS(BIN 1 SHL 1)-1;
+int bits_per_char = ENTIER (ln(max_abs_char+1)/ln(max_abs_bit+1));
+int bits_per_int = ENTIER (1+ln(max_int+1.0)/ln(max_abs_bit+1));
+
+printf(($"states per bit: "dl$,max_abs_bit+1));
+printf(($"bits per char: "z-dl$,bits_per_char));
+printf(($"bits per int:  "z-dl$,bits_per_int));
+printf(($"chars per int: "z-dl$,bits_per_int OVER bits_per_char));
+
+printf(($"bits width: "z-dl$, bits_width));
+
+string abcds = "ABCD";
+file abcdf;
+int abcdi;
+
+int errno := open(abcdf, "abcd.dat",stand_back_channel);
+put(abcdf,abcds); { output alphabetically }
+reset(abcdf);
+get_bin(abcdf,abcdi); { input in word byte order }
+string int_byte_order := "";
+for shift from 0 by bits_per_char to bits_per_int - bits_per_char do
+  int_byte_order +:= REPR(abcdi OVER (max_abs_bit+1) ** shift MOD (max_abs_char+1))
+od;
+printf(($"int byte order: "g,", Hex:",16r8dl$,int_byte_order, BIN abcdi))
+)

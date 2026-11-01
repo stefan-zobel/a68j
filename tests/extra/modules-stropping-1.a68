@@ -1,0 +1,11 @@
+{ dg-options "-fstropping=upper" }
+{ dg-modules "modstrop" }
+{ A module written in SUPPER stropping used by a program in UPPER
+  stropping: values united in the program must conform in the module. }
+ACCESS MODSTROP (
+   put (("a", newline, 42, newline));
+   []INT r = (1, 2, 3);
+   put ((r, newline, "b", newline));
+   put (newline);
+   puts (whole (count OF stand, 0) + "'n")
+)

@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Longest common substring", ALGOL 68 solution longest-common-substring.alg.
+  https://rosettacode.org/wiki/Longest_common_substring#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-substring.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns the longest common substring of s and t }
+    proc longest_common_substring = ( string s, t )string:
+         begin
+            string s1       = s[ @ 1 ]; { normalise bounds to 1 : ... }
+            string s2       = t[ @ 1 ];
+            string result  := "";
+            int result_len := 0;
+            for i to UPB s1 do
+                for j to UPB s2 do
+                    if s1[ i ] = s2[ j ] then
+                        int k := 1;
+                        while int ik = i + k;
+                              int jk = j + k;
+                              if ik > UPB s1 OR jk > UPB s2
+                              then false
+                              else s1[ ik ] = s2[ jk ]
+                              fi
+                        do
+                            k +:= 1
+                        od;
+                        if k > result_len then
+                            { found a longer substring }
+                            result_len := k;
+                            result     := s1[ i : ( i + k ) - 1 ]
+                        fi
+                    fi
+                od
+            od;
+            result
+         end { longest common substring } ;
+
+    { task test case }
+    print( ( longest_common_substring( "thisisatest", "testing123testing" ), newline ) )
+end
+)

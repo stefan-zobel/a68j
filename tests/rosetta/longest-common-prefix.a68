@@ -1,0 +1,80 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Longest common prefix", ALGOL 68 solution longest-common-prefix.alg.
+  https://rosettacode.org/wiki/Longest_common_prefix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-prefix.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find the longest common prefix of two strings }
+prio COMMONPREFIX = 1;
+op   COMMONPREFIX = ( string a, b )string:
+    begin
+        int a_pos := LWB a; int a_max = UPB a;
+        int b_pos := LWB b; int b_max = UPB b;
+        while
+            if a_pos > a_max OR b_pos > b_max then false
+            else a[ a_pos ] = b[ b_pos ]
+            fi
+        do
+            a_pos +:= 1; b_pos +:= 1
+        od;
+        a[ LWB a : a_pos - 1 ]
+    end { COMMONPREFIX } ;
+
+{ get the length of a string }
+op  LEN = ( string a )int: ( UPB a + 1 ) - LWB a;
+
+{ find the longest common prefix of an array of STRINGs }
+op  LONGESTPREFIX = ( []string list )string:
+    if  UPB list < LWB list
+    then
+        { no elements }
+        ""
+    elif UPB list = LWB list
+    then
+        { only one element }
+        list[ LWB list ]
+    else
+        { more than one element }
+        string prefix := list[ LWB list ] COMMONPREFIX list[ 1 + LWB list ];
+        for pos from 2 + LWB list to UPB list do
+            string next_prefix := list[ pos ] COMMONPREFIX prefix;
+            if LEN next_prefix < LEN prefix
+            then
+                { this element has a smaller common prefix }
+                prefix := next_prefix
+            fi
+        od;
+        prefix
+    fi ;
+
+
+{ test the LONGESTPREFIX operator }
+
+proc test_prefix = ( []string list, string expected_result )void:
+    begin
+        string prefix = LONGESTPREFIX list;
+        print( ( "longest common prefix of (" ) );
+        for pos from LWB list to UPB list do print( ( " """, list[ pos ], """" ) ) od;
+        print( ( " ) is: """, prefix, """ "
+               , if prefix = expected_result then "as expected" else "NOT AS EXPECTED" fi
+               , newline
+               )
+             )
+    end { test prefix } ;
+
+[ 1 : 0 ]string empty_list; { for recent versions of Algol 68G, can't just put "()" for an empty list }
+
+begin
+    test_prefix( ( "interspecies", "interstellar", "interstate" ), "inters" );
+    test_prefix( ( "throne", "throne" ), "throne" );
+    test_prefix( ( "throne", "dungeon" ), "" );
+    test_prefix( ( "throne", "", "throne" ), "" );
+    test_prefix( ( "cheese" ), "cheese" );
+    test_prefix( ( "" ), "" );
+    test_prefix( empty_list, "" );
+    test_prefix( ( "prefix", "suffix" ), "" );
+    test_prefix( ( "foo", "foobar" ), "foo" )
+end
+)

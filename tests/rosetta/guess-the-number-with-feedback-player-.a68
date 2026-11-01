@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Guess the number/With feedback (player)", ALGOL 68 solution guess-the-number-with-feedback-player-.alg.
+  https://rosettacode.org/wiki/Guess_the_number/With_feedback_(player)#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/guess-the-number-with-feedback-player-.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    int    lower    :=    1;
+    int    upper    :=  100;
+    print( ( "Think of a number between ", whole( lower, 0 ), " and ", whole( upper, 0 ), newline ) );
+    print( ( "Please enter Y if I guess correctly, L is it is lower, G if it is greater or Q if you''ve had enough", newline ) );
+    while
+        int mid = lower + ( ( upper - lower ) OVER 2 );
+        char reply;
+        while
+            print( ( "Is it ", whole( mid, 0 ), "?    Y/L/G/Q: " ) );
+            read( ( reply, newline ) );
+            NOT char_in_string( reply, nil, "YLGQylgq" )
+        do skip od;
+        if   reply = "Q" OR reply = "q" OR reply = "Y" OR reply = "y"
+        then false
+        elif lower >= upper then
+            print( ( "Based on your answers so far, it must be ", whole( lower, 0 ), newline ) );
+            false
+        else
+            if   reply = "L" OR reply = "l" then upper := mid - 1
+            elif reply = "G" OR reply = "g" then lower := mid + 1
+            fi;
+            true
+        fi
+    do skip od
+end
+)

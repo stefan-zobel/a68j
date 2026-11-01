@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Determine if a string is numeric", ALGOL 68 solution determine-if-a-string-is-numeric.alg.
+  https://rosettacode.org/wiki/Determine_if_a_string_is_numeric#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-is-numeric.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc is_numeric = (ref string string_) bool: (
+  bool out_ := true;
+  proc call_back_false = (ref file f)bool: (out_:= false; true);
+
+  file memory;
+  associate(memory, string_);
+  on_value_error(memory, call_back_false);
+  on_logical_file_end(memory, call_back_false);
+
+  union (int, real, compl) numeric:=0.0;
+  { use a FORMAT pattern instead of a regular expression }
+  getf(memory, ($gl$, numeric));
+  out_
+);
+
+test:(
+   string
+     s1 := "152",
+     s2 := "-3.1415926",
+     s3 := "Foo123";
+   print((
+     s1, " results in ", is_numeric(s1), new_line,
+     s2, " results in ", is_numeric(s2), new_line,
+     s3, " results in ", is_numeric(s3), new_line
+   ))
+)
+)

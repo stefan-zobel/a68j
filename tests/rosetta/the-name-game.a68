@@ -1,0 +1,37 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "The Name Game", ALGOL 68 solution the-name-game.alg.
+  https://rosettacode.org/wiki/The_Name_Game#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/the-name-game.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  proc print_lyrics = (string name) void:
+    begin
+      proc change_name = (string name, char initial) string:
+        begin
+          char lower_first = to_lower(name[1]);
+          if char_in_string(lower_first, nil, "aeiou") then
+            lower_first + name[2:]
+          elif lower_first = initial then
+            name[2:]
+          else
+            initial + name[2:]
+          fi
+        end;
+
+    print((name, ", ", name, ", bo-", change_name(name, "b"), new_line,
+           "Banana-fana fo-", change_name(name, "f"), new_line,
+           "Fee-fi-mo-", change_name(name, "m"), new_line,
+           name, "!", new_line))
+  end;
+
+  []string names = ("Gary", "Earl", "Billy", "Felix", "Mary");
+
+  for i from LWB names to UPB names do
+    print_lyrics(names[i]);
+    print(new_line)
+  od
+)
+)

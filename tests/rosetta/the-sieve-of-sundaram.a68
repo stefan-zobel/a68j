@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "The sieve of Sundaram", ALGOL 68 solution the-sieve-of-sundaram.alg.
+  https://rosettacode.org/wiki/The_sieve_of_Sundaram#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/the-sieve-of-sundaram.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { sieve of Sundaram }
+    int n = 8 000 000;
+    int none = 0, mark1 = 1, mark2 = 2;
+    [ 1 : n ]int mark;
+    for i from LWB mark to UPB mark do mark[ i ] := none  od;
+    for i from   4 by 3 to UPB mark do mark[ i ] := mark1 od;
+
+    int            count := 0; { Count of primes.          }
+    [ 1 : 100 ]int list100;    { First 100 primes.         }
+    int            last  := 0; { Millionth prime.          }
+    int            step  := 5; { Current step for marking. }
+
+    for i to n while last = 0 do
+        if mark[ i ] = none then { Add/count a new odd prime.  }
+            count +:= 1;
+            if   count <= 100 then
+                list100[ count ] := 2 * i + 1
+            elif count = 1 000 000 then
+                last := 2 * i + 1
+            fi
+        elif mark[ i ] = mark1 then { Mark new numbers using current step. }
+            if i > 4 then
+                for k from i + step by step to n do
+                    if mark[ k ] = none then mark[ k ] := mark2 fi
+                od;
+                step +:= 2
+            fi
+      { ELSE must be mark2 - Ignore this number. }
+        fi
+    od;
+
+    print( ( "First 100 Sundaram primes:", newline ) );
+    for i from LWB list100 to UPB list100 do
+        print( ( whole( list100[ i ], -3 ) ) );
+        if i MOD 10 = 0 then print( ( newline ) ) else print( ( " " ) ) fi
+    od;
+    print( ( newline ) );
+    if last = 0 then
+        print( ( "Not enough values in sieve. Found only ", whole( count, 0 ), newline ) )
+    else
+        print( ( "The millionth Sundaram prime is ", whole( last, 0 ), newline ) )
+    fi
+end
+)

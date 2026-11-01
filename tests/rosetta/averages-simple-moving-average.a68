@@ -1,0 +1,97 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Averages/Simple moving average", ALGOL 68 solution averages-simple-moving-average.alg.
+  https://rosettacode.org/wiki/Averages/Simple_moving_average#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/averages-simple-moving-average.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Smaobj  = struct(
+  long real sma,
+  long real sum,
+  int period,
+  ref[]long real values,
+  int lv
+);
+
+mode Smaresult = union (
+  ref Smaobj { handle },
+  long real { sma },
+  ref[]long real { values }
+);
+
+mode Smanew = int,
+     Smafree = struct(ref Smaobj free_obj),
+     Smavalues = struct(ref Smaobj values_obj),
+     Smaadd = struct(ref Smaobj add_obj, long real v),
+     Smamean = struct(ref Smaobj mean_obj, ref[]long real v);
+
+mode Action = union ( Smanew, Smafree, Smavalues, Smaadd, Smamean );
+
+proc sma = ([]Action action)Smaresult:
+(
+  Smaresult result;
+  ref Smaobj obj;
+  long real v;
+
+  for i from LWB action to UPB action do
+    case action[i] in
+    (Smanew period):( { args: INT period }
+       heap Smaobj handle;
+       sma of handle := 0.0;
+       period of handle := period;
+       values of handle := heap [period of handle]long real;
+       lv of handle := 0;
+       sum of handle := 0.0;
+       result := handle
+    ),
+    (Smafree args):( { args: REF SMAOBJ free obj }
+       free_obj of args := ref Smaobj(nil) { let the garbage collector do it's job }
+    ),
+    (Smavalues args):( { args: REF SMAOBJ values obj }
+       result := values of values_obj of args
+    ),
+    (Smamean args):( { args: REF SMAOBJ mean obj }
+       result := sma of mean_obj of args
+    ),
+    (Smaadd args):( { args: REF SMAOBJ add obj, LONG REAL v }
+       obj := add_obj of args;
+       v := v of args;
+       if lv of obj < period of obj then
+         (values of obj)[lv of obj+:=1] := v;
+         sum of obj +:= v;
+         sma of obj := sum of obj / lv of obj
+       else
+         sum of obj -:= (values of obj)[ 1+ lv of obj MOD period of obj];
+         sum of obj +:= v;
+         sma of obj := sum of obj / period of obj;
+         (values of obj)[ 1+ lv of obj  MOD  period of obj ] := v; lv of obj+:=1
+       fi;
+       result := sma of obj
+    )
+    out
+      skip
+    esac
+  od;
+  result
+);
+
+[]long real v = ( 1, 2, 3, 4, 5, 5, 4, 3, 2, 1 );
+
+main: (
+  int i;
+
+  ref Smaobj h3 := ( sma(Smanew(3)) | (ref Smaobj obj):obj );
+  ref Smaobj h5 := ( sma(Smanew(5)) | (ref Smaobj obj):obj );
+
+  for i from LWB v to UPB v do
+    printf(($"next number "g(0,6)", SMA_3 = "g(0,6)", SMA_5 = "g(0,6)l$,
+           v[i], (sma(Smaadd(h3, v[i]))|(long real r):r), ( sma(Smaadd(h5, v[i])) | (long real r):r )
+    ))
+  od{;
+
+  sma(SMAFREE(h3));
+  sma(SMAFREE(h5))
+}
+)
+)

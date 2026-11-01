@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Seven-sided dice from five-sided dice", ALGOL 68 solution seven-sided-dice-from-five-sided-dice.alg.
+  https://rosettacode.org/wiki/Seven-sided_dice_from_five-sided_dice#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/seven-sided-dice-from-five-sided-dice.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc dice5 = int:
+  1 + ENTIER (5*random);
+
+proc mulby5 = (int n)int:
+   ABS (BIN n SHL 2) + n;
+
+proc dice7 = int: (
+  int d55 := 0;
+  int m := 1;
+  while
+    m := ABS ((2r1 AND BIN m) SHL 2) + ABS (BIN m SHR 1);  { repeats 4 - 2 - 1 }
+    d55 := mulby5(mulby5(d55)) + mulby5(dice5) + dice5 - 6;
+{ WHILE } d55 < m do skip od;
+
+  m := 1;
+  while d55>0 do
+    d55 +:= m;
+    m := ABS (BIN d55 AND 2r111); { modulas by 8 }
+    d55 := ABS (BIN d55 SHR 3)    { divide by 8 }
+  od;
+  m
+);
+
+proc distcheck = (proc int dice, int count, upb)void: (
+  [upb]int sum; for i to UPB sum do sum[i] := 0 od;
+  for i to count do sum[dice]+:=1 od;
+  for i to UPB sum while print(whole(sum[i],0)); i /= UPB sum do print(", ") od;
+  print(new_line)
+);
+
+main:
+(
+  distcheck(dice5, 1000000, 5);
+  distcheck(dice7, 1000000, 7)
+)
+)

@@ -1,0 +1,60 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pi", ALGOL 68 solution pi.alg.
+  https://rosettacode.org/wiki/Pi#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pi.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+int base := 10;
+
+mode Yieldint = proc(int)void;
+proc gen_pi_digits = (int decimal_places, Yieldint yield)void:
+begin
+  int nine = base - 1;
+  int nines := 0, predigit := 0; { First predigit is a 0 }
+  [decimal_places*10 OVER 3]{LONG} int digits; { We need 3 times the digits to calculate }
+  for place from LWB digits to UPB digits do digits[place] := 2 od; { Start with 2s }
+  for place to decimal_places + 1 do
+    int digit := 0;
+    for i from UPB digits by -1 to LWB digits do { Work backwards }
+        int x := {SHORTEN}(base*digits[i] + {LENG} digit*i);
+        digits[i] := x MOD (2*i-1);
+        digit := x OVER (2*i-1)
+    od;
+    digits[LWB digits] := digit MOD base; digit OVERAB base;
+    nines :=
+      if digit = nine then
+        nines + 1
+      else
+        if digit = base then
+          yield(predigit+1); predigit := 0 ;
+          for repeats to nines do yield(0) od { zeros }
+        else
+          if place NE 1 then yield(predigit) fi; predigit := digit;
+          for repeats to nines do yield(nine) od
+        fi;
+        0
+      fi
+  od;
+  yield(predigit)
+end;
+
+main:(
+  int feynman_point = 762; { feynman point + 4 is a good test case }
+{ the 33rd decimal place is a shorter tricky test case }
+  int test_decimal_places = UPB "3.1415926.......................502"-2;
+
+  int width = ENTIER log(base*(1+small_real*10));
+
+{ iterate throught the digits as they are being found }
+{ FOR INT digit IN } gen_pi_digits(test_decimal_places{) DO ( },
+  {} (int digit)void: (
+    printf(($n(width)d$,digit))
+  )
+{ OD });
+  print(new_line)
+)
+)

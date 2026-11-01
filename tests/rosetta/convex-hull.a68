@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Convex hull", ALGOL 68 solution convex-hull.alg.
+  https://rosettacode.org/wiki/Convex_hull#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/convex-hull.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Convex hull - translation of the EasyLang sample }
+
+   proc orientation = ( []int p, q, r )int: (q[2] - p[2]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[2] - q[2]);
+
+   proc convexhull = ( [,]int pts )[,]int: begin
+      int min_pos := 1 LWB pts;
+      for i from 1 LWB pts to 1 UPB pts do
+         if pts[ i, 2 LWB pts ] < pts[ min_pos, 2 LWB pts] then min_pos := i fi
+      od;
+      int p := min_pos;
+      [ 1 LWB pts : 1 UPB pts, 2 LWB pts : 2 UPB pts ]int hull;
+      for i from 1 LWB hull to 1 UPB hull do for j from 2 LWB hull to 2 UPB hull do hull[ i, j ] := 0 od od;
+      int hpos := 1 LWB pts - 1;
+      while
+         hull[ hpos +:= 1, : ] := pts[ p, : ];
+         int q := ( p + 1 ) MOD 1 UPB pts;
+         for i from 1 LWB pts to 1 UPB pts do
+            if orientation( pts[ p, : ], pts[ i, : ], pts[ q, : ] ) < 0 then q := i fi
+         od;
+         p := q;
+         p /= min_pos
+      do skip od;
+      hull[ 1 LWB hull : hpos, : ]
+   end;
+
+   begin
+       [,]int pts  = ( ( 16,  3 ), ( 12, 17 ), (  0,  6 ), ( -4, -6 ), ( 16,  6 )
+                     , ( 16, -7 ), ( 16, -3 ), ( 17, -4 ), (  5, 19 ), ( 19, -8 )
+                     , (  3, 16 ), ( 12, 13 ), (  3, -4 ), ( 17,  5 ), ( -3, 15 )
+                     , ( -3, -9 ), (  0, 11 ), ( -9, -3 ), ( -4, -2 ), ( 12, 10 )
+                     );
+       [,]int hull = convex_hull( pts );
+       print( ( "[" ) );
+       for i from 1 LWB hull to 1 UPB hull do
+           print( ( " [" ) );
+           for j from 2 LWB hull to 2 UPB hull do print( ( " ", whole( hull[ i, j ], 0 ) ) ) od;
+           print( ( " ]" ) )
+       od;
+       print( ( " ]", newline ) )
+   end
+end
+)

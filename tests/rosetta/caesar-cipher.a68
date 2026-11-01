@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Caesar cipher", ALGOL 68 solution caesar-cipher.alg.
+  https://rosettacode.org/wiki/Caesar_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/caesar-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+program_caesar: begin
+
+   mode Modxxvi = short short int; { MOD26 }
+
+   proc to_m26 = (char c, offset)Modxxvi:
+   begin
+      ABS c - ABS offset
+   end {to m26};
+
+   proc to_char = (Modxxvi value, char offset)char:
+   begin
+      REPR ( ABS offset + value MOD 26 )
+   end {to char};
+
+   proc encrypt = (string plain, Modxxvi key)string:
+   begin
+      [UPB plain]char ciph;
+      for i to UPB plain do
+         char c = plain[i];
+         ciph[i]:=
+           if "A" <= c AND c <= "Z" then
+               to_char(to_m26(c, "A")+key, "A")
+           elif "a" <= c AND c <= "z" then
+               to_char(to_m26(c, "a")+key, "a")
+           else
+               c
+           fi
+      od;
+      ciph
+   end {encrypt};
+
+{ caesar main program }
+   string text := "The five boxing wizards jump quickly" { OR read string };
+   Modxxvi key := 3; { Default key from "Bello Gallico" }
+
+   printf(($gl$, "Plaintext ------------>" + text));
+   text := encrypt(text, key);
+   printf(($gl$, "Ciphertext ----------->" + text));
+   printf(($gl$, "Decrypted Ciphertext ->" + encrypt(text, -key)))
+
+end {caesar}
+)

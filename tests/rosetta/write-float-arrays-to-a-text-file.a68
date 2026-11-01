@@ -1,0 +1,53 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Write float arrays to a text file", ALGOL 68 solution write-float-arrays-to-a-text-file.alg.
+  https://rosettacode.org/wiki/Write_float_arrays_to_a_text_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/write-float-arrays-to-a-text-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  proc writedat = (string filename, []real x, y, int x_width, y_width)void: (
+    if   file f;
+         int open_code = if open( f, filename, stand_out_channel ) = 0
+                         then { opened OK - file already exists and     }
+                              {             will be overwritten         }
+                              0
+                         else { failed to open the file                 }
+                              { - try creating a new file               }
+                              establish( f, filename, stand_out_channel )
+                         fi;
+         open_code NE 0
+    then print( ( "Unable to open ", filename, " on standout: ", open_code, newline ) ); stop
+    else for i to UPB x do
+            { FORMAT := IF the absolute exponent is small enough, THEN use fixed ELSE use float FI; }
+            proc fmt = (real v, int v_width)string:
+                 ( ABS log(v)<v_width | fixed(v,-v_width,v_width-2) | float(v,-v_width,v_width-4,-1) );
+            put(f,(fmt(x[i], x_width), " ", fmt(y[i], y_width), newline))
+         od;
+         close(f)
+    fi
+  );
+  { Example usage: }
+  (
+    []real x = (1, 2, 3, 1e11);
+    [UPB x]real y; for i to UPB x do y[i]:=sqrt(x[i]) od;
+    print(("x before:"));for i to UPB x do print((" ",x[i])) od;print((newline));
+    print(("y before:"));for i to UPB y do print((" ",y[i])) od;print((newline));
+    writedat("sqrt.dat", x, y, 3+2, 5+2);
+
+    print(("After:",newline));
+    file sqrt_dat;
+    if   int open_code = open(sqrt_dat, "sqrt.dat", stand_in_channel);
+         open_code NE 0
+    then print( ( "unable to open sqrt.dat on stand in: ", open_code, newline ) ); stop
+    else on_logical_file_end(sqrt_dat, (ref file f)bool: stop);
+         to UPB x do
+            string line;
+            get(sqrt_dat, (line, new_line));
+            print((line,new_line))
+         od
+    fi
+  )
+end
+)

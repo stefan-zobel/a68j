@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Tokenize a string with escaping", ALGOL 68 solution tokenize-a-string-with-escaping.alg.
+  https://rosettacode.org/wiki/Tokenize_a_string_with_escaping#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/tokenize-a-string-with-escaping.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns s parsed according to delimiter and escape                      }
+    proc parse_with_escapes = ( string s, char delimiter, escape )[]string:
+         if ( UPB s - LWB s ) + 1 < 1 then
+            { empty string                                                    }
+            [ 1 : 0 ]string empty_array;
+            empty_array
+         else
+            { at least one character                                          }
+            { allow for a string composed entirely of delimiter characters    }
+            [ 1 : ( UPB s - LWB s ) + 3 ]string result;
+            int r_pos := 1;
+            int s_pos := LWB s;
+            result[ r_pos ] := "";
+            while s_pos <= UPB s do
+                char c = s[ s_pos ];
+                if  c = delimiter then
+                    { start a new element                                     }
+                    result[ r_pos +:= 1 ] := ""
+                elif c = escape then
+                    { use the next character even if it is an escape          }
+                    s_pos +:= 1;
+                    if s_pos < UPB s then
+                        { the escape is not the last character                }
+                        result[ r_pos ] +:= s[ s_pos ]
+                    fi
+                else
+                    { normal character                                        }
+                    result[ r_pos ] +:= c
+                fi;
+                s_pos +:= 1
+            od;
+            result[ 1 : r_pos ]
+         fi; { parse with escapes }
+    { task test case                                                          }
+    []string tokens = parse_with_escapes( "one^|uno||three^^^^|four^^^|^cuatro|", "|", "^" );
+    for t_pos from LWB tokens to UPB tokens do print( ( "[", tokens[ t_pos ], "]", newline ) ) od
+end
+)

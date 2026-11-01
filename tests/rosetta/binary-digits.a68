@@ -1,0 +1,23 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Binary digits", ALGOL 68 solution binary-digits.alg.
+  https://rosettacode.org/wiki/Binary_digits#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/binary-digits.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+printf((
+  $g" => "2r3d l$, 5, BIN 5,
+  $g" => "2r6d l$, 50, BIN 50,
+  $g" => "2r14d l$, 9000, BIN 9000
+));
+
+{ or coerce to an array of BOOL }
+print((
+  5, " => ", []bool(BIN 5)[bits_width-3+1:], new_line,
+  50, " => ", []bool(BIN 50)[bits_width-6+1:], new_line,
+  9000, " => ", []bool(BIN 9000)[bits_width-14+1:], new_line
+))
+)

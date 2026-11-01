@@ -1,0 +1,26 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Apply a callback to an array", ALGOL 68 solution apply-a-callback-to-an-array.alg.
+  https://rosettacode.org/wiki/Apply_a_callback_to_an_array#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/apply-a-callback-to-an-array.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ proc call_back_proc = (int location, int value)void:
+ (
+   printf(($"array["g"] = "gl$, location, value))
+ );
+
+ proc map = (ref[]int array, proc (int,int)void call_back)void:
+ (
+   for i from LWB array to UPB array do
+      call_back(i, array[i])
+   od
+ );
+
+ main:
+ (
+   [4]int array := ( 1, 4, 9, 16 );
+   map(array, call_back_proc)
+ )
+)

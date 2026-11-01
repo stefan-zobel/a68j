@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Primes whose sum of digits is 25", ALGOL 68 solution primes-whose-sum-of-digits-is-25-2.alg.
+  https://rosettacode.org/wiki/Primes_whose_sum_of_digits_is_25#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/primes-whose-sum-of-digits-is-25-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    proc pow_mod = (long long int b,in_e, modulus)long long int: (
+      long long int sq := b, e := in_e;
+      long long int out_:= if ODD e then b else 1 fi;
+      e OVERAB 2;
+      while e /= 0 do
+        sq := sq * sq MOD modulus;
+        if ODD e then out_ := out_ * sq MOD modulus fi ;
+        e OVERAB 2
+      od;
+      out_
+    );
+    int p25_count := 0;
+    proc sum25 = ( long long int p, int rem )void:
+         for i to if rem > 9 then 9 else rem fi do
+            if   rem > i then
+                sum25( ( p * 10 ) + i, rem - i )
+            elif ODD i AND i /= 5 then
+                long long int n = ( p * 10 ) + i;
+                if n MOD 3 /= 0 then
+                    bool          is_prime := true;
+                    { miller rabin primality test }
+                    int  k    = 10;
+                    long long int d := n - 1;
+                    int s := 0;
+                    while NOT ODD d do
+                        d OVERAB 2;
+                        s +:= 1
+                    od;
+                    to k while is_prime do
+                        long long int a := 2 + ENTIER (random*(n-3));
+                        long long int x := pow_mod(a, d, n);
+                        if x /= 1 then
+                            bool done := false;
+                            to s while NOT done do
+                                if   x = n-1
+                                then done := true
+                                else x := x * x MOD n
+                                fi
+                            od;
+                            if NOT done then if x /= n-1 then is_prime := false fi fi
+                        fi
+                    od;
+                    { END miller rabin primality test }
+                    if is_prime then
+                        { IF ( p25 count + 1 ) MOD 100 = 0 THEN print( ( whole( p25 count + 1, -8 ), whole( n, -30 ), newline ) ) FI; }
+                        p25_count +:= 1
+                    fi
+                fi
+            fi
+         od;
+    sum25( 0, 25 );
+    print( ( "There are ", whole( p25_count, 0 ), " sum25 primes that contain no zeroes", newline ) )
+end
+)

@@ -1,0 +1,16 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "String length", ALGOL 68 solution string-length-2.alg.
+  https://rosettacode.org/wiki/String_length#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/string-length-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string str := "hello, world";
+int length := UPB str;
+printf(($"Length of """g""" is "g(3)l$,str,length));
+
+printf(($l"STRINGS can start at -1, in which case LWB must be used:"l$));
+string s := "abcd"[@-1];
+print(("s:",s, ", LWB:", LWB s, ", UPB:",UPB s, ", LEN:",UPB s - LWB s + 1))
+)

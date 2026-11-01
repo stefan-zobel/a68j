@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Run-length encoding", ALGOL 68 solution run-length-encoding.alg.
+  https://rosettacode.org/wiki/Run-length_encoding#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/run-length-encoding.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string input := "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW";
+string output := "12W1B12W3B24W1B14W";
+
+mode Yieldchar = proc(char)void;
+mode Genchar = proc(Yieldchar)void;
+
+proc gen_char_string = (ref string s, Yieldchar yield)void:
+  for i from LWB s to UPB s do yield(s[i]) od;
+
+{
+# Note: The following 2 lines use currying. This not supported by ELLA ALGOL 68RS #
+GENCHAR input seq = gen char string(input,),
+        output seq = gen char string(output,);
+END }
+
+Genchar
+  input_seq = (Yieldchar yield)void: gen_char_string(input, yield),
+  output_seq = (Yieldchar yield)void: gen_char_string(output, yield);
+
+proc gen_encode = (Genchar gen_char, Yieldchar yield)void: (
+  int count := 0;
+  char prev;
+{ FOR CHAR c IN } gen_char( { ) DO ( }
+{}   (char c)void: (
+      if count = 0 then
+        count := 1;
+        prev := c
+      elif c NE prev then
+        string str_count := whole(count,0);
+        gen_char_string(str_count, yield); count := 1;
+        yield(prev); prev := c
+      else
+        count +:=1
+      fi
+{ OD } ));
+  if count NE 0 then
+    string str_count := whole(count,0);
+    gen_char_string(str_count,yield);
+    yield(prev)
+  fi
+);
+
+string zero2nine = "0123456789";
+
+proc gen_decode = (Genchar gen_char, Yieldchar yield)void: (
+  int repeat := 0;
+{ FOR CHAR c IN } gen_char( { ) DO ( }
+{}   (char c)void: (
+    if char_in_string(c, loc int, zero2nine) then
+      repeat := repeat*10 + ABS c - ABS "0"
+    else
+      for i to repeat do yield(c) od;
+      repeat := 0
+    fi
+{ OD }  ))
+);
+
+{ iterate through input string }
+print("Encode input: ");
+{ FOR CHAR c IN } gen_encode(input_seq, { ) DO ( }
+{}   (char c)void:
+    print(c)
+{ OD } );
+print(new_line);
+
+{ iterate through output string }
+print("Decode output: ");
+{ FOR CHAR c IN } gen_decode(output_seq, { ) DO ( }
+{}   (char c)void:
+    print(c)
+{ OD } );
+print(new_line)
+)

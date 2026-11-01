@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers which are the cube roots of the product of their proper divisors", ALGOL 68 solution numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.alg.
+  https://rosettacode.org/wiki/Numbers_which_are_the_cube_roots_of_the_product_of_their_proper_divisors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some numbers which are the cube roots of the product of their   }
+      {      proper divisors                                                 }
+      { the Online Encyclopedia of Integer Sequences states that these       }
+      { numbers are 1 and those with eight divisors                          }
+      { NB: numbers with 8 divisors have 7 proper divisors                   }
+    int max_number = 500 000; { maximum number we will consider              }
+    { form a table of proper divisor counts - assume the pdc of 1 is 7       }
+    [ 1 : max_number ]int pdc; for i to UPB pdc do pdc[ i ] := 1 od;
+    pdc[ 1 ] := 7;
+    for i from 2 to UPB pdc do
+        for j from i + i by i to UPB pdc do pdc[ j ] +:= 1 od
+    od;
+    { show the numbers which are the cube root of their proper divisor       }
+    { product - equivalent to finding the numbers with a proper divisor      }
+    { count of 7 ( we have "cheated" and set the pdc of 1 to 7 )             }
+    int next_show := 500;
+    int c_count   := 0;
+    for n to UPB pdc do
+        if pdc[ n ] = 7 then
+            { found a suitable number                                        }
+            if ( c_count +:= 1 ) <= 50 then
+                print( ( " ", whole( n, -3 ) ) );
+                if c_count MOD 10 = 0 then print( ( newline ) ) fi
+            elif c_count = next_show then
+                print( ( whole( c_count, -9 ), "th: ", whole( n, 0 ), newline ) );
+                next_show *:= 10
+            fi
+        fi
+    od
+end
+)

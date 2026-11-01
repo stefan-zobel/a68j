@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Palindrome detection", ALGOL 68 solution palindrome-detection.alg.
+  https://rosettacode.org/wiki/Palindrome_detection#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/palindrome-detection.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Iterative }
+proc palindrome = (string s)bool:(
+   for i to UPB s OVER 2 do
+     if s[i] /= s[UPB s-i+1] then go to return_false fi
+   od;
+   true exit
+   return_false: false
+);
+
+{ Recursive }
+proc palindrome_r = (string s)bool:
+   if LWB s >= UPB s then true
+   elif s[LWB s] /= s[UPB s] then false
+   else palindrome_r(s[LWB s+1:UPB s-1])
+   fi
+;
+
+{ Test }
+(
+   string t = "ingirumimusnocteetconsumimurigni";
+   FORMAT template = $"sequence """g""" "b("is","isnt")" a palindrome"l$;
+
+   printf((template, t, palindrome(t)));
+   printf((template, t, palindrome_r(t)))
+)
+)

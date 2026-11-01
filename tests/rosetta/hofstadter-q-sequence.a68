@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Hofstadter Q sequence", ALGOL 68 solution hofstadter-q-sequence.alg.
+  https://rosettacode.org/wiki/Hofstadter_Q_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/hofstadter-q-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+        [100000]int q;
+
+        int flips := 0;
+        q[1] := q[2] := 1;
+        for i from 3 to UPB q do
+                q[i] := q[i - q[i - 1] ] + q[i - q[i - 2] ];
+                if q[i] < q[i - 1] then flips +:= 1 fi
+        od;
+
+        for i to 10 do
+                print((whole(q[i],0), if i = 10 then newline else space fi)) od;
+
+        print((whole(q[1000],0), newline));
+        print(("flips: ", whole(flips,0), newline))
+end
+)

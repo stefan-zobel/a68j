@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Substring", ALGOL 68 solution substring.alg.
+  https://rosettacode.org/wiki/Substring#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/substring.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main: (
+  string s = "abcdefgh";
+  int n = 2, m = 3;
+  char char_ = "d";
+  string chars = "cd";
+
+  printf(($gl$, s[n:n+m-1]));
+  printf(($gl$, s[n:]));
+  printf(($gl$, s[:UPB s-1]));
+
+  int pos;
+  char_in_string("d", pos, s);
+  printf(($gl$, s[pos:pos+m-1]));
+  string_in_string("de", pos, s);
+  printf(($gl$, s[pos:pos+m-1]))
+)
+)

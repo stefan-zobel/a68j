@@ -1,0 +1,66 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pseudo-random numbers/PCG32", ALGOL 68 solution pseudo-random-numbers-pcg32.alg.
+  https://rosettacode.org/wiki/Pseudo-random_numbers/PCG32#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pseudo-random-numbers-pcg32.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generate some pseudo random numbers using PCG32 }
+    { note that although LONG INT is 64 bits in Algol 68G, LONG BITS is longer than 64 bits }
+    long bits state     :=     long 16r853c49e6748fea9b;
+    long int  inc       := ABS long 16rda3e39cb94b95bdb;
+    long bits mask_64    =     long 16rffffffffffffffff;
+    long bits mask_32    =     long 16rffffffff;
+    long bits mask_31    =     long 16r7fffffff;
+    long int  one_shl_32 = ABS ( long 16r1 SHL 32 );
+    { XOR and assign convenience operator }
+    prio XORAB = 1;
+    op   XORAB = ( ref long bits x, long bits v )ref long bits: x := ( x XOR v ) AND mask_64;
+    { initialises the state to the specified seed }
+    proc seed = ( long int seed_state, seed_sequence )void:
+         begin
+            state := 16r0;
+            inc   := ABS ( ( ( BIN seed_sequence SHL 1 ) OR 16r1 ) AND mask_64 );
+            next_int;
+            state := SHORTEN ( BIN ( ABS state + seed_state ) AND mask_64 );
+            next_int
+         end { seed } ;
+    { gets the next pseudo random integer }
+    proc next_int = long int:
+         begin
+            long bits old     = state;
+            long int const    = long 6364136223846793005;
+            state            := SHORTEN ( mask_64 AND BIN ( ( ABS old * LENG const ) + inc ) );
+            long bits x      := old;
+            x XORAB ( old SHR 18 );
+            bits  xor_shifted = SHORTEN ( mask_32 AND ( x SHR 27 ) );
+            int   rot         = SHORTEN ABS ( mask_32 AND ( old SHR 59 ) );
+            int   rot_2       = if rot = 0 then 0 else 32 - rot fi;
+            bits  xor_shr    := SHORTEN ( mask_32 AND LENG ( xor_shifted SHR rot ) );
+            bits  xor_shl    := xor_shifted;
+            to rot_2 do
+                xor_shl      := SHORTEN ( ( mask_31 AND LENG xor_shl ) SHL 1 )
+            od;
+            ABS ( LENG xor_shr OR LENG xor_shl )
+         end { next int } ;
+    { gets the next pseudo random real }
+    proc next_float = long real: next_int / one_shl_32;
+    begin { task test cases }
+        seed( 42, 54 );
+        print( ( whole( next_int, 0 ), newline ) ); { 2707161783 }
+        print( ( whole( next_int, 0 ), newline ) ); { 2068313097 }
+        print( ( whole( next_int, 0 ), newline ) ); { 3122475824 }
+        print( ( whole( next_int, 0 ), newline ) ); { 2211639955 }
+        print( ( whole( next_int, 0 ), newline ) ); { 3215226955 }
+        { count the number of occurances of 0..4 in a sequence of pseudo random reals scaled to be in [0..5) }
+        seed( 987654321, 1 );
+        [ 0 : 4 ]int counts; for i from LWB counts to UPB counts do counts[ i ] := 0 od;
+        to 100 000 do counts[ SHORTEN ENTIER ( next_float * 5 ) ] +:= 1 od;
+        for i from LWB counts to UPB counts do
+            print( ( whole( i, -2 ), ": ", whole( counts[ i ], -6 ) ) )
+        od;
+        print( ( newline ) )
+    end
+end
+)

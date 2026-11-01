@@ -1,0 +1,127 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Top rank per group", ALGOL 68 solution top-rank-per-group.alg.
+  https://rosettacode.org/wiki/Top_rank_per_group#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/top-rank-per-group.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show the top rank salaries per department                             }
+    { NODE to hold the employee data - will be the MODE that is sorted        }
+    mode Sitem = struct( string employee_name
+                       , string employee_id
+                       , int    salary
+                       , string department
+                       );
+    { ---- begin code from the quicksort using a custom comparator task ----- }
+    {--- Swap function ---}
+    proc swap = (ref[]Sitem array, int first, int second) void:
+    (
+        Sitem temp := array[first];
+        array[first] := array[second];
+        array[second]:= temp
+    );
+    {--- Quick sort partition arg function with custom comparision function ---}
+    proc quick = (ref[]Sitem array, int first, int last, proc(Sitem,Sitem)int compare) void:
+    (
+        int   smaller := first + 1,
+              larger  := last;
+        Sitem pivot   := array[first];
+        while smaller <= larger do
+            while compare(array[smaller], pivot) < 0 AND smaller < last do
+                smaller +:= 1
+            od;
+            while compare( array[larger], pivot) > 0 AND larger > first do
+                larger  -:= 1
+            od;
+            if smaller < larger then
+                swap(array, smaller, larger);
+                smaller +:= 1;
+                larger  -:= 1
+            else
+                smaller +:= 1
+            fi
+        od;
+        swap(array, first, larger);
+        if first < larger-1 then
+            quick(array, first, larger-1, compare)
+        fi;
+        if last > larger +1 then
+            quick(array, larger+1, last, compare)
+        fi
+    );
+    {--- Quick sort array function with custom comparison function ---}
+    proc quicksort = (ref[]Sitem array, proc(Sitem,Sitem)int compare) void:
+    (
+      if UPB array > LWB array then
+        quick(array, LWB array, UPB array, compare)
+      fi
+    );
+    { ==== end   code from the quicksort using a custom comparator task ===== }
+
+    { sort comparison routine - sort ascending department, descending salary  }
+    proc sort_by_department_then_salary = ( Sitem a, Sitem b )int:
+         if   department of a < department of b then -1
+         elif department of a > department of b then  1
+         elif     salary of a >     salary of b then -1
+         elif     salary of a <     salary of b then  1
+         else                                         0
+         fi { sort by department then salary } ;
+
+    { returns s blank padded on the right to at least w characters            }
+    proc pad_right = ( string s, int w )string:
+         if int len = ( UPB s - LWB s ) + 1; len >= w then s else s + ( ( w - len ) * " " ) fi;
+    { shows the top n ranked salaries in each department                      }
+    proc show_top_rank = ( []Sitem data, int n )void:
+         begin
+            { copy the data and sort it                                       }
+            [ LWB data : UPB data ]Sitem sorted_data := data;
+            quicksort( sorted_data, sort_by_department_then_salary );
+            { show the top salaries per department                            }
+            int d_pos := LWB sorted_data;
+            while d_pos <= UPB sorted_data do
+                string curr_department := department of sorted_data[ d_pos ];
+                print( ( "Department: ", curr_department, newline ) );
+                int    e_count         := 0;
+                while if e_count < n then
+                          print( ( "  "
+                                 , employee_id   of sorted_data[ d_pos ]
+                                 , "  "
+                                 , pad_right( employee_name
+                                                 of sorted_data[ d_pos ], 24 )
+                                 , "  "
+                                 , whole( salary of sorted_data[ d_pos ], -6 )
+                                 , newline
+                                 )
+                               )
+                      fi;
+                      e_count +:= 1;
+                      d_pos   +:= 1;
+                      if d_pos > UPB sorted_data
+                      then false
+                      else curr_department = department of sorted_data[ d_pos ]
+                      fi
+                do skip od;
+                print( ( newline ) )
+            od
+        end { show top rank } ;
+
+    { employee data                                                           }
+    []Sitem employees = ( ( "Tyler Bennett",   "E10297", 32000, "D101" )
+                        , ( "John Rappl",      "E21437", 47000, "D050" )
+                        , ( "George Woltman",  "E00127", 53500, "D101" )
+                        , ( "Adam Smith",      "E63535", 18000, "D202" )
+                        , ( "Claire Buckman",  "E39876", 27800, "D202" )
+                        , ( "David McClellan", "E04242", 41500, "D101" )
+                        , ( "Rich Holcomb",    "E01234", 49500, "D202" )
+                        , ( "Nathan Adams",    "E41298", 21900, "D050" )
+                        , ( "Richard Potter",  "E43128", 15900, "D101" )
+                        , ( "David Motsinger", "E27002", 19250, "D202" )
+                        , ( "Tim Sampair",     "E03033", 27000, "D101" )
+                        , ( "Kim Arlich",      "E10001", 57000, "D190" )
+                        , ( "Timothy Grove",   "E16398", 29900, "D190" )
+                        );
+    { show the top two salaries by department                                 }
+    show_top_rank( employees, 2 )
+end
+)

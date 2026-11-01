@@ -1,0 +1,76 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Verhoeff algorithm", ALGOL 68 solution verhoeff-algorithm.alg.
+  https://rosettacode.org/wiki/Verhoeff_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/verhoeff-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { The Verhoeff algorithm - translated from the Wren sample via FreeBASIC }
+
+    [,]int d   = ( ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 )
+                 , ( 1, 2, 3, 4, 0, 6, 7, 8, 9, 5 )
+                 , ( 2, 3, 4, 0, 1, 7, 8, 9, 5, 6 )
+                 , ( 3, 4, 0, 1, 2, 8, 9, 5, 6, 7 )
+                 , ( 4, 0, 1, 2, 3, 9, 5, 6, 7, 8 )
+                 , ( 5, 9, 8, 7, 6, 0, 4, 3, 2, 1 )
+                 , ( 6, 5, 9, 8, 7, 1, 0, 4, 3, 2 )
+                 , ( 7, 6, 5, 9, 8, 2, 1, 0, 4, 3 )
+                 , ( 8, 7, 6, 5, 9, 3, 2, 1, 0, 4 )
+                 , ( 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 )
+                 );
+    [ ]int inv = ( 0, 4, 3, 2, 1, 5, 6, 7, 8, 9 );
+    [,]int p   = ( ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 )
+                 , ( 1, 5, 7, 6, 2, 8, 3, 0, 9, 4 )
+                 , ( 5, 8, 0, 3, 7, 9, 6, 1, 4, 2 )
+                 , ( 8, 9, 1, 6, 0, 4, 3, 5, 2, 7 )
+                 , ( 9, 4, 5, 3, 1, 2, 6, 8, 7, 0 )
+                 , ( 4, 2, 8, 6, 5, 7, 3, 9, 0, 1 )
+                 , ( 2, 7, 9, 3, 8, 0, 6, 4, 1, 5 )
+                 , ( 7, 0, 4, 6, 9, 1, 3, 2, 5, 8 )
+                 );
+    proc verhoeff_algorithm = ( string s_in, bool validate, table )int:
+         begin
+            if table then
+                print( ( if validate then "Validation" else "Check digit" fi ) );
+                print( ( " calculations for ''", s_in, "'':", newline ) );
+                print( ( "     i  ni  p[i,ni]  c", newline, "    ------------------", newline ) )
+            fi;
+            string s = if validate then s_in else s_in + "0" fi;
+            int c := 0;
+            int le = UPB s;
+            for k from le by -1 to LWB s do
+                int nidx = ABS s[ k ] - 48;
+                int pidx = p[ 1 + ( le - k ) MOD 8, 1 + nidx ];
+                c := d[ c + 1, pidx + 1 ];
+                if table
+                then print( ( "    ", whole( le - k, -2 ), "  ", whole( nidx, 0 ), "      ", whole( pidx, 0 ) ) );
+                     print( ( "     ", whole( c, 0 ), newline ) )
+                fi
+            od;
+            if table AND NOT validate
+            then print( ( "    inv[", whole( c, 0 ), "] = ", whole( inv[ c + 1 ], 0 ), newline ) )
+            fi;
+            if NOT validate then inv[ c + 1 ] else c fi
+         end { verhoeff algorithm } ;
+    proc verhoeff_validation  = ( string s, bool table )bool: verhoeff_algorithm( s, true,  table ) = 0;
+    proc verhoeff_check_digit = ( string s, bool table )int:  verhoeff_algorithm( s, false, table );
+
+    begin { test cases                                                       }
+        mode Tcase = struct( string s, bool table );
+        []Tcase sts = ( ( "236", true ), ( "12345", true ), ( "123456789012", false ) );
+        for i from LWB sts to UPB sts do
+            string s = s of sts[ i ];
+            int c = verhoeff_check_digit( s, table of sts[ i ] );
+            print( ( "The check digit for ''", s, "'' is ''", whole( c, 0 ), "''", newline ) );
+            []string stc = ( s + REPR ( c + ABS "0" ), s + "9" );
+            for j from LWB stc to UPB stc do
+                bool v = verhoeff_validation( stc[ j ], table of sts[ i ] );
+                print( ( "Validation for ''", stc[ j ], "'' -> " ) );
+                print( ( if v then "correct" else "incorrect" fi, ".", newline ) )
+            od;
+            print( ( newline, newline ) )
+        od
+    end
+end
+)

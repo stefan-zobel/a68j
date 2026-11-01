@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Flatten a list", ALGOL 68 solution flatten-a-list-2.alg.
+  https://rosettacode.org/wiki/Flatten_a_list#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/flatten-a-list-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[][][][][][][][][]int list1 = ((1), 2, ((3,4), 5), ((())), (((6))), 7, 8, () );
+file   str_file;
+string str_list;
+
+{ write the list to a string }
+associate( str_file, str_list );
+put( str_file, ( list1 ) );
+close( str_file );
+
+{ count the number of elements }
+int element_count := 0;
+associate( str_file, str_list );
+bool at_end := false;
+on_logical_file_end( str_file, ( ref file f )bool: at_end := true );
+while int value := 0;
+      get( str_file, value );
+      NOT at_end
+do
+      element_count +:= 1
+od;
+
+{ read the elements into a "flattened list" }
+[ 1 : element_count ]int values;
+rewind( str_file );
+at_end := false;
+get( str_file, ( values ) );
+close( str_file );
+
+{ show the elements }
+for i from LWB values to UPB values do print( ( " ", whole( values[ i ], 0 ) ) ) od;
+print( ( newline ) )
+)

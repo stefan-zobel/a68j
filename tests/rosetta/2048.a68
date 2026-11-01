@@ -1,0 +1,151 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "2048", ALGOL 68 solution 2048.alg.
+  https://rosettacode.org/wiki/2048#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/2048.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+int side = 4;
+int right = 1, up = 2, left = 3, down = 4;
+[]char direction_letters = "ruld";
+[]string direction_descriptions = ("right", "up", "left", "down");
+
+mode Board = ref[,]int;
+mode Cell = ref int;
+
+op = = (Board a, Board b) bool:
+  (for i to side do for j to side do if a[i,j] /= b[i,j] then mismatch fi od od;
+  true exit
+  mismatch: false);
+
+proc traverse_board = (Board board, proc(Cell)void callback) void:
+  for i from 1 LWB board to 1 UPB board do
+    for j from 2 LWB board to 2 UPB board do
+      callback(board[i,j])
+  od od;
+
+proc count_blanks = (Board board) int:
+  (int count := 0;
+   traverse_board(board, (Cell c)void: if c = 0 then count +:= 1 fi);
+   count);
+
+proc nth_blank = (Board board, int nth) Cell:
+  (Cell result;
+   int count := 0;
+   traverse_board(board, (Cell c)void:
+                           (if c = 0 then count +:= 1 fi;
+                            if count = nth then
+                              result := c; return
+                            fi));
+   return: result);
+
+proc add_new_number = (Board board) void:
+  (int nblanks = count_blanks(board);
+   int number   := (random >= .9 | 4 | 2);
+   int position := ENTIER (random * nblanks) + 1;
+
+   nth_blank(board, position) := number);
+
+proc shift = (ref[]int row, bool to_the_end) void:
+  (int from_ = (to_the_end | UPB row | LWB row),
+       to_   = (to_the_end | LWB row | UPB row),
+       dir  = (to_the_end | -1 | 1);
+   for i from from_ + dir by dir to to_  do
+     if row[i] /= 0 then
+       int blank := 0;
+       for j from i - dir by -dir to from_ while row[j] = 0 do
+         blank := j
+       od;
+       if blank /= 0 then
+         row[blank] := row[i];
+         row[i] := 0
+       fi
+     fi
+   od);
+
+proc combine = (ref[]int row, bool to_the_end) void:
+  (int from_ = (to_the_end | UPB row | LWB row),
+       to_   = (to_the_end | LWB row | UPB row),
+       dir  = (to_the_end | -1 | 1);
+   for i from from_ by dir to to_ - dir do
+     if row[i] /= 0 AND row[i] = row[i+dir] then
+       row[i] *:= 2;
+       row[i+dir] := 0
+     fi
+   od);
+
+proc move = (Board board, int direction) void:
+  for i to side do
+    case direction in
+      { right } (shift(board[i,], true);  combine(board[i,], true);  shift(board[i,], true)),
+      { up    } (shift(board[,i], false); combine(board[,i], false); shift(board[,i], false)),
+      { left  } (shift(board[i,], false); combine(board[i,], false); shift(board[i,], false)),
+      { down  } (shift(board[,i], true);  combine(board[,i], true);  shift(board[,i], true))
+    esac
+  od;
+
+proc print_board = (Board board)void:
+  (for i from 1 LWB board to 1 UPB board do
+     print("+");
+     for j from 2 LWB board to 2 UPB board do print("------+") od;
+     print((new_line, "|"));
+     for j from 2 LWB board to 2 UPB board do
+       print(((board[i,j] = 0 | "     " | whole(board[i,j],-5)), " |"))
+     od;
+     print(new_line)
+   od;
+   print("+"); for j from 2 LWB board to 2 UPB board do print("------+") od;
+   print(new_line)
+  );
+
+proc score = (Board board) int:
+  (int result := 0;
+   traverse_board(board, (Cell c)void: result +:= c);
+   result);
+
+proc join = ([]string strings, string joiner) string:
+  if UPB strings > 0 then
+    string result := strings[1];
+    for i from 2 to UPB strings do result +:= joiner +:= strings[i] od;
+    result
+  else
+    ""
+  fi;
+
+Board board = loc [side,side]int;
+Board previous = loc [side,side]int;
+
+traverse_board(board, (Cell c)void: c := 0);
+
+{ start with two numbers }
+to 2 do add_new_number(board) od;
+
+{ play! }
+string prompt := "enter one of [" + direction_letters + "] (for " + join(direction_descriptions, "/") + "): ";
+do
+  char key;
+  int dir;
+  print_board(board);
+  print(("score: ", whole(score(board),0), new_line));
+  while
+    print(prompt);
+    read((key, new_line));
+    NOT char_in_string(key, dir, direction_letters)
+  do skip od;
+  previous := board;
+  move(board, dir);
+  if count_blanks(board) = 0 then lose fi;
+  traverse_board(board, (Cell c)void: if c = 2048 then win fi);
+  if previous = board then
+    print(("try again!", new_line))
+  else
+    add_new_number(board)
+  fi
+od;
+
+win: print_board(board); print(("you win!", new_line)) exit
+lose: print(("you lose!", new_line))
+)
+)

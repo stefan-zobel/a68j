@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Spelling of ordinal numbers", ALGOL 68 solution spelling-of-ordinal-numbers.alg.
+  https://rosettacode.org/wiki/Spelling_of_ordinal_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/spelling-of-ordinal-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { construct number names from a number                                  }
+    []string units
+           = ( "one", "two",  "three", "four", "five", "six", "seven", "eight", "nine" );
+    []string unit_prefix
+           = ( "ten", "twen", "thir",  "four", "fif", "six",  "seven", "eigh",  "nine" );
+    []string singleth
+           = ( "first", "second",  "third",  "fourth", "fifth"
+             , "sixth", "seventh", "eighth", "nineth"
+             );
+    []string power_suffix
+           = ( "thousand", "million", "billion", "trillion", "quadrillion", "quintillion" );
+    { returns n converted to a number name, n must be 1-99                    }
+    {         if final is TRUE, the name will end in st, nd, rd, ...          }
+    proc two_digits = ( int n, bool final )string:
+         if   n < 10       then if final then singleth[ n ] else units[ n ] fi
+         elif n = 10       then if final then "tenth"       else "ten"      fi
+         elif n = 11       then if final then "eleventh"    else "eleven"   fi
+         elif n = 12       then if final then "twelfth"     else "twelve"   fi
+         elif n < 20       then unit_prefix[ n - 10 ]
+                              + if final then "teenth" else "teen" fi
+         elif n MOD 10 = 0 then unit_prefix[ n OVER 10 ]
+                              + if final then "tieth"  else "ty"   fi
+         else unit_prefix[ n OVER 10 ]
+            + "ty "
+            + if final then singleth[ n MOD 10 ] else units[ n MOD 10 ] fi
+         fi { two digits } ;
+    { returns n converted to a number name, n must be 1-999                   }
+    {         if final is TRUE, the name will end in st, nd, rd, ...          }
+    proc three_digits = ( int n, bool final )string:
+         if   n < 100
+         then two_digits( n, final )
+         elif string hundreds = units[ n OVER 100 ] + " hundred";
+              int    ending = n MOD 100;
+              ending = 0
+         then if final then hundreds + "th" else hundreds fi
+         else hundreds + " and " + two_digits( ending, final )
+         fi { three digits } ;
+    { returns the "name" of n                                                 }
+    op NAME = ( long int n )string:
+       if   n < 0 then "minus " + NAME - n
+       elif n = 0 then "zeroth"
+       else
+            { have a positive number to name                                  }
+            long int v         := n;
+            string   result    := "";
+            int      power_pos := 0;
+            while v /= 0 do
+                bool     final_component = power_pos = 0;
+                int v999 = SHORTEN ( v MOD 1000 );
+                if v999 /= 0 then
+                    string component := three_digits( v999, final_component );
+                    if power_pos > 0 then
+                        component +:= " " + power_suffix[ power_pos ];
+                        if final_component then component +:= "th" fi
+                    fi;
+                    if power_pos = 0 AND v > 1000 AND v999 < 100 then
+                        "and " +=: component
+                    fi;
+                    if result /= "" then component +:= " " fi;
+                    component +=: result
+                fi;
+                power_pos +:= 1;
+                v OVERAB 1000
+            od;
+            if n MOD 1000 = 0 then result + "th" else result fi
+       fi { NAME } ;
+{  # not used in this task, but in general we might need the followingL      #
+    # additional operator to handle shorter integers                          #
+    OP NAME = ( INT       n )STRING: NAME LENG n;
+    # additional operators to handle integers expressed in floating point     #
+    OP NAME = ( LONG REAL n )STRING: NAME ENTIER n;
+    OP NAME = ( REAL      n )STRING: NAME ENTIER n;
+}
+    { task test cases                                                         }
+    []long int t = ( 1, 2, 3, 4, 5, 11, 65, 100, 101, 272, 23 456, 8 007 006 005 004 003 );
+    for n from LWB t to UPB t do
+        print( ( whole( t[ n ], -16 ), ": ", NAME t[ n ], newline ) )
+    od
+end
+)

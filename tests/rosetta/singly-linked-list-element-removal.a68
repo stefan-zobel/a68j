@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Singly-linked list/Element removal", ALGOL 68 solution singly-linked-list-element-removal.alg.
+  https://rosettacode.org/wiki/Singly-linked_list/Element_removal#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/singly-linked-list-element-removal.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ using code from the Singly-linked-list Element Traversal task }
+
+mode Stringlist = struct(string value, ref Stringlist next);
+
+{ removes the specified element from the list, modifying list if necessary }
+prio REMOVE = 1;
+op   REMOVE = ( ref Stringlist list, ref Stringlist element )ref Stringlist:
+     if element isnt ref Stringlist(nil) then
+         { have an element to remove }
+         if ref Stringlist(list) is ref Stringlist(element) then
+             { remove the head }
+             list := next of list
+         else
+             { not removing the head element }
+             ref Stringlist list_pos := list;
+             while if   ref Stringlist(list_pos) is ref Stringlist(nil) then false
+                   else ref Stringlist(next of list_pos) isnt ref Stringlist(element)
+                   fi
+             do
+                 list_pos := next of list_pos
+             od;
+             if ref Stringlist(list_pos) isnt ref Stringlist(nil) then
+                 { found the element }
+                 next of list_pos := next of next of list_pos
+             fi
+         fi;
+         list
+     else
+         list
+     fi { REMOVE } ;
+
+begin { tests }
+    Stringlist list := ("Big",
+       loc Stringlist := ("fjords",
+          loc Stringlist := ("vex",
+             loc Stringlist := ("quick",
+                loc Stringlist := ("waltz",
+                   loc Stringlist := ("nymph",nil))))));
+
+    ( list REMOVE next of next of list ) REMOVE list;
+    ref Stringlist node := list;
+    while node isnt ref Stringlist(nil) do
+       print((value of node, space));
+       node := next of node
+    od;
+    print(newline)
+end
+)

@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Number names", ALGOL 68 solution number-names-1.alg.
+  https://rosettacode.org/wiki/Number_names#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/number-names-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc number_words = (int n)string:(
+  { returns a string representation of n in words. Currently
+  deals with anything from 0 to 999 999 999. }
+    []string digits = []string
+      ("zero","one","two","three","four","five","six","seven","eight","nine")[@0];
+    []string teens = []string
+      ("ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen")[@0];
+    []string decades = []string
+      ("twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety")[@2];
+
+    proc three_digits = (int n)string: (
+      { does the conversion for n from 0 to 999. }
+        int tens = n MOD 100 OVER 10;
+        int units = n MOD 10;
+        (n >= 100|digits[n OVER 100] + " " + "hundred" + (n MOD 100 /= 0|" and "|"")|"") +
+        (tens /= 0|(tens = 1|teens[units]|decades[tens] + (units /= 0|"-"|""))|"") +
+        (units /= 0 AND tens /= 1 OR n = 0|digits[units]|"")
+      );
+    int m = n OVER 1 000 000;
+    int k = n MOD 1 000 000 OVER 1000;
+    int u = n MOD 1000;
+    (m /= 0|three_digits(m) + " million"|"") +
+    (m /= 0 AND (k /= 0 OR u >= 100)|", "|"") +
+    (k /= 0|three_digits(k) + " thousand"|"") +
+    ((m /= 0 OR k /= 0) AND u > 0 AND u < 100|" and " |: k /= 0 AND u /= 0|", "|"") +
+    (u /= 0 OR n = 0|three_digits(u)|"")
+  );
+
+on_logical_file_end(stand_in, (ref file f)bool: goto stop_iteration);
+on_value_error(stand_in, (ref file f)bool: goto stop_iteration);
+do { until user hits EOF }
+  int n;
+  print("n? ");
+  read((n, new_line));
+  print((number_words(n), new_line))
+od;
+stop_iteration:
+  skip
+)

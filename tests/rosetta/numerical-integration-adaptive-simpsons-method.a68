@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numerical integration/Adaptive Simpson's method", ALGOL 68 solution numerical-integration-adaptive-simpsons-method.alg.
+  https://rosettacode.org/wiki/Numerical_integration/Adaptive_Simpson's_method#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numerical-integration-adaptive-simpsons-method.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Numerical integration using an Adaptive Simpson's method }
+
+    proc quad_asr = ( proc(real)real f, real a, b, eps )real:
+         begin
+            mode Triple = struct( real m, fm, simp );
+
+            { "structured" adaptive version, translated from Racket }
+            proc quad_simpsons_mem = ( proc(real)real f, real a, fa, b, fb )Triple:
+                 begin { Evaluates Simpson's Rule, also returning m and f(m) to reuse. }
+                    real m    = ( a + b ) / 2;
+                    real fm   = f( m );
+                    real simp = ABS ( b - a ) / 6 * ( fa + 4*fm + fb );
+                    ( m, fm, simp )
+                 end { quad simpsons mem } ;
+
+            proc quad_asr_rec = ( proc(real)real f, real a, fa, b, fb, eps, whole, m, fm )real:
+                 if { Efficient recursive implementation of adaptive Simpson's rule. }
+                    { Function values at the start, middle, end of the intervals are retained. }
+                    Triple lt    = quad_simpsons_mem( f, a, fa, m, fm );
+                    Triple rt    = quad_simpsons_mem( f, m, fm, b, fb );
+                    real   delta = simp of lt + simp of rt - whole;
+                    ABS delta <= eps * 15
+                 then simp of lt + simp of rt + delta / 15
+                 else quad_asr_rec( f, a, fa, m, fm, eps / 2, simp of lt, m of lt, fm of lt )
+                    + quad_asr_rec( f, m, fm, b, fb, eps / 2, simp of rt, m of rt, fm of rt )
+                 fi { quad asr } ;
+
+             { Integrate f from a to b using ASR with max error of eps. }
+             real   fa = f( a );
+             real   fb = f( b );
+             Triple t  = quad_simpsons_mem( f, a, fa, b, fb );
+             quad_asr_rec( f, a, fa, b, fb, eps, simp of t, m of t, fm of t )
+         end { quad asr } ;
+
+    real a = 0.0, b = 1.0;
+    real sinx = quad_asr( sin, a, b, 1e-09 );
+    print( ( "Simpson''s integration of sine from ", fixed( a,    -6, 3 )
+           , " to ",                                fixed( b,    -6, 3 )
+           , " = ",                                 fixed( sinx, -9, 6 )
+           , newline
+           )
+         )
+end
+)

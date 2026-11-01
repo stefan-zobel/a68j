@@ -1,0 +1,102 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Y combinator", ALGOL 68 solution y-combinator-2.alg.
+  https://rosettacode.org/wiki/Y_combinator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/y-combinator-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+{ This version needs partial parameterisation in order to work }
+{ The commented code is JavaScript aka ECMAScript ES6 }
+
+
+mode F = proc( int ) int ;
+mode X = proc( X ) F ;
+
+
+{
+Y_combinator =
+  func_gen => ( x => x( x ) )( x => func_gen( arg => x( x )( arg ) ) )
+}
+
+proc y_combinator = ( proc( F ) F func_gen ) F:
+( ( X x ) F:  x( x ) )
+  (
+    (
+      ( proc( F ) F func_gen , X x ) F:
+        func_gen( ( ( X x , int arg ) int: x( x )( arg ) )( x , ) )
+    )( func_gen , )
+  )
+;
+
+
+{
+fac_gen = fac => (n => ( ( n === 0 ) ? 1 : n * fac( n - 1 ) ) )
+}
+
+proc fac_gen = ( F fac ) F:
+( ( F fac , int n ) int: if n = 0 then 1 else n * fac( n - 1 ) fi )( fac , )
+;
+
+
+{
+factorial = Y_combinator( fac_gen )
+}
+
+F factorial = y_combinator( fac_gen ) ;
+
+
+{
+fib_gen =
+  fib =>
+    ( n => ( ( n === 0 ) ? 0 : ( n === 1 ) ? 1 : fib( n - 2 ) + fib( n - 1 ) ) )
+}
+
+proc fib_gen = ( F fib ) F:
+(
+  ( F fib , int n ) int:
+  case n + 1 in 0 , 1 out fib( n - 2 ) + fib( n - 1 ) esac
+)( fib , )
+;
+
+
+{
+fibonacci = Y_combinator( fib_gen )
+}
+
+F fibonacci = y_combinator( fib_gen ) ;
+
+
+{
+for ( i = 1 ; i <= 12 ; i++) { process.stdout.write( " " + factorial( i ) ) }
+}
+
+int nofacs = 12 ;
+printf( ( $ l , "Here are the first " , g( 0 ) , " factorials." , l $ , nofacs ) ) ;
+for i to nofacs
+do
+  printf( ( $ "  " , g( 0 ) $ , factorial( i ) ) )
+od ;
+print( newline ) ;
+
+
+{
+for ( i = 1 ; i <= 12 ; i++) { process.stdout.write( " " + fibonacci( i ) ) }
+}
+
+int nofibs = 12 ;
+printf( (
+  $ l , "Here are the first " , g( 0 ) , " fibonacci numbers." , l $
+, nofibs
+      ) )
+;
+for i to nofibs
+do
+  printf( ( $ "  " , g( 0 ) $ , fibonacci( i ) ) )
+od ;
+print( newline )
+
+end
+)

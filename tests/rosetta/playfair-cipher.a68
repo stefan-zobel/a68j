@@ -1,0 +1,185 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Playfair cipher", ALGOL 68 solution playfair-cipher.alg.
+  https://rosettacode.org/wiki/Playfair_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/playfair-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { playfair cipher - translation of FreeBASIC }
+
+    int no_q = 1, i_equals_j = 2; { possible values of pfo }
+    int pf_max = 5;               { playfair table size    }
+
+    mode Playfair = struct( int pfo, [ 1 : pf_max, 1 : pf_max ]int table );
+
+    op   TOUPPER = ( char c )char: if c < "a" OR c > "z" then c else REPR ( ABS c - ABS "a" + ABS "A" ) fi;
+    op   TOUPPER = ( string s )string:
+         begin
+            string result := s;
+            for r_pos from LWB result to UPB result do result[ r_pos ] := TOUPPER result[ r_pos ] od;
+            result
+         end { TOUPPER } ;
+    proc line_input = ( string prompt )string:
+         begin
+            string result;
+            print( ( prompt ) );
+            read( ( result, newline ) );
+            result
+         end { line input } ;
+
+    prio NEWPLAYFAIR = 9;
+    op   NEWPLAYFAIR = ( int pfo, string keyword )ref Playfair:
+         begin
+            [ 1 : pf_max, 1 : pf_max ]int table;
+            [ 1 : 26 ]bool used; for i to 26 do used[ i ] := false od;
+            used[ if pfo = no_q then 17 else 10 fi ] := true;
+            string alphabet = TOUPPER keyword + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            int i := 1, j := 1, c;
+            for k from LWB alphabet to UPB alphabet while i <= pf_max do
+                c := ABS alphabet[ k ] - 64;
+                if c >= 1 AND c <= 26 then
+                    if NOT used[ c ] then
+                        table[ i, j ] := c;
+                        used[ c ] := true;
+                        j +:= 1;
+                        if j > pf_max then
+                            i +:= 1;
+                            j  := 1
+                        fi
+                    fi
+                fi
+            od;
+            heap Playfair := Playfair( pfo, table )
+         end { NEWPLAYFAIR } ;
+    op   NEWPLAYFAIR = ( bool ignore_q, string keyword )ref Playfair:
+         if ignore_q then no_q else i_equals_j fi NEWPLAYFAIR keyword;
+
+    proc get_clean_text = ( int pfo, string orig_text )string:
+         begin
+            string plain_text = TOUPPER orig_text; { ensure everything is upper case }
+            { get rid of any non-letters and insert X between duplicate letters }
+            string clean_text := "";
+            char prev_char    := " ";
+            for i from LWB plain_text to UPB plain_text do
+                char next_char := plain_text[ i ];
+                if    next_char >= "A" AND next_char <= "Z"
+                AND ( next_char /= "Q" OR pfo /= no_q ) { Q should be omitted if no q option is specified }
+                then
+                    { If i equals j option specified, replace J with I }
+                    if next_char = "J" AND pfo = i_equals_j then next_char := "I" fi;
+                    clean_text +:= if next_char /= prev_char then
+                                       next_char
+                                   else
+                                       "X" + next_char
+                                   fi;
+                    prev_char := next_char
+                fi
+            od;
+            if ODD ( UPB clean_text - LWB clean_text + 1 ) then
+                { dangling letter at end so add another letter to complete digram }
+                clean_text +:= if clean_text[ UPB clean_text ] /= "X" then "X" else "Z" fi
+            fi;
+            clean_text
+         end { get clean text } ;
+
+    proc find_char = ( [,]int table, int c, ref int row, col )void:
+         begin
+            bool found := false;
+            row := 1 LWB table - 1;
+            col := 2 UPB table + 1;
+            for i from 1 LWB table to 1 UPB table while NOT found do
+                for j from 2 LWB table to 2 UPB table while NOT found do
+                    if found := table[ i, j ] = c then
+                        row := i;
+                        col := j
+                    fi
+                od
+            od
+         end { find char } ;
+
+    prio ENCODE = 9;
+    op   ENCODE = ( ref Playfair pf, string plain_text )string:
+         begin
+            string clean_text   = get_clean_text( pfo of pf, plain_text );
+            string cipher_text := "";
+            for i from LWB clean_text by 2 to UPB clean_text do
+                int char1 = ABS clean_text[ i     ] - 64;
+                int char2 = ABS clean_text[ i + 1 ] - 64;
+                int row1 := 0, row2 := 0, col1 := 0, col2 := 0;
+                find_char( table of pf, char1, row1, col1 );
+                find_char( table of pf, char2, row2, col2 );
+                cipher_text
+                    +:= if row1 = row2
+                        then REPR ( ( table of pf )[ row1, col1 MOD pf_max + 1 ] + 64 )
+                           + REPR ( ( table of pf )[ row2, col2 MOD pf_max + 1 ] + 64 )
+                        elif col1 = col2
+                        then REPR ( ( table of pf )[ row1 MOD pf_max + 1, col1 ] + 64 )
+                           + REPR ( ( table of pf )[ row2 MOD pf_max + 1, col2 ] + 64 )
+                        else REPR ( ( table of pf )[ row1,                col2 ] + 64 )
+                           + REPR ( ( table of pf )[ row2,                col1 ] + 64 )
+                        fi
+                      + " " { the final digram should not have a trailing space }
+                            { - it is removed later                             }
+            od;
+            cipher_text[ LWB cipher_text : UPB cipher_text - 1 ]
+         end { ENCODE } ;
+
+    prio DECODE = 9;
+    op   DECODE = ( ref Playfair pf, string cipher_text )string:
+         begin
+            string decoded_text := "";
+            { cipherText will include spaces so we need to skip them }
+            for i from LWB cipher_text by 3 to UPB cipher_text do
+                int char1 = ABS cipher_text[ i     ] - 64;
+                int char2 = ABS cipher_text[ i + 1 ] - 64;
+                int row1 := 0, row2 := 0, col1 := 0, col2 := 0;
+                find_char( table of pf, char1, row1, col1 );
+                find_char( table of pf, char2, row2, col2 );
+                decoded_text
+                    +:= if row1 = row2
+                        then REPR ( ( table of pf )[ row1, if col1 > 1 then col1 - 1 else pf_max fi ] + 64 )
+                           + REPR ( ( table of pf )[ row2, if col2 > 1 then col2 - 1 else pf_max fi ] + 64 )
+                        elif col1 = col2
+                        then REPR ( ( table of pf )[ if row1 > 1 then row1 - 1 else pf_max fi, col1 ] + 64 )
+                           + REPR ( ( table of pf )[ if row2 > 1 then row2 - 1 else pf_max fi, col2 ] + 64 )
+                        else REPR ( ( table of pf )[ row1,                                     col2 ] + 64 )
+                           + REPR ( ( table of pf )[ row2,                                     col1 ] + 64 )
+                        fi
+                      + " " { the final digram should not have a trailing space }
+                            { - it is removed later                             }
+            od;
+            decoded_text[ LWB decoded_text : UPB decoded_text - 1 ]
+         end { DECODE } ;
+
+
+    begin
+        string keyword  := line_input( "Enter Playfair keyword : " );
+        bool   ignore_q := false;
+        while
+            string q_option := TOUPPER line_input( "Ignore Q when buiding table  y/n : " );
+            ignore_q := q_option = "Y";
+            q_option /= "Y" AND q_option /= "N"
+        do skip od;
+
+        ref Playfair pf = ignore_q NEWPLAYFAIR keyword;
+
+        print( ( "The table to be used is : ", newline ) );
+        for i from 1 LWB table of pf to 1 UPB table of pf do
+            for j from 2 LWB table of pf to 2 UPB table of pf do
+                print( ( REPR ( ABS ( table of pf )[ i, j ] + 64 ), " " ) )
+            od;
+            print( ( newline ) )
+        od;
+
+        print( ( newline ) );
+        string plain_text = line_input( "Enter plain text : " );
+        string encoded_text = pf ENCODE plain_text;
+        string decoded_text = pf DECODE encoded_text;
+
+        print( ( newline ) );
+        print( ( "Encoded text is : ",  encoded_text, newline ) );
+        print( ( "Decoded text is : ",  decoded_text, newline ) )
+    end
+end
+)

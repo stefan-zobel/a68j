@@ -1,0 +1,3 @@
+before
+tests/par/par-deadlock.a68:5: runtime error: deadlock: DOWN on a semaphore with value 0 outside a parallel clause
+exit 134

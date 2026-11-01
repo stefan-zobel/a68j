@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Continued fraction/Arithmetic/Construct from rational number", ALGOL 68 solution continued-fraction-arithmetic-construct-from-rational-number.alg.
+  https://rosettacode.org/wiki/Continued_fraction/Arithmetic/Construct_from_rational_number#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/continued-fraction-arithmetic-construct-from-rational-number.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { construct continued fraction representations of rational numbers }
+      { Translated from the C sample                                     }
+      { Uses code from the Arithmetic/Rational task                      }
+
+    { Code from the Arithmetic/Rational task                         }
+    { ============================================================== }
+
+    mode Frac = struct( int num {erator},  den {ominator});
+
+    proc gcd = (int a, b) int: { greatest common divisor }
+       (a = 0 | b |: b = 0 | a |: ABS a > ABS b  | gcd(b, a MOD b) | gcd(a, b MOD a));
+
+    prio // = 9; { higher then the ** operator }
+    op // = (int num, den)Frac: ( { initialise and normalise }
+       int common = gcd(num, den);
+       if den < 0 then
+         ( -num OVER common, -den OVER common)
+       else
+         ( num OVER common, den OVER common)
+       fi
+     );
+
+    { ============================================================== }
+    { end code from the Arithmetic/Rational task                     }
+
+    []Frac examples = ( 1//2, 3//1, 23//8, 13//11, 22//7, -151//77 );
+    []Frac sqrt2    = ( 14142//10000, 141421//100000, 1414214//1000000, 14142136//10000000 );
+    []Frac pif      = ( 31//10, 314//100, 3142//1000, 31428//10000
+                      , 314285//100000, 3142857//1000000, 31428571//10000000, 314285714//100000000
+                      );
+
+    { returns the quotient of numerator over denominator and sets }
+    {         numerator and denominator to the next values for    }
+    {         the continued fraction                              }
+    proc r2cf = ( ref int numerator, ref int denominator )int:
+         if denominator = 0
+         then 0
+         else int quotient      := numerator OVER denominator;
+              int prev_numerator = numerator;
+              numerator         := denominator;
+              denominator       := prev_numerator MOD denominator;
+	      quotient
+         fi { r2cf } ;
+    { shows the continued fractions for the elements of f seq }
+    proc show_r2cf = ( string legend, []Frac f_seq )void:
+         begin
+            print( ( legend ) );
+            for i from LWB f_seq to UPB f_seq do
+                int num := num of f_seq[ i ];
+                int den := den of f_seq[ i ];
+                print( ( newline, "For N = ", whole( num , 0 ), ", D = ", whole( den , 0 ), " :" ) );
+                while den /= 0 do
+                    print( ( " ", whole( r2cf( num, den ), 0 ) ) )
+                od
+            od
+         end { show r2cf } ;
+    begin { task }
+        show_r2cf( "Running the examples :", examples );
+	print( ( newline, newline ) );
+        show_r2cf( "Running for root2 :", sqrt2 );
+	print( ( newline, newline ) );
+	show_r2cf( "Running for pi :", pif );
+        print( ( newline ) )
+    end
+end
+)

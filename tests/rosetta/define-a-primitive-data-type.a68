@@ -1,0 +1,170 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Define a primitive data type", ALGOL 68 solution define-a-primitive-data-type.alg.
+  https://rosettacode.org/wiki/Define_a_primitive_data_type#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/define-a-primitive-data-type.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ { assume max int <= ABS - max negative int }
+ int max_bounded = ( LENG max_int * max_int > long_max_int | ENTIER sqrt(max_int) | max_int );
+
+ mode Range = struct(int lwb, upb);
+ mode Bounded = struct(int value, Range range);
+ FORMAT bounded_repr = $g"["g(-0)":"g(-0)"]"$;
+
+ { Define some useful operators for looping over ranges }
+ op LWB = (Range range)int: lwb of range,
+    UPB = (Range range)int: upb of range,
+    LWB = (Bounded bounded)int: lwb of range of bounded,
+    UPB = (Bounded bounded)int: upb of range of bounded;
+
+ proc raise_exception = ([]string args)void: (
+   put(stand_error, ("exception: ",args, newline));
+   stop
+ );
+
+ proc raise_not_implemented_error := ([]string args)void: raise_exception(args);
+ proc raise_bounds_error := ([]string args)void: raise_exception(args);
+
+ prio MIN=9, MAX=9;
+ op MIN = ([]int list)int: (
+   int out_:= list[LWB list];
+   for index from LWB list+1 to UPB list do if list[index]<out_ then out_ :=list[index] fi od;
+   out_
+ );
+ op MAX = ([]int list)int: (
+   int out_:= list[LWB list];
+   for index from LWB list+1 to UPB list do if list[index]>out_ then out_ :=list[index] fi od;
+   out_
+ );
+
+ prio ASSERTIN = 6;
+ op ASSERTIN = (int result, []Range range)Bounded: (
+     Bounded out_ = (result, (MAX lwb of range, MIN upb of range));
+     if value of out_ < lwb of range of out_ then
+       raise_bounds_error(("out of bounds", whole(result, int_width)," < [",whole(MAX lwb of range, int_width),":]"))
+     elif value of out_ > upb of range of out_ then
+       raise_bounds_error(("out of bounds", whole(result, int_width)," > [:",whole(MIN upb of range, int_width),"]"))
+     fi;
+     out_
+   ),
+   ASSERTIN = (long int result, []Range range)Bounded: (
+     struct (long int value, Range range) out_ = (result, (MAX lwb of range, MIN upb of range));
+     if value of out_ < lwb of range of out_ then
+       raise_bounds_error(("out of bounds", whole(result, long_int_width)," < [",whole(MAX lwb of range, int_width),":]"))
+     elif value of out_ > upb of range of out_ then
+       raise_bounds_error(("out of bounds", whole(result, long_int_width)," > [:",whole(MIN upb of range, int_width),"]"))
+     fi;
+     (SHORTEN value of out_, range of out_)
+   ),
+   ASSERTIN = (int result, []Bounded bounds)Bounded: result ASSERTIN range of bounds,
+   ASSERTIN = (long int result, []Bounded bounds)Bounded: result ASSERTIN range of bounds;
+
+ int half_max_int = max_int OVER 2;
+ int sqrt_max_int = ENTIER sqrt (max_int);
+
+ op + = (Bounded a, b)Bounded:
+          if ABS value of a < half_max_int AND ABS value of b < half_max_int then
+            value of a + value of b ASSERTIN []Bounded(a,b)
+          else
+            LENG value of a + value of b ASSERTIN []Bounded(a,b)
+          fi,
+    - = (Bounded a, b)Bounded: value of a + -value of b ASSERTIN []Bounded(a,b),
+    * = (Bounded a, b)Bounded:
+          if ABS value of a < sqrt_max_int AND ABS value of b < sqrt_max_int then
+            value of a * value of b ASSERTIN []Bounded(a,b)
+          else
+            LENG value of a * value of b ASSERTIN []Bounded(a,b)
+          fi,
+    /  = (Bounded a, b)real: value of a / value of b,
+    %  = (Bounded a, b)Bounded: value of a % value of b ASSERTIN []Bounded(a,b),
+    %* = (Bounded a, b)Bounded: value of a %* value of b ASSERTIN []Bounded(a,b),
+    ** = (Bounded a, int exponent)Bounded: value of a ** exponent ASSERTIN []Bounded(a);
+
+ op OVER = (int value, Range range)Bounded:
+   if ABS lwb of range > max_bounded then
+     raise_bounds_error(("out of bounds, ABS", whole(lwb of range, int_width)," > [:",whole(max_bounded, int_width),"]"));
+     skip
+   elif ABS upb of range > max_bounded then
+     raise_bounds_error(("out of bounds, ABS", whole(upb of range, int_width)," > [:",whole(max_bounded, int_width),"]"));
+     skip
+   else
+     value ASSERTIN []Range(range)
+   fi;
+
+ op INTINIT = (Bounded range)real: value of range;
+
+ op <  = (Bounded a, b)bool: value of a < value of b,
+    >  = (Bounded a, b)bool: value of a > value of b,
+    <= = (Bounded a, b)bool: NOT ( value of a > value of b ),
+    >= = (Bounded a, b)bool: NOT ( value of a < value of b ),
+    =  = (Bounded a, b)bool: value of a = value of b,
+    /= = (Bounded a, b)bool: NOT (a = b);
+
+ { Monadic operators }
+ op - = (Bounded range)Bounded: -value of range ASSERTIN []Bounded(range),
+    ABS = (Bounded range)Bounded: ABS value of range ASSERTIN []Bounded(range);
+
+ { Operators for extended characters set, and increment/decrement:
+ OP +:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a + b ),
+    +=: = (BOUNDED a, REF BOUNDED b)REF BOUNDED: ( b := a + b ),
+    -:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a - b ),
+    *:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a * b ),
+    %:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a % b ),
+    %*:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a %* b );
+
+ # OP aliases for extended character sets (eg: Unicode, APL, ALCOR and GOST 10859) #
+ OP ×  = (BOUNDED a, b)BOUNDED: a * b,
+    ÷  = (BOUNDED a, b)INT: a OVER b,
+    ÷× = (BOUNDED a, b)BOUNDED: a MOD b,
+    ÷* = (BOUNDED a, b)BOUNDED: a MOD b,
+    %× = (BOUNDED a, b)BOUNDED: a MOD b,
+    ≤  = (BOUNDED a, b)BOUNDED: a <= b,
+    ≥  = (BOUNDED a, b)BOUNDED: a >= b,
+    ≠  = (BOUNDED a, b)BOOL: a /= b,
+    ↑  = (BOUNDED range, INT exponent)BOUNDED: value OF range ** exponent,
+
+    ÷×:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a MOD b ),
+    %×:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a MOD b ),
+    ÷*:= = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a := a MOD b );
+
+ # BOLD aliases for CPU that only support uppercase for 6-bit bytes  - wrist watches #
+ OP OVER = (BOUNDED a, b)INT: a % b,
+    MOD = (BOUNDED a, b)BOUNDED: a %*b,
+    LT = (BOUNDED a, b)BOOL: a <  b,
+    GT = (BOUNDED a, b)BOOL: a >  b,
+    LE = (BOUNDED a, b)BOOL: a <= b,
+    GE = (BOUNDED a, b)BOOL: a >= b,
+    EQ = (BOUNDED a, b)BOOL: a =  b,
+    NE = (BOUNDED a, b)BOOL: a /= b,
+    UP = (BOUNDED range, INT exponent)BOUNDED: range**exponent;
+
+ # the required standard assignment operators #
+ OP PLUSAB  = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a +:= b ), # PLUS #
+    PLUSTO  = (BOUNDED a, REF BOUNDED b)REF BOUNDED: ( a +=: b ), # PRUS #
+    MINUSAB = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a *:= b ),
+    DIVAB   = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a /:= b ),
+    OVERAB  = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a %:= b ),
+    MODAB   = (REF BOUNDED a, BOUNDED b)REF BOUNDED: ( a %*:= b );
+
+END }
+T est:
+ Range range = Range(0, 10000);
+
+ { override the default exception }
+ raise_bounds_error := ([]string args)void: (
+     putf(stand_error, ($g$, args, $"- exiting to except bounds error"l$));
+     except_bounds_error
+   );
+
+ Bounded a, b := 0 OVER range;
+ for step from 4 by 4 to UPB range do { something for pythagoras }
+   b := b + step OVER range;
+   a := ENTIER sqrt( 1.5 + 2 * value of b ) OVER range of b;
+   printf(($"Sum of "$, bounded_repr, a * a, b * b,
+           $" is "$,    bounded_repr, a * a + b * b, $l$))
+ od;
+ except_bounds_error:
+   skip
+)

@@ -1,0 +1,114 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cartesian product of two or more lists", ALGOL 68 solution cartesian-product-of-two-or-more-lists.alg.
+  https://rosettacode.org/wiki/Cartesian_product_of_two_or_more_lists#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cartesian-product-of-two-or-more-lists.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Cartesian Product                                                    }
+    { Cartesian product operators                                            }
+    prio X = 7; { give X he same priority as *                               }
+    { returns the Cartesian product of the lists a and b                     }
+    op   X = ( []int a, b )[,]int:
+         begin
+            []int a1  = a[ at 1 ];
+            []int b1  = b[ at 1 ];
+            int   len = UPB a1 * UPB b1;
+            [ 1 : len, 1 : if len > 0 then 2 else 0 fi ]int result;
+            int pos := 0;
+            for i to UPB a1 do
+                for j to UPB b1 do
+                    pos +:= 1;
+                    result[ pos, 1 ] := a1[ i ];
+                    result[ pos, 2 ] := b1[ j ]
+                od
+            od;
+            result
+         end { X } ;
+    { returns the Cartesian product of the Cartesian product a and list b    }
+    op   X = ( [,]int a, []int b )[,]int:
+         begin
+            [,]int a1   = a[ at 1, at 1 ];
+            []int  b1   = b[ at 1 ];
+            int   len   = 1 UPB a1 * UPB b1;
+            int   width = if len <= 0 then 0 else 2 UPB a1 + 1 fi;
+            [ 1 : len, 1 : width  ]int result;
+            int pos := 0;
+            for i to 1 UPB a1 do
+                for j to UPB b1 do
+                    result[ pos +:= 1, 1 : width - 1 ] := a1[ i, : ];
+                    result[ pos, width ]               := b1[ j ]
+                od
+            od;
+            result
+         end { X } ;
+    { returns the Cartesian product of the lists in a                        }
+    op   X = ( [][]int a )[,]int:
+         if UPB a <= LWB a
+         then { zero or 1 list                                               }
+              [,]int()
+         else { 2 or more lists                                              }
+              flex[ 1 : 0, 1 : 0 ]int result := a[ LWB a ] X a[ LWB a + 1 ];
+              for i from LWB a + 2 to UPB a do
+                  result := result X a[ i ]
+              od;
+              result
+         fi { X } ;
+    { print a Cartesian product                                              }
+    proc print_product = ( [,]int p )void:
+         begin
+            print( ( "[" ) );
+            string close_text := "]";
+            string open_text  := "(";
+            for i from 1 LWB p to 1 UPB p do
+                string separator := open_text;
+                for j from 2 LWB p to 2 UPB p do
+                    print( ( separator, whole( p[ i, j ], 0 ) ) );
+                    separator := ","
+                od;
+                open_text  := "),(";
+                close_text := ")]"
+            od;
+            print( ( close_text ) )
+         end { print product } ;
+    { print a list                                                           }
+    proc print_list = ( []int t )void:
+         begin
+            print( ( "[" ) );
+            string separator := "";
+            for i from LWB t to UPB t do
+                print( ( separator, whole( t[ i ], 0 ) ) );
+                separator := ","
+            od;
+            print( ( "]" ) )
+         end { print list } ;
+    begin { test the X operators                                             }
+        { prints the product of two lists                                    }
+        proc print_lxl = ( []int a, b )void:
+             begin
+                print_list( a );print( ( "X" ) );print_list( b );
+                print( ( "=" ) );print_product( a X b );
+                print( ( newline ) )
+             end { print lxl } ;
+        { prints the product of a list of lists                              }
+        proc print_xll = ( [][]int a )void:
+             if LWB a < UPB a then
+                { non empty list of lists                                    }
+                print_list( a[ LWB a ] );
+                for i from LWB a + 1 to UPB a do
+                    print( ( "X" ) );print_list( a[ i ] )
+                od;
+                print( ( "=" ) );print_product( X a );
+                print( ( newline ) )
+             fi { print xll } ;
+        print_lxl( ( 1, 2 ), ( 3, 4 ) );
+        print_lxl( ( 3, 4 ), ( 1, 2 ) );
+        print_lxl( ( 1, 2 ), ()       );
+        print_lxl( (),       ( 1, 2 ) );
+        print_xll( ( ( 1776, 1789 ), ( 7, 12 ), ( 4, 14, 23 ), ( 0, 1 ) ) );
+        print_xll( ( ( 1, 2, 3 ), ( 30 ), ( 500, 100 ) ) );
+        print_xll( ( ( 1, 2, 3 ), (),     ( 500, 100 ) ) )
+    end
+end
+)

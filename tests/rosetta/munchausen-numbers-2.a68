@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Munchausen numbers", ALGOL 68 solution munchausen-numbers-2.alg.
+  https://rosettacode.org/wiki/Munchausen_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/munchausen-numbers-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Find all Munchausen numbers - note 11*(9^9) has only 10 digits so there are no    }
+{ Munchausen numbers with 11+ digits                                                }
+{ table of Nth powers - note 0^0 is 0 for Munchausen numbers, not 1                 }
+[]int nth_power = ([]int( 0, 1, 2 ^ 2, 3 ^ 3, 4 ^ 4, 5 ^ 5, 6 ^ 6, 7 ^ 7, 8 ^ 8, 9 ^ 9 ) )[ at 0 ];
+
+[       ]int z_count  = []int( ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ) )[ at 0 ];
+[ 0 : 9 ]int d_count := z_count;
+
+{ as the digit power sum is independent of the order of the digits, we need only    }
+{ consider one arrangement of each possible combination of digits                   }
+for d1 from 0 to 9 do
+    for d2 from 0 to d1 do
+        for d3 from 0 to d2 do
+            for d4 from 0 to d3 do
+                for d5 from 0 to d4 do
+                    for d6 from 0 to d5 do
+                        for d7 from 0 to d6 do
+                            for d8 from 0 to d7 do
+                                for d9 from 0 to d8 do
+                                    for da from 0 to d9 do
+                                        long int digit_power_sum  := nth_power[ d1 ] + nth_power[ d2 ];
+                                        digit_power_sum          +:= nth_power[ d3 ] + nth_power[ d4 ];
+                                        digit_power_sum          +:= nth_power[ d5 ] + nth_power[ d6 ];
+                                        digit_power_sum          +:= nth_power[ d7 ] + nth_power[ d8 ];
+                                        digit_power_sum          +:= nth_power[ d9 ] + nth_power[ da ];
+                                        { count the occurrences of each digit (including leading zeros }
+                                        d_count        := z_count;
+                                        d_count[ d1 ] +:= 1; d_count[ d2 ] +:= 1; d_count[ d3 ] +:= 1;
+                                        d_count[ d4 ] +:= 1; d_count[ d5 ] +:= 1; d_count[ d6 ] +:= 1;
+                                        d_count[ d7 ] +:= 1; d_count[ d8 ] +:= 1; d_count[ d9 ] +:= 1;
+                                        d_count[ da ] +:= 1;
+                                        { subtract the occurrences of each digit in the power sum      }
+                                        { (also including leading zeros) - if all counts drop to 0 we  }
+                                        { have a Munchausen number                                     }
+                                        long int number        := digit_power_sum;
+                                        int      leading_zeros := 10;
+                                        while number > 0 do
+                                            d_count[ SHORTEN ( number MOD 10 ) ] -:= 1;
+                                            leading_zeros -:= 1;
+                                            number OVERAB 10
+                                        od;
+                                        d_count[ 0 ] -:= leading_zeros;
+                                        if  d_count[ 0 ] = 0 AND d_count[ 1 ] = 0 AND d_count[ 2 ] = 0
+                                        AND d_count[ 3 ] = 0 AND d_count[ 4 ] = 0 AND d_count[ 5 ] = 0
+                                        AND d_count[ 6 ] = 0 AND d_count[ 7 ] = 0 AND d_count[ 8 ] = 0
+                                        AND d_count[ 9 ] = 0
+                                        then
+                                            print( ( digit_power_sum, newline ) )
+                                        fi
+                                    od
+                                od
+                            od
+                        od
+                    od
+                od
+            od
+        od
+    od
+od
+)

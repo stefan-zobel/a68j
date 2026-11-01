@@ -1,0 +1,54 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ordered words", ALGOL 68 solution ordered-words-1.alg.
+  https://rosettacode.org/wiki/Ordered_words#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ordered-words-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc ordered = (string s)bool:
+  begin
+    for i to UPB s - 1 do if s[i] > s[i+1] then return_false fi od;
+    true exit
+    return_false: false
+  end;
+
+if file input_file;
+   string file_name = "unixdict.txt";
+   open(input_file, file_name, stand_in_channel) /= 0
+then
+  print(("Unable to open file """ + file_name + """", newline))
+else
+  bool at_eof := false;
+  on_logical_file_end (input_file, (ref file f)bool: at_eof := true);
+
+  flex [1:0] string words;
+  int idx := 1;
+  int max_length := 0;
+
+  while NOT at_eof
+  do
+    string word_;
+    get(input_file, (word_, newline));
+    if UPB word_ >= max_length
+    then if ordered(word_)
+         then
+           max_length := UPB word_;
+           if idx > UPB words
+           then
+             [1 : UPB words + 20] string tmp;
+             tmp[1 : UPB words] := words;
+             words := tmp
+           fi;
+           words[idx] := word_;
+           idx +:= 1
+         fi
+    fi
+  od;
+  print(("Maximum length of ordered words: ", whole(max_length, -4), newline));
+  for i to idx-1
+  do
+    if UPB words[i] = max_length then print((words[i], newline)) fi
+  od
+fi
+)

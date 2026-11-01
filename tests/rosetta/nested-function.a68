@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Nested function", ALGOL 68 solution nested-function.alg.
+  https://rosettacode.org/wiki/Nested_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/nested-function.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc make_list = ( string separator )string:
+     begin
+        int counter := 0;
+        proc make_item = ( string item )string:
+             begin
+                counter +:= 1;
+                whole( counter, 0 ) + separator + item + REPR 10
+             end; { make item }
+        make_item( "first" ) + make_item( "second" ) + make_item( "third" )
+     end; { make list }
+
+print( ( make_list( ". " ) ) )
+)

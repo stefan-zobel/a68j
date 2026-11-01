@@ -1,0 +1,117 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Abelian sandpile model/Identity", ALGOL 68 solution abelian-sandpile-model-identity.alg.
+  https://rosettacode.org/wiki/Abelian_sandpile_model/Identity#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abelian-sandpile-model-identity.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { model Abelian sandpiles }
+    { represents a sandpile }
+    int elements = 3;
+    mode Sandpile = [ 1 : elements, 1 : elements ]int;
+    { returns TRUE if the sandpiles a and b have the same values, FALSE otherwise }
+    op = = ( Sandpile a, b )bool:
+    begin
+        bool result := true;
+        for i to elements while result do
+            for j to elements while ( result := a[ i, j ] = b[ i, j ] ) do skip od
+        od;
+        result
+    end { = } ;
+    { returns TRUE if the sandpile s is stable, FALSE otherwise }
+    op STABLE = ( Sandpile s )bool:
+       begin
+           bool result := true;
+           for i to elements while result do
+               for j to elements while result := s[ i, j ] < 4 do skip od
+           od;
+           result
+       end { STABLE } ;
+    { returns the sandpile s after avalanches }
+    op AVALANCHE = ( Sandpile s )Sandpile:
+       begin
+           Sandpile result := s;
+           while bool had_avalanche := false;
+                 for i to elements do
+                     for j to elements do
+                         if result[ i, j ] >= 4 then
+                             { unstable pile }
+                             had_avalanche := true;
+                             result[ i, j ] -:= 4;
+                             if i > 1        then result[ i - 1, j     ] +:= 1 fi;
+                             if i < elements then result[ i + 1, j     ] +:= 1 fi;
+                             if j > 1        then result[ i,     j - 1 ] +:= 1 fi;
+                             if j < elements then result[ i,     j + 1 ] +:= 1 fi
+                         fi
+                     od
+                 od;
+                 had_avalanche
+           do skip od;
+           result
+       end { AVALANCHE } ;
+    { returns the result of adding the sandpile b to a, handling avalanches }
+    op + = ( Sandpile a, b )Sandpile:
+    begin
+        Sandpile result;
+        for i to elements do
+            for j to elements do result[ i, j ] := a[ i, j ] + b[ i, j ] od
+        od;
+        { handle avalanches }
+        AVALANCHE result
+    end { + } ;
+    { prints the sandpile s }
+    proc show_sandpile = ( string title, Sandpile s )void:
+    begin
+        print( ( title, newline ) );
+        for i to elements do
+            for j to elements do
+                print( ( " ", whole( s[ i, j ], 0 ) ) )
+            od;
+            print( ( newline ) )
+        od
+    end { show sandpile } ;
+    { task test cases }
+    Sandpile us    = ( ( 4, 3, 3 )
+                     , ( 3, 1, 2 )
+                     , ( 0, 2, 3 )
+                     );
+    Sandpile s1    = ( ( 1, 2, 0 )
+                     , ( 2, 1, 1 )
+                     , ( 0, 1, 3 )
+                     );
+    Sandpile s2    = ( ( 2, 1, 3 )
+                     , ( 1, 0, 1 )
+                     , ( 0, 1, 0 )
+                     );
+    Sandpile s3    = ( ( 3, 3, 3 )
+                     , ( 3, 3, 3 )
+                     , ( 3, 3, 3 )
+                     );
+    Sandpile s3_id = ( ( 2, 1, 2 )
+                     , ( 1, 0, 1 )
+                     , ( 2, 1, 2 )
+                     );
+    Sandpile t := us;
+    while NOT STABLE t do
+        show_sandpile( "unstable:", t );
+        t := AVALANCHE t
+    od;
+    show_sandpile( "stable: ", t );
+    print( ( newline ) );
+    show_sandpile( "s1:", s1 );
+    show_sandpile( "s2:", s2 );
+    show_sandpile( "s1 + s2:", s1 + s2 );
+    show_sandpile( "s2 + s1:", s2 + s1 );
+    print( ( newline ) );
+    show_sandpile( "s3:", s3 );
+    show_sandpile( "s3_id:", s3_id );
+    print( ( newline ) );
+    print( ( "s3 + s3_id = s3 is ", if s3 + s3_id = s3 then "TRUE" else "FALSE" fi, newline ) );
+    show_sandpile( "s3 + s3_id", s3 + s3_id );
+    print( ( "s3_id + s3 = s3 is ", if s3 + s3_id = s3 then "TRUE" else "FALSE" fi, newline ) );
+    show_sandpile( "s3_id + s3", s3_id + s3 );
+    show_sandpile( "s3_id + s3_id:", s3_id + s3_id )
+
+end
+)

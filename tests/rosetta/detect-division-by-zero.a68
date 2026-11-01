@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Detect division by zero", ALGOL 68 solution detect-division-by-zero.alg.
+  https://rosettacode.org/wiki/Detect_division_by_zero#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/detect-division-by-zero.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc raise_exception= ([]string args)void: (
+  put(stand_error, ("Exception: ",args, newline));
+  stop
+);
+
+proc raise_zero_division_error := void:
+  raise_exception("integer division or modulo by zero");
+
+proc int_div  = (int a,b)real: a/b;
+proc int_over = (int a,b)int:  a%b;
+proc int_mod  = (int a,b)int: a%*b;
+
+begin
+  op /  = (int a,b)real: ( b = 0 | raise_zero_division_error; skip | int_div (a,b) );
+  op %  = (int a,b)int:  ( b = 0 | raise_zero_division_error; skip | int_over(a,b) );
+  op %* = (int a,b)int:  ( b = 0 | raise_zero_division_error; skip | int_mod (a,b) );
+
+  proc a_different_handler = void: (
+      put(stand_error,("caught division by zero",new_line));
+      stop
+  );
+
+  int x:=1, y:=0;
+  raise_zero_division_error := a_different_handler;
+  print(x/y)
+end
+)

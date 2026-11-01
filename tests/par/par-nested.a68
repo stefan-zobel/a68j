@@ -1,0 +1,17 @@
+{ Nested parallel clauses and local variables of the units. }
+begin
+   [1 : 8] int squares;
+   proc fill = (int lo, hi) void:
+      if hi - lo < 2
+      then for i from lo to hi do squares[i] := i * i od
+      else int mid = (lo + hi) % 2;
+           par (fill (lo, mid), fill (mid + 1, hi))
+      fi;
+   fill (1, 8);
+   string s := "";
+   for i to 8 do s +:= whole (squares[i], 0) + " " od;
+   puts (s + "'n");
+   int a, b;
+   par ((int x := 6; a := x * 7), (int x := 4; b := x + 1));
+   puts (whole (a, 0) + " " + whole (b, 0) + "'n")
+end

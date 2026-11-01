@@ -1,0 +1,84 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cistercian numerals", ALGOL 68 solution cistercian-numerals.alg.
+  https://rosettacode.org/wiki/Cistercian_numerals#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cistercian-numerals.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw some Cistercian Numerals                                        }
+
+    int ch = 6;       { height of the representation of a Cistercian Numeral }
+    int cw = 5;        { width of the representation of a Cistercian Numeral }
+    int cm = ( cw + 1 ) OVER 2; { mid-point of a line in the representation  }
+                                                   { of a Cistercian Numeral }
+    { returns a 5x6 CHAR array representing the Cistercian Nuneral of n      }
+    {         0 <= m <= 9999 must be TRUE                                    }
+    op   TOCISTERCIAN = ( int n )[,]char:
+         if n < 0 OR n > 9999 then                               { invalid n }
+            ( "?????", "?????", "?????", "?????", "?????", "?????" )
+         else                                                      { n is OK }
+            { if ch isn't 6 or cw isn't 5, the strinngs above and below will }
+            [ 1 : ch, 1 : cw ]char cn :=               { need to be adjusted }
+                ( "     ", "  |  ", "  |  ", "  |  ", "  |  ", "  |  " );
+            []string t_digits = ( {1} "__",      {2} ";;__",    {3} "; /;/"
+                                , {4} ";\; \",   {5} "__; /;/", {6} "; |; |"
+                                , {7} "_; |; |", {8} "; |;_|",  {9} "_; |;_|"
+                                );
+            []string b_digits = ( {1} "__",      {2} ";;__",    {3} "\; \"
+                                , {4} " /;/",    {5} "_/;/",    {6} " |; |"
+                                , {7} "_|; |",   {8} " |; |;_", {9} "_|; |;_"
+                                );
+            { adds 1 digit to the numeral                                     }
+            proc add_digit = ( int digit, bool flip_horizontal, flip_vertical )void:
+                 if digit > 0 then                     { have a visible digit }
+                    string d   = if flip_vertical then b_digits[ digit ] else t_digits[ digit ] fi;
+                    int x     := if flip_horizontal then -1 else 1 fi + cm;
+                    int y     := if flip_vertical   then ch else 1 fi;
+                    int x_init = x;
+                    int x_step = if flip_horizontal then -1 else 1 fi;
+                    int y_step = if flip_vertical   then -1 else 1 fi;
+                    for c_pos from LWB d to UPB d do
+                        char c = d[ c_pos ];
+                        if c = ";" then
+                            y +:= y_step;
+                            x  := x_init
+                        else
+                            cn[ y, x ] := if ( flip_horizontal XOR flip_vertical ) then
+                                              if c = "/" then "\" elif c = "\" then "/" else c fi
+                                          else c
+                                          fi;
+                            x +:= x_step
+                        fi
+                    od
+                 fi { add digit } ;
+            int v := n;
+            add_digit( v MOD 10, false, false ); v OVERAB 10;
+            add_digit( v MOD 10, true,  false ); v OVERAB 10;
+            add_digit( v MOD 10, false, true  ); v OVERAB 10;
+            add_digit( v MOD 10, true,  true  );
+            cn
+         fi { TOCISTERCIAN } ;
+    { inserts a Cistercian Numeral representation of n into an set of lines  }
+    proc insert_cistercian = ( [,]char cn, ref[]string lines, int pos )void:
+         for i from 1 to ch do
+             lines[ i ][ pos : ( pos + cw ) - 1 ] := string( cn[ i, : ] )
+         od { print cistercian } ;
+
+    begin
+        []int tests = ( 0, 20, 300, 4000, 5555, 6789, 1968 );
+        { construct an array of blank lines and insert the                   }
+        [ 1 : ch ]string lines;            { Cistercian Numereals into them  }
+        for i from LWB lines to UPB lines do
+            lines[ i ] := " " * ( ( ( UPB tests -LWB tests ) + 1 ) * ( cw * 2 ) )
+        od;
+        for i from LWB tests to UPB tests do print( ( whole( tests[ i ], - cw ), " " * cw ) ) od;
+        print( ( newline ) );
+        int i_pos := 1 - ( cw * 2 );
+        for i from LWB tests to UPB tests do
+            insert_cistercian( TOCISTERCIAN tests[ i ], lines, i_pos +:= cw * 2 )
+        od;
+        for i from LWB lines to UPB lines do print( ( lines[ i ], newline ) ) od
+    end
+end
+)

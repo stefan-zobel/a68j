@@ -1,0 +1,12 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Call a foreign-language function", ALGOL 68 solution call-a-foreign-language-function-1.alg.
+  https://rosettacode.org/wiki/Call_a_foreign-language_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/call-a-foreign-language-function-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin_proc(string_)string_getenv = nest_ C "getenv";
+      puts(getenv("HOME") + "''n")
+end_
+)

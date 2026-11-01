@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Birthday problem", ALGOL 68 solution birthday-problem.alg.
+  https://rosettacode.org/wiki/Birthday_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/birthday-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+real desired_probability := 0.5; { 50% }
+
+real upb_year = 365 + 1/4 { - 3/400 but alive, ignore those born prior to 1901 },
+int upb_sample_size = 100 000,
+    upb_common = 5 ;
+
+FORMAT name_int_fmt = $g": "g(-0)"; "$,
+       name_real_fmt = $g": "g(-0,4)"; "$,
+       name_percent_fmt = $g": "g(-0,2)"%; "$;
+
+printf((
+  name_real_fmt,
+  "upb year",upb_year,
+  name_int_fmt,
+  "upb common",upb_common,
+  "upb sample size",upb_sample_size,
+  $l$
+));
+
+int required_common := 1; { initial value }
+for group_size from required_common while required_common <= upb_common do
+  int sample_with_no_required_common := 0;
+  to upb_sample_size do
+  { generate sample }
+    [group_size]int sample;
+    for i to UPB sample do sample[i] := ENTIER(random * upb_year) + 1 od;
+    for birthday_i to UPB sample do
+      int birthday = sample[birthday_i];
+      int number_in_common := 1;
+    { special case = 1 }
+      if number_in_common >= required_common then
+        found_required_common
+      fi;
+      for birthday_j from birthday_i + 1 to UPB sample do
+        if birthday = sample[birthday_j] then
+          number_in_common +:= 1;
+          if number_in_common >= required_common then
+            found_required_common
+          fi
+        fi
+      od
+    od  { days in year };
+    sample_with_no_required_common +:= 1;
+    found_required_common: skip
+  od { sample size };
+  real portion_of_years_with_required_common_birthdays =
+    (upb_sample_size - sample_with_no_required_common) / upb_sample_size;
+  print(".");
+  if portion_of_years_with_required_common_birthdays > desired_probability then
+    printf((
+      $l$,
+      name_int_fmt,
+      "required common",required_common,
+      "group size",group_size,
+      { "sample with no required common",sample with no required common, }
+      name_percent_fmt,
+      "%age of years with required common birthdays",portion_of_years_with_required_common_birthdays*100,
+      $l$
+    ));
+    required_common +:= 1
+  fi
+od { group size }
+)

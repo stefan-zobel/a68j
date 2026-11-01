@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sort an integer array", ALGOL 68 solution sort-an-integer-array.alg.
+  https://rosettacode.org/wiki/Sort_an_integer_array#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sort-an-integer-array.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ PR READ "shell_sort.a68" PR }
+mode Type = int;
+
+proc in_place_shell_sort = (ref[]Type seq)ref[]Type:(
+    int inc := ( UPB seq + LWB seq + 1 ) OVER 2;
+    while inc NE 0 do
+        for index from LWB seq to UPB seq do
+            int i := index;
+            Type el = seq[i];
+            while ( i  - LWB seq >= inc | seq[i - inc] > el | false ) do
+                seq[i] := seq[i - inc];
+                i -:= inc
+            od;
+            seq[i] := el
+        od;
+        inc := if inc = 2 then 1 else ENTIER(inc * 5 / 11) fi
+    od;
+    seq
+);
+
+proc shell_sort = ([]Type seq)[]Type:
+  in_place_shell_sort(loc[LWB seq: UPB seq]Type:=seq);
+
+print((shell_sort((2, 4, 3, 1, 2)), new_line))
+)

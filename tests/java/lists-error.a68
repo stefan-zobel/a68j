@@ -1,0 +1,6 @@
+{ An index out of range is a runtime error. }
+access Lists (
+   Intlist l = new_intlist;
+   l +:= 1;
+   puts (whole (2 ELEM l, 0) + "'n")
+)

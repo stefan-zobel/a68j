@@ -1,0 +1,97 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "CSV data manipulation", ALGOL 68 solution csv-data-manipulation.alg.
+  https://rosettacode.org/wiki/CSV_data_manipulation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/csv-data-manipulation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ count occurrances of a char in string }
+proc char_count = (char c, string str) int:
+   begin
+      int count := 0;
+      for i to UPB str do
+    if c = str[i] then count +:= 1
+    fi
+      od;
+      count
+   end;
+
+{ split string on separator }
+proc char_split = (string str, char sep) flex[]string :
+   begin
+      int strlen := UPB str, cnt := 0;
+      int len, p;
+      int start := 1;
+      [char_count (sep, str) + 1] string list;
+      while start <= strlen ANDF char_in_string (sep, p, str[start:]) do
+    p +:= start - 1;
+    list[cnt +:= 1] := str[start:p-1];
+    start := p + 1
+      od;
+      if cnt = 0 then list[cnt +:= 1] := str
+      elif start <= UPB str + 1 then list[cnt +:= 1] := str[start:]
+      fi;
+      list
+   end;
+
+proc join = ([]string words, string sep) string:
+   if UPB words > 0 then
+      string str := words [1];
+      for i from 2 to UPB words do
+    str +:= sep + words[i]
+      od;
+      str
+   else
+      ""
+   fi;
+
+{ read a line from file }
+proc readline = (ref file f) string:
+   begin
+      string line;
+      get (f, line); new_line (f);
+      line
+   end;
+
+{ Add one item to tuple }
+op +:= = (ref flex[]string tuple, string item) void:
+   begin
+      [UPB tuple+1]string new;
+      new[:UPB tuple] := tuple;
+      new[UPB new] := item;
+      tuple := new
+   end;
+
+{ convert signed number TO INT }
+op TOINT = (string str) int:
+   begin
+      int n := 0, sign := 1;
+      for i to UPB str while sign /= 0 do
+    if is_digit (str[i]) then n := n * 10 + ABS str[i] - ABS "0"
+    elif i = 1 AND str[i] = "-" then sign := -1
+    elif i /= 1 OR str[i] /= "+" then sign := 0
+    fi
+      od;
+      n * sign
+   end;
+
+op STR = (int i) string: whole (i,0);
+
+{ The main program }
+file foo;
+open (foo, "CSV_data_manipulation.data", stand_in_channel);
+flex[0]string header := char_split (readline (foo), ",");
+header +:= "SUM";
+print ((join (header, ","), new_line));
+while NOT end_of_file (foo) do
+   flex[0]string fields := char_split (readline (foo), ",");
+   int sum := 0;
+   for i to UPB fields do
+      sum +:= TOINT fields[i]
+   od;
+   fields +:= STR sum;
+   print ((join (fields, ","), new_line))
+od;
+close (foo)
+)

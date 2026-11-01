@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Percolation/Mean run density", ALGOL 68 solution percolation-mean-run-density.alg.
+  https://rosettacode.org/wiki/Percolation/Mean_run_density#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/percolation-mean-run-density.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+    { just generate 0s and 1s without storing them }
+    proc run_test = ( real p, int len, runs )real:
+         begin
+            int  count := 0;
+            real thresh = p;
+            to runs do
+               int x := 0;
+               from len by -1 to 1 do
+                  int y   = ABS ( random < thresh );
+                  count +:= ABS ( x < y );
+                  x := y
+               od
+            od;
+            count / runs / len
+         end { run test } ;
+
+    print( ( "running 1000 tests each:", newline ) );
+    print( ( " p          n       K  p(1-p)       diff", newline ) );
+    print( ( "----------------------------------------------", newline ) );
+    for ip by 2 to 9 do
+        real p = ip / 10;
+        real p1p = p * (1 - p);
+        int n := 10;
+        while ( n *:= 10 ) <= 100000 do
+	    real k = run_test( p, n, 1000 );
+            print( ( fixed( p, -4, 1 ), whole( n, -9 ), fixed( k, -8, 4 )
+                   , fixed( p1p, -8, 4 ), fixed( k - p1p, 9, 4 )
+                   , " (", fixed( ( k - p1p ) / p1p * 100, 5, 2 ), "%)", newline
+                   )
+                 )
+        od;
+        print( ( newline ) )
+    od
+end
+)

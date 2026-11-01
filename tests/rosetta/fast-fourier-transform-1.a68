@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fast Fourier transform", ALGOL 68 solution fast-fourier-transform-1.alg.
+  https://rosettacode.org/wiki/Fast_Fourier_transform#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fast-fourier-transform-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+prio DICE = 9; { ideally = 11 }
+
+op DICE = ([]SCALAR in_, int step)[]SCALAR: (
+    {}{ Dice the array, extract array values a "step" apart }{}
+    if step = 1 then
+        in_
+    else
+        int upb_out := 0;
+        [(UPB in_-LWB in_)%step+1]SCALAR out_;
+        for index from LWB in_ by step to UPB in_ do
+            out_[upb_out+:=1] := in_[index] od;
+        out_[@LWB in_]
+    fi
+);
+
+proc fft = ([]SCALAR in_t)[]SCALAR: (
+    {}{ The Cooley-Tukey FFT algorithm }{}
+    if LWB in_t >= UPB in_t then
+      in_t[@0]
+    else
+        []SCALAR t = in_t[@0];
+        int n = UPB t + 1, half_n = n % 2;
+        [LWB t:UPB t]SCALAR coef;
+
+        []SCALAR even = fft(t    DICE 2),
+                  odd = fft(t[1:]DICE 2);
+
+        compl i = 0 I 1;
+
+        real w =  2*pi / n;
+        for k from LWB t to half_n-1 do
+            compl cis_t = scalar_exp(0 I (-w * k))*odd[k];
+            coef[k]          := even[k] + cis_t;
+            coef[k + half_n] := even[k] - cis_t
+        od;
+        coef
+    fi
+);
+)

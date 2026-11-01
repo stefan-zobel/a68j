@@ -1,0 +1,23 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Matrix-exponentiation operator", ALGOL 68 solution matrix-exponentiation-operator-2.alg.
+  https://rosettacode.org/wiki/Matrix-exponentiation_operator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/matrix-exponentiation-operator-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op ** = (MAT base, int exponent)MAT: (
+  bits binary_exponent:=BIN exponent ;
+  MAT out_ := if bits_width ELEM binary_exponent then base else IDENTITY UPB base fi;
+  MAT sq:=base;
+
+  while
+    binary_exponent := binary_exponent SHR 1;
+    binary_exponent /= BIN 0
+  do
+    sq := sq * sq;
+    if bits_width ELEM binary_exponent then out_ := out_ * sq fi
+  od;
+  out_
+);
+)

@@ -1,0 +1,49 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Determine if a string has all unique characters", ALGOL 68 solution determine-if-a-string-has-all-unique-characters.alg.
+  https://rosettacode.org/wiki/Determine_if_a_string_has_all_unique_characters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-has-all-unique-characters.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { mode to hold the positions of duplicate characters in a string      }
+    mode Duplicate = struct( int original, first_duplicate );
+    { finds the first non-unique character in s and returns its position  }
+    { and the position of the original character in a DUPLICATE           }
+    { if all characters in s are uniue, returns LWB s - 1, UPB s + 1      }
+    proc first_duplicate_position = ( string s )Duplicate:
+    begin
+        bool all_unique := true;
+        int  o_pos      := LWB s - 1;
+        int  d_pos      := UPB s + 1;
+        for i from LWB s to UPB s while all_unique do
+            for j from i + 1 to UPB s while all_unique do
+                if NOT ( all_unique := s[ i ] /= s[ j ] ) then
+                    o_pos := i;
+                    d_pos := j
+                fi
+            od
+        od;
+        Duplicate( o_pos, d_pos )
+    end { first duplicate position } ;
+    { task test cases                                                     }
+    []string tests = ( "", ".", "abcABC", "XYZ ZYX", "1234567890ABCDEFGHIJKLMN0PQRSTUVWXYZ" );
+    for t_pos from LWB tests to UPB tests do
+        if  string s    = tests[ t_pos ];
+            Duplicate d = first_duplicate_position( s );
+            print( ( "<<<", s, ">>> (length ", whole( ( UPB s + 1 ) - LWB s, 0 ), "): " ) );
+            original of d < LWB s
+        then
+            print( ( " all characters are unique", newline ) )
+        else
+            { have at least one duplicate }
+            print( ( " first duplicate character: """, s[ original of d ], """"
+                   , " at: ", whole( original of d, 0 ), " and ", whole( first_duplicate of d, 0 )
+                   , newline
+                   )
+                 )
+        fi
+    od
+end
+)

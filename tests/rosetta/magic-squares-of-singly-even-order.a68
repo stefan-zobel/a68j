@@ -1,0 +1,121 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Magic squares of singly even order", ALGOL 68 solution magic-squares-of-singly-even-order.alg.
+  https://rosettacode.org/wiki/Magic_squares_of_singly_even_order#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/magic-squares-of-singly-even-order.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { construct a magic square of singly even order                        }
+      { the singly even magic square procedure is translated from the Java   }
+      {                                                               sample }
+
+    { begin code from the magic squares of odd order task                  }
+
+    { construct a magic square of odd order                                  }
+    proc odd_magic_square = ( int order ) [,]int:
+         if NOT ODD order OR order < 1 then
+            { can't make a magic square of the specified order               }
+            loc[ 1 : 0, 1 : 0 ]int
+         else
+            { order is OK - construct the square using de la Loubère's       }
+            { algorithm as in the wikipedia page                             }
+
+            [ 1 : order, 1 : order ]int square;
+            for i to order do for j to order do square[ i, j ] := 0 od od;
+
+            { operator to advance "up" the square                            }
+            op   PREV = ( int pos )int: if pos = 1 then order else pos - 1 fi;
+            { operator to advance "across right" or "down" the square        }
+            op   NEXT = ( int pos )int: ( pos MOD order ) + 1;
+
+            { fill in the square, starting from the middle of the top row    }
+            int col := ( order + 1 ) OVER 2;
+            int row := 1;
+            for i to order * order do
+                square[ row, col ] := i;
+                if square[ PREV row, NEXT col ] /= 0 then
+                    { the up/right position is already taken, move down      }
+                    row := NEXT row
+                else
+                    { can move up and right                                  }
+                    row := PREV row;
+                    col := NEXT col
+                fi
+            od;
+
+            square
+         fi { odd magic square } ;
+
+    proc print_square = ( [,]int square )void: { prints the magic square     }
+         begin
+
+            int order = 1 UPB square;
+
+            { calculate print width: negative so leading "+"s aren't printed }
+            int width := -1;
+            int mag   := order * order;
+            while mag >= 10 do mag OVERAB 10; width -:= 1 od;
+
+            { calculate the "magic sum"                                      }
+            int sum := 0;
+            for i to order do sum +:= square[ 1, i ] od;
+
+            { print the square                                               }
+            print( ( "maqic square of order ", whole( order, 0 ) ) );
+            print( ( ": sum: ", whole( sum, 0 ), newline ) );
+            for i to order do
+                for j to order do write( ( " ", whole( square[ i, j ], width ) ) ) od;
+                print( ( newline ) )
+            od
+
+         end { print square } ;
+
+    { end   code from the magic squares of odd order task                  }
+
+    { returns a magic square of singly even order n                          }
+    proc singly_even_magic_square = ( int n )[,]int:
+         if n < 6 OR ( n - 2 ) MOD 4 /= 0 then
+            loc[ 1 : 0, 1 : 0 ]int { n is not 2 + a multiple of 4 >= 6       }
+         else
+            { order is OK                                                    }
+            int size = n * n;
+            int half_n = n OVER 2;
+            int sub_square_size = size OVER 4;
+
+            [,]int sub_square = odd_magic_square( half_n )[ at 0, at 0 ];
+            []int quadrant_factors = []int( 0, 2, 3, 1 )[ at 0 ];
+            [ 0 : n - 1, 0 : n - 1 ]int result;
+
+            for r from 1 LWB result to 1 UPB result do
+                for c from 2 LWB result to 2 UPB result do
+                    int quadrant = ( r OVER half_n ) * 2 + ( c OVER half_n );
+                    result[ r, c ] := sub_square[ r MOD half_n, c MOD half_n ]
+                                    + quadrant_factors[ quadrant ] * sub_square_size
+                od
+            od;
+
+            int n_cols_left  = half_n OVER 2;
+            int n_cols_right = n_cols_left - 1;
+
+            for r from 1 LWB result to half_n - 1 do
+                for c from 1 LWB result to 1 UPB result do
+                    if c < n_cols_left OR c >= n - n_cols_right
+                    OR ( c = n_cols_left AND r = n_cols_left )
+                    then
+                        if c /= 0 OR r /= n_cols_left then
+                            int tmp                  = result[ r, c ];
+                            result[ r,          c ] := result[ r + half_n, c ];
+                            result[ r + half_n, c ] := tmp
+                        fi
+                    fi
+                od
+            od;
+
+            result[ at 1, at 1 ]
+         fi { singly even magic square } ;
+
+    print_square( singly_even_magic_square( 6 ) )
+
+end
+)

@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pythagorean triples", ALGOL 68 solution pythagorean-triples.alg.
+  https://rosettacode.org/wiki/Pythagorean_triples#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pythagorean-triples.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Pythagorean triples ( a, b, c )                            }
+      {           where a < b < c and a^2 + b^2 = c^2                        }
+
+    int max_perimeter = 100;            { maximum a + b + c we will consider }
+    int max_square    = max_perimeter * max_perimeter;
+    { form a table of square roots of numbers to max perimeter ^ 2           }
+    [ 1 : max_square ]int sr;
+    for i to UPB sr        do sr[ i     ] := 0 od;
+    for i to max_perimeter do sr[ i * i ] := i od;
+
+    proc gcd = ( int x, y )int:                              { iterative gcd }
+         begin
+            int a := ABS x, b := ABS y;
+            while b /= 0 do
+               int next_a = b;
+               b := a MOD b;
+               a := next_a
+            od;
+            a
+         end { gcd } ;
+
+   { count the Pythagorean triples                                           }
+   int t_count := 0, p_count := 0;
+   for a to max_perimeter do
+       int a2 = a * a;
+       for b from a + 1 to max_perimeter - a
+       while int c = sr[ a2 + ( b * b ) ];
+             a + b + c <= max_perimeter
+       do    if c > b then                                   { have a triple }
+                 t_count +:= 1;
+                 if gcd( a, b ) = 1 then           { have a primitive triple }
+                     p_count +:= 1
+                 fi
+             fi
+       od
+    od;
+    print( ( "Pythagorean triples with perimeters up to ", whole( max_perimeter, 0 ), ":", newline ) );
+    print( ( "    Primitive: ", whole( p_count, 0 ), newline ) );
+    print( ( "    Total:     ", whole( t_count, 0 ), newline ) )
+
+end
+)

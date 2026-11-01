@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Almost prime", ALGOL 68 solution almost-prime.alg.
+  https://rosettacode.org/wiki/Almost_prime#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/almost-prime.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   int examples=10, classes=5;
+   mode Semiprime = struct ([examples]int data, int count);
+   [classes]Semiprime semi_primes;
+   proc num_facs = (int n) int :
+{
+   Return number of not necessarily distinct prime factors of n.
+   Not very efficient for large n ...
+}
+   begin
+      int tf := 2, residue := n, count := 1;
+      while tf < residue do
+         int remainder = residue MOD tf;
+         ( remainder = 0 | count +:= 1; residue %:= tf | tf +:= 1 )
+      od;
+      count
+   end;
+   proc update_table = (ref []Semiprime table, int i) bool :
+{
+   Add i to the appropriate row of the table, if any, unless that row
+   is already full. Return a BOOL which is TRUE when all of the table
+   is full.
+}
+   begin
+      int k := num_facs(i);
+      if k <= classes
+      then
+         int c = 1 + count of table[k];
+         ( c <= examples | (data of table[k])[c] := i; count of table[k] := c )
+      fi;
+      int sum := 0;
+      for i to classes do sum +:= count of table[i] od;
+      sum < classes * examples
+   end;
+   for i to classes do count of semi_primes[i] := 0 od;
+   for i from 2 while update_table (semi_primes, i) do skip od;
+   for i to classes
+   do
+      printf (($"k = ", d, ":", n(examples)(xg(0))l$, i, data of semi_primes[i]))
+   od
+end
+)

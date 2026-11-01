@@ -1,0 +1,71 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Vigen?re cipher", ALGOL 68 solution vigen-re-cipher.alg.
+  https://rosettacode.org/wiki/Vigen%C3%A8re_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/vigen-re-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string key := "";
+
+proc vigenere_cipher = (ref string key)void:
+(
+  for i from LWB key to UPB key do
+    if key[i] >= "A" AND key[i] <= "Z" then
+      key +:= key[i] fi;
+    if key[i] >= "a" AND key[i] <= "z" then
+      key +:= REPR(ABS key[i] + ABS"A" - ABS"a") fi
+  od
+);
+
+proc encrypt = (string text)string:
+(
+  string out_ := "";
+
+  int j := LWB text;
+  for i from LWB text to UPB text do
+    char c := text[i];
+
+    if c >= "a" AND c <= "z" then
+      c := REPR(ABS c + (ABS"A" - ABS"a")) fi;
+    if c >= "A" AND c <= "Z" then
+      out_ +:= REPR((ABS c + ABS key[j] - 2*ABS"A") MOD 26 + ABS"A");
+      j := j MOD UPB key + 1
+    fi
+  od;
+
+  out_
+);
+
+proc decrypt = (string text)string:
+(
+  string out_;
+
+  int j := LWB text;
+  for i from LWB text to UPB text do
+    char c := text[i];
+
+    if c >= "a" AND c <= "z" then
+      c := REPR(ABS c + (ABS"A" - ABS"a")) fi;
+    if c >= "A" AND c <= "Z" then
+      out_ +:= REPR((ABS c - ABS key[j] + 26) MOD 26 + ABS"A");
+      j := j MOD UPB key + 1
+    fi
+  od;
+
+  out_
+);
+
+main:
+(
+  vigenere_cipher(key:="VIGENERECIPHER");
+
+  string original := "Beware the Jabberwock, my son! The jaws that bite, the claws that catch!";
+  string encrypted := encrypt(original);
+  string decrypted := decrypt(encrypted);
+
+  print((original, new_line));
+  print(("Encrypted: ", encrypted, new_line));
+  print(("Decrypted: ", decrypted, new_line))
+)
+)

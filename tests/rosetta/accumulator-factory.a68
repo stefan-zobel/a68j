@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Accumulator factory", ALGOL 68 solution accumulator-factory.alg.
+  https://rosettacode.org/wiki/Accumulator_factory#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/accumulator-factory.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Number =  union(int,real,compl);
+
+proc plus = (Number in_a, in_b)Number: (
+    case in_a in
+        (int a):   case in_b in (int b): a+b, (real b): a+b, (compl b): a+b esac,
+        (real a):  case in_b in (int b): a+b, (real b): a+b, (compl b): a+b esac,
+        (compl a): case in_b in (int b): a+b, (real b): a+b, (compl b): a+b esac
+    esac
+);
+
+main: (
+
+{ now override the + and +:= OPerators }
+  op + = (Number a, b)Number: plus(a,b);
+
+  op +:= = (ref Number lhs, Number rhs)Number:
+      lhs := lhs + rhs;
+
+  proc accumulator  = (ref Number sum)proc(Number)Number:
+      (Number n)Number:
+          sum +:= n;
+
+  proc (Number)Number x = accumulator(loc Number := 1);
+  x(5);
+  print(("x:",x(2.3), new_line));
+
+  proc (Number)Number y = accumulator(loc Number := 100);
+  y(500);
+  print(("y:",y(230), new_line));
+
+  print(("x:",x(0), new_line))
+
+)
+)

@@ -1,0 +1,182 @@
+{ dg-options "-fstropping=supper" }
+
+{ rcprelude.a68 - the part of the Algol 68 Genie transput that the
+  Rosetta Code programs use most, written on top of the POSIX prelude
+  of ga68.
+
+  The Rosetta Code solutions are written for Algol 68 Genie, whose
+  standard prelude has the transput of the Revised Report (print,
+  newline, stand out, ...).  ga68 has only the simple POSIX string
+  transput, so the test driver runs every program inside an access
+  clause of this module:
+
+      access Rc_Prelude ( <program> )
+
+  The layout of printed values follows Algol 68 Genie: integers are
+  right-aligned with a sign in a field of int width + 1 characters,
+  reals are printed in floating-point style, booleans as T and F.
+  Only output is provided; reading needs real input, which the tests
+  do not have.
+
+  [,] char is not among the printable modes: a union with both string
+  and [,] char makes ga68 crash in a conformity clause (internal
+  compiler error in verify_gimple). }
+
+module Rc_Prelude =
+def
+    { Files.  Only the three standard channels exist. }
+
+    pub mode File = struct (int fd, int line);
+
+    pub ref File stand_in = heap File := (stdin, 0),
+                 stand_out = heap File := (stdout, 0),
+                 stand_error = heap File := (stderr, 0);
+
+    { Environment enquiries of the transput (RR 10.3.1.1). }
+
+    pub int int_width = UPB whole (max_int, 0),
+            long_int_width = UPB whole (long_max_int, 0),
+            long_long_int_width = UPB whole (long_long_max_int, 0),
+            { In ga68 real is a single, long real a double and long long
+              real an extended precision floating-point number. }
+            real_width = 7,
+            long_real_width = 15,
+            long_long_real_width = 18,
+            exp_width = 2,
+            long_exp_width = 3,
+            long_long_exp_width = 4;
+
+    { Layout procedures. }
+
+    pub proc newline = (ref File f) void:
+       (fputs (fd of f, "'n"); line of f +:= 1);
+    pub proc space = (ref File f) void: fputs (fd of f, " ");
+    pub proc newpage = (ref File f) void: fputs (fd of f, "'f");
+    pub proc backspace = (ref File f) void: fputs (fd of f, REPR 8);
+
+    { The values print and put accept. }
+
+    pub mode Outitem = union (int, long int, long long int,
+                              real, long real,
+                              bool, char, string, bits, long bits,
+                              [] int, [] long int, [] real, [] long real,
+                              [] bool, [] string, [] bits,
+                              [,] int, [,] real, [,] bool,
+                              proc (ref File) void);
+
+    proc bool_repr = (bool b) string: (b | "T" | "F");
+
+    proc bits_repr = (bits b) string:
+       begin string s;
+             for i to bits_width do s +:= (i ELEM b | "T" | "F") od;
+             s
+       end;
+
+    proc long_bits_repr = (long bits b) string:
+       begin string s;
+             for i to long_bits_width do s +:= (i ELEM b | "T" | "F") od;
+             s
+       end;
+
+    proc real_repr = (real r) string:
+       float (r, real_width + exp_width + 4, real_width - 1, exp_width + 1);
+
+    proc long_real_repr = (long real r) string:
+       float (r, long_real_width + long_exp_width + 4, long_real_width - 1,
+              long_exp_width + 1);
+
+    pub proc put = (ref File f, [] Outitem items) void:
+       for k from LWB items to UPB items
+       do int fd = fd of f;
+          case items[k]
+          in (int i): fputs (fd, whole (i, int_width + 1)),
+             (long int i): fputs (fd, whole (i, long_int_width + 1)),
+             (long long int i): fputs (fd, whole (i, long_long_int_width + 1)),
+             (real r): fputs (fd, real_repr (r)),
+             (long real r): fputs (fd, long_real_repr (r)),
+             (bool b): fputs (fd, bool_repr (b)),
+             (char c): fputs (fd, c),
+             (string s): fputs (fd, s),
+             (bits b): fputs (fd, bits_repr (b)),
+             (long bits b): fputs (fd, long_bits_repr (b)),
+             ([] int r):
+                for i from LWB r to UPB r
+                do fputs (fd, whole (r[i], int_width + 1)) od,
+             ([] long int r):
+                for i from LWB r to UPB r
+                do fputs (fd, whole (r[i], long_int_width + 1)) od,
+             ([] real r):
+                for i from LWB r to UPB r do fputs (fd, real_repr (r[i])) od,
+             ([] long real r):
+                for i from LWB r to UPB r do fputs (fd, long_real_repr (r[i])) od,
+             ([] bool r):
+                for i from LWB r to UPB r do fputs (fd, bool_repr (r[i])) od,
+             ([] string r):
+                for i from LWB r to UPB r do fputs (fd, r[i]) od,
+             ([] bits r):
+                for i from LWB r to UPB r do fputs (fd, bits_repr (r[i])) od,
+             ([,] int r):
+                for i from 1 LWB r to 1 UPB r
+                do for j from 2 LWB r to 2 UPB r
+                   do fputs (fd, whole (r[i,j], int_width + 1)) od
+                od,
+             ([,] real r):
+                for i from 1 LWB r to 1 UPB r
+                do for j from 2 LWB r to 2 UPB r
+                   do fputs (fd, real_repr (r[i,j])) od
+                od,
+             ([,] bool r):
+                for i from 1 LWB r to 1 UPB r
+                do for j from 2 LWB r to 2 UPB r
+                   do fputs (fd, bool_repr (r[i,j])) od
+                od,
+             (proc (ref File) void p): p (f)
+          esac
+       od;
+
+    pub proc print = ([] Outitem items) void: put (stand_out, items);
+    pub proc write = ([] Outitem items) void: put (stand_out, items);
+
+    { String searching (RR 10.3.2.4 and Algol 68 Genie).  As in Algol 68
+      Genie, pos may be nil when only the result is of interest. }
+
+    pub proc char_in_string = (char c, ref int pos, string s) bool:
+       begin bool found := false;
+             for i from LWB s to UPB s while NOT found
+             do if s[i] = c then found := true; (pos isnt nil | pos := i) fi od;
+             found
+       end;
+
+    pub proc last_char_in_string = (char c, ref int pos, string s) bool:
+       begin bool found := false;
+             for i from UPB s by -1 to LWB s while NOT found
+             do if s[i] = c then found := true; (pos isnt nil | pos := i) fi od;
+             found
+       end;
+
+    pub proc string_in_string = (string pat, ref int pos, string s) bool:
+       begin bool found := false;
+             int n = UPB pat - LWB pat + 1;
+             for i from LWB s to UPB s - n + 1 while NOT found
+             do if s[i : i + n - 1] = pat then found := true; (pos isnt nil | pos := i) fi od;
+             found
+       end;
+
+    { Character classes (Algol 68 Genie). }
+
+    pub proc is_upper = (char c) bool: c >= "A" AND c <= "Z";
+    pub proc is_lower = (char c) bool: c >= "a" AND c <= "z";
+    pub proc is_alpha = (char c) bool: is_upper (c) OR is_lower (c);
+    pub proc is_digit = (char c) bool: c >= "0" AND c <= "9";
+    pub proc is_alnum = (char c) bool: is_alpha (c) OR is_digit (c);
+    pub proc is_space = (char c) bool:
+       c = " " OR c = "'t" OR c = "'n" OR c = "'r" OR c = "'f";
+    pub proc is_xdigit = (char c) bool:
+       is_digit (c) OR (c >= "a" AND c <= "f") OR (c >= "A" AND c <= "F");
+    pub proc to_upper = (char c) char:
+       (is_lower (c) | REPR (ABS c - ABS "a" + ABS "A") | c);
+    pub proc to_lower = (char c) char:
+       (is_upper (c) | REPR (ABS c - ABS "A" + ABS "a") | c);
+
+    skip
+fed

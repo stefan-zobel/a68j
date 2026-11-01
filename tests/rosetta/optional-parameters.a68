@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Optional parameters", ALGOL 68 solution optional-parameters.alg.
+  https://rosettacode.org/wiki/Optional_parameters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/optional-parameters.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ as the options have distinct types (INT, BOOL and PROC( STRING, STRING )INT) the       }
+{ easiest way to support these optional parameters in Algol 68 would be to have an array }
+{ with elements of these types                                                           }
+{ See the Named Arguments sample for cases where the option types are not distinct       }
+
+{ default comparison function }
+proc default_compare = ( string a, b )int: if a < b then -1 elif a = b then 0 else 1 fi;
+
+{ sorting procedure }
+proc configurable_sort = ( [,]string data, []union( int, bool, proc( string, string )int ) options )void:
+begin
+    { set initial values for the options }
+    int    sort_column                   := 2 LWB data;
+    bool   reverse_sort                  := false;
+    proc( string, string )int comparator := default_compare;
+    { overide from the supplied options }
+    for opt_pos from LWB options to UPB options do
+        case options[ opt_pos ]
+          in ( proc( string, string )int p ): comparator   := p
+           , ( int c ):                       sort_column  := c
+           , ( bool r ):                      reverse_sort := r
+        esac
+    od
+    { do the sort .... }
+end { configurable sort } ;
+
+begin { example calls }
+    [ 1 : 2, 1 : 3 ]string data := ( ( "a", "bb", "cde" ), ( "x", "abcdef", "Q" ) );
+
+    { sort data, default comparison, first column, reverse order }
+    configurable_sort( data, ( true ) );
+    { sort data, second column, ignore first chaacter when sorting, normal order }
+    configurable_sort( data, ( 2
+                             , ( string a, string b )int: default_compare( a[ LWB a + 1 : ]
+                                                                         , b[ LWB b + 1 : ]
+                                                                         )
+                             )
+                     );
+    { default sort }
+    configurable_sort( data, () )
+end
+)

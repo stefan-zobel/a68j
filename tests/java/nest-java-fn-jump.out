@@ -1,0 +1,5 @@
+left the sort after 2 comparison(s)
+10
+20
+tests/java/nest-java-fn-jump.a68:16: runtime error: bound 3 out of range [1:2]
+exit 134

@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Input loop", ALGOL 68 solution input-loop-2.alg.
+  https://rosettacode.org/wiki/Input_loop#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/input-loop-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  proc raise_logical_file_end = (ref file f) bool: ( except_logical_file_end );
+  on_logical_file_end(stand_in, raise_logical_file_end);
+  do
+    proc raise_page_end = (ref file f) bool: ( except_page_end );
+    on_page_end(stand_in, raise_page_end);
+    do
+      print(read_string);
+      read(new_line);
+      print(new_line)
+    od;
+    except_page_end:
+      read(new_page);
+      print(new_page)
+  od;
+  except_logical_file_end:
+    skip
+)
+)

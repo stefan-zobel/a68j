@@ -1,0 +1,17 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Temperature conversion", ALGOL 68 solution temperature-conversion.alg.
+  https://rosettacode.org/wiki/Temperature_conversion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/temperature-conversion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   real kelvin;
+   read (kelvin);
+   FORMAT f = $g(8,2), " K = ", g(8,2)xgl$;
+   printf ((f, kelvin, kelvin - 273.15, "C"));
+   printf ((f, kelvin, 9.0 * kelvin / 5.0, "R"));
+   printf ((f, kelvin, 9.0 * kelvin / 5.0 - 459.67, "F"))
+end
+)

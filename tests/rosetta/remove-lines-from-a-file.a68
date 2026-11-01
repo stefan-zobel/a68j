@@ -1,0 +1,120 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Remove lines from a file", ALGOL 68 solution remove-lines-from-a-file.alg.
+  https://rosettacode.org/wiki/Remove_lines_from_a_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/remove-lines-from-a-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ removes the specified number of lines from a file, starting at start line (numbered fromm 1) }
+{ returns TRUE if successful, FALSE otherwise }
+proc remove_lines = ( string file_name, int start_line, int number_of_lines )bool:
+     if   number_of_lines < 0 OR start_line < 1
+     then
+        { invalid parameters }
+        print( ( "number of lines must be >= 0 and start line must be >= 1", newline ) );
+        false
+     elif file temp_file;
+          create( temp_file, stand_back_channel ) /= 0
+     then
+        { unable to create a temporary output file }
+        print( (  "Unable to create temporary file", newline ) );
+        false
+     elif NOT reset_possible( temp_file )
+     then
+        { rewinding the temporary file is not possible }
+        { we would have to get its name ( with "idf( temp file )", close it and re-open it }
+        print( ( "Temp file is not rewindable", newline ) );
+        false
+     elif file input_file;
+          open( input_file, file_name, stand_in_channel ) /= 0
+     then
+        { failed to open the file }
+        print( (  "Unable to open """ + file_name + """", newline ) );
+        false
+     else
+        { files opened OK }
+        bool at_eof := false;
+        { set the EOF handler for the original file    }
+        { notes that we reached EOF on the latest read }
+        { and returns TRUE so processing can continue  }
+        on_logical_file_end( input_file, ( ref file f )bool: at_eof := true );
+        { copy the input file to the temp file }
+        while string line;
+              get( input_file, ( line, newline ) );
+              NOT at_eof
+        do
+            put( temp_file,    ( line, newline ) )
+        od;
+        { copy the temp file back to the input, removing the specified lines }
+        close( input_file );
+        if   open( input_file, file_name, stand_out_channel ) /= 0
+        then
+            { failed to open the original file for output }
+            print( ( "Unable to open ", file_name, " for output", newline ) );
+            false
+        else
+            { opened OK - copy the temporary file }
+            reset( temp_file ); { rewinds the input file }
+            at_eof := false;
+            on_logical_file_end( temp_file, ( ref file f )bool: at_eof := true );
+            int end_line = ( start_line - 1 ) + number_of_lines;
+            int line_number := 0;
+            while string line;
+                  get( temp_file, ( line, newline ) );
+                  NOT at_eof
+            do
+                { have another line }
+                line_number +:= 1;
+                if line_number < start_line OR line_number > end_line
+                then
+                    put( input_file, ( line, newline ) )
+                fi
+            od;
+            { close the files }
+            close(   input_file );
+            scratch( temp_file  );
+            if   line_number < start_line
+            then
+                { didn't find the start line }
+                print( ( "Specified start line (", whole( start_line, 0 ) ) );
+                print( ( ") not in ", file_name, newline ) );
+                false
+            elif line_number < end_line
+            then
+                { the ending line was not in the file }
+                print( ( "Final omitted line not in the file ", file_name, newline ) );
+                false
+            else
+                { successful operation }
+                true
+            fi
+        fi
+     fi { remove lines } ;
+
+{ test the line removal }
+if   file t;
+     open( t, "test.txt", stand_out_channel ) /= 0
+then print( ( "Unable to open test.txt for output", newline ) )
+else print( ( "Before...", newline ) );
+     for i to 10 do
+         string line = whole( i, - ( ( i MOD 5 ) + 3 ) );
+         put( t, ( line, newline ) );
+         print(  ( line, newline ) )
+     od;
+     close( t );
+     if   NOT remove_lines( "test.txt", 2, 3 )
+     then print( ( "Unable to remove lines", newline ) )
+     elif open( t, "test.txt", stand_in_channel ) /= 0
+     then print( ( "Unable to open modified test.txt for input", newline ) )
+     else print( ( "After...", newline ) );
+          to 7 do
+              string line;
+              get( t, ( line, newline ) );
+              print(  ( line, newline ) )
+          od;
+          close( t );
+          print( ( "----", newline ) )
+     fi
+fi
+)

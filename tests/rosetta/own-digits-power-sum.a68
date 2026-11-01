@@ -1,0 +1,149 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Own digits power sum", ALGOL 68 solution own-digits-power-sum.alg.
+  https://rosettacode.org/wiki/Own_digits_power_sum#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/own-digits-power-sum.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { counts of used digits, check is a copy used to check the number is an own digit power sum }
+    [ 0 : 9 ]int used, check; for i from 0 to 9 do check[ i ] := 0 od;
+    [ 1 : 9, 1 : 9 ]long int power;     { table of digit powers       }
+    for i to 9 do power[ 1, i ] := i od;
+    for j from 2 to 9 do
+        for i to 9 do power[ j, i ] := power[ j - 1, i ] * i od
+    od;
+    { find the lowest possible first digit for each digit combination }
+    { this is the roughly the low3est n where P*n^p > 10^p            }
+    [ 1 : 9 ]int lowest_digit;
+    lowest_digit[ 2 ] := lowest_digit[ 1 ] := -1;
+    long int p10 := 100;
+    for i from 3 to 9 do
+        for p from 2 to 9 while long int np = power[ i, p ] * i;
+                                np < p10 do
+            lowest_digit[ i ] := p
+        od;
+        p10 *:= 10
+    od;
+    { find the maximum number of zeros possible for each width and max digit }
+    [ 1 : 9, 1 : 9 ]int max_zeros; for i to 9 do for j to 9 do max_zeros[ i, j ] := 0 od od;
+    p10 := 1000;
+    for w from 3 to 9 do
+        for d from lowest_digit[ w ] to 9 do
+            int nz := 9;
+            while if nz < 0
+                  then false
+                  else long int np := power[ w, d ] * nz;
+                       np > p10
+                  fi
+            do
+                nz -:= 1
+            od;
+            max_zeros[ w, d ] := if nz > w then 0 else w - nz fi
+        od;
+        p10 *:= 10
+    od;
+    { find the numbers, works backeards through the possible combinations of  }
+    { digits, starting from all 9s                                            }
+    [ 1 : 100 ]long int numbers;  { will hold the own digit power sum numbers }
+    int n_count   := 0;           { count of the own digit power sums         }
+    int try_count := 0;           { count of digit combinations tried         }
+    [ 1 : 9 ]int digits;          { the latest digit combination to try       }
+    for d        to 9 do digits[ d ] := 9 od;
+    for d from 0 to 8 do used[   d ] := 0 od; used[ 9 ] := 9;
+    int width     := 9;           { number of digits                          }
+    int last      := width;       { final digit position                      }
+    p10           := 100 000 000; { min value for a width digit power sum     }
+    while width > 2 do
+        try_count   +:= 1;
+        long int dps := 0;        { construct the digit power sum             }
+        check        := used;
+        for i to 9 do
+            if used[ i ] /= 0 then dps +:= used[ i ] * power[ width, i ] fi
+        od;
+        { reduce the count of each digit by the number of times it appear in the digit power sum }
+        long int n := dps;
+        while check[ SHORTEN ( n MOD 10 ) ] -:= 1; { reduce the count of this digit }
+              ( n OVERAB 10 ) > 0
+        do skip od;
+        bool reduce_width := dps <= p10;
+        if NOT reduce_width then
+            { dps is not less than the minimum possible width number          }
+            { check there are no non-zero check counts left and so result is  }
+            { equal to its digit power sum                                    }
+            int z_count := 0;
+            for i from 0 to 9 while check[ i ] = 0 do z_count +:= 1 od;
+            if z_count = 10 then
+                numbers[ n_count +:= 1 ] := dps
+            fi;
+            { prepare the next digit combination: reduce the last digit }
+            used[ digits[ last ] ] -:= 1;
+            digits[ last ]         -:= 1;
+            if digits[ last ] = 0 then
+                { the last digit is now zero - check this number of zeros is possible }
+                if used[ 0 ] >= max_zeros[ width, digits[ 1 ] ] then
+                    { have exceeded the maximum number of zeros for the first digit in this width }
+                    digits[ last ] := -1
+                fi
+            fi;
+            if digits[ last ] >= 0 then
+                { still processing the last digit }
+                used[ digits[ last ] ] +:= 1
+            else
+                { last digit is now -1, start processing the previous digit }
+                int prev := last;
+                while if ( prev -:= 1 ) < 1
+                      then { processed all digits }
+                          false
+                      else
+                          { have another digit }
+                          used[ digits[ prev ] ] -:= 1;
+                          digits[ prev ]         -:= 1;
+                          digits[ prev ] < 0
+                      fi
+                do skip od;
+                if prev > 0 then
+                    { still some digits to process }
+                    if prev = 1 then
+                        if digits[ 1 ] <= lowest_digit[ width ] then
+                            { just finished the lowest possible maximum digit for this width }
+                            prev := 0
+                        fi
+                    fi;
+                    if prev /= 0 then
+                        { OK to try a lower digit }
+                        used[ digits[ prev ] ] +:= 1;
+                        for i from prev + 1 to width do
+                            digits[ i ] := digits[ prev ];
+                            used[ digits[ prev ] ] +:= 1
+                        od
+                    fi
+                fi;
+                if prev <= 0 then
+                    { processed all the digits for this width }
+                    reduce_width := true
+                fi
+            fi
+        fi;
+        if reduce_width then
+            { reduce the number of digits }
+            width   := last -:= 1;
+            if last > 0 then
+                { iniialise for fewer digits }
+                for d               to last do digits[ d ] :=  9 od;
+                for d from last + 1 to 9    do digits[ d ] := -1 od;
+                for d from        0 to 9    do used[   d ] :=  0 od;
+                used[ 9 ] := last;
+                p10   OVERAB 10
+            fi
+        fi
+    od;
+    { show the own digit power sums }
+    print( ( "Own digits power sums for N = 3 to 9 inclusive:", newline ) );
+    for i from n_count by -1 to LWB numbers do
+        print( ( whole( numbers[ i ], 0 ), newline ) )
+    od;
+    print( ( "Considered ", whole( try_count, 0 ), " digit combinations" ) )
+end
+)

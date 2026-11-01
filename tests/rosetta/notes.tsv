@@ -1,0 +1,10 @@
+# name<TAB>note (known differences between ga68 and a68j; used by tools/rosetta_report.py)
+cordic	libm: tan of a REAL rounds differently in glibc (tanf) than on the JVM ((float) Math.tan)
+particle-swarm-optimization	libm: sin/ln of REAL values round differently in glibc than on the JVM
+tree-traversal	evaluation order: in the assignation "IF ... FI := end OF queue := qnode" ga68 (GCC) elaborates the source before the destination, a68j the destination first; Algol 68 leaves the order open
+ulam-numbers	evaluation order: in "ulam[3] := ulam[2] := ulam[1] := one" ga68 checks the bound of the inner assignation first; both stop with a bound error because ga68 ignores the bounds of FLEX [1 : n] CHAR (a ga68 bug that a68j reproduces)
+inner-classes	ga68 crashes (segmentation fault): a routine text stored in a heap structure uses a parameter of a procedure that has already returned (no scope check in ga68); a68j keeps the frame alive
+y-combinator-1	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
+yin-and-yang	partial parametrisation (in circle (0, 0, radius, , )), an Algol 68 Genie extension: ga68 compiles the calls with missing arguments and crashes; a68j reports it as unsupported
+self-numbers	a row of 2*10^9 BOOL: ga68 crashes (the row is on the stack), a68j runs out of memory (even unboxed as boolean[] the row needs 2 GB, more than the default JVM heap)
+successive-prime-differences	the ga68 program was killed (status -9, out of memory: it allocates its rows on the stack); a68j gives the expected result

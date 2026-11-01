@@ -1,0 +1,132 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Calkin-Wilf sequence", ALGOL 68 solution calkin-wilf-sequence-1.alg.
+  https://rosettacode.org/wiki/Calkin-Wilf_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/calkin-wilf-sequence-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { Show elements 1-20 of the Calkin-Wilf sequence as rational numbers       }
+    { also show the position of a specific element in the seuence              }
+    { Uses code from the Arithmetic/Rational                                   }
+    {    & Continued fraction/Arithmetic/Construct from rational number tasks  }
+
+
+    { Code from the Arithmetic/Rational task                         }
+    { ============================================================== }
+
+    mode Frac = struct( int num {erator},  den {ominator});
+
+    proc gcd = (int a, b) int: { greatest common divisor }
+       (a = 0 | b |: b = 0 | a |: ABS a > ABS b  | gcd(b, a MOD b) | gcd(a, b MOD a));
+
+    proc lcm = (int a, b)int: { least common multiple }
+       a OVER gcd(a, b) * b;
+
+    prio // = 9; { higher then the ** operator }
+    op // = (int num, den)Frac: ( { initialise and normalise }
+       int common = gcd(num, den);
+       if den < 0 then
+         ( -num OVER common, -den OVER common)
+       else
+         ( num OVER common, den OVER common)
+       fi
+     );
+
+    op + = (Frac a, b)Frac: (
+       int common = lcm(den of a, den of b);
+       Frac result := ( common OVER den of a * num of a + common OVER den of b * num of b, common );
+       num of result//den of result
+    );
+
+    op - = (Frac a, b)Frac: a + -b;
+    op - = (Frac frac)Frac: (-num of frac, den of frac);
+
+    { ============================================================== }
+    { end code from the Arithmetic/Rational task                     }
+
+    { code from the Continued fraction/Arithmetic/Construct from rational number task }
+    { ================================================================================}
+
+    { returns the quotient of numerator over denominator and sets }
+    {         numerator and denominator to the next values for    }
+    {         the continued fraction                              }
+    proc r2cf = ( ref int numerator, ref int denominator )int:
+         if denominator = 0
+         then 0
+         else int quotient      := numerator OVER denominator;
+              int prev_numerator = numerator;
+              numerator         := denominator;
+              denominator       := prev_numerator MOD denominator;
+	      quotient
+         fi { r2cf } ;
+
+    { ====================================================================================}
+    { end code from the Continued fraction/Arithmetic/Construct from rational number task }
+
+    { Additional FRACrelated operators                               }
+    op /     = ( Frac a, b )Frac: ( num of a * den of b ) // ( num of b * den of a );
+    op FLOOR = ( Frac a )int: num of a OVER den of a;
+    op +     = ( int a, Frac b )Frac: ( a // 1 ) + b;
+
+    Frac one = 1 // 1;
+
+    { returns the first n elements of the Calkin-Wilf sequence       }
+    proc calkin_wilf = ( int n )[]Frac:
+         begin
+            [ 1 : n ]Frac q;
+            if n > 0 then
+                q[ 1 ] := 1 // 1;
+                for i from 2 to UPB q do
+                    q[ i ] := one / ( ( 2 * FLOOR q[ i - 1 ] ) + one - q[ i - 1 ] )
+                od
+             fi;
+             q
+         end { calkin wilf } ;
+
+    { returns the position of a FRAC in the Calkin-Wilf sequence by computing its }
+    { continued fraction representation and converting that to a bit string       }
+    { - the position must fit in a 2-bit number                                   }
+    proc position_in_calkin_wilf_sequence = ( Frac f )int:
+         if int result := 0;
+            [ 1 : 32 ]int cf; for i from LWB cf to UPB cf do cf[ i ] := 0 od;
+            int num := num of f;
+            int den := den of f;
+            int cf_length := 0;
+            for i from LWB cf while den /= 0 do
+                cf[ cf_length := i ] := r2cf( num, den )
+            od;
+            NOT ODD cf_length
+         then { the continued fraction does not have an odd length }
+            -1
+         else { the continued fraction has an odd length so we can compute the seuence length }
+            { build the number by alternating d 1s and 0s where d is the digits of the        }
+            { continued fraction, starting at the least significant                           }
+            int digit := 1;
+            for d_pos from cf_length by -1 to 1 do
+                to cf[ d_pos ] do
+                    result *:= 2 +:= digit
+                od;
+                digit := if digit = 0 then 1 else 0 fi
+            od;
+            result
+        fi { position in calkin wilf sequence } ;
+
+    begin { task }
+        { get and show the first 20 Calkin-Wilf sequence numbers }
+        []Frac cw = calkin_wilf( 20 );
+        print( ( "The first 20 elements of the Calkin-Wilf sequence are:", newline, "    " ) );
+        for n from LWB cw to UPB cw do
+            Frac sn = cw[ n ];
+            print( ( " ", whole( num of sn, 0 ), "/", whole( den of sn, 0 ) ) )
+        od;
+        print( ( newline ) );
+        { show the position of a specific element in the sequence }
+        print( ( "Position of 83116/51639 in the sequence: "
+               , whole( position_in_calkin_wilf_sequence( 83116//51639 ), 0 ), newline
+               )
+             )
+    end
+end
+)

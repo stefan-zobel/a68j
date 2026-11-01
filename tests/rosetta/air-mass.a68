@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Air mass", ALGOL 68 solution air-mass.alg.
+  https://rosettacode.org/wiki/Air_mass#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/air-mass.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Air mass - translated from the Pluto sample }
+
+    { Constants. }
+    int  re  = 6371000;  { radius of earth in meters }
+    real dd  = 0.001;    { integrate in this fraction of the distance already covered }
+    real fin = 1e7;      { integrate only to a height of 10000km, effectively infinity }
+
+    { returns x degrees expressed in radians }
+    op TORADIANS = ( real x )real: pi * ( x / 180 );
+
+    { returns the maximum of a and b }
+    proc rmax = ( real a, b )real: if a > b then a else b fi;
+
+    { The density of air as a function of height above sea level. }
+    proc rho = ( real a )real: exp( -a / 8500 );
+
+    { a = altitude of observer         }
+    { z = zenith angle (in degrees)    }
+    { d = distance along line of sight }
+    proc height = ( real a, z, d )real:
+         begin
+            real aa = re + a;
+            real hh = sqrt( aa * aa + d * d - 2 * d * aa * cos( TORADIANS ( 180 - z ) ) );
+            hh - re
+         end { height } ;
+
+    { Integrates density along the line of sight. }
+    proc column_density = ( real a, z )real:
+         begin
+            real sum := 0;
+            real d   := 0;
+            while d < fin do
+                real delta = rmax( dd, dd * d );  { adaptive step size to avoid it taking forever }
+                sum +:= rho( height( a, z, d + 0.5 * delta ) ) * delta;
+                d   +:= delta
+            od;
+            sum
+         end { column density } ;
+
+    proc  air_mass = ( real a, z )real: column_density( a, z ) / column_density( a, 0 );
+
+    begin
+        print( ( "Angle     0 m              13700 m",   newline ) );
+        print( ( "------------------------------------", newline ) );
+        for z from 0 by 5 to 90 do
+            print( ( whole( z, -2 ), "      ", fixed( air_mass(     0, z ), -11, 8 ) ) );
+            print( (                 "      ", fixed( air_mass( 13700, z ), -11, 8 ), newline ) )
+        od
+    end
+end
+)

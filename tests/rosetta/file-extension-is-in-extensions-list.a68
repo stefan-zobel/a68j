@@ -1,0 +1,87 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "File extension is in extensions list", ALGOL 68 solution file-extension-is-in-extensions-list.alg.
+  https://rosettacode.org/wiki/File_extension_is_in_extensions_list#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/file-extension-is-in-extensions-list.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns the length of str                                         }
+op   LENGTH = ( string str )int: ( UPB str - LWB str ) + 1;
+{ returns TRUE if str ends with ending FALSE otherwise              }
+prio ENDSWITH = 9;
+op   ENDSWITH = ( string str, string ending )bool:
+     if  int str_length    = LENGTH str;
+         int ending_length = LENGTH ending;
+         ending_length > str_length
+     then
+         { the ending is longer than the string                     }
+         false
+     else
+         { the string is at least as long as the ending             }
+         str[ ( str_length - ending_length ) + 1 : at 1 ] = ending
+     fi { ENDSWITH } ;
+{ returns str cnverted to upper case                                }
+op   TOUPPER   = ( string str )string:
+     begin
+        string result := str;
+        for s_pos from LWB result to UPB result do
+            result[ s_pos ] := to_upper( result[ s_pos ] )
+        od;
+        result
+     end { TOUPPER } ;
+{ tests whether file name has one of the extensions and returns     }
+{ the index of the extension in extensions or LWB extensions - 1    }
+{ if it does not end with one of the extensions                     }
+{ the tests are not case-sensitive                                  }
+proc has_extension_in_list = ( string file_name, []string extensions )int:
+     begin
+        int    extension_number := LWB extensions - 1;
+        string upper_name        = TOUPPER file_name;
+        for pos from LWB extensions to UPB extensions while extension_number < LWB extensions do
+            if upper_name ENDSWITH ( "." + TOUPPER extensions[ pos ] )
+            then
+                { found the extension                              }
+                extension_number := pos
+            fi
+        od;
+        extension_number
+     end { has extension } ;
+{ test the has extension in list procedure                          }
+proc test_has_extension_in_list = ( string file_name, []string extensions, bool expected_result )void:
+     if int extension_number = has_extension_in_list( file_name, extensions );
+        extension_number < LWB extensions
+     then
+        { the file does not have one of the extensions              }
+        print( ( file_name
+               , " does not have an extension in the list "
+               , if expected_result then "NOT AS EXPECTED" else "" fi
+               , newline
+               )
+             )
+     else
+        { the file does have one of the extensions                  }
+        print( ( file_name
+               , " has extension """
+               , extensions[ extension_number ]
+               , """ "
+               , if NOT expected_result then "NOT AS EXPECTED" else "" fi
+               , newline
+               )
+             )
+     fi { test has extension in list } ;
+{ the extensions for the task                                       }
+[]string task_extensions = ( "zip", "rar", "7z", "gz", "archive", "A##" );
+{ test the file names in the standard task                          }
+test_has_extension_in_list( "MyData.a##",          task_extensions, true  );
+test_has_extension_in_list( "MyData.tar.Gz",       task_extensions, true  );
+test_has_extension_in_list( "MyData.gzip",         task_extensions, false );
+test_has_extension_in_list( "MyData.7z.backup",    task_extensions, false );
+test_has_extension_in_list( "MyData...",           task_extensions, false );
+test_has_extension_in_list( "MyData",              task_extensions, false );
+{ the extensions for the extra credit                               }
+[]string ec_extensions = ( "zip", "rar", "7z", "gz", "archive", "A##", "tar.bz2" );
+{ test the file names in the extra credit                           }
+test_has_extension_in_list( "MyData_v1.0.tar.bz2", ec_extensions,   true  );
+test_has_extension_in_list( "MyData_v1.0.bz2",     ec_extensions,   false )
+)

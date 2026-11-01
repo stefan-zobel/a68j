@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Trabb Pardo?Knuth algorithm", ALGOL 68 solution trabb-pardo-knuth-algorithm.alg.
+  https://rosettacode.org/wiki/Trabb_Pardo%E2%80%93Knuth_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/trabb-pardo-knuth-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[ 0 : 10 ]real a;
+proc f = ( real t )real:
+    sqrt(ABS t)+5*t*t*t;
+for i from LWB a to UPB a do read( ( a[ i ] ) ) od;
+for i from UPB a by -1 to LWB a do
+       real y=f(a[i]);
+       if y > 400 then print( ( "TOO LARGE", newline ) )
+                  else print( ( fixed( y, -9, 4 ), newline ) )
+       fi
+od
+)

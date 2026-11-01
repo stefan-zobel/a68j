@@ -1,0 +1,120 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generalised floating point addition", ALGOL 68 solution generalised-floating-point-addition-2.alg.
+  https://rosettacode.org/wiki/Generalised_floating_point_addition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generalised-floating-point-addition-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{  Define the basic operators and routines for }
+{  manipulating DIGITS in a generalised base   }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+
+struct (
+  bool balanced,
+       carry, { aka "carry" between digits }
+  int base,
+      digit_width,
+      digit_places,
+      digit_order,
+  USTRING repr
+) arithmetic := (
+  false, true,
+  10, 1, 81, -1, { Default is BCD/Hex }
+  USTRING( { Note that the "circled" digits are negative - used in balance arithmetic }
+           "ⓩ","ⓨ","ⓧ","ⓦ","ⓥ","ⓤ","ⓣ","ⓢ","ⓡ","ⓠ","ⓟ","ⓞ","ⓝ","ⓜ","ⓛ","ⓚ","ⓙ","ⓘ","ⓗ","ⓖ","ⓕ","ⓔ","ⓓ","ⓒ","ⓑ","ⓐ",
+           "Ⓩ","Ⓨ","Ⓧ","Ⓦ","Ⓥ","Ⓤ","Ⓣ","Ⓢ","Ⓡ","Ⓠ","Ⓟ","Ⓞ","Ⓝ","Ⓜ","Ⓛ","Ⓚ","Ⓙ","Ⓘ","Ⓗ","Ⓖ","Ⓕ","Ⓔ","Ⓓ","Ⓒ","Ⓑ","Ⓐ",
+                   "⑨","⑧","⑦","⑥","⑤","④","③","②","①",    "0",    "1","2","3","4","5","6","7","8","9",
+           "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+           "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"
+  )[@-(26*2+9)] { can print up to base 61, or balanced base 123 }
+);
+
+mode Digits = flex[0]DIGIT;
+
+{ DIGIT OPerators }
+op INITDIGIT = ({LONG} int i)DIGIT: (DIGIT out_; digit of out_ := {SHORTEN} i; out_);
+{OP INITDIGIT = (INT i)DIGIT: INITDIGIT LENG i;}
+
+op /= = (DIGIT a,b)bool: digit of a /= digit of b;
+
+{ Define additive and multiplicative identities }
+op ZERO = (Digits skip_)Digits: INITDIGITS []DIGIT(ZERO loc DIGIT),
+   IDENTITY = (Digits skip_)Digits: INITDIGITS []DIGIT(IDENTITY loc DIGIT);
+
+op SIGN = (DIGIT digit)int: SIGN digit of digit;
+
+{ Define OPerators for Least and Most Significant DIGIT }
+op MSD = (Digits t)int: LWB t,
+   EXP = (Digits t)int: digit_order of arithmetic * LWB t, { exponent }
+   LSD = (Digits t)int: UPB t;
+
+op INITDIGITS = (DIGIT in_)Digits: INITDIGITS []DIGIT(in_)[@0];
+
+op INITDIGITS = ([]DIGIT digits)Digits: (
+{}{ normalise digits:
+  A) removed leading & trailing zeros
+  B) IF not balanced arithmetic
+     THEN make all digits positive and set sign bit FI
+}{}
+    mode Signed = DIGIT;
+    DIGIT zero = ZERO loc DIGIT;
+    DIGIT one = IDENTITY loc DIGIT;
+    DIGIT base_digit = INITDIGIT base of arithmetic;
+    int base = base of arithmetic;
+    int half_base = base % 2;
+    int order = digit_order of arithmetic;
+
+    int msd := LWB digits + int_width*order, lsd := UPB digits; { XXX }
+
+{ create an array with some "extra" significant digits incase there is a "big" input value }
+    [msd:lsd]Signed signed; signed[LWB digits:UPB digits] := digits[@1];
+    for place from LWB signed to LWB digits+order do
+      signed[place] := zero
+    od;
+    if msd + order /= lsd then
+
+{   Trim leading zeros }
+      for place from msd by -order to lsd do
+        if SIGN signed[place] /= 0 then msd := place; done_msd fi
+      od;
+      msd := lsd-order;
+    done_msd:
+{   Trim trailing zeros }
+      for place from lsd by order to msd do
+        if SIGN signed[place] /= 0 then lsd := place; done_lsd fi
+      od;
+      lsd := msd+order;
+    done_lsd:
+      if msd + order /= lsd then  { not zero }
+        if carry of arithmetic then { Normalise to the "base OF arithmetic": }
+          int sign_msd := SIGN digits[msd]; { first non zero digit }
+          int lwb_digit := (balanced of arithmetic|-half_base|:sign_msd < 0 |1-base|0);
+          int upb_digit := (balanced of arithmetic| half_base|:sign_msd > 0 |base-1|0);
+          Signed carry := zero;
+          for place from lsd by order while SIGN carry /=0 OR place >= LWB digits do
+             Signed digit := signed[place];
+             carry := digit +:= carry;
+             while digit of digit < lwb_digit do
+               MOID(digit +:= base_digit);
+               MOID(carry -:= one)
+             od;
+             while digit of digit > upb_digit do
+               MOID(digit -:= base_digit);
+               MOID(carry +:= one)
+             od;
+             signed[place] := digit; { normalised }
+             if SIGN digit /= 0 then msd := place fi
+          od
+        fi
+      fi;
+      signed[msd:lsd][@msd]
+    fi
+  );
+
+{ re anchor the array with a shift }
+op SHL = (Digits in_, int shl)Digits: in_[@MSD in_-shl];
+op SHR = (Digits in_, int shr)Digits: in_[@MSD in_+shr];
+)

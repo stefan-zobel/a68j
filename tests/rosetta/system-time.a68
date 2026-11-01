@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "System time", ALGOL 68 solution system-time.alg.
+  https://rosettacode.org/wiki/System_time#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/system-time.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+FORMAT time_repr = $"year="4d,", month="2d,", day="2d,", hours="2d,",  \
+                   minutes="2d,", seconds="2d,", day of week="d,",  \
+                   daylight-saving-time flag="dl$;
+printf((time_repr, local_time));
+printf((time_repr, utc_time))
+)

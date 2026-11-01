@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Padovan n-step number sequences", ALGOL 68 solution padovan-n-step-number-sequences.alg.
+  https://rosettacode.org/wiki/Padovan_n-step_number_sequences#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/padovan-n-step-number-sequences.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show some valuies of the Padovan n-step number sequences  }
+    { returns an array with the elements set to the elements of   }
+    { the Padovan sequences from 2 to max s & elements 1 to max e }
+    { max s must be >= 2                                          }
+    proc padovan_sequences = ( int max_s, max_e )[,]int:
+         begin
+            prio MIN = 1;
+            op   MIN = ( int a, b )int: if a < b then a else b fi;
+            { sequence 2                                          }
+            [ 2 : max_s, 1 : max_e ]int r;
+            for x to max_e MIN 3 do r[ 2, x ] := 1 od;
+            for x from 4 to max_e do r[ 2, x ] := r[ 2, x - 2 ] + r[ 2, x - 3 ] od;
+            { sequences 3 and above                               }
+            for n from 3 to max_s do
+                for x to max_e MIN n + 1 do r[ n, x ] := r[ n - 1, x ] od;
+                for x from n + 2 to max_e do
+                    r[ n, x ] := 0;
+                    for p from x - n - 1 to x - 2 do r[ n, x ] +:= r[ n, p ] od
+                od
+            od;
+            r
+         end { padovan sequences } ;
+    { calculate and show the sequences                            }
+    [,]int ps = padovan_sequences( 8, 15 );
+    print( ( "Padovan n-step sequences:", newline ) );
+    for n from 1 LWB ps to 1 UPB ps do
+        print( ( whole( n, 0 ), " |" ) );
+        for x from 2 LWB ps to 2 UPB ps do print( ( " ", whole( ps[ n, x ], -3 ) ) ) od;
+        print( ( newline ) )
+    od
+end
+)

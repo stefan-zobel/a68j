@@ -1,0 +1,140 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bitwise IO", ALGOL 68 solution bitwise-io.alg.
+  https://rosettacode.org/wiki/Bitwise_IO#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bitwise-io.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ NIBBLEs are of any width, eg 1-bit OR 4-bits etc. }
+mode Nibble = struct(int width, bits bits_);
+
+prio << = 8, >> = 8; { define C style shift opertors }
+op << = (bits bits_, int shift)bits: bits_ SHL shift;
+op >> = (bits bits_, int shift)bits: bits_ SHR shift;
+
+{ define nibble opertors for left/right shift and append }
+op << = (Nibble nibble, int shift)Nibble:
+  (width of nibble + shift, bits_ of nibble << shift);
+
+op >> = (Nibble nibble, int shift)Nibble:
+  (width of nibble - shift, bits_ of nibble >> shift);
+
+op +:= = (ref Nibble lhs, Nibble rhs)ref Nibble: (
+  bits rhs_mask := BIN(ABS(2r1 << width of rhs)-1);
+  lhs := ( width of lhs + width of rhs, bits_ of lhs << width of rhs OR bits_ of rhs AND rhs_mask)
+);
+
+{ define MODEs for generating NIBBLE streams and yielding NIBBLEs }
+mode Yieldnibble = proc(Nibble)void;
+mode Gennibble = proc(Yieldnibble)void;
+
+proc gen_resize_nibble = (
+  int out_width,
+  Gennibble gen_nibble,
+  Yieldnibble yield
+)void:(
+     Nibble buf := (0, 2r0), out_;
+     bits out_mask := BIN(ABS(2r1 << out_width)-1);
+{ FOR NIBBLE nibble IN } gen_nibble( { ) DO }
+{}   (Nibble in_nibble)void:(
+    buf +:= in_nibble;
+    while width of buf >= out_width do
+      out_ := buf >> ( width of buf - out_width);
+      width of buf -:= out_width; { trim 'out' from buf }
+      yield((out_width, bits_ of out_ AND out_mask))
+    od
+{ OD } ))
+);
+
+{ Routines for joining strings and generating a stream of nibbles }
+
+proc gen_nibble_from_7bit_chars = (string string_, Yieldnibble yield)void:
+  for key from LWB string_ to UPB string_ do yield((7, BIN ABS string_[key])) od;
+
+proc gen_nibble_from_8bit_chars = (string string_, Yieldnibble yield)void:
+  for key from LWB string_ to UPB string_ do yield((8,BIN ABS string_[key])) od;
+
+proc gen_join = ([]string strings, string new_line, Yieldnibble yield)void:
+   for key from LWB strings to UPB strings do
+     gen_nibble_from_8bit_chars(strings[key]+new_line, yield)
+   od;
+
+{ Two tables for uuencoding 6bits in printable ASCII chacters }
+
+[0:63]char encode_uue_6bit:= { [0:63] => CHAR64 }
+  "`!""#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_"[@0];
+
+[0:255]bits decode_uue_6bit; { CHAR64 => [0:63] }
+  for key from LWB encode_uue_6bit to UPB encode_uue_6bit do
+    decode_uue_6bit[ABS encode_uue_6bit[key] ] := BIN key
+  od;
+  decode_uue_6bit[ABS " "] := 2r0; { extra }
+
+{ Some basic examples }
+
+proc example_uudecode_nibble_stream = void:(
+
+  []string encoded_uue_6bit_hello_world = (
+    ":&5L;&\L(''=O<FQD""DAE;&QO+""!W;W)L9""$*1V]O9&)Y92P@8W)U96P@=V]R",
+    ";&0*22=M(&QE879I;F<@>6]U(''1O9&%Y""D=O;V1B>64L(&=O;V1B>64L(&=O",
+    ";V1B>64@""@``"
+  );
+
+  proc gen_join_hello_world = (Yieldnibble yield)void:
+  { FOR NIBBLE nibble IN } gen_join(encoded_uue_6bit_hello_world, "", { ) DO }
+  {}   (Nibble nibble)void:(
+    yield((6, decode_uue_6bit[ABS bits_ of nibble]))
+  { OD } ));
+
+  print(("Decode uue 6bit NIBBLEs into 8bit CHARs:", new_line));
+
+{ FOR NIBBLE nibble IN } gen_resize_nibble(8, gen_join_hello_world, { ) DO ( }
+{}   (Nibble nibble)void:(
+    print(REPR ABS bits_ of nibble)
+{ OD } ))
+);
+
+proc example_uuencode_nibble_stream = void: (
+  []string hello_world = (
+    "hello, world",
+    "Hello, world!",
+    "Goodbye, cruel world",
+    "I''m leaving you today",
+    "Goodbye, goodbye, goodbye "
+  );
+
+  proc gen_join_hello_world = (Yieldnibble yield)void:
+    gen_join(hello_world, REPR ABS 8r12, yield); { 8r12 = ASCII new line }
+
+  print((new_line, "Encode 8bit CHARs into uue 6bit NIBBLEs:", new_line));
+  int count := 0;
+{ FOR NIBBLE nibble IN } gen_resize_nibble(6, gen_join_hello_world, { ) DO ( }
+{}   (Nibble nibble)void:(
+    print(encode_uue_6bit[ABS bits_ of nibble]);
+    count+:=1;
+    if count MOD 60 = 0 then print(newline) fi
+{ OD } ));
+    print(new_line); print(new_line)
+);
+
+proc example_compress_7bit_chars = void: (
+  string example_7bit_string = "STRING & ABACUS";
+
+  print(("Convert 7bit ASCII CHARS to a 1bit stream: ",new_line,
+          example_7bit_string + " => "));
+
+  proc gen_example_7bit_string = (Yieldnibble yield)void:
+    gen_nibble_from_7bit_chars(example_7bit_string,yield);
+
+{ FOR NIBBLE nibble IN } gen_resize_nibble(1, gen_example_7bit_string, { ) DO ( }
+{}   (Nibble nibble)void: (
+    print(whole(ABS bits_ of nibble,0))
+{ OD } ));
+  print(new_line)
+);
+
+example_uudecode_nibble_stream;
+example_uuencode_nibble_stream;
+example_compress_7bit_chars
+)

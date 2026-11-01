@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Non-continuous subsequences", ALGOL 68 solution non-continuous-subsequences-2.alg.
+  https://rosettacode.org/wiki/Non-continuous_subsequences#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/non-continuous-subsequences-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Seqmode = string;
+mode Seq = [1:0]Seqmode;
+mode Yieldseq = proc(Seq)void;
+
+proc gen_ncs = (Seq seq, Yieldseq yield)void:
+begin
+  if UPB seq - 1 > bits_width then stop fi;
+  [UPB seq]Seqmode out_;  int upb_out;
+
+  bits lim := 16r1 SHL UPB seq;
+  bits upb_k := lim SHR 1;
+  { assert(lim); }
+
+  bits empty_ = 16r000000000; { const }
+
+  for j to ABS lim-1 do
+    int state := 1;
+    bits k1 := upb_k;
+    while k1 NE empty_ do
+      bits b := BIN j AND k1;
+      case state in
+        { state 1 } if b NE empty_ then state +:= 1 fi,
+        { state 2 } if b EQ empty_ then state +:= 1 fi,
+        { state 3 }
+          begin
+            if b EQ empty_ then go to continue_k1 fi;
+            upb_out := 0;
+            bits k2 := upb_k; for i while k2 NE empty_ do
+              if (BIN j AND k2) NE empty_ then out_[upb_out +:= 1] := seq[i] fi;
+              k2 := k2 SHR 1
+            od;
+            yield(out_[:upb_out]);
+            k1 := empty_ { empty: ending containing loop }
+         end
+      esac;
+      continue_k1: k1 := k1 SHR 1
+    od
+  od
+end;
+
+main:(
+  []string seqs = ("a","e","i","o","u");
+{ FOR SEQ seq IN } gen_ncs(seqs, { ) DO ( }
+{}   (Seq seq)void:
+    print((seq, new_line))
+{ OD } )
+)
+)

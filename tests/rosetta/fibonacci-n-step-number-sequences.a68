@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fibonacci n-step number sequences", ALGOL 68 solution fibonacci-n-step-number-sequences.alg.
+  https://rosettacode.org/wiki/Fibonacci_n-step_number_sequences#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fibonacci-n-step-number-sequences.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns an array of the first required count elements of an a n-step fibonacci sequence }
+{ the initial values are taken from the init array                                        }
+proc n_step_fibonacci_sequence = ( []int init, int required_count )[]int:
+     begin
+         [ 1 : required_count ]int result;
+         []int initial_values = init[ at 1 ];
+         int step             = UPB initial_values;
+         { install the initial values                                                     }
+         for n to step do result[ n ] := initial_values[ n ] od;
+         { calculate the rest of the sequence                                             }
+         for n from step + 1 to required_count do
+             result[ n ] := 0;
+             for p from n - step to n - 1 do result[ n ] +:= result[ p ] od
+         od;
+         result
+     end; { required count }
+
+{ prints the elements of a sequence                                                       }
+proc print_sequence = ( string legend, []int sequence )void:
+     begin
+        print( ( legend, ":" ) );
+        for e from LWB sequence to UPB sequence do print( ( " ", whole( sequence[ e ], 0 ) ) ) od;
+        print( ( newline ) )
+     end; { print sequence }
+
+{ print some sequences                                                                    }
+print_sequence( "fibonacci   ", n_step_fibonacci_sequence( ( 1, 1 ),       10 ) );
+print_sequence( "tribonacci  ", n_step_fibonacci_sequence( ( 1, 1, 2 ),    10 ) );
+print_sequence( "tetrabonacci", n_step_fibonacci_sequence( ( 1, 1, 2, 4 ), 10 ) );
+print_sequence( "lucus       ", n_step_fibonacci_sequence( ( 2, 1 ),       10 ) )
+)

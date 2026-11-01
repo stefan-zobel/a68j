@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Split a character string based on change of character", ALGOL 68 solution split-a-character-string-based-on-change-of-character.alg.
+  https://rosettacode.org/wiki/Split_a_character_string_based_on_change_of_character#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/split-a-character-string-based-on-change-of-character.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns s with ", " added between each change of character }
+    proc split_on_characters = ( string s )string:
+         if s = "" then
+            { empty string }
+            ""
+         else
+            { allow for 3 times as many characters as in the string }
+            { this would handle a string of unique characters       }
+            [ 3 * ( ( UPB s - LWB s ) + 1 ) ]char result;
+            int  r_pos  := LWB result;
+            char s_char := s[ LWB s ];
+            for s_pos from LWB s to UPB s do
+                if s_char /= s[ s_pos ] then
+                    { change of character - insert ", " }
+                    result[ r_pos     ] := ",";
+                    result[ r_pos + 1 ] := " ";
+                    r_pos +:= 2;
+                    s_char := s[ s_pos ]
+                fi;
+                result[ r_pos ] := s[ s_pos ];
+                r_pos +:= 1
+            od;
+            { return the used portion of the result }
+            result[ 1 : r_pos - 1 ]
+         fi ; { split on characters }
+
+    print( ( split_on_characters( "gHHH5YY++///\" ), newline ) )
+end
+)

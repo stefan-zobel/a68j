@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Input/Output for lines of text", ALGOL 68 solution input-output-for-lines-of-text.alg.
+  https://rosettacode.org/wiki/Input/Output_for_lines_of_text#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/input-output-for-lines-of-text.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ outputs line plus a newline                                }
+proc show_line = ( string line )void:
+    print( ( line, newline ) );
+
+{ copy the lines with an loop with an anonymous loop counter }
+{ as the loop limit is evaluated only once, we can read the  }
+{ number of lines in the "TO" part                           }
+to ( int n; read( ( n, newline ) ); n )
+do
+    show_line( ( string line; read( ( line, newline ) ); line ) )
+od
+)

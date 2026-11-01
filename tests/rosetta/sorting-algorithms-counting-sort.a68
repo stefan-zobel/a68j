@@ -1,0 +1,49 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Counting sort", ALGOL 68 solution sorting-algorithms-counting-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Counting_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-counting-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc counting_sort_mm = (ref[]int array, int min, max)void:
+(
+  int z := LWB array - 1;
+  [min:max]int count;
+
+  for i from LWB count to UPB count do count[i] := 0 od;
+  for i to UPB array do count[ array[i] ]+:=1 od;
+
+  for i from LWB count to UPB count do
+    for j to count[i] do array[z+:=1] := i od
+  od
+);
+
+proc counting_sort = (ref[]int array)void:
+(
+  int min, max;
+  min := max := array[LWB array];
+
+  for i from LWB array + 1 to UPB array do
+    if array[i] < min then
+      min := array[i]
+    elif array[i] > max then
+      max := array[i]
+    fi
+  od
+);
+
+{ Testing (we suppose the oldest human being is less than 140 years old). }
+
+int n = 100;
+int min_age = 0, max_age = 140;
+main:
+(
+  [n]int ages;
+
+  for i to UPB ages do ages[i] := ENTIER (random * ( max_age + 1 ) ) od;
+  counting_sort_mm(ages, min_age, max_age);
+  for i to UPB ages do print((" ", whole(ages[i],0))) od;
+  print(new_line)
+)
+)

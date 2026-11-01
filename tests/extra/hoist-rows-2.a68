@@ -1,0 +1,12 @@
+{ A subscript out of bounds in a loop whose row descriptor is kept in
+  JVM locals (backend/src/main/java/a68j/jvm/Hoist.java): the same runtime
+  error, at the same line, as without it. }
+begin
+  [5] int a;
+  for i to 5 do a[i] := i od;
+  int s := 0;
+  for i to 6 do
+    s +:= a[i];
+    puts (whole (s, 0) + "'n")
+  od
+end

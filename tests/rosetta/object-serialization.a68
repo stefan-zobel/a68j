@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Object serialization", ALGOL 68 solution object-serialization.alg.
+  https://rosettacode.org/wiki/Object_serialization#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/object-serialization.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Entity = struct([6]char name, int creation);
+FORMAT entity_repr = $"Name: "g", Created:"g$;
+mode Person = struct(Entity entity, string email);
+FORMAT person_repr = $f(entity repr)", Email: "g$;
+
+Person instance1 := Person(Entity("Cletus", 20080808), "test+1@localhost.localdomain");
+print((name of entity of instance1, new_line));
+
+Entity instance2 := Entity("Entity",20111111);
+print((name of instance2, new_line));
+
+file target;
+int errno := open(target, "rows.dat", stand_back_channel); { open file }
+
+{  Serialise }
+put(target,(instance1, new_line, instance2, new_line));
+printf(($"Serialised..."l$));
+
+close(target); { flush file stream }
+errno := open(target, "rows.dat", stand_back_channel); { load again }
+
+{ Unserialise }
+Person i1;
+Entity i2;
+get(target,(i1, new_line, i2, new_line));
+printf(($"Unserialised..."l$));
+
+printf((person_repr, i1, $l$));
+printf((entity_repr, i2, $l$))
+)

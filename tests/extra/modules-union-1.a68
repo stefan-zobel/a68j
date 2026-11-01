@@ -1,0 +1,9 @@
+{ dg-modules "modunions" }
+access Mod_Unions
+begin for k to 4 do
+        U u = mk (k);
+        puts (case u in (S s): "S", (T t): "T", (int): "int", (string): "string", ([]int): "row" out "?" esac);
+        puts (show (u))
+      od;
+      puts (show (S (1, 2))); puts (show (string ("xy"))); puts ("'n")
+end

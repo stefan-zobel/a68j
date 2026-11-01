@@ -1,0 +1,78 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Inner classes", ALGOL 68 solution inner-classes.alg.
+  https://rosettacode.org/wiki/Inner_classes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/inner-classes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { demonstrate a possible method of simulating inner classes             }
+    { declare OUTER and INNER "classes"                                       }
+    mode Outer = struct( int                   omember    { integer member    }
+                       , proc ref ref Outer    new0       { noarg constructer }
+                       , ref  ref Inner        oinner     { INNER member      }
+                       , proc( ref Outer )void print      { print method      }
+                       );
+    mode Inner = struct( ref ref Outer         super      { parent OUTER      }
+                       , char                  cmember    { character member  }
+                       , proc( ref ref Outer )ref ref Inner
+                                               new0       { noarg constructor }
+                          { but must be called withe the superclass "pointer" }
+                       , proc( ref Inner )void print      { print method      }
+                       );
+    { constructors                                                            }
+    proc new_outer = ref ref Outer:
+         begin
+             heap Outer     thisv := Outer( 0
+                                          , new_outer
+                                          , nil
+                                          , ( ref Outer othis )void:
+                                                print( ( "[", whole( omember of othis, 0 ), "]" ) )
+                                          );
+             heap ref Outer this  := thisv;
+             oinner of this       := new_inner( this );
+             this
+         end { new outer } ;
+    proc new_inner = ( ref ref Outer super )ref ref Inner:
+         begin
+             heap Inner     thisv := Inner( super
+                                          , " "
+                                          , new_inner
+                                          , ( ref Inner ithis )void:
+                                                print( ( "<<", cmember of ithis
+                                                       , "><", whole( omember of super of ithis, 0 )
+                                                       , ">>"
+                                                       )
+                                                     )
+                                          );
+             heap ref Inner this  := thisv;
+             this
+         end { new inner } ;
+
+    ref Outer o := new_outer;                { create an instance of OUTER    }
+    omember of o := 27;                      { set o's integer member         }
+    cmember of oinner of o := "-";  { set o's inner member's character member }
+    ( print of oinner of o )( oinner of o ); { call o's INNER members' print  }
+    ( print of o )( o );                     { call o's print                 }
+    print( ( newline ) );
+    omember of o := 42;                      { update o's integer member      }
+    cmember of oinner of o := "!";  { and its inner member's character member }
+    ( print of oinner of o )( oinner of o ); { call o's INNER members' print  }
+    ( print of o )( o );                     { call o's print                 }
+    print( ( newline ) );
+    ref Inner i := new_inner( o );    { create a separate INNER instance also }
+                                      {                         with parent o }
+    cmember of i := "$";       { update the separate INNER's character member }
+    ( print of i )( i );       { call the separate INNER's print method       }
+    ( print of o )( o );       { call o's print method again                  }
+    print( ( newline ) );
+    omember of o := 91;                      { update o's integer member ...  }
+    cmember of oinner of o := "?";  { and its INNER member's character member }
+    ( print of oinner of o )( oinner of o ); { call o's INNER members' print  }
+    ( print of o )( o );                     { call o's print method again    }
+    print( ( newline ) );
+    ( print of i )( i );       { call the separate INNER's print method again }
+    ( print of o )( o );       { call o's print method again                  }
+    print( ( newline ) )
+end
+)

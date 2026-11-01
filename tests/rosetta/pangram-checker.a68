@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pangram checker", ALGOL 68 solution pangram-checker.alg.
+  https://rosettacode.org/wiki/Pangram_checker#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pangram-checker.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ init pangram: }
+int la = ABS "a", lz = ABS "z";
+int ua = ABS "A", uz = ABS "Z";
+if lz-la+1 > bits_width then
+  put(stand_error, "Exception: insufficient bits in word for task");
+  stop
+fi;
+
+proc is_a_pangram = (string test)bool: (
+  bits a2z := BIN(ABS(2r1 SHL (lz-la))-1); { assume: ASCII & Binary }
+  for i to UPB test while
+    int c = ABS test[i];
+    if la <= c AND c <= lz then
+      a2z := a2z AND NOT(2r1 SHL (c-la))
+    elif ua <= c AND c <= uz then
+      a2z := a2z AND NOT(2r1 SHL (c-ua))
+    fi;
+{ WHILE } a2z /= 2r0 do
+    skip
+  od;
+  a2z = 2r0
+);
+
+main:(
+  []string test_list = (
+    "Big fjiords vex quick waltz nymph",
+    "The quick brown fox jumps over a lazy dog",
+    "A quick brown fox jumps over a lazy dog"
+  );
+  for key to UPB test_list do
+    string test = test_list[key];
+    if is_a_pangram(test) then
+      print(("""",test,""" is a pangram!", new_line))
+    fi
+  od
+)
+)

@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generic swap", ALGOL 68 solution generic-swap.alg.
+  https://rosettacode.org/wiki/Generic_swap#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generic-swap.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Genmode = string;
+
+Genmode v1:="Francis Gary Powers", v2:="Vilyam Fisher";
+
+prio =:= = 1;
+
+op =:= = (ref Genmode v1, v2)void: (
+  Genmode tmp:=v1; v1:=v2; v2:=tmp
+);
+
+v1 =:= v2;
+
+print(("v1: ",v1, ", v2: ", v2, new_line))
+)

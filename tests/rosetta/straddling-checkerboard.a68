@@ -1,0 +1,127 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Straddling checkerboard", ALGOL 68 solution straddling-checkerboard.alg.
+  https://rosettacode.org/wiki/Straddling_checkerboard#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/straddling-checkerboard.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+prio MIN=5, MAX=5;
+op MIN = (int a, b)int: (a<b|a|b),
+   MAX = (int a, b)int: (a>b|a|b);
+
+mode Straddlingcheckerboard=struct(
+  [0:9]char first, second, third,
+  [ABS ".": ABS "Z"]string table,
+  int row_u, row_v,
+  char esc, skip_
+);
+
+struct(
+  proc (ref Straddlingcheckerboard {self}, string {alphabet}, int {u}, int {v})void init,
+  proc (ref Straddlingcheckerboard {self}, string {plain})string encode,
+  proc (ref Straddlingcheckerboard {self}, string {plain})string decode
+) sc_class = (
+{ PROC init = } (ref Straddlingcheckerboard self, string in_alphabet, int u, v)void:
+  (
+    string alphabet = in_alphabet[@0];
+
+    esc of self := alphabet[UPB alphabet]; { use the last CHAR as the escape }
+    skip_ of self := alphabet[UPB alphabet-1];
+
+    row_u of self := u MIN v;
+    row_v of self := u MAX v;
+
+    op DIGIT = (int i)char: REPR(ABS "0" + i );
+
+    int j := LWB alphabet;
+
+  { (first OF self)[u] := (first OF self)[v] := skip; }
+
+    for i from LWB first of self to UPB first of self  do
+      if i NE u AND i NE v then
+        (first of self)[i] := alphabet[j];
+        (table of self)[ABS alphabet[j] ] := DIGIT i;
+        j+:=1
+      fi;
+
+      (second of self)[i] := alphabet[i+8];
+      (table of self)[ABS alphabet[i+8] ] := DIGIT (row_u of self) + DIGIT i;
+
+      (third of self)[i] := alphabet[i+18];
+      (table of self)[ABS alphabet[i+18] ] := DIGIT (row_v of self) + DIGIT i
+    od
+  ),
+
+{ PROC encode = } (ref Straddlingcheckerboard self, string plain)string:
+  (
+    string esc = (table of self)[ABS (esc of self)];
+    int l2u = ABS "A" - ABS "a";
+
+    string out_ := "";
+    for i from LWB plain to UPB plain do
+      char c := plain[i];
+      if "a" <= c AND c <= "z" then
+        c := REPR ( ABS c + l2u) fi;
+
+      if "A" <= c AND c <= "Z" then
+        out_ +:= (table of self)[ABS c]
+      elif "0" <= c AND c <= "9" then
+        out_ +:= esc + c
+      fi
+    od;
+    out_ { EXIT }
+  ),
+
+{ PROC decode = } (ref Straddlingcheckerboard self, string cipher)string:
+  (
+    char null = REPR 0;
+    string out_;
+    int state := 0;
+    for i from LWB cipher to UPB cipher do
+      int n := ABS cipher[i] - ABS "0";
+
+      char next :=
+        case state in
+          {1:} (second of self)[n],
+          {2:} (third of self)[n],
+          {3:} cipher[i]
+        out
+          if n = row_u of self then
+            state := 1; null
+          elif n = row_v of self then
+            state := 2; null
+          else
+            (first of self)[n]
+          fi
+        esac;
+
+      if next = "/" then
+        state := 3
+      elif next NE null then
+        state := 0;
+        out_ +:= next
+      fi
+    od;
+    out_ { EXIT }
+  )
+);
+
+main:
+(
+  Straddlingcheckerboard sc; (init of sc_class)(sc, "HOLMESRTABCDFGIJKNPQUVWXYZ./", 3, 7);
+
+  string original := "One night-it was on the twentieth of March, 1888-I was returning"[@0];
+  string en := (encode of sc_class)(sc, original);
+  string de := (decode of sc_class)(sc, en);
+
+  printf(($ggl$,
+          "Original: ", original,
+          "Encoded:  ", en,
+          "Decoded:  ", de
+  ))
+
+)
+)

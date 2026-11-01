@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Write entire file", ALGOL 68 solution write-entire-file.alg.
+  https://rosettacode.org/wiki/Write_entire_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/write-entire-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+if  file   output;
+    string output_file_name = "output.txt";
+    open( output, output_file_name, stand_out_channel ) = 0
+then
+    { file opened OK }
+    put( output, ( "line 1", newline, "line 2", newline ) );
+    close( output )
+else
+    { unable to open the output file }
+    print( ( "Cannot open ", output_file_name, newline ) )
+fi
+)

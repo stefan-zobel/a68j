@@ -1,0 +1,95 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Special factorials", ALGOL 68 solution special-factorials.alg.
+  https://rosettacode.org/wiki/Special_factorials#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/special-factorials.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show the values of some "special factorials"                         }
+
+    { super factorial: returns the product of the factorials up to to n      }
+    proc sf = ( int n )long long int:
+         begin
+            long long int f := 1, p := 1;
+            for i to n do
+                f *:= i;
+                p *:= f
+            od;
+            p
+         end { sf } ;
+    { hyper factorial: returns the product of k^k for k up to n              }
+    proc hf = ( int n )long long int:
+         begin
+            long long int p := 1;
+            for i to n do
+                to i do p *:= i od
+            od;
+            p
+         end { hf } ;
+    { alternating factorial: returns the sum of (-1)^(i-1)*i! for i up to n  }
+    proc af = ( int n )long long int:
+         begin
+            long long int s := 0;
+            long long int f := 1;
+            int sign        := if ODD n then 1 else - 1 fi;
+            for i to n do
+                f   *:= i;
+                s   +:= sign * f;
+                sign := - sign
+            od;
+            s
+         end { hf } ;
+    { exponential factorial: returns n^(n-1)^(n-2)...                        }
+    proc xf = ( int n )long long int:
+         begin
+            long long int x := 1;
+            for i to n do
+                long long int ix := 1;
+                to SHORTEN SHORTEN x do ix *:= i od;
+                x := ix
+            od;
+            x
+         end { hf } ;
+    { reverse factorial: returns k if n = k! for some integer k              }
+    {                           "undefined" otherwise                        }
+    proc rf = ( long long int n )union( int, string ):
+         if n < 2
+         then 0
+         else
+            long long int f := 1;
+            int           i := 1;
+            while f < n do
+                f *:= i;
+                i +:= 1
+            od;
+            if f = n then i - 1 else "undefined" fi
+         fi { rf } ;
+
+    print( ( "super factorials 0..9:", newline, "   " ) );
+    for i from 0 to 9 do print( ( " ", whole( sf( i ), 0 ) ) ) od;
+    print( ( newline, "hyper factorials 0..9:", newline, "   " ) );
+    for i from 0 to 9 do print( ( " ", whole( hf( i ), 0 ) ) ) od;
+    print( ( newline, "alternating factorials 0..9:", newline, "   " ) );
+    for i from 0 to 9 do print( ( " ", whole( af( i ), 0 ) ) ) od;
+    print( ( newline, "exponential factorials 0..4:", newline, "   " ) );
+    for i from 0 to 4 do print( ( " ", whole( xf( i ), 0 ) ) ) od;
+
+    []int rf_test = ( 1, 2, 6, 24, 119, 120, 720, 5040, 40320, 362880, 3628800 );
+    print( ( newline, "reverse factorials:", newline ) );
+    for i from LWB rf_test to UPB rf_test do
+        int tv = rf_test[ i ];
+        print( ( whole( tv, -8 )
+               , " -> "
+               , case rf( tv )
+                   in ( int    iv ): whole( iv, 0 )
+                    , ( string sv ): sv
+                  out "Unexpected value returned by rf( " + whole( tv, 0 ) + " )"
+                 esac
+               , newline
+               )
+             )
+    od
+
+end
+)

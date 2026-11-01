@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find the intersection of two lines", ALGOL 68 solution find-the-intersection-of-two-lines.alg.
+  https://rosettacode.org/wiki/Find_the_intersection_of_two_lines#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-the-intersection-of-two-lines.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { mode to hold a point }
+    mode Point = struct( real x, y );
+    { mode to hold a line expressed as y = mx + c }
+    mode Line  = struct( real m, c );
+    { returns the line that passes through p1 and p2 }
+    proc find_line = ( Point p1, p2 )Line:
+         if x of p1 = x of p2 then
+             { the line is vertical                 }
+             Line( 0, x of p1 )
+         else
+             { the line is not vertical             }
+             real m = ( y of p1 - y of p2 ) / ( x of p1 - x of p2 );
+             Line( m, y of p1 - ( m * x of p1 ) )
+         fi { find line } ;
+
+    { returns the intersection of two lines - the lines must be distinct and not parallel }
+    prio INTERSECTION = 5;
+    op   INTERSECTION = ( Line l1, l2 )Point:
+         begin
+             real x = ( c of l2 - c of l1 ) / ( m of l1 - m of l2 );
+             Point( x, ( m of l1 * x ) + c of l1 )
+         end { INTERSECTION } ;
+
+    { find the intersection of the lines as per the task }
+    Point i = find_line( Point( 4.0, 0.0 ), Point( 6.0, 10.0 ) )
+              INTERSECTION find_line( ( 0.0, 3.0 ), ( 10.0, 7.0 ) );
+    print( ( fixed( x of i, -8, 4 ), fixed( y of i, -8, 4 ), newline ) )
+
+end
+)

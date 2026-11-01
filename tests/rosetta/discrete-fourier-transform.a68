@@ -1,0 +1,99 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Discrete Fourier transform", ALGOL 68 solution discrete-fourier-transform.alg.
+  https://rosettacode.org/wiki/Discrete_Fourier_transform#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/discrete-fourier-transform.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { descrete Fourier transform - translated from the FreeBasic sample }
+
+    proc dft = ( []compl x )[]compl:
+         begin
+            int k = ( UPB x - LWB x ) + 1;
+            [ LWB x : UPB x ]compl y;
+            for i from LWB x to UPB x do
+                y[ i ] := 0;
+                int i0 = i - LWB y;
+                for j from LWB x to UPB x do
+                    int j0   = j - LWB y;
+                    compl t  = ( 0, -2 * pi * i0 * j0 / k );
+                    y[ i ] +:= x[ j ] * complex_exp( t )
+                od
+            od;
+            y
+         end { dft } ;
+
+    proc idft = ( []compl y )[]real:
+         begin
+            int k = ( UPB y - LWB y ) + 1;
+            [ LWB y : UPB y ]compl x;
+            for j from LWB x to UPB x do
+                x[ j ] := 0;
+                int j0  = j - LWB x;
+                for i from LWB x to UPB x do
+                    int i0 = i - LWB x;
+                    compl t  = ( 0, 2 * pi * i0 * j0 / k );
+                    x[ j ] +:= y[ i ] * complex_exp( t )
+                od;
+                re of x[ j ] /:= k;
+                im of x[ j ] /:= k;
+                { clean x(j) to remove very small imaginary values }
+                if ABS im of x[ j ] < 1e-14 then im of x[ j ] := 0 fi
+            od;
+            [ LWB x : UPB x ]real z;
+            for j from LWB z to UPB z do
+                z[ j ] := re of x[ j ]
+            od;
+            z
+         end { idft } ;
+
+    begin
+
+        { returns v formatted with dp decimal places and an explicit sign }
+        {         if dp is positive or a sign only if v is negative       }
+        {         if d[ is negative                                       }
+        prio FMT = 9;
+        op   FMT = ( real v, int dp )string:
+             begin
+                string result = if ENTIER v = v
+                                then whole( v, SIGN dp * 16 )
+                                else fixed( v, SIGN dp * 16, ABS dp )
+                                fi;
+                int v_pos := LWB result;
+                while result[ v_pos ] = " " do v_pos +:= 1 od;
+                result[ v_pos : ]
+             end { FMT } ;
+
+        []real z = ( 2, 3, 5, 7, 11 );
+        [ LWB z : UPB z ]compl x;
+        print( ( newline, "Original sequence: [" ) );
+        for i from LWB z to UPB z do
+            x[ i ] := z[ i ];
+            print( ( whole( z[ i ], 0 ), if i < UPB z then ", " else "" fi ) )
+        od;
+        print( ( "]", newline ) );
+
+        []compl y = dft( x );
+        print( ( newline, "After applying the Discrete Fourier Transform: ", newline, "[" ) );
+        for i from LWB y to UPB y do
+            print( ( re of y[ i ] FMT -4 ) );
+            if im of y[ i ] /= 0 then
+                print( ( im of y[ i ] FMT 4, "i" ) )
+            fi;
+            if i < UPB y then print( ( ", " ) ) fi
+        od;
+        print( ( "]", newline ) );
+
+        []real z2 = idft( y );
+        print( ( newline, "After applying the Inverse Discrete Fourier Transform " ) );
+        print( ( "to the above transform: ", newline, "[" ) );
+        for i from LWB z2 to UPB z2 do
+            print( ( whole( z2[ i ], 0 ), if i < UPB z2 then ", " else "" fi ) )
+        od;
+        print( ( "]", newline ) )
+
+    end
+
+end
+)

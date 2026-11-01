@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Long multiplication", ALGOL 68 solution long-multiplication-3.alg.
+  https://rosettacode.org/wiki/Long_multiplication#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/long-multiplication-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{ Finally Define the required INTEGER multiplication OPerator. }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+op * = (INTEGER a, b)INTEGER:(
+
+{ initialise out to all zeros }
+  [UPB a + UPB b]int ab; for place_ab to UPB ab do ab[place_ab]:=0 od;
+
+  for place_a from UPB a by next_digit to LWB a do
+    DIGIT carry := 0;
+
+{ calculate each digit (whilst removing the carry) }
+    for place_b from UPB b by next_digit to LWB b do
+      { n.b. result may be 2 digits }
+      int result := ab[place_a + place_b] + a[place_a]*b[place_b] + carry;
+      carry := result % digit_base; { avoid MOD as it doesn't under handle -ve numbers }
+      ab[place_a + place_b] := result  - carry * digit_base
+    od;
+    ab[place_a + LWB b + next_digit] +:= carry
+
+  od;
+  NORMALISE ab
+);
+)

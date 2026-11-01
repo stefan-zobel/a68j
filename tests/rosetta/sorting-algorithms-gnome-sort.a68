@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Gnome sort", ALGOL 68 solution sorting-algorithms-gnome-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Gnome_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-gnome-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Sortstruct = int;
+
+proc inplace_gnome_sort = (ref[]Sortstruct list)ref[]Sortstruct:
+begin
+  int i:=LWB list + 1, j:=LWB list + 2;
+  while i <= UPB list do
+    if list[i-1] <= list[i] then
+      i := j; j+:=1
+    else
+      Sortstruct swap = list[i-1]; list[i-1]:= list[i]; list[i]:= swap;
+      i-:=1;
+      if i=LWB list then i:=j; j+:=1 fi
+    fi
+  od;
+  list
+end;
+
+proc gnome_sort = ([]Sortstruct seq)[]Sortstruct:
+  in_place_gnome_sort(loc[LWB seq: UPB seq]Sortstruct:=seq);
+
+[]Sortstruct unsorted_array_data = ( -40, 77, 9, 0, 2, 1, 0, 1701 );
+print((gnome_sort(unsorted_array_data), new_line))
+)

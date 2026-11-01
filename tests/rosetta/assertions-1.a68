@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Assertions", ALGOL 68 solution assertions-1.alg.
+  https://rosettacode.org/wiki/Assertions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/assertions-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op      assert = (VECTOR [] char assertion,bool valid) void:
+if      NOT valid
+then    type_line_on_terminal(assertion);
+        terminal_error( 661 {invalid assertion } )
+fi;
+)

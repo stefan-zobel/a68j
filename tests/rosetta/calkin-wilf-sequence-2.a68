@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Calkin-Wilf sequence", ALGOL 68 solution calkin-wilf-sequence-2.alg.
+  https://rosettacode.org/wiki/Calkin-Wilf_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/calkin-wilf-sequence-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Calculate members of the Calkin-Wilf sequence - translation of the Nim sample via EasyLang }
+
+    int  n := 0, d := 0;
+
+    proc first_cw = void:
+         begin
+            n := 1;
+            d := 1
+         end { first cw } ;
+
+    proc next_cw = void:
+         begin
+            n    := 2 * ( n OVER d ) * d + d - n;
+            int t = n;
+            n    := d;
+            d    := t
+         end { next cw } ;
+
+    print( ( "The first 20 elements of the Calkin-Wilf sequence are:", newline, "    " ) );
+    first_cw;
+    for i to 20 do
+        print( ( " ", whole( n, 0 ), "/", whole( d, 0 ) ) );
+        next_cw
+    od;
+    print( ( newline, "Position of 83116/51639 in the sequence: " ) );
+    begin
+        first_cw;
+        int pos := 1;
+        while n /= 83116 OR d /= 51639 do
+            next_cw;
+            pos +:= 1
+        od;
+        print( ( whole( pos, 0 ), newline ) )
+    end
+end
+)

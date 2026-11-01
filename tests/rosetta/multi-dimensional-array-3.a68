@@ -1,0 +1,10 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Multi-dimensional array", ALGOL 68 solution multi-dimensional-array-3.alg.
+  https://rosettacode.org/wiki/Multi-dimensional_array#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/multi-dimensional-array-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[ -7 : -3. -3 : 0, -1 : 1, 0 : 1 ]int x;
+)

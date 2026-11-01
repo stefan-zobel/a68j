@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Department numbers", ALGOL 68 solution department-numbers.alg.
+  https://rosettacode.org/wiki/Department_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/department-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { show possible department number allocations for police, sanitation and fire departments }
+    { the police department number must be even, all department numbers in the range 1 .. 7   }
+    { the sum of the department numbers must be 12                                            }
+    int max_department_number =  7;
+    int department_sum        = 12;
+    print( ( "police sanitation fire", newline ) );
+    for police from 2 by 2 to max_department_number do
+        for sanitation to max_department_number do
+            if sanitation /= police then
+                int fire = ( department_sum - police ) - sanitation;
+                if  fire > 0 AND fire <= max_department_number
+                AND fire /= sanitation
+                AND fire /= police
+                then
+                    print( ( whole( police,      -6 )
+                           , whole( sanitation, -11 )
+                           , whole( fire,        -5 )
+                           , newline
+                           )
+                         )
+                fi
+            fi
+        od
+    od
+end
+)

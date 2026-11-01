@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sum of a series", ALGOL 68 solution sum-of-a-series.alg.
+  https://rosettacode.org/wiki/Sum_of_a_series#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-a-series.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Range = struct(int lwb, upb);
+
+proc sum = (proc (int)long real f, Range range)long real:(
+  long real ssum := LENG 0.0;
+  for i from lwb of range to upb of range do
+     ssum +:= f(i)
+  od;
+  ssum
+);
+
+{ test } (
+  Range range = (1,1000);
+  proc f = (int x)long real: LENG real(1) / LENG real(x)**2;
+  print(("Sum of f(x) from ", whole(lwb of range, 0), " to "));
+  print((whole(upb of range, 0)," is ", fixed(SHORTEN sum(f,range),-8,5),".", new_line))
+)
+)

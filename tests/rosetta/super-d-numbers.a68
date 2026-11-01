@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Super-d numbers", ALGOL 68 solution super-d-numbers.alg.
+  https://rosettacode.org/wiki/Super-d_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/super-d-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Super-d numbers - translation of the FreeBASIC sample }
+
+    []string rd = ( "1", "22", "333", "4444", "55555", "666666", "7777777", "88888888", "999999999" );
+
+    for n from 2 to 7 do
+        int sd_count := 0;
+
+        print( ( "super-", whole( n, 0 ), " numbers: " ) );
+        long long int j := 3;
+        while sd_count < 10 do
+            if string_in_string( rd[ n ], ref int(nil), whole( n * ( j ^ n ), 0 ) ) then
+                sd_count +:= 1;
+                print( ( " ", whole( j, 0 ) ) )
+            fi;
+            j +:= 1
+        od;
+        print( ( newline ) )
+    od
+end
+)

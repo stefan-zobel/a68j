@@ -1,0 +1,2 @@
+tests/par/par-buffer.a68:5:16: fatal error: no lowering routine installed for construct.  jemarch has been lazy
+exit 1

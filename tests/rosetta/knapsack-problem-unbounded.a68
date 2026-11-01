@@ -1,0 +1,119 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Knapsack problem/Unbounded", ALGOL 68 solution knapsack-problem-unbounded.alg.
+  https://rosettacode.org/wiki/Knapsack_problem/Unbounded#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/knapsack-problem-unbounded.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Bounty = struct(string name, int value, weight, volume);
+
+[]Bounty items = (
+               ("panacea", 3000,   3,  25),
+               ("ichor",   1800,   2,  15),
+               ("gold",    2500,  20,   2)
+      );
+
+Bounty sack := ("sack",       0, 250, 250);
+
+op * = ([]int a,b)int: ( { dot product operator }
+    int sum := 0;
+    for i to UPB a do sum +:= a[i]*b[i] od;
+    sum
+);
+
+op INIT = (ref[]int vector)void:
+    for index from LWB vector to UPB vector do
+        vector[index]:=0
+    od;
+
+op INIT = (ref[,]int matrix)void:
+    for row_index from LWB matrix to UPB matrix do
+        INIT matrix[row_index,]
+    od;
+
+proc total_value = ([]int items_count, []Bounty items, Bounty sack) struct(int value, weight, volume):(
+    {}{
+    Given the count of each item in the sack return -1 if they can't be carried or their total value.
+
+    (also return the negative of the weight and the volume so taking the max of a series of return
+    values will minimise the weight if values tie, and minimise the volume if values and weights tie).
+    }{}
+    int weight = items_count * weight of items;
+    int volume = items_count * volume of items;
+    if weight > weight of sack OR volume > volume of sack then
+        (-1, 0, 0)
+    else
+        ( items_count * value of items, -weight, -volume)
+    fi
+);
+
+prio WRAP = 5; { wrap negative array indices as per python's indexing regime }
+op WRAP = (int index, upb)int:
+  if index>=0 then index else upb + index + 1 fi;
+
+proc knapsack_dp = ([]Bounty items, Bounty sack)[]int:(
+    {}{
+    Solves the Knapsack problem, with two sets of weights,
+    using a dynamic programming approach
+    }{}
+
+    { (weight+1) x (volume+1) table }
+    { table[w,v] is the maximum value that can be achieved }
+    { with a sack of weight w and volume v. }
+    { They all start out as 0 (empty sack) }
+    [0:weight of sack, 0:volume of sack]int table; INIT table;
+
+    for w to 1 UPB table do
+        for v to 2 UPB table do
+            {}{ Consider the optimal solution, and consider the 'last item' added
+            to the sack. Removing this item must produce an optimal solution
+            to the subproblem with the sack's weight and volume reduced by that
+            of the item. So we search through all possible 'last items': }{}
+            for item_index to UPB items do
+                Bounty item := items[item_index];
+                { Only consider items that would fit: }
+                if w >= weight of item AND v >= volume of item then
+                    { Optimal solution to subproblem + value of item: }
+                    int candidate := table[w-weight of item,v-volume of item] + value of item;
+                    if candidate > table[w,v] then
+                        table[w,v] := candidate
+                    fi
+                fi
+            od
+        od
+    od;
+
+    [UPB items]int result; INIT result;
+    int w := weight of sack, v := volume of sack;
+    while table[w,v] /= 0 do
+        { Find the last item that was added: }
+        int needle = table[w,v];
+        int item_index;
+        for i to UPB items while
+            item_index := i;
+            Bounty item = items[item_index];
+            int candidate = table[w-weight of item WRAP UPB table, v-volume of item WRAP 2 UPB table] + value of item;
+{       WHILE } candidate NE needle do
+          skip
+        od;
+        { Record it in the result, and remove it: }
+        result[item_index] +:= 1;
+        w -:= weight of items[item_index];
+        v -:= volume of items[item_index]
+    od;
+    result
+);
+
+[]int max_items = knapsack_dp(items, sack);
+struct (int value, weight, volume) max :=  total_value(max_items, items, sack);
+max := (value of max, -weight of max, -volume of max);
+
+FORMAT d = $zz-d$;
+
+printf(($"The maximum value achievable (by dynamic programming) is "gl$, value of max));
+printf(($"  The number of ("n(UPB items-1)(g", ")g") items to achieve this is: ("n(UPB items-1)(f(d)",")f(d)") respectively"l$,
+    name of items, max_items));
+printf(($"  The weight to carry is "f(d)", and the volume used is "f(d)l$,
+    weight of max, volume of max))
+)

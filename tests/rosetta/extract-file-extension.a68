@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Extract file extension", ALGOL 68 solution extract-file-extension.alg.
+  https://rosettacode.org/wiki/Extract_file_extension#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/extract-file-extension.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ extracts a file-extension from the end of a pathname. The file extension is }
+{ defined as a dot followed by one or more letters or digits                  }
+op  EXTENSION = ( string pathname )string:
+    if LWB pathname >= UPB pathname then
+        { the pathname has 0 or 1 characters and so has no extension          }
+        ""
+    elif NOT isalnum( pathname[ UPB pathname ] ) then
+        { the final character is not a letter or digit - no extension         }
+        ""
+    else
+        { could have an extension                                             }
+        int    pos := UPB pathname;
+        while pos > LWB pathname AND isalnum( pathname[ pos ] ) do
+            pos -:= 1
+        od;
+        if pathname[ pos ] = "." then
+            { the character before the letters and digits was a "."           }
+            pathname[ pos : ]
+        else
+            { no "." before the letters and digits - no extension             }
+            ""
+        fi
+    fi ; { EXTENSION }
+
+{ test the EXTENSION operator                                                 }
+proc test_extension = ( string pathname, string expected_extension )void:
+    begin
+        string extension = EXTENSION pathname;
+        write( ( ( pathname
+                 + " got extension: ("
+                 + extension
+                 + ") "
+                 + if extension = expected_extension then "" else "NOT" fi
+                 + " as expected"
+                 )
+               , newline
+               )
+             )
+    end ; { text extension }
+
+
+begin test_extension( "http://example.com/download.tar.gz", ".gz"      )
+    ; test_extension( "CharacterModel.3DS",                 ".3DS"     )
+    ; test_extension( ".desktop",                           ".desktop" )
+    ; test_extension( "document",                           ""         )
+    ; test_extension( "document.txt_backup",                ""         )
+    ; test_extension( "/etc/pam.d/login",                   ""         )
+end
+)

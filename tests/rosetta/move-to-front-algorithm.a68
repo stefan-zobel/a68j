@@ -1,0 +1,114 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Move-to-front algorithm", ALGOL 68 solution move-to-front-algorithm.alg.
+  https://rosettacode.org/wiki/Move-to-front_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/move-to-front-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ move the character at text pos to the front of text                         }
+{ note text pos is based from 0                                               }
+proc move_to_front = ( string text, int text_pos )string:
+    if text_pos < 1
+    then
+        { the character is already at the front (or not in the string)        }
+        text
+    else
+        { the character isn't already at the front - construct the new string }
+        int    char_pos = LWB text + text_pos;
+        ( text[ char_pos     : char_pos     ]
+        + text[              : char_pos - 1 ]
+        + text[ char_pos + 1 :              ]
+        )
+    fi;
+
+{ encode the string "text", using "initial table" as the starting symbol table}
+proc encode = ( string text, string initial_table )[]int:
+begin
+    [ 1 : ( UPB text - LWB text ) + 1 ]int result;
+    string symbol_table := initial_table;
+    for text_pos from LWB text to UPB text
+    do
+        int    symbol_pos := 0;
+        result[ text_pos ]
+            := if char_in_string( text[ text_pos ], symbol_pos, symbol_table )
+               then
+                   { the character is in the symbol table at symbol pos       }
+                   { (indexed from LWB text) - we store the positions         }
+                   { indexed from 0                                           }
+                   symbol_pos - LWB text
+               else
+                   { the character isn't in the symbol table                  }
+                   -1
+               fi;
+        { modify the symbol table so the latest character is at the front     }
+        symbol_table := move_to_front( symbol_table, result[ text_pos ] )
+    od;
+    result
+end; { encode }
+
+{ decode "encoded", using "initial table" as the starting symbol table        }
+proc decode = ( []int encoded, string initial_table )string:
+begin
+    string result       := "";
+    string symbol_table := initial_table;
+    for text_pos from LWB encoded to UPB encoded
+    do
+        result
+           +:= if encoded[ text_pos ] < 0
+               then
+                   { the encoded character wasn't in the string               }
+                   "?"
+               else
+                  { the character is in the symbol table                      }
+                  symbol_table[ encoded[ text_pos ] + LWB symbol_table ]
+                fi;
+        { modify the symbol table so the latest character is at the front     }
+        symbol_table := move_to_front( symbol_table, encoded[ text_pos ] )
+    od;
+    result
+end; { decode }
+
+{ routine to test the encode and decode routines                              }
+proc test_encode_and_decode = ( string text )void:
+begin
+    { initial value for the symbol table                                      }
+    []char initial_table = "abcdefghijklmnopqrstuvwxyz";
+    { procedure to format the encoded value                                   }
+    proc format_encoded_value = ( []int values )string:
+    begin
+        string result := "";
+        for value_pos from LWB values to UPB values
+        do
+            result +:= ( " " + whole( values[ value_pos ], 0 ) )
+        od;
+        result
+    end; { format encoded value }
+    []int  encoded = encode( text,    initial_table );
+    string decoded = decode( encoded, initial_table );
+    print( ( ( text
+             + " encodes to ["
+             + format_encoded_value( encoded )
+             + " ] which "
+             + if text = decoded
+               then
+                   "correctly"
+               else
+                   "INCORRECTLY"
+               fi
+             + " decodes to """
+             + decoded
+             + """"
+             )
+           , newline
+           )
+         )
+end; { test encode and decode }
+
+     test_encode_and_decode( "broood" )
+  ;  test_encode_and_decode( "bananaaa" )
+  ;  test_encode_and_decode( "hiphophiphop" )
+
+{ ;  test encode and decode( "abcdefghijklmnopqrstuvwxyz" ) }
+{ ;  test encode and decode( "zyxwvutsrqponmlkjihgfedcba" ) }
+)

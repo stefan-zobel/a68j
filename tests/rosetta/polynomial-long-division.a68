@@ -1,0 +1,118 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polynomial long division", ALGOL 68 solution polynomial-long-division.alg.
+  https://rosettacode.org/wiki/Polynomial_long_division#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-long-division.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { polynomial division                                         }
+      { in this polynomials are represented by []INT items where    }
+      { the coefficients are in order of increasing powers, i.e.,   }
+      { element 0 = coefficient of x^0, element 1 = coefficient of  }
+      { x^1, etc.                                                   }
+
+    { returns the degree of the polynomial p, the highest index of  }
+    {         p where the element is non-zero or - max int if all   }
+    {         elements of p are 0                                   }
+    op   DEGREE = ( []int p )int:
+         begin
+             int result := - max_int;
+             for i from LWB p to UPB p do
+                 if p[ i ] /= 0 then result := i fi
+             od;
+             result
+         end { DEGREE } ;
+
+    mode Polynomialdivisionresult = struct( flex[ 1 : 0 ]int q, r );
+
+    { in-place multiplication of the elements of a by b returns a   }
+    op   *:= = ( ref[]int a, int b )ref[]int:
+         begin
+            for i from LWB a to UPB a do
+                a[ i ] *:= b
+            od;
+            a
+         end { *:= } ;
+    { subtracts the corresponding elements of b from those of a,    }
+    {           a and b must have the same bounds - returns a       }
+    op   -:= = ( ref[]int a, []int b )ref[]int:
+         begin
+            for i from LWB a to UPB a do
+                a[ i ] -:= b[ i ]
+            od;
+            a
+         end { -:= } ;
+    { returns the polynomial a right-shifted by shift, the bounds    }
+    {         are unchanged, so high order elements are lost         }
+    op   SHR = ( []int a, int shift )[]int:
+         begin
+            [ LWB a : UPB a ]int result;
+            for i from LWB result to shift - ( LWB result + 1 ) do result[ i ] := 0 od;
+            for i from shift - LWB result to UPB result do result[ i ] := a[ i - shift ] od;
+            result
+         end { SHR } ;
+
+    { polynomial long disivion of n in by d in, returns q and r      }
+    op   / = ( []int n_in, d_in )Polynomialdivisionresult:
+         if DEGREE d_in < 0 then
+             print( ( "polynomial division by polynomial with negative degree", newline ) );
+             stop
+         else
+             [ LWB d_in : UPB d_in ]int d := d_in;
+             [ LWB n_in : UPB n_in ]int n := n_in;
+             [ LWB n_in : UPB n_in ]int q; for i from LWB q to UPB q do q[ i ] := 0 od;
+             int dd_in = DEGREE d_in;
+             while DEGREE n >= dd_in do
+                 d := d_in SHR ( DEGREE n - dd_in );
+                 q[ DEGREE n - dd_in ] := n[ DEGREE n ] OVER d[ DEGREE d ];
+                 { DEGREE d is now DEGREE n                          }
+                 d *:= q[ DEGREE n - dd_in ];
+                 n -:= d
+             od;
+             ( q, n )
+         fi { / } ;
+
+    { displays the polynomial p                                      }
+    op   SHOWPOLYNOMIAL = ( []int p )void:
+         begin
+            bool first := true;
+            for i from UPB p by - 1 to LWB p do
+                if int e = p[ i ];
+                   e /= 0
+                then
+                    print( ( if   e < 0 AND first then "-"
+                             elif e < 0           then " - "
+                             elif           first then ""
+                             else                      " + "
+                             fi
+                           , if ABS e = 1 then "" else whole( ABS e, 0 ) fi
+                           )
+                         );
+                    if i > 0 then
+                        print( ( "x" ) );
+                        if i > 1 then print( ( "^", whole( i, 0 ) ) ) fi
+                    fi;
+                    first := false
+                fi
+            od;
+            if first then
+                { degree is negative                                 }
+                print( ( "(negative degree)" ) )
+            fi
+         end { SHOWPOLYNOMIAL } ;
+
+    begin
+        []int n = ( []int( -42, 0, -12, 1 ) )[ at 0 ];
+        []int d = ( []int(  -3, 1,   0, 0 ) )[ at 0 ];
+
+        Polynomialdivisionresult qr = n / d;
+
+        SHOWPOLYNOMIAL n; print( ( " divided by " ) ); SHOWPOLYNOMIAL d;
+        print( ( newline, " -> Q: " ) ); SHOWPOLYNOMIAL q of qr;
+        print( ( newline, "    R: " ) ); SHOWPOLYNOMIAL r of qr;
+        print( ( newline ) )
+    end
+
+end
+)

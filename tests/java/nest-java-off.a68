@@ -1,0 +1,6 @@
+{ Without -fnest-java a Java formal hole is an error, as in ga68. }
+begin
+   proc (real) real cbrt = nest Java "java.lang.Math.cbrt";
+   proc (real, real) real hypot = nest Java "java.lang.Math.hypot";
+   skip
+end

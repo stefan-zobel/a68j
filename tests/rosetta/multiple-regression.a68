@@ -1,0 +1,211 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Multiple regression", ALGOL 68 solution multiple-regression.alg.
+  https://rosettacode.org/wiki/Multiple_regression#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/multiple-regression.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Multiple Regression - trnslation of the VB.NET sample but using the }
+      { "to reduced row echelon form" routine from the Reduced row echelon Task }
+
+    proc require = ( bool condition, string message )void:
+         if NOT condition then
+            print( ( message, newline ) );
+            stop
+         fi { requiree } ;
+
+    mode Matrix = struct( ref[,]real data
+                        , int row_count
+                        , int col_count
+                        );
+
+    prio NEWMATRIX = 1;
+    op   NEWMATRIX = ( int m_rows, int m_cols )Matrix:
+         begin
+            Matrix result;
+            require( m_rows > 0, "Need at least one row" );
+            row_count of result := m_rows;
+            require( m_cols > 0, "Need at least one column" );
+            col_count of result := m_cols;
+            data of result := heap[ 1 : m_rows, 1 : m_cols ]real;
+            for r to m_rows do for c to m_cols do ( data of result )[ r, c ] := 0 od od;
+            result
+         end { NEWMATRIX } ;
+
+    op   NEWMATRIX = ( [,]real source )Matrix:
+         begin
+            Matrix result;
+            int m_rows = 1 + ( 1 UPB source - 1 LWB source );
+            require( m_rows > 0, "Need at least one row" );
+            row_count of result := m_rows;
+            int m_cols = 1 + ( 2 UPB source - 2 LWB source );
+            require( m_cols > 0, "Need at least one column" );
+            col_count of result := m_cols;
+            data of result := heap[ 1 : m_rows, 1 : m_cols ]real := source[ at 1, at 1 ];
+            result
+         end { NEWMATRIX } ;
+
+    op   NEWMATRIX = ( []real source )Matrix: { New Matrix(ConvertArray(source)) }
+         begin
+            int len = 1 + ( UPB source - LWB source );
+            [ 1 : 1, 1 : len ]real dest;
+            dest[ 1, : ] := source;
+            NEWMATRIX dest
+         end { NEWMATRIX } ;
+
+    op   * = ( Matrix m1, m2 )Matrix:
+         begin
+            int rc1 = row_count of m1;
+            int cc1 = col_count of m1;
+            int rc2 = row_count of m2;
+            int cc2 = col_count of m2;
+            require( cc1 = rc2, "Cannot multiply if the first columns does not equal the second rows" );
+            Matrix result := rc1 NEWMATRIX cc2;
+            for i to rc1 do
+                for j to cc2 do
+                    for k to rc2 do
+                        ( data of result ) [ i, j ] +:= ( data of m1 )[ i, k ]
+                                                      * ( data of m2 )[ k, j ]
+                    od
+                od
+            od;
+            result
+         end { * } ;
+
+    proc transpose = ( Matrix m )Matrix:
+         begin
+            int rc = row_count of m;
+            int cc = col_count of m;
+            Matrix trans := cc NEWMATRIX rc;
+            for i to cc do
+                for j to rc do
+                    ( data of trans )[ i, j ] := ( data of m )[ j, i ]
+                od
+            od;
+            trans
+         end { transpose } ;
+
+  { BEGIN code from the Reduced row echelon form task }
+    mode Field = real; { FIELD can be REAL, LONG REAL etc, or COMPL, FRAC etc }
+    mode Vec = [0]Field;
+    mode Mat = [0,0]Field;
+    proc to_reduced_row_echelon_form = (ref Mat m)void: (
+        int lead_col := 2 LWB m;
+
+        for this_row from LWB m to UPB m do
+            if lead_col > 2 UPB m then return fi;
+            int other_row := this_row;
+            while m[other_row,lead_col] = 0 do
+                other_row +:= 1;
+                if other_row > UPB m then
+                    other_row := this_row;
+                    lead_col +:= 1;
+                    if lead_col > 2 UPB m then return fi
+                fi
+            od;
+            if this_row /= other_row then
+                Vec swap = m[this_row,lead_col:];
+                m[this_row,lead_col:] := m[other_row,lead_col:];
+                m[other_row,lead_col:] := swap
+            fi;
+            Field scalef = 1/m[this_row,lead_col];
+            if scalef /= 1 then
+                m[this_row,lead_col] := 1;
+                for col from lead_col+1 to 2 UPB m do m[this_row,col] *:= scalef od
+            fi;
+            for other_row_pos from LWB m to UPB m do
+                if this_row /= other_row_pos then
+                    real o_scale = m[other_row_pos,lead_col];
+                    m[other_row_pos,lead_col]:=0;
+                    for col from lead_col+1 to 2 UPB m do m[other_row_pos,col] -:= o_scale*m[this_row,col] od
+                fi
+            od;
+            lead_col +:= 1
+        od;
+        return: empty
+    );
+ { END code from the Reduced row echelon form task }
+
+    proc inverse = ( Matrix m )Matrix:
+         begin
+            require( row_count of m = col_count of m, "Not a square matrix" );
+            int len = row_count of m;
+            Matrix aug := len NEWMATRIX ( 2 * len );
+            for i to len do
+                for j to len do
+                    ( data of aug )[ i, j       ] := ( data of m )[ i, j ];
+                    ( data of aug )[ i, j + len ] := 0
+                od;
+                { augment identity matrix to right }
+                ( data of aug )[ i, i + len ] := 1.0
+            od;
+            to_reduced_row_echelon_form( data of aug );
+            Matrix inv := len NEWMATRIX len;
+            for i to len do
+                for j from len + 1 to 2 * len do
+                    ( data of inv)[ i, j - len ] := ( data of aug )[ i, j ]
+                od
+            od;
+            inv
+         end { inverse } ;
+
+    proc multiple_regression = ( []real y, Matrix x )[]real:
+         begin
+            Matrix tm := NEWMATRIX y;
+            Matrix cy := NEWMATRIX data of transpose( tm );
+            Matrix cx := NEWMATRIX data of transpose( x );
+            ( data of transpose( inverse( x * cx ) * x * cy ) )[ 1, : ]
+         end { multiple regression } ;
+
+    op   PRINTARRAY = ( []real list )void:
+         begin
+            print( ( "[" ) );
+            for i from LWB list to UPB list do
+                { convert list[ i ] to a string, remove trailing 0s and leading spaces }
+                string v := fixed( list[ i ], -20, 15 )[ at 1 ];
+                while v[ UPB v ] = "0" do v := v[ : UPB v - 1 ] od;
+                if v[ UPB v ] = "." then v := v[ : UPB v - 1 ] fi;
+                while v[ 1 ] = " " do v := v[ 2 : ] od;
+                print( ( if i > LWB list then ", " else "" fi, v ) )
+            od;
+            print( ( "]" ) )
+         end { PRINTARRAY } ;
+
+    begin
+        []real y  = ( 1.0, 2.0, 3.0, 4.0, 5.0 );
+        Matrix x := NEWMATRIX []real( 2.0, 1.0, 3.0, 4.0, 5.0 );
+        []real v  = multiple_regression( y, x );
+        PRINTARRAY v;
+        print( ( newline ) )
+    end;
+    begin
+        []real y  = ( 3.0, 4.0, 5.0 );
+        Matrix x := NEWMATRIX [,]real( ( 1.0, 2.0, 1.0 )
+                                     , ( 1.0, 1.0, 2.0 )
+                                     );
+        []real v  = multiple_regression( y, x );
+        PRINTARRAY v;
+        print( ( newline ) )
+    end;
+    begin
+        []real y = ( 52.21, 53.12, 54.48, 55.84, 57.2, 58.57, 59.93
+                   , 61.29, 63.11, 64.47, 66.28, 68.1, 69.92, 72.19, 74.46
+                   );
+        []real a = ( 1.47, 1.5, 1.52, 1.55, 1.57, 1.6, 1.63, 1.65
+                   , 1.68, 1.7, 1.73, 1.75, 1.78, 1.8, 1.83
+                   );
+        [ 1 : 3, 1 : 1 + ( UPB a - LWB a ) ]real xs;
+        for i from LWB a to UPB a do
+            xs[ 1, i ] := 1.0;
+            xs[ 2, i ] := a[ i ];
+            xs[ 3, i ] := a[ i ] * a[ i ]
+        od;
+        Matrix x := NEWMATRIX xs;
+        []real v  = multiple_regression( y, x );
+        PRINTARRAY v;
+        print( ( newline ) )
+    end
+
+end
+)

@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Worthwhile task shaving", ALGOL 68 solution worthwhile-task-shaving.alg.
+  https://rosettacode.org/wiki/Worthwhile_task_shaving#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/worthwhile-task-shaving.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { xkcd 1205, translated from the Wren sample }
+    []int    shaved  = ( 1, 5, 30, 60, 300, 1800, 3600, 21600, 86400 );
+                                                            { time shaved off in seconds }
+    []string titles  = ( "1 SECOND", "5 SECONDS", "30 SECONDS", "1 MINUTE", "5 MINUTES"
+                       , "30 MINUTES", "1 HOUR", "6 HOURS", "1 DAY"
+                       );
+    real diy    = 365.25;
+    int  minute = 60;
+    int  hour   = minute * 60;
+    int  day    = hour * 24;
+    int  week   = day * 7;
+    real month  = day * diy / 12;
+    real year   = day * diy;
+
+    []real freq = ( 50 * diy, 5 * diy, diy, diy/7, 12, 1 ); { frequency per year }
+    int    mult = 5;                                        { multiplier for table }
+
+    proc pad_right = ( string s, int w )string:
+         if int len = ( UPB s - LWB s ) + 1; len >= w then s else s + ( ( w - len ) * " " ) fi;
+    proc center = ( string s, int w )string:
+         if int len = ( UPB s - LWB s ) + 1; len >= w then s else ( ( ( w - len ) OVER 2 ) * " " ) + s fi;
+
+    proc fmt_time = ( real tf, string interval )void:
+         begin
+            int t  = ENTIER tf;
+            print( ( pad_right( whole( t, 0 ) + " " + interval + if t = 1 then "" else "S" fi, 13 ) ) )
+         end { fmt time } ;
+
+    print( ( center( "HOW OFTEN YOU DO THE TASK", 93 ), newline ) );
+    print( ( pad_right( "SHAVED OFF", 12 ), " | "
+           , pad_right( "50/DAY",     13 ), pad_right( "5/DAY",   13 ), pad_right( "DAILY",  13 )
+           , pad_right( "WEEKLY",     13 ), pad_right( "MONTHLY", 13 ), pad_right( "YEARLY", 13 )
+           , newline
+           )
+         );
+    print( ( "-" * 93, newline ) );
+    for y from LWB titles to UPB titles do
+        print( ( pad_right( titles[ y ], 12 ), " | " ) );
+        for x from LWB freq to UPB freq do
+            real t = freq[ x ] * shaved[ y ] * mult;
+            if   t < minute then
+                 fmt_time( t,          "SECOND" )
+            elif t < hour then
+                 fmt_time( t / minute, "MINUTE" )
+            elif t < day then
+                 fmt_time( t / hour,   "HOUR"   )
+            elif t < 14 * day then
+                 fmt_time( t / day,    "DAY"    )
+            elif t < 9 * week then
+                 fmt_time( t / week,   "WEEK"   )
+            elif t < year then
+                 fmt_time( t / month,  "MONTH"  )
+            else
+                 print( ( " " * 13 ) )
+            fi
+        od;
+        print( ( newline ) )
+    od
+end
+)

@@ -1,0 +1,117 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Calendar", ALGOL 68 solution calendar.alg.
+  https://rosettacode.org/wiki/Calendar#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/calendar.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+proc print_calendar = (int year, page_width)void: (
+
+  []string month_names = (
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"),
+    weekday_names = ("Su","Mo","Tu","We","Th","Fr","Sa");
+  FORMAT weekday_fmt = $g,n(UPB weekday names - LWB weekday names)(" "g)$;
+
+  { Juggle the calendar format to fit the printer/screen width }
+  int day_width = UPB weekday_names[1], day_gap=1;
+  int month_width = (day_width+day_gap) * UPB weekday_names-1;
+  int month_heading_lines = 2;
+  int month_lines = (31 OVER UPB weekday_names+month_heading_lines+2); { +2 for head/tail weeks }
+  int year_cols = (page_width+1) OVER (month_width+1);
+  int year_rows = (UPB month_names-1)OVER year_cols + 1;
+  int month_gap = (page_width - year_cols*month_width + 1)OVER year_cols;
+  int year_width = year_cols*(month_width+month_gap)-month_gap;
+  int year_lines = year_rows*month_lines;
+
+  mode Monthbox = [month_lines, month_width]char;
+  mode Yearbox  = [year_lines, year_width]char;
+
+  int week_start = 1; { Sunday }
+
+  proc days_in_month = (int year, month)int:
+    case month in 31,
+      if year MOD 4 EQ 0 AND year MOD 100 NE 0 OR year MOD 400 EQ 0 then 29 else 28 fi,
+      31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    esac;
+
+  proc day_of_week = (int year, month, day)int: (
+    { Day of the week by Zeller’s Congruence algorithm from 1887 }
+    int y := year, m := month, d := day, c;
+    if m <= 2 then m +:= 12; y -:= 1 fi;
+    c := y OVER 100;
+    y %*:= 100;
+    (d - 1 + ((m + 1) * 26) OVER 10 + y + y OVER 4 + c OVER 4 - 2 * c) MOD 7
+  );
+
+  mode Simpleout = union(string, []string, int);
+
+  proc cputf = (ref[]char out_, FORMAT fmt, Simpleout argv)void:(
+    file f; string s; associate(f,s);
+    putf(f, (fmt, argv));
+    out_[:UPB s]:=s;
+    close(f)
+  );
+
+  proc month_repr = (int year, month)Monthbox:(
+    Monthbox month_box; for line to UPB month_box do month_box[line,]:=" "* 2 UPB month_box od;
+    string month_name = month_names[month];
+
+  { center the title }
+    cputf(month_box[1,(month_width - UPB month_name ) OVER 2+1:], $g$, month_name);
+    cputf(month_box[2,], weekday_fmt, weekday_names);
+
+    int first_day := day_of_week(year, month, 1);
+    for day to days_in_month(year, month) do
+      int line = (day+first_day-week_start) OVER UPB weekday_names + month_heading_lines + 1;
+      int char_ =((day+first_day-week_start) MOD UPB weekday_names)*(day_width+day_gap) + 1;
+      cputf(month_box[line,char_:char_+day_width-1],$g(-day width)$, day)
+    od;
+    month_box
+  );
+
+  proc year_repr = (int year)Yearbox:(
+    Yearbox year_box;
+    for line to UPB year_box do year_box[line,]:=" "* 2 UPB year_box od;
+    for month_row from 0 to year_rows-1 do
+      for month_col from 0 to year_cols-1 do
+        int month = month_row * year_cols + month_col + 1;
+        if month > UPB month_names then
+          done
+        else
+          int month_col_width = month_width+month_gap;
+          year_box[
+            month_row*month_lines+1 : (month_row+1)*month_lines,
+            month_col*month_col_width+1 : (month_col+1)*month_col_width-month_gap
+          ] := month_repr(year, month)
+        fi
+      od
+    od;
+    done: year_box
+  );
+
+  int center = (year_cols*(month_width+month_gap) - month_gap - 1) OVER 2;
+  int indent = (page_width - year_width) OVER 2;
+
+  printf((
+    $n(indent + center - 9)k  g l$, "[Insert Snoopy here]",
+    $n(indent + center - 1)k 4d l$, year, $l$,
+    $n(indent)k n(year width)(g)  l$, year_repr(year)
+  ))
+);
+
+main: (
+{ inspired by http://www.ee.ryerson.ca/~elf/hack/realmen.html
+           Real Programmers Don't Use PASCAL - Ed Post
+            Datamation, volume 29 number 7, July 1983
+              THE REAL PROGRAMMER'S NATURAL HABITAT
+"Taped to the wall is a line-printer Snoopy calender for the year 1969."
+}
+  int mankind_stepped_on_the_moon = 1969,
+      line_printer_width = 80; { as at 1969! }
+  print_calendar(mankind_stepped_on_the_moon, line_printer_width)
+)
+)

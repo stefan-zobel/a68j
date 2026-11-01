@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sylvester's sequence", ALGOL 68 solution sylvesters-sequence.alg.
+  https://rosettacode.org/wiki/Sylvester's_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sylvesters-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { calculate elements of Sylvester's Sequence                         }
+      { set the number of digits for LONG LONG modes     }
+    { returns an array set to the first n elements of Sylvester's Sequence }
+    {    starting from 2, the elements are the product of the previous     }
+    {                     elements plus 1                                  }
+    op SYLVESTER = ( int n )[]long long int:
+       begin
+           [ 1 : n ]long long int result;
+           long long int product := 2;
+           result[ 1 ] := 2;
+           for i from 2 to n do
+               result[ i ] := product + 1;
+               product *:= result[ i ]
+           od;
+           result
+       end;
+    { find the first 10 elements of Sylvester's Seuence }
+    []long long int seq = SYLVESTER 10;
+    { show the sequence and sum the reciprocals }
+    long long real reciprocal_sum := 0;
+    for i from LWB seq to UPB seq do
+        print( ( whole( seq[ i ], 0 ), newline ) );
+        reciprocal_sum +:= 1 / seq[ i ]
+    od;
+    print( ( "Sum of reciprocals: ", reciprocal_sum, newline ) )
+end
+)

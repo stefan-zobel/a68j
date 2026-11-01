@@ -1,0 +1,64 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Roots of a quadratic function", ALGOL 68 solution roots-of-a-quadratic-function.alg.
+  https://rosettacode.org/wiki/Roots_of_a_quadratic_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/roots-of-a-quadratic-function.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+quadratic_equation:
+begin
+
+  mode Roots  = union([]real, []compl);
+  mode Quadratic = struct(real a,b,c);
+
+  proc solve  = (Quadratic q)Roots:
+  begin
+    real a = a of q, b = b of q, c = c of q;
+    real sa = b**2 - 4*a*c;
+    if sa >=0 then { handle the +ve case as REAL }
+      real sqrt_sa = ( b<0 | sqrt(sa) | -sqrt(sa));
+      real r1 = (-b + sqrt_sa)/(2*a),
+           r2 = (-b - sqrt_sa)/(2*a);
+      []real((r1,r2))
+    else { handle the -ve case as COMPL conjugate pairs }
+      compl compl_sqrt_sa = ( b<0 | complex_sqrt(sa) | -complex_sqrt(sa));
+      compl r1 = (-b + compl_sqrt_sa)/(2*a),
+            r2 = (-b - compl_sqrt_sa)/(2*a);
+      []compl (r1, r2)
+    fi
+  end { solve };
+
+  proc real_evaluate = (Quadratic q, real x )real:  (a of q*x + b of q)*x + c of q;
+  proc compl_evaluate = (Quadratic q, compl x)compl: (a of q*x + b of q)*x + c of q;
+
+  { only a very tiny difference between the 2 examples }
+  []Quadratic test = ((1, -10e5, 1), (1, 0, 1), (1,-3,2), (1,3,2), (4,0,4), (3,4,5));
+
+  FORMAT real_fmt = $g(-0,8)$;
+  FORMAT compl_fmt = $f(real fmt)"+"f(real fmt)"i"$;
+  FORMAT quadratic_fmt = $f(real fmt)" x**2 + "f(real fmt)" x + "f(real fmt)" = 0"$;
+
+  for index to UPB test do
+    Quadratic quadratic = test[index];
+    Roots r = solve(quadratic);
+
+{ Output the two different scenerios }
+    printf(($"Quadratic: "$, quadratic_fmt, quadratic, $l$));
+    case r in
+      ([]real r):
+        printf(($"REAL x1 = "$, real_fmt, r[1],
+                   $", x2 = "$, real_fmt, r[2],  $"; "$,
+                $"REAL y1 = "$, real_fmt, real_evaluate(quadratic,r[1]),
+                   $", y2 = "$, real_fmt, real_evaluate(quadratic,r[2]), $";"ll$
+        )),
+      ([]compl c):
+        printf(($"COMPL x1,x2 = "$, real_fmt, re of c[1], $"+/-"$,
+                                    real_fmt, ABS im of c[1], $"; "$,
+                  $"COMPL y1 = "$, compl_fmt, compl_evaluate(quadratic,c[1]),
+                      $", y2 = "$, compl_fmt, compl_evaluate(quadratic,c[2]), $";"ll$
+        ))
+    esac
+  od
+end { quadratic_equation }
+)

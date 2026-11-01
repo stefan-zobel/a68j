@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "ASCII control characters", ALGOL 68 solution ascii-control-characters.alg.
+  https://rosettacode.org/wiki/ASCII_control_characters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ascii-control-characters.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+    { create constants for the ASCII control characters (0-127)        }
+    int  char_value := -1;
+    { increments and returns the next value for a character            }
+    proc next_char = char: REPR ( char_value +:= 1 );
+    char nul = next_char;
+    char soh = next_char;
+    char stx = next_char;
+    char etx = next_char;
+    char eot = next_char;
+    char enq = next_char;
+    char ack = next_char;
+    char bel = next_char;
+    char bs  = next_char;
+    char ht  = next_char;
+    char lf  = next_char;
+    char vt  = next_char;
+    char ff  = next_char;
+    char cr  = next_char;
+    char so  = next_char;
+    char si  = next_char;
+    char dle = next_char;
+    char dc1 = next_char;
+    char dc2 = next_char;
+    char dc3 = next_char;
+    char dc4 = next_char;
+    char nak = next_char;
+    char syn = next_char;
+    char etb = next_char;
+    char can = next_char;
+    char em  = next_char;
+    char sub = next_char;
+    char esc = next_char;
+    char fs  = next_char;
+    char gs  = next_char;
+    char rs  = next_char;
+    char us  = next_char;
+    char spc = " ";     { using spc as space is a standard transput procedure }
+    char del = REPR 127;
+
+{ e.g.:                                                                       }
+{ print( ( nul, soh, ht, lf ) );              prints the characters themselve }
+{ print( ( ABS nul, ABS soh, ABS ht, ABS lf, lf ) ); prints the characters as }
+{                      integers:          +0         +1         +9        +10 }
+)

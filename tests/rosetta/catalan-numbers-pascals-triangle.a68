@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Catalan numbers/Pascal's triangle", ALGOL 68 solution catalan-numbers-pascals-triangle.alg.
+  https://rosettacode.org/wiki/Catalan_numbers/Pascal's_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/catalan-numbers-pascals-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int n = 15;
+[ 0 : n + 1 ]int t;
+t[0] := 0;
+t[1] := 1;
+for i to n do
+    for j from i   by -1 to 2 do t[j] := t[j] + t[j-1] od;
+    t[i+1] := t[i];
+    for j from i+1 by -1 to 2 do t[j] := t[j] + t[j-1] od;
+    print( ( whole( t[i+1] - t[i], 0 ), " " ) )
+od
+)

@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Multiplication tables", ALGOL 68 solution multiplication-tables.alg.
+  https://rosettacode.org/wiki/Multiplication_tables#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/multiplication-tables.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  int max = 12;
+  int width = ENTIER(log(max)*2)+1;
+  string empty_ = " "*width, sep="|", hr = "+" + (max+1)*(width*"-"+"+");
+  FORMAT ifmt = $g(-width)"|"$; { remove leading zeros }
+
+  printf(($gl$, hr));
+  print(sep + if width<2 then "x" else " "*(width-2)+"x " fi + sep);
+  for col to max do printf((ifmt, col)) od;
+  printf(($lgl$, hr));
+
+  for row to max do
+    [row:max]int product;
+    for col from row to max do product[col]:=row*col od;
+    string prefix=(empty_+sep)*(row-1);
+    printf(($g$, sep, ifmt, row, $g$, prefix, ifmt, product, $l$))
+  od;
+  printf(($gl$, hr))
+)
+)

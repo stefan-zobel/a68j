@@ -1,0 +1,75 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polynomial synthetic division", ALGOL 68 solution polynomial-synthetic-division.alg.
+  https://rosettacode.org/wiki/Polynomial_synthetic_division#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-synthetic-division.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { polynomial synthetic division - translation of Kotlin }
+
+    op   LEN    = ( []int a )int: ( UPB a - LWB a ) + 1;
+    mode Qrpair = struct( [ 1 : 0 ]int q, r );
+    proc extended_synthetic_division = ( []int dividend, divisor_in )Qrpair:
+         begin
+            [ 0 : LEN dividend - 1 ]int out_ := dividend[ at 0 ];
+            []int divisor = divisor_in[ at 0 ];
+            int dividend_size = LEN dividend;
+            int divisor_size  = LEN divisor;
+            int normalizer    = divisor[ 0 ];
+            int separator     = dividend_size - divisor_size + 1;
+            for i from 0 to separator - 1 do
+                out_[ i ] OVERAB normalizer;
+                if  int coef = out_[ i ];
+                    coef /= 0
+                then
+                    for j from 1 to UPB divisor do out_[ i + j ] -:= divisor[ j ] * coef od
+                fi
+            od;
+            ( out_[ : separator - 1 ], out_[ separator : ] )
+         end { extended synthetic division } ;
+
+    op   SHOWPOLYNOMIAL = ( []int p )void:
+         begin
+            bool first := true;
+            int  power := LEN p - 1;
+            for i from LWB p to UPB p do
+                if int e = p[ i ];
+                   e /= 0
+                then
+                    print( ( if   e < 0 AND first then "-"
+                             elif e < 0           then " - "
+                             elif           first then ""
+                             else                      " + "
+                             fi
+                           , if ABS e = 1 AND power > 0 then "" else whole( ABS e, 0 ) fi
+                           )
+                         );
+                    if power > 0 then
+                        print( ( "x" ) );
+                        if power > 1 then print( ( "^", whole( power, 0 ) ) ) fi
+                    fi;
+                    first  := false
+                fi;
+                power -:= 1
+            od;
+            if first then
+                print( ( "(negative degree)" ) )
+            fi
+         end { SHOWPOLYNOMIAL } ;
+
+    begin
+        proc test = ( []int n, d )void:
+             begin
+                Qrpair qr = extended_synthetic_division( n, d );
+                SHOWPOLYNOMIAL n; print( ( " / " ) ); SHOWPOLYNOMIAL d; print( ( "     ->     " ) );
+                SHOWPOLYNOMIAL q of qr; print( ( ", remainder " ) ); SHOWPOLYNOMIAL r of qr;
+                print( ( newline ) )
+             end { test } ;
+        print( ( "POLYNOMIAL SYNTHETIC DIVISION", newline ) );
+        test( (    1, -12, 0, -42 ), (       1, -3 ) );
+        print( ( newline ) );
+        test( ( 1, 0,   0, 0,  -2 ), ( 1, 1, 1,  1 ) )
+    end
+end
+)

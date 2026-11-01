@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Price fraction", ALGOL 68 solution price-fraction.alg.
+  https://rosettacode.org/wiki/Price_fraction#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/price-fraction.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:
+(
+    { Just get a random price between 0 and 1 }
+    { srand(time(NIL)); }
+    real price := random;
+    real tops := 0.06;
+    real std_val := 0.10;
+
+    { Conditionals are a little odd here '(price-0.001 < tops AND
+    price+0.001 > tops)' is to check if they are equal. Stupid
+    C floats, right?   :) }
+    while ( price>tops OR (price-0.001 < tops AND price+0.001 > tops) ) AND tops<=1.01
+    do
+        tops+:=0.05;
+
+        if std_val < 0.26 then
+                std_val +:= 0.08
+        elif std_val < 0.50 then
+                std_val +:= 0.06
+        else
+                std_val +:= 0.04
+        fi;
+
+        if std_val > 0.98 then
+                std_val := 1.0
+        fi
+    od;
+
+    printf(($"Value :   "z.2dl,"Converted to standard :   "z.2dl$, price, std_val))
+)
+)

@@ -1,0 +1,95 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rice coding", ALGOL 68 solution rice-coding.alg.
+  https://rosettacode.org/wiki/Rice_coding#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rice-coding.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Rice encoding - translation of the Julia sample                       }
+
+    { Golomb-Rice encoding of a positive number to a bit vector               }
+    {                                    (string of 0s and 1s) using M of 2^k }
+    { dyadic RICEENCODE, allows k to be specified                             }
+    prio RICEENCODE = 8;
+    op   RICEENCODE = ( int n, int k )string:
+         begin
+            if n < 0 then print( ( "cannot encode negative numbers", newline ) ); stop fi;
+            int m = 2 ^ k;
+            int q = n OVER m, r = n MOD m;
+            string result := "";
+            int v := r;
+            while v > 0 do                 { set result to binary digits of n }
+                if v MOD 2 = 0 then "0" else "1" fi +=: result;
+                v OVERAB 2
+            od;
+            { pad result to k digits                                          }
+            from ( UPB result - LWB result ) + 2 to k do
+                "0" +=: result
+            od;
+            "0" +=: result;                                 { add a leading 0 }
+            to q do                                        { and q leading 1s }
+                "1" +=: result
+            od;
+            result
+         end { RICEENCODE } ;
+    { monadic RICEENCODE, encodes with k = 2                                  }
+    op   RICEENCODE = ( int n )string: n RICEENCODE 2;
+
+    { extended encoding of negative numbers
+       see wikipedia.org/wiki/Golomb_coding#Use_with_signed_integers
+    }
+    prio RICEENCODEX = 8;
+    op   RICEENCODEX = ( int n, int k )string:
+         if int n2 = 2 * n; n < 0 then -n2 - 1 else n2 fi RICEENCODE k;
+    op   RICEENCODEX = ( int n )string: n RICEENCODEX 2;
+
+    { Golomb-Rice decoding of a bit vector (string of 0s and 1s)              }
+    {                                                           with M of 2^k }
+    prio RICEDECODE = 8;
+    op   RICEDECODE = ( string a, int k )int:
+         begin
+            int m = 2 ^ k;
+            int zpos := 0;
+            if NOT char_in_string( "0", zpos, a ) then zpos := LWB a fi;
+            int r := 0;
+            for z from zpos to UPB a do
+                r *:= 2;
+                if a[ z ] = "1" then r +:= 1 fi
+            od;
+            int q = zpos - LWB a;
+            q * m + r
+         end { RICEDECODE } ;
+    op   RICEDECODE = ( string a )int: a RICEDECODE 2;
+    { extended to handle negative numbers                                     }
+    prio RICEDECODEX = 8;
+    op   RICEDECODEX = ( string a, int k )int:
+             if   int i = a RICEDECODE k;
+                  ODD i
+             then - ( ( i + 1 ) OVER 2 )
+             else i OVER 2
+             fi { RICEDECODEX } ;
+    op   RICEDECODEX = ( string a )int: a RICEDECODEX 2;
+
+    { right pads s with blanks to w characters                                }
+    prio PAD = 8;
+    op   PAD = ( string s, int w )string:
+         if   int len = ( UPB s - LWB s ) + 1;
+              len >= w
+         then s
+         else s + ( ( w - len ) * " " )
+         fi { PAD } ;
+
+    print( ( "Base Rice Coding:", newline ) );
+    for n from 0 to 10 do
+        string e = RICEENCODE n;
+        print( ( whole( n, -3 ), " -> ", e PAD 10, " -> ", whole( RICEDECODE e, -3 ), newline ) )
+    od;
+    print( ( "Extended Rice Coding:", newline ) );
+    for n from -10 to 10 do
+        string e = RICEENCODEX n;
+        print( ( whole( n, -3 ), " -> ", e PAD 10, " -> ", whole( RICEDECODEX e, -3 ),  newline ) )
+    od
+
+end
+)

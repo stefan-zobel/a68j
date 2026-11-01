@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "CRC-32", ALGOL 68 solution crc-32.alg.
+  https://rosettacode.org/wiki/CRC-32#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/crc-32.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[0:255]bits crc_table;
+bool crc_table_computed := false;
+
+proc make_crc_table = void:
+   begin
+      int n, k;
+      for n from 0 to 255 do
+         bits c := BIN n;
+         for k to 8 do
+            c := if 32 ELEM c then
+                    16redb88320 XOR (c SHR 1)
+                 else
+                    c SHR 1
+		 fi
+	 od;
+	 crc_table[n] := c
+      od;
+      crc_table_computed := true
+   end;
+
+proc update_crc = (bits crc, string buf) bits:
+   begin
+      bits c := crc XOR 16rffffffff;
+      int n;
+
+      if NOT crc_table_computed then make_crc_table fi;
+      for n to UPB buf do
+         c := crc_table[ABS ((c XOR BIN ABS buf[n]) AND 16rff)] XOR (c SHR 8)
+      od ;
+      c XOR 16rffffffff
+   end;
+
+ proc hex = (bits x) string :
+   begin
+      proc hexdig = (bits x) char: REPR (if ABS x <= 9 then ABS x + ABS "0"
+                                         else ABS x - 10 + ABS "a"
+					 fi);
+      string h := "";
+      if x = 16r0 then
+	 h := "0"
+      else
+	 bits n := x;
+	 while h := hexdig (n AND 16rf) + h; n /= 16r0 do
+	    n := n SHR 4
+	 od
+      fi;
+      h
+   end;
+
+proc crc = (string buf) bits:
+   update_crc(16r0, buf);
+
+string s = "The quick brown fox jumps over the lazy dog";
+print(("CRC32 OF ", s, " is: ", hex (crc (s)), newline))
+)

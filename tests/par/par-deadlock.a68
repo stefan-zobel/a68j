@@ -1,0 +1,7 @@
+{ DOWN outside a parallel clause on a semaphore with value 0 can never succeed. }
+begin
+   sema s = LEVEL 0;
+   puts ("before'n");
+   DOWN s;
+   puts ("not reached'n")
+end

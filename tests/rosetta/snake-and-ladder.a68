@@ -1,0 +1,107 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Snake and ladder", ALGOL 68 solution snake-and-ladder.alg.
+  https://rosettacode.org/wiki/Snake_and_ladder#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/snake-and-ladder.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Snakes and ladders game }
+    { create the board }
+    int max_square = 100;
+    [ 1 : max_square ]int board;
+    for i to max_square do board[ i ] := 0 od;
+    board[  4 ] := 14;
+    board[  9 ] := 31;
+    board[ 17 ] :=  7;
+    board[ 20 ] := 38;
+    board[ 28 ] := 84;
+    board[ 40 ] := 59;
+    board[ 51 ] := 67;
+    board[ 54 ] := 34;
+    board[ 62 ] := 19;
+    board[ 63 ] := 81;
+    board[ 64 ] := 60;
+    board[ 71 ] := 91;
+    board[ 87 ] := 24;
+    board[ 93 ] := 73;
+    board[ 95 ] := 75;
+    board[ 99 ] := 78;
+    { get options }
+    int players := 0;
+    while print( ( "How many players ( 1-10, 0 or less to quit ) ? " ) );
+          read( ( players, newline ) );
+          players > 10
+    do
+        print( ( "Too many players" ) )
+    od;
+    if players > 0 then
+        { the user does want to play }
+        bool win_on_gt_max := false;
+        while print( ( "Allow position > ", whole( max_square, 0 ), " to win [y/n] ? " ) );
+              char c;
+              read( ( c, newline ) );
+              win_on_gt_max := c = "y";
+              c /= "y" AND c /= "n"
+        do skip od;
+        bool extra_roll_for_6 := false;
+        while print( ( "Roll again on a 6 [y/n] ? " ) );
+              char c;
+              read( ( c, newline ) );
+              extra_roll_for_6 := c = "y";
+              c /= "y" AND c /= "n"
+        do skip od;
+        [ 1 : players ]int position;
+        for i to players do position[ i ] := 0 od;
+        { play }
+        bool game_over := false;
+        while NOT game_over do
+            { handle each players move }
+            print( ( newline ) );
+            for p to players while NOT game_over do
+                while
+                    int roll = ENTIER ( next_random * 6 ) + 1;
+                    string player_id = "Player " + whole( p, 0 );
+                    print( ( player_id
+                           , if position[ p ] < 1 then "" else " (on square " + whole( position[ p ], 0 ) + ")" fi
+                           , " rolls a "
+                           , whole( roll, 0 )
+                           , newline
+                           )
+                         );
+                    if  position[ p ] + roll > max_square
+                    AND NOT win_on_gt_max
+                    then
+                        { the player would be off the board }
+                        print( ( "    ", player_id, " cannot move", newline ) )
+                    else
+                        { the player can move roll squares }
+                        position[ p ] +:= roll;
+                        if position[ p ] > max_square then position[ p ] := max_square fi;
+                        print( ( "    and moves to square ", whole( position[ p ], 0 ) ) );
+                        if board[ position[ p ] ] > position[ p ] then
+                            { landed on a ladder }
+                            position[ p ] := board[ position[ p ] ];
+                            print( ( " - which is a ladder :) ", player_id, " climbs to up ", whole( position[ p ], 0 ), newline ) )
+                        elif board[ position[ p ] ] /= 0 then
+                            { landed on a snake }
+                            position[ p ] := board[ position[ p ] ];
+                            print( ( " - which is a snake :( ", player_id, " slides down to ", whole( position[ p ], 0 ), newline ) )
+                        elif position[ p ] >= max_square then
+                            { the player has won }
+                            print( ( " and wins the game!", newline ) );
+                            game_over := true
+                        else
+                            { not a ladder, snake or winning move }
+                            print( ( newline ) )
+                        fi
+                    fi;
+                    roll = 6 AND extra_roll_for_6 AND NOT game_over
+                do
+                    print( ( player_id, " can roll again...", newline ) )
+                od
+            od
+        od
+    fi
+end
+)

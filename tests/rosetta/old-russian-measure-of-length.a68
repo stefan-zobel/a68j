@@ -1,0 +1,80 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Old Russian measure of length", ALGOL 68 solution old-russian-measure-of-length.alg.
+  https://rosettacode.org/wiki/Old_Russian_measure_of_length#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/old-russian-measure-of-length.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { convert Old Russian units to/from metric                             }
+    { mode to hold details of the units - value is in meters                 }
+    mode Unit = struct( string name, real value );
+    { gets a UNIT from the standard input                                    }
+    proc read_unit = Unit:
+         begin
+            Unit r;
+            read( ( value of r, name of r, newline ) );
+            { trim leading and trailing spaces from the name                 }
+            int f_pos := LWB name of r;
+            while if f_pos <= UPB name of r then ( name of r )[ f_pos ] = " " else false fi
+            do
+                f_pos +:= 1
+            od;
+            int b_pos := UPB name of r;
+            while if b_pos >= LWB name of r then ( name of r )[ b_pos ] = " " else false fi
+            do
+                b_pos -:= 1
+            od;
+            if f_pos > b_pos then
+                { no name                                                    }
+                name of r := ""
+            elif ( name of r )[ b_pos ] = "s" then
+                { the user entered a plural - remove the "S"                 }
+                name of r := ( name of r )[ f_pos : b_pos - 1 ]
+            else
+                { non-blank, non-plural name                                 }
+                name of r := ( name of r )[ f_pos : b_pos     ]
+            fi;
+            r
+         end { read unit } ;
+    { units and their value in meters                                        }
+    []Unit units = ( ( "arshin",  0.7112 ), ( "centimeter", 0.01     ), ( "diuym",   0.0254  )
+                   , ( "fut",     0.3048 ), ( "kilometer",  1000.0   ), ( "liniya",  0.00254 )
+                   , ( "meter",   1.0    ), ( "milia",      7467.6   ), ( "piad",    0.1778  )
+                   , ( "sazhen",  2.1336 ), ( "tochka",     0.000254 ), ( "vershok", 0.04445 )
+                   , ( "versta",  1066.8 )
+                   );
+    while { prompt for units and show their conversions                      }
+        print( ( "Enter the unit to convert - value followed by unit name (or 0 to quit): " ) );
+        Unit r := read_unit;
+        value of r /= 0
+    do
+        { find the unit name in the table of valid units                     }
+        int u_pos := LWB units - 1;
+        for i from LWB units to UPB units while u_pos < LWB units do
+            if name of r = name of units[ i ] then
+                u_pos := i
+            fi
+        od;
+        if u_pos < LWB units then
+            { didn't find the units                                          }
+            print( ( "Unknown units - please enter one of:", newline, "    " ) );
+            for i from LWB units to UPB units do
+                print( ( name of units[ i ], if i = UPB units then newline else ", " fi ) )
+            od
+        else
+            { found the units - show the values in the other units           }
+            Unit u = units[ u_pos ];
+            print( ( fixed( value of r, -12, 6 ), " ", name of u, " is:", newline ) );
+            for i from LWB units to UPB units do
+                if i /= u_pos then
+                    print( ( fixed( ( value of r * value of u )/ value of units[ i ], -16, 6 )
+                           , " ", name of units[ i ], newline
+                           )
+                         )
+                fi
+            od
+        fi
+    od
+end
+)

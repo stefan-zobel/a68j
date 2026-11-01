@@ -1,0 +1,131 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Wireworld", ALGOL 68 solution wireworld.alg.
+  https://rosettacode.org/wiki/Wireworld#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/wireworld.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{
+Wireworld implementation.
+}
+
+proc exception = ([]string args)void:(
+  putf(stand_error, ($"Exception"$, $", "g$, args, $l$));
+  stop
+);
+
+proc assertion_error = (string message)void:exception(("assertion error", message));
+
+mode Cell = char;
+mode World = flex[0, 0]Cell;
+Cell head="H", tail="t", conductor=".", empty_ = " ";
+string all_states := empty_;
+
+bool wrap = false; { is the world round? }
+
+string nl := REPR 10;
+
+string in_string :=
+  "tH........."+nl+
+  ".   ."+nl+
+  "   ..."+nl+
+  ".   ."+nl+
+  "Ht.. ......"+nl
+;
+
+op +:= = (ref flex[]flex[]Cell lines, flex[]Cell line)void:(
+      [UPB lines + 1]flex[0]Cell new_lines;
+      new_lines[:UPB lines]:=lines;
+      lines := new_lines;
+      lines[UPB lines]:=line
+);
+
+proc read_file = (ref file in_file)World: (
+    { file > initial world configuration' }
+    flex[0]Cell line;
+    flex[0]flex[0]Cell lines;
+    int upb_x:=0, upb_y := 0;
+    begin
+      { on physical file end(in file, exit read line); }
+      make_term(in_file, nl);
+      for x to 5 do
+        get(in_file, (line, new_line));
+        upb_x := x;
+        if UPB line > upb_y then upb_y := UPB line fi;
+        lines +:= line
+      od;
+    exit_read_line: skip
+    end;
+    [upb_x, upb_y]Cell out_;
+    for x to UPB out_ do
+      out_[x,]:=lines[x]+" "*(upb_y-UPB lines[x])
+    od;
+    out_
+);
+
+proc new_cell = (World current_world, int x, y)Cell: (
+    Cell istate := current_world[x, y];
+    if int pos; char_in_string (istate, pos, all_states); pos is ref int(nil) then
+        assertion_error("Wireworld cell set to unknown value "+istate) fi;
+    if istate = head then
+        tail
+    elif istate = tail then
+        conductor
+    elif istate = empty_ then
+        empty_
+    else { istate = conductor }
+        [][]int dxy_list = ( (-1,-1), (-1,+0), (-1,+1),
+                             (+0,-1),          (+0,+1),
+                             (+1,-1), (+1,+0), (+1,+1) );
+        int n := 0;
+        for enum_dxy to UPB dxy_list do
+          []int dxy = dxy_list[enum_dxy];
+          if wrap then
+            int px = ( x + dxy[1] - 1 ) MOD 1 UPB current_world + 1;
+            int py = ( y + dxy[2] - 1 ) MOD 2 UPB current_world + 1;
+            n +:= ABS (current_world[px, py] = head)
+          else
+            int px = x + dxy[1];
+            int py = y + dxy[2];
+            if px >= 1 LWB current_world AND px <= 1 UPB current_world AND
+               py >= 2 LWB current_world AND py <= 2 UPB current_world then
+                 n +:= ABS (current_world[px, py] = head)
+            fi
+          fi
+        od;
+        if 1 <= n AND n <= 2 then head else conductor fi
+    fi
+);
+
+proc next_gen = (World world)World:(
+    { compute next generation of wireworld }
+    World new_world := world;
+    for x to 1 UPB world do
+        for y to 2 UPB world do
+            new_world[x,y] := new_cell(world, x, y)
+        od
+    od;
+    new_world
+);
+
+proc world2string = (World world) string:(
+    string out_:="";
+    for x to UPB world do
+      out_ +:= world[x,]+nl
+    od;
+    out_
+);
+
+file in_file;
+associate(in_file, in_string);
+
+World ww := read_file(in_file);
+close(in_file);
+
+for gen to 10 do
+    printf ( ($lg(-3)" "$, gen-1,  $g$,"="* (2 UPB ww-4), $l$));
+    print ( world2string(ww) );
+    ww := next_gen(ww)
+od
+)

@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Monty Hall problem", ALGOL 68 solution monty-hall-problem.alg.
+  https://rosettacode.org/wiki/Monty_Hall_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/monty-hall-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int trials=100 000;
+
+proc brand = (int n)int: 1 + ENTIER (n * random);
+
+proc percent = (real x)string: fixed(100.0*x/trials,0,2)+"%";
+
+main:
+(
+  int prize, choice, show, not_shown, new_choice;
+  int stay_winning:=0, change_winning:=0, random_winning:=0;
+  int doors = 3;
+  [doors-1]int other_door;
+
+  to trials do
+     { put the prize somewhere }
+     prize := brand(doors);
+     { let the user choose a door }
+     choice := brand(doors);
+     { let us take a list of unchoosen doors }
+     int k := LWB other_door;
+     for j to doors do
+        if j/=choice then other_door[k] := j; k+:=1 fi
+     od;
+     { Monty opens one... }
+     if choice = prize then
+     { staying the user will win... Monty opens a random port}
+       show := other_door[ brand(doors - 1) ];
+       not_shown := other_door[ (show+1) MOD (doors - 1 ) + 1]
+     else { no random, Monty can open just one door... }
+       if other_door[1] = prize then
+           show := other_door[2];
+           not_shown := other_door[1]
+       else
+           show := other_door[1];
+           not_shown := other_door[2]
+       fi
+     fi;
+
+     { the user randomly choose one of the two closed doors
+        (one is his/her previous choice, the second is the
+        one not shown ) }
+     other_door[1] := choice;
+     other_door[2] := not_shown;
+     new_choice := other_door[ brand(doors - 1) ];
+     { now let us count if it takes it or not }
+     if choice = prize then stay_winning+:=1 fi;
+     if not_shown = prize then change_winning+:=1 fi;
+     if new_choice = prize then random_winning+:=1 fi
+  od;
+
+  print(("Staying: ", percent(stay_winning), new_line ));
+  print(("Changing: ", percent(change_winning), new_line ));
+  print(("New random choice: ", percent(random_winning), new_line ))
+)
+)

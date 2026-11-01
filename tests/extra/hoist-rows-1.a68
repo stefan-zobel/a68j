@@ -1,0 +1,111 @@
+{ Row descriptors kept in JVM locals during a loop
+  (backend/src/main/java/a68j/jvm/Hoist.java): rows that a loop may hoist
+  (variables and identities, INT, REAL, BOOL, CHAR) and the cases where it
+  must not or where the store is no array of the element type: a row
+  assigned inside the loop, a variable whose name escapes and is assigned
+  through a procedure, a FLEX row shortened in the loop, a STRING extended
+  in the loop, slices of a two-dimensional row (copied, and shared with
+  stride 3), a row of fields of structures, names of elements, nested
+  loops, loops in a procedure and the outer loop assigning a row that an
+  inner loop reads. }
+begin
+  [10] int a;
+  for i to 10 do a[i] := i * i od;
+  int s := 0;
+  for i to 10 do s +:= a[i] od;
+  puts (whole (s, 0) + "'n");
+
+  { assigned inside the loop: the new row must be seen }
+  [5] int b1, b2;
+  for i to 5 do b1[i] := i; b2[i] := 10 * i od;
+  [5] int v := b1;
+  s := 0;
+  for i to 5 do
+    s +:= v[i];
+    if i = 2 then v := b2 fi
+  od;
+  puts (whole (s, 0) + "'n");
+
+  { the name escapes: assigned through a procedure inside the loop }
+  [3] int w := (1, 2, 3);
+  proc set = (ref [] int r, [] int x) void: r := x;
+  s := 0;
+  for i to 3 do
+    s +:= w[i];
+    set (w, (100, 200, 300))
+  od;
+  puts (whole (s, 0) + "'n");
+
+  { FLEX row shortened in the loop }
+  flex [1:6] int f := (1, 2, 3, 4, 5, 6);
+  s := 0;
+  while UPB f > 0 do
+    s +:= f[UPB f] * UPB f;
+    f := f[1:UPB f - 1]
+  od;
+  puts (whole (s, 0) + "'n");
+
+  { STRING extended in the loop, read in the same loop }
+  string t := "a";
+  int codes := 0;
+  for i to 5 do
+    t +:= REPR (ABS "a" + i);
+    codes +:= ABS t[i]
+  od;
+  puts (t + " " + whole (codes, 0) + "'n");
+  { and only read: hoisted }
+  int vowels := 0;
+  for i to UPB t do if t[i] = "a" OR t[i] = "e" then vowels +:= 1 fi od;
+  puts (whole (vowels, 0) + "'n");
+
+  { REAL and BOOL rows, element assignment and assigning operators }
+  [1:4] real r := (0.5, 1.5, 2.5, 3.5);
+  [0:3] bool even;
+  for i from 0 to 3 do even[i] := i MOD 2 = 0 od;
+  real rs := 0.0;
+  for i to 4 do r[i] *:= 2.0; rs +:= r[i]; if even[i - 1] then rs +:= 100.0 fi od;
+  puts (fixed (rs, 0, 2) + "'n");
+
+  { identities: a row value, slices of a two-dimensional row, a row of fields }
+  [] int c = a[2:6];
+  [3, 3] int m;
+  for i to 3 do for j to 3 do m[i, j] := 10 * i + j od od;
+  [] int copied = m[, 2];      { a copy, stride 1 }
+  [,] int mm = m;
+  [] int col = mm[, 3];        { shares the elements of mm, stride 3 }
+  mode Pair = struct (int x, y);
+  [4] Pair ps;
+  for i to 4 do ps[i] := (i, -i) od;
+  [] int ys = y of ps;
+  s := 0;
+  for i from LWB c to UPB c do s +:= c[i] od;
+  for i to 3 do s +:= col[i] + copied[i] od;
+  for i to 4 do s +:= ys[i] od;
+  puts (whole (s, 0) + "'n");
+
+  { names of elements in a loop }
+  for i to 3 do ref int e = a[i]; e := -e od;
+  puts (whole (a[1], 0) + " " + whole (a[3], 0) + " " + whole (a[4], 0) + "'n");
+
+  { a parameter row in a loop of a procedure, nested loops }
+  proc sum = ([] int x) int: (int t := 0; for i from LWB x to UPB x do t +:= x[i] od; t);
+  proc count = (ref [] int x, int k) int:
+    (int n := 0; for i to k do for j from LWB x to UPB x do (x[j] > i | n +:= 1) od od; n);
+  puts (whole (sum (a), 0) + " " + whole (count (a, 50), 0) + "'n");
+
+  { the outer loop assigns the row, the inner loop reads it }
+  [3] int z := (1, 1, 1);
+  s := 0;
+  for k to 3 do
+    for i to 3 do s +:= z[i] od;
+    z := (k + 1, k + 1, k + 1)
+  od;
+  puts (whole (s, 0) + "'n");
+
+  { a row of rows: the inner rows are not identifiers, nothing hoisted }
+  [3] [2] int rr;
+  for i to 3 do rr[i] := (i, 2 * i) od;
+  s := 0;
+  for i to 3 do s +:= rr[i][2] od;
+  puts (whole (s, 0) + "'n")
+end

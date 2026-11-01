@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Letter frequency", ALGOL 68 solution letter-frequency.alg.
+  https://rosettacode.org/wiki/Letter_frequency#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/letter-frequency.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   [0:max_abs_char]int histogram;
+   for i from 0 to max_abs_char do histogram[i] := 0 od;
+   file input_file;
+   string input_file_name = "Letter_frequency.a68";
+   if open (input_file, input_file_name, stand_in_channel) /= 0 then
+      put (stand_error, ("Cannot open ", input_file_name, newline));
+      stop
+   else
+      on_file_end (input_file, (ref file f) bool: (close (f); goto finished))
+   fi;
+   do
+      string s;
+      get (input_file, (s, newline));
+      for i to UPB s do
+   char c = s[i];
+   if "A" <= c AND c <= "Z" OR "a" <= c AND c <= "z" then
+      histogram[ABS c] PLUSAB 1
+   fi
+     od
+   od;
+   close (input_file);
+finished:
+   for i from ABS "A" to ABS "Z" do printf (($a3xg(0)l$, REPR i, histogram[i])) od;
+   for i from ABS "a" to ABS "z" do printf (($a3xg(0)l$, REPR i, histogram[i])) od
+end
+)

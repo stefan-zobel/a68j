@@ -1,0 +1,60 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Doubly-linked list/Element insertion", ALGOL 68 solution doubly-linked-list-element-insertion.alg.
+  https://rosettacode.org/wiki/Doubly-linked_list/Element_insertion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/doubly-linked-list-element-insertion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+{ SEMA do link OF splice = LEVEL 1 }
+mode Link = struct (
+  ref Link prev,
+  ref Link next,
+  Data value
+);
+
+{ BEGIN rosettacode task specimen code:
+  can handle insert both before the first, and after the last link }
+
+proc insert_after = (ref Link {self,} prev, Data new_data)Link: (
+{ DOWN do link OF splice OF self; to make thread safe }
+  ref Link next = next of prev;
+  heap Link new_link := Link(prev, next, new_data);
+  next of prev := prev of next := new_link;
+{ UP do link OF splice OF self; }
+  new_link
+);
+
+proc insert_before = (ref Link {self,} next, Data new_data)Link:
+  insert_after({self,} prev of next, new_data);
+
+{ END rosettacode task specimen code }
+
+{ Test case: }
+mode Data = struct(int year_elected, string name);
+FORMAT data_fmt = $dddd": "g"; "$;
+
+test:(
+
+{ manually initialise the back splices }
+  Link presidential_splice;
+  presidential_splice := (presidential_splice, presidential_splice, skip);
+
+{ manually build the chain }
+  Link previous, incumbent, elect;
+  previous := (presidential_splice, incumbent,          Data(1993, "Clinton"));
+  incumbent:= (previous,           elect,              Data(2001, "Bush"   ));
+  elect    := (incumbent,          presidential_splice, Data(2008, "Obama"  ));
+
+  insert_after(incumbent, loc Data := Data(2004, "Cheney"));
+
+  ref Link node := previous;
+  while ref Link(node) isnt presidential_splice do
+    printf((data_fmt, value of node));
+    node := next of node
+  od;
+  print(new_line)
+)
+)

@@ -1,0 +1,137 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Random sentence from book", ALGOL 68 solution random-sentence-from-book-2.alg.
+  https://rosettacode.org/wiki/Random_sentence_from_book#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/random-sentence-from-book-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{NoEnv
+}S ingle I nstance, force
+				; press E sc_to_stop_and_display_the_output_text
+				; (a_debug_file_describing_ongoing_steps_will_be_created_in_the_end)
+F ile E ncoding, UTF-8
+F ile R ead, war W ords, war_of_words.txt   ; wrapped_booktext_global_text
+O ut := " "
+global_war W ords := strreplace(war W ords,"`r`n", " ")
+war W ords := strreplace(war W ords,"`r", " ")
+war W ords := strreplace(war W ords,"`n", " ")
+war W ords := strreplace(war W ords,"-", " ")
+war W ords := strreplace(war W ords,"—", " ")
+war W ords := strreplace(war W ords,"`t", " ")
+war W ords := strreplace(war W ords,"“")
+war W ords := strreplace(war W ords,"_")
+war W ords := strreplace(war W ords,"”")
+war W ords := strreplace(war W ords,"’")
+war W ords := strreplace(war W ords,"''")
+war W ords := strreplace(war W ords,"""")
+war W ords := strreplace(war W ords,")")
+war W ords := strreplace(war W ords,"(")
+war W ords := strreplace(war W ords,"[")
+war W ords := strreplace(war W ords,"]")
+war W ords := strreplace(war W ords,"{")
+war W ords := strreplace(war W ords,"}")
+war W ords := strreplace(war W ords,"»")
+war W ords := strreplace(war W ords,"«")
+war W ords := trim(war W ords)
+L oop
+{
+	warWords := strreplace(warWords,"  ", " ")
+	if (Errorlevel = 0)
+		break
+}
+F ile D elete, debug.txt
+I nput B ox, f O ne, W ar_of W ords, C hoice_a_punctuation_to_start ( . or ! or ? or `, ),,,,,,,,.
+treco := N ext P unct(f O ne)
+L oop
+{
+loop,parse,treco," "
+	if A_LoopField
+		fOne := trim(A_LoopField)
+textOut .= fOne . " "
+tremPos := InStr(textOut," ",,0,3)
+tremText := trim(substr(textOut,tremPos))
+if tremText
+	{
+		tremText := strreplace(tremText,".","\.")
+		tremText := strreplace(tremText,";","\;")
+		tremText := strreplace(tremText,",","\,")
+		tremText := strreplace(tremText,"!","\!")
+		tremText := " " . strreplace(tremText,"?","\?")
+		treco := NextWord(tremText)
+	}
+else
+	treco := NextWord(fOne)
+}
+
+N ext P unct(punct) {
+xpos := 1
+prox := []
+Loop
+{
+	spos := RegExMatch(warWords, "(*UCP)\" . punct . " \w+.",gg,xpos)
+	if (spos = 0)
+		break
+	prox[a_index] := gg
+	xpos := spos + 1
+}
+proximas := ""
+loop, % prox.MaxIndex()
+	proximas .= a_index . " -> " . prox[a_index] . "`n"
+FileAppend, %proximas%, debug.txt, UTF-8
+Random, linha, 1, prox.MaxIndex()
+FileAppend, % "---------------`nescolhido = " . linha . " -> " . prox[linha] . " -> " . textOut . "`n----------------`n", debug.txt, UTF-8
+return prox[linha]
+}
+
+N ext W ord(word_) {
+xpos := 1
+prox := []
+loop
+{
+	spos := RegExMatch(warWords, "(*UCP)" . word . " \w+.",gg,xpos)
+	if !spos
+		break
+	prox[a_index] := gg
+	xpos := spos + 1
+}
+
+if (prox.MaxIndex() > 0)
+{
+proximas := ""
+loop, % prox.MaxIndex()
+	proximas .= a_index . " -> " . prox[a_index] . "`n"
+FileAppend, %proximas%, debug.txt, UTF-8
+Random, linha, 1, prox.MaxIndex()
+FileAppend, % "---------------`nescolhido = " . linha . " -> " . prox[linha] . " -> " . textOut . "`n----------------`n", debug.txt, UTF-8
+return % prox[linha]
+}	
+
+loop,parse,word," "
+	wrd := A_LoopField
+word := wrd
+spos := xpos := 1
+prox := []
+loop
+{
+	spos := RegExMatch(warWords, "(*UCP)" . word . " \w+.",gg,xpos)
+	if (spos = 0)
+		break
+	prox[a_index] := gg
+	xpos := spos + 1
+}
+proximas := ""
+loop, % prox.MaxIndex()
+	proximas .= a_index . " -> " . prox[a_index] . "`n"
+FileAppend, %proximas%, debug.txt, UTF-8
+Random, linha, 1, prox.MaxIndex()
+FileAppend, % "---------------`nescolhido = " . linha . " -> " . prox[linha] . " -> " . textOut . "`n----------------`n", debug.txt, UTF-8
+return % prox[linha]
+}
+
+E xit A pp
+
+~E sc::
+msgbox % text O ut . "..."
+E xit A pp
+)

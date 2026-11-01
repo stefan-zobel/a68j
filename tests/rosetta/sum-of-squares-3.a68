@@ -1,0 +1,53 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sum of squares", ALGOL 68 solution sum-of-squares-3.alg.
+  https://rosettacode.org/wiki/Sum_of_squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sum-of-squares-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+mode Yieldreal = proc(real)void;
+mode Genreal = proc(Yieldreal)void;
+
+proc gen_real_of_vector = ([]real data, Yieldreal yield)void:
+  for i from LWB data to UPB data do yield(data[i]) od;
+
+proc real_sum_sq_of_gen = (Genreal gen_real)real: (
+  real sum:=0;
+{ FOR REAL value IN } gen_real({) DO (}
+     (real value)void:(
+       sum+:=value**2
+{ OD }));
+  sum
+);
+
+proc real_sum_map_of_gen = (proc(real)real func, Genreal gen_real)real: (
+  real sum:=0;
+{ FOR REAL value IN } gen_real({) DO (}
+     (real value)void:(
+       sum+:=func(value)
+{ OD }));
+  sum
+);
+
+op GEN = ([]real array)Genreal:gen_real_of_vector(array,);
+
+op (Genreal {gen real})real SUMSQ = real_sum_sq_of_gen;
+
+prio SUMMAP = 5;
+op (proc(real)real {func}, Genreal {gen real})real SUMMAP = real_sum_map_of_gen;
+
+test:(
+  []real data = (3, 1, 4, 1, 5, 9);
+{ Permutations of the above routines }
+  printf(($"real sum sq GEN: "g(0)l$, real_sum_sq_of_gen(GEN data)));
+  printf(($"real sum sq real gen: "g(0)l$, real_sum_sq_of_gen(gen_real_of_vector(data,))));
+  printf(($"real sum map real gen: "g(0)l$, real_sum_map_of_gen(((real x)real: x*x),gen_real_of_vector(data,))));
+  printf(($"SUMSQ real gen: "g(0)l$, SUMSQ gen_real_of_vector(data,)));
+  printf(($"SUMSQ GEN: "g(0)l$, SUMSQ GEN data));
+  printf(($"sq SUMMAP GEN: "g(0)l$, ((real x)real: x*x)SUMMAP GEN data))
+)
+)

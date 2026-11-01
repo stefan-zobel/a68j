@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Count in factors", ALGOL 68 solution count-in-factors.alg.
+  https://rosettacode.org/wiki/Count_in_factors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/count-in-factors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op +:= = (ref flex []int a, int b) void:
+   begin
+      [UPB a + 1] int c;
+      c[:UPB a] := a;
+      c[UPB a+1:] := b;
+      a := c
+   end;
+
+
+proc factorize = (int nn) []int:
+   begin
+      if nn = 1 then (1)
+      else
+	  int k := 2, n := nn;
+	  flex[0]int result;
+	  while n > 1 do
+	      while n MOD k = 0 do
+		  result +:= k;
+		  n := n % k
+	      od;
+	      k +:= 1
+	  od;
+	  result
+      fi
+   end;
+
+flex[0]int factors;
+for i to 22 do
+    factors := factorize (i);
+    print ((whole (i, 0), " = "));
+    for j to UPB factors do
+       (j /= 1 | print (" × "));
+	print ((whole (factors[j], 0)))
+    od;
+    print ((new_line))
+od
+)

@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Harshad or Niven series", ALGOL 68 solution harshad-or-niven-series.alg.
+  https://rosettacode.org/wiki/Harshad_or_Niven_series#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/harshad-or-niven-series.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   proc digit_sum = (int i) int :
+   begin
+      int res := i %* 10, h := i;
+      while (h %:= 10) > 0 do res +:= h %* 10 od;
+      res
+   end;
+   int  found := 0;
+   for i while found < 20 do
+      (i %* digit_sum (i) = 0 | found +:= 1; printf (($g(0)", "$, i)) ) od;
+   for i from 1001 do
+      (i %* digit_sum (i) = 0 | printf (($g(0)l$, i)); stop) od
+end
+)

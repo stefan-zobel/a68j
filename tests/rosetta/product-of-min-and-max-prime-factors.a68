@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Product of min and max prime factors", ALGOL 68 solution product-of-min-and-max-prime-factors.alg.
+  https://rosettacode.org/wiki/Product_of_min_and_max_prime_factors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/product-of-min-and-max-prime-factors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the product of the min and max prime factors of some numbers }
+    int max_number = 100; { maximum number we will consider               }
+    { sieve the primes to max number                                      }
+    [ 0 : max_number ]bool prime;
+    prime[ 0 ] := prime[ 1 ] := false;
+    prime[ 2 ] := true;
+    for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+    for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+    for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+        if prime[ i ] then
+            for s from i * i by i + i to UPB prime do prime[ s ] := false od
+        fi
+    od;
+    { construct tables of the minimum and maximum prime factors of        }
+    { numbers up to max number                                            }
+    [ 1 : max_number ]int min_pf; for i to UPB min_pf do min_pf[ i ] := 0 od;
+    [ 1 : max_number ]int max_pf; for i to UPB min_pf do max_pf[ i ] := 0 od;
+    min_pf[ 1 ] := 1;
+    max_pf[ 1 ] := 1;
+    for i to max_number do
+        if prime[ i ] then
+            for j from i by i to UPB min_pf do
+                if min_pf[ j ] = 0 then min_pf[ j ] := i fi;
+                max_pf[ j ] := i
+            od
+        fi
+    od;
+    { print the products of the min and max prime factors                 }
+    for i to max_number do
+        print( ( whole( min_pf[ i ] * max_pf[ i ], -5 ) ) );
+        if i MOD 10 = 0 then print( ( newline ) ) fi
+    od
+end
+)

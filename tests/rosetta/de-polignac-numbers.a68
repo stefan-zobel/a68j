@@ -1,0 +1,69 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "De Polignac numbers", ALGOL 68 solution de-polignac-numbers.alg.
+  https://rosettacode.org/wiki/De_Polignac_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/de-polignac-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some De Polignac Numbers - positive odd numbers that can't be    }
+      { written as p + 2^n for some prime p and integer n                     }
+    int max_number = 500 000; { maximum number we will consider               }
+    { sieve the primes to max number                                          }
+    [ 0 : max_number ]bool prime;
+    prime[ 0 ] := prime[ 1 ] := false;
+    prime[ 2 ] := true;
+    for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+    for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+    for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+        if prime[ i ] then
+            for s from i * i by i + i to UPB prime do prime[ s ] := false od
+        fi
+    od;
+    { table of powers of 2 greater than 2^0 ( up to around 2 000 000 )        }
+    {       increase the table size if max number > 2 000 000                 }
+    [ 1 : 20 ]int powers_of_2;
+    begin
+        int p2 := 1;
+        for i to UPB powers_of_2 do
+            powers_of_2[ i ] := ( p2 *:= 2 )
+        od
+    end;
+    { the numbers must be odd and not of the form p + 2^n                     }
+    { either p is odd and 2^n is even and hence n > 0 and p > 2               }
+    {     or 2^n is odd and p is even and hence n = 0 and p = 2               }
+    int dp_count := 0;
+    { n = 0, p = 2 - the only possibility is 3                                }
+    for i by 2 to 3 do
+        int p = 2;
+        if p + 1 /= i then
+            print( ( whole( i, -5 ) ) );
+            dp_count +:= 1
+        fi
+    od;
+    { n > 0, p > 2                                                            }
+    for i from 5 by 2 to max_number do
+        bool found := false;
+        for p to UPB powers_of_2 while NOT found AND i > powers_of_2[ p ] do
+            found := prime[ i - powers_of_2[ p ] ]
+        od;
+        if NOT found then
+            if ( dp_count +:= 1 ) <= 50 then
+                print( ( whole( i, -5 ) ) );
+                if dp_count MOD 10 = 0 then print( ( newline ) ) fi
+            elif dp_count = 1 000 OR dp_count = 10 000 then
+                print( ( "The ", whole( dp_count, -5 )
+                       , "th De Polignac number is ", whole( i, -7 )
+                       , newline
+                       )
+                     )
+            fi
+        fi
+    od;
+    print( ( "Found ", whole( dp_count, 0 )
+           , " De Polignac numbers up to ", whole( max_number, 0 )
+           , newline
+           )
+         )
+end
+)

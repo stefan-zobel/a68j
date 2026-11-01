@@ -1,0 +1,17 @@
+module Mod_Strop =
+def pub mode File = struct (int fd, int count);
+    pub ref File stand = heap File := (1, 0);
+    pub proc newline = (ref File f) void: (puts ("'n"); count of f +:= 1);
+    pub mode Item = union (int, char, string, [] int, proc (ref File) void);
+    pub proc put = ([] Item items) void:
+       for i to UPB items
+       do case items[i]
+          in (int n): puts (whole (n, 0)),
+             (char c): puts (c),
+             (string s): puts (s),
+             ([] int r): for k to UPB r do puts (whole (r[k], 0) + " ") od,
+             (proc (ref File) void p): p (stand)
+          esac
+       od;
+    skip
+fed

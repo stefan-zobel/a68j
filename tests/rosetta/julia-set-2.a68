@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Julia set", ALGOL 68 solution julia-set-2.alg.
+  https://rosettacode.org/wiki/Julia_set#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/julia-set-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+for yi from -100 by 5 to 100 do { draw an ASCII art Julia set, translation of Lua }
+  real y = yi / 100;
+  for xi from -1500 by 25 to 1500 do
+    real zr := xi / 1000; real zi := y; int i := 0; bool again := true;
+    while again AND i < 100 do
+      real zrp = zr, zip = zi;
+      zr := zrp*zrp - zip*zip - 0.79; zi := zrp * zip * 2 + 0.15;
+      if zr*zr + zi*zi > 4 then { break } again := false else i +:= 1 fi
+    od;
+    print( ( " .:-=+*#%$@"[ 1 + i OVER 10 ] ) )
+  od;
+  print( ( newline ) )
+od
+)

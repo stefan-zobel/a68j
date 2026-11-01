@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Modular inverse", ALGOL 68 solution modular-inverse.alg.
+  https://rosettacode.org/wiki/Modular_inverse#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/modular-inverse.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   proc modular_inverse = (int a, m) int :
+   begin
+      proc extended_gcd = (int x, y) []int :
+{
+   Algol 68 allows us to return three INTs in several ways.  A [3]INT
+   is used here but it could just as well be a STRUCT.
+}
+      begin
+	 int v := 1, a := 1, u := 0, b := 0, g := x, w := y;
+	 while w>0
+	 do
+	    int q := g % w, t := a - q * u;
+	    a := u; u := t;
+	    t := b - q * v;
+	    b := v; v := t;
+	    t := g - q * w;
+	    g := w; w := t
+	 od;
+	 a PLUSAB (a < 0 | u | 0);
+	 (a, b, g)
+      end;
+      [] int egcd = extended_gcd (a, m);
+      (egcd[3] > 1 | 0 | egcd[1] MOD m)
+   end;
+   printf (($"42 ^ -1 (mod 2017) = ", g(0)$, modular_inverse (42, 2017)))
+{
+   Note that if ϕ(m) is known, then a^-1 = a^(ϕ(m)-1) mod m which
+   allows an alternative implementation in terms of modular
+   exponentiation but, in general, this requires the factorization of
+   m.  If m is prime the factorization is trivial and ϕ(m) = m-1.
+   2017 is prime which may, or may not, be ironic within the context
+   of the Rosetta Code conditions.
+}
+end
+)

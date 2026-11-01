@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dinesman's multiple-dwelling problem", ALGOL 68 solution dinesmans-multiple-dwelling-problem.alg.
+  https://rosettacode.org/wiki/Dinesman's_multiple-dwelling_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dinesmans-multiple-dwelling-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ attempt to solve the dinesman Multiple Dwelling problem }
+
+{ SETUP }
+
+{ special floor values }
+int    top_floor    = 4;
+int    bottom_floor = 0;
+
+{ mode to specify the persons floor constraint }
+mode Person = struct( string name, ref int floor, proc( int )bool ok );
+
+{ yields TRUE if the floor of the specified person is OK, FALSE otherwise }
+op OK = ( Person p )bool: ( ok of p )( floor of p );
+
+{ yields TRUE if floor is adjacent to other persons floor, FALSE otherwise }
+proc adjacent = ( int floor, other_persons_floor )bool: floor >= ( other_persons_floor - 1 ) AND floor <= ( other_persons_floor + 1 );
+
+{ displays the floor of an occupant }
+proc print_floor = ( Person occupant )void: print( ( whole( floor of occupant, -1 ), " ", name of occupant, newline ) );
+
+{ PROBLEM STATEMENT }
+
+{ the inhabitants with their floor and constraints }
+Person baker    = ( "Baker",    loc int := 0, ( int floor )bool: floor /= top_floor );
+Person cooper   = ( "Cooper",   loc int := 0, ( int floor )bool: floor /= bottom_floor );
+Person fletcher = ( "Fletcher", loc int := 0, ( int floor )bool: floor /= top_floor AND floor /= bottom_floor
+                                                                                    AND NOT adjacent( floor, floor of cooper ) );
+Person miller   = ( "Miller",   loc int := 0, ( int floor )bool: floor > floor of cooper );
+Person smith    = ( "Smith",    loc int := 0, ( int floor )bool: NOT adjacent( floor, floor of fletcher ) );
+
+{ SOLUTION }
+
+{ "brute force" solution - we run through the possible 5^5 configurations          }
+{ we cold optimise this by e.g. restricting f to bottom floor + 1 TO top floor - 1 }
+{ at the cost of reducing the flexibility of the constraints                       }
+{ alternatively, we could add minimum and maximum allowed floors to the PERSON     }
+{ STRUCT and loop through these instead of bottom floor TO top floor               }
+
+for b from bottom_floor to top_floor do
+    floor of baker := b;
+    for c from bottom_floor to top_floor do
+        if b /= c then
+            floor of cooper := c;
+            for f from bottom_floor to top_floor do
+                if b /= f AND c /= f then
+                    floor of fletcher := f;
+                    for m from bottom_floor to top_floor do
+                        if b /= m AND c /= m AND f /= m then
+                            floor of miller   := m;
+                            for s from bottom_floor to top_floor do
+                                if b /= s AND c /= s AND f /= s AND m /= s then
+                                    floor of smith    := s;
+                                    if OK baker AND OK cooper AND OK fletcher AND OK miller AND OK smith
+                                    then
+                                        { found a solution }
+                                        print_floor( baker    );
+                                        print_floor( cooper   );
+                                        print_floor( fletcher );
+                                        print_floor( miller   );
+                                        print_floor( smith    )
+                                    fi
+                                fi
+                            od
+                        fi
+                    od
+                fi
+            od
+        fi
+    od
+od
+)

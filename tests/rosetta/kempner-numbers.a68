@@ -1,0 +1,94 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Kempner numbers", ALGOL 68 solution kempner-numbers.alg.
+  https://rosettacode.org/wiki/Kempner_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/kempner-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Kempner numbers - translation of XPL0 }
+
+    [ 1 : 20 ]long int fa;                  { will hold the factors found by PROC prime factors }
+    [ 1 : 20 ]int      ex;                { will hold the exponents found by PROC prime factors }
+    proc prime_factors = ( long int m )int:    { Factorize n into primes and store in fa and ex }
+         begin                                                { Returns number of prime factors }
+            long int n := m;
+            int      c := 0;
+            if NOT ODD n then
+                c := 1;
+                fa[ 1 ] := 2;
+                ex[ 1 ] := 1;
+                while NOT ODD ( n OVERAB 2 ) do
+                    ex[ 1 ] +:= 1
+                od
+            fi;
+            long int p := 3;
+            while n > 1 AND p * p <= n do
+                if n MOD p = 0 then
+                    c +:= 1;
+                    fa[ c ] := p;
+                    ex[ c ] := 1;
+                    while ( n OVERAB p ) MOD p = 0 do
+                        ex[ c ] +:= 1
+                    od
+                fi;
+                p +:= 2
+            od;
+            if n /= 1 then
+                c +:= 1;
+                fa[ c ] := n;
+                ex[ c ] := 1
+            fi;
+            c
+         end { prime factors } ;
+
+    proc valp = ( long int m, p )long int:                  { Compute exponent of prime p in m! }
+         begin
+            long int n := m, s := 0;
+            while n /= 0 do
+                n OVERAB p;
+                s    +:= n
+            od;
+            s
+         end  { valp } ;
+
+    proc k = ( long int p, e )long int:           { Find smallest t such that valp( t, p ) >= e }
+         if e <= p then
+            e * p
+         else
+            long int t := e * ( p - 1 ) OVER p * p;
+            while valp( t, p ) < e do t +:= p od;
+            t
+         fi { k } ;
+
+    proc kempner = ( long int m )long int:             { Compute least t such that m divides t! }
+         if m = 1 then
+            1
+         else
+            long int max := 0;
+            for i to prime_factors( m ) do
+                long int t := k( fa[ i ], ex[ i ] );
+                if t > max then max := t fi
+            od;
+            max
+         fi { kempner } ;
+
+    begin
+
+        print( ( "The first 50 Kempner numbers are:", newline ) );
+        for kn to 50 do
+            print( ( whole( kempner( kn ), -3 ) ) );
+            if kn MOD 10 = 0 then print( ( newline ) ) fi
+        od;
+
+        long int kfrom = 77135679311, kto = 77135679321;
+        print( ( newline, "Kempner numbers for the range " ) );
+        print( ( whole( kfrom, 0 ), " to ", whole( kto, 0 ), ":", newline ) );
+        long int n := kfrom - 1;   { FOR loop counters have to be INT so need a WHILE loop here }
+        while ( n +:= 1 ) <= kto do
+            print( ( "S(", whole( n, 0 ), ") = ", whole( kempner( n ), 0 ), newline ) )
+        od
+
+    end
+end
+)

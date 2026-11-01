@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Cocktail sort", ALGOL 68 solution sorting-algorithms-cocktail-sort-2.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-cocktail-sort-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Data = ref char;
+proc swap = (ref Data a,b)void:(
+  Data tmp:=a; a:=b; b:=tmp
+);
+
+proc (ref[]Data a)void cocktail_sort;
+
+[32]char data := "big fjords vex quick waltz nymph";
+[UPB data]Data ref_data;  for i to UPB data do ref_data[i] := data[i] od;
+cocktail_sort(ref_data);
+for i to UPB ref_data do print(ref_data[i]) od; print(new_line);
+print((data))
+)

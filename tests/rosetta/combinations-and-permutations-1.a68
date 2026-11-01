@@ -1,0 +1,100 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Combinations and permutations", ALGOL 68 solution combinations-and-permutations-1.alg.
+  https://rosettacode.org/wiki/Combinations_and_permutations#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/combinations-and-permutations-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+{ REQUIRED by "prelude_combinations_and_permutations.a68" CO
+  MODE CPINT = #LONG# ~;
+  MODE CPOUT = #LONG# ~; # the answer, can be REAL #
+  MODE CPREAL = ~; # the answer, can be REAL #
+  PROC cp fix value error = (#REF# CPARGS args)BOOL: ~;
+#PROVIDES:#
+# OP C = (CP~,CP~)CP~: ~ #
+# OP P = (CP~,CP~)CP~: ~ #
+END }
+
+mode Cpargs = struct(char name, {REF} CPINT n,k);
+
+prio C = 8, P = 8; { should be 7.5, a priority between *,/ and **,SHL,SHR etc }
+
+{ I suspect there is a more reliable way of doing this using the Gamma Function approx }
+
+op P = (CPINT n, r)CPOUT: (
+  if n < r ORF r < 0 then if NOT cp_fix_value_error(Cpargs("P",n,r)) then stop fi fi;
+  CPOUT out_ := 1;
+{ basically nPk = (n-r+1)(n-r+2)...(n-2)(n-1)n = n!/(n-r)! }
+  for i from n-r+1 to n do out_ *:= i od;
+  out_
+);
+
+op P = (CPREAL n, r)CPREAL: { 'ln gamma' requires GSL library }
+  exp(ln_gamma(n+1)-ln_gamma(n-r+1));
+
+{ basically nPk = (n-r+1)(n-r+2)...(n-2)(n-1)n = n!/(n-r)! }
+{ # alternate slower version #
+OP P = (CPREAL n, r)CPREAL: ( # alternate slower version #
+  IF n < r ORF r < 0 THEN IF NOT cp fix value error(CPARGS("P",ENTIER n,ENTIER r)) THEN stop FI FI;
+  CPREAL out := 1;
+# basically nPk = (n-r+1)(n-r+2)...(n-2)(n-1)n = n!/(n-r)! #
+  CPREAL i := n-r+1;
+  WHILE i <= n DO
+    out*:= i;
+# a crude check for underflow #
+    IF i = i + 1 THEN IF NOT cp fix value error(CPARGS("P",ENTIER n,ENTIER r)) THEN stop FI FI;
+    i+:=1
+  OD;
+  out
+);
+END }
+
+{ basically C(n,r) = nCk = nPk/r! = n!/(n-r)!/r! }
+op C = (CPINT n, r)CPOUT: (
+  if n < r ORF r < 0 then if NOT cp_fix_value_error(("C",n,r)) then stop fi fi;
+  CPINT largest = ( r > n - r | r | n - r );
+  CPINT smallest = n - largest;
+  CPOUT out_ := 1;
+  int smaller_fact := 2;
+  for larger_fact from largest+1 to n do
+{ try and prevent overflow, p.s. there must be a smarter way to do this }
+{   Problems: loop stalls when 'smaller fact' is a largeish co prime }
+    out_ *:= larger_fact;
+    while smaller_fact <= smallest ANDF out_ MOD smaller_fact = 0 do
+      out_ OVERAB smaller_fact;
+      smaller_fact +:= 1
+    od
+  od;
+  out_ { EXIT with: n P r OVER r P r }
+);
+
+op C = (CPREAL n, CPREAL r)CPREAL: { 'ln gamma' requires GSL library }
+  exp(ln_gamma(n+1)-ln_gamma(n-r+1)-ln_gamma(r+1));
+
+{ basically C(n,r) = nCk = nPk/r! = n!/(n-r)!/r! }
+{ # alternate slower version #
+OP C = (CPREAL n, REAL r)CPREAL: (
+  IF n < r ORF r < 0 THEN IF NOT cp fix value error(("C",ENTIER n,ENTIER r)) THEN stop FI FI;
+  CPREAL largest = ( r > n - r | r | n - r );
+  CPREAL smallest = n - largest;
+  CPREAL out := 1;
+  REAL smaller fact := 2;
+  REAL larger fact := largest+1;
+  WHILE larger fact <= n DO # todo: check underflow here #
+# try and prevent overflow, p.s. there must be a smarter way to do this #
+    out *:= larger fact;
+    WHILE smaller fact <= smallest ANDF out > smaller fact DO
+      out /:= smaller fact;
+      smaller fact +:= 1
+    OD;
+    larger fact +:= 1
+  OD;
+  out # EXIT with: n P r OVER r P r #
+);
+END }
+
+skip
+)

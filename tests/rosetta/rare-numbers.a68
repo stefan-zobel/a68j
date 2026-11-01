@@ -1,0 +1,104 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rare numbers", ALGOL 68 solution rare-numbers.alg.
+  https://rosettacode.org/wiki/Rare_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rare-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Rare numbers - translation of EasyLang with the MOD 1089/121 test from FreeBASIC }
+
+    mode Rint = long int;    { 5 rare numbers needs more than 32 bits }
+
+    proc rev = ( Rint n )Rint:
+         begin
+            Rint h := n, r := 0;
+            while h > 0 do
+                r := r * 10 + h MOD 10;
+                h OVERAB 10
+            od;
+            r
+         end { rev } ;
+
+    { returns the integer square root of x; x must be >= 0                   }
+    proc isqrt = ( Rint x )Rint:
+         if   x < 0 then print( ( "Negative number in isqrt", newline ) );stop
+         elif x < 2 then x
+         else
+            { x is greater than 1                                            }
+            { find a power of 4 that's greater than x                        }
+            Rint q := 1;
+            while q <= x do q *:= 4 od;
+            { find the root                                                  }
+            Rint z := x;
+            Rint r := 0;
+            while q > 1 do
+                q OVERAB 4;
+                Rint t = z - r - q;
+                r OVERAB 2;
+                if t >= 0 then
+                    z  := t;
+                    r +:= q
+                fi
+            od;
+            r
+         fi; { isqrt }
+
+    proc issqr = ( Rint n )bool:
+         begin
+             Rint h = isqrt( n );
+             h * h = n
+         end { issqr } ;
+
+    Rint po         := 1;
+    bool odd_digits := true;
+    Rint lim        := 1;
+    Rint a          := 0;
+    Rint count      := 0;
+    Rint n          := 0;
+    while count < 5 do
+        n +:= 1;
+        if n = lim then
+            a +:= 2;
+            if a = 10 then
+                a          := 2;
+                po        *:= 10;
+                odd_digits := NOT odd_digits
+            fi;
+            n   := a * po;
+            lim := n + po
+        fi;
+        Rint q = n MOD 10;
+        if a /= 2 OR q = 2 then
+            if a /= 4 OR q = 0 then
+                if a /= 6 OR q = 0 OR q = 5 then
+                    Rint s9 = ( n MOD 9 * 2 ) MOD 9;
+                    if s9 <= 1 OR s9 = 4 OR s9 = 7 then
+                        if q /= 1 AND q /= 4 AND q /= 6 AND q /= 9 then
+                            Rint h = a - q;
+                            if h <= 1 OR h >= 4 AND h <= 6 then
+                                Rint nrev = rev( n );
+                                if n > nrev then
+                                    Rint s = n + nrev, d = n - nrev;
+                                    if  if   odd_digits
+                                        then d MOD 1089 = 0
+                                        else s MOD  121 = 0
+                                        fi
+                                    then
+                                        if issqr( s ) then
+                                            if issqr( d ) then
+                                                print( ( " ", whole( n, 0 ) ) );
+                                                count +:= 1
+                                            fi
+                                        fi
+                                    fi
+                                fi
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+        fi
+    od
+end
+)

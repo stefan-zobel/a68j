@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Safe primes and unsafe primes", ALGOL 68 solution safe-primes-and-unsafe-primes.alg.
+  https://rosettacode.org/wiki/Safe_primes_and_unsafe_primes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/safe-primes-and-unsafe-primes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find and count safe and unsafe primes                                       }
+{ safe primes are primes p such that ( p - 1 ) / 2 is also prime              }
+{ unsafe primes are primes that are not safe                                  }
+  { set heap memory size for Algol 68G                          }
+{ returns a string representation of n with commas                            }
+proc commatise = ( int n )string:
+     begin
+        string result      := "";
+        string unformatted  = whole( n, 0 );
+        int    ch_count    := 0;
+        for c from UPB unformatted by -1 to LWB unformatted do
+            if   ch_count <= 2 then ch_count +:= 1
+            else                    ch_count  := 1; "," +=: result
+            fi;
+            unformatted[ c ] +=: result
+        od;
+        result
+     end { commatise } ;
+{ sieve values                                                                }
+char prime     = "P"; { unclassified prime                                    }
+char safe      = "S"; { safe prime                                            }
+char unsafe    = "U"; { unsafe prime                                          }
+char composite = "C"; { non-prime                                             }
+{ sieve of Eratosthenes: sets s[i] to prime if i is a prime,                  }
+{                                     composite otherwise                     }
+proc sieve = ( ref[]char s )void:
+     begin
+        { start with everything flagged as prime                              }
+        for i to UPB s do s[ i ] := prime od;
+        { sieve out the non-primes                                            }
+        s[ 1 ] := composite;
+        for i from 2 to ENTIER sqrt( UPB s ) do
+            if s[ i ] = prime then for p from i * i by i to UPB s do s[ p ] := composite od fi
+        od
+     end { sieve } ;
+
+int max_number = 10 000 000;
+{ construct a sieve of primes up to the maximum number                        }
+[ 1 : max_number ]char primes;
+sieve( primes );
+{ classify the primes                                                         }
+{ ( p - 1 ) OVER 2 is non-zero for p >= 3, thus we know 2 is unsafe           }
+primes[ 2 ] := unsafe;
+for p from 3 to UPB primes do
+    if primes[ p ] = prime then
+        primes[ p ] := if primes[ ( p - 1 ) OVER 2 ] = composite then unsafe else safe fi
+    fi
+od;
+{ count the primes of each type                                               }
+int safe1   := 0, safe10   := 0;
+int unsafe1 := 0, unsafe10 := 0;
+for p from LWB primes to UPB primes do
+    if   primes[ p ] = safe  then
+        safe10   +:= 1;
+        if p < 1 000 000 then safe1   +:= 1 fi
+    elif primes[ p ] = unsafe then
+        unsafe10 +:= 1;
+        if p < 1 000 000 then unsafe1 +:= 1 fi
+    fi
+od;
+int safe_count    := 0;
+print( ( "first 35 safe   primes:", newline ) );
+for p while safe_count   < 35 do if primes[ p ] = safe   then print( ( " ", whole( p, 0 ) ) ); safe_count +:= 1 fi od;
+print( ( newline ) );
+print( ( "safe   primes below   1,000,000: ", commatise(    safe1 ), newline ) );
+print( ( "safe   primes below  10,000,000: ", commatise(   safe10 ), newline ) );
+print( ( "first 40 unsafe primes:", newline ) );
+int unsafe_count := 0;
+for p while unsafe_count < 40 do if primes[ p ] = unsafe then print( ( " ", whole( p, 0 ) ) ); unsafe_count +:= 1 fi od;
+print( ( newline ) );
+print( ( "unsafe primes below   1,000,000: ", commatise(  unsafe1 ), newline ) );
+print( ( "unsafe primes below  10,000,000: ", commatise( unsafe10 ), newline ) )
+)

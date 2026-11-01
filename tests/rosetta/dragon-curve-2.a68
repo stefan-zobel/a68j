@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dragon curve", ALGOL 68 solution dragon-curve-2.alg.
+  https://rosettacode.org/wiki/Dragon_curve#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dragon-curve-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+{
+  REQUIRES :
+    MODE EXCEPTOBJ = UNION(VOID, MODEA, MODEB, MODEC ...);
+    OP FIRMSTR = (EXCEPTOBJ obj)STRING: ~
+END }
+
+mode Exceptobjs = [0]EXCEPTOBJ;
+
+op STR = (Exceptobjs obj)string: (
+  string out_ := "(", fs := "";
+  for this from LWB obj to UPB obj do out_ +:= fs+FIRMSTR obj[this]; fs:=", " od;
+  out_ +")"
+);
+
+mode Exceptmend = proc(Exceptobjs {obj},string {msg})bool;
+
+proc super_mend = (Exceptobjs obj,string sub_exception, msg)bool:
+  ( put(stand_error, ("exception/",sub_exception,": ", msg," - ", STR obj, new_line)); break; true);
+
+proc super_break_mend = (Exceptobjs obj,string sub_exception, msg)bool: ( super_mend(obj, sub_exception, msg); break; true);
+proc super_stop_mend = (Exceptobjs obj,string sub_exception, msg)bool: ( super_mend(obj, sub_exception, msg); stop; false);
+proc super_ignore_mend = (Exceptobjs obj,string sub_exception, msg)bool: ( {super mend(obj, sub exception, msg);} true);
+
+Exceptmend on_undefined_mend := super_break_mend(,"undefined",);
+proc on_undefined = (Exceptmend undefined_mend)void: on_undefined_mend := undefined_mend;
+proc raise_undefined = (Exceptobjs obj, string msg)void: if NOT on_undefined_mend(obj, msg) then stop fi;
+
+Exceptmend on_value_error_mend := super_break_mend(,"value error",);
+proc on_value_error = (Exceptmend value_error_mend)void: on_value_error_mend := value_error_mend;
+proc raise_value_error = (Exceptobjs obj, string msg)void: if NOT on_value_error_mend(obj, msg) then stop fi;
+
+Exceptmend on_bounds_error_mend := super_break_mend(,"bounds error",);
+proc on_bounds_error = (Exceptmend bounds_error_mend)void: on_bounds_error_mend := bounds_error_mend;
+proc raise_bounds_error = (Exceptobjs obj, string msg)void: if NOT on_bounds_error_mend(obj, msg) then stop fi;
+
+Exceptmend on_tagged_union_error_mend := super_break_mend(,"tagged union error",);
+proc on_tagged_union_error = (Exceptmend tagged_union_error_mend)void: on_tagged_union_error_mend := tagged_union_error_mend;
+proc raise_tagged_union_error = (Exceptobjs obj, string msg)void: if NOT on_tagged_union_error_mend(obj, msg) then stop fi;
+
+Exceptmend on_untested_mend := super_break_mend(,"untested",);
+proc on_untested = (Exceptmend untested_mend)void: on_untested_mend := untested_mend;
+proc raise_untested = (Exceptobjs obj, string msg)void: if NOT on_untested_mend(obj, msg) then stop fi;
+
+Exceptmend on_unimplemented_mend := super_break_mend(,"unimplemented",);
+proc on_unimplemented = (Exceptmend unimplemented_mend)void: on_unimplemented_mend := unimplemented_mend;
+proc raise_unimplemented = (Exceptobjs obj, string msg)void: if NOT on_unimplemented_mend(obj, msg) then stop fi;
+
+skip
+)

@@ -1,0 +1,123 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polynomial regression", ALGOL 68 solution polynomial-regression.alg.
+  https://rosettacode.org/wiki/Polynomial_regression#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-regression.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Field = real;
+
+mode
+  Vec = [0]Field,
+  Mat = [0,0]Field;
+
+proc void raise_index_error := void: (
+  print(("stop", new_line));
+  stop
+);
+
+{ from http://rosettacode.org/wiki/Matrix_Transpose#ALGOL_68 END }
+op ZIP = ([,]Field in_)[,]Field:(
+  [2 LWB in_:2 UPB in_,1 LWB in_:1 UPB in_]Field out_;
+  for i from LWB in_ to UPB in_ do
+     out_[,i]:=in_[i,]
+  od;
+  out_
+);
+
+{ from http://rosettacode.org/wiki/Matrix_multiplication#ALGOL_68 END }
+op * = (Vec a,b)Field: ( { basically the dot product }
+    Field result:=0;
+    if LWB a/=LWB b OR UPB a/=UPB b then raise_index_error fi;
+    for i from LWB a to UPB a do result+:= a[i]*b[i] od;
+    result
+  );
+
+op * = (Vec a, Mat b)Vec: ( { overload vector times matrix }
+    [2 LWB b:2 UPB b]Field result;
+    if LWB a/=LWB b OR UPB a/=UPB b then raise_index_error fi;
+    for j from 2 LWB b to 2 UPB b do result[j]:=a*b[,j] od;
+    result
+  );
+
+op * = (Mat a, b)Mat: ( { overload matrix times matrix }
+     [LWB a:UPB a, 2 LWB b:2 UPB b]Field result;
+     if 2 LWB a/=LWB b OR 2 UPB a/=UPB b then raise_index_error fi;
+     for k from LWB result to UPB result do result[k,]:=a[k,]*b od;
+     result
+   );
+
+{ from http://rosettacode.org/wiki/Pyramid_of_numbers#ALGOL_68 END }
+op / = (Vec a, Mat b)Vec: ( { vector division }
+  [LWB a:UPB a,1]Field transpose_a;
+  transpose_a[,1]:=a;
+  (transpose_a/b)[,1]
+);
+
+op / = (Mat a, Mat b)Mat:( { matrix division }
+  [LWB b:UPB b]int p ;
+  int sign;
+  [,]Field lu = lu_decomp(b, p, sign);
+  [LWB a:UPB a, 2 LWB a:2 UPB a]Field out_;
+  for col from 2 LWB a to 2 UPB a do
+    out_[,col] := lu_solve(b, lu, p, a[,col]) [@LWB out_[,col] ]
+  od;
+  out_
+);
+
+FORMAT int_repr = $g(0)$,
+       real_repr = $g(-7,4)$;
+
+proc fit =  (Vec x, y, int order)Vec:
+begin
+   [0:order, LWB x:UPB x]Field a;  { the plane }
+   for i from 2 LWB a to 2 UPB a  do
+      for j from LWB a to UPB a do
+         a [j, i] := x [i]**j
+      od
+   od;
+   ( y * ZIP a ) / ( a * ZIP a )
+end { fit };
+
+proc print_polynomial = (Vec x)void: (
+   bool empty_ := true;
+   for i from UPB x by -1 to LWB x do
+     if x[i] NE 0 then
+       if x[i] > 0 AND NOT empty_ then print ("+") fi;
+       empty_ := false;
+       if x[i] NE 1 OR i=0 then
+         if ENTIER x[i] = x[i] then
+           printf((int_repr, x[i]))
+         else
+           printf((real_repr, x[i]))
+         fi
+       fi;
+       case i+1 in
+         skip,print(("x"))
+       out
+         printf(($"x**"g(0)$,i))
+       esac
+     fi
+   od;
+   if empty_ then print("0") fi;
+   print(new_line)
+);
+
+fitting: begin
+   Vec c =
+          fit
+          (  (0.0, 1.0,  2.0,  3.0,  4.0,  5.0,   6.0,   7.0,   8.0,   9.0,  10.0),
+             (1.0, 6.0, 17.0, 34.0, 57.0, 86.0, 121.0, 162.0, 209.0, 262.0, 321.0),
+             2
+          );
+   print_polynomial(c);
+   Vec d =
+          fit
+          ( (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            (2.7, 2.8, 31.4, 38.1, 58.0, 76.2, 100.5, 130.0, 149.3, 180.0),
+            2
+          );
+   print_polynomial(d)
+end { fitting }
+)

@@ -1,0 +1,36 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Look-and-say sequence", ALGOL 68 solution look-and-say-sequence.alg.
+  https://rosettacode.org/wiki/Look-and-say_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/look-and-say-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op + = (string s)string:
+begin
+   char item = s[LWB s];
+   string out_;
+   for index from LWB s + 1 to UPB s do
+      if item /= s [index] then
+         out_ := whole(index - LWB s, 0) + item + (+(s [index:UPB s]));
+         go to return_out
+      fi
+   od;
+   out_ := whole (UPB s, 0) + item;
+   return_out: out_
+end  { + };
+
+op + = (char s)string:
+  + string(s);
+
+print ((+"1", new_line));
+print ((+(+"1"), new_line));
+print ((+(+(+"1")), new_line));
+print ((+(+(+(+"1"))), new_line));
+print ((+(+(+(+(+"1")))), new_line));
+print ((+(+(+(+(+(+"1"))))), new_line));
+print ((+(+(+(+(+(+(+"1")))))), new_line));
+print ((+(+(+(+(+(+(+(+"1"))))))), new_line));
+print ((+(+(+(+(+(+(+(+(+"1")))))))), new_line));
+print ((+(+(+(+(+(+(+(+(+(+"1"))))))))), new_line))
+)

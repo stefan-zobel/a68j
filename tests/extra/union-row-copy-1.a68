@@ -1,0 +1,21 @@
+{ A row value united and assigned to a name is copied, so a later change
+  of the original row does not change the united value. }
+begin mode U = union (void, string, [] int);
+      [5] char buf := "abcde";
+      [3] int nums := (1, 2, 3);
+      U u, v, w;
+      u := buf[2:3];
+      v := nums;
+      buf[2] := "X"; nums[1] := 9;
+      case u in (string s): puts (s + "'n") esac;
+      case v in ([] int r): puts (whole (r[1], 0) + "'n") esac;
+      struct (U x, int y) st := (buf[1:2], 0);
+      buf[1] := "Y";
+      case x of st in (string s): puts (s + "'n") esac;
+      [2] U us := (buf[4:5], nums);
+      buf[4] := "Z"; nums[2] := 8;
+      case us[1] in (string s): puts (s + "'n") esac;
+      case us[2] in ([] int r): puts (whole (r[2], 0) + "'n") esac;
+      w := u; buf[3] := "Q";
+      case w in (string s): puts (s + "'n") esac
+end

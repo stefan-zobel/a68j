@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Levenshtein distance", ALGOL 68 solution levenshtein-distance.alg.
+  https://rosettacode.org/wiki/Levenshtein_distance#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/levenshtein-distance.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Calculate Levenshtein distance between strings - translated from the Action! sample }
+begin
+
+  proc levenshtein_distance = (string str1, str2)int:
+  begin
+
+    int m=UPB str1;
+    int n=UPB str2;
+
+    (0:m,0:n)int matrix;
+
+    for i from 0 to m do for j from 0 to n do matrix(i,j):=0 od od;
+    for i to m do matrix(i,1):=i od;
+    for j to n do matrix(1,j):=j od;
+
+    for j from 1 to n do
+      for i from 1 to m do
+        if str1(i) = str2(j) then
+          matrix(i,j):=matrix(i-1, j-1) { no operation required }
+        else
+          int min := matrix(i-1,j)+1    ; { deletion            }
+          int k    = matrix(i,j-1)+1    ; { insertion           }
+          int l    = matrix(i-1, j-1)+1 ; { substitution        }
+          if k < min then min:=k fi;
+          if l < min then min:=l fi;
+          matrix(i,j):=min
+        fi
+      od
+    od;
+    matrix(m,n)
+  end;
+
+  string word_1, word_2;
+
+  word_1 :="kitten"; word_2 := "sitting";
+  print((word_1," -> ",word_2,": "));
+  print(("Levenshtein Distance: ",whole(levenshtein_distance(word_1,word_2),0),newline));
+
+  word_1 := "rosettacode"; word_2 := "raisethysword";
+  print((word_1," -> ",word_2,": "));
+  print(("Levenshtein Distance: ",whole(levenshtein_distance(word_1,word_2),0),newline));
+
+  word_1 := "qwerty"; word_2 := "qweryt";
+  print((word_1," -> ",word_2,": "));
+  print(("Levenshtein Distance: ",whole(levenshtein_distance(word_1,word_2),0),newline));
+
+  word_1 := "Action!"; word_2 := "Algol 68";
+  print((word_1," -> ",word_2,": "));
+  print(("Levenshtein Distance: ",whole(levenshtein_distance(word_1,word_2),0),newline))
+end
+)

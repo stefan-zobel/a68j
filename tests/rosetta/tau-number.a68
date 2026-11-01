@@ -1,0 +1,48 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Tau number", ALGOL 68 solution tau-number.alg.
+  https://rosettacode.org/wiki/Tau_number#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/tau-number.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find tau numbers - numbers divisible by the count of their divisors  }
+    { calculates the number of divisors of v                                 }
+    proc divisor_count = ( int v )int:
+         begin
+            int total := 1, n := v;
+            { Deal with powers of 2 first }
+            while NOT ODD n do
+                total +:= 1;
+                n  OVERAB 2
+            od;
+            { Odd prime factors up to the square root }
+            int p := 1;
+            while  p +:= 2;
+                   ( p * p ) <= n
+            do
+                int count := 1;
+                while n MOD p = 0 do
+                    count +:= 1;
+                    n  OVERAB p
+                od;
+                total *:= count
+            od;
+            { If n > 1 then it's prime }
+            if n > 1 then total *:= 2 fi;
+            total
+         end { divisor count };
+    begin
+        int tau_limit  = 100;
+        int tau_count := 0;
+        print( ( "The first ", whole( tau_limit, 0 ), " tau numbers:", newline ) );
+        for n while tau_count < tau_limit do
+            if n MOD divisor_count( n ) = 0 then
+                tau_count +:= 1;
+                print( ( whole( n, -6 ) ) );
+                if tau_count MOD 10 = 0 then print( ( newline ) ) fi
+            fi
+        od
+    end
+end
+)

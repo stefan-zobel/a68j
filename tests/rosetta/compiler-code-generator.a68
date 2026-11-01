@@ -1,0 +1,309 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Compiler/code generator", ALGOL 68 solution compiler-code-generator.alg.
+  https://rosettacode.org/wiki/Compiler/code_generator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/compiler-code-generator.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ RC Compiler code generator }
+{
+    this writes a .NET IL assembler source to standard output.
+    If the output is stored in a file called "rcsample.il",
+    it could be compiled the command:
+        ilasm /opt /out:rcsample.exe rcsample.il
+    (Note ilasm may not be in the PATH by default(
+
+    Note: The generated IL is *very* naiive
+}
+
+{ parse tree nodes }
+mode Node = struct( int type, ref Node left, right, int value );
+int nidentifier =  1, nstring       =  2, ninteger  =  3, nsequence  =  4, nif =  5, nprtc =  6, nprts  =  7
+  , nprti       =  8, nwhile        =  9, nassign   = 10, nnot       = 12
+  , nlessequal  = 19, ngreaterequal = 21, nnotequal = 23
+    { unused nnegate = 11, , nmultiply = 13, ndivide = 14, nmod = 15, nadd = 16, nsubtract = 17 }
+    { unused nless   = 18, , ngreater  = 20, nequal  = 22, nand = 24, nor  = 25 }
+  ;
+{ op codes }
+int ofetch   =  1, ostore =  2, opush =  3, oadd =  4,  osub =  5, omul  =  6, odiv  =  7, omod =  8
+  , olt      =  9, ogt    = 10, oeq   = 13, oand  = 15, oor  = 16, oneg  = 17, ojmp  = 19, ojz  = 20
+  , opushstr = 24
+    { unused: oge = 12, one = 14, onot = 18, oprtc = 21, oprts = 22, oprti = 23, }
+  ;
+[]int    ndop
+= ( -1   , -1             , -1            , -1             , -1             , -1            , -1
+  , -1   , -1             , -1            , oneg           , -1             , omul          , odiv
+  , omod , oadd           , osub          , olt            , -1             , ogt
+  , -1   , oeq            , -1            , oand           , oor
+  ) ;
+[]string ndname
+= ( "Identifier"  , "String", "Integer"     , "Sequence", "If"       , "Prtc"    , "Prts"
+  , "Prti"        , "While" , "Assign"      , "Negate"  , "Not"      , "Multiply", "Divide"
+  , "Mod"         , "Add"   , "Subtract"    , "Less"    , "LessEqual", "Greater"
+  , "GreaterEqual", "Equal" , "NotEqual"    , "And"     , "Or"
+  ) ;
+[]string opname
+= ( "ldloc  ",  "stloc  ",   "ldc.i4 ",  "add    ",  "sub    ", "mul    ",  "div    ",  "rem    "
+  , "clt    ",  "cgt    ",   "?le    ",  "?ge    ",  "ceq    ", "?ne    ",  "and    ",  "or     "
+  , "neg    ",  "?not   ",   "br     ",  "brfalse",  "?prtc  ", "?prts  ",  "?prti  ",  "ldstr  "
+  ) ;
+{ string and identifier arrays - a hash table might be better... }
+int max_string_number = 1024;
+[ 0 : max_string_number ]string identifiers, strings;
+for s_pos from 0 to max_string_number do
+    identifiers[ s_pos ] := "";
+    strings    [ s_pos ] := ""
+od;
+{ label number for label generation }
+int next_label_number := 0;
+{ returns the next free label number }
+proc new_label = int: next_label_number +:= 1;
+
+{ returns a new node with left and right branches }
+proc op_node      = ( int op_type, ref Node left, right )ref Node:
+     heap Node := Node( op_type, left, right, 0 );
+{ returns a new operand node }
+proc operand_node = ( int op_type, value )ref Node: heap Node := Node( op_type, nil, nil, value );
+
+{ reports an error and stops }
+proc gen_error = ( string message )void:
+     begin
+        print( ( message, newline ) );
+        stop
+     end { gen error } ;
+
+{ reads a node from standard input }
+proc read_node = ref Node:
+     begin
+        ref Node result := nil;
+
+        { parses a string from line and stores it in a string in the text array }
+        { - if it is not already present in the specified textElement list.     }
+        { returns the position of the string in the text array                  }
+        proc read_text = ( ref[]string text_list, char terminator )int:
+             begin
+                { get the text of the string }
+                string str := line[ l_pos ];
+                l_pos +:= 1;
+                while if l_pos <= UPB line then line[ l_pos ] /= terminator else false fi do
+                    str   +:= line[ l_pos ];
+                    l_pos +:= 1
+                od;
+                if l_pos > UPB line then gen_error( "Unterminated String in node file: (" + line + ")." ) fi;
+                { attempt to find the text in the list of strings/identifiers }
+                bool found    := false;
+                int  text_loc := LWB text_list - 1;
+                for t_pos from LWB text_list to UPB text_list while NOT found do
+                    if found := text_list[ t_pos ] = str then
+                        { found the string }
+                        text_loc := t_pos
+                    elif text_list[ t_pos ] = "" then
+                        { have an empty slot for ther string }
+                        found := true;
+                        text_list[ t_pos ] := str;
+                        text_loc := t_pos
+                    fi
+                od;
+                if NOT found then gen_error( "Out of string space." ) fi;
+                text_loc
+             end { read text } ;
+        { gets an integer from the line - no checks for valid digits }
+        proc read_integer = int:
+             begin
+                 int n := 0;
+                 while line[ l_pos ] /= " " do
+                     ( n *:= 10 ) +:= ( ABS line[ l_pos ] - ABS "0" );
+                     l_pos +:= 1
+                 od;
+                 n
+             end { read integer } ;
+
+        string line, name;
+        int    l_pos := 1, nd_type := -1;
+        read( ( line, newline ) );
+        line +:= " ";
+        { get the node type name }
+        while line[ l_pos ] = " " do l_pos +:= 1 od;
+        name := "";
+        while if l_pos > UPB line then false else line[ l_pos ] /= " " fi do
+            name +:= line[ l_pos ];
+            l_pos +:= 1
+        od;
+        { determine the node type }
+        nd_type := LWB nd_name;
+        if name /= ";" then
+            { not a null node }
+            while if   nd_type <= UPB nd_name
+                  then name /= nd_name[ nd_type ]
+                  else false
+                  fi
+            do nd_type +:= 1 od;
+            if nd_type > UPB nd_name then gen_error( "Malformed node: (" + line + ")." ) fi;
+            { handle the additional parameter for identifier/string/integer, or sub-nodes }
+            { for operator nodes }
+            if nd_type = ninteger OR nd_type = nidentifier OR nd_type = nstring then
+                while line[ l_pos ] = " " do l_pos +:= 1 od;
+                if     nd_type = ninteger
+                then   result := operand_node( nd_type, read_integer )
+                elif   nd_type = nidentifier
+                then   result := operand_node( nd_type, read_text( identifiers, " "  ) )
+                else { nd type = nString     }
+                       result := operand_node( nd_type, read_text( strings,     """" ) )
+                fi
+            else
+                { operator node }
+                ref Node left_node = read_node;
+                result := op_node( nd_type, left_node, read_node )
+            fi
+        fi;
+        result
+     end { read node } ;
+
+{ returns a formatted op code for code generation }
+proc operation = ( int op_code )string: "            " + op_name[ op_code ] + "  ";
+{ defines the specified label }
+proc define_label = ( int label_number )void: print( ( "lbl_", whole( label_number, 0 ), ":", newline ) );
+{ generates code to load a string value }
+proc gen_load_string   = ( int value )void:
+     begin
+        print( ( operation( opushstr ), "  ", strings[ value ], """", newline ) )
+     end { push string } ;
+{ generates code to load a constant value }
+proc gen_load_constant = ( int value )void:
+     print( ( operation( opush ), "  ", whole( value, 0 ), newline ) );
+{ generates an operation acting on an address }
+proc gen_data_op = ( int op_, address )void:
+     print( ( operation( op_ ), "  l_", identifiers[ address ], newline ) );
+{ generates a nullary operation }
+proc gen_op_0    = ( int op_ )void:          print( ( operation( op_ ), newline ) );
+{ generates a "not" instruction sequence }
+proc gen_not = void:
+     begin
+        gen_load_constant( 0 );
+        print( ( operation( oeq ), newline ) )
+     end { gen not } ;
+{ generates a negated condition }
+proc gen_not_op = ( int op_, ref Node n )void:
+     begin
+        gen(  left of n );
+        gen( right of n );
+        gen_op_0( op_ );
+        gen_not
+     end { gen not op } ;
+{ generates a jump operation }
+proc gen_jump = ( int op_, label )void: print( ( operation( op_ ), "  lbl_", whole( label, 0 ), newline ) );
+{ generates code to output something to System.Console.Out }
+proc gen_output = ( ref Node n, string output_type )void:
+     begin
+        print( ( "            call       " ) );
+        print( ( "class [mscorlib]System.IO.TextWriter [mscorlib]System.Console::get_Out()", newline ) );
+        gen( left of n );
+        print( ( "            callvirt   " ) );
+        print( ( "instance void [mscorlib]System.IO.TextWriter::Write(", output_type, ")", newline ) )
+     end { gen output } ;
+
+{ generates the code header - assembly info, namespace, class and start of the Main method }
+proc code_header = void:
+     begin
+        print( ( ".assembly extern mscorlib { auto }",                                  newline ) );
+        print( ( ".assembly RccSample {}",                                              newline ) );
+        print( ( ".module RccSample.exe",                                               newline ) );
+        print( ( ".namespace Rcc.Sample",                                               newline ) );
+        print( ( "{",                                                                   newline ) );
+        print( ( "    .class public auto ansi Program extends [mscorlib]System.Object", newline ) );
+        print( ( "    {",                                                               newline ) );
+        print( ( "        .method public static void Main() cil managed",               newline ) );
+        print( ( "        {",                                                           newline ) );
+        print( ( "           .entrypoint",                                              newline ) );
+        { output the local variables }
+        bool   have_locals  := false;
+        string local_prefix := "           .locals init (int32 l_";
+        for s_pos from LWB identifiers to UPB identifiers while identifiers[ s_pos ] /= "" do
+            print( ( local_prefix, identifiers[ s_pos ], newline ) );
+            local_prefix := "                        ,int32 l_";
+            have_locals  := true
+        od;
+        if have_locals then
+            { there were some local variables defined - output the terminator }
+            print( ( "                        )", newline ) )
+        fi
+     end { code header } ;
+
+{ generates code for the node n }
+proc gen = ( ref Node n )void:
+     if n is ref Node( nil )        then { null node       }
+        skip
+     elif type of n = nidentifier   then { load identifier }
+        gen_data_op( ofetch, value of n )
+     elif type of n = nstring       then { load string     }
+        gen_load_string( value of n )
+     elif type of n = ninteger      then { load integer    }
+        gen_load_constant( value of n )
+     elif type of n = nsequence     then { list            }
+        gen(  left of n );
+        gen( right of n )
+     elif type of n = nif           then { if-else         }
+        int else_label := new_label;
+        gen( left of n );
+        gen_jump( ojz, else_label );
+        gen( left of right of n );
+        if right of right of n is ref Node( nil ) then
+            { no "else" part }
+            define_label( else_label )
+        else
+            { have an "else" part }
+            int end_if_label := new_label;
+            gen_jump( ojmp, end_if_label );
+            define_label( else_label );
+            gen( right of right of n );
+            define_label( end_if_label )
+        fi
+     elif type of n = nwhile        then { while-loop      }
+        int loop_label := new_label;
+        int exit_label := new_label;
+        define_label( loop_label );
+        gen(  left of n );
+        gen_jump( ojz,  exit_label );
+        gen( right of n );
+        gen_jump( ojmp, loop_label );
+        define_label( exit_label )
+     elif type of n = nassign       then { assignment      }
+        gen( right of n );
+        gen_data_op( ostore, value of left of n )
+     elif type of n = nnot          then { bolean not      }
+        gen( left of n );
+        gen_not
+     elif type of n = ngreaterequal then { compare >=      }
+        gen_not_op( olt, n )
+     elif type of n = nnotequal     then { compare not =   }
+        gen_not_op( oeq, n )
+     elif type of n = nlessequal    then { compare <=      }
+        gen_not_op( ogt, n )
+     elif type of n = nprts         then { print string    }
+        gen_output( n, "string" )
+     elif type of n = nprtc         then { print character }
+        gen_output( n, "char" )
+     elif type of n = nprti         then { print integer   }
+        gen_output( n, "int32" )
+     else                                { everything else }
+        gen(  left of n );
+        gen( right of n ); { right will be null for a unary op so no code will be generated }
+        print( ( operation( ndop( type of n ) ), newline ) )
+     fi { gen } ;
+
+{ generates the code trailer - return instruction, end of Main method, end of class and end of namespace }
+proc code_trailer = void:
+     begin
+        print( ( "            ret",           newline ) );
+        print( ( "        } // Main method",  newline ) );
+        print( ( "    } // Program class",    newline ) );
+        print( ( "} // Rcc.Sample namespace", newline ) )
+     end { code trailer } ;
+
+{ parse the output from the syntax analyser and generate code from the parse tree }
+ref Node code = read_node;
+code_header;
+gen( code );
+code_trailer
+)

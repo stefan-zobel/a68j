@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "N-queens problem", ALGOL 68 solution n-queens-problem.alg.
+  https://rosettacode.org/wiki/N-queens_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/n-queens-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ N-queens problem }
+int ofs = 1, { Algol68 normally uses array offset of 1 }
+    dim = 8; { dim X dim chess board }
+[ofs:dim+ofs-1]int b;
+
+proc unsafe = (int y)bool:(
+  int x = b[y];
+  bool safe := true;
+  for i to y - LWB b while safe do
+    int t = b[y - i];
+    if t = x then safe := false
+    elif t = x - i then safe := false
+    elif t = x + i then safe := false
+    fi
+  od;
+  NOT safe
+);
+
+int s := 0;
+
+proc print_board = void:(
+  print((new_line, "Solution # ", s+:=1, new_line));
+  for y from LWB b to UPB b do
+    for x from LWB b to UPB b do
+      print("|"+(b[y]=x|"Q"|: ODD(x+y)|"/"|" "))
+    od;
+    print(("|", new_line))
+  od
+);
+
+{ main } (
+  int y := LWB b;
+  b[LWB b] := LWB b - 1;
+  while y >= LWB b do
+    while if (b[y]+:=1) <= UPB b then unsafe(y) else false fi do skip od;
+    if b[y] <= UPB b then
+      if y < UPB b then
+        b[y+:=1] := LWB b - 1
+      else
+        print_board
+      fi
+    else
+      y-:=1
+    fi
+  od
+)
+)

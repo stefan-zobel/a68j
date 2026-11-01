@@ -1,0 +1,1 @@
+begin int a := min_int, b := -1; puts ("before'n"); int c = a % b; puts (whole (c, 0)); puts ("'n"); int d = a %* b; puts (whole (d, 0)); puts ("'n") end

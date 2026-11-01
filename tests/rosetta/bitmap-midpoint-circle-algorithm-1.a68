@@ -1,0 +1,46 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bitmap/Midpoint circle algorithm", ALGOL 68 solution bitmap-midpoint-circle-algorithm-1.alg.
+  https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bitmap-midpoint-circle-algorithm-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+circle of class_image :=
+          (  ref IMAGE picture,
+             POINT center,
+             int radius,
+             PIXEL color
+          )void:
+begin
+   int f     := 1 - radius,
+   POINT ddf := (0, -2 * radius),
+         df := (0, radius);
+   picture [x of center, y of center + radius] :=
+   picture [x of center, y of center - radius] :=
+   picture [x of center + radius, y of center] :=
+   picture [x of center - radius, y of center] := color;
+   while x of df < y of df do
+      if f >= 0 then
+         y of df -:= 1;
+         y of ddf +:= 2;
+         f +:= y of ddf
+      fi;
+      x of df +:= 1;
+      x of ddf +:= 2;
+      f +:= x of ddf + 1;
+      picture [x of center + x of df, y of center + y of df] :=
+      picture [x of center - x of df, y of center + y of df] :=
+      picture [x of center + x of df, y of center - y of df] :=
+      picture [x of center - x of df, y of center - y of df] :=
+      picture [x of center + y of df, y of center + x of df] :=
+      picture [x of center - y of df, y of center + x of df] :=
+      picture [x of center + y of df, y of center - x of df] :=
+      picture [x of center - y of df, y of center - x of df] := color
+   od
+end { circle };
+
+skip
+)

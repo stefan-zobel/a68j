@@ -1,0 +1,48 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pell's equation", ALGOL 68 solution pells-equation.alg.
+  https://rosettacode.org/wiki/Pell's_equation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pells-equation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { find solutions to Pell's eqauation: x^2 - ny^2 = 1 for integer x, y, n }
+    mode Bigint     = long long int;
+    mode Bigpair    = struct( Bigint v1, v2 );
+    proc solve_pell = ( int n )Bigpair:
+         if int x = ENTIER( sqrt( n ) );
+            x * x = n
+         then
+            { n is a erfect square - no solution otheg than 1,0              }
+            Bigpair( 1, 0 )
+         else
+            { there are non-trivial solutions                                }
+            int     y := x;
+            int     z := 1;
+            int     r := 2*x;
+            Bigpair e := Bigpair( 1, 0 );
+            Bigpair f := Bigpair( 0, 1 );
+            Bigint  a := 0;
+            Bigint  b := 0;
+            while
+                y := (r*z - y);
+                z := ENTIER ((n - y*y) / z);
+                r := ENTIER ((x + y) / z);
+                e := Bigpair( v2 of e, r * v2 of e + v1 of e );
+                f := Bigpair( v2 of f, r * v2 of f + v1 of f );
+                a := (v2 of e + x*v2 of f);
+                b := v2 of f;
+                a*a - n*b*b /= 1
+            do skip od;
+            Bigpair( a, b )
+         fi { solve pell } ;
+    { task test cases                                                        }
+    []int nv = (61, 109, 181, 277);
+    for i from LWB nv to UPB nv do
+        int  n = nv[ i ];
+        Bigpair r = solve_pell(n);
+        print( ("x^2 - ", whole( n, -3 ), " * y^2 = 1 for x = ", whole( v1 of r, -21), " and y = ", whole( v2 of r, -21 ), newline ) )
+    od
+end
+)

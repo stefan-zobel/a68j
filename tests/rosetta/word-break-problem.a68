@@ -1,0 +1,84 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Word break problem", ALGOL 68 solution word-break-problem.alg.
+  https://rosettacode.org/wiki/Word_break_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/word-break-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ utility functions: }
+
+proc includes = ([]string row, string s) bool:
+  { whether row includes s }
+  begin
+    for i to UPB row do if s = row[i] then true_ fi od;
+    false exit
+    true_: true
+  end;
+
+prio & = 6;
+op & = (string s, []string row) []string:
+  { returns row with s prepended to it }
+  begin
+    [UPB row + 1]string result;
+    result[2 : UPB result] := row;
+    result[1] := s;
+    result
+  end;
+
+proc add = (ref flex[]flex[]string rows, []string row) void:
+  { adds row to the end of rows (in place) }
+  begin
+    [UPB rows+1]flex[0]string tmp;
+    tmp[:UPB rows] := rows;
+    tmp[UPB tmp] := row;
+    rows := tmp
+  end;
+
+{ actual solution: }
+
+proc word_breaks = ([]string dict, string word_) [][]string:
+  { build recursively the list of breaks for a word, using the given dictionary }
+  begin
+    flex[0]flex[0]string result;
+    for last to UPB word_ - 1 do
+      string part1 := word_[1 : last];
+      if includes(dict, part1) then
+        string part2 := word_[last + 1 : ];
+        if includes(dict, part2) then add(result, (part1, part2)) fi;
+        [][]string sub_results = word_breaks(dict, part2);
+        for i from LWB sub_results to UPB sub_results do
+          add(result, part1 & sub_results[i])
+        od
+      fi
+    od;
+    result
+  end;
+
+proc break_word = ([]string dict, string word_) void:
+  { find the ways to break a word and display the result }
+  begin
+    print((word_, ":", newline));
+    [][]string word_seqs = word_breaks(dict, word_);
+    if UPB word_seqs = 0 then
+      print(("    <no break possible>", newline))
+    else
+      for i from LWB word_seqs to UPB word_seqs do
+        []string seq = word_seqs[i];
+        print("   ");
+        for j from LWB seq to UPB seq do
+          print((" ", seq[j]))
+        od;
+        print(newline)
+      od
+    fi
+  end;
+
+[]string dict = ("a", "bc", "abc", "cd", "b");
+
+[]string words = ("abcd", "abbc", "abcbcd", "acdbc", "abcdd");
+
+for i to UPB words do
+  break_word(dict, words[i])
+od
+)

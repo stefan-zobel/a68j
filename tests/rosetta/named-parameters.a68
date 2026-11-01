@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Named parameters", ALGOL 68 solution named-parameters.alg.
+  https://rosettacode.org/wiki/Named_parameters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/named-parameters.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  mode Optname = struct(string name),
+       Optspecies = struct(string species),
+       Optbreed = struct(string breed),
+       Owner=struct(string first_name, middle_name, last_name);
+
+  { Version 2 of Algol 68G would not allow empty options to be specified as () so     }
+  { VOID would need to be included in the MODEs for options and Empty option lists    }
+  { would need to be written as (EMPTY)                                               }
+  mode Options = flex[1:0]union(Optname,Optspecies,Optbreed,Owner); { add ,VOID for Algol 68G version 2 }
+
+  { due to the Yoneda ambiguity simple arguments must have an unique operator defined }
+  { E.g. a string cannot be coerced to a structure with a single string field         }
+  op NAME = (string name)Optname: (Optname opt; name of opt := name; opt),
+     SPECIES = (string species)Optspecies: (Optspecies opt; species of opt := species; opt),
+     BREED = (string breed)Optbreed: (Optbreed opt; breed of opt := breed; opt);
+
+  proc print_pet = (Options option)void: (
+    string name:="Rex", species:="Dinosaur", breed:="Tyrannosaurus"; { Defaults }
+    Owner owner := ("George","W.","Bush");
+    for i to UPB option do
+      case option[i] in
+        (Optname option): name := name of option,
+        (Optspecies option): species := species of option,
+        (Optbreed option): breed := breed of option,
+        (Owner option): owner := option
+      esac
+    od;
+    print(("Details: "
+          ,if char c = breed[LWB breed]; char_in_string( c, nil, "AaEeIiOoUu" ) then "an " else "a " fi
+          ,breed, " ", species, " named ",name," owned by ",owner, newline))
+  );
+
+  print_pet((NAME "Mike", SPECIES "Dog", BREED "Irish Setter", Owner("Harry", "S.", "Truman")));
+  print_pet(())     { use print pet((EMPTY)) for Algol 68G version 2 }
+end
+)

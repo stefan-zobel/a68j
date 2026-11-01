@@ -1,0 +1,37 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dragon curve", ALGOL 68 solution dragon-curve-1.alg.
+  https://rosettacode.org/wiki/Dragon_curve#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dragon-curve-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+struct (real x, y, heading, bool pen_down) turtle;
+
+proc turtle_init = void: (
+  draw_erase (window);
+  turtle := (0.5, 0.5, 0, true);
+  draw_move (window, x of turtle, y of turtle);
+  draw_colour_name(window, "white")
+);
+
+proc turtle_left = (real left_turn)void:
+  heading of turtle +:= left_turn;
+
+proc turtle_right = (real right_turn)void:
+  heading of turtle -:= right_turn;
+
+proc turtle_forward = (real distance)void:(
+  x of turtle +:= distance * cos(heading of turtle) / width * height;
+  y of turtle +:= distance * sin(heading of turtle);
+  if pen_down of turtle then
+    draw_line
+  else
+    draw_move
+  fi (window, x of turtle, y of turtle)
+);
+
+skip
+)

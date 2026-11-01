@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Perfect numbers", ALGOL 68 solution perfect-numbers.alg.
+  https://rosettacode.org/wiki/Perfect_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/perfect-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc is_perfect = (int candidate)bool: (
+  int sum :=1;
+  for f1 from 2 to ENTIER ( sqrt(candidate)*(1+2*small_real) ) while
+    if candidate MOD f1 = 0 then
+      sum +:= f1;
+      int f2 = candidate OVER f1;
+      if f2 > f1 then
+        sum +:= f2
+      fi
+    fi;
+{ WHILE } sum <= candidate do
+    skip
+  od;
+  sum=candidate
+);
+
+test:(
+  for i from 2 to 33550336 do
+    if is_perfect(i) then print((i, new_line)) fi
+  od
+)
+)

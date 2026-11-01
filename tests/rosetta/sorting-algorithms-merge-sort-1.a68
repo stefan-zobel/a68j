@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Merge sort", ALGOL 68 solution sorting-algorithms-merge-sort-1.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Merge_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-merge-sort-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Data = char;
+
+proc merge_sort = ([]Data m)[]Data: (
+    if LWB m >= UPB m then
+        m
+    else
+        int middle = ( UPB m + LWB m ) OVER 2;
+        []Data left = merge_sort(m[:middle]);
+        []Data right = merge_sort(m[middle+1:]);
+        flex_merge(left, right)[at LWB m]
+    fi
+);
+
+{ FLEX version: A demonstration of FLEX for manipulating arrays }
+proc flex_merge = ([]Data in_left, in_right)[]Data:(
+    [UPB in_left + UPB in_right]Data result;
+    flex[0]Data left := in_left;
+    flex[0]Data right := in_right;
+
+    for index to UPB result do
+        { change the direction of this comparison to change the direction of the sort }
+        if LWB right > UPB right then
+            result[index:] := left;
+            stop_iteration
+        elif LWB left > UPB left then
+            result[index:] := right;
+            stop_iteration
+        elif left[1] <= right[1] then
+            result[index] := left[1];
+            left := left[2:]
+        else
+            result[index] := right[1];
+            right := right[2:]
+        fi
+    od;
+stop_iteration:
+    result
+);
+
+[32]char char_array_data := "big fjords vex quick waltz nymph";
+print((merge_sort(char_array_data), new_line));
+)

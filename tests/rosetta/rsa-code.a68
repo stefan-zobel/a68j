@@ -1,0 +1,82 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "RSA code", ALGOL 68 solution rsa-code.alg.
+  https://rosettacode.org/wiki/RSA_code#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rsa-code.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{
+   First cut.  Doesn't yet do blocking and deblocking.  Also, as
+   encryption and decryption are identical operations but for the
+   reciprocal exponents used, only one has been implemented below.
+
+   A later release will address these issues.
+}
+
+begin
+    
+   mode Lli = long long int;    { For brevity }
+   proc mod_power = (Lli base, exponent, modulus) Lli :
+   begin
+      Lli result := 1, b := base, e := exponent;
+      if exponent < 0
+      then
+	 put (stand_error, (("Negative exponent", exponent, newline)))
+      else
+	 while e > 0
+	 do
+	    (ODD e | result := (result * b) MOD modulus);
+	    e OVERAB 2; b := (b * b) MOD modulus
+	 od
+      fi;
+      result
+   end;
+   proc modular_inverse = (Lli a, m) Lli :
+   begin
+      proc extended_gcd = (Lli x, y) []Lli :
+      begin
+	 Lli v := 1, a := 1, u := 0, b := 0, g := x, w := y;
+	 while w>0
+	 do
+	    Lli q := g % w, t := a - q * u;
+	    a := u; u := t;
+	    t := b - q * v;
+	    b := v; v := t;
+	    t := g - q * w;
+	    g := w; w := t
+	 od;
+	 a PLUSAB (a < 0 | u | 0);
+	 (a, b, g)
+      end;
+      [] Lli egcd = extended_gcd (a, m);
+      (egcd[3] > 1 | 0 | egcd[1] MOD m)
+   end;
+   proc number_to_string = (Lli number) string :
+   begin
+      [] char map = (blank + "ABCDEFGHIJKLMNOPQRSTUVWXYZ")[@0];
+      Lli local_number := number;
+      int length := SHORTEN SHORTEN ENTIER long_long_log(number) + 1;
+      (ODD length | length PLUSAB 1);
+      [length % 2] char text;
+      for i from length % 2 by -1 to 1
+      do
+	 int index = SHORTEN SHORTEN (local_number MOD 100);
+	 text[i] := (index > 26 | "?" | map[index]);
+	 local_number := local_number % 100
+      od;
+      text
+   end;
+{ The parameters of a particular RSA cryptosystem }
+   Lli p = 3490529510847650949147849619903898133417764638493387843990820577;
+   Lli q = 32769132993266709549961988190834461413177642967992942539798288533;
+   Lli n = p * q;
+   Lli phi_n = (p-1) * (q-1);
+   Lli e = 9007;
+   Lli d = modular_inverse (e, phi_n);
+{ A ciphertext }
+   Lli cipher_text = 96869613754622061477140922254355882905759991124574319874695120930816298225145708356931476622883989628013391990551829945157815154;
+{ Print out the corresponding plain text }
+   print (number_to_string (mod_power (ciphertext, d, n)))
+end
+)

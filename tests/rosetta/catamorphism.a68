@@ -1,0 +1,29 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Catamorphism", ALGOL 68 solution catamorphism.alg.
+  https://rosettacode.org/wiki/Catamorphism#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/catamorphism.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ applies fn to successive elements of the array of values }
+{ the result is 0 if there are no values                   }
+proc reduce = ( []int values, proc( int, int )int fn )int:
+     if UPB values < LWB values
+     then { no elements }
+          0
+     else { there are some elements }
+          int result := values[ LWB values ];
+          for pos from LWB values + 1 to UPB values
+          do
+              result := fn( result, values[ pos ] )
+          od;
+          result
+     fi; { reduce }
+
+{ test the reduce procedure }
+begin print( ( reduce( ( 1, 2, 3, 4, 5 ), ( int a, b )int: a + b ), newline ) ) { sum }
+    ; print( ( reduce( ( 1, 2, 3, 4, 5 ), ( int a, b )int: a * b ), newline ) ) { product }
+    ; print( ( reduce( ( 1, 2, 3, 4, 5 ), ( int a, b )int: a - b ), newline ) ) { difference }
+end
+)

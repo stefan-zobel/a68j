@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Enumerations", ALGOL 68 solution enumerations-1.alg.
+  https://rosettacode.org/wiki/Enumerations#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/enumerations-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { example 1 }
+  mode Fruit = int;
+  Fruit apple = 1, banana = 2, cherry = 4;
+  Fruit x := cherry;
+  case x in
+    print(("It is an apple #",x, new_line)),
+    print(("It is a banana #",x, new_line)),
+    skip, { 3 not defined }
+    print(("It is a cherry #",x, new_line))
+  out
+    skip { other values }
+  esac
+end;
+)

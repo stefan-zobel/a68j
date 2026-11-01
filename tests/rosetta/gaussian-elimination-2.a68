@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gaussian elimination", ALGOL 68 solution gaussian-elimination-2.alg.
+  https://rosettacode.org/wiki/Gaussian_elimination#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gaussian-elimination-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ PRELUDE REQUIRES
+  MODE SCAL = REAL;
+  FORMAT scal repr = real repr
+  # and various SCAL OPerators #
+END }
+
+{ PRELUDE PROIVIDES
+  MODE VEC, MAT;
+  OP :=:, -:=, +:=, *:=, /:=;
+  FORMAT sub, sep, bus;
+  FORMAT vec repr, mat repr
+END }
+
+{ Note: ℵ indicates attribute is "private", and
+        should not be used outside of this prelude }
+
+int {ℵ}lwb_vec := 1, {ℵ}upb_vec := 0;
+int {ℵ}lwb_mat := 1, {ℵ}upb_mat := 0;
+mode Vec = [lwb_vec:upb_vec]SCAL,
+     Mat = [lwb_mat:upb_mat,lwb_vec:upb_vec]SCAL;
+
+FORMAT sub := $"( "$, sep := $", "$, bus := $")"$, nl:=$lxx$;
+FORMAT vec_repr := $f(sub)n(upb vec - lwb vec)(f(scal repr)f(sep))f(scal repr)f(bus)$;
+FORMAT mat_repr := $f(sub)n(upb mat - lwb mat)(f( vec repr)f(nl))f( vec repr)f(bus)$;
+
+{ OPerators to swap the contents of two VECtors }
+prio =:= = 1;
+op =:= = (ref Vec u, v)void:
+  for i to UPB u do SCAL scal=u[i]; u[i]:=v[i]; v[i]:=scal od;
+
+op +:= = (ref Vec lhs, Vec rhs)ref Vec: (
+  for i to UPB lhs do lhs[i] +:= rhs[i] od;
+  lhs
+);
+
+op -:= = (ref Vec lhs, Vec rhs)ref Vec: (
+  for i to UPB lhs do lhs[i] -:= rhs[i] od;
+  lhs
+);
+
+op *:= = (ref Vec lhs, SCAL rhs)ref Vec: (
+  for i to UPB lhs do lhs[i] *:= rhs od;
+  lhs
+);
+
+op /:= = (ref Vec lhs, SCAL rhs)ref Vec: (
+  SCAL inv = 1 / rhs; { multiplication is faster }
+  for i to UPB lhs do lhs[i] *:= inv od;
+  lhs
+);
+
+skip
+)

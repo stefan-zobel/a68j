@@ -1,0 +1,164 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Associative array/Iteration", ALGOL 68 solution associative-array-iteration.alg.
+  https://rosettacode.org/wiki/Associative_array/Iteration#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/associative-array-iteration.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ associative array handling using hashing                                   }
+
+{ the modes allowed as associative array element values - change to suit     }
+mode Aavalue = string;
+{ the modes allowed as associative array element keys - change to suit       }
+mode Aakey   = string;
+{ nil element value                                                          }
+ref Aavalue nil_value = nil;
+
+{ an element of an associative array                                         }
+mode Aaelement = struct( Aakey key, ref Aavalue value );
+{ a list of associative array elements - the element values with a           }
+{ particular hash value are stored in an AAELEMENTLIST                       }
+mode Aaelementlist = struct( Aaelement element, ref Aaelementlist next );
+{ nil element list reference                                                 }
+ref Aaelementlist nil_element_list = nil;
+{ nil element reference                                                      }
+ref Aaelement     nil_element      = nil;
+
+{ the hash modulus for the associative arrays                                }
+int hash_modulus = 256;
+
+{ generates a hash value from an AAKEY - change to suit                      }
+op HASH = ( string key )int:
+begin
+    int result := ABS ( UPB key - LWB key ) MOD hash_modulus;
+    for char_pos from LWB key to UPB key do
+        result PLUSAB ( ABS key[ char_pos ] - ABS " " );
+        result MODAB  hash_modulus
+    od;
+    result
+end; { HASH }
+
+{ a mode representing an associative array                                    }
+mode Aarray = struct( [ 0 : hash_modulus - 1 ]ref Aaelementlist elements
+                    , int                                       curr_hash
+                    , ref Aaelementlist                         curr_position
+                    );
+
+{ initialises an associative array so all the hash chains are empty           }
+op   INIT = ( ref Aarray array )ref Aarray:
+     begin
+         for hash_value from 0 to hash_modulus - 1 do ( elements of array )[ hash_value ] := nil_element_list od;
+         array
+     end; { INIT }
+
+{ gets a reference to the value corresponding to a particular key in an      }
+{ associative array - the element is created if it doesn't exist             }
+prio // = 1;
+op   // = ( ref Aarray array, Aakey key )ref Aavalue:
+begin
+    ref Aavalue result;
+    int         hash_value = HASH key;
+    { get the hash chain for the key }
+    ref Aaelementlist element := ( elements of array )[ hash_value ];
+    { find the element in the list, if it is there }
+    bool found_element := false;
+    while ( element isnt nil_element_list )
+      AND NOT found_element
+    do
+        found_element := ( key of element of element = key );
+        if found_element
+        then
+            result  := value of element of element
+        else
+            element := next of element
+        fi
+    od;
+    if NOT found_element
+    then
+        { the element is not in the list }
+        { - add it to the front of the hash chain }
+        ( elements of array )[ hash_value ]
+                            := heap Aaelementlist
+                            := ( heap Aaelement := ( key
+                                                   , heap Aavalue := ""
+                                                   )
+                               , ( elements of array )[ hash_value ]
+                               );
+        result := value of element of ( elements of array )[ hash_value ]
+    fi;
+    result
+end; { // }
+
+{ returns TRUE if array contains key, FALSE otherwise                        }
+prio CONTAINSKEY = 1;
+op   CONTAINSKEY = ( ref Aarray array, Aakey key )bool:
+begin
+    { get the hash chain for the key }
+    ref Aaelementlist element := ( elements of array )[ HASH key ];
+    { find the element in the list, if it is there }
+    bool found_element := false;
+    while ( element isnt nil_element_list )
+      AND NOT found_element
+    do
+        found_element := ( key of element of element = key );
+        if NOT found_element
+        then
+            element := next of element
+        fi
+    od;
+    found_element
+end; { CONTAINSKEY }
+
+{ gets the first element (key, value) from the array                         }
+op FIRST = ( ref Aarray array )ref Aaelement:
+begin
+    curr_hash     of array := LWB ( elements of array ) - 1;
+    curr_position of array := nil_element_list;
+    NEXT array
+end; { FIRST }
+
+{ gets the next element (key, value) from the array                          }
+op NEXT  = ( ref Aarray array )ref Aaelement:
+begin
+    while ( curr_position of array is nil_element_list )
+      AND   curr_hash     of array < UPB ( elements of array )
+    do
+        { reached the end of the current element list - try the next         }
+        curr_hash     of array +:= 1;
+        curr_position of array  := ( elements of array )[ curr_hash of array ]
+    od;
+    if   curr_hash of array > UPB ( elements of array )
+    then
+        { no more elements }
+        nil_element
+    elif curr_position of array is nil_element_list
+    then
+        { reached the end of the table }
+        nil_element
+    else
+        { have another element }
+        ref Aaelementlist found_element = curr_position of array;
+        curr_position of array := next of curr_position of array;
+        element of found_element
+    fi
+end; { NEXT }
+
+{ test the associative array }
+begin
+    { create an array and add some values  }
+    ref Aarray a1 := INIT loc Aarray;
+    a1 // "k1" := "k1 value";
+    a1 // "z2" := "z2 value";
+    a1 // "k1" := "new k1 value";
+    a1 // "k2" := "k2 value";
+    a1 // "2j" := "2j value";
+    { iterate over the values }
+    ref Aaelement e := FIRST a1;
+    while e isnt nil_element
+    do
+        print( ( "  (" + key of e + ")[" + value of e + "]", newline ) );
+        e := NEXT a1
+    od
+end
+)

@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dot product", ALGOL 68 solution dot-product.alg.
+  https://rosettacode.org/wiki/Dot_product#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dot-product.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Dotfield = real;
+mode Dotvec = [1:0]Dotfield;
+
+{ The "Spread Sheet" way of doing a dot product:
+  o Assume bounds are equal, and start at 1
+  o Ignore round off error
+}
+prio SSDOT = 7;
+op SSDOT = (Dotvec a,b)Dotfield: (
+  Dotfield sum := 0;
+  for i to UPB a do sum +:= a[i]*b[i] od;
+  sum
+);
+
+{ An improved dot-product version:
+  o Handles sparse vectors
+  o Improves summation by gathering round off error
+    with no additional multiplication - or LONG - operations.
+}
+op * = (Dotvec a,b)Dotfield: (
+  Dotfield sum := 0, round_off_error:= 0;
+  for i
+{ Assume bounds may not be equal, empty members are zero (sparse) }
+    from LWB (LWB a > LWB b | a | b )
+    to UPB (UPB a < UPB b | a | b )
+  do
+    Dotfield org = sum, prod = a[i]*b[i];
+    sum +:= prod;
+    round_off_error +:= sum - org - prod
+  od;
+  sum - round_off_error
+);
+
+{ Test: }
+Dotvec a=(1,3,-5), b=(4,-2,-1);
+
+print(("a SSDOT b = ",fixed(a SSDOT b,0,real_width), new_line));
+print(("a   *   b = ",fixed(a   *   b,0,real_width), new_line))
+)

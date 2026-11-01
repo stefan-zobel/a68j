@@ -1,0 +1,17 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Even or odd", ALGOL 68 solution even-or-odd.alg.
+  https://rosettacode.org/wiki/Even_or_odd#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/even-or-odd.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Algol 68 has a standard operator: ODD which returns TRUE if its integer  }
+{ operand is odd and FALSE if it is even                                   }
+{ E.g.:                                                                    }
+
+int n;
+print( ( "Enter an integer: " ) );
+read( ( n ) );
+print( ( whole( n, 0 ), " is ", if ODD n then "odd" else "even" fi, newline ) )
+)

@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Trigonometric functions", ALGOL 68 solution trigonometric-functions.alg.
+  https://rosettacode.org/wiki/Trigonometric_functions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/trigonometric-functions.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  real pi = 4 * arc_tan(1);
+  { Pi / 4 is 45 degrees. All answers should be the same. }
+  real radians = pi / 4;
+  real degrees = 45.0;
+  real temp;
+  { sine }
+  print((sin(radians), " ", sin(degrees * pi / 180), new_line));
+  { cosine }
+  print((cos(radians), " ", cos(degrees * pi / 180), new_line));
+  { tangent }
+  print((tan(radians), " ", tan(degrees * pi / 180), new_line));
+  { arcsine }
+  temp := arc_sin(sin(radians));
+  print((temp, " ", temp * 180 / pi, new_line));
+  { arccosine }
+  temp := arc_cos(cos(radians));
+  print((temp, " ", temp * 180 / pi, new_line));
+  { arctangent }
+  temp := arc_tan(tan(radians));
+  print((temp, " ", temp * 180 / pi, new_line))
+)
+)

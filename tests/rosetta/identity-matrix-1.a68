@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Identity matrix", ALGOL 68 solution identity-matrix-1.alg.
+  https://rosettacode.org/wiki/Identity_matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/identity-matrix-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+{ Define some generic vector initialisation and printing operations }
+
+{ REQUIRES:
+  MODE SCAL = ~ # a scalar, eg REAL #;
+  FORMAT scal fmt := ~;
+END }
+
+int vec_lwb := 1, vec_upb := 0;
+mode Vecnew = [vec_lwb:vec_upb]SCAL; mode Vec = ref Vecnew;
+FORMAT vec_fmt := $"("n(vec upb-vec lwb)(f(scal fmt)", ")f(scal fmt)")"$;
+
+prio INIT = 1;
+
+op INIT = (Vec self, SCAL scal)Vec: (
+  for col from LWB self to UPB self do self[col]:= scal od;
+  self
+);
+
+{ ZEROINIT: defines the additive identity }
+op ZEROINIT = (Vec self)Vec:
+  self INIT SCAL(0);
+
+op REPR = (Vec self)string: (
+  file f; string s; associate(f,s);
+  vec_lwb := LWB self; vec_upb := UPB self;
+  putf(f, (vec_fmt, self)); close(f);
+  s
+);
+
+skip
+)

@@ -1,0 +1,7 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ A procedure whose mode does not fit the functional interface is a
+  compile-time error: demo.Fns.count takes a Predicate<String>. }
+begin
+   proc (proc (int) bool, [] string) int count = nest Java "demo.Fns.count";
+   skip
+end

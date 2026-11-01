@@ -1,0 +1,127 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numerical integration", ALGOL 68 solution numerical-integration.alg.
+  https://rosettacode.org/wiki/Numerical_integration#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numerical-integration.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode F = proc(long real)long real;
+
+{}{}{}{}{}{}{}{
+}{ left rect }{
+}{}{}{}{}{}{}{}
+
+proc left_rect = (F f, long real a, b, int n) long real:
+begin
+   long real h= (b - a) / n;
+   long real sum:= 0;
+   long real x:= a;
+   while x <= b - h do
+      sum := sum + (h * f(x));
+      x +:= h
+   od;
+   sum
+end { left rect };
+
+{}{}{}{}{}{}{}{}{
+}{ right rect  }{
+}{}{}{}{}{}{}{}{}
+
+proc right_rect = (F f, long real a, b, int n) long real:
+begin
+   long real h= (b - a) / n;
+   long real sum:= 0;
+   long real x:= a + h;
+   while x <= b do
+      sum := sum + (h * f(x));
+      x +:= h
+   od;
+   sum
+end { right rect };
+
+{}{}{}{}{}{}{}{
+}{ mid rect  }{
+}{}{}{}{}{}{}{}
+
+proc mid_rect = (F f, long real a, b, int n) long real:
+begin
+   long real h= (b - a) / n;
+   long real sum:= 0;
+   long real x:= a;
+   while x <= b - h do
+      sum := sum + h * f(x + h / 2);
+      x +:= h
+   od;
+   sum
+end { mid rect };
+
+{}{}{}{}{}{}{}{
+}{ trapezium }{
+}{}{}{}{}{}{}{}
+
+proc trapezium = (F f, long real a, b, int n) long real:
+begin
+   long real h= (b - a) / n;
+   long real sum:= f(a) + f(b);
+   long real x:= 1;
+   while x <= n - 1 do
+      sum := sum + 2 * f(a + x * h );
+      x +:= 1
+   od;
+   (b - a) / (2 * n) * sum
+end { trapezium };
+
+{}{}{}{}{}{}{
+}{ simpson }{
+}{}{}{}{}{}{}
+
+proc simpson = (F f, long real a, b, int n) long real:
+begin
+   long real h= (b - a) / n;
+   long real sum1:= 0;
+   long real sum2:= 0;
+   int limit:= n - 1;
+   for i from 0 to limit do
+      sum1 := sum1 + f(a + h * long real(i) + h / 2)
+   od;
+   for i from 1 to limit do
+      sum2 +:= f(a + h * long real(i))
+   od;
+   h / 6 * (f(a) + f(b) + 4 * sum1 + 2 * sum2)
+end { simpson };
+
+{ test the above procedures }
+proc test_integrators = ( string     legend
+                        , F          function
+                        , long real  lower_limit
+                        , long real  upper_limit
+                        , int        iterations
+                        ) void:
+begin
+    print( ( legend
+           , fixed(  left_rect( function, lower_limit, upper_limit, iterations ), -20, 6 )
+           , fixed( right_rect( function, lower_limit, upper_limit, iterations ), -20, 6 )
+           , fixed(   mid_rect( function, lower_limit, upper_limit, iterations ), -20, 6 )
+           , fixed(  trapezium( function, lower_limit, upper_limit, iterations ), -20, 6 )
+           , fixed(    simpson( function, lower_limit, upper_limit, iterations ), -20, 6 )
+           , newline
+           )
+         )
+end; { test integrators }
+print( ( "   "
+       , "           left rect"
+       , "          right rect"
+       , "            mid rect"
+       , "           trapezium"
+       , "             simpson"
+       , newline
+       )
+     );
+test_integrators( "x^3", ( long real x )long real: x * x * x, 0,     1,       100 );
+test_integrators( "1/x", ( long real x )long real: 1 / x,     1,   100,     1 000 );
+test_integrators( "x  ", ( long real x )long real: x,         0, 5 000, 5 000 000 );
+test_integrators( "x  ", ( long real x )long real: x,         0, 6 000, 6 000 000 );
+
+skip
+)

@@ -1,0 +1,61 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Smallest power of 6 whose decimal expansion contains n", ALGOL 68 solution smallest-power-of-6-whose-decimal-expansion-contains-n.alg.
+  https://rosettacode.org/wiki/Smallest_power_of_6_whose_decimal_expansion_contains_n#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/smallest-power-of-6-whose-decimal-expansion-contains-n.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the smallest k such that the decimal representation of 6^k contains n for 0 <= n <= 21 }
+    { returns s blank-padded on the right to at least len characters }
+    proc right_pad = ( string s, int len )string:
+         begin
+            int s_len = ( UPB s - LWB s ) + 1;
+            if s_len >= len then s else s + ( len - s_len ) * " " fi
+         end { right pad } ;
+    { returns s blank-padded on the left to at least len characters }
+    proc left_pad = ( string s, int len )string:
+         begin
+            int s_len = ( UPB s - LWB s ) + 1;
+            if s_len >= len then s else ( ( len - s_len ) * " " ) + s fi
+         end { left pad } ;
+    { returns a string representation of unformatted with space separators                    }
+    proc space_separate = ( string unformatted )string:
+         begin
+            string result      := "";
+            int    ch_count    := 0;
+            for c from UPB unformatted by -1 to LWB unformatted do
+                if   ch_count <= 2 then ch_count +:= 1
+                else                    ch_count  := 1; " " +=: result
+                fi;
+                unformatted[ c ] +=: result
+            od;
+            result
+         end { space separate } ;
+    { start with powers up to 6^12, if this proves insufficient, the kk array will be extended }
+    flex[ 0 : 12 ]string kk;
+    for k from LWB kk to UPB kk do kk[ k ] := whole( long long int( 6 ) ^ k, 0 ) od;
+    { find the numbers }
+    for i from 0 to 21 do
+        string n      = whole( i, 0 );
+        bool try_again := true;
+        while try_again do
+            try_again := false;
+            bool   found := false;
+            for k from LWB kk to UPB kk while NOT found do
+                if string_in_string( n, nil, kk[ k ] ) then
+                    found := true;
+                    print( ( whole( i, -2 ), right_pad( ": 6^" + whole( k, 0 ), 8 ), " " ) );
+                    print( ( left_pad( space_separate( kk[ k ] ), 30 ), newline ) )
+                fi
+            od;
+            if NOT found then
+                { haven't got enough k^k values - get some more }
+                kk := heap[ 1 : UPB kk * 2 ]string;
+                for k from LWB kk to UPB kk do kk[ k ] := whole( long long int( 6 ) ^ k, 0 ) od;
+                try_again := true
+            fi
+        od
+    od
+end
+)

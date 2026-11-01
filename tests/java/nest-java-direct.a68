@@ -1,0 +1,42 @@
+{ a68j-options: -fnest-java }
+{ Calls of identifiers and operators declared with a Java formal hole go
+  directly to the Java method (no closure, no boxing).  Every conversion of
+  the bridge must give the same result here. }
+begin
+   proc (long real) long int round = nest Java "java.lang.Math.round";
+   proc (long real) void round_voided = nest Java "java.lang.Math.round";
+   proc (string) void parse_voided = nest Java "java.lang.Integer.parseInt";
+   proc (int) long int labs = nest Java "java.lang.Math.abs";
+   proc (char) bool is_digit = nest Java "java.lang.Character.isDigit";
+   proc (real) real sqrt_j = nest Java "java.lang.Math.sqrt";
+   proc (long real, long real) long real pow_j = nest Java "java.lang.Math.pow";
+   proc (int) string str = nest Java "java.lang.String.valueOf";
+   proc ([] int) string ints = nest Java "java.util.Arrays.toString";
+   proc ([] real) string reals = nest Java "java.util.Arrays.toString";
+   proc ([] int, int) [] int copy_of = nest Java "java.util.Arrays.copyOf";
+   proc (int) int bitcount = nest Java "java.lang.Integer.bitCount";
+   proc long int nanos = nest Java "java.lang.System.nanoTime";
+   prio MAXJ = 5;
+   op (int, int) int MAXJ = nest Java "java.lang.Math.max";
+   op (int) int NEGJ = nest Java "java.lang.Math.negateExact";
+
+   round_voided (long 2.5);
+   parse_voided ("12");
+   puts (whole (round (long 2.5), 0) + " " + whole (labs (-7) + long 1, 0) + "'n");
+   puts ((is_digit ("7") | "digit" | "no") + " " + (is_digit ("x") | "digit" | "no") + "'n");
+   puts (fixed (sqrt_j (2.0), 0, 5) + " " + fixed (pow_j (long 2.0, long 10.0), 0, 1) + "'n");
+   puts (str (42) + str (-1) + " " + ints ((3, 1, 4)) + " " + reals ((1.5, 2.25)) + "'n");
+   [] int c = copy_of ((1, 2, 3), 5);
+   puts (whole (LWB c, 0) + ":" + whole (UPB c, 0) + " " + ints (c) + "'n");
+   puts (whole (3 MAXJ 9, 0) + " " + whole (NEGJ 5, 0) + " " + whole (NEGJ 2 MAXJ 1, 0) + "'n");
+   puts ((nanos > long 0 | "time ok" | "no time") + "'n");
+   { As a value the hole is still a procedure. }
+   proc (proc (int) int, int) int apply = (proc (int) int f, int x) int: f (x);
+   puts (whole (apply (bitcount, 255), 0) + "'n");
+   { Inside a routine, and with arguments that have side effects in order. }
+   int k := 0;
+   proc next = int: k +:= 1;
+   proc (int, int) int sub = (int a, b) int: a - b;
+   proc (int, int) int max2 = nest Java "java.lang.Math.max";
+   puts (whole (max2 (next, next), 0) + " " + whole (sub (next, next), 0) + "'n")
+end

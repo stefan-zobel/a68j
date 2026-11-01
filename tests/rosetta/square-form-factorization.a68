@@ -1,0 +1,109 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Square form factorization", ALGOL 68 solution square-form-factorization.alg.
+  https://rosettacode.org/wiki/Square_form_factorization#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/square-form-factorization.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Daniel Shanks's Square Form Factorization (SquFoF) - based on the Wren sample }
+
+    mode Integer = long int;                                  { large enough INT type }
+    proc(long real)long real size_sqrt = long_sqrt;         { sqrt for INTEGER values }
+
+    []Integer multipliers = ( 1, 3, 5, 7, 11, 3 * 5, 3 * 7, 3 * 11
+                            , 5 * 7, 5 * 11, 7 * 11, 3 * 5 * 7, 3 * 5 * 11
+                            , 3 * 7 * 11, 5 * 7 * 11, 3 * 5 * 7 * 11
+                            );
+    proc gcd = ( Integer x, y )Integer:                               { iterative gcd }
+         begin
+            Integer a := x, b := y;
+            while b /= 0 do
+               Integer next_a = b;
+               b := a MOD b;
+               a := next_a
+            od;
+            ABS a
+         end { gcd } ;
+
+    proc squfof = ( Integer n )Integer:
+         if  Integer s = ENTIER ( size_sqrt( n ) + 0.5 );
+             s * s = n
+         then s
+         else Integer result := 0;
+              for multiplier from LWB multipliers to UPB multipliers while result = 0 do
+                  Integer d       = n * multipliers[ multiplier ];
+                  Integer pp     := ENTIER size_sqrt( d );
+                  Integer p_prev := pp;
+                  Integer po      = p_prev;
+                  Integer q_prev := 1;
+                  Integer qq     := d - ( po * po );
+                  Integer l       = ENTIER size_sqrt( s * 8 );
+                  Integer bb      = 3 * l;
+                  Integer i      := 2;
+                  Integer b      := 0;
+                  Integer q      := 0;
+                  Integer r      := 0;
+                  bool    again  := true;
+                  while i < bb AND again do
+                      b  := ( po + pp ) OVER qq;
+                      pp := ( b * qq ) - pp;
+                      q  := qq;
+                      qq := q_prev + ( b * ( p_prev - pp ) );
+                      r  := ENTIER ( size_sqrt( qq ) + 0.5 );
+                      if i MOD 2 = 0 then again := r * r /= qq fi;
+                      if again then
+                          q_prev := q;
+                          p_prev := pp;
+                          i     +:= 1
+                      fi
+                  od;
+                  if i < bb then
+                      b      := ( po - pp ) OVER r;
+                      p_prev := pp := ( b * r ) + pp;
+                      q_prev := r;
+                      qq     := ( d - ( p_prev * p_prev ) ) OVER q_prev;
+                      i      := 0;
+                      while
+                          b      := ( po + pp ) OVER qq;
+                          p_prev := pp;
+                          pp     := ( b * qq ) - pp;
+                          q      := qq;
+                          qq     := q_prev + ( b * ( p_prev - pp ) );
+                          q_prev := q;
+                          i     +:= 1;
+                          pp /= p_prev
+                      do skip od
+                  fi;
+                  r := gcd( n, q_prev );
+                  if r /= 1 AND r /=n then result := r fi
+              od;
+              result
+         fi { squfof } ;
+
+    []Integer examples = (                2501,               12851
+                         ,               13289,               75301
+                         ,              120787,              967009
+                         ,              997417,             7091569
+                         ,            13290059,            42854447
+                         ,           223553581,          2027651281
+                         ,         11111111111,        100895598169
+                         ,       1002742628021,      60012462237239
+                         ,     287129523414791,    9007199254740931
+                         ,   11111111111111111,  314159265358979323
+                         ,  384307168202281507,  419244183493398773
+                         ,  658812288346769681,  922337203685477563
+                         , 1000000000000000127, 1152921505680588799
+                         , 1537228672809128917, 4611686018427387877
+                     );
+
+    print( ( "Integer                  Factor Quotient",   newline ) );
+    print( ( "----------------------------------------", newline ) );
+    for example from LWB examples to UPB examples do
+        Integer n    = examples[ example ];
+        Integer fctr = squfof( n );
+        string  quot = if fctr = 0 then "fail" else whole( n OVER fctr, 0 ) fi;
+        print( ( whole( n, -20 ), " ", whole( fctr, -10 ), " ", quot, newline ) )
+    od
+end
+)

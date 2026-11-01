@@ -1,0 +1,140 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Abbreviations, simple", ALGOL 68 solution abbreviations-simple.alg.
+  https://rosettacode.org/wiki/Abbreviations,_simple#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abbreviations-simple.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ "Simple" abbreviations                                               }
+
+{ returns the next word from text, updating pos                        }
+prio NEXTWORD = 1;
+op   NEXTWORD = ( ref int pos, string text )string:
+     begin
+        { skip spaces }
+        while if pos > UPB text then false else text[ pos ] = " " fi do pos +:= 1 od;
+        { get the word }
+        string word_ := "";
+        while if pos > UPB text then false else text[ pos ] /= " " fi do
+            word_ +:= text[ pos ];
+            pos +:= 1
+        od;
+        word_
+     end { NEXTWORD } ;
+{ returns text converted to upper case                                 }
+op   TOUPPER  = ( string text )string:
+     begin
+        string result := text;
+        for ch_pos from LWB result to UPB result do
+            if is_lower( result[ ch_pos ] ) then result[ ch_pos ] := to_upper( result[ ch_pos ] ) fi
+        od;
+        result
+     end { TOUPPER } ;
+{ returns text converted to an INT or -1 if text is not a number         }
+op   TOINT    = ( string text )int:
+     begin
+        int  result     := 0;
+        bool is_numeric := true;
+        for ch_pos from UPB text by -1 to LWB text while is_numeric do
+            char c = text[ ch_pos ];
+            is_numeric := ( c >= "0" AND c <= "9" );
+            if is_numeric then ( result *:= 10 ) +:= ABS c - ABS "0" fi
+        od;
+        if is_numeric then result else -1 fi
+     end { TOINT } ;
+{ returns the length of word                                             }
+op LENGTH = ( string word_ )int: 1 + ( UPB word_ - LWB word_ );
+{ counts the number of commands in commands                              }
+proc count_commands = ( string commands )int:
+     begin
+        int    result         := 0;
+        int    pos            := LWB commands;
+        while  string command := pos NEXTWORD commands; command /= "" do
+            if TOINT command < 0 then
+                { not an abbreviation length                             }
+                result +:= 1
+            fi
+        od;
+        result
+     end { count commands } ;
+
+{ build a table of the commands and their minimum lengths                }
+{ list of "commands" -  the words are optionally followed by the minimum }
+{                       length of abbreviation - if there isn't a number }
+{                       the command can only appear in full              }
+string command_list
+   = "add 1  alter 3  backup 2  bottom 1  Cappend 2  change 1  Schange  Cinsert 2  Clast 3 "
+   + "compress 4 copy 2 count 3 Coverlay 3 cursor 3  delete 3 Cdelete 2  down 1  duplicate "
+   + "3 xEdit 1 expand 3 extract 3  find 1 Nfind 2 Nfindup 6 NfUP 3 Cfind 2 findUP 3 fUP 2 "
+   + "forward 2  get  help 1 hexType 4  input 1 powerInput 3  join 1 split 2 spltJOIN load "
+   + "locate 1 Clocate 2 lowerCase 3 upperCase 3 Lprefix 2  macro  merge 2 modify 3 move 2 "
+   + "msg  next 1 overlay 1 parse preserve 4 purge 3 put putD query 1 quit  read recover 3 "
+   + "refresh renum 3 repeat 3 replace 1 Creplace 2 reset 3 restore 4 rgtLEFT right 2 left "
+   + "2  save  set  shift 2  si  sort  sos  stack 3 status 4 top  transfer 3  type 1  up 1 "
+   ;
+proc load_commands = ( string commands )void:
+     begin
+        int    cmd_pos        := 0;
+        int    pos            := LWB command_table;
+        while  string command := pos NEXTWORD commands; command /= "" do
+            int len := TOINT command;
+            if len >= 0 then
+                { have an abbreviation length                            }
+                if cmd_pos > 0 then min_abbreviation[ cmd_pos ] := len fi
+            else
+                { new command                                            }
+                cmd_pos +:= 1;
+                command_table[    cmd_pos ] := TOUPPER command;
+                min_abbreviation[ cmd_pos ] := LENGTH  command
+            fi
+        od
+     end { load commands } ;
+
+{ searches for word in command table and returns the full command      }
+{ matching the possible abbreviation or *error* if there is no match   }
+op   EXPAND  = ( string word_ )string:
+     if word_ = ""
+     then { empty word }
+        ""
+     else { non-empty word }
+        int    word_len    = LENGTH word_;
+        string upper_word := TOUPPER word_;
+        string result     := "*error*";
+        for cmd_pos from LWB command_table to UPB command_table
+        while  string command := command_table[ cmd_pos ];
+               if word_len < min_abbreviation[ cmd_pos ] OR word_len > LENGTH command
+               then { word is too short or too long - try the next command }
+                   true
+               elif upper_word = command[ LWB command : ( LWB command - 1 ) + word_len ]
+               then { found the command }
+                   result := command;
+                   false
+               else { word doexn't match - try the next command }
+                   true
+               fi
+        do skip od;
+        result
+     fi { EXPAND } ;
+
+{ tests the EXPAND operator                                            }
+proc test_expand = ( string words )void:
+     begin
+        string results := "", separator := "";
+        int    pos   := LWB words;
+        while string word_ = pos NEXTWORD words; word_ /= "" do
+            results +:= separator + EXPAND word_;
+            separator := " "
+        od;
+        print( ( "Input:  ", words, newline ) );
+        print( ( "Output: ", results, newline ) )
+     end { test expand } ;
+
+{ build the command table                                              }
+[ 1 : count_commands( command_list ) ]string command_table;
+[ 1 : UPB command_table              ]int    min_abbreviation;
+load_commands( commandlist );
+
+{ task test cases                                                      }
+test_expand( "riG   rePEAT copies  put mo   rest    types   fup.    6       poweRin" )
+)

@@ -1,0 +1,16 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Queue/Definition", ALGOL 68 solution queue-definition-2.alg.
+  https://rosettacode.org/wiki/Queue/Definition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/queue-definition-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+  mode Objlink = struct(
+    ref Objlink next,
+    ref Objlink prev,
+    OBJVALUE value { ... etc. required }
+  );
+  proc obj_link_new = ref Objlink: heap Objlink;
+  proc obj_link_free = (ref Objlink free)void: skip
+)

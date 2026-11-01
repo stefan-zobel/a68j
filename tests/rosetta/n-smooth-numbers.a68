@@ -1,0 +1,87 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "N-smooth numbers", ALGOL 68 solution n-smooth-numbers.alg.
+  https://rosettacode.org/wiki/N-smooth_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/n-smooth-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some n-smooth numbers - numbers with no prime factors above n    }
+
+    { primes needed for the task                                              }
+    []int prime = ( 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 );
+
+    { mode that can hold the largest required n-smooth number - we assume     }
+    { LONG LONG INT with the default precision will be sufficient             }
+    mode Sint = long long int;
+
+    { returns the minimum value in an array of smooth numbers                 }
+    op   MIN = ( []Sint a )Sint:
+         if UPB a < LWB a then 0
+         else
+            Sint result := a[ LWB a ];
+            for i from LWB a + 1 to UPB a do if result > a[ i ] then result := a[ i ] fi od;
+            result
+         fi { MIN } ;
+
+    { returns the first count n-smooth numbers                                }
+    prio SMOOTH = 9;
+    op   SMOOTH = ( int n, int count )[]Sint:
+         if n > prime[ UPB prime ] then
+            print( ( "Can''t find ", whole( n, 0 ), "-smooth numbers", newline ) );
+            stop
+         else
+            { find n in the list of primes                                    }
+            int p_pos := 0;
+            for pos from LWB prime to UPB prime while p_pos = 0 do
+                if prime[ pos ] = n then p_pos := pos fi
+            od;
+            if p_pos = 0 then
+                print( ( "There are no """, whole( n, 0 ), "-smooth"" numbers", newline ) );
+                stop
+            else
+                { n is a prime we can handle                                   }
+                [ 1 : p_pos ]Sint p;    for i to UPB p do p[ i ] := prime[ i ] od;
+                [ 1 : p_pos ]int  last; for i to UPB last do last[ i ] := 1 od;
+                [ 1 : count ]Sint seq;
+                { 1 is the first n-smooth number for any n: 2^0 * 3^0 * ...    }
+                if count > 0 then
+                    { the caller does want some numbers...                     }
+                    seq[ 1 ]    := 1;
+                    for s_pos from 2 to count do
+                        { the next number is the lowest of the next multiples  }
+                        {  of 2, 3, 5, ...                                     }
+                        Sint m = MIN p;
+                        seq[ s_pos ] := m;
+                        for i to UPB p do
+                            if m = p[ i ] then p[ i ] := prime[ i ] * seq[ last[ i ] +:= 1 ] fi
+                        od
+                    od
+                fi;
+                seq
+            fi
+         fi { SMOOTH } ;
+
+    { show the n-smooth numbers in positions f pos to t pos                    }
+    {      with n starting at the p posth prime                                }
+    proc show_smooth = ( int p_pos, f_pos, t_pos )void:
+         for n_pos from p_pos to UPB prime do
+            int n = prime[ n_pos ];
+            []Sint n_smooth = n SMOOTH t_pos;
+            print( ( "    ", whole( n, 0 ), "-smooth numbers are: ", newline, "       " ) );
+            for i from f_pos to t_pos do
+                print( ( " ", whole( n_smooth[ i ], 0 ) ) )
+            od;
+            print( ( newline ) )
+         od { show smooth } ;
+
+
+    print( ( "The first", newline ) );
+    show_smooth( 1, 1, 25 );
+    print( ( newline ) );
+
+    print( ( "The 3000th, 3001st and 3002nd", newline ) );
+    show_smooth( 2, 3000, 3002 )
+
+end
+)

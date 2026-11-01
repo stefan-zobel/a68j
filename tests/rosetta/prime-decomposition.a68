@@ -1,0 +1,112 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Prime decomposition", ALGOL 68 solution prime-decomposition.alg.
+  https://rosettacode.org/wiki/Prime_decomposition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/prime-decomposition.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{IF long int possible THEN }
+
+mode Lint = long int;
+Lint lmax_int = long_max_int;
+op LLENG = (int i)Lint: LENG i,
+   LSHORTEN = (Lint i)int: SHORTEN i;
+
+{ELSE
+
+MODE LINT = INT;
+LINT lmax int = max int;
+OP LLENG = (INT i)LINT: i,
+   LSHORTEN = (LINT i)INT: i;
+
+FI}
+
+op LLONG = (int i)Lint: LLENG i;
+
+mode Yieldlint = proc(Lint)void;
+
+proc (Lint, Yieldlint)void gen_decompose;
+
+int upb_cache = bits_width;
+
+bits cache := 2r0;
+bits cached := 2r0;
+
+proc is_prime = (Lint n)bool: (
+    bool
+        has_factor := false,
+        out_ := true;
+  { FOR LINT factor IN } gen_decompose(n, { ) DO ( }
+  {}   (Lint factor)void:(
+      if has_factor then out_ := false; go to done fi;
+      has_factor := true
+  { OD } ));
+    done: out_
+);
+
+proc is_prime_cached := (Lint n)bool: (
+    Lint l_half_n = n OVER LLONG 2 - LLONG 1;
+    if l_half_n <= LLENG upb_cache then
+        int half_n = LSHORTEN l_half_n;
+        if half_n ELEM cached then
+            bool(half_n ELEM cache)
+        else
+            bool out_ = is_prime(n);
+            bits mask = 2r1 SHL (upb_cache - half_n);
+            cached := cached OR mask;
+            if out_ then cache := cache OR mask fi;
+            out_
+        fi
+    else
+        is_prime(n) { above useful cache limit }
+    fi
+);
+
+
+proc gen_primes := (Yieldlint yield)void:(
+    yield(LLONG 2);
+    Lint n := LLONG 3;
+    while n < l_maxint - LLONG 2 do
+        yield(n);
+        n +:= LLONG 2;
+        while n < l_maxint - LLONG 2 AND NOT is_prime_cached(n) do
+            n +:= LLONG 2
+        od
+    od
+);
+
+{ PROC } gen_decompose := (Lint in_n, Yieldlint yield)void: (
+    Lint n := in_n;
+  { FOR LINT p IN } gen_primes( { ) DO ( }
+  {}   (Lint p)void:
+        if p*p > n then
+            go to done
+        else
+            while n MOD p = LLONG 0 do
+                yield(p);
+                n := n OVER p
+            od
+        fi
+  { OD }  );
+    done:
+    if n > LLONG 1 then
+        yield(n)
+    fi
+);
+
+main:(
+{ FOR LINT m IN } gen_primes( { ) DO ( }
+{}   (Lint m)void:(
+      Lint p = LLONG 2 ** LSHORTEN m - LLONG 1;
+      print(("2**",whole(m,0),"-1 = ",whole(p,0),", with factors:"));
+    { FOR LINT factor IN } gen_decompose(p, { ) DO ( }
+    {}   (Lint factor)void:
+          print((" ",whole(factor,0)))
+    { OD } );
+      print(new_line);
+      if m >= LLONG 59 then go to done fi
+{ OD }  ));
+  done: empty
+)
+)

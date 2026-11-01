@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Selection sort", ALGOL 68 solution sorting-algorithms-selection-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Selection_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-selection-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Data = ref char;
+
+proc in_place_selection_sort = (ref[]Data a)void:
+begin
+   int min;
+   Data temp;
+   for i from LWB a to UPB a do
+      min := i;
+      for j from i + 1 to UPB a do
+         if a [min] > a [j] then
+            min := j
+         fi
+      od;
+      if min /= i then
+         temp    := a [i];
+         a [i]   := a [min];
+         a [min] := temp
+      fi
+   od
+end { in place selection sort };
+
+[32]char data := "big fjords vex quick waltz nymph";
+[UPB data]Data ref_data;  for i to UPB data do ref_data[i] := data[i] od;
+in_place_selection_sort(ref_data);
+for i to UPB ref_data do print(ref_data[i]) od; print(new_line);
+print((data))
+)

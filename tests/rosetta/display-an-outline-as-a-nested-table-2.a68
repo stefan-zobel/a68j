@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Display an outline as a nested table", ALGOL 68 solution display-an-outline-as-a-nested-table-2.alg.
+  https://rosettacode.org/wiki/Display_an_outline_as_a_nested_table#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/display-an-outline-as-a-nested-table-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+    { make all columns of tree have the same number of rows                  }
+    { tree is modified and also returned as the result                       }
+    op   STANDARDISE = ( ref ONODE tree )ref ONODE:
+         begin
+            int       td_max := 0;      { find the maximum elements the rows }
+            ref ONODE next   := tree;
+            while next isnt nil_node do
+                td_max +:= COUNTCOLUMNS next;
+                next    := next of next
+            od;
+            [ 1 : td_max ]ref ONODE td;  { get the elements of the first row }
+            td_max := 0;
+            next   := tree;
+            while next isnt nil_node do
+                td[ td_max +:= 1 ] := next;
+                next               := next of next
+            od;
+            while bool more_rows := false;                { balance the tree }
+                  for td_pos to td_max do
+                      ref ONODE element = td[ td_pos ];
+                      if   child of element isnt nil_node
+                      then more_rows := true
+                      fi
+                  od;
+                  more_rows
+            do    for td_pos to td_max do      { add "missing" child elements }
+                      ref ONODE element = td[ td_pos ];
+                      if   child of element is nil_node
+                      then heap ONODE new_child := ( "", 0, nil_node, nil_node );
+                           child of element     :=  new_child
+                      fi
+                  od;
+                  []ref ONODE prev = td[ 1 : td_max ];  { replace td with the }
+                  int new_max := 0;   { ... child elements of the current row }
+                  for td_pos to td_max do
+                      next := child of prev[ td_pos ];
+                      td[ new_max +:= 1 ] := next;
+                      if next isnt nil_node then
+                          while ( next := next of next ) isnt nil_node do
+                             td[ new_max +:= 1 ] := next
+                          od
+                      fi
+                  od;
+                  td_max := new_max
+            od;
+            tree
+         end { STANDARDISE } ;
+)

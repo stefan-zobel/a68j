@@ -1,0 +1,4 @@
+{ Lists and Hashmaps cannot be accessed together (as with ga68: two modules declare the priority of AT). }
+access Lists, Hashmaps (
+   puts ("never" + "'n")
+)

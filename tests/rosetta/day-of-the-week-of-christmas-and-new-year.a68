@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Day of the week of Christmas and New Year", ALGOL 68 solution day-of-the-week-of-christmas-and-new-year.alg.
+  https://rosettacode.org/wiki/Day_of_the_week_of_Christmas_and_New_Year#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/day-of-the-week-of-christmas-and-new-year.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the day of the week 25/12/2021 and 01/01/2022 fall on }
+    []string day_name =
+        []string( "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" )[ at 0 ];
+    proc day_of_week = ( int d, m, y )int:
+         begin
+            int mm := m;
+            int yy := y;
+            if mm <= 2 then
+                mm +:= 12;
+                yy -:= 1
+            fi;
+            int j = yy OVER 100;
+            int k = yy MOD  100;
+            ( d + ( ( mm + 1 ) * 26 ) OVER 10 + k + k OVER 4 + j OVER 4 + 5 * j ) MOD 7
+         end { day of week } ;
+    print( ( "25th of December 2021 is a ", day_name[ day_of_week( 25, 12, 2021 ) ], newline ) );
+    print( ( " 1st of January  2022 is a ", day_name[ day_of_week(  1,  1, 2022 ) ], newline ) )
+end
+)

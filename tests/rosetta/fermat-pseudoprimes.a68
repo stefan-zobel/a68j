@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fermat pseudoprimes", ALGOL 68 solution fermat-pseudoprimes.alg.
+  https://rosettacode.org/wiki/Fermat_pseudoprimes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fermat-pseudoprimes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Fermat pseudo primes: x is a Fermat pseudoprime in base a   }
+      { if a^(x-1) - 1 is divisible by x and x is not prime                   }
+
+    { iterative Greatest Common Divisor routine, returns the gcd of m and n   }
+    proc gcd = ( int m, n )int:
+         begin
+            int a := ABS m, b := ABS n;
+            while b /= 0 do
+                int new_a = b;
+                b        := a MOD b;
+                a        := new_a
+            od;
+            a
+        end { gcd } ;
+    [ 0 : 50 000 ]bool prime;
+    prime[ 0 ] := prime[ 1 ] := false;
+    prime[ 2 ] := true;
+    for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+    for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+    for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+        if prime[ i ] then
+            for s from i * i by i + i to UPB prime do prime[ s ] := false od
+        fi
+    od;
+    for base from 1 to 20 do
+        [ 1 : 20 ]int fp;
+        int count := 0;
+        { x from 3 as 1 is neither composite nor prime and 2 is prime         }
+        if base = 1 then
+            { 1^(x-1) is 1 for all x, so all composites are                   }
+            { fermat pseudo primes in base 1                                  }
+            for x from 3 to UPB prime do
+                if NOT prime[ x ] then
+                    if ( count +:= 1 ) <= UPB fp then
+                        fp[ count ] := x
+                    fi
+                fi
+            od
+        else
+            { must test base^(x-1) mod x                                      }
+            for x from 3 by if ODD base then 1 else 2 fi to UPB prime do
+                if NOT prime[ x ] then
+                    if gcd( x, base ) = 1 then
+                        { have a composite x co-prime to the base             }
+                        int base_to_x_minus_1_mod_x := 1;
+                        for p to x - 1
+                        while
+                            base_to_x_minus_1_mod_x *:= base MODAB x;
+                            if base_to_x_minus_1_mod_x = 1
+                            then { the power is now 1 mod x,                  }
+                                 { if the power divides x - 1 then base^(x-1) }
+                                 { will be 1 mod x otherwise it won't be      }
+                                 if ( x - 1 ) MOD p /= 0 then
+                                     base_to_x_minus_1_mod_x := 0
+                                 fi;
+                                 false
+                            else true { keep checking the powers              }
+                            fi
+                        do skip od;
+                        if base_to_x_minus_1_mod_x = 1 then
+                            { have a composite x that divides base^(x-1)-1    }
+                            if ( count +:= 1 ) <= UPB fp then
+                                fp[ count ] := x
+                            fi
+                        fi
+                    fi
+                fi
+            od
+        fi;
+        print( ( "base ", whole( base, -2 ), " to ", whole( UPB prime, 0 )
+               , " total: ", whole( count, 0 ), newline, "     first:"
+               )
+             );
+        for f from LWB fp to if count < UPB fp then count else UPB fp fi do
+            print( ( " ", whole( fp[ f ], 0 ) ) )
+        od;
+        print( ( newline ) )
+    od
+end
+)

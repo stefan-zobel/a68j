@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Exactly three adjacent 3 in lists", ALGOL 68 solution exactly-three-adjacent-3-in-lists.alg.
+  https://rosettacode.org/wiki/Exactly_three_adjacent_3_in_lists#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/exactly-three-adjacent-3-in-lists.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { test lists contain exactly 3 threes and that they are adjacent }
+    []int   list1 = ( 9, 3, 3, 3, 2, 1, 7, 8, 5 ); { task test case  }
+    []int   list2 = ( 5, 2, 9, 3, 3, 7, 8, 4, 1 ); {   '    '    '   }
+    []int   list3 = ( 1, 4, 3, 6, 7, 3, 8, 3, 2 ); {   '    '    '   }
+    []int   list4 = ( 1, 2, 3, 4, 5, 6, 7, 8, 9 ); {   '    '    '   }
+    []int   list5 = ( 4, 6, 8, 7, 2, 3, 3, 3, 1 ); {   '    '    '   }
+    []int   list6 = ( 3, 3, 3, 1, 2, 4, 5, 1, 3 ); { additional test from the Raku/Wren sample }
+    []int   list7 = ( 0, 3, 3, 3, 3, 7, 2, 2, 6 ); { additional test from the Raku/Wren sample }
+    []int   list8 = ( 3, 3, 3, 3, 3, 4, 4, 4, 4 ); { additional test from the Raku/Wren sample }
+    [][]int lists = ( list1, list2, list3, list4, list5, list6, list7, list8 );
+    for l_pos from LWB lists to UPB lists do
+        []int list       = lists[ l_pos ];
+        int   threes    := 0;  { number of threes in the list }
+        int   three_pos := 0;  { position of the last three in the list }
+        bool  list_ok   := false;
+        for e_pos from LWB list to UPB list do
+            if list[ e_pos ] = 3 then
+                threes   +:= 1;
+                three_pos := e_pos
+            fi
+        od;
+        if threes = 3 then
+            { exactly 3 threes - check they are adjacent }
+            list_ok := ( list[ three_pos - 1 ] = 3 AND list[ three_pos - 2 ] = 3 )
+        fi;
+        { show the result }
+        print( ( "[" ) );
+        for e_pos from LWB list to UPB list do
+            print( ( " ", whole( list[ e_pos ], 0 ) ) )
+        od;
+        print( ( " ] -> ", if list_ok then "true" else "false" fi, newline ) )
+    od
+end
+)

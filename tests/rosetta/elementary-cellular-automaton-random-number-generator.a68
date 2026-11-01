@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Elementary cellular automaton/Random number generator", ALGOL 68 solution elementary-cellular-automaton-random-number-generator.alg.
+  https://rosettacode.org/wiki/Elementary_cellular_automaton/Random_number_generator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/elementary-cellular-automaton-random-number-generator.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { elementary cellular automaton - random number generation }
+    { returns the next state from state using rule s must be at least 2 characters long
+            and consist of # and - only
+    }
+    proc next_state = ( string state, int rule )string:
+         begin
+            { returns 1 or 0 depending on whether c = # or not }
+            op TOINT = ( char c )int: if c = "#" then 1 else 0 fi;
+            { construct the state with additional extra elements to allow wrap-around }
+            string s = state[ UPB state ] + state + state[ LWB state : LWB state + 1 ];
+            { convert rule to a string of # or - depending on whether the bits of r are on or off
+            }
+            string r := "";
+            int    v := rule;
+            to 8 do
+                r +:= if ODD v then "#" else "-" fi;
+                v OVERAB 2
+            od;
+            string new_state := "";
+            for i from LWB s to UPB s - 3 do
+                char c1  = s[ i     ];
+                char c2  = s[ i + 1 ];
+                char c3  = s[ i + 2 ];
+                int pos := ( ( ( TOINT c1 * 2 ) + TOINT c2 ) * 2 ) + TOINT c3;
+                new_state +:= r[ pos + 1 ]
+            od;
+            new_state
+         end { next state } ;
+    { get a pseudo-random byte from by evolving the state }
+    proc get_byte = ( ref string state, int rule, element )int:
+         begin
+            bits b := 16r0;
+            to 8 do
+                state := next_state( state, rule );
+                b     := b SHL 1;
+                if state[ element ] = "#" then b := b OR 16r1 fi
+            od;
+            ABS b
+         end { get byte } ;
+
+    begin { test }
+        string rg_state := "###############################################################-";
+        to 10 do
+            print( ( " ", whole( get_byte( rg_state, 30, 1 ), 0 ) ) )
+        od;
+        print( ( newline ) )
+    end
+end
+)

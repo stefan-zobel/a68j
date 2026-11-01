@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "One of n lines in a file", ALGOL 68 solution one-of-n-lines-in-a-file.alg.
+  https://rosettacode.org/wiki/One_of_n_lines_in_a_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/one-of-n-lines-in-a-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   int max_lines = 10;		{ Should be read from a file. }
+   [max_lines]int stats;
+   for i to max_lines do stats[i] := 0 od;
+   first_random (42);		{ Should have rather more entropy! }
+   proc one_of_n = (int n) int :
+   begin
+      int result := 1;
+      for i to n do (random < 1/i | result := i) od;
+      result
+   end;
+   to 1000000 do stats[one_of_n (max_lines)] +:= 1 od;
+   print (("Line  Number times chosen", newline));
+   for i to max_lines do printf (($g(0)7xg(0)l$, i, stats[i])) od
+end
+)

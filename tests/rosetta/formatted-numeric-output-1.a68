@@ -1,0 +1,26 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Formatted numeric output", ALGOL 68 solution formatted-numeric-output-1.alg.
+  https://rosettacode.org/wiki/Formatted_numeric_output#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/formatted-numeric-output-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{main:} (
+  real r=exp(pi)-pi;
+  print((r,newline));
+  printf(($g(-16,4)l$,-r));
+  printf(($g(-16,4)l$,r));
+  printf(($g( 16,4)l$,r));
+  printf(($g( 16,4,1)l$,r));
+  printf(($-dddd.ddddl$,-r));
+  printf(($-dddd.ddddl$,r));
+  printf(($+dddd.ddddl$,r));
+  printf(($ddddd.ddddl$,r));
+  printf(($zzzzd.ddddl$,r));
+  printf(($zzzz-dd.ddddl$,-r));
+  printf(($zzzz-dd.dddde-ddl$,-r));
+  printf(($zz-d.dddde+ddl$,-r));
+  printf(($4z-d.4de+4dl$,r))
+)
+)

@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Feigenbaum constant calculation", ALGOL 68 solution feigenbaum-constant-calculation.alg.
+  https://rosettacode.org/wiki/Feigenbaum_constant_calculation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/feigenbaum-constant-calculation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Calculate the Feigenbaum constant }
+
+print( ( "Feigenbaum constant calculation:", newline ) );
+int max_it   = 13;
+int max_it_j = 10;
+real a1 := 1.0;
+real a2 := 0.0;
+real d1 := 3.2;
+print( ( "i  ", "d", newline ) );
+for i from 2 to max_it do
+     real a := a1 + (a1 - a2) / d1;
+     to max_it_j do
+          real x := 0;
+          real y := 0;
+          to 2 ^ i do
+               y := 1 - 2 * y * x;
+               x := a - x * x
+          od;
+          a := a - x / y
+     od;
+     real d = (a1 - a2) / (a - a1);
+     if i < 10 then
+        print( ( whole( i, 0 ), "  ", fixed( d, -10, 8 ), newline ) )
+     else
+        print( ( whole( i, 0 ), " ",  fixed( d, -10, 8 ), newline ) )
+     fi;
+     d1 := d;
+     a2 := a1;
+     a1 := a
+od
+)

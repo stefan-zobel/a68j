@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Create a file", ALGOL 68 solution create-a-file.alg.
+  https://rosettacode.org/wiki/Create_a_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/create-a-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+
+  int errno;
+
+  proc touch = (string file_name)int:
+  begin
+    file actual_file;
+    int errno := open(actual_file, file_name, stand_out_channel);
+    if errno NE 0 then go to stop_touch fi;
+    close(actual_file); { detach the book and keep it }
+    errno
+  exit
+  stop_touch:
+      errno
+  end;
+
+  errno := touch("input.txt");
+  errno := touch("/input.txt");
+
+  { ALGOL 68 has no concept of directories,
+    however a file can have multiple pages,
+    the pages are identified by page number only }
+
+  proc mkpage = (string file_name, int page_x)int:
+  begin
+    file actual_file;
+    int errno := open(actual_file, file_name, stand_out_channel);
+    if errno NE 0 then go to stop_mkpage fi;
+    set(actual_file,page_x,1,1); { skip to page x, line 1, character 1 }
+    close(actual_file); { detach the new page and keep it }
+    errno
+  exit
+  stop_mkpage:
+      errno
+  end;
+
+  errno := mkpage("input.txt",2);
+)
+)

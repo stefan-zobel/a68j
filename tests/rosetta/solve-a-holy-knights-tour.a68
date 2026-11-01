@@ -1,0 +1,184 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Solve a Holy Knight's tour", ALGOL 68 solution solve-a-holy-knights-tour.alg.
+  https://rosettacode.org/wiki/Solve_a_Holy_Knight's_tour#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/solve-a-holy-knights-tour.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ the vertical position changes of the moves                             }
+{                 nne  ne  se sse ssw  sw  nw nnw                        }
+[]int offset_v = ( -2, -1,  1,  2,  2,  1, -1, -2 );
+{ the horizontal position changes of the moves                           }
+{                 nne  ne  se sse ssw  sw  nw nnw                        }
+[]int offset_h = (  1,  2,  2,  1, -1, -2, -2, -1 );
+
+int lowest_move  = LWB offset_v;
+int highest_move = UPB offset_v;
+
+mode Square = struct( int move      { the number of the move that caused }
+                                    { the knight to reach this square    }
+                    , int direction { the direction of the move that     }
+                                    { brought the knight here - one of   }
+                                    { nne, ne, se, sse, ssw, sw, nw or   }
+                                    { nnw                                }
+                    );
+{ get the size of the board - must be between 4 and 8                    }
+int board_size = 8;
+{ the board }
+[ board_size, board_size ]Square board;
+{ starting position }
+int start_row := 1;
+int start_col := 1;
+{ the tour will be complete when we have made as many moves              }
+{ as there are free squares in the initial board                         }
+int  final_move    := 0;
+
+{ initialise the board setting the free squares from the supplied pttern }
+{ the pattern has the rows in revers order                               }
+proc initialise_board = ( []string pattern )void:
+     begin
+        int pattern_row := UPB board;
+        for row from 1 LWB board to 1 UPB board
+        do
+            for col from 2 LWB board to 2 UPB board
+            do
+                if pattern[ pattern_row ][ col ] = "-"
+                then
+                    { can't use this square                              }
+                    board[ row, col ] := ( -1, -1 )
+                else
+                    { available square                                   }
+                    board[ row, col ] := ( 0, 0 );
+                    final_move +:= 1;
+                    if pattern[ pattern_row ][ col ] = "1"
+                    then
+                        { have the start position                        }
+                        start_row := row;
+                        start_col := col
+                    fi
+                fi
+            od;
+            pattern_row -:= 1
+        od
+     end; { initialise board }
+{ statistics }
+int iterations := 0;
+int backtracks := 0;
+
+{ prints the board }
+proc print_tour = void:
+begin
+    { format "number" into at least two characters }
+    proc n2 = ( int number )string:
+        if   number < 0
+        then
+            " -"
+        elif number < 10 AND number >= 0
+        then
+            " " + whole( number, 0 )
+        else
+            whole( number, 0 )
+        fi; { n2 }
+    print( ( "     a  b  c  d  e  f  g  h", newline ) );
+    print( ( "   ________________________", newline ) );
+    for row from 1 UPB board by -1 to 1 LWB board
+    do
+        print( ( n2( row ) ) );
+        print( ( "|" ) );
+
+        for col from 2 LWB board to 2 UPB board
+        do
+            print( ( " " ) );
+            print( ( n2( move of board[ row, col ] ) ) )
+        od;
+        print( ( newline ) )
+    od
+end; { print tour }
+
+{ update the board to the first knight's tour found starting from       }
+{ "start row" and "start col".                                          }
+{ return TRUE if one was found, FALSE otherwise                         }
+proc find_tour = bool:
+begin
+
+    bool result       := true;
+    int  move_number  := 1;
+    int  row          := start_row;
+    int  col          := start_col;
+    int  direction    := lowest_move - 1;
+    { the first move is to place the knight on the starting square }
+    board[ row, col ] := ( move_number, lowest_move - 1 );
+    { attempt to find a sequence of moves that will reach each square once }
+    while
+        move_number < final_move AND result
+    do
+        if direction < highest_move
+        then
+            { try the next move from this position }
+            direction +:= 1;
+            int new_row = row + offset_v[ direction ];
+            int new_col = col + offset_h[ direction ];
+            if  new_row <= 1 UPB board
+            AND new_row >= 1 LWB board
+            AND new_col <= 2 UPB board
+            AND new_col >= 2 LWB board
+            then
+                { the move is legal, check the new square is unused }
+                if move of board[ new_row, new_col ] = 0
+                then
+                    { can move here }
+                    iterations       +:= 1;
+                    row               := new_row;
+                    col               := new_col;
+                    move_number      +:= 1;
+                    board[ row, col ] := ( move_number, direction );
+                    direction         := lowest_move - 1
+                fi
+            fi
+        else
+            { no more moves from this position - backtrack }
+            if move_number = 1
+            then
+                { at the starting position - no solution }
+                result := false
+            else
+                { not at the starting position - undo the latest move }
+                backtracks  +:= 1;
+                move_number -:= 1;
+                int curr_row := row;
+                int curr_col := col;
+                row -:= offset_v[ direction of board[ curr_row, curr_col ] ];
+                col -:= offset_h[ direction of board[ curr_row, curr_col ] ];
+                { determine which direction to try next }
+                direction := direction of board[ curr_row, curr_col ];
+                { reset the square we just backtracked from }
+                board[ curr_row, curr_col ] := ( 0, 0 )
+            fi
+        fi
+    od;
+    result
+end; { find tour }
+
+begin { calculate the tour from the start position, if possible }
+    initialise_board( ( "-000----"
+                      , "-0-00---"
+                      , "-0000000"
+                      , "000--0-0"
+                      , "0-0--000"
+                      , "1000000-"
+                      , "--00-0--"
+                      , "---000--"
+                      )
+                    );
+    if find_tour
+    then
+        { found a solution }
+        print_tour
+    else
+        { couldn't find a solution }
+        print( ( "Solution not found", newline ) )
+    fi;
+    print( ( iterations, " iterations, ", backtracks, " backtracks", newline ) )
+end
+)

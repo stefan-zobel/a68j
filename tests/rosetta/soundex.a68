@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Soundex", ALGOL 68 solution soundex.alg.
+  https://rosettacode.org/wiki/Soundex#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/soundex.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+    proc soundex = (string s) string:
+    begin
+        proc encode = (char c) char:
+        begin
+            { We assume the alphabet is contiguous. }
+            "-123-12*-22455-12623-1*2-2"[ABS to_lower(c) - ABS "a" + 1]
+        end;
+        int soundex_code_length = 4;
+        string result := soundex_code_length * "0";
+        if s /= "" then
+            char previous;
+            int  j;
+            result[j := 1] := s[1];
+            previous := encode(s[1]);
+            for i from 2 to UPB s while j < soundex_code_length
+            do
+                if is_alpha(s[i]) then
+                    char code = encode(s[i]);
+                    if is_digit(code) AND code /= previous then
+                        result[j +:= 1] := code;
+                        previous := code
+                    elif code = "-" then
+                        { Only vowels (y counts here) hide the last-added character }
+                        previous := code
+                    fi
+                fi
+            od
+        fi;
+        result
+    end;
+
+    { Test code to persuade one that it does work. }
+
+    mode Test = struct (string input, string expected_output);
+
+    [] Test soundex_test = (
+        ("Soundex",    "S532"), ("Example",     "E251"),
+        ("Sownteks",   "S532"), ("Ekzampul",    "E251"),
+        ("Euler",      "E460"), ("Gauss",       "G200"),
+        ("Hilbert",    "H416"), ("Knuth",       "K530"),
+        ("Lloyd",      "L300"), ("Lukasiewicz", "L222"),
+        ("Ellery",     "E460"), ("Ghosh",       "G200"),
+        ("Heilbronn",  "H416"), ("Kant",        "K530"),
+        ("Ladd",       "L300"), ("Lissajous",   "L222"),
+        ("Wheaton",    "W350"), ("Burroughs",   "B620"),
+        ("Burrows",    "B620"), ("O''Hara",      "O600"),
+        ("Washington", "W252"), ("Lee",         "L000"),
+        ("Gutierrez",  "G362"), ("Pfister",     "P236"),
+        ("Jackson",    "J250"), ("Tymczak",     "T522"),
+        ("VanDeusen",  "V532"), ("Ashcraft",    "A261")
+    );
+
+    {
+      Apologies for the magic number in the padding of the input
+      and the wired-in heading.
+    }
+
+    print(("Test name   Code Got", newline, "----------------------", newline));
+    for i from LWB soundex_test to UPB soundex_test
+    do
+        string output = soundex(input of soundex_test[i]);
+        printf(($g, n (12 - UPB input OF soundex test[i]) x$, input of soundex_test[i]));
+        printf(($g, 1x, g, 1x$, expected_output of soundex_test[i], output));
+        printf(($b("ok", "not ok"), 1l$, output = expected_output of soundex_test[i]))
+    od
+)

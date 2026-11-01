@@ -1,0 +1,166 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rosetta Code/Rank languages by popularity", ALGOL 68 solution rosetta-code-rank-languages-by-popularity-2.alg.
+  https://rosettacode.org/wiki/Rosetta_Code/Rank_languages_by_popularity#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rosetta-code-rank-languages-by-popularity-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+char line_feed = REPR 10, carriage_return = REPR 13;
+string crlf = carriage_return + line_feed;
+string domain = "rosettacode.org",
+       page = "/mw/api.php?format=xml&action=query&generator=categorymembers&gcmtitle=Category:Programming%20Languages&gcmlimit=500&prop=categoryinfo";
+
+{ concatenate tuples }
+op + = ([]string a, b) []string:
+   begin
+      [⌈a + ⌈b] string c;
+      c[:⌈a] := a;
+      c[⌈a+1:] := b;
+      c
+   end;
+
+{ count occurrances of string in string }
+proc count = (string sub, str) int :
+   begin
+      int count := 0;
+      if UPB str ≥ UPB sub AND UPB str ≥ 1 then
+   int p := 1; int p0;
+   while p + UPB sub - 1 <= UPB str ANDF (p0 := p; string_in_string (sub, p, str[p0:])) do
+            count +:= 1;
+      p +:= p0 + UPB sub - 1
+   od
+      fi;
+      count
+   end;
+
+{ split string into tuple }
+proc split = (string str, sep) flex[]string :
+   begin
+      int seplen = UPB sep, strlen = UPB str;
+      int cnt := 0, start := 1;
+      int p;
+      [count (sep, str) + 1] string list;
+      while start ≤ strlen - (seplen - 1)
+   ANDF string_in_string (sep, p, str[start:]) do
+      p +:= start - 1;
+      list[cnt +:= 1] := str[start:p-1];
+      start := p + seplen
+      od;
+      if cnt = 0 then list[cnt +:= 1] := str
+      elif start ≤ strlen then list[cnt +:= 1] := str[start:]
+      elif start = strlen + 1 AND seplen ≥ 1 then list[cnt +:= 1] := ""
+      fi;
+      list
+   end;
+
+{ reverse strings in a TUPLE }
+op REVERSE = ([]string org) []string :
+   begin
+      [UPB org]string new;
+      for i to UPB org do
+   new[UPB org - (i - 1)] := org[i]
+      od;
+      new
+   end;
+
+{ convert unsigned number to INT }
+op TOINT = (string str) int:
+   begin
+      int p := 1, len := UPB str;
+      while p ≤ len ANDF is_space (str[p]) do p +:= 1 od;
+      if str[1] = "-" OR str[1] = "+" then
+   p +:= 1
+      fi;
+      int n := 0;
+      while p ≤ len ANDF is_space (str[p]) do p +:= 1 od;
+      for i from p to len while is_digit (str[i]) do
+   n := n × 10 + ABS str[i] - ABS "0"
+      od;
+      n
+   end;
+
+{ pad to fixed width }
+proc field = (union (string,int) x, int w) string:
+   begin
+      string s = (x | (int i): whole (i,0), (string t): t);
+      (w >= UPB s | " " * (w - UPB s)) + s
+   end;
+
+proc get_web_page = (string host, path) string:
+   begin
+      string reply;
+      int rc;
+      { 'http content' sometimes fails with interrupted system call, so we loop until succeeding }
+      while
+   { 'http content' makes requests that are not accepted by rosettacode.org, so therefore the hack }
+   string hack = " HTTP/1.0" + crlf +
+                 "Host: rosettacode.org" + crlf +
+                       "User-Agent: rank_languages_by_popularity";
+         rc := http_content (reply, host, path + hack, 0);
+   rc = 4
+         do skip
+      od;
+      if rc = 0 AND grep_in_string ("^HTTP/[0-9.]+ 200", reply, nil, nil) = 0 then
+   int p;
+   if string_in_string (crlf + crlf, p, reply) then
+      string headers = reply[:p],
+             body = reply[p+4:];
+      body
+   else
+      ""
+   fi
+      else
+   print (strerror (rc)); ""
+      fi
+   end;
+
+{ the main program rank languages by popularity starts here }
+string gcmcontinue;
+flex[0]string lines;
+
+{ get through API in chunks of 500 }
+while
+   string body = get_web_page (domain, page + (gcmcontinue /= "" | "&gcmcontinue=" + gcmcontinue));
+   int b, e;
+   gcmcontinue := (grep_in_string ("gcmcontinue=""([^""]+)", body, b, e) = 0 | body[b+13:e-1] | "");
+   { split the XML into lines on </page> }
+   lines := lines + split (body, "</page>");
+   gcmcontinue /= "" do skip
+od;
+
+{ Each line is one language,
+  go through them and rewrite them to something we can sort }
+for i to UPB lines do
+   string line = lines[i];
+   string title;
+   int pages := 0;
+   int b, e;
+   { the two fields we are intrested in are title="Category:xxx", and pages="999" }
+   if grep_in_string ("title=""Category:[^""]+""", line, b, e) = 0 then
+      title := line[b+16:e-1]
+   fi;
+   if grep_in_string ("pages=""[0-9]+""", line, b, e) = 0 then
+      pages := TOINT line[b+7:e-1]
+   fi;
+   lines[i] := field (pages, 6) + " " + title
+od;
+
+lines := REVERSE SORT lines;
+
+int rank := 1;
+bool tied := false, lasttied := false;
+print ((new_line, whole (UPB lines, 0), " languages", new_line, new_line));
+for i to UPB lines do
+   int entries = TOINT lines[i][:6];
+   string lang = lines[i][8:];
+   if entries > 0 then
+      tied := i < UPB lines ANDF lines[i][:6] = lines[i+1][:6];
+      print (("rank: ", field (rank,3), "  ", (tied OR lasttied | "[tied]" | " "*6),
+              field ("(" + whole (entries,0) + " " + (entries = 1 | "entry)" | "entries)"), 20),
+              "  ", lang, new_line));
+      if NOT tied then rank +:= 1 fi;
+      lasttied := tied
+   fi
+od
+)

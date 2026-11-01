@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Self-describing numbers", ALGOL 68 solution self-describing-numbers.alg.
+  https://rosettacode.org/wiki/Self-describing_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/self-describing-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+    { return TRUE if number is self describing, FALSE otherwise }
+    op SELFDESCRIBING = ( int number )bool:
+       begin
+
+           [10]int counts := ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+           int n          := number;
+           int digits     := 0;
+
+           { count the occurances of each digit }
+           while
+               n /= 0
+           do
+               digits +:= 1;
+               counts[ ( n MOD 10 ) + 1 ] +:= 1;
+               n OVERAB 10
+           od;
+
+           { construct the number that the counts would describe, }
+           { if the number was self describing                    }
+
+           int described_number := 0;
+           for i to digits
+           do
+               described_number *:= 10;
+               described_number +:= counts[ i ]
+           od;
+
+           { if the described number is the input number, }
+           { it is self describing }
+           ( number = described_number )
+       end; { SELFDESCRIBING }
+
+for i to 100 000 000
+    do
+        if SELFDESCRIBING i
+        then
+            print( ( i, " is self describing", newline ) )
+        fi
+    od
+
+end
+)

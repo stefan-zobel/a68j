@@ -1,0 +1,106 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Esthetic numbers", ALGOL 68 solution esthetic-numbers.alg.
+  https://rosettacode.org/wiki/Esthetic_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/esthetic-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some esthetic numbers: numbers whose successive digits differ by 1 }
+    { returns TRUE if n is esthetic in the specified base, FALSE otherwise }
+    prio ISESTHETIC = 1;
+    op   ISESTHETIC = ( int n, base )bool:
+         begin
+            int  v             := ABS n;
+            bool is_esthetic   := true;
+            int  prev_digit    := v MOD base;
+            v OVERAB base;
+            while v > 0 AND is_esthetic
+            do
+                int next_digit := v MOD base;
+                is_esthetic    := ABS ( next_digit - prev_digit ) = 1;
+                prev_digit     := next_digit;
+                v OVERAB base
+            od;
+            is_esthetic
+         end { ISESTHETIC } ;
+    { returns an array of the first n esthetic numbers in the specified base }
+    prio ESTHETIC = 1;
+    op   ESTHETIC = ( int n, base )[]int:
+         begin
+            [ 1 : n ]int result;
+            int          e_count := 0;
+            for i while  e_count < n do
+                if i ISESTHETIC base then result[ e_count +:= 1 ] := i fi
+            od;
+            result
+         end { ESTHETIC } ;
+    { returns a string erpresentation of n in the specified base, 2 <= base <= 16 must be TRUE }
+    prio TOBASESTRING = 1;
+    op   TOBASESTRING = ( int n, base )string:
+         if base < 2 OR base > 16
+         then { invalid vbase }
+             "?" + whole( n, 0 ) + ":" + whole( base, 0 ) + "?"
+         else
+            int    v      := ABS n;
+            string digits  = "0123456789abcdef";
+            string result := digits[ ( v MOD base ) + 1 ];
+            while ( v OVERAB base ) > 0 do
+                digits[ ( v MOD base ) + 1 ] +=: result
+            od;
+            if n < 0 then "-" +=: result fi;
+            result
+        fi { TOBASESTRING } ;
+    { sets count to the number of esthetic numbers with length digits in base b less than max }
+    { also displays the esthetic numbers }
+    proc show_esthetic = ( int number, base, length, max, ref int count )void:
+         if length = 1
+         then { number is esthetic }
+             if number <= max then
+                 { number is in the required range }
+                 print( ( " ", whole( number, 0 ) ) );
+                 if ( count +:= 1 ) MOD 9 = 0 then print( ( newline ) ) fi
+             fi
+         else
+             { find the esthetic numbers that start with number }
+             int digit  = number MOD base;
+             int prefix = number * base;
+             if digit > 0 then { can have a lower digit }
+                 show_esthetic( prefix + ( digit - 1 ), base, length - 1, max, count )
+             fi;
+             if digit < base - 1 then { can have a higher digit }
+                 show_esthetic( prefix + ( digit + 1 ), base, length - 1, max, count )
+             fi
+         fi { show esthetic } ;
+    begin { task }
+        { esthetic numbers from base * 4 to base * 6 for bases 2 to 16 }
+        for base from 2 to 16 do
+            int e_from = base * 4;
+            int e_to   = base * 6;
+            print( ( "Esthetic numbers ", whole( e_from, 0 ), " to ", whole( e_to, 0 ) ) );
+            print( ( " in base ", whole( base, 0 ), newline ) );
+            []int e_numbers = e_to ESTHETIC base;
+            print( ( "  " ) );
+            for n from e_from to e_to do
+                print( ( " ", e_numbers[ n ] TOBASESTRING base ) )
+            od;
+            print( ( newline ) )
+        od;
+        { esthetic base 10 numbers between 1000 and 9999 }
+        print( ( "Base 10 eshetic numbers between 1000 and 9999", newline ) );
+        int e_count := 0;
+        for i from 1000 to 9999 do
+            if i ISESTHETIC 10 then
+                print( ( " ", whole( i, 0 ) ) );
+                if ( e_count +:= 1 ) MOD 16 = 0 then print( ( newline ) ) fi
+            fi
+        od;
+        print( ( newline, newline ) );
+        print( ( "Esthetic numbers between 100 000 000 and 130 000 000:", newline ) );
+        e_count := 0;
+        show_esthetic( 1, 10, 9, 130 000 000, e_count );
+        print( ( newline ) );
+        print( ( "Found ", whole( e_count, 0 ), " esthetic numbers", newline ) )
+    end
+end
+)

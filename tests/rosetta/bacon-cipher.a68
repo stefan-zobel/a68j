@@ -1,0 +1,113 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bacon cipher", ALGOL 68 solution bacon-cipher.alg.
+  https://rosettacode.org/wiki/Bacon_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bacon-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Bacon's letter codes but with distinct values for i & j and u & v and an extra for any non-letter }
+[]string bacon_codes = ( {a} "AAAAA", "AAAAB", "AAABA", "AAABB", "AABAA", "AABAB", "AABBA", "AABBB", "ABAAA"
+                       , {j} "ABAAB", "ABABA", "ABABB", "ABBAA", "ABBAB", "ABBBA", "ABBBB", "BAAAA", "BAAAB"
+                       , {s} "BAABA", "BAABB", "BABAA", "BABAB", "BABBA", "BABBB", "BBAAA", "BBAAB", "BBBAA"
+                       );
+{ operators to convert case }
+op LCASE = ( char c )char: if c < "A" OR c > "Z" then c else REPR ( ( ABS c - ABS "A" ) + ABS "a" ) fi;
+op UCASE = ( char c )char: if c < "a" OR c > "z" then c else REPR ( ( ABS c - ABS "a" ) + ABS "A" ) fi;
+{ yields plain text encoded via stego template }
+proc to_bacon = ( string plain_text, string stego_template )string:
+     begin
+         int    stego_pos   := 0;
+         int    stego_len    = ( UPB stego_template + 1 ) - LWB stego_template;
+         int    stego_start  = LWB stego_template;
+         { selects the next character from the stego template - wraps-around from the end to the beginning }
+         proc next_stego_pos = void: ( stego_pos +:= 1; stego_pos MODAB stego_len);
+         { encode the plain text }
+         string encoded     := "";
+         for pos from LWB plain_text to UPB plain_text do
+             { get the Bacon code of the next character }
+             char   plain_char = UCASE plain_text[ pos ];
+             string code = bacon_codes[ if   plain_char < "A" OR plain_char > "Z"
+                                        then UPB bacon_codes
+                                        else ( ABS plain_char - ABS "A" ) + 1
+                                        fi
+                                      ];
+             for c from LWB code to UPB code do
+                 { copy punctuation as is from the stego template to the result }
+                 while char s := UCASE stego_template[ stego_pos + stego_start ];
+                       s < "A" OR s > "Z"
+                 do
+                     encoded   +:= s;
+                     next_stego_pos
+                 od;
+                 { encode the character by changing the case of the stego character as appropriate }
+                 char template_char = stego_template[ stego_pos + stego_start ];
+                 encoded +:= if code[ c ] = "A" then LCASE template_char else UCASE template_char fi;
+                 next_stego_pos
+             od
+         od;
+         encoded
+     end ; { to bacon }
+{ yields bacon text decoded via stego template }
+proc to_plain = ( string bacon_text, stego_template )string:
+     begin
+         string decoded := "";
+         int coded_char := 0;
+         int letters    := 0;
+         int code_length = ( UPB bacon_codes[ 1 ] - LWB bacon_codes[ 1 ] ) + 1;
+         for pos from LWB bacon_text to UPB bacon_text do
+             char c = bacon_text[ pos ];
+             if c >= "a" AND c <= "z"
+             then
+                 { lower case letter }
+                 coded_char *:= 2;
+                 letters    +:= 1
+             elif c >= "A" AND c <= "Z"
+             then
+                 { upper case letter }
+                 coded_char *:= 2;
+                 coded_char +:= 1;
+                 letters    +:= 1
+             fi;
+             if letters = code_length
+             then
+                 { have a full letter to decode }
+                 decoded    +:= if coded_char > 25 then " " else REPR ( ABS "a" + coded_char ) fi;
+                 letters     := 0;
+                 coded_char  := 0
+             fi
+         od;
+         decoded
+     end ; { to plain }
+begin { test encode and decode }
+    string test_template
+         = "bacon''s cipher is a method of steganography created by francis bacon."
+         + REPR 10
+         + "this task is to implement a program for encryption and decryption of "
+         + REPR 10
+         + "plaintext using the simple alphabet of the baconian cipher or some "
+         + REPR 10
+         + "other kind of representation of this alphabet (make anything signify anything). "
+         + REPR 10
+         + "the baconian alphabet may optionally be extended to encode all lower "
+         + REPR 10
+         + "case characters individually and/or adding a few punctuation characters "
+         + REPR 10
+         + "such as the space."
+         + REPR 10
+         ;
+    string plain_text    = "the quick brown fox jumps over the lazy dog";
+    string bacon_encoded = to_bacon( plain_text,    test_template );
+    string bacon_decoded = to_plain( bacon_encoded, test_template );
+    print( ( "encoded...", newline ) );
+    print( ( bacon_encoded, newline ) );
+    print( ( "-----------------------------------------------------", newline ) );
+    print( ( "decoded...", newline ) );
+    print( ( bacon_decoded, newline ) );
+    print( ( "-----------------------------------------------------", newline ) );
+    print( ( if bacon_decoded /= plain_text then "UNSUCESSFUL" else "sucessful" fi
+           , " decode", newline
+           )
+         )
+end
+)

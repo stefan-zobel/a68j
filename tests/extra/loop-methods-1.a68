@@ -1,0 +1,55 @@
+{ Loops of the particular program compiled as methods of their own
+  (backend/src/main/java/a68j/jvm/Outline.java): variables kept in JVM
+  locals that the loop assigns, jumps out of loops (the assigned values
+  must survive), labels inside a loop, loops in other positions, routine
+  texts inside a loop, and a runtime error inside a loop. }
+begin
+  int sum := 0, n := 10;
+  real r := 0.0;
+  [10] int a;
+  for i to n do a[i] := i * i; sum +:= a[i]; r +:= 0.5 od;
+  puts (whole (sum, 0) + " " + fixed (r, 0, 2) + "'n");
+  int k := 0, steps := 0;
+  begin
+    while k < 100 do
+       k +:= 1;
+       for j to 3 do steps +:= 1; if k = 42 andth j = 2 then goto found fi od
+    od;
+    puts ("not found");
+  found:
+    puts (whole (k, 0) + " " + whole (steps, 0) + "'n")
+  end;
+  int c := 0;
+  for i to 3 do for j to 4 do c +:= i * j od od;
+  puts (whole (c, 0) + "'n");
+  proc f = (int x) int: x * 2;
+  int t := 0;
+  for i to 5 do t +:= f (i) od;
+  puts (whole (t, 0) + "'n");
+  bool b := false;
+  to 3 do b := NOT b od;
+  puts ((b | "true'n" | "false'n"));
+  long int big := long 1;
+  for i to 20 do big *:= long 2 od;
+  puts (whole (big, 0) + "'n");
+  for i to 3 do
+     int q := i;
+     lab: if q < 10 then q +:= 4; goto lab fi;
+     puts (whole (q, 3))
+  od;
+  puts ("'n");
+  for i to 4 do a[i] := a[i] + 1 od;
+  puts (whole (a[1], 0) + " " + whole (a[4], 0) + "'n");
+  int m := 0, z := 0;
+  for i to 1000000 while m < 500 do (i MOD 7 = 0 | m +:= 1); z := i od;
+  puts (whole (m, 0) + " " + whole (z, 0) + "'n");
+  int w = 3 + (int s := 0; for i by 2 to 9 do s +:= i od; s);
+  puts (whole (w, 0) + "'n");
+  [5] proc int ps;
+  for i to 5 do ps[i] := int: n * 10 + sum od;
+  puts (whole (ps[2], 0) + "'n");
+  proc g = (int x) int: (int y := 0; for i to x do y +:= i od; y);
+  puts (whole (g (100), 0) + "'n");
+  int e := 0;
+  for i to 5 do e +:= i; (i = 3 | puts (whole (e, 0) + "'n"); a[20] := 1) od
+end

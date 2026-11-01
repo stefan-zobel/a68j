@@ -1,0 +1,11 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fibonacci sequence", ALGOL 68 solution fibonacci-sequence-3.alg.
+  https://rosettacode.org/wiki/Fibonacci_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fibonacci-sequence-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc recursive_fibonacci = (int n)int:
+  ( n < 2 | n | fib(n-1) + fib(n-2));
+)

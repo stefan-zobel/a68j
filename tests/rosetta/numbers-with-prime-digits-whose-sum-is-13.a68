@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers with prime digits whose sum is 13", ALGOL 68 solution numbers-with-prime-digits-whose-sum-is-13.alg.
+  https://rosettacode.org/wiki/Numbers_with_prime_digits_whose_sum_is_13#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-with-prime-digits-whose-sum-is-13.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { find numbers whose digits are prime and whose digit sum is 13   }
+    { as noted by the Wren sample, the digits can only be 2, 3, 5, 7  }
+    { and there can only be 3, 4, 5 or 6 digits                       }
+    []int possible_digits = []int( 0, 2, 3, 5, 7 )[ at 0 ];
+    int number_count := 0;
+    int zero          = ABS "0"; { integer value of the character "0" }
+    print( ( newline ) );
+    for d1_index from 0 to UPB possible_digits do
+        int  d1 = possible_digits[ d1_index ];
+        char c1 = if d1 /= 0 then REPR ( d1 + zero ) else " " fi;
+        for d2_index from 0 to UPB possible_digits do
+            int  d2 = possible_digits[ d2_index ];
+            if d2 /= 0 OR d1 = 0 then
+                char c2 = if ( d1 + d2 ) /= 0 then REPR ( d2 + zero ) else " " fi;
+                for d3_index from 0 to UPB possible_digits do
+                    int  d3 = possible_digits[ d3_index ];
+                    if d3 /= 0 OR ( d1 + d2 ) = 0 then
+                        char c3 = if ( d1 + d2 + d3 ) /= 0 then REPR ( d3 + zero ) else " " fi;
+                        for d4_index from 1 to UPB possible_digits do
+                            int  d4 = possible_digits[ d4_index ];
+                            char c4 = REPR ( d4 + zero );
+                            for d5_index from 1 to UPB possible_digits do
+                                int  d5 = possible_digits[ d5_index ];
+                                char c5 = REPR ( d5 + zero );
+                                for d6_index from 1 to UPB possible_digits do
+                                    int d6  = possible_digits[ d6_index ];
+                                    if ( d1 + d2 + d3 + d4 + d5 + d6 ) = 13 then
+                                        { found a number whose prime digits sum to 13 }
+                                        char c6 = REPR ( d6 + zero );
+                                        print( ( " ", c1, c2, c3, c4, c5, c6 ) );
+                                        number_count := number_count + 1;
+                                        if ( number_count +:= 1 ) MOD 12 = 0 then print( ( newline ) ) fi
+                                    fi
+                                od { d6 }
+                            od { d5 }
+                        od { d4 }
+                    fi
+                od { d3 }
+            fi
+        od { d2 }
+    od { d1 }
+end
+)

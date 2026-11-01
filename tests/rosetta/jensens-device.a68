@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Jensen's Device", ALGOL 68 solution jensens-device.alg.
+  https://rosettacode.org/wiki/Jensen's_Device#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/jensens-device.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   int i;
+   proc sum  = (ref int i, int lo, hi, proc real term)real:
+      { term is passed by-name, and so is i }
+   begin
+      real temp := 0;
+      i := lo;
+      while i <= hi do           { ALGOL 68 has a "for" loop but it creates a distinct }
+         temp +:= term;          { variable which would not be shared with the passed "i" }
+         i +:= 1                 { Here the actual passed "i" is incremented. }
+      od;
+      temp
+   end;
+   { note the correspondence between the mathematical notation and the call to sum }
+   print (sum (i, 1, 100, real: 1/i))
+end
+)

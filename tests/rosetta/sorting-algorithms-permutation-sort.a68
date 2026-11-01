@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Permutation sort", ALGOL 68 solution sorting-algorithms-permutation-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Permutation_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-permutation-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { permutation sort - permutation code based on the EasyLang sample     }
+
+    { generates an initial permutation of a to b                             }
+    prio INITIALPERMUTATION = 9;
+    op   INITIALPERMUTATION = ( int a, b )ref[]int:
+         begin
+            [ a : b ]int p;
+            for i from a to b do p[ i ] := i od;
+            heap[ a : b ]int := p
+         end { INITIALPERMURATION } ;
+
+    { specify the priorities of the dyadic sorting operators                 }
+    prio PERMUTE = 9, PERMUTATIONSORT = 9, =:= = 9;
+
+    { swaps the values of a and b                                            }
+    op   =:= = ( ref int a, b )void: begin int t := a; a := b; b := t end;
+
+    { the following operators implement permutation sorting of arrays        }
+    { of strings - aimilar operators could be defined to sort other          }
+    { sorts of array ( or other sortable things )                            }
+
+    { returns TRUE if the elements of a are in order, FALSE otherwise        }
+    op   INORDER = ( []string a )bool:
+         begin
+             bool is_ordered := true;
+             for i from LWB a + 1 to UPB a while is_ordered := a[ i - 1 ] <= a[ i ] do skip od;
+             is_ordered
+         end { INORDER } ;
+
+    { swaps the values of a and b                                            }
+    op   =:= = ( ref string a, b )void: begin string t := a; a := b; b := t end;
+
+    { updates perm to the next permutation and permutes the elements of data }
+    {         based on the EasyLang sample's nextperm                        }
+    op   PERMUTE = ( ref[]string data, ref[]int perm )ref[]string:
+         begin
+            int lb = LWB perm;
+            int n := UPB perm;
+            int k := n - 1;
+            while k >= lb AND perm[ k + 1 ] <= perm[ k ] do k -:= 1 od;
+            if k >= lb then
+                int j := n;
+                while perm[ j ] <= perm[ k ] do j -:= 1 od;
+                perm[ j ] =:= perm[ k ];
+                data[ j ] =:= data[ k ];
+                k +:= 1;
+                while k < n do
+                    perm[ k ] =:= perm[ n ];
+                    data[ k ] =:= data[ n ];
+                    k +:= 1;
+                    n -:= 1
+                od
+            fi;
+            data
+         end { PERMUTE } ;
+
+    { permutation sorts a in-place                                      }
+    op   PERMUTATIONSORT = ( ref[]string a )ref[]string:
+         begin
+            ref[]int permutation = LWB a INITIALPERMUTATION UPB a;
+            while NOT INORDER a do
+                a PERMUTE permutation
+            od;
+            a
+         end { PERMUTATIONSORT } ;
+
+    begin { test the permutation sort                                   }
+
+        []string data = ( "sphinx", "of", "black", "quartz", "judge", "my", "vow" );
+        [ LWB data : UPB data ]string sortable := data;
+        PERMUTATIONSORT sortable;
+        for pos from LWB sortable to UPB sortable do
+            print( ( " ", sortable[ pos ] ) )
+        od;
+        print( ( newline ) )
+
+    end
+
+end
+)

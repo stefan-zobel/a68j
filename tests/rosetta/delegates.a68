@@ -1,0 +1,84 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Delegates", ALGOL 68 solution delegates.alg.
+  https://rosettacode.org/wiki/Delegates#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/delegates.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ An Algol 68 approximation of delegates                                }
+
+{ The delegate mode - the delegate is a STRUCT with a single field      }
+{ that is a REF PROC STRING. If this is NIL, it doesn't implement       }
+{ thing                                                                 }
+mode Delegate  = struct( ref proc string thing );
+
+
+{ A delegator mode that will invoke the delegate's thing method         }
+{ - if there is a delegate and the delegate has a thing method          }
+mode Delegator = struct( ref Delegate delegate
+                       , proc( ref Delegate )string thing
+                       );
+
+{ constructs a new DELEGATE with the specified PROC as its thing        }
+{ Algol 68 HEAP is like "new" in e.g. Java, but it can't take           }
+{ parameters, so this PROC does the equivalent                          }
+proc new_delegate = ( ref proc string thing )ref Delegate:
+    begin
+        ref Delegate result = heap Delegate;
+        thing of result := thing;
+
+        result
+    end { new delegate }
+;
+
+{ constructs a new DELEGATOR with the specified DELEGATE                }
+proc new_delegator = ( ref Delegate delegate )ref Delegator:
+    heap Delegator := ( delegate
+                      , { anonymous PROC to invoke the delegate's thing }
+                        ( ref Delegate delegate )string:
+                            if delegate is ref Delegate(nil)
+                            then
+                                { we have no delegate }
+                                "default implementation"
+
+                            elif thing of delegate is ref proc string(nil)
+                            then
+                                { the delegate doesn't have an implementation }
+                                "default implementation"
+
+                            else
+                                { the delegate can thing }
+                                thing of delegate
+
+                            fi
+                      )
+;
+
+
+{ invokes the delegate's thing via the delagator                        }
+{ Because the PROCs of a STRUCT don't have an equivalent of e.g. Java's }
+{ "this", we have to explicitly pass the delegate as a parameter        }
+proc invoke_thing = ( ref Delegator delegator )string:
+    { the following is Algol 68 for what would be written in Java as    }
+    {                           "delegator.thing( delegator.delegate )" }
+    ( thing of delegator )( delegate of delegator )
+;
+
+main:
+(
+
+    print( ( "No delegate           : "
+           , invoke_thing( new_delegator( nil ) )
+           , newline
+           , "Delegate with no thing: "
+           , invoke_thing( new_delegator( new_delegate( nil ) ) )
+           , newline
+           , "Delegate with a thing : "
+           , invoke_thing( new_delegator( new_delegate( heap proc string := string: ( "delegate implementation" ) ) ) )
+           , newline
+           )
+         )
+
+)
+)

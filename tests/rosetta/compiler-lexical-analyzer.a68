@@ -1,0 +1,147 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Compiler/lexical analyzer", ALGOL 68 solution compiler-lexical-analyzer.alg.
+  https://rosettacode.org/wiki/Compiler/lexical_analyzer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/compiler-lexical-analyzer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  { implement C-like getchar, where EOF and EOLn are "characters" (-1 and 10 resp.). }
+  int eof = -1, eoln = 10;
+  bool eof_flag := false;
+  string buf := "";
+  int col := 1;
+  int line := 0;
+  on_logical_file_end (stand_in, (ref file f)bool: eof_flag := true);
+  proc getchar = int:
+    if   eof_flag      then eof
+    elif col = UPB buf then col +:= 1; eoln
+    elif col > UPB buf then if line > 0 then read(newline) fi;
+                            line +:= 1;
+                            read(buf);
+                            if eof_flag then col := 1; eof
+                            else col := 0; getchar
+                            fi
+    else col +:= 1; ABS buf[col]
+    fi;
+  proc nextchar = int: if eof_flag then eof elif col >= UPB buf then eoln else ABS buf[col+1] fi;
+
+  proc is_blank = (int ch) bool: ch = 0 OR ch = 9 OR ch = 10 OR ch = 13 OR ch = ABS " ";
+  proc is_digit = (int ch) bool: ch >= ABS "0" AND ch <= ABS "9";
+  proc is_ident_start = (int ch) bool: ch >= ABS "A" AND ch <= ABS "Z" OR
+                                       ch >= ABS "a" AND ch <= ABS "z" OR
+                                       ch = ABS "_";
+  proc is_ident = (int ch) bool: is_ident_start(ch) OR is_digit(ch);
+
+  proc ident_or_keyword = (int start_char) void:
+    begin
+      string w := REPR start_char;
+      int start_col = col;
+      while is_ident (next_char) do w +:= REPR getchar od;
+      if   w = "if"    then output2("Keyword_if", start_col)
+      elif w = "else"  then output2("Keyword_else", start_col)
+      elif w = "while" then output2("Keyword_while", start_col)
+      elif w = "print" then output2("Keyword_print", start_col)
+      elif w = "putc"  then output2("Keyword_putc", start_col)
+      else output2("Identifier " + w, start_col)
+      fi
+    end;
+  proc char_ = void:
+    begin
+      int start_col = col;
+      int ch := getchar;
+      if   ch = ABS "''" then error("Empty character constant")
+      elif ch = ABS "\" then ch := getchar;
+                             if   ch = ABS "n" then ch := 10
+                             elif ch = ABS "\" then skip
+                             else error("Unknown escape sequence. \" + REPR ch)
+                             fi
+      fi;
+      if nextchar /= ABS "''" then error("Multi-character constant.") fi;
+      getchar;
+      output2("Integer " + whole(ch, 0), start_col)
+    end;
+  proc string_ = void:
+    begin
+      int start_col = col;
+      string s := """";
+      while int ch := getchar; ch /= ABS """"
+      do
+        if   ch = eoln     then error("End-of-line while scanning string literal. Closing string character not found before end-of-line.")
+        elif ch = eof      then error("End-of-file while scanning string literal. Closing string character not found.")
+        elif ch = ABS "\"  then s +:= REPR ch; ch := getchar;
+                                if ch /= ABS "\" AND ch /= ABS "n" then error("Unknown escape sequence. \" + REPR ch) fi;
+                                s +:= REPR ch
+        else s +:= REPR ch
+        fi
+      od;
+      output2("String " + s + """", start_col)
+    end;
+  proc comment = void:
+    begin
+      while int ch := getchar; NOT (ch = ABS "*" AND nextchar = ABS "/")
+      do if ch = eof then error("End-of-file in comment. Closing comment characters not found.") fi
+      od;
+      getchar
+    end;
+  proc number = (int first_digit) void:
+    begin
+      int start_col = col;
+      int n := first_digit - ABS "0";
+      while is_digit (nextchar) do
+        int u := getchar - ABS "0";
+        if LENG n * 10 + LENG u > max_int then error("Integer too big") fi;
+        n := n * 10 + u
+      od;
+      if is_ident_start (nextchar) then error("Invalid number. Starts like a number, but ends in non-numeric characters.") fi;
+      output2("Integer " + whole(n, 0), start_col)
+    end;
+
+  proc output  = (string s) void: output2(s, col);
+  proc output2 = (string s, int col) void: print((whole(line,-8), whole(col,-8), "  ", s, newline));
+
+  proc if_follows = (char second, string longer, shorter) void:
+    if nextchar = ABS second
+    then output(longer); getchar
+    else output(shorter)
+    fi;
+  proc error = (string s)void: (put(stand_error, ("At ", whole(line,0), ":", whole(col,0), " ", s, new_line)); stop);
+  proc unrecognized = (int char_) void: error("Unrecognized character " + REPR char_);
+  proc double_char = (int first, string op_) void:
+    if nextchar /= first then unrecognized(first)
+    else output2(op_, col-1); getchar
+    fi;
+
+  while int ch := getchar; ch /= eof
+  do
+    if   is_blank(ch) then skip
+    elif ch = ABS "(" then output("LeftParen")
+    elif ch = ABS ")" then output("RightParen")
+    elif ch = ABS "{" then output("LeftBrace")
+    elif ch = ABS "}" then output("RightBrace")
+    elif ch = ABS ";" then output("Semicolon")
+    elif ch = ABS "," then output("Comma")
+    elif ch = ABS "*" then output("Op_multiply")
+    elif ch = ABS "/" then if next_char = ABS "*" then comment
+                           else output("Op_divide")
+                           fi
+    elif ch = ABS "%" then output("Op_mod")
+    elif ch = ABS "+" then output("Op_add")
+    elif ch = ABS "-" then output("Op_subtract")
+    elif ch = ABS "<" then if_follows("=", "Op_lessequal", "Op_less")
+    elif ch = ABS ">" then if_follows("=", "Op_greaterequal", "Op_greater")
+    elif ch = ABS "=" then if_follows("=", "Op_equal", "Op_assign")
+    elif ch = ABS "!" then if_follows("=", "Op_notequal", "Op_not")
+    elif ch = ABS "&" then double_char(ch, "Op_and")
+    elif ch = ABS "|" then double_char(ch, "Op_or")
+    elif is_ident_start (ch) then ident_or_keyword (ch)
+    elif ch = ABS """" then string_
+    elif ch = ABS "''" then char_
+    elif is_digit(ch) then number(ch)
+    else unrecognized(ch)
+    fi
+  od;
+  output("End_Of_Input")
+end
+)

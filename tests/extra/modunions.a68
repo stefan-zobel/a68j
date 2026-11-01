@@ -1,0 +1,7 @@
+module Mod_Unions =
+def pub mode S = struct (int x, z), T = struct (real y, w);
+    pub mode U = union (S, T, int, string, [] int);
+    pub proc mk = (int k) U: (k = 1 | S (7, 8) |: k = 2 | T (1.5, 2.5) |: k = 3 | "str" | []int (1,2,3));
+    pub proc show = (U u) string: case u in (S s): "S", (T t): "T", (int): "int", (string): "string", ([]int): "row" esac;
+    skip
+fed

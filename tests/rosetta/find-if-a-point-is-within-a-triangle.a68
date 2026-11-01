@@ -1,0 +1,83 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find if a point is within a triangle", ALGOL 68 solution find-if-a-point-is-within-a-triangle.alg.
+  https://rosettacode.org/wiki/Find_if_a_point_is_within_a_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-if-a-point-is-within-a-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { determine whether a point is within a triangle or not }
+    { tolerance for the accurate test }
+    real eps         = 0.001;
+    real eps_squared = eps * eps;
+    { mode to hold a point }
+    mode Point = struct( real x, y );
+    { returns a readable representation of p }
+    op    TOSTRING = ( Point p )string: "[" + fixed( x of p, -8, 4 ) + "," + fixed( y of p, -8, 4 ) + "]";
+    { returns 1 if p is to the right of the line ( a, b ), -1 if it is to the left and 0 if it is on it }
+    proc side_of_line = ( Point p, a, b )int:
+         SIGN ( ( ( x of b - x of a ) * ( y of p - y of a ) )
+              - ( ( y of b - y of a ) * ( x of p - x of a ) )
+              );
+    { returns the minimum of a and b }
+    proc min = ( real a, b )real: if a < b then a else b fi;
+    { returns the maximum of a and b }
+    proc max = ( real a, b )real: if a > b then a else b fi;
+    { returns TRUE if p is within the bounding box of the triangle a, b, c, FALSE otherwise }
+    proc point_inside_bounding_box_of_triangle = ( Point p, a, b, c )bool:
+         begin
+            real x_min = min( x of a, min( x of b, x of c ) );
+            real y_min = min( y of a, min( y of b, y of c ) );
+            real x_max = max( x of a, max( x of b, x of c ) );
+            real y_max = max( y of a, max( y of b, y of c ) );
+            x_min <= x of p AND x of p <= x_max AND y_min <= y of p AND y of p <= y_max
+         end { point inside bounding box of triangle } ;
+    { returns the squared distance between p and the line a, b }
+    proc distance_square_point_to_segment = ( Point p, a, b )real:
+         if real a_b_square_length = ( ( x of b - x of a ) ^ 2 ) + ( ( y of b - y of a ) ^ 2 );
+            real dot_product = ( ( ( x of p - x of a ) ^ 2 ) + ( ( y of p - y of a ) ^ 2 ) ) / a_b_square_length;
+            dot_product < 0
+         then ( ( x of p - x of a ) ^ 2 ) + ( ( y of p - y of a ) ^ 2 )
+         elif dot_product <= 1
+         then ( ( x of a - x of p ) ^ 2 ) + ( ( y of a - y of p ) ^ 2 )
+            - ( dot_product * dot_product * a_b_square_length )
+         else ( ( x of p - x of b ) ^ 2 ) + ( ( y of p - y of b ) ^ 2 )
+         fi { distance square point to segment } ;
+    { returns TRUE if p is within the triangle defined by a, b and c, FALSE otherwise }
+    proc point_inside_triangle = ( Point p, a, b, c )bool:
+         if NOT point_inside_bounding_box_of_triangle( p, a, b, c )
+         then false
+         elif int side_of_ab = side_of_line( p, a, b );
+              int side_of_bc = side_of_line( p, b, c );
+              side_of_ab /= side_of_bc
+         then false
+         elif side_of_ab = side_of_line( p, c, a )
+         then true
+         elif distance_square_point_to_segment( p, a, b ) <= eps_squared
+         then true
+         elif distance_square_point_to_segment( p, b, c ) <= eps_squared
+         then true
+         else distance_square_point_to_segment( p, c, a ) <= eps_squared
+         fi { point inside triangle } ;
+    { test the point inside triangle procedure }
+    proc test_point = ( Point p, a, b, c )void:
+         print( ( TOSTRING p, " in ( ", TOSTRING a, ", ", TOSTRING b, ", ", TOSTRING c, ") -> "
+                , if point_inside_triangle( p, a, b, c ) then "true" else "false" fi
+                , newline
+                )
+              );
+    { test cases as in Commpn Lisp }
+    test_point( ( 0, 0 ), ( 1.5, 2.4 ), ( 5.1, -3.1 ), ( -3.8, 1.2 ) );
+    test_point( ( 0, 1 ), ( 1.5, 2.4 ), ( 5.1, -3.1 ), ( -3.8, 1.2 ) );
+    test_point( ( 3, 1 ), ( 1.5, 2.4 ), ( 5.1, -3.1 ), ( -3.8, 1.2 ) );
+    test_point( ( 5.414286, 14.349206 ), ( 0.1, 0.111111 ), ( 12.5, 33.333333 ), (  25.0, 11.111111 ) );
+    test_point( ( 5.414286, 14.349206 ), ( 0.1, 0.111111 ), ( 12.5, 33.333333 ), ( -12.5, 16.666667 ) );
+    { additional Wren test cases }
+    test_point( ( 5.4142857142857, 14.349206349206 )
+              , ( 0.1, 0.11111111111111 ), ( 12.5, 33.333333333333 ), ( 25, 11.111111111111 )
+              );
+    test_point( ( 5.4142857142857, 14.349206349206 )
+              , ( 0.1, 0.11111111111111 ), ( 12.5, 33.333333333333 ), ( -12.5, 16.666666666667 )
+              )
+end
+)

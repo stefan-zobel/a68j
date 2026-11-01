@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fairshare between two and more", ALGOL 68 solution fairshare-between-two-and-more.alg.
+  https://rosettacode.org/wiki/Fairshare_between_two_and_more#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fairshare-between-two-and-more.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Use the generalised Thue-Morse sequence to generate Fairshare        }
+      { sequences for various numbers of people                              }
+    { returns the digit sum of n in the specified base                       }
+    proc digit_sum = ( int n, base )int:
+         if n = 0 then 0
+         else
+             int result := 0;
+             int v      := ABS n;
+             while v > 0 do
+                 result +:= v MOD base;
+                 v   OVERAB base
+             od;
+             result
+         fi { digit sum } ;
+    { show the first n terms of the fairshare sequence in the specified base }
+    proc show_fairshare = ( int n, base )void:
+         begin
+             print( ( whole( base, -2 ), ":" ) );
+             for i from 0 to n - 1 do
+                 print( ( " ", whole( digit_sum( i, base ) MOD base, -2 ) ) )
+             od;
+             print( ( newline ) )
+         end { show fairshare } ;
+
+    show_fairshare( 25,  2 );
+    show_fairshare( 25,  3 );
+    show_fairshare( 25,  5 );
+    show_fairshare( 25, 11 )
+end
+)

@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Count the coins", ALGOL 68 solution count-the-coins-1.alg.
+  https://rosettacode.org/wiki/Count_the_coins#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/count-the-coins-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{
+  Rosetta Code "Count the coins"
+  This is a direct translation of the "naive" Haskell version, using an array
+  rather than a list. LWB, UPB, and array slicing makes the mapping very simple:
+
+  LWB > UPB     <=> []
+  LWB = UPB     <=> [x]
+  a[LWB a]      <=> head xs
+  a[LWB a + 1:] <=> tail xs
+}
+
+begin
+  proc ways_to_make_change = ([] int denoms, int amount) int :
+  begin
+    if amount = 0 then
+      1
+    elif LWB denoms > UPB denoms then
+      0
+    elif LWB denoms = UPB denoms then
+      (amount MOD denoms[LWB denoms] = 0 | 1 | 0)
+    else
+      int sum := 0;
+      for i from 0 by denoms[LWB denoms] to amount do
+        sum +:= ways_to_make_change(denoms[LWB denoms + 1:], amount - i)
+      od;
+      sum
+    fi
+  end;
+  print((ways_to_make_change((25, 10, 5, 1), 100), newline))
+end
+)

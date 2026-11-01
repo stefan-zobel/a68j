@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gradient descent", ALGOL 68 solution gradient-descent.alg.
+  https://rosettacode.org/wiki/Gradient_descent#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gradient-descent.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc steepest_descent = ( ref[]long real x, long real alphap, tolerance )void:
+begin
+    long real alpha := alphap;
+    long real g0    := g( x ); { Initial estimate of result. }
+    { Calculate initial gradient. }
+    [ LWB x : UPB x ]long real fi_  := grad_g( x );
+    { Calculate initial norm. }
+    long real del_g := 0.0;
+    for i from LWB x to UPB x do
+        del_g +:= fi_[ i ] * fi_[ i ]
+    od;
+    del_g       := long_sqrt( del_g );
+    long real b := alpha / del_g;
+    { Iterate until value is <= tolerance. }
+    while del_g > tolerance do
+        { Calculate next value. }
+        for i from LWB x to UPB x do
+            x[i] -:= b * fi_[i]
+        od;
+        { Calculate next gradient. }
+        fi_ := grad_g( x );
+        { Calculate next norm. }
+        del_g := 0;
+        for i from LWB x to UPB x do
+            del_g +:= fi_[ i ] * fi_[ i ]
+        od;
+        del_g := long_sqrt( del_g );
+        if del_g > 0 then
+            b     := alpha / del_g;
+            { Calculate next value. }
+            long real g1 := g( x );
+            { Adjust parameter. }
+            if g1 > g0 then
+                alpha /:= 2
+            else
+                g0 := g1
+            fi
+        fi
+    od
+end { steepest descent } ;
+{ calculates the gradient of g(p).                                                     }
+{ The derivitives wrt x and y are (as in the Fortran sample ):                         }
+{ g' wrt x = 2( x - 1 )e^( - ( y^2 ) ) - 4xe^( -2( x^2) )y( y + 2 )                    }
+{ g' wrt y = ( -2( x-1 )^2ye^( - (y^2) )) + e^(-2( x^2 ) )( y + 2 ) + e^( -2( x^2 ) )y }
+proc grad_g = ( []long real p )[]long real:
+begin
+    [ LWB p : UPB p ]long real z;
+    long real x = p[ 0 ];
+    long real y = p[ 1 ];
+    z[ 0 ] := 2 * ( x - 1 ) * long_exp( - ( y * y ) )
+            - 4 * x * long_exp( -2 * ( x * x ) ) * y * ( y + 2 );
+    z[ 1 ] := ( -2 * ( x - 1 ) * ( x - 1 ) * y ) * long_exp( - y * y )
+            + long_exp( -2 * x * x ) * ( y + 2 )
+            + long_exp( -2 * x * x ) * y;
+    z
+end { grad g } ;
+{ Function for which minimum is to be found. }
+{ g( x, y ) = ( ( x - 1 )^2 )e^( - ( x^2 ) ) + y( y + 2 )e^( - 2(x^2)) }
+proc g = ( []long real x )long real:
+    ( x[ 0 ] - 1 )
+  * ( x[ 0 ] - 1 )
+  * long_exp( - x[ 1 ] * x[ 1 ] ) + x[ 1 ] * ( x[ 1 ] + 2 )
+  * long_exp( - 2 * x[ 0 ] * x[ 0 ] )
+  ;
+begin
+    long real          tolerance := 0.0000006;
+    long real          alpha     := 0.1;
+    [ 0 : 1 ]long real x         := ( []long real( 0.1, -1 ) )[ at 0 ]; { Initial guess of location of minimum. }
+    steepest_descent( x, alpha, tolerance );
+    print( ( "Testing steepest descent method:", newline ) );
+    print( ( "The minimum is at x[0] = ", fixed( x[ 0 ], -10, 6 ), ", x[1] = ", fixed( x[ 1 ], -10, 6 ), newline ) )
+end
+)

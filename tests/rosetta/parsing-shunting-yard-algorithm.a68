@@ -1,0 +1,87 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Parsing/Shunting-yard algorithm", ALGOL 68 solution parsing-shunting-yard-algorithm.alg.
+  https://rosettacode.org/wiki/Parsing/Shunting-yard_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/parsing-shunting-yard-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { parses s and returns an RPN expression using Dijkstra's "Shunting Yard" algorithm }
+    { s is expected to contain a valid infix expression containing single-digit numbers and single-character operators }
+    proc parse = ( string s )string:
+    begin
+        { add to the output }
+        proc output_element = ( char c )void:
+        begin
+            output[ output_pos +:= 1 ] := c;
+            output_pos +:= 1
+        end { output element } ;
+        proc stack_op = ( char c )void: stack[ stack_pos +:= 1 ] := c;
+        { unstacks and returns the top operator on the stack - stops the program if the stack is empty }
+        proc unstack = char:
+            if stack_pos < 1 then
+                { empty stack }
+                print( ( "Stack underflow", newline ) );
+                stop
+            else
+                { still something on the stack to unstack }
+                char    result = stack[ stack_pos ];
+                stack[ stack_pos ] := " ";
+                stack_pos         -:=  1;
+                result
+            fi { unstack } ;
+        { returns the priority of the operator o - which must be one of "(", "^", "*", "/", "+" or "-" }
+        proc priority_of = ( char o )int: if o = "(" then -1 elif o = "^" then 4 elif o = "*" OR o = "/" then 3 else 2 fi;
+        { returns TRUE if o is a right-associative operator, FALSE otherwise }
+        proc right = ( char c )bool: c = "^";
+        proc lower_or_equal_priority = ( char c )bool:
+            if stack_pos < 1 then false { empty stack }
+            else priority_of( c ) <= priority_of( stack[ stack_pos ] )
+            fi { lower or equal priority } ;
+        proc lower_priority = ( char c )bool:
+            if stack_pos < 1 then false { empty stack }
+            else priority_of( c ) < priority_of( stack[ stack_pos ] )
+            fi { lower priority } ;
+        { max stack size and output size }
+        int    max_stack = 32;
+        { stack and output queue }
+        [ 1 : max_stack ]char stack;
+        [ 1 : max_stack ]char output;
+        for c_pos to max_stack do stack[ c_pos ] := output[ c_pos ] := " " od;
+        { stack pointer and output queue pointer }
+        int    stack_pos  := 0;
+        int    output_pos := 0;
+        print( ( "Parsing: ", s, newline ) );
+        print( ( "token   output                               stack", newline ) );
+        for s_pos from LWB s to UPB s do
+            char c = s[ s_pos ];
+            if c /= " " then
+                if c >= "0" AND c <= "9" then output_element( c )
+                elif c = "(" then stack_op( c )
+                elif c = ")" then
+                    { close bracket - unstack to the matching "(" and unstack the "(" }
+                    while char op_char = unstack;
+                          op_char /= "("
+                    do
+                        output_element( op_char )
+                    od
+                elif right( c ) then
+                    { right associative operator }
+                    while lower_priority( c )          do output_element( unstack ) od;
+                    stack_op( c )
+                else
+                    { must be left associative }
+                    while lower_or_equal_priority( c ) do output_element( unstack ) od;
+                    stack_op( c )
+                fi;
+                print( ( c, "       ", output, "     ", stack, newline ) )
+            fi
+        od;
+        while stack_pos >= 1 do output_element( unstack ) od;
+        output[ 1 : output_pos ]
+    end { parse } ;
+
+    print( ( "result: ", parse( "3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3" ), newline ) )
+end
+)

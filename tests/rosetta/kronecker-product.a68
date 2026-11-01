@@ -1,0 +1,71 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Kronecker product", ALGOL 68 solution kronecker-product.alg.
+  https://rosettacode.org/wiki/Kronecker_product#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/kronecker-product.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { multiplies in-place the elements of the matrix a by the scaler b }
+    op *:= = ( ref[,]int a, int b )ref[,]int:
+    begin
+        for i from 1 LWB a to 1 UPB a do
+            for j from 2 LWB a to 2 UPB a do
+                a[ i, j ] *:= b
+            od
+        od;
+        a
+    end { *:= } ;
+    { returns the Kronecker Product of the two matrices a and b }
+    { the result will have lower bounds of 1                    }
+    prio X = 6;
+    op   X = ( [,]int a, b )[,]int:
+    begin
+        { normalise the matrices to have lower bounds of 1 }
+        [,]int l = a[ at 1, at 1 ];
+        [,]int r = b[ at 1, at 1 ];
+        { construct the result }
+        int r_1_size = 1 UPB r;
+        int r_2_size = 2 UPB r;
+        [ 1 : 1 UPB l * 1 UPB r, 1 : 2 UPB l * 2 UPB r ]int k;
+        for i from 1 LWB l to 1 UPB l do
+            for j from 2 LWB l to 2 UPB l do
+                ( k[ 1 + ( ( i - 1 ) * r_1_size ) : i * r_1_size
+                   , 1 + ( ( j - 1 ) * r_2_size ) : j * r_2_size
+                   ] := r
+                ) *:= l[ i, j ]
+            od
+        od;
+        k
+    end { X } ;
+    { prints matrix a with the specified field width }
+    proc show_matrix = ( [,]int a, int field_width )void:
+    for i from 1 LWB a to 1 UPB a do
+        for j from 2 LWB a to 2 UPB a do
+            print( ( " ", whole( a[ i, j ], field_width ) ) )
+        od;
+        print( ( newline ) )
+    od { show matrix } ;
+    { task test cases }
+    show_matrix( [,]int( ( 1, 2 )
+                       , ( 3, 4 )
+                       )
+               X [,]int( ( 0, 5 )
+                       , ( 6, 7 )
+                       )
+               , -2
+               );
+    print( ( newline ) );
+    show_matrix( [,]int( ( 0, 1, 0 )
+                       , ( 1, 1, 1 )
+                       , ( 0, 1, 0 )
+                       )
+               X [,]int( ( 1, 1, 1, 1 )
+                       , ( 1, 0, 0, 1 )
+                       , ( 1, 1, 1, 1 )
+                       )
+               , -1
+               )
+end
+)

@@ -1,0 +1,2 @@
+tests/par/par-sum.a68:3:17: fatal error: no lowering routine installed for construct.  jemarch has been lazy
+exit 1

@@ -1,0 +1,82 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Queue/Definition", ALGOL 68 solution queue-definition-1.alg.
+  https://rosettacode.org/wiki/Queue/Definition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/queue-definition-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ REQUIRES:
+  MODE OBJLINK = STRUCT(
+    REF OBJLINK next,
+    REF OBJLINK prev,
+    OBJVALUE value # ... etc. required #
+  );
+  PROC obj link new = REF OBJLINK: ~;
+  PROC obj link free = (REF OBJLINK free)VOID: ~
+END }
+
+{ actually a pointer to the last LINK, there ITEMs are ADDED/get }
+mode Objqueue = ref OBJLINK;
+
+Objqueue obj_queue_empty = nil;
+
+bool obj_queue_par = false; { make code thread safe }
+sema obj_queue_sema = LEVEL ABS obj_queue_par;
+{ Warning: 1 SEMA for all queues of type obj, i.e. not 1 SEMA per queue }
+
+proc obj_queue_init = (ref Objqueue self)ref Objqueue:
+  self := obj_queue_empty;
+
+proc obj_queue_put = (ref Objqueue self, OBJVALUE obj)ref Objqueue: (
+  ref OBJLINK out_ = obj_link_new;
+  if obj_queue_par then DOWN obj_queue_sema fi;
+  if self is obj_queue_empty then
+    out_ := (out_, out_, obj) { self referal }
+  else { join into list }
+    out_ := (self, prev of self, obj);
+    next of prev of out_ := prev of next of out_ := out_
+  fi;
+  if obj_queue_par then UP obj_queue_sema fi;
+  self := out_
+);
+
+{ define a useful prepend/put/plusto (+=:) operator... }
+proc obj_queue_plusto = (OBJVALUE obj, ref Objqueue self)Objqueue: obj_queue_put(self,obj);
+op +=: = (OBJVALUE obj, ref Objqueue self)ref Objqueue: obj_queue_put(self,obj);
+{ a potential append/plusab (+:=) operator...
+OP (REF OBJQUEUE, OBJVALUE)OBJQUEUE +:= = obj queue plusab;
+}
+
+{ see if the program/coder wants the OBJ problem mended... }
+proc (ref Objqueue {self})bool obj_queue_index_error_mended
+  := (ref Objqueue self)bool: (abend("obj queue index error"); stop);
+
+proc on_obj_queue_index_error = (ref Objqueue self, proc(ref Objqueue {self})bool mended)void:
+  obj_queue_index_error_mended := mended;
+
+proc obj_queue_get = (ref Objqueue self)OBJVALUE: (
+{ DOWN obj queue sema; }
+  if self is obj_queue_empty then
+    if NOT obj_queue_index_error_mended(self) then abend("obj stack index error") fi fi;
+  Objqueue old_tail = prev of self;
+  if old_tail is self then { free solo member }
+    self := obj_queue_empty
+  else { free self/tail member }
+    Objqueue new_tail = prev of old_tail;
+    next of new_tail := self;
+    prev of self := new_tail
+  fi;
+{;UP obj queue sema }
+  OBJVALUE out_ = value of old_tail;
+{ give a recovery hint to the garbage collector }
+  obj_link_free(old_tail);
+  out_
+);
+
+proc obj_queue_is_empty = (ref Objqueue self)bool:
+  self is obj_queue_empty;
+
+skip
+)

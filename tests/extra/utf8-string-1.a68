@@ -1,0 +1,12 @@
+{ Non-ASCII characters in string denotations are UTF-8 in the source
+  and one character each, as in ga68.  (ga68 does not accept them in a
+  character denotation, and not in comments.) }
+begin string s = "Möbius, Pólya, Érgo";
+      puts (s + " " + whole (UPB s, 0) + "'n");
+      char c = s[2];
+      puts (whole (ABS c, 0) + " " + c + "'n");
+      string t = "a'(u263A)c";
+      puts (t + " " + whole (UPB t, 0) + " " + whole (ABS t[2], 0) + "'n");
+      for i to UPB s do if ABS s[i] > 127 then puts (s[i] + whole (ABS s[i], 0) + " ") fi od;
+      puts ("'n")
+end

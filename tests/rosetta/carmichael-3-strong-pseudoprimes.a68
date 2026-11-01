@@ -1,0 +1,51 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Carmichael 3 strong pseudoprimes", ALGOL 68 solution carmichael-3-strong-pseudoprimes.alg.
+  https://rosettacode.org/wiki/Carmichael_3_strong_pseudoprimes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/carmichael-3-strong-pseudoprimes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ sieve of Eratosthene: sets s[i] to TRUE if i is prime, FALSE otherwise }
+proc sieve = ( ref[]bool s )void:
+     begin
+        { start with everything flagged as prime                             }
+        for i to UPB s do s[ i ] := true od;
+        { sieve out the non-primes                                           }
+        s[ 1 ] := false;
+        for i from 2 to ENTIER sqrt( UPB s ) do
+            if s[ i ] then for p from i * i by i to UPB s do s[ p ] := false od fi
+        od
+     end { sieve } ;
+
+{ construct a sieve of primes up to the maximum number required for the task }
+{ For Prime1, we need to check numbers up to around 120 000                  }
+int max_number = 200 000;
+[ 1 : max_number ]bool is_prime;
+sieve( is_prime );
+
+{ Find the Carmichael 3 Stromg Pseudoprimes for Prime1 up to 61              }
+{ prime1 cannot be 2 as there no integers h3 such that 1 < h3 < 2            }
+for prime1 from 3 by 2 to 61 do
+    if is_prime[ prime1 ] then
+        for h3 to prime1 - 1 do
+            for d to ( h3 + prime1 ) - 1 do
+                if   ( h3 + prime1 ) * ( prime1 - 1 ) MOD d = 0
+                AND ( - ( prime1 * prime1 ) ) MOD h3 = d MOD h3
+                then
+                    int prime2 = 1 + ( ( prime1 - 1 ) * ( h3 + prime1 ) OVER d );
+                    if is_prime[ prime2 ] then
+                        int prime3 = 1 + ( prime1 * prime2 OVER h3 );
+                        if is_prime[ prime3 ] then
+                            if ( prime2 * prime3 ) MOD ( prime1 - 1 ) = 1 then
+                                print( ( whole( prime1, 0 ), " ", whole( prime2, 0 ), " ", whole( prime3, 0 ) ) );
+                                print( ( newline ) )
+                            fi
+                        fi
+                    fi
+                fi
+            od
+        od
+    fi
+od
+)

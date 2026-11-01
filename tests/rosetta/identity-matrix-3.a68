@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Identity matrix", ALGOL 68 solution identity-matrix-3.alg.
+  https://rosettacode.org/wiki/Identity_matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/identity-matrix-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+prio IDENT = 9; { The same as I for COMPLex }
+
+op IDENT = (int lwb, upb)MATNEW:
+  ONEINIT loc [lwb:upb,lwb:upb]SCAL;
+
+op IDENT = (int upb)MATNEW: { default lwb is 1 }
+  1 IDENT upb;
+
+skip
+)

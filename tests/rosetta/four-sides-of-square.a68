@@ -1,0 +1,23 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Four sides of square", ALGOL 68 solution four-sides-of-square.alg.
+  https://rosettacode.org/wiki/Four_sides_of_square#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/four-sides-of-square.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw a matrix with 1s on the edges and 0s elsewhere             }
+    { draws a matrix with height and width = n with 1s on the edges     }
+    proc draw_square = ( int n )void:
+         for i to n do
+             for j to n do
+                 print( ( " ", whole( ABS ( i = 1 OR i = n OR j = 1 OR j = n ), 0 ) ) )
+             od;
+             print( ( newline ) )
+         od { draw square } ;
+    { test the draw square procedure }
+    draw_square( 6 );
+    print( ( newline ) );
+    draw_square( 7 )
+end
+)

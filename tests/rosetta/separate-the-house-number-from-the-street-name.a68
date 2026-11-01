@@ -1,0 +1,96 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Separate the house number from the street name", ALGOL 68 solution separate-the-house-number-from-the-street-name.alg.
+  https://rosettacode.org/wiki/Separate_the_house_number_from_the_street_name#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/separate-the-house-number-from-the-street-name.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { separate house numbers from street names in German/Netherlands       }
+      {                                                            addresses }
+
+    { returns the position of the start of the house number in a             }
+    proc house_position = ( string a )int:
+         begin
+            char eol_ch = REPR 0;
+            int  a_pos := UPB a;
+            proc eol    = bool: a_pos < LWB a OR a_pos > UPB a;
+            proc ch     = ( int pos )char:
+                 if pos < LWB a OR pos > UPB a then eol_ch else a[ pos ] fi;
+            proc curr   = char: ch( a_pos );
+            proc prev   = char: if a_pos >= LWB a then a_pos -:= 1; curr else eol_ch fi;
+            proc next   = char: if a_pos <= UPB a then a_pos +:= 1; curr else eol_ch fi;
+            proc have   = ( char c )bool: curr = c;
+            proc range  = ( char ra, rz, int pos )bool: ch( pos ) >= ra AND ch( pos ) <= rz;
+            proc digit  = ( int pos )bool: range( "0", "9", pos );
+
+            while have( " " ) do prev od;
+            if    have( "." ) then prev; while have( " " ) do prev od fi;
+            while have( "I" ) do prev od;
+            while have( " " ) do prev od;
+            while range( "a", "z", a_pos ) OR digit( a_pos )
+               OR have( " " ) OR have( "." ) OR have( "/" ) OR have( "-" )
+            do
+               prev
+            od;
+            if have( "''" ) then                           { abbreviated year }
+                while next;
+                      digit( a_pos )
+                do skip od
+            fi;
+            if eol then                         { must not be the whole line }
+                while next;
+                  NOT have( " " ) AND NOT eol
+                do skip od
+            fi;
+            { must start with a number that doesn't look like a 1940s year   }
+            while while have( " " ) do next od;
+                  if NOT digit( a_pos ) then
+                      while NOT have( " " ) AND NOT eol do next od
+                  fi;
+                  while NOT digit( a_pos ) AND NOT eol do next od;
+                  ch( a_pos     ) = "1" AND ch(    a_pos + 1 ) = "9"
+              AND ch( a_pos + 2 ) = "4" AND digit( a_pos + 3 )
+            do
+                while digit( a_pos ) do next od
+            od;
+            a_pos
+         end { house position } ;
+
+    []string test_cases
+        = ( "Plataanstraat 5"      , "Straat 12"            , "Straat 12 II"
+          , "Dr. J. Straat   12"   , "Dr. J. Straat 12 a"   , "Dr. J. Straat 12-14"
+          , "Laan 1940 - 1945 37"  , "Plein 1940 2"         , "1213-laan 11"
+          , "16 april 1944 Pad 1"  , "1e Kruisweg 36"       , "Laan 1940-''45 66"
+          , "Laan ''40-''45"         , "Langeloërduinen 3 46" , "Marienwaerdt 2e Dreef 2"
+          , "Provincialeweg N205 1", "Rivium 2e Straat 59." , "Nieuwe gracht 20rd"
+          , "Nieuwe gracht 20rd 2" , "Nieuwe gracht 20zw /2", "Nieuwe gracht 20zw/3"
+          , "Nieuwe gracht 20 zw/4", "Bahnhofstr. 4"        , "Wertstr. 10"
+          , "Lindenhof 1"          , "Nordesch 20"          , "Weilstr. 6"
+          , "Harthauer Weg 2"      , "Mainaustr. 49"        , "August-Horch-Str. 3"
+          , "Marktplatz 31"        , "Schmidener Weg 3"     , "Karl-Weysser-Str. 6"
+          );
+    for i from LWB test_cases to UPB test_cases do
+        proc rtrim = ( string s )string:
+             begin
+                int s_end := UPB s;
+                while if s_end < LWB s then false else s[ s_end ] = " " fi do
+                    s_end -:= 1
+                od;
+                s[ LWB s : s_end ]
+             end { rtrim } ;
+        proc lpad = ( string s, int len )string:
+             if int s_len = ( UPB s + 1 ) - LWB s;
+                s_len >= len
+             then s
+             else " " * ( len - s_len ) + s
+             fi { lpad } ;
+        string test   = rtrim( test_cases[ i ] );
+        int    h_pos  = house_position( test );
+        string street = if h_pos > UPB test then test     else test[ LWB test : h_pos - 1 ] fi;
+        string house  = if h_pos > UPB test then "(none)" else test[ h_pos    :           ] fi;
+        print( ( lpad( rtrim( street ), 40 ), "   ", rtrim( house ), newline ) )
+    od
+
+end
+)

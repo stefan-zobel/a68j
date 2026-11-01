@@ -1,0 +1,120 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pandigital prime", ALGOL 68 solution pandigital-prime-1.alg.
+  https://rosettacode.org/wiki/Pandigital_prime#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pandigital-prime-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Find the largest n-digit prime that contains all the digits 1..n }
+      { As noted in the Factor sample, only 7 and 4 digit primes need be }
+      { considered: 1 is not prime, all 2, 3, 5, 6, 8 and 9 digit        }
+      { pandigital numbers are divisible by 3                            }
+      { Also find the largest n+1 digit prime that contains all the      }
+      { digits 0..n (only 5 and 8 digit numbers need be considered as    }
+      { the 0 digit does not affect divisibility by 3)                   }
+    { permutation code from the Algol 68 Permutations by swapping task   }
+    { entry - uses Heap's algorithm - based on the pseudo code on the    }
+    { Wikipedia page for Heap's Algorithm                                }
+    { generate permutations of a, the results are stored in p }
+    proc generate = ( int k, ref[]int a, ref[]int p, ref int p_pos )void:
+         if k = 1 then
+            int last_digit = a[ UPB a ];
+            if ODD last_digit AND last_digit /= 5 then
+                { the number doesn't end in 2 or 5 so might be prime     }
+                int a_value := a[ 0 ];
+                for d to UPB a do
+                   a_value *:= 10 +:= a[ d ]
+                od;
+                p[ p_pos +:= 1 ] := a_value
+             fi
+         else
+            { Generate permutations with kth unaltered }
+            { Initially k = length a }
+            generate( k - 1, a, p, p_pos );
+            { Generate permutations for kth swapped with each k-1 initial }
+            for i from 0 to k - 2 do
+                { Swap choice dependent on parity of k (even or odd) }
+                int swap_item = if ODD k then 0 else i fi;
+                int t           = a[ swap_item ];
+                a[ swap_item ] := a[ k - 1 ];
+                a[ k - 1     ] := t;
+                generate( k - 1, a, p, p_pos )
+            od
+         fi { generate } ;
+    { generate permutations of a, p is used to hold the output }
+    { returns the number of permutations stored }
+    proc permute_digits = ( ref[]int a, ref[]int p )int:
+         begin
+            int p_pos := -1;
+            generate( ( UPB a + 1 ) - LWB a, a[ at 0 ], p[ at 0 ], p_pos );
+            p_pos
+         end { permute digits } ;
+    { Quicksorts in-place the array of integers a, from lb to ub }
+    proc quicksort = ( ref[]int a, int lb, ub )void:
+         if ub > lb then
+            { more than one element, so must sort }
+            int left   := lb;
+            int right  := ub;
+            { choosing the middle element of the array as the pivot }
+            int pivot  := a[ left + ( ( right + 1 ) - left ) OVER 2 ];
+            while
+                while if left  <= ub then a[ left  ] < pivot else false fi do left  +:= 1 od;
+                while if right >= lb then a[ right ] > pivot else false fi do right -:= 1 od;
+                left <= right
+            do
+                int t      := a[ left  ];
+                a[ left  ] := a[ right ];
+                a[ right ] := t;
+                left      +:= 1;
+                right     -:= 1
+            od;
+            quicksort( a, lb,   right );
+            quicksort( a, left, ub    )
+         fi { quicksort } ;
+    { attenmpt to find the maximum pandigital prime with digits f..n, return it if found, 0 otherwise }
+    proc try_pd_prime = ( int f, int n )int:
+         begin
+            { array of digits to permute for the numbers }
+            [ f : n ]int digits; for i from LWB digits to UPB digits do digits[ i ] := i od;
+            { array to hold the permuted digits, there will be ( ( n + 1 ) - f)! elements }
+            int factorial_n := 1; for i from 2 to ( n + 1 ) - f do factorial_n *:= i od;
+            [ 0 : factorial_n - 1 ]int permuted_digits;
+            { permute the digits }
+            int p_count = permute_digits( digits, permuted_digits );
+            { sort the permuted numbers, assuming the prime is near the high end }
+            quicksort( permuted_digits, LWB permuted_digits, p_count );
+            { try finding a prime - use trial division to test for primality }
+            int pd_prime := 0;
+            for p_pos from p_count by -1 to LWB permuted_digits while pd_prime = 0 do
+                int p = permuted_digits[ p_pos ];
+                { we have onlt stored the odd numbers that don't end in 5 }
+                { and we know they are not divisible by 3 }
+                bool prime := true;
+                for i from 7 by 2 to ENTIER sqrt(p) while prime := p MOD i /= 0 do skip od;
+                if prime then
+                    { found a pandigital prime }
+                    pd_prime := p
+                fi
+            od;
+            pd_prime
+         end { try pd prime } ;
+    { trys to find the maximem pandigital/pandigital0 prime }
+    proc find_pd_prime = ( int first_digit, string title )void:
+         if   { first try digits up to 7 then up to 4 if we can't find one with pt to 7 }
+              int pd_prime := try_pd_prime( first_digit, 7 );
+              pd_prime > 0
+         then
+            print( ( "max ", title, " prime: ", whole( pd_prime, 0 ), newline ) )
+         elif pd_prime := try_pd_prime( first_digit, 4 );
+              pd_prime > 0
+         then
+            print( ( "max ", title, " prime: ", whole( pd_prime, 0 ), newline ) )
+         else
+            print( ( "Can''t find a ", title, " prime", newline ) )
+         fi { find pd prime } ;
+    { task }
+    find_pd_prime( 1, "pandigital"  );
+    find_pd_prime( 0, "pandigital0" )
+end
+)

@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Spiral matrix", ALGOL 68 solution spiral-matrix.alg.
+  https://rosettacode.org/wiki/Spiral_matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/spiral-matrix.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int empty_=0;
+
+proc spiral = (int n)[,]int: (
+    int dx:=1, dy:=0;            { Starting increments }
+    int x:=0, y:=0;              { Starting location }
+    [0:n-1,0:n-1]int my_array;
+    for y from LWB my_array to UPB my_array do
+        for x from LWB my_array to UPB my_array do
+            my_array[x,y]:=empty_
+        od
+    od;
+    for i to n**2 do
+        my_array[x,y] := i;
+        int nx:=x+dx, ny:=y+dy;
+        if ( 0<=nx AND nx<n AND 0<=ny AND ny<n | my_array[nx,ny] = empty_ | false ) then
+            x:=nx; y:=ny
+        else
+            int swap:=dx; dx:=-dy; dy:=swap;
+            x+:=dx; y+:=dy
+        fi
+    od;
+    my_array
+);
+
+proc print_spiral = ([,]int my_array)void:(
+    for y from LWB my_array to UPB my_array do
+        for x from LWB my_array to UPB my_array do
+            print(whole(my_array[x,y],-3))
+        od;
+        print(new_line)
+    od
+);
+
+print_spiral(spiral(5))
+)

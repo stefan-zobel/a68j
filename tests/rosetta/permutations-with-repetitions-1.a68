@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Permutations with repetitions", ALGOL 68 solution permutations-with-repetitions-1.alg.
+  https://rosettacode.org/wiki/Permutations_with_repetitions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/permutations-with-repetitions-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+mode Permelemlist = flex[0]PERMELEM;
+mode Permelemlistyield = proc(Permelemlist)void;
+
+proc perm_gen_elemlist = (flex[]Permelemlist master, Permelemlistyield yield)void:(
+  [LWB master:UPB master]int counter;
+  [LWB master:UPB master]PERMELEM out_;
+  for i from LWB counter to UPB counter do
+    int c = counter[i] := LWB master[i];
+    out_[i] := master[i][c]
+  od;
+  yield(out_);
+  while true do
+    int next_i := LWB counter;
+    counter[next_i] +:= 1;
+    for i from LWB counter to UPB counter while counter[i]>UPB master[i] do
+      int c = counter[i] := LWB master[i];
+      out_[i] := master[i][c];
+      next_i := i + 1;
+      if next_i > UPB counter then done fi;
+      counter[next_i] +:= 1
+    od;
+    int c = counter[next_i];
+    out_[next_i] := master[next_i][c];
+    yield(out_)
+  od;
+  done: skip
+);
+
+skip
+)

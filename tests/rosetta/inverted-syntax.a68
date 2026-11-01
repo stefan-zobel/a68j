@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Inverted syntax", ALGOL 68 solution inverted-syntax.alg.
+  https://rosettacode.org/wiki/Inverted_syntax#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/inverted-syntax.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Inverted assignment                                                                       }
+{ Assignment in Algol 68 is via ":=" which is automaically provided for all modes (types)   }
+{ However we could define e.g. "=:" as an inverted assignment operator but we would need to }
+{ define a separate operator for eaach mode, e.g. for integers and strings:                 }
+{ also note that although "a := b := c" works as expected ( a and b get set to c )          }
+{ brckets are need to make "c =: b =: a" work as expected, i.e. ( c =: b ) =: a             }
+prio =: = 1;
+op   =: = ( int ia_a,    ref int    ia_b )ref int:    ia_b := ia_a;
+op   =: = ( string ia_a, ref string ia_b )ref string: ia_b := ia_a;
+op   =: = ( char   ia_a, ref string ia_b )ref string: ia_b := ia_a;
+
+{ examples                                                                                  }
+int a, b; string s;
+    1 =: a;
+a + 1 =: b;
+  "?" =: s;
+print( ( a, b, s, newline ) );
+
+{ There is one standard inverted assignment operator: +=: or PLUSTO which prepends a string }
+{ to another:                                                                               }
+"bc"  =: s;
+"b"  +=: s;
+print( ( s, newline ) );
+
+{ Inverted Conditional Expressions                                                          }
+{ We cuold define an operator called WHEN perhaps, that would execute its left operand if   }
+{ the right operand was TRUE. However the left operand would need to be a PROC VOID so the  }
+{ syntax would not be as conventient as the standard IF-THEN-FI construct. E.g.:            }
+prio WHEN = 1;
+op   WHEN = ( proc void code, bool test )void: if test then code fi;
+
+( void: print( ( "NO",  newline ) ) ) WHEN a = b;  { the anonymous PROC VOID is not called  }
+( void: print( ( "yes", newline ) ) ) WHEN a /= b  { the anonymous PROC VOID is called      }
+)

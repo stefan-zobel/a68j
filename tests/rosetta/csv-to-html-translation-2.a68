@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "CSV to HTML translation", ALGOL 68 solution csv-to-html-translation-2.alg.
+  https://rosettacode.org/wiki/CSV_to_HTML_translation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/csv-to-html-translation-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+<HTML>
+<HEAD>
+<TITLE>CSV to_ HTML translation - E xtra C redit</TITLE>
+<STYLE type="text/css">
+TD {background-color:#ddddff; }
+thead TD {background-color:#ddffdd; text-align:center; }
+</STYLE>
+</HEAD>
+<BODY>
+<TABLE>
+<TR><TH>C haracter</TH><TH>S peech</TH></TR>
+<TR><TD>T he_multitude</TD><TD>T he_messiah! S how_us_the_messiah!</TD></TR>
+<TR><TD>B rians_mother</TD><TD>&lt;angry>N ow_you_listen_here! H e's_not_the_messiah; he's_a_very_naughty_boy! N ow_go_away!&lt;/angry></TD></TR>
+<TR><TD>T he_multitude</TD><TD>W ho_are_you?</TD></TR>
+<TR><TD>B rians_mother</TD><TD>I'm_his_mother; that's_who!</TD></TR>
+<TR><TD>T he_multitude</TD><TD>B ehold_his_mother! B ehold_his_mother!</TD></TR>
+</TABLE>
+</BODY>
+</HTML>
+)

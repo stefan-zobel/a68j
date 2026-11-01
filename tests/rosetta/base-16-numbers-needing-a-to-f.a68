@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Base 16 numbers needing a to f", ALGOL 68 solution base-16-numbers-needing-a-to-f.alg.
+  https://rosettacode.org/wiki/Base_16_numbers_needing_a_to_f#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/base-16-numbers-needing-a-to-f.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show numbers that when represented in hex, have at least one a-f digit }
+    int h_count := 0;
+    for i to 500 do
+        bits v := BIN i;
+        while v /= 16r0 do
+            if ABS ( v AND 16rf ) < 10
+            then v := v SHR 4
+            else
+                v := 16r0;
+                print( ( " ", whole( i, -3 ) ) );
+                if ( h_count +:= 1 ) MOD 20 = 0 then print( ( newline ) ) fi
+            fi
+        od
+    od
+end
+)

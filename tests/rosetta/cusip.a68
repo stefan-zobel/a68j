@@ -1,0 +1,49 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "CUSIP", ALGOL 68 solution cusip.alg.
+  https://rosettacode.org/wiki/CUSIP#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cusip.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { validate CUSIP codes }
+
+    { returns TRUE if cusip string is a valid CUSIP code, FALSE otherwise }
+    op   ISCUSIP = ( string cusip_string )bool:
+         if UPB cusip_string - LWB cusip_string /= 8
+         then false { CUSIP code is not 9 characters long }
+         else       { CUSIP code has the correct length }
+
+            { returns the base 39 digit corresponding to a character of a CUSIP code }
+            proc cusip_digit = ( char c_char )int:
+                 if   string cusip_digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ*@#"[ at 0 ];
+                      int digit := 0;
+                      char_in_string( c_char, digit, cusip_digits )
+                 then digit
+                 else -999 { invalid digit }
+                 fi { cusip digit } ;
+
+            []char cusip = cusip_string[ at 1 ];
+            int sum := 0;
+            int check_digit = cusip_digit( cusip[ UPB cusip ] );
+            for c_pos to UPB cusip - 1 do
+                int digit := cusip_digit( cusip[ c_pos ] );
+                if NOT ODD c_pos then digit *:= 2 fi;
+                sum +:= ( digit OVER 10 ) + ( digit MOD 10 )
+            od;
+            ( 10 - ( sum MOD 10 ) ) MOD 10 = check_digit
+         fi { is cusip } ;
+
+    { task test cases }
+
+    proc test_cusip = ( string cusip )void:
+         print( ( cusip, if ISCUSIP cusip then " valid" else " invalid" fi, newline ) );
+
+    test_cusip( "037833100" );
+    test_cusip( "17275R102" );
+    test_cusip( "38259P508" );
+    test_cusip( "594918104" );
+    test_cusip( "68389X106" );
+    test_cusip( "68389X105" )
+end
+)

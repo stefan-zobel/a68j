@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Harmonic series", ALGOL 68 solution harmonic-series.alg.
+  https://rosettacode.org/wiki/Harmonic_series#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/harmonic-series.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some harmonic numbers, Hn is the sum of the reciprocals of 1..n }
+    { returns the first n Harmonic numbers }
+    op   HARMONIC = ( int n )[]real:
+         begin
+            [ 1 : n ]real hs;
+            hs[ 1 ] := 1;
+            for i from 2 to n do
+                hs[ i ] := hs[ i - 1 ] + ( 1 / i )
+            od;
+            hs
+         end { HARMONIC } ;
+    { find the first 20 000 harmonic numbers }
+    []real h = HARMONIC 20 000;
+    { show the first 20 harmonic numbers }
+    for i to 20 do
+        print( ( whole( i, -2 ), ":", fixed( h[ i ], -14, 8 ), newline ) )
+    od;
+    { find the positions of the first harmonic number > n where n in 1... }
+    int  rqd_int  := 1;
+    real rqd_real := 1;
+    for i to UPB h do
+        if h[ i ] > rqd_real then
+            { found the first harmonic number greater than rqd real }
+            print( ( "Position of the first harmonic number > ", whole( rqd_int, -2 ) ) );
+            print( ( ": ", whole( i, 0 ), newline ) );
+            rqd_int  +:= 1;
+            rqd_real +:= 1
+        fi
+    od
+end
+)

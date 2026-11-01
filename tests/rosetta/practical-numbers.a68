@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Practical numbers", ALGOL 68 solution practical-numbers.alg.
+  https://rosettacode.org/wiki/Practical_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/practical-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some practical numbers - positive integers n where subsets of   }
+      { their proper divisors can be summed to every positive integer < n    }
+
+    { returns TRUE if n is practical, FALSE otherwise                        }
+    proc is_practical = ( int n )bool:
+         if   n < 1 then false
+         elif n = 1 then true
+         elif ODD n then false
+         else
+            { get a list of the proper divisors of n                        }
+            [ 1 : 30 ]int pd;      { should be more than enough for n < 667 }
+            int pd_pos := LWB pd - 1;
+
+            { returns TRUE if a subset of pd can be summed to n, FALSE otherwise     }
+            proc can_sum_to = ( int x )bool:
+                 begin
+                    bool  found_sum := false;
+                    int   max_v      = ( 2 ^ pd_pos ) - 1;
+                    for i to max_v while NOT found_sum do
+                        int sum := 0;
+                        int v   := i;
+                        int bit := 0;
+                        while v > 0 do
+                            bit +:= 1;
+                            if ODD v then sum +:= pd[ bit ] fi;
+                            v OVERAB 2
+                        od;
+                        found_sum := sum = x
+                    od;
+                    found_sum
+                 end { can sum to } ;
+
+             pd[ pd_pos +:= 1 ] := 1;
+             for i from 2 to ENTIER sqrt( n ) do
+                 if n MOD i = 0 then
+                     pd[ pd_pos +:= 1 ] := i;
+                     int j = n OVER i;
+                     if i /= j then pd[ pd_pos +:= 1 ] := j fi
+                 fi
+             od;
+             { check that subsets of the divisors can be summed to every     }
+             { integer less than n                                           }
+             bool practical_number := true;
+             for i to n - 1 while practical_number := can_sum_to( i ) do skip od;
+             practical_number
+         fi { is practical } ;
+
+    [ 1 : 333 ]bool practical;
+    for i from LWB practical to UPB practical do practical[ i ] := is_practical( i ) od;
+    int p_count := 0;
+    for i from LWB practical to UPB practical do if practical[ i ] then p_count +:= 1 fi od;
+    print( ( "Found ", whole( p_count, 0 ), " practical numbers up to " ) );
+    print( ( whole( UPB practical, 0 ), newline ) );
+    int count := 0;
+    for i from LWB practical to UPB practical while count < 10 do
+        if practical[ i ] then
+            count +:= 1;
+            print( ( " ", whole( i, 0 ) ) )
+        fi
+    od;
+    print( ( " ..." ) );
+    count := 0;
+    for i from LWB practical to UPB practical do
+        if practical[ i ] then
+            count +:= 1;
+            if count > p_count - 10 then print( ( " ", whole( i, 0 ) ) ) fi
+        fi
+    od;
+    print( ( newline ) );
+    print( ( "666 is ", if NOT is_practical( 666 ) then "not " else "" fi, "a practical number", newline ) )
+
+end
+)

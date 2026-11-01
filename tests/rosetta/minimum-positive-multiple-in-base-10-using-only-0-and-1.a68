@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Minimum positive multiple in base 10 using only 0 and 1", ALGOL 68 solution minimum-positive-multiple-in-base-10-using-only-0-and-1.alg.
+  https://rosettacode.org/wiki/Minimum_positive_multiple_in_base_10_using_only_0_and_1#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/minimum-positive-multiple-in-base-10-using-only-0-and-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns B10 for the specified n or -1 if it cannot be found  }
+    { based on Rick Heylen's C program linked from the OEIS site   }
+    proc find_b10 = ( int n )long int:
+         if n < 1   then -1
+         elif n = 1 then  1
+         else
+            [ 0 : n ]long int pow, val;
+            int      x, ten;
+            long int count;
+            int num = n;
+            for i from 0 to n - 1 do pow[ i ] := val[ i ] := 0 od;
+            count := 0;
+            ten   := 1;
+            x     := 1;
+            while x < n
+              AND begin val[ x ] := ten;
+                        for j from 0 to n- 1 do
+                            if pow[ j ] /= 0 then
+                                if int j_plus_ten_mod_num = ( j + ten ) MOD num;
+                                    pow[ j_plus_ten_mod_num ] = 0
+                                then
+                                    if pow[ j ] /= x then pow[ j_plus_ten_mod_num ] := x fi
+                                fi
+                            fi
+                        od;
+                        if pow[ ten ] = 0 then pow[ ten ] := x fi;
+                        ten *:= 10 MODAB num;
+                        pow[ 0 ] = 0
+                  end
+            do
+                x +:= 1
+            od;
+            x := num;
+            if pow[ 0 ] = 0 then - 1 { couldn't find B10 }
+            else
+                long int result := 0;
+                while x /= 0 do
+                    while ( count -:= 1 ) > pow[ x MOD num ] - 1 do result *:= 10 od;
+                    count := pow [ x MOD num ] -1;
+                    result *:= 10 +:= 1;
+                    x := SHORTEN ( num + x - val[ SHORTEN pow[ x MOD num ] ] ) MOD num
+                od;
+                while count > 0 do result *:= 10 ; count -:= 1 od;
+                result
+            fi
+         fi { find B10 } ;
+    { outputs B10 for the specified n }
+    proc show_b10 = ( int n )void:
+         if long int b10 = find_b10( n );
+            b10 < 1
+         then print( ( "Cannot find B10 for: ", whole( n, 0 ), newline ) )
+         else
+             { found B10(n) }
+             print( ( whole( n, -6 ), ": ", whole( b10, -32 ), " = ", whole( n, -6 ), " * ", whole( b10 OVER n, 0 ), newline ) )
+         fi;
+    { task test cases }
+    for n from  1 to  10 do show_b10( n ) od;
+    for n from 95 to 105 do show_b10( n ) od;
+    []int tests = ( 297, 576, 594, 891, 909, 999
+                  , 1998, 2079, 2251, 2277
+                  , 2439, 2997, 4878
+                  );
+    for n from LWB tests to UPB tests do show_b10( tests[ n ] ) od
+end
+)

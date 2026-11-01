@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "File modification time", ALGOL 68 solution file-modification-time.alg.
+  https://rosettacode.org/wiki/File_modification_time#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/file-modification-time.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc get_output = (string cmd) void:
+if string sh_cmd = " " + cmd + " ; 2>&1";
+   string output;
+   execve_output ("/bin/sh", ("sh", "-c", sh_cmd), "", output) >= 0
+then print (output) fi;
+get_output ("rm -rf WTC_1");				{ Ensure file doesn't exist }
+get_output ("touch WTC_1");				{ Create file }
+get_output ("ls -l --time-style=full-iso WTC_1");	{ Display its last modified time }
+get_output ("touch -t 200109111246.40 WTC_1");		{ Change its last modified time }
+get_output ("ls -l --time-style=full-iso WTC_1")	{ Verify it changed }
+)

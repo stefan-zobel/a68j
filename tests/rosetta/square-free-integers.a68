@@ -1,0 +1,92 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Square-free integers", ALGOL 68 solution square-free-integers.alg.
+  https://rosettacode.org/wiki/Square-free_integers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/square-free-integers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { count/show some square free numbers                                           }
+    { a number is square free if not divisible by any square and so not divisible   }
+    { by any squared prime                                                          }
+    { to satisfy the task we need to know the primes up to root 1 000 000 000 145   }
+    { and the square free numbers up to 1 000 000                                   }
+    { sieve the primes                                                              }
+    long int one_trillion = LENG 1 000 000 * LENG 1 000 000;
+    int prime_max = ENTIER SHORTEN long_sqrt( one_trillion + 145 ) + 1;
+    [ prime_max ]bool prime; for i to UPB prime do prime[ i ] := true od;
+    for s from 2 to ENTIER sqrt( prime_max ) do
+        if prime[ s ] then
+            for p from s * s by s to prime_max do prime[ p ] := false od
+        fi
+    od;
+    { sieve the square free integers                                                }
+    int sf_max = 1 000 000;
+    [ sf_max ]bool square_free;for i to UPB square_free do square_free[ i ] := true od;
+    for s from 2 to ENTIER sqrt( sf_max ) do
+        if prime[ s ] then
+            int q = s * s;
+            for p from q by q to sf_max do square_free[ p ] := false od
+        fi
+    od;
+    { returns TRUE if n is square free, FALSE otherwise                             }
+    proc is_square_free = ( long int n )bool:
+         if n <= sf_max then square_free[ SHORTEN n ]
+         else
+            { n is larger than the sieve - use trial division                       }
+            int max_factor  = ENTIER SHORTEN long_sqrt( n ) + 1;
+            bool result    := true;
+            for f from 2 to max_factor while result do
+                if prime[ f ] then
+                    { have a prime                                                  }
+                    result := ( n MOD ( LENG f * LENG f ) /= 0 )
+                fi
+            od;
+            result
+         fi { is square free } ;
+    { returns the count of square free numbers between m and n (inclusive)          }
+    proc count_square_free = ( int m, n )int:
+         begin
+            int count := 0;
+            for i from m to n do if square_free[ i ] then count +:= 1 fi od;
+            count
+         end { count square free } ;
+
+    begin { task requirements                                                       }
+        { show square free numbers from 1 -> 145                                    }
+        print( ( "Square free numbers from 1 to 145", newline ) );
+        int    count := 0;
+        for i to 145 do
+            if is_square_free( i ) then
+                print( ( whole( i, -4 ) ) );
+                count +:= 1;
+                if count MOD 20 = 0 then print( ( newline ) ) fi
+            fi
+        od;
+        print( ( newline ) );
+        { show square free numbers from 1 trillion -> one trillion + 145            }
+        print( ( "Square free numbers from 1 000 000 000 000 to 1 000 000 000 145", newline ) );
+        count := 0;
+        for i from 0 to 145 do
+            if is_square_free( one_trillion + i ) then
+                print( ( whole( one_trillion + i, -14 ) ) );
+                count +:= 1;
+                if count MOD 5 = 0 then print( ( newline ) ) fi
+            fi
+        od;
+        print( ( newline ) );
+        { show counts of square free numbers                                        }
+        int sf_100 :=              count_square_free(       1,       100 );
+        print( ( "square free numbers between 1 and       100: ", whole( sf_100, -6 ), newline ) );
+        int sf_1_000 := sf_100 + count_square_free(     101,     1 000 );
+        print( ( "square free numbers between 1 and     1 000: ", whole( sf_1_000, -6 ), newline ) );
+        int sf_10_000 := sf_1_000 + count_square_free(   1 001,    10 000 );
+        print( ( "square free numbers between 1 and    10 000: ", whole( sf_10_000, -6 ), newline ) );
+        int sf_100_000 := sf_10_000 + count_square_free(  10 001,   100 000 );
+        print( ( "square free numbers between 1 and   100 000: ", whole( sf_100_000, -6 ), newline ) );
+        int sf_1_000_000 := sf_100_000 + count_square_free( 100 001, 1 000 000 );
+        print( ( "square free numbers between 1 and 1 000 000: ", whole( sf_1_000_000, -6 ), newline ) )
+    end
+end
+)

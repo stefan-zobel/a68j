@@ -1,0 +1,26 @@
+{ Producer and consumer with a bounded buffer (Dijkstra). }
+begin
+   int size = 4;
+   [0 : size - 1] int buffer;
+   sema free = LEVEL size, full = LEVEL 0, mutex = LEVEL 1;
+   int put := 0, get := 0;
+   int n = 1000;
+   int sum := 0, count := 0;
+   par (
+      { producer }
+      for i to n
+      do DOWN free;
+         DOWN mutex; buffer[put] := i; put := (put + 1) MOD size; UP mutex;
+         UP full
+      od,
+      { consumer }
+      to n
+      do DOWN full;
+         DOWN mutex; int v = buffer[get]; get := (get + 1) MOD size; UP mutex;
+         UP free;
+         sum +:= v; count +:= 1
+      od
+   );
+   puts ("consumed " + whole (count, 0) + " values, sum " + whole (sum, 0) + "'n");
+   puts ("free " + whole (LEVEL free, 0) + ", full " + whole (LEVEL full, 0) + "'n")
+end

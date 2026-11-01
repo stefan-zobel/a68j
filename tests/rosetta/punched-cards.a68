@@ -1,0 +1,99 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Punched cards", ALGOL 68 solution punched-cards.alg.
+  https://rosettacode.org/wiki/Punched_cards#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/punched-cards.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show some "punched cards" with Hollerith coded characters            }
+
+    { punch codes, each character can have multiple punches, the rows are    }
+    { numbered 12, 11, 0, 1, ..., 9 - these are encoded as hex-digits:       }
+    {           c,  b, a, 1, ..., 9 so a encodes 0 so we can distinguish     }
+    { between no punch and punching in the 0 row                             }
+    [ 0 : 255 ]bits h_code;    { ASCII but only 7-bit characters are defined }
+    begin
+        proc code_of  = ( int c )int: if c = 0 then 10 else c fi;
+        proc set_code = ( char c, bits h )void: h_code[ ABS c ] := h;
+        for c from LWB h_code to UPB h_code do h_code[ c ] := 16r0 od;
+        { digits                                                             }
+        for c from 0 to 9 do h_code[ ABS "0" + c ] := BIN code_of( c ) od;
+        { letters                                                            }
+        for c from ABS "A" to ABS "I" do h_code[ c ] :=  16rc0 OR BIN ( c - ABS "A" + 1 ) od;
+        for c from ABS "J" to ABS "R" do h_code[ c ] :=  16rb0 OR BIN ( c - ABS "J" + 1 ) od;
+        for c from ABS "S" to ABS "Z" do h_code[ c ] :=  16ra0 OR BIN ( c - ABS "S" + 2 ) od;
+        for c from ABS "a" to ABS "i" do h_code[ c ] := 16rca0 OR BIN ( c - ABS "a" + 1 ) od;
+        for c from ABS "j" to ABS "r" do h_code[ c ] := 16rcb0 OR BIN ( c - ABS "j" + 1 ) od;
+        for c from ABS "s" to ABS "z" do h_code[ c ] := 16rba0 OR BIN ( c - ABS "s" + 2 ) od;
+        { others                                                             }
+        set_code( "&",   16rc ); set_code( "-",   16rb );
+        set_code( "[", 16r28c ); set_code( ".", 16r38c ); set_code( "<", 16r48c );
+        set_code( "(", 16r58c ); set_code( "+", 16r68c ); set_code( "!", 16r78c );
+        set_code( "]", 16r28b ); set_code( "$", 16r38b ); set_code( "*", 16r48b );
+        set_code( ")", 16r58b ); set_code( ";", 16r68b ); set_code( "^", 16r78b );
+        set_code( "\", 16r28a ); set_code( ",", 16r38a ); set_code( "%", 16r48a );
+        set_code( "_", 16r58a ); set_code( ">", 16r68a ); set_code( "?", 16r78a );
+        set_code( "/",  16r1a ); set_code( "`",  16r18 );
+        set_code( ":",  16r28 ); set_code( "#",  16r38 ); set_code( "@",  16r48 );
+        set_code( "''",  16r58 ); set_code( "=",  16r68 ); set_code( """", 16r78 );
+        set_code( "|",  16rcb ); set_code( "{",  16rca ); set_code( "}",  16rba )
+    end;
+
+    { returns a "card" punched with text in Hollerith code                   }
+    proc make_card = ( string text )[,]char:
+         begin
+            { initialise the card to unpunched                               }
+            [ 1 : 16, 1 : 84 ]char card;
+            string unpunched = "-   0123456789 -";
+            for r from 1 LWB card to 1 UPB card do
+                card[ r, 2 LWB card     ] := "|";
+                card[ r, 2 LWB card + 1 ] := " ";
+                for c from 2 LWB card + 2 to 2 UPB card - 2 do
+                    card[ r, c ] := unpunched[ r ]
+                od;
+                card[ r, 2 UPB card - 1 ] := " ";
+                card[ r, 2 UPB card     ] := "|"
+            od;
+            card[ 1 LWB card, 2 LWB card     ] := "/";
+            card[ 1 LWB card, 2 LWB card + 1 ] := "-";
+            card[ 1 LWB card, 2 UPB card - 1 ] := "-";
+            card[ 1 LWB card, 2 UPB card     ] := "+";
+            card[ 1 UPB card, 2 LWB card     ] := "+";
+            card[ 1 UPB card, 2 LWB card + 1 ] := "-";
+            card[ 1 UPB card, 2 UPB card - 1 ] := "-";
+            card[ 1 UPB card, 2 UPB card     ] := "+";
+            { punch the supplied text                                        }
+            char punched = REPR 178;
+            int c_pos := 2 LWB card + 2;
+            int c_max := 2 UPB card - 2;
+            for s_pos from LWB text to UPB text while c_pos < c_max do
+                char to_punch = text[ s_pos ];
+                card[ 1 LWB card + 1, c_pos ] := to_punch;
+                int punches := ABS h_code[ ABS to_punch ];
+                while punches > 0 do
+                    int r = punches MOD 16;
+                    if   r > 9 then
+                        card[ 1 LWB card + 2 + 12 - r, c_pos ] := punched
+                    else
+                        card[ 1 LWB card + 4      + r, c_pos ] := punched
+                    fi;
+                    punches OVERAB 16
+                od;
+                c_pos +:= 1
+            od;
+            card
+         end { make card } ;
+
+    proc show_card = ( [,]char card )void:
+         for r from 1 LWB card to 1 UPB card do
+             for c from 2 LWB card to 2 UPB card do print( ( card[ r, c ] ) ) od;
+             print( ( newline ) )
+         od { show card } ;
+
+    show_card( make_card( "&-0123456789ABCDEFGHIJKLMNOPQR/STUVWXYZ:#@''=""[.<(+|]$*);^\,%_>?" ) );
+    print( ( newline ) );
+    show_card( make_card( "print( ( ""Hello, World!"", newline ) )"                          ) )
+
+end
+)

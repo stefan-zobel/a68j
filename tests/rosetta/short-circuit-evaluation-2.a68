@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Short-circuit evaluation", ALGOL 68 solution short-circuit-evaluation-2.alg.
+  https://rosettacode.org/wiki/Short-circuit_evaluation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/short-circuit-evaluation-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+test:(
+
+  proc a = (bool a)bool: ( print(("a=",a,", ")); a),
+       b = (bool b)bool: ( print(("b=",b,", ")); b);
+
+{ Valid for Algol 68G and 68RS using non standard operators }
+  print(("T OREL F = ",  a(true) orel  b(false), new_line));
+  print(("T OREL T = ",  a(true) orel  b(true), new_line));
+
+  print(("F ANDTH F = ", a(false) andth b(false), new_line));
+  print(("F ANDTH T = ", a(false) andth b(true), new_line));
+
+  print(("F OREL F = ",  a(false) orel  b(false), new_line));
+  print(("F OREL T = ",  a(false) orel  b(true), new_line));
+
+  print(("T ANDTH F = ", a(true) andth b(false), new_line));
+  print(("T ANDTH T = ", a(true) andth b(true), new_line))
+
+{;
+# Valid for Algol 68G and 68C using non standard operators #
+  print(("T ORF F = ", a(TRUE) ORF b(FALSE), new line));
+  print(("F ANDF T = ", a(FALSE) ANDF b(TRUE), new line))
+END }
+
+)
+)

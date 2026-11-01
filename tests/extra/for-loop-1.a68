@@ -1,0 +1,12 @@
+{ FOR loops with the step 1 (GenClauses.countedLoop): the bounds are evaluated once, the loop ends at max int without overflow, empty ranges, WHILE, negative bounds. }
+begin
+   int c := 0;
+   for i from max_int - 2 to max_int do c +:= 1 od;
+   for i from 5 to 4 do c +:= 100 od;
+   for i from -3 by 1 to -1 do c +:= 10 od;
+   for i to 3 while i < 3 do c +:= 1000 od;
+   int k := 0;
+   for i from 1 to (k +:= 1; 4) do c +:= 1 od;
+   to 3 do c +:= 10000 od;
+   puts (whole (c, 0) + " " + whole (k, 0) + "'n")
+end

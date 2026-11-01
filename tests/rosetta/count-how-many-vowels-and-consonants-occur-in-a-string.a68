@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Count how many vowels and consonants occur in a string", ALGOL 68 solution count-how-many-vowels-and-consonants-occur-in-a-string.alg.
+  https://rosettacode.org/wiki/Count_how_many_vowels_and_consonants_occur_in_a_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/count-how-many-vowels-and-consonants-occur-in-a-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { count the vowels and consonants in a string                         }
+    { returns the 0-based index of the upper case letter c in the alphabet  }
+    { or -1 if c is not a letter                                            }
+    op   L = ( char c )int:
+         if c >= "A" AND c <= "Z" then ABS c - ABS "A" elif c >= "a" AND c <= "z" then ABS c - ABS "a" else -1 fi;
+    { prints the counts of vowels and consonants in s                       }
+    proc print_vc_counts = ( string s )void:
+         begin
+            [ 0 : 26 ]bool used;  for i from LWB used  to UPB used  do used[  i ] := false od;
+            [ 0 : 26 ]bool vowel; for i from LWB vowel to UPB vowel do vowel[ i ] := false od;
+            vowel[ L "A" ] := vowel[ L "E" ] := vowel[ L "I" ] := vowel[ L "O" ] := vowel[ L "U" ] := true;
+            int v_total := 0, c_total := 0, v_count := 0, c_count := 0;
+            for i from LWB s to UPB s do
+                if   int c_index = L s[ i ];
+                     c_index >= LWB used
+                then
+                    if vowel[ c_index ] then v_total else c_total fi +:= 1;
+                    if NOT used[ c_index ] then
+                        if vowel[ c_index ] then v_count else c_count fi +:= 1;
+                        used[ c_index ] := true
+                    fi
+                fi
+            od;
+            print( ( """", s, """ contains", newline ) );
+            print( ( "    ", whole( v_count, 0 ), " vowels and ", whole( c_count, 0 ), " consonants (distinct)", newline ) );
+            print( ( "    ", whole( v_total, 0 ), " vowels and ", whole( c_total, 0 ), " consonants (total)",    newline ) )
+         end; { print vc counts }
+    { test cases                                                            }
+    print_vc_counts( "Now is the time for all good men to come to the aid of their country" );
+    print_vc_counts( "Help avoid turns" )
+end
+)

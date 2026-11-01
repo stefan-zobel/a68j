@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Binary search", ALGOL 68 solution binary-search.alg.
+  https://rosettacode.org/wiki/Binary_search#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/binary-search.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+mode Element = string;
+
+{ Iterative: }
+proc iterative_binary_search = ([]Element hay_stack, Element needle)int: (
+    int out_,
+        low := LWB hay_stack,
+        high := UPB hay_stack;
+    while low < high do
+        int mid := (low+high) OVER 2;
+        if hay_stack[mid] > needle then high := mid-1
+        elif hay_stack[mid] < needle then low := mid+1
+        else out_:= mid; stop_iteration fi
+    od;
+        low exit
+    stop_iteration:
+        out_
+);
+{ Recursive: }
+proc recursive_binary_search = ([]Element hay_stack, Element needle)int: (
+    if LWB hay_stack > UPB hay_stack then
+        LWB hay_stack
+    elif LWB hay_stack = UPB hay_stack then
+        if hay_stack[LWB hay_stack] = needle then LWB hay_stack
+        else LWB hay_stack fi
+    else
+        int mid := (LWB hay_stack+UPB hay_stack) OVER 2;
+        if hay_stack[mid] > needle then recursive_binary_search(hay_stack[:mid-1], needle)
+        elif hay_stack[mid] < needle then mid + recursive_binary_search(hay_stack[mid+1:], needle)
+        else mid fi
+   fi
+);
+proc test_search = (proc([]Element, Element)int search, []Element hay_stack, []Element test_cases)void:
+     for case_ to UPB test_cases do
+        Element needle = test_cases[case_];
+        int index = search(hay_stack, needle);
+        bool found = ( index <= 0 | false | hay_stack[index]=needle);
+        print(("""", needle, """ ", (found|"FOUND at"|"near"), " index ", whole(index, 0), newline))
+     od;
+
+ begin  { Test cases: }
+  []Element hay_stack = ("AA","Maestro","Mario","Master","Mattress","Mister","Mistress","ZZ")
+          , test_cases = ("A","Master","Monk","ZZZ")
+          ;
+  test_search(iterative_binary_search, hay_stack, test_cases);
+  test_search(recursive_binary_search, hay_stack, test_cases)
+ end
+end
+)

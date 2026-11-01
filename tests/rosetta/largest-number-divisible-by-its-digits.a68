@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Largest number divisible by its digits", ALGOL 68 solution largest-number-divisible-by-its-digits.alg.
+  https://rosettacode.org/wiki/Largest_number_divisible_by_its_digits#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/largest-number-divisible-by-its-digits.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the largest decimal integer with unique digits, divisible by its digits }
+    int magic   = 9 * 8 * 7; { see analysis in the Raku sample }
+    int high    = ( 9876432 OVER magic ) * magic;
+    bool found := false;
+    for i from high by - magic to magic while NOT found do
+        if   int d1 = i MOD 10;
+             d1 = 0
+        then skip { can't end in '0' }
+        elif [ 0 : 9 ]bool digits :=
+                 []bool( false, false, false, false, false, false, false, false, false, false )[ @ 0 ];
+             bool unique  := true;
+             int  v       := i OVER 10;
+             digits[ d1 ] := true;
+             while v > 0 AND unique do
+                 int d = v MOD 10;
+                 v OVERAB 10;
+                 unique      := NOT digits[ d ];
+                 digits[ d ] := true
+             od;
+             NOT unique
+        then skip { digits must be unique }
+        elif digits[ 0 ] OR digits[ 5 ]
+        then skip { can't contain 0 or 5 }
+        elif found := true;
+             for d to UPB digits while found do
+                 if digits[ d ] then found := i MOD d = 0 fi
+             od;
+             found
+        then
+             print( ( "Largest decimal number is ", whole( i, 0 ), newline ) )
+        fi
+    od
+end
+)

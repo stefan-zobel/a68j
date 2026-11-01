@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pairs with common factors", ALGOL 68 solution pairs-with-common-factors.alg.
+  https://rosettacode.org/wiki/Pairs_with_common_factors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pairs-with-common-factors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { finds elements of the sequence a(n) where a(n) is number of pairs    }
+      { (x,y) where 1 < x < y <= n that have at least one common prime       }
+      { factor. The sequence elements can be calculated by:                  }
+      { a(n) = n(n-1)/2 + 1 - sum i = 1..n of phi(i) where phi is Euler's    }
+      {                                                    totient function  }
+
+    mode Element = long int;   { integral type large enough for a(1 000 000) }
+
+    { returns the number of integers k where 1 <= k <= n that are mutually   }
+    {                                                             prime to n }
+    proc totient = ( Element n )Element:         { algorithm from the second }
+        if   n < 3 then 1           { Go Sample in the Totient function task }
+        elif n = 3 then 2
+        else
+            Element result := n;
+            Element v      := n;
+            Element i      := 2;
+            while i * i <= v do
+                if v MOD i = 0 then
+                    while v MOD i = 0 do v OVERAB i od;
+                    result -:= result OVER i
+                fi;
+                if i = 2 then
+                   i := 1
+                fi;
+                i +:= 2
+            od;
+            if v > 1 then result -:= result OVER v fi;
+            result
+         fi { totient } ;
+
+    begin
+        int     max_number    = 1 000 000;  { maximum number of terms to use }
+        Element totient_sum  := 0;                { sum of the totients 1..n }
+        int     next_to_show := 1 000;    { next power of 10 element to show }
+        Element n            := 0;
+        to max_number do
+            n           +:= 1;
+            totient_sum +:= totient( n );
+            Element an    = ( ( ( n * ( n - 1 ) ) OVER 2 ) + 1 ) - totient_sum;
+            if n <= 100 then
+                print( ( " ", whole( an, -4 ) ) );
+                if n MOD 10 = 0 then print( ( newline ) ) fi
+            elif n = next_to_show then
+                print( ( "a(", whole( n, 0 ), "): ", whole( an, 0 ), newline ) );
+                next_to_show *:= 10
+            fi
+        od
+    end
+end
+)

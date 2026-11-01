@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Search a list", ALGOL 68 solution search-a-list-1.alg.
+  https://rosettacode.org/wiki/Search_a_list#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/search-a-list-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ FORMAT hay_stack := $c("Zig","Zag","Wally","Ronald","Bush","Krusty","Charlie","Bush","Bozo")$;
+
+ file needle_exception; string ref_needle;
+ associate(needle_exception, ref_needle);
+
+ proc index = (FORMAT haystack, ref string needle)int:(
+   int out_;
+   ref_needle := needle;
+   getf(needle_exception,(haystack, out_));
+   out_
+ );
+
+ test:(
+   []string needles = ("Washington","Bush");
+   for i to UPB needles do
+     string needle := needles[i];
+     on_value_error(needle_exception, (ref file f)bool: value_error);
+       printf(($d" "gl$,index(hay_stack, needle), needle));
+       end_on_value_error;
+     value_error:
+       printf(($g" "gl$,needle, "is not in haystack"));
+     end_on_value_error: reset(needle_exception)
+   od
+ )
+)

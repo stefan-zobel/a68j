@@ -1,0 +1,34 @@
+{ The module Hashmaps of a68j: String_int_map (counting words) and the operators of all maps. }
+access Hashmaps (
+   String_int_map count = new_string_int_map;
+   [] string words = ("to", "be", "or", "not", "to", "be", "that", "is", "the", "question");
+   for i from LWB words to UPB words do words[i] AT count +:= 1 od;
+   [] string k = KEYS count;
+   [] int v = VALUES count;
+   for i from LWB k to UPB k do puts (k[i] + " " + whole (v[i], 0) + "'n") od;
+   puts ("SIZE " + whole (SIZE count, 0) + "'n");
+   puts ("be: " + whole ("be" ELEM count, 0) + "'n");
+   puts ("HAS to: " + (count HAS "to" | "yes" | "no") + ", HAS xyz: " + (count HAS "xyz" | "yes" | "no") + "'n");
+   puts ("REMOVE to: " + (count REMOVE "to" | "yes" | "no") + ", again: " + (count REMOVE "to" | "yes" | "no") + "'n");
+   puts ("SIZE " + whole (SIZE count, 0) + ", HAS to: " + (count HAS "to" | "yes" | "no") + "'n");
+   "to" AT count := 42;
+   [] string k2 = KEYS count;
+   string s := "";
+   for i from LWB k2 to UPB k2 do s +:= " " + k2[i] od;
+   puts ("keys:" + s + "'n");
+   { A string key that is a slice of a longer row. }
+   string line = "xxquestionyy";
+   puts ("slice: " + whole (line[3:10] ELEM count, 0) + "'n");
+   { The name of a value survives growth and removal of other keys. }
+   ref int n = "or" AT count;
+   for i to 1000 do whole (i, 0) AT count := i od;
+   for i to 500 do count REMOVE whole (i, 0) od;
+   n +:= 10;
+   puts ("or: " + whole ("or" ELEM count, 0) + ", SIZE " + whole (SIZE count, 0) + "'n");
+   puts ("default: " + (count HAS "zz" | whole ("zz" ELEM count, 0) | "none") + "'n");
+   puts ("AT inserts: " + whole ("new" AT count, 0) + " " + (count HAS "new" | "yes" | "no") + "'n");
+   puts ("same name: " + ("be" AT count is "be" AT count | "yes" | "no") + ", other: " + ("be" AT count is "or" AT count | "yes" | "no") + "'n");
+   puts ("after CLEAR: " + whole (SIZE CLEAR count, 0) + " " + whole (UPB KEYS count, 0) + "'n");
+   String_int_map none = nil;
+   puts ("nil: " + (none is nil | "yes" | "no") + "'n")
+)

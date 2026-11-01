@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Old lady swallowed a fly", ALGOL 68 solution old-lady-swallowed-a-fly-1.alg.
+  https://rosettacode.org/wiki/Old_lady_swallowed_a_fly#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/old-lady-swallowed-a-fly-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+string sw=" swallow ",swd=sw[:UPB sw-1]+"ed ", tsa=". To"+sw+"a";
+
+int count_prev := 0; [9]string prev;
+
+proc vs = (string in_wot,[]string co)void: (
+  string wot = " "+in_wot;
+  printf(($g$,"I know an old lady who",swd,"a",wot,".",$l$));
+  if UPB co = 1 then
+    printf(($gl$,co))
+  elif UPB co > 1 then
+    printf(($g$,co,wot+".",$l$))
+  fi;
+  if count_prev NE UPB prev then
+    prev[count_prev+:=1]:=wot;
+    for i from count_prev by -1 to 2 do
+      printf(($gl$,"She"+swd+"the"+prev[i]+" to catch the"+prev[i-1]+"."))
+    od;
+    printf(($gl$,"I don''t know why she"+swd+"the fly.",
+                 "Perhaps she''ll die.", $l$))
+  fi
+);
+
+vs("fly",());
+vs("spider","That wriggled and jiggled and tickled inside her.");
+vs("Bird",("Quite absurd",tsa));
+vs("Cat",("Fancy that",tsa));
+vs("Dog",("What a hog",tsa));
+vs("Pig",("Her mouth was so big",tsa));
+vs("Goat",("She just opened her throat",tsa));
+vs("Cow",("I don''t know how",tsa));
+vs("Donkey",("It was rather wonky",tsa));
+vs("Horse","She''s dead, of course!")
+)

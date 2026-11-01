@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Largest prime factor", ALGOL 68 solution largest-prime-factor.alg.
+  https://rosettacode.org/wiki/Largest_prime_factor#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/largest-prime-factor.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the largest prime factor of a number }
+    { returns the largest prime factor of n }
+    proc max_prime_factor = ( long int n )long int:
+         if   n < 2
+         then 1
+         else
+             long int max_factor := n;
+             { even factors - only 2 is prime }
+             long int v := n;
+             while NOT ODD v do
+                 max_factor := 2;
+                 v OVERAB 2
+             od;
+             { odd factors }
+             long int k := 3;
+             long int root_n = ENTIER long_sqrt( n );
+             while k <= root_n AND v > 1 do
+                 while v MOD k = 0 AND v > 1 do
+                     max_factor := k;
+                     v OVERAB k
+                 od;
+                 k +:= 2
+             od;
+             if v > 1 then v else max_factor fi
+        fi { max prime factor } ;
+    { test the max prime factor routine }
+    proc test = ( long int n )void:
+         print( ( "Largest prime factor of ", whole( n, 0 ), " is ", whole( max_prime_factor( n ), 0 ), newline ) );
+    { test cases }
+    test( 600 851 475 143 );
+    test(           6 008 );
+    test(             751 )
+end
+)

@@ -1,0 +1,85 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Biorhythms", ALGOL 68 solution biorhythms.alg.
+  https://rosettacode.org/wiki/Biorhythms#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/biorhythms.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { biorythms                                                            }
+
+    { code from the Day of the week of Christmas and New Year task           }
+    []string day_name =
+        []string( "SAT", "SUN", "MON", "TUE", "WED", "THU", "FRI" )[ at 0 ];
+    proc day_of_week = ( int y, m, d )int:
+         begin
+            int mm := m;
+            int yy := y;
+            if mm <= 2 then
+                mm +:= 12;
+                yy -:= 1
+            fi;
+            int j = yy OVER 100;
+            int k = yy MOD  100;
+            ( d + ( ( mm + 1 ) * 26 ) OVER 10 + k + k OVER 4 + j OVER 4 + 5 * j ) MOD 7
+         end { day of week } ;
+    { end code from the Day of the week of Christmas and New Year task       }
+    { code from the days between dates task                                  }
+    proc gregorian = ( int y, m, d )int:
+         begin
+             int n = ( m + 9 ) - ( ( ( m + 9 ) OVER 12 ) * 12 );
+             int w = y - ( n OVER 10 );
+             ( 365 * w ) + ( w OVER 4 ) - ( w OVER 100 ) + ( w OVER 400 )
+                         + ( ( ( n * 306 ) + 5 ) OVER 10 ) + ( d - 1 )
+         end { gregorian } ;
+    { end code from the days between dates task                              }
+
+    begin { main routine - translated from the Fortran sample's main program }
+        proc double_line = void: print( ( "=" * 75, newline ) );
+        proc in_range = ( real v, int low, high )int:
+             if v < low then low elif v > high then high else ENTIER v fi;
+
+        real pi2 = pi * 2;
+
+        int byear, bmon, bday, tyear, tmon, tday, nday;
+        print( ( "ENTER YOUR BIRTHDAY YYYY MM DD: " ) );
+        read( ( byear, bmon, bday ) );
+        print( ( "ENTER START DATE    YYYY MM DD: " ) );
+        read( ( tyear, tmon, tday ) );
+        print( ( "ENTER NUMBER OF DAYS TO PLOT  : " ) );
+        read( ( nday ) );
+
+        int jd0  = gregorian( tyear,    1,    1 );
+        int jd1  = gregorian( byear, bmon, bday );
+        int jd2 := gregorian( tyear, tmon, tday );
+        int dob  = day_of_week( byear, bmon, bday );
+        int dow := day_of_week( tyear, tmon, tday );
+
+        double_line;
+        print( ( "YOU WERE BORN ON A (", day_name[ dob MOD 7 ], ") YOU WERE " ) );
+        print( ( whole( jd2 - jd1, 0 ), " DAYS OLD ON THE START DATE.", newline ) );
+        print( ( "-1", 31 * " ", "0", 30 * " ", "+1     DOY", newline ) );
+        to nday do
+           int dif = jd2 - jd1;
+           int phy = in_range( 3.3e1+3.2e1*sin( pi2 * dif / 2.3e1 ), 1, 65 );
+           int emd = in_range( 3.3e1+3.2e1*sin( pi2 * dif / 2.8e1 ), 1, 65 );
+           int men = in_range( 3.3e1+3.2e1*sin( pi2 * dif / 3.3e1 ), 1, 65 );
+           string g_row := 65 * if day_name[ dow ] = "SUN" then "." else " " fi;
+           g_row[   1 ] := "|";
+           g_row[  17 ] := ":";
+           g_row[  33 ] := "|";
+           g_row[  49 ] := ":";
+           g_row[  65 ] := "|";
+           g_row[ phy ] := "P";
+           g_row[ emd ] := "E";
+           g_row[ men ] := "M";
+           if phy = emd OR phy = men then g_row[ phy ] := "*" fi;
+           if emd = men then g_row[ emd ] := "*" fi;
+           print( ( " ", g_row, " ", day_name[ dow ], " ", whole( jd2 - jd0 + 1, -3 ), newline ) );
+           jd2 +:= 1;
+           dow +:= 1 MODAB 7
+        od;
+        double_line
+    end
+end
+)

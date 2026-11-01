@@ -1,0 +1,6 @@
+{ A list cannot be dereferenced: it is a Java object. }
+access Lists (
+   Intlist l = new_intlist;
+   Intlist_object o = l;
+   puts ("not reached'n")
+)

@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Digital root/Multiplicative digital root", ALGOL 68 solution digital-root-multiplicative-digital-root.alg.
+  https://rosettacode.org/wiki/Digital_root/Multiplicative_digital_root#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/digital-root-multiplicative-digital-root.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Multiplicative Digital Roots                                              }
+    { structure to hold the results of calculating the digital root & persistence }
+    mode Dr = struct( int root, int persistence );
+    { returns the product of the digits of number                                 }
+    op DIGITPRODUCT = ( int number )int:
+       begin
+            int    result := 1;
+            int    rest   := number;
+            while result TIMESAB ( rest MOD 10 );
+                  rest   OVERAB  10;
+                  rest > 0
+            do skip od;
+            result
+       end; { DIGITPRODUCT }
+    { calculates the multiplicative digital root and persistence of number        }
+    op MDROOT = ( int number )Dr:
+       begin
+            int mp  := 0;
+            int mdr := ABS number;
+            while mdr > 9 do
+                mp +:= 1;
+                mdr := DIGITPRODUCT mdr
+            od;
+            ( mdr, mp )
+       end; { MDROOT }
+    { prints a number and its MDR and MP                                          }
+    proc print_md_root = ( int number )void:
+         begin
+            Dr mdr = MDROOT( number );
+            print( ( whole( number, -6 ), ": MDR: ", whole( root of mdr, 0 ), ", MP: ",  whole( persistence of mdr, -2 ), newline ) )
+         end; { print md root }
+    { prints the first few numbers with each possible Multiplicative Digital      }
+    { Root. The number of values to print is specified as a parameter             }
+    proc tabulate_mdr = ( int number_of_values )void:
+         begin
+            [ 0 : 9, 1 : number_of_values ]int mdr_values;
+            [ 0 : 9                       ]int mdr_counts;
+            mdr_counts[ at 1 ] := ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+            { find the first few numbers with each possible mdr                   }
+            int values_found    := 0;
+            int required_values := 10 * number_of_values;
+            for value from 0 while values_found < required_values do
+                Dr mdr = MDROOT value;
+                if mdr_counts[ root of mdr ] < number_of_values then
+                    { need more values with this multiplicative digital root      }
+                    values_found              +:= 1;
+                    mdr_counts[ root of mdr ] +:= 1;
+                    mdr_values[ root of mdr, mdr_counts[ root of mdr ] ] := value
+                fi
+            od;
+            { print the values }
+            print( ( "MDR: [n0..n" + whole( number_of_values - 1, 0 ) + "]", newline ) );
+            print( ( "===  ========", newline ) );
+            for mdr_pos from 1 LWB mdr_values to 1 UPB mdr_values do
+                string separator := ": [";
+                print( ( whole( mdr_pos, -3 ) ) );
+                for val_pos from 2 LWB mdr_values to 2 UPB mdr_values do
+                    print( ( separator + whole( mdr_values[ mdr_pos, val_pos ], 0 ) ) );
+                    separator := ", "
+                od;
+                print( ( "]", newline ) )
+            od
+         end; { tabulate mdr }
+    { task test cases }
+    print_md_root( 123321 );
+    print_md_root(   7739 );
+    print_md_root(    893 );
+    print_md_root( 899998 );
+    tabulate_mdr( 5 )
+end
+)

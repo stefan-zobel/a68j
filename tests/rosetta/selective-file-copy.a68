@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Selective file copy", ALGOL 68 solution selective-file-copy.alg.
+  https://rosettacode.org/wiki/Selective_file_copy#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/selective-file-copy.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Inputrecord     = struct( string field_a, string field_b, int field_c, char sign_of_field_c, string field_d );
+mode Outputrecord    = struct( string field_a,                 int field_c,                       string field_x );
+
+FORMAT input_format  = $ 5a, 5a,   4d, 1a, 5a l $;
+FORMAT output_format = $ 5a,     3z-d,     5a l $;
+
+if  file input_file;
+    string file_name = "input.txt";
+    open( input_file, file_name, stand_in_channel ) /= 0
+then
+    { failed to open the file }
+    print( (  "Unable to open """ + file_name + """", newline ) )
+elif file output_file;
+     string output_name = "output.txt";
+     open( output_file, output_name, stand_out_channel ) /= 0
+then
+    { failed to open the otput file }
+    print( (  "Unable to open """ + output_name + """", newline ) );
+    close( input_file )
+else
+    { files opened OK }
+    bool at_eof := false;
+    { set the EOF handler for the file }
+    on_logical_file_end( input_file, ( ref file f )bool:
+                                     begin
+                                         { note that we reached EOF on the }
+                                         { latest read }
+                                         at_eof := true;
+                                         { return TRUE so processing can continue }
+                                         true
+                                     end
+                       );
+    while Inputrecord in_record;
+          getf( input_file, ( input_format,  in_record ) );
+          NOT at_eof
+    do
+        if sign_of_field_c of in_record = "-" then field_c of in_record *:= -1 fi;
+        Outputrecord out_record;
+        field_a of out_record := field_a of in_record;
+        field_c of out_record := field_c of in_record;
+        field_x of out_record := "XXXXX";
+        putf( output_file, ( output_format, out_record ) )
+    od;
+    { close the file }
+    close( output_file );
+    close( input_file  )
+fi
+)

@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Evaluate binomial coefficients", ALGOL 68 solution evaluate-binomial-coefficients.alg.
+  https://rosettacode.org/wiki/Evaluate_binomial_coefficients#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/evaluate-binomial-coefficients.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc factorial = (int n)int:
+(
+        int result;
+
+        result := 1;
+        for i  to n do
+                result *:= i
+        od;
+
+        result
+);
+
+proc choose = (int n, int k)int:
+(
+        int result;
+
+{ Note: code can be optimised here as k < n }
+        result := factorial(n) OVER (factorial(k) * factorial(n - k));
+
+        result
+);
+
+test:(
+        print((choose(5, 3), new_line))
+)
+)

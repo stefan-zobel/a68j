@@ -1,0 +1,94 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ap?ry's constant", ALGOL 68 solution ap-rys-constant.alg.
+  https://rosettacode.org/wiki/Ap%C3%A9ry's_constant#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ap-rys-constant.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find Apéry's constant: the sum of the positive cubes' reciprocals     }
+      { (this is the value of the Riemann zeta function applied to 3)         }
+
+                         { set precision of LONG LONG REAL }
+
+    { returns a string representation of z, truncated to 100 decimals         }
+    proc truncate100 = ( long long real z )string:
+         begin
+             string result = fixed( z, 0, 101 );  { format with 101 decimals  }
+             result[ : UPB result - 1 ]             { remove the final digit  }
+         end { truncate100 } ;
+
+    { methind 1 - sum the reciprocols of the cubes - 1000 terms from 1        }
+    begin
+        long long real zeta3 := 0;
+        for k to 1000 do
+            long long int llk = LENG LENG k;
+            zeta3 +:= 1 / ( llk * llk * llk )
+        od;
+        print( ( truncate100( zeta3 ), newline ) )
+    end;
+
+    { method 2 - Markov's alternative representaton, 158 terms from 1         }
+    {     5/2 * sum [ (-1)^(k-1)( k!^2 / (2k!)k^2 ) ] from 1                  }
+    begin
+        long long int fk := 1, f2k := 1;
+        long long real zeta3 := 0;
+        for k to 158 do
+            long long int llk  = k;
+            long long int ll2k = llk * 2;
+            fk  *:= llk;
+            f2k *:= ( ll2k - 1 ) *:= ll2k;
+            long long real this_term = ( fk * fk ) / ( f2k * llk * llk * llk );
+            if ODD k then
+                zeta3 +:= this_term
+            else
+                zeta3 -:= this_term
+            fi
+        od;
+        zeta3 *:= 5 / 2;
+        print( ( truncate100( zeta3 ), newline ) )
+    end;
+
+    { method 3 - Wedeniwski representation - 20 terms from 0                  }
+    {    1/24 * sum [ (-1)^k (2k+1)!^3(2k)!^3(k!)^3                           }
+    {               * ( 126392k^5 + 412708k^4 + 531578k^3                     }
+    {                 + 336367k^2 + 104000k   + 12463                         }
+    {                 ) / (3k+2)! (4k + 3)!^3                                 }
+    {               ] from 0                                                  }
+    begin
+        []int w_coefficients = ( 126392, 412708, 531578, 336367, 104000, 12463 );
+        long long int fk := 1, f2k := 1, f3k := 1, f4k := 1;
+        { ensure the divisor is a LONG LONG INT so the LHS is calculated as a }
+        { LONG LONG REAL value and not a REAL which is then widened           }
+        long long real zeta3 := w_coefficients[ UPB w_coefficients ]
+                             / LENG LENG ( 2 * 6 * 6 * 6 );
+        for k to 19 do
+            long long int llk  = k;
+            long long int ll2k = llk  + llk;
+            long long int ll3k = ll2k + llk;
+            long long int ll4k = ll3k + llk;
+            fk  *:= llk;
+            f2k *:=                               ( ll2k - 1 ) * ll2k;
+            f3k *:=                ( ll3k - 2 ) * ( ll3k - 1 ) * ll3k;
+            f4k *:= ( ll4k - 3 ) * ( ll4k - 2 ) * ( ll4k - 1 ) * ll4k;
+            long long int f2k1  = f2k * ( ll2k + 1 );
+            long long int f3k2  = f3k * ( ll3k + 1 ) * ( ll3k + 2 );
+            long long int f4k3  = f4k * ( ll4k + 1 ) * ( ll4k + 2 ) * ( ll4k + 3 );
+            long long real this_term := 0;
+            for c to UPB w_coefficients do
+                this_term *:= llk +:= w_coefficients[ c ]
+            od;
+            long long int fp = f2k1 * f2k * fk;
+            this_term *:= fp * fp * fp /:= f3k2 * f4k3 * f4k3 * f4k3;
+            if ODD k then
+                zeta3 -:= this_term
+            else
+                zeta3 +:= this_term
+            fi
+        od;
+        zeta3 /:= 24;
+        print( ( truncate100( zeta3 ), newline ) )
+    end
+
+end
+)

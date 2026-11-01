@@ -1,0 +1,207 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Berlekamp?Massey algorithm", ALGOL 68 solution berlekamp-massey-algorithm.alg.
+  https://rosettacode.org/wiki/Berlekamp%E2%80%93Massey_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/berlekamp-massey-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Berlekamp–Massey algorithm - translation of the FreeBASIC sample     }
+
+    int mdl = 2;
+
+    proc fp = ( int a, k )int:
+         begin
+            int result := 1, bbase := a MOD mdl, expo := k;
+
+            while expo > 0 do
+                if ODD expo then result *:= bbase MODAB mdl fi;
+                bbase *:= bbase MODAB mdl;
+                expo OVERAB 2
+            od;
+            result
+        end { fp } ;
+
+    proc berlekamp_massey = ( []int a_in )[]int:
+         begin
+            [ 0 : -1 ]int empty_row;
+            ref[]int ans_coef := empty_row, lst := empty_row;
+            []int a = a_in[ at 0 ];
+            int   n = UPB a;
+            int   lst_size := 0, w := 0, delta := 0;
+
+            for i to n do
+                int tmp := 0;
+                int ans_len = UPB ans_coef;
+                for j from 0 to ans_len do
+                    if i - 1 - j >= 1 then
+                        tmp +:= ( a[ i - 1 - j ] * ans_coef[ j ] ) MODAB mdl
+                    fi
+                od;
+
+                int  discrepancy = ( a[ i ] - tmp + mdl ) MOD mdl;
+                if   discrepancy = 0
+                then skip
+                elif w = 0
+                then
+                    ans_coef := heap[ 0 : i - 1 ]int;
+                    for j from 0 to i - 1 do ans_coef[ j ] := 0 od;
+                    w     := i;
+                    delta := discrepancy
+                else
+                    [ 0 : UPB ans_coef ]int ahora := ans_coef;
+
+                    int inv_delta  = fp( delta, mdl - 2 );
+                    int mul        = ( discrepancy * inv_delta ) MOD mdl;
+                    int needed_len = lst_size + i - w;
+
+                    if UPB ans_coef + 1 < needed_len then
+                        ans_coef := heap[ 0 : needed_len - 1 ]int;
+                        ans_coef[ 0 : UPB ahora at 0 ] := ahora;
+                        for j from UPB ahora + 1 to UPB ans_coef do ans_coef[ j ] := 0 od
+                    fi;
+
+                    if i - w - 1 >= 0 then
+                        ans_coef( i - w - 1 ) +:= mul MODAB mdl
+                    fi;
+
+                    for j from 0 to lst_size - 1 do
+                        int idx = i - w + j;
+                        if idx < UPB ans_coef  + 1 then
+                            int term_to_subtract = ( mul * lst[ j ] ) MOD mdl;
+                            ans_coef[ idx ] -:= term_to_subtract +:= mdl MODAB mdl
+                        fi
+                    od;
+
+                    if UPB ans_coef > UPB ahora then
+                        lst := heap[ 0 : UPB ahora ]int;
+                        lst[ at 0 ] := ahora;
+                        lst_size := UPB ahora + 1;
+                        w := i;
+                        delta := discrepancy
+                    fi
+                fi;
+
+                for m from 0 to UPB ans_coef do ans_coef[ m ] +:= mdl MODAB mdl od
+
+            od;
+            ans_coef
+         end { berlekamp massey } ;
+
+{ # uncomment if calculation of specific terms is required #
+    PROC calculate term = ( INT m, []INT coef, h )INT:
+         IF    m <= UPB h
+         THEN ( h[ m ] + mdl ) MOD mdl
+         ELIF INT k = UPB coef + 1;
+              k = 0
+         THEN 0
+         ELSE [ 0 : k ]INT p coeffs;
+              p coeffs[ 0     ] := ( mdl - 1 ) MOD mdl;
+              p coeffs[ 1 : k ] := coef;
+
+              INT degree k := k;
+              [ 0 : degree k - 1 ]INT f, g;
+              f[ 0 ] := 1;
+              FOR i TO UPB f DO f[ i ] := 0 OD;
+              FOR i FROM 0 TO UPB g DO g[ i ] := 0 OD;
+              IF k = 1 THEN
+                  g[ 0 ] := p coeffs[ 1 ]
+              ELSE
+                  g[ 1 ] := 1
+              FI;
+
+              INT power := m;
+              [ 0 : 2 * degree k - 1 ]INT tmp;
+              INT term := 0;
+
+              WHILE power > 0 DO
+                 IF ODD power THEN
+                    FOR i FROM 0 TO UPB tmp DO tmp[ i ] := 0 OD;
+                    FOR i FROM 0 TO degree k - 1 DO
+                        IF f[ i ] /= 0 THEN
+                            FOR j FROM 0 TO UPB f DO
+                                tmp[ i + j ] +:= ( f[ i ] * g[ j ] ) MODAB mdl
+                            OD
+                        FI
+                    OD;
+                    FOR i FROM UPB tmp BY - 1 TO UPB f + 1 DO
+                        IF tmp[ i ] /= 0 THEN
+                            term     := tmp[ i ];
+                            tmp[ i ] := 0;
+                            FOR j FROM 0 TO k DO
+                                INT idx = i - j;
+                                IF idx >= 0 THEN
+                                    tmp[ idx ] +:= ( term * p coeffs[ j ] ) MODAB mdl
+                                FI
+                            OD
+                        FI
+                    OD;
+                    f := tmp[ 0 : UPB f AT 0 ]
+                 FI;
+                 FOR i FROM 0 TO UPB tmp DO tmp[ i ] := 0 OD;
+                 FOR i FROM 0 TO UPB g DO
+                     IF g[ i ] /= 0 THEN
+                         FOR j FROM 0 TO UPB g DO
+                             tmp[ i + j ] +:= ( g[ i ] * g[ j ] ) MODAB mdl
+                         OD
+                     FI
+                 OD;
+                 FOR i FROM UPB tmp BY -1 TO degree k DO
+                     IF tmp[ i ] /= 0 THEN
+                         term := tmp[ i ];
+                         tmp[ i ] := 0;
+                         FOR j FROM 0 TO k DO
+                             INT idx = i - j;
+                             IF idx >= 0 THEN
+                                 tmp[ idx ] +:= ( term * p coeffs[ j ] ) MODAB mdl
+                             FI
+                         OD
+                     FI
+                 OD;
+                 g := tmp[ 0 : UPB g AT 0 ];
+
+                 power OVERAB 2
+              OD;
+
+              INT final ans := 0;
+              FOR i FROM 0 TO degree k - 1 DO
+                  IF i + 1 <= UPB h THEN
+                      final ans +:= ( h[ i + 1 ] * f[ i ] ) MODAB mdl
+                  FI
+              OD;
+
+              ( final ans + mdl ) MOD mdl
+         FI # calculate term # ;
+}
+
+    proc solve = void:
+         begin
+
+            []int h_input = []int( 0, 0, 1, 1, 0, 1, 0 )[ at 0 ];
+            int n = UPB h_input + 1;
+            [ 0 : n ]int h;
+
+            h[ 0 ] := 0; for i from LWB h to UPB h - 1 do h[ i + 1 ] := h_input[ i ] od;
+
+            []int ans_coef = berlekamp_massey( h );
+
+            print( ( "Coefficients:" ) );
+            for i from 0 to UPB ans_coef do
+                print( ( " ", whole( ( ans_coef[ i ] + mdl ) MOD mdl, 0 ) ) )
+            od;
+            print( ( newline ) )
+
+            { # Uncomment to calculate a specific term #
+               ;
+               INT m      = 10;
+               INT result = calculate term( m, ans coef(), h() );
+               print( ( "Term ", whole( m, 0 ) ) );
+               print( ( ": ", whole( ( result + mdl ) MOD mdl, 0 ), newline ) )
+            }
+
+         end { solve } ;
+
+    solve
+
+end
+)

@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pascal's triangle", ALGOL 68 solution pascals-triangle.alg.
+  https://rosettacode.org/wiki/Pascal's_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pascals-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+prio MINLWB = 8, MAXUPB = 8;
+op MINLWB = ([]int a,b)int: (LWB a<LWB b|LWB a|LWB b),
+   MAXUPB = ([]int a,b)int: (UPB a>UPB b|UPB a|UPB b);
+
+op + = ([]int a,b)[]int:(
+  [a MINLWB b:a MAXUPB b]int out_; for i from LWB out_ to UPB out_ do out_[i]:= 0 od;
+  out_[LWB a:UPB a] := a; for i from LWB b to UPB b do out_[i]+:= b[i] od;
+  out_
+);
+
+int width = 4, stop = 9;
+FORMAT centre = $n((stop-UPB row+1)*width OVER 2)(q)$;
+
+flex[1]int row := 1; { example of rowing }
+for i while
+  printf((centre, $g(-width)$, row, $l$));
+{ WHILE } i < stop do
+  row := row[at 1] + row[at 2]
+od
+)

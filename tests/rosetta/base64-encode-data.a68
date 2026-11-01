@@ -1,0 +1,72 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Base64 encode data", ALGOL 68 solution base64-encode-data.alg.
+  https://rosettacode.org/wiki/Base64_encode_data#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/base64-encode-data.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[@0];
+
+proc get_web_page = (string host, path) string:
+   begin
+      string reply;
+      int rc;
+      if rc := tcp_request (reply, host,
+                               "GET /favicon.ico  HTTP/1.0" + crlf +
+                               "Host: rosettacode.org" + crlf +
+                               crlf, 80);
+            rc = 0 then
+   skip {print (reply)}
+      else print (strerror (rc))
+      fi;
+      if rc = 0 AND grep_in_string ("^HTTP/[0-9.]+ 200", reply, nil, nil) = 0 then
+   int p := 0;
+   for i to UPB reply while p = 0 do
+      if reply[i] = carriage_return ANDF reply[i+1] = line_feed AND reply[i+2] = carriage_return AND reply[i+3] = line_feed then
+         p := i
+      fi
+   od;
+   if p /= 0 then
+      string headers = reply[:p],
+             body = reply[p+4:];
+      body
+   else
+      ""
+   fi
+      else
+   print (strerror (rc)); ""
+      fi
+   end;
+
+
+proc base64_encode = (string s) string:
+   begin
+      string result := "";
+      bits u;
+      for i by 3 to UPB s do
+   u := BIN ABS s[i] SHL 16 OR
+        if i+1 <= UPB s then BIN ABS s[i+1] SHL 8 OR
+           if i+2 <= UPB s then BIN ABS s[i+2]
+     else 16r0
+                 fi
+        else 16r0
+        fi;
+
+   result +:= codes[ABS (u SHR 18 AND 16r3f)] +
+                    codes[ABS (u SHR 12 AND 16r3f)] +
+              (i + 1 <= UPB s | codes[ABS (u SHR 6 AND 16r3f)] | "=") +
+        (i + 2 <= UPB s | codes[ABS (u AND 16r3f)] | "=")
+      od;
+      result
+   end;
+
+
+char line_feed = REPR 10, carriage_return = REPR 13;
+string crlf = carriage_return + line_feed;
+string host = "rosettacode.org";
+
+string rosettacode_icon = get_web_page (host, "http://rosettacode.org/favicon.ico");
+string encoded_icon = base64_encode (rosettacode_icon);
+print ((encoded_icon, new_line))
+)

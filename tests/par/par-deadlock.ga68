@@ -1,0 +1,2 @@
+tests/par/par-deadlock.a68:3:13: fatal error: no lowering routine installed for construct.  jemarch has been lazy
+exit 1

@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers k such that the last letter of k is the same as the first letter of k+1", ALGOL 68 solution numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.alg.
+  https://rosettacode.org/wiki/Numbers_k_such_that_the_last_letter_of_k_is_the_same_as_the_first_letter_of_k%2B1#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find numbers k where the name of k ends with the start of k + 1      }
+
+    []char unit_start =       (      "o", "t", "t", "f", "f", "s", "s", "e", "n" );
+    []char tens_start =       (      "t", "t", "t", "f", "f", "s", "s", "e", "n" );
+    []char unit_end   = []char( "y", "e", "o", "e", "r", "e", "x", "n", "t", "e" )[ at 0 ];
+
+    [ 0 : 99 ]char s99;                      { starting characters for 0..99 }
+    for i to 99 do
+        s99[ i ] := if   i < 10 then unit_start[ i ]
+                    elif i = 10 then "t"
+                    elif i = 11 then "e"
+                    elif i < 20 then unit_start[ i - 10 ]
+                    else             tens_start[ i OVER 10 ]
+                    fi
+    od;
+    s99[ 0 ] := "z";
+    [ 0 : 99 ]char e99;                        { ending characters for 0..99 }
+    for i from  1 to 99 do e99[ i ] := unit_end[ i MOD 10 ] od;
+    for i from 10 to 19 do e99[ i ] := "n" od;
+    e99[ 0 ] := "o"; e99[ 10 ] := "n"; e99[ 12 ] := "e";
+
+    { prints a histogram of data scaled to fit in width                      }
+    proc show_histogram = ( []int data, int width )void:
+         if LWB data <= UPB data then
+             int max_value := data[ LWB data ];
+             for i from LWB data + 1 to UPB data do
+                 if data[ i ] > max_value then max_value := data[ i ] fi
+             od;
+             for i from LWB data to UPB data do
+                 int v = ROUND ( ( data[ i ] * width ) / max_value );
+                 print( ( whole( i, -2 ), ": ", v * "=", ( ( width - v ) + 1 ) * " " ) );
+                 print( ( " (", whole( data[ i ], 0 ), ")", newline ) )
+             od
+         fi { show histogram } ;
+
+    [ 0 : 9 ]int d_count; for i from LWB d_count to UPB d_count do d_count[ i ] := 0 od;
+    char   prev_end     := "o"; { zero }
+    int    next_to_show := 1 000;
+    int    count        := 0;
+    print( ( "The first 50 numbers:", newline ) );
+    for n while count < 1 000 000 do
+        int  k          = n - 1;
+        int  ddd       := n; while ddd >= 1 000 do ddd OVERAB 1 000 od;
+        char curr_start = if   ddd < 100
+                          then s99[ ddd ]
+                          else unit_start[ ddd OVER 100 ]
+                          fi;
+        if curr_start = prev_end then
+            count +:= 1;
+            d_count[ k MOD 10 ] +:= 1;
+            if count <= 50 then
+                print( ( " ", whole( k, -4 ) ) );
+                if count MOD 10 = 0 then print( ( newline ) ) fi
+            elif count = next_to_show then
+                print( ( newline ) );
+                print( ( "The ", whole( count, 0 ), "th number is: ", whole( k, 0 ), newline ) );
+                print( ( "Breakdown by final digit of the numbers:", newline ) );
+                show_histogram( d_count, 60 );
+                next_to_show *:= 10
+            fi
+        fi;
+        int n99   = n MOD 100;
+        prev_end := if   n99 > 0
+                    then e99[ n99 ]
+                    elif n MOD 1 000 000 = 0
+                    then "n"
+                    else "d"
+                    fi
+    od
+end
+)

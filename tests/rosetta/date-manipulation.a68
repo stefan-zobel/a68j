@@ -1,0 +1,246 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Date manipulation", ALGOL 68 solution date-manipulation.alg.
+  https://rosettacode.org/wiki/Date_manipulation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/date-manipulation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ some char/string utilities: }
+
+op UC = (char ch) char:
+  if ch >= "a" AND ch <= "z" then REPR (ABS ch - 32) else ch fi;
+op UC = (string s) string: (
+    [UPB s]char res;
+    for i to UPB s do res[i] := UC s[i] od;
+    res);
+op LC = (char ch) char: if ch >= "A" AND ch <= "Z" then REPR (ABS ch + 32) else ch fi;
+op LC = (string s) string: (
+    [UPB s]char res;
+    for i to UPB s do res[i] := LC s[i] od;
+    res);
+op INDEXOF = ([]string ss, string s) int: (
+  int idx := LWB ss - 1;
+  for i from LWB ss to UPB ss do
+    if s = ss[i] then idx := i; break fi
+  od;
+  break:
+  idx);
+prio INDEXOF = 7;
+
+{ date manipulation utilities: }
+
+mode Date = struct ([6]int d, string tz);
+
+mode Tzoffset = struct (string tz, [3]int offset);
+
+{ add freely }
+[]Tzoffset tz_offsets = (("EST", (-5, 0, 0)), ("", (0,0,0)), ("UTC", (0,0,0)), ("NPT", (5, 45, 0)));
+
+op INDEXOF = ([]Tzoffset tzos, string s) int: (
+  int idx := LWB tzos - 1;
+  for i from LWB tzos to UPB tzos do
+    if s = tz of tzos[i] then idx := i; break fi
+  od;
+  break:
+  idx);
+
+proc is_leap_year = (int year) bool:
+  year %* 400 = 0 OR year %* 4 = 0 AND year %* 100 ~= 0;
+
+proc days_in_month = (int month, year) int:
+  case month in 31, (is_leap_year(year) | 29 | 28), 31, 30, 31, 30,
+                31, 31, 30, 31, 30, 31
+  esac;
+
+{ makes sure all numbers are in the right ranges. f.i., to get the last day of a month,
+  make a date with day 0 of the next month and call this routine }
+proc normalize_date = (ref Date date) void:
+  begin
+    proc fix = (ref int unit, int limit, ref int next) void:
+      if unit < 0 OR unit >= limit then
+        int adj = (unit < 0 | 1 | 0);
+        next +:= unit % limit - adj; unit %*:= limit
+      fi;
+    int year = 1, month = 2, day = 3, hour = 4, minute = 5, second = 6;
+    ref []int d := (d of date);
+    fix(d[second], 60, d[minute]); fix(d[minute], 60, d[hour]);
+    fix(d[hour], 24, d[day]);
+    if d[month] < 1 OR d[month] > 12 then
+      int adj = (d[month] < 1 | 1 | 0);
+      d[year] +:= (d[month]-1) % 12 - adj; d[month] := (d[month]-1) %* 12 + 1
+    fi;
+    while d[day] > days_in_month(d[month], d[year]) do
+      d[day] -:= days_in_month(d[month], d[year]);
+      d[month] +:= 1;
+      if d[month] > 12 then d[year] +:= 1; d[month] := 1 fi
+    od;
+    while d[day] < 1 do
+      if d[month] = 1 then d[month] := 12; d[year] -:= 1 else d[month] -:= 1 fi;
+      d[day] +:= days_in_month(d[month], d[year])
+    od
+  end;
+
+{ interval: y[, m[, d[, h[, M[, s]]]]] }
+proc date_add = (Date d, []int interval) Date: (
+  Date result := d;
+  for i from LWB interval to UPB interval do
+    (d of result)[i - LWB interval + 1] +:= interval[i]
+  od;
+  normalize_date(result);
+  result);
+
+{ interval: [[[[[y,] m,] d,] h,] M,] s }
+proc time_add = (Date d, []int interval) Date: (
+  Date result := d;
+  for i from LWB interval to UPB interval do
+    (d of result)[i - UPB interval + 6] +:= interval[i]
+  od;
+  normalize_date(result);
+  result);
+
+{ this datetime in a different time zone }
+proc in_tz = (Date d, string new_tz) Date:
+  if
+    int idx_current = tz_offsets INDEXOF tz of d;
+    int idx_new     = tz_offsets INDEXOF new_tz;
+    idx_current < 1 OR idx_new < 1
+  then
+    d
+  else
+    [3]int current_offset := offset of tz_offsets[idx_current];
+    [] int new_offset      = offset of tz_offsets[idx_new];
+    for i to UPB current_offset do
+      current_offset[i] := -current_offset[i]
+    od;
+    Date result := time_add(time_add(d, current_offset), new_offset);
+    tz of result := tz of tz_offsets[idx_new];
+    result
+  fi;
+
+{ canonical representation of a date (SQL-style with optional time zone) }
+op REPR = (Date d) string: (
+  string buf; file f; associate(f, buf);
+  putf(f, ($4d,"-"2d,"-"2d," "2d,":"2d,":"2d$, d of d));
+  if tz of d ~= "" then put(f, (" ", tz of d)) fi;
+  close(f);
+  buf);
+
+
+[]string month_names = ("January", "February", "March", "April", "May", "June", "July",
+                        "August", "September", "October", "November", "December");
+
+{ default for h:m:s is 0:0:0. there's no default for year, month or day }
+proc parse_date = (string s, string fmt, ref Date result) bool:
+  begin
+    int idx;
+    proc at_end = bool: idx > UPB s;
+    proc skip_spaces = void:
+      if at_end then error
+      elif s[idx] ~= " " then error
+      else while if at_end then false else s[idx] = " " fi do idx +:= 1 od
+      fi;
+    proc read_number = (int min_digits, max_digits, min_value, max_value) int:
+      begin
+        if at_end then error
+        else
+          int md = if prefix = "-" then min_digits else max_digits fi;
+          int n := 0, digits := 0;
+          while if at_end then false else s[idx] >= "0" AND s[idx] <= "9" fi do
+            n := n * 10 + (ABS s[idx] - ABS "0");
+            digits +:= 1;
+            idx +:= 1
+          od;
+          if n < min_value OR n > max_value OR digits < md OR digits > max_digits then error fi;
+          n
+        fi
+      end;
+    proc read_alpha = string:
+      if at_end then error
+      else
+        int start = idx;
+        while if at_end then false else UC s[idx] >= "A" AND UC s[idx] <= "Z" fi do idx +:= 1 od;
+        if start = idx then error else s[start : idx-1] fi
+      fi;
+    proc read_month_name = int:
+      begin
+        string m := read_alpha;
+        m[1] := UC m[1]; m[2:] := LC m[2:];
+        int res = month_names INDEXOF m;
+        if res < 1 then error fi;
+        res
+      end;
+    proc match = (char ch) void:
+      if at_end then error
+      elif s[idx] ~= ch then error
+      else idx +:= 1
+      fi;
+    proc no_prefix = void: if prefix ~= " " then error fi;
+
+    int year = 1, month = 2, day = 3, hour = 4, minute = 5, second = 6;
+    result := ((-1, -1, -1, 0, 0, 0), "");
+
+    bool percent := false, skip_ := false;
+    char prefix := " ", ampm := " ";
+    idx := 1;
+    for i from LWB fmt to UPB fmt do
+      char ch = fmt[i];
+      if percent then
+        if ch = "-" then no_prefix; prefix := "-"
+        else
+          if skip_ then skip_spaces; skip_ := false fi;
+          if   ch = "%" then no_prefix; match("%")
+          elif ch = "Y" then no_prefix; (d of result)[year] := read_number(4, 4, 1, 9999)
+          elif ch = "B" then no_prefix; (d of result)[month] := read_month_name
+          elif ch = "m" then            (d of result)[month] := read_number(1, 2, 1, 12)
+          elif ch = "d" then            (d of result)[day] := read_number(1, 2, 1, 31)
+          elif ch = "H" then            (d of result)[hour] := read_number(1, 2, 0, 23)
+          elif ch = "I" then            (d of result)[hour] := -read_number(1, 2, 1, 12)
+          elif ch = "M" then            (d of result)[minute] := read_number(1, 2, 0, 59)
+          elif ch = "S" then            (d of result)[second] := read_number(1, 2, 0, 59)
+          elif ch = "p" then no_prefix; string ap = read_alpha;
+                             if ap = "am" then ampm := "a" elif ap = "pm" then ampm := "p"
+                             else error fi
+          elif ch = "Z" then no_prefix; (tz of result) := read_alpha
+          else error
+          fi;
+          prefix := " "; percent := false
+        fi
+      else
+        if   ch = " " then skip_ := true
+        elif ch = "%" then percent := true
+        else
+          if skip_ then skip_spaces; skip_ := false fi;
+          match(ch)
+        fi
+      fi
+    od;
+    if skip_ OR percent then error fi;
+    if (d of result)[hour] < 0 then
+      int h = -(d of result)[hour];
+      (d of result)[hour] := if ampm = "p" then h %* 12 + 12 else h %* 12 fi
+    elif ampm ~= " " then error
+    fi;
+    for i to 6 do if (d of result)[i] < 0 then error fi od;
+    normalize_date(result);
+    true exit
+    error: false
+  end;
+
+{ finally, the task: }
+
+string string_ = "March 7 2009 7:30pm EST";
+Date date;
+bool ok = parse_date(string_, "%B %-d %Y %-I:%M%p %Z", date);
+
+print(("The string """, string_, """", new_line));
+
+if ok then
+  print(("       represents the date ", REPR date, new_line));
+  Date later = time_add(date, (12, 0, 0));
+  print(("       12 hours later it''s ", REPR later, new_line));
+  print(("(the same moment in Nepal: ", REPR in_tz(later, "NPT"), ")", new_line))
+else
+  print(("        doesn''t represent any date this program can parse :(", new_line))
+fi
+)

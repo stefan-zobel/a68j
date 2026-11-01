@@ -1,0 +1,240 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Parsing/RPN to infix conversion", ALGOL 68 solution parsing-rpn-to-infix-conversion.alg.
+  https://rosettacode.org/wiki/Parsing/RPN_to_infix_conversion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/parsing-rpn-to-infix-conversion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ rpn to infix - parses an RPN expression and generates the equivalent        }
+{               infix expression                                              }
+proc rpn_to_infix = ( string rpn )string:
+begin
+
+    { we parse the string backwards using recursive descent                   }
+    int    rpn_pos   := UPB rpn;
+    bool   had_error := false;
+
+    { mode to hold nodes of the parse tree                                    }
+    mode Node = struct( int op_
+                      , union( ref Node, string ) left
+                      , ref Node right
+                      );
+
+    ref Node nil_node = nil;
+
+
+    { op codes                                                                }
+    int error            = 1;
+    int factor           = 2;
+    int add              = 3;
+    int sub              = 4;
+    int mul              = 5;
+    int div              = 6;
+    int pwr              = 7;
+
+    []string op_name     = ( "error", "factor", "+", "-", "*", "/", "^" );
+    []bool   right_associative
+                         = ( false, false, false, false, false, false, true );
+    []int    priority    = ( 1, 1, 2, 2, 3, 3, 4 );
+
+
+
+    { returns TRUE  if we have reached the end of the rpn string,             }
+    {         FALSE otherwise                                                 }
+    proc at_end = bool: rpn_pos < LWB rpn;
+
+    { positions to the previous character, if there is one                    }
+    proc next = void: rpn_pos -:= 1;
+
+    { skip spaces in the rpn string                                           }
+    proc skip_spaces = void:
+        while have( " " )
+        do
+            next
+        od { skip spaces } ;
+
+    { returns TRUE  if the rpn character at rpn pos is c,                     }
+    {         FALSE if the character is not c or there is no character        }
+    {               at rpn pos                                                }
+    proc have = ( char c )bool:
+        if at_end
+        then
+            { no character at rpn pos }
+            false
+        else
+            { have a character - check it is the required one }
+            rpn[ rpn_pos ] = c
+        fi { have } ;
+
+    { gets an operand from the rpn string                                     }
+    { an operand is either a number or a sub-expression                       }
+    proc get_operand = ( string rpn, string operand_name )ref Node:
+    begin
+
+        { handle the operator or operand, if there is one                     }
+
+        skip_spaces;
+
+        print( ( ( "parsing "
+                 + operand_name
+                 + " from: "
+                 + if at_end then "" else rpn[ LWB rpn : rpn_pos ] fi
+                 )
+               , newline
+               )
+             );
+
+        ref Node result :=
+            if   at_end
+            then
+                { no operand }
+                had_error       := true;
+                heap Node       := ( error, "!! Missing operand !!", nil )
+            elif have( "+" )
+            then
+                { addition }
+                next;
+                heap Node right := get_operand( rpn, "+ right operand" );
+                heap Node left  := get_operand( rpn, "+ left operand"  );
+                heap Node       := ( add, left, right )
+            elif have( "-" )
+            then
+                { subtraction }
+                next;
+                heap Node right := get_operand( rpn, "- right operand" );
+                heap Node left  := get_operand( rpn, "- left operand"  );
+                heap Node       := ( sub, left, right )
+            elif have( "*" )
+            then
+                { multiplication }
+                next;
+                heap Node right := get_operand( rpn, "* right operand" );
+                heap Node left  := get_operand( rpn, "* left operand"  );
+                heap Node       := ( mul, left, right )
+            elif have( "/" )
+            then
+                { division }
+                next;
+                heap Node right := get_operand( rpn, "/ right operand" );
+                heap Node left  := get_operand( rpn, "/ left operand"  );
+                heap Node       := ( div, left, right )
+            elif have( "^" )
+            then
+                { exponentiation }
+                next;
+                heap Node right := get_operand( rpn, "^ right operand" );
+                heap Node left  := get_operand( rpn, "^ left operand"  );
+                heap Node       := ( pwr, left, right )
+            else
+                { must be an operand }
+                string value := "";
+
+                while NOT at_end
+                  AND NOT have( " " )
+                do
+                    rpn[ rpn_pos ] +=: value;
+                    next
+                od;
+
+                heap Node := ( factor, value, nil )
+            fi;
+
+        print( ( operand_name + ": " + TOSTRING result, newline ) );
+
+        result
+    end { get operand } ;
+
+
+    { converts the parse tree to a string with apppropriate parenthesis       }
+    op TOSTRING = ( ref Node operand )string:
+    begin
+
+        { converts a node of the parse tree to a string, inserting            }
+        { parenthesis if necessary                                            }
+        proc possible_parenthesis = ( int op_, ref Node expr )string:
+            if op_ of expr = error
+            OR op_ of expr = factor
+            then
+                { operand is an error/factor - parenthisis not needed }
+                TOSTRING expr
+            elif priority( op_ of expr ) < priority( op_ )
+            then
+                { the expression is a higher precedence operator than the     }
+                { one we are building the expression for - need parenthesis   }
+                ( "( " + TOSTRING expr + " )" )
+            elif right_associative[ op_ of operand ]
+             AND op_ of left( operand ) = op_ of operand
+            then
+                { right associative operator                                  }
+                ( "( " + TOSTRING expr + " )" )
+            else
+                { lower precedence expression - parenthesis not needed        }
+                TOSTRING expr
+            fi { possible parenthesis } ;
+
+        { gets the left branch of a node, which must be a node                }
+        proc left  = ( ref Node operand )ref Node:
+            case left of operand
+            in ( ref Node o ): o
+            ,  ( string   s ): heap Node := ( error, s, nil )
+            esac { left } ;
+
+        if   had_error
+        then
+            { an error occured parsing the expression }
+            "Invalid expression"
+        elif operand is nil_node
+        then
+           { no operand? }
+            "<empty>"
+        elif op_ of operand = error
+          OR op_ of operand = factor
+        then
+            { error parsing the expression }
+            { or a factor }
+            case left of operand
+            in ( ref Node o ): "Error: String expected: (" + TOSTRING o + ")"
+            ,  ( string   s ): s
+            esac
+        else
+            { general operand }
+            ( possible_parenthesis( op_ of operand, left(    operand ) )
+            + " " + op_name[ op_ of operand ] + " "
+            + possible_parenthesis( op_ of operand, right of operand   )
+            )
+        fi
+    end { TOSTRING } ;
+
+    string result = TOSTRING get_operand( rpn, "expression" );
+
+    { ensure there are no more tokens in the string }
+    skip_spaces;
+    if at_end
+    then
+        { OK - there was only one expression }
+        result
+    else
+        { extraneous tokens }
+        ( "Error - unexpected text before expression: ("
+        + rpn[ LWB rpn : rpn_pos ]
+        + ")"
+        )
+    fi
+end { rpn to infix } ;
+
+
+
+main: (
+
+    { test the RPN to Infix comnverter                                        }
+    string rpn;
+
+    rpn := "3 4 2 * 1 5 - 2 3 ^ ^ / +";
+    print( ( rpn, ":  ", rpn_to_infix( rpn ), newline, newline ) );
+
+    rpn := "1 2 + 3 4 + ^ 5 6 + ^";
+    print( ( rpn, ":  ", rpn_to_infix( rpn ), newline ) )
+
+)
+)

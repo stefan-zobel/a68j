@@ -1,0 +1,51 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pentagram", ALGOL 68 solution pentagram.alg.
+  https://rosettacode.org/wiki/Pentagram#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pentagram.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw a pentagram, using SVG                                      }
+
+    op   SIND    = ( real x )real: sin( x * pi / 180 );
+    op   COSD    = ( real x )real: cos( x * pi / 180 );
+    prio FMT = 9;
+    op   FMT = ( real v, int dp )string:
+         begin
+            string result = if ENTIER v = v
+                            then whole( v, - dp * 16 )
+                            else fixed( v, - dp * 16, ABS dp )
+                            fi;
+            int v_pos := LWB result;
+            while result[ v_pos ] = " " do v_pos +:= 1 od;
+            result[ v_pos : ]
+         end { FMT } ;
+    proc point   = ( real x, y )string: x FMT 2 + " " + y FMT 2;
+
+    proc draw_gram = ( int width, height, vertices, real side, start_x, start_y, line_width )void:
+         begin
+            real angle = 360 / vertices;
+            print( ( "<svg xmlns=''http://www.w3.org/2000/svg'' width=''"
+                   , whole( width, 0 ), "'' height=''", whole( height, 0 ), "''>", newline
+                   )
+                 );
+            real x := start_x, y := start_y;
+            print( ( "  <polygon points=''", point( x, y ) ) );
+            real heading := angle;
+            to vertices do
+                x +:= side * COSD heading;
+                y +:= side * SIND heading;
+                print( ( " ", point( x, y ) ) );
+                heading -:= 180 -:= angle / 2
+            od;
+            print( ( "''",   newline ) );
+            print( ( "            style=''fill:#55cccc;stroke:#5555cc;stroke-width:" ) );
+            print( ( whole( line_width, 0 ), "''/>", newline ) );
+            print( ( "</svg>", newline ) )
+         end { draw gram };
+
+    draw_gram( 500, 300, 5, 240, 150, 50, 3 )
+
+end
+)

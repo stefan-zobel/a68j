@@ -1,0 +1,90 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Zsigmondy numbers", ALGOL 68 solution zsigmondy-numbers.alg.
+  https://rosettacode.org/wiki/Zsigmondy_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/zsigmondy-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Zsigmondy numbers                                      }
+
+    { integral mode that has precision to suit the task - adjust to suit }
+    mode Integer = long int;
+    { returns the square root of n, use the sqrt routine appropriate for }
+    {         the INTEGER mode                                           }
+    proc isqrt   = ( Integer n )Integer: ENTIER long_sqrt( n );
+
+    { returns the gcd of m and n                                         }
+    prio GCD = 1;
+    op   GCD = ( Integer m, n )Integer:
+         begin
+            Integer a := ABS m, b := ABS n;
+            while b /= 0 do
+               Integer new_a = b;
+               b            := a MOD b;
+               a            := new_a
+            od;
+            a
+         end { GCD } ;
+
+    { returns TRUE if all m are coprime to n, FALSE otherwise            }
+    prio ALLCOPRIME = 1;
+    op   ALLCOPRIME = ( []Integer m, Integer n )bool:
+         begin
+            bool     coprime := true;
+            for i from LWB m to UPB m while coprime := ( m[ i ] GCD n ) = 1 do skip od;
+            coprime
+         end { ALLCOPRIME } ;
+
+    { returns the sequence of Zsigmondy numbers of n to a, b             }
+    proc zsigmondy = ( int n, a, b )[]Integer:
+         begin
+            [ 1 : n - 1 ]Integer am_minus_bm;
+            Integer am := 1, bm := 1;
+            for m to n - 1 do
+                am_minus_bm[ m ] := ( am *:= a ) - ( bm *:= b )
+            od;
+            Integer an := 1, bn := 1;
+            [ 1 : n ]Integer z;
+            for i to n do
+                Integer an_minus_bn      = ( an *:= a ) - ( bn *:= b );
+                Integer largest_divisor := 1;
+                if am_minus_bm[ 1 : i - 1 ] ALLCOPRIME an_minus_bn then
+                    largest_divisor := an_minus_bn
+                else
+                    Integer d     := 1;
+                    Integer max_d := isqrt( an_minus_bn );
+                    int     step   = if ODD an_minus_bn then 2 else 1 fi;
+                    while ( d +:= step ) <= max_d AND largest_divisor <= max_d do
+                        if an_minus_bn MOD d = 0 then
+                            { d is a divisor of a^n - b^n                }
+                            if d > largest_divisor then
+                                if am_minus_bm[ 1 : i - 1 ] ALLCOPRIME d then largest_divisor := d fi
+                            fi;
+                            Integer other_d = an_minus_bn OVER d;
+                            if other_d > d AND other_d > largest_divisor then
+                                if am_minus_bm[ 1 : i - 1 ] ALLCOPRIME other_d then
+                                    largest_divisor := other_d
+                                fi
+                            fi
+                        fi
+                    od
+                fi;
+                z[ i ] := largest_divisor
+            od;
+            z
+         end { zsigmondy } ;
+
+    [,]int tests = ( ( 2, 1 ), ( 3, 1 ), ( 4, 1 ), ( 5, 1 ), ( 6, 1 )
+                   , ( 7, 1 ), ( 3, 2 ), ( 5, 3 ), ( 7, 3 ), ( 7, 5 )
+                   );
+    for i from LWB tests to UPB tests do
+        int a = tests[ i, 1 ], b = tests[ i, 2 ];
+        []Integer z = zsigmondy( 20, a, b );
+        print( ( "zsigmondy( 20, ", whole( a, 0 ), ", ", whole( b, 0 ), " ):", newline, "    " ) );
+        for z_pos from LWB z to UPB z do print( ( " ", whole( z[ z_pos ], 0 ) ) ) od;
+        print( ( newline, newline ) )
+    od
+
+end
+)

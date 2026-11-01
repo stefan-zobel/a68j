@@ -1,0 +1,22 @@
+to 2
+be 2
+or 1
+not 1
+that 1
+is 1
+the 1
+question 1
+SIZE 8
+be: 2
+HAS to: yes, HAS xyz: no
+REMOVE to: yes, again: no
+SIZE 7, HAS to: no
+keys: be or not that is the question to
+slice: 1
+or: 11, SIZE 508
+default: none
+AT inserts: 0 yes
+same name: yes, other: no
+after CLEAR: 0 0
+nil: yes
+exit 0

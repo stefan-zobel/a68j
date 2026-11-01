@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Test integerness", ALGOL 68 solution test-integerness.alg.
+  https://rosettacode.org/wiki/Test_integerness#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/test-integerness.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ set the required precision of LONG LONG values using    }
+{ "PR precision n PR" if required                         }
+{ PR precision 24 PR } { not requied for ALGOL 68 Genie   }
+                       { the default precision is > 24    }
+                       { and can't be reduced to 24       }
+
+{ returns TRUE if v has an integer value, FALSE otherwise }
+op ISINT = ( long long compl v )bool:
+   if im of v /= 0 then
+       { v has an imaginarh part }
+       false
+   else
+       { v has a real part only }
+       ENTIER re of v = v
+   fi; { ISINT }
+
+{ test ISINT }
+
+proc test_is_int = ( long long COMPLEX v )void:
+     begin
+        print( ( float( re of v, -36, 28, 4 ), "_", float( im of v, -36, 28, 4 ) ) );
+        print( ( if ISINT v then " is " else " is not " fi, "integral", newline ) )
+     end { test is int } ;
+
+
+test_is_int( 1 );
+test_is_int( 1.00000001 );
+test_is_int( 4 I 3 );
+test_is_int( 4.0 I 0 );
+test_is_int( 123456789012345678901234 )
+)

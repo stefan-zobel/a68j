@@ -1,0 +1,60 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Odd word problem", ALGOL 68 solution odd-word-problem.alg.
+  https://rosettacode.org/wiki/Odd_word_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/odd-word-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+    { recursively reverses the current word in the input and returns the    }
+    { the character that followed it                                        }
+    { "ch" should contain the first letter of the word on entry and will be }
+    { updated to the punctuation following the word on exit                 }
+    proc reverse_word = ( ref char ch )void:
+         begin
+            char    next_ch;
+            read( ( next_ch ) );
+            if ( next_ch <= "Z" AND next_ch >= "A" )
+            OR ( next_ch <= "z" AND next_ch >= "a" )
+            then
+                reverse_word( next_ch )
+            fi;
+            print( ( ch ) );
+            ch := next_ch
+         end { reverse word } ;
+
+    { recursively prints the current word in the input and returns the      }
+    { character that followed it                                            }
+    { "ch" should contain the first letter of the word on entry and will be }
+    { updated to the punctuation following the word on exit                 }
+    proc normal_word = ( ref char ch )void:
+         if print( ( ch ) );
+            read ( ( ch ) );
+            ( ch <= "Z" AND ch >= "A" )
+         OR ( ch <= "z" AND ch >= "a" )
+         then
+            normal_word( ch )
+         fi { normal word } ;
+
+    { read and print words and punctuation from the input stream, reversing }
+    { every second word                                                     }
+    proc reverse_every_other_word = void:
+         begin
+            char ch;
+            read( ( ch ) );
+            while ch /= "." do
+                normal_word( ch );
+                if ch /= "." then
+                    print( ( ch ) );
+                    read ( ( ch ) );
+                    reverse_word( ch )
+                fi
+            od;
+            print( ( ch ) )
+         end; { reverse every other word }
+
+    reverse_every_other_word
+end
+)

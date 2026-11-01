@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Unique characters", ALGOL 68 solution unique-characters-1.alg.
+  https://rosettacode.org/wiki/Unique_characters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/unique-characters-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the characters that occur once only in a list of stings        }
+    { returns the characters that occur only once in the elements of s      }
+    op UNIQUE = ( []string s )string:
+       begin
+            [ 0 : max_abs_char ]int counts; { counts of used characters     }
+            for i from LWB counts to UPB counts do counts[ i ] := 0 od;
+            { count the occurances of the characters in the elements of s   }
+            for i from LWB s to UPB s do
+                for j from LWB s[ i ] to UPB s[ i ] do
+                    counts[ ABS s[ i ][ j ] ] +:= 1
+                od
+            od;
+            { construct a string of the characters that occur only once     }
+            string result := "";
+            for i from LWB counts to UPB counts do
+                if counts[ i ] = 1 then result +:= REPR i fi
+            od;
+            result
+       end; { UNIQUE }
+    { task test case                                                        }
+    print( ( UNIQUE []string( "133252abcdeeffd",  "a6789798st",  "yxcdfgxcyz" ), newline ) )
+end
+)

@@ -1,0 +1,46 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Distinct power numbers", ALGOL 68 solution distinct-power-numbers.alg.
+  https://rosettacode.org/wiki/Distinct_power_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/distinct-power-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show in order, distinct values of a^b where 2 <= a <= b <= 5        }
+    int max_number = 5;
+    int min_number = 2;
+    { construct a table of a ^ b                                            }
+    int length     = ( max_number + 1 ) - min_number;
+    [ 1 : length * length ]int a_to_b;
+    int pos := 0;
+    for i from min_number to max_number do
+        a_to_b[ pos +:= 1 ] := i * i;
+        from min_number + 1 to max_number do
+            int prev = pos;
+            a_to_b[ pos +:= 1 ] := a_to_b[ prev ] * i
+        od
+    od;
+    { sort the table                                                        }
+    { it is small and nearly sorted so a bubble sort should suffice         }
+    for u from UPB a_to_b - 1 by -1 to LWB a_to_b
+    while bool sorted := true;
+          for p from LWB a_to_b by 1 to u do
+              if a_to_b[ p ] > a_to_b[ p + 1 ] then
+                  int t            = a_to_b[ p     ];
+                  a_to_b[ p     ] := a_to_b[ p + 1 ];
+                  a_to_b[ p + 1 ] := t;
+                  sorted := false
+              fi
+          od;
+          NOT sorted
+    do skip od;
+    { print the table, excluding duplicates                                 }
+    int last := -1;
+    for i to UPB a_to_b do
+        int next = a_to_b[ i ];
+        if next /= last then print( ( " ", whole( next, 0 ) ) ) fi;
+        last := next
+    od;
+    print( ( newline ) )
+end
+)

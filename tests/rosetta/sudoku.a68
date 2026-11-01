@@ -1,0 +1,104 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sudoku", ALGOL 68 solution sudoku.alg.
+  https://rosettacode.org/wiki/Sudoku#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sudoku.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Avail = [9]bool;
+mode Box = [3, 3]char;
+
+FORMAT row_fmt = $"|"3(" "3(g" ")"|")l$;
+FORMAT line = $"+"3(7"-","+")l$;
+FORMAT puzzle_fmt = $f(line)3(3(f(row fmt))f(line))$;
+
+Avail gen_full = (true, true, true, true, true, true, true, true, true);
+
+op REPR = (Avail avail)string: (
+  string out_ := "";
+  for i from LWB avail to UPB avail do
+    if avail[i] then out_ +:= REPR(ABS "0" + i) fi
+  od;
+  out_
+);
+
+char empty_ = "_";
+
+op -:= = (ref Avail set, char index)void: (
+  set[ABS index - ABS "0"]:=false
+);
+
+{  these two functions assume that the number has not already been found }
+proc avail_slice = (ref[]char slice, ref Avail available)ref Avail:(
+        for ele from LWB slice to UPB slice do
+                if slice[ele] /= empty_ then available-:=slice[ele] fi
+        od;
+        available
+);
+
+proc avail_box = (int x, y, ref Avail available)ref Avail:(
+        {  x designates row, y designates column }
+        {  get a base index for the boxes }
+        int bx := x - (x-1) MOD 3;
+        int by_ := y - (y-1) MOD 3;
+        ref Box box = puzzle[bx:bx+2, by_:by_+2];
+        for i from LWB box to UPB box do
+          for j from 2 LWB box to 2 UPB box do
+                if box[i, j] /= empty_ then available-:=box[i, j] fi
+          od
+        od;
+        available
+);
+
+[9, 9]char puzzle;
+proc solve = ([,]char in_puzzle)void:(
+        puzzle := in_puzzle;
+        to UPB puzzle UP 2 do
+                bool done := true;
+                for i from LWB puzzle to UPB puzzle do
+                  for j from 2 LWB puzzle to 2 UPB puzzle do
+                    char ele := puzzle[i, j];
+                    if ele = empty_ then
+                        {  poke at the elements that are "_" }
+                        Avail remaining := avail_box(i, j,
+                                           avail_slice(puzzle[i, ],
+                                           avail_slice(puzzle[, j],
+                                           loc Avail := gen_full)));
+                        string s = REPR remaining;
+                        if UPB s = 1 then puzzle[i, j] := s[LWB s]
+                        else done := false
+                        fi
+                    fi
+                  od
+                od;
+                if done then break fi
+        od;
+break:
+        {  write out completed puzzle }
+        printf(($gl$, "Completed puzzle:"));
+        printf((puzzle_fmt, puzzle))
+);
+main:(
+   solve(("394__267_",
+          "___3__4__",
+          "5__69__2_",
+          "_45___9__",
+          "6_______7",
+          "__7___58_",
+          "_1__67__8",
+          "__9__8___",
+          "_264__735"))
+{ # note: This codes/algorithm does not [yet] solve: #
+   solve(("9__2__5__",
+          "_4__6__3_",
+          "__3_____6",
+          "___9__2__",
+          "____5__8_",
+          "__7__4__3",
+          "7_____1__",
+          "_5__2__4_",
+          "__1__6__9"))
+END }
+)
+)

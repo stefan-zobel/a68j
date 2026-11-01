@@ -1,0 +1,105 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Idiomatically determine all the characters that can be used for symbols", ALGOL 68 solution idiomatically-determine-all-the-characters-that-can-be-used-for-symbols.alg.
+  https://rosettacode.org/wiki/Idiomatically_determine_all_the_characters_that_can_be_used_for_symbols#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/idiomatically-determine-all-the-characters-that-can-be-used-for-symbols.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { determine which characters can be in identifiers, etc. by trying to  }
+      { compile test programs                                                }
+
+    string source_name = "_tmp.a68";
+    string a68_command = "a68 " + source_name + " > _tmp.err 2>&1";
+
+    { attenpts to compile the code with "%" substituted with id,             }
+    {          returns 0 if it compiled OK, non-zero otherwise               }
+    proc attempt_compilation = ( string template, id )int:
+         begin
+            string code := "";
+            { replace "%" with the identifier in the template                }
+            for t_pos from LWB template to UPB template do
+                code +:= if   template[ t_pos ] /= "%"
+                         then template[ t_pos ]
+                         else id
+                         fi
+            od;
+            { output the source file and try compiling it                    }
+            file   source_file;
+            bool   open_error := if open( source_file, source_name, stand_out_channel ) = 0
+                                 then
+                                     { opened OK - file already exists and   }
+                                     {             will be overwritten       }
+                                     false
+                                 else
+                                     { failed to open the file               }
+                                     { - try creating        a new file      }
+                                     establish( source_file, source_name, stand_out_channel ) /= 0
+                                 fi;
+            if open_error
+            then                                   { failed to open the file }
+                print( ( "Unable to open ", source_name, newline ) );
+                stop
+            else                                            { file opened OK }
+                put( source_file, ( code ) );                 { write source }
+                close( source_file );
+                system( a68_command )                           { compile it }
+            fi
+         end { attempt compilation } ;
+    { attempt to construct all two-charaacter symbols and determine whether  }
+    { they are valid by attempting to compile a program containing them      }
+    { only 7-bit ASCII characters > space are considered                     }
+    proc try = ( string template, legend )void:
+         begin
+            [ 0 : 127 ]bool first, second;
+            for i from LWB first to UPB first do
+                first[ i ] := second[ i ] := false
+            od;
+            for f from ABS " " + 1 to UPB first do
+                char fc = REPR f;
+                if attempt_compilation( template, fc ) = 0
+                then
+                    { this character can be the first character of a symbol  }
+                    first[ f ] := true;
+                    for s from ABS " " + 1 to UPB second do
+                        if NOT second[ s ]
+                        then
+                            { haven't found this is a valid second character }
+                            { yet                                            }
+                            if attempt_compilation( template, fc + REPR s ) = 0
+                            then
+                                { compiled OK                                }
+                                second[ s ] := true
+                            fi
+                        fi
+                    od
+                fi
+            od;
+            print( ( "Characters valid for ", legend, ":", newline ) );
+            print( ( "    as first: " ) );
+            for c_pos from LWB first to UPB first do
+                if   first[ c_pos ]
+                then print( ( REPR c_pos ) )
+                elif second[ c_pos ]
+                then print( ( " " ) )
+                fi
+            od;
+            print( ( newline ) );
+            print( ( "    as other: " ) );
+            for c_pos from LWB first to UPB first do
+                if   second[ c_pos ]
+                then print( ( REPR c_pos ) )
+                elif first[ c_pos ]
+                then print( ( " " ) )
+                fi
+            od;
+            print( ( newline ) )
+         end { try } ;
+
+    try( "BEGIN INT %; % := 1 END",                                "identifiers"       );
+    try( "BEGIN OP % = ( INT a )INT: a; % 1 END",                  "monadic operators" );
+    try( "BEGIN PRIO % = 5; OP % = ( INT a, b )INT: a; 1 % 1 END", "dyadic operators"  );
+    try( "BEGIN MODE % = INT; % x; x := 1 END",                    "mode indicants"    )
+
+end
+)

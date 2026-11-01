@@ -1,0 +1,26 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Longest common subsequence", ALGOL 68 solution longest-common-subsequence.alg.
+  https://rosettacode.org/wiki/Longest_common_subsequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/longest-common-subsequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin proc lcs = (string s, t) string:
+      if LWB s > UPB s OR LWB t > UPB t
+      then { Trivial case: empty strings have an empty LCS. }
+           ""
+      elif s[UPB s] = t[UPB t]
+      then { If the last characters of 's' and 't' match, prepend the LCS of the preceeding strings }
+           lcs (s[: UPB s - 1], t[: UPB t - 1]) + s[UPB s]
+      else { Find the longest LCS of these cases:
+             (1) excluding the last character of 's' including the last of 't',
+             (2) excluding the last character of 't' including the last of 's'. }
+           string u = lcs (s[: UPB s - 1], t), v = lcs (s, t[: UPB t - 1]);
+           (UPB u > UPB v | u | v)
+      fi;
+
+      print ((lcs ("1234", "1224533324"), new_line));
+      print ((lcs ("thisisatest", "testing123testing"), new_line))
+end
+)

@@ -1,0 +1,7 @@
+{ A missing key is a runtime error of ELEM. }
+access Hashmaps (
+   Int_string_map m = new_int_string_map;
+   1 AT m := "one";
+   puts (1 ELEM m + "'n");
+   puts (2 ELEM m + "'n")
+)

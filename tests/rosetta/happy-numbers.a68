@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Happy numbers", ALGOL 68 solution happy-numbers.alg.
+  https://rosettacode.org/wiki/Happy_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/happy-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int base10 = 10, num_happy = 8;
+
+proc next = (int in_n)int: (
+  int n := in_n;
+  int out_ := 0;
+  while n NE 0 do
+    out_ +:= ( n MOD base10 ) ** 2;
+    n := n OVER base10
+  od;
+  out_
+);
+
+proc is_happy = (int in_n)bool: (
+  int n := in_n;
+  for i while n NE 1 AND n NE 4 do n := next(n) od;
+  n=1
+);
+
+int count := 0;
+for i while count NE num_happy do
+  if is_happy(i) then
+    count +:= 1;
+    print((i, new_line))
+  fi
+od
+)

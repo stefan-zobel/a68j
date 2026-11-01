@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "N-grams", ALGOL 68 solution n-grams.alg.
+  https://rosettacode.org/wiki/N-grams#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/n-grams.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { split text into n-grams - n character substrings                     }
+
+    mode Ngram = struct( string gram, int count );
+
+    op   UCASE = ( char c )char:          { return c converted to upper case }
+         if c >= "a" AND c <= "z" then REPR( ( ABS c - ABS "a" ) + ABS "A" ) else c fi;
+    op   UCASE = ( string s )string:      { return s converted to upper case }
+         begin
+             string uc := s;
+             for i from LWB uc to UPB uc do uc[ i ] := UCASE uc[ i ] od;
+             uc
+         end { UCASE } ;
+    op   LENGTH = ( string s )int: ( UPB s + 1 ) - LWB s;
+
+    { returns the n-grams of text - using a simple array to contain the      }
+    { n-grams - for longer strings, an associative array might be better     }
+    prio GRAMS = 1;
+    op   GRAMS = ( int n, string text )[]Ngram:
+         begin
+            [ 1 : ( LENGTH text + 1 ) - n ]Ngram result;  { initially assume }
+            int count := 0;                 { all the n-grams will be unique }
+            for pos from LWB text to ( UPB text + 1 )- n do
+                string ng     = UCASE text[ pos : pos + ( n - 1 ) ];
+                bool   found := false;
+                int    g_pos := 0;
+                for g from 1 to count
+                while g_pos := g;
+                      NOT ( found := ng = ( gram of result )[ g ] )
+                do skip od;
+                if NOT found then
+                    result[ count +:= 1 ] := ( ng, 1 )
+                else
+                    ( count of result )[ g_pos ] +:= 1
+                fi
+            od;
+            result[ 1 : count ]
+         end { NGRAMS } ;
+
+    { prints the ngrams in ngrams                                           }
+    proc print_ngrams = ( string title, text, []Ngram ngrams )void:
+         begin
+            print( ( title, "-grams of """, text, """:", newline ) );
+            for g from LWB ngrams to UPB ngrams do
+                print( ( "    """, ( gram of ngrams )[ g ] ) );
+                print( ( """: ", whole( ( count of ngrams )[ g ], 0 ), newline ) )
+            od
+         end { print ngrams } ;
+
+    string  test       = "Live and let live";
+    print_ngrams( "bi",   test, 2 GRAMS test );
+    print_ngrams( "tri",  test, 3 GRAMS test );
+    print_ngrams( "quad", test, 4 GRAMS test )
+
+end
+)

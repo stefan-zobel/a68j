@@ -1,0 +1,105 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pascal's triangle/Puzzle", ALGOL 68 solution pascals-triangle-puzzle.alg.
+  https://rosettacode.org/wiki/Pascal's_triangle/Puzzle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pascals-triangle-puzzle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode
+  Field = real,
+  Vec = [0]real,
+  Mat = [0,0]real;
+mode Brick = union(int, char);
+
+flex[][]Brick puzzle = (
+           ( 151),
+         ( " ", " "),
+       (  40, " ", " "),
+     ( " ", " ", " ", " "),
+   ( "x",  11, "y",  4, "z")
+);
+
+proc mat_col = (int row, col)int: row*(row-1)OVER 2 + col;
+int col_x = mat_col(5,1),
+    col_y = mat_col(5,3),
+    col_z = mat_col(5,5);
+
+op INIT = (ref Vec vec)void: for elem from LWB vec to UPB vec do vec[elem]:=0 od;
+op INIT = (ref Mat mat)void: for row from LWB mat to UPB mat do INIT mat[row,] od;
+
+op / = (Mat a, Mat b)Mat:( { matrix division }
+  [LWB b:UPB b]int p ;
+  int sign;
+  [,]Field lu = lu_decomp(b, p, sign);
+  [LWB a:UPB a, 1 LWB a:2 UPB a]Field out_;
+  for col from 2 LWB a to 2 UPB a do out_[,col] := lu_solve(b, lu, p, a[,col]) od;
+  out_
+);
+
+op / = (Vec a, Mat b)Vec: ( { vector division }
+  [LWB a:UPB a,1]Field transpose_a;
+  transpose_a[,1]:=a;
+  (transpose_a/b)[,LWB a]
+);
+
+int upb_mat = mat_col(UPB puzzle, UPB puzzle);
+[upb_mat, upb_mat] real mat; INIT mat;
+[upb_mat] real vec; INIT vec;
+
+int mat_row := LWB mat;
+int known_row := UPB mat - UPB puzzle + 1;
+
+{ build the simultaneous equation to solve }
+for row from LWB puzzle to UPB puzzle do
+  for col from LWB puzzle[row] to UPB puzzle[row] do
+    if row < UPB puzzle then
+      mat[mat_row, mat_col(row, col)] := 1;
+      mat[mat_row, mat_col(row+1, col)] := -1;
+      mat[mat_row, mat_col(row+1, col+1)] := -1;
+      mat_row +:= 1
+    fi;
+    case puzzle[row][col] in
+      (int value):(
+        mat[known_row, mat_col(row, col)] := 1;
+        vec[known_row] := value;
+        known_row +:= 1
+      ),
+      (char variable):skip
+    esac
+  od
+od;
+
+{ finally add x - y + z = 0 }
+mat[known_row, col_x] := 1;
+mat[known_row, col_y] := -1;
+mat[known_row, col_z] := 1;
+
+FORMAT real_repr = $g(-5,2)$;
+
+{ # print details of the simultaneous equation being solved #
+FORMAT
+  vec repr = $"("n(2 UPB mat-1)(f(real repr)", ")f(real repr)")"$,
+  mat repr = $"("n(1 UPB mat-1)(f(vec repr)", "lx)f(vec repr)")"$;
+
+printf(($"Vec: "l$,vec repr, vec, $l$));
+printf(($"Mat: "l$,mat repr, mat, $l$));
+END }
+
+{ finally actually solve the equation }
+Vec solution_vec = vec/mat;
+
+{ and wrap up by printing the solution }
+flex[UPB puzzle]flex[0]real solution;
+for row from LWB puzzle to UPB puzzle do
+  solution[row] := loc[row]real;
+  for col from LWB puzzle[row] to UPB puzzle[row] do
+    solution[row][col] := solution_vec[mat_col(row, col)]
+  od;
+  printf(($n(UPB puzzle-row)(4x)$, $x"("f(real repr)")"$, solution[row], $l$))
+od;
+
+for var from 1 by 2 to 5 do
+  printf(($5x$,$g$,puzzle[UPB puzzle][var],"=", real_repr, solution[UPB puzzle][var]))
+od
+)

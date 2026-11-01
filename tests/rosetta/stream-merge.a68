@@ -1,0 +1,109 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Stream merge", ALGOL 68 solution stream-merge.alg.
+  https://rosettacode.org/wiki/Stream_merge#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/stream-merge.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ merge a number of input files to an output file                             }
+proc mergenf = ( []ref file inpf, ref file out_ )void:
+     begin
+        int        eof_count := 0;
+        bool       at_eof    := false;
+        []ref file inputs     = inpf[ at 1 ];
+        int   number_of_files = UPB inputs;
+        [ number_of_files ]bool reached_eof;
+        [ number_of_files ]string line;
+        for f to number_of_files do
+            reached_eof[ f ] := false;
+            on_logical_file_end( inpf[ f ], ( ref file f )bool:
+                                            begin
+                                                { note that we reached EOF on the latest read }
+                                                { and return TRUE so processing can continue }
+                                                at_eof := true
+                                            end
+                               )
+        od;
+        { read a line from one of the input files                              }
+        proc read_a_line = ( int file_number )void:
+             begin
+                 at_eof := false;
+                 get( inputs[ file_number ], ( line[ file_number ], newline ) );
+                 reached_eof[ file_number ] := at_eof;
+                 if at_eof then
+                     { reached eof on this file                                }
+                     eof_count +:= 1
+                 fi
+             end; { read a line }
+        { get the first line from each input file                              }
+        for f to number_of_files do read_a_line( f ) od;
+        { merge the files                                                      }
+        while eof_count < number_of_files do
+            { find the lowest line in the current set                          }
+            int    low_pos     := 0;
+            string low_line    := "";
+            bool   first_file  := true;
+            for file_pos to number_of_files do
+                if reached_eof[ file_pos ] then
+                    { file is at eof - ignore it                               }
+                    skip
+                elif first_file then
+                    { this is the first file not at eof                        }
+                    low_pos    := file_pos;
+                    low_line   := line[ file_pos ];
+                    first_file := false
+                elif line[ file_pos ] < low_line then
+                    { this line is lower than the previous one                 }
+                    low_pos    := file_pos;
+                    low_line   := line[ file_pos ]
+                fi
+            od;
+            { write the record from the lowest file and get the next record    }
+            { from it                                                          }
+            put( out_, ( line[ low_pos ], newline ) );
+            read_a_line( low_pos )
+        od
+     end; { mergenf }
+
+{ merges the files named in input list, the results are written to the file     }
+{ named output name                                                             }
+{ the output file must already exist and will be overwritten                    }
+proc mergen = ( []string input_list, string output_name )void:
+     begin
+        []string inputs       = input_list[ at 1 ];
+        int number_of_files   = UPB inputs;
+        [ number_of_files ]ref file inpf;
+        { open the input files                                                  }
+        for f to number_of_files do
+             inpf[ f ] := loc file;
+             if  open( inpf[ f ], inputs[ f ], stand_in_channel ) /= 0
+             then
+                 { failed to open the input file }
+                 print( (  "Unable to open """ + input_list[ f ] + """", newline ) );
+                 stop
+             fi
+        od;
+        { open the output file (which must already exist & will be overwritten) }
+        if file output_file;
+           open( output_file, output_name, stand_out_channel ) /= 0
+        then
+            { failed to open the output file }
+            print( (  "Unable to open """ + output_name + """", newline ) );
+            stop
+        else
+            { files opened OK, merge them }
+            mergenf( inpf, output_file );
+            { close the files }
+            close( output_file );
+            for f to number_of_files do close( inpf[ f ] ) od
+        fi
+     end; { mergen }
+
+{ merges the two files named in1 and in2 to the file named output file }
+proc merge2 = ( string in1, string in2, string output_file )void: mergen( ( in1, in2 ), output_file );
+
+{ test the file merge }
+merge2(   "in1.txt", "in2.txt",                         "out2.txt" );
+mergen( ( "in1.txt", "in2.txt", "in3.txt", "in4.txt" ), "outn.txt" )
+)

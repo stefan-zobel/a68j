@@ -1,0 +1,101 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Moser's circle problem", ALGOL 68 solution mosers-circle-problem.alg.
+  https://rosettacode.org/wiki/Moser's_circle_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/mosers-circle-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Moser's circle problem                                               }
+
+    { returns the binomial coefficient ( n k )                               }
+    proc binomial = ( int n, k )int:
+         if k > n OR k < 0 then 0
+         else
+            int bc := 1;
+            for i to k do bc := ( bc * ( n - i + 1 ) ) OVER i od;
+            bc
+         fi { binomial } ;
+
+    { returns the first n numbers using the quartic equation                 }
+    proc moser_q_values = ( int n )[]int:
+         begin
+            [ 1 : n ]int values;
+            for i to n do
+                values[ i ] := ( i * ( i * ( i * ( i - 6 ) + 23 ) - 18 ) + 24 ) OVER 24
+            od;
+            values
+         end { moser q values } ;
+
+    { returns the first n numbers, using the 5th element of the rows of      }
+    {         Bernoulli's triangle                                           }
+    proc moser_btriangle_values = ( int n )[]int:
+         begin
+            [ 1 : n ]int row, values;
+            int p2 := 1;
+            for line to n do
+                for j from line - 1 by -1 to 2 do
+                    row[ j ] +:= row[ j - 1 ]
+                od;
+                row[ line ] := p2;
+                values[ line ] := row[ if line < 5 then line else 5 fi ];
+                p2 +:= p2
+            od;
+            values
+         end { moser btriangle values } ;
+
+    { returns the first n numbers, using the sum of the first 5 elements of  }
+    {         the rows of Pascal's triangle                                  }
+    proc moser_ptriangle_values = ( int n )[]int:
+         begin
+            [ 1 : n ]int row, values;
+            for line to n do
+                for i from line - 1 by - 1 to 2 do row[ i ] +:= row[ i - 1 ] od;
+                row[ line ] := 1;
+                values[ line ] := row[ 1 ];
+                for i from 2 to if line < 5 then line else 5 fi do values[ line ] +:= row[ i ] od
+            od;
+            values
+         end { moser ptriangle values } ;
+
+    { returns the first n numbers, using binomial coefficients               }
+    proc moser_bc_values = ( int n )[]int:
+         begin
+            [ 1 : n ]int values;
+            for i to n do values[ i ] := binomial( i, 4 ) + binomial( i, 2 ) + 1 od;
+            values
+         end { moser bc values } ;
+
+    { returns the first n numbers, using the Binomial transform of           }
+    {         1, 1, 1, 1, 1, 0, 0, ...                                       }
+    proc moser_bt_values = ( int n )[]int:
+         begin
+            [ 1 : n ]int values;
+            for i to n do
+                values[ i ] := 0;
+                for k from 0 to if i < 5 then i else 4 fi do values[ i ] +:= binomial( i - 1, k ) od
+            od;
+            values
+         end { moser bt values } ;
+
+    begin { show the first 20 values by various methods                      }
+
+        { shows the first nv Moser values                                    }
+        proc show_moser_values = ( string label, proc(int)[]int mf, int nv )void:
+             begin
+                 print( ( newline, "... calculated by the ", label, " method:", newline, "   " ) );
+                 []int values = mf( nv );
+                 for i to nv do print( ( " ", whole( values[ i ], 0 ) ) ) od;
+                 print( ( newline ) )
+             end { show moser values } ;
+
+        print( ( "The first 20 values of Moser''s circle problem...", newline ) );
+
+        show_moser_values( "quartic equation",      moser_q_values,         20 );
+        show_moser_values( "Bernoulli''s triangle",  moser_btriangle_values, 20 );
+        show_moser_values( "Pascal''s triangle",     moser_ptriangle_values, 20 );
+        show_moser_values( "Binomial coefficients", moser_bc_values,        20 );
+        show_moser_values( "Binomial transform",    moser_bt_values,        20 )
+    end
+end
+)

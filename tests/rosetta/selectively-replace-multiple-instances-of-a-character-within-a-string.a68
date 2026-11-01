@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Selectively replace multiple instances of a character within a string", ALGOL 68 solution selectively-replace-multiple-instances-of-a-character-within-a-string.alg.
+  https://rosettacode.org/wiki/Selectively_replace_multiple_instances_of_a_character_within_a_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/selectively-replace-multiple-instances-of-a-character-within-a-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ in the string "abracadabra", replace the first  'a' with 'A', the second 'a' with 'B'
+                                      , the fourth 'a' with 'C', the fifth  'a' with 'D'
+                                        the first  'b' with 'E', the second 'r' with 'F'
+}
+begin
+    [,]string replacements = ( ( "a", "ABaCD" ), ( "b", "E" ), ( "r", "rF" ) );
+    [ 1 LWB replacements : 1 UPB replacements ]int position;
+    string input = "abracadabra";
+    [ LWB input : UPB input ]char output;
+    for i from LWB position to UPB position do position[ i ] := LWB replacements[ i, 2 ] od;
+    for c_pos from LWB input to UPB input do
+        char c           = input[ c_pos ];
+        output[ c_pos ] := c;
+        bool found      := false;
+        for r_pos from 1 LWB replacements to 1 UPB replacements while NOT found do
+            string r = replacements[ r_pos, 1 ];
+            if c = r[ LWB r ] then
+                found := true;
+                if position[ r_pos ] <= UPB replacements[ r_pos, 2 ] then
+                    output[   c_pos ]  := replacements[ r_pos, 2 ][ position[ r_pos ] ];
+                    position[ r_pos ] +:= 1;
+                    found              := true
+                fi
+            fi
+        od
+    od;
+    print( ( """", input, """ -> """, output, """" ) );
+    if output /= "AErBcadCbFD" then print( ( " ** UNEXPECTED RESULT" ) ) fi;
+    print( ( newline ) )
+end
+)

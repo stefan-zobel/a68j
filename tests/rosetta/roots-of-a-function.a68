@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Roots of a function", ALGOL 68 solution roots-of-a-function.alg.
+  https://rosettacode.org/wiki/Roots_of_a_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/roots-of-a-function.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Dbl = long real;
+FORMAT dbl = $g(-long real width, long real width-6, -2)$;
+
+mode Xy = struct(Dbl x, y);
+FORMAT xy_root = $f(dbl)" ("b("Exactly", "Approximately")")"$;
+
+mode Dblopt = union(Dbl, void);
+mode Xyres = union(Xy, void);
+
+proc find_root = (proc (Dbl)Dbl f, Dblopt in_x1, in_x2, in_x_error, in_y_error)Xyres:(
+  int limit = ENTIER (long_real_width / log(2)); { worst case of a binary search) }
+  Dbl x1 := (in_x1|(Dbl x1):x1|-5.0), { if x1 is EMPTY then -5.0 }
+      x2 := (in_x2|(Dbl x2):x2|+5.0),
+      x_error := (in_x_error|(Dbl x_error):x_error|small_real),
+      y_error := (in_y_error|(Dbl y_error):y_error|small_real);
+  Dbl y1 := f(x1), y2;
+  Dbl dx := x1 - x2, dy;
+
+  if y1 = 0 then
+    Xy(x1, y1) { we already have a solution! }
+  else
+    for i while
+      y2 := f(x2);
+      if y2 = 0 then stop_iteration fi;
+      if i = limit then value_error fi;
+      if y1 = y2 then value_error fi;
+      dy := y1 - y2;
+      dx := dx / dy * y2;
+      x1 := x2; y1 := y2; { retain for next iteration }
+      x2 -:= dx;
+  { WHILE } ABS dx > x_error AND ABS dy > y_error do
+      skip
+    od;
+    stop_iteration:
+      Xy(x2, y2) exit
+    value_error:
+      empty
+  fi
+);
+
+proc f = (Dbl x)Dbl: x UP 3 - long 3.1 * x UP 2 + long 2.0 * x;
+
+Dbl first_root, second_root, third_root;
+
+Xyres first_result = find_root(f, LENG -1.0, LENG 3.0, empty, empty);
+case first_result in
+  (Xy first_result): (
+    printf(($"1st root found at x = "f(xy root)l$, x of first_result, y of first_result=0));
+    first_root := x of first_result
+  )
+  out printf($"No first root found"l$); stop
+esac;
+
+Xyres second_result = find_root( (Dbl x)Dbl: f(x) / (x - first_root), empty, empty, empty, empty);
+case second_result in
+  (Xy second_result): (
+    printf(($"2nd root found at x = "f(xy root)l$, x of second_result, y of second_result=0));
+    second_root := x of second_result
+  )
+  out printf($"No second root found"l$); stop
+esac;
+
+Xyres third_result = find_root( (Dbl x)Dbl: f(x) / (x - first_root) / ( x - second_root ), empty, empty, empty, empty);
+case third_result in
+  (Xy third_result): (
+    printf(($"3rd root found at x = "f(xy root)l$, x of third_result, y of third_result=0));
+    third_root := x of third_result
+  )
+  out printf($"No third root found"l$); stop
+esac
+)

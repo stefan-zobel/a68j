@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers in base 10 that are palindromic in bases 2, 4, and 16", ALGOL 68 solution numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16.alg.
+  https://rosettacode.org/wiki/Numbers_in_base_10_that_are_palindromic_in_bases_2,_4,_and_16#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show numbers in decimal that are palindromic in bases 2, 4 and 16 }
+    int max_number = 25 000;    { maximum number to consider }
+    int min_base   = 2;         { smallest base needed }
+    int max_digits = begin      { number of digits max number has in the smallest base }
+                         int d := 1;
+                         int v := max_number;
+                         while v >= min_base do
+                             v OVERAB min_base;
+                             d PLUSAB 1
+                         od;
+                         d
+                     end;
+    { returns the digits of n in the specified base }
+    prio DIGITS = 9;
+    op   DIGITS = ( int n, int base )[]int:
+         if   int v := ABS n;
+              v < base
+         then v { single dogit }
+         else   { multiple digits }
+            [ 1 : max_digits ]int result;
+            int d_pos := UPB result + 1;
+            while v > 0 do
+                result[ d_pos -:= 1 ] := v MOD base;
+                v OVERAB base
+            od;
+            result[ d_pos : UPB result ]
+         fi { DIGITS } ;
+    { returns TRUE if the digits in d form a palindrome, FALSE otherwise }
+    op   PALINDROMIC = ( []int d )bool:
+         begin
+             int  left := LWB d, right := UPB d;
+             bool is_palindromic := true;
+             while left < right AND is_palindromic do
+                 is_palindromic := d[ left ] = d[ right ];
+                 left          +:= 1;
+                 right         -:= 1
+             od;
+             is_palindromic
+         end;
+    { print the numbers in decimal that are palendromic in bases 2, 4 and 16 }
+    { as noted by the REXX sample, even numbers ( other than 0 ) aren't      }
+    { applicable as even numbers end in 0 in base 2 so can't be palendromic  }
+    print( ( " 0" ) );              { clearly, 0 is palendromic in all bases }
+    for n by 2 to max_number do
+        if PALINDROMIC ( n DIGITS 16 ) then
+            if PALINDROMIC ( n DIGITS 4 ) then
+                if PALINDROMIC ( n DIGITS 2 ) then
+                    print( ( " ", whole( n, 0 ) ) )
+                fi
+            fi
+        fi
+    od;
+    print( ( newline ) )
+end
+)

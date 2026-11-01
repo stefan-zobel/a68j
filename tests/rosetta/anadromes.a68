@@ -1,0 +1,102 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Anadromes", ALGOL 68 solution anadromes.alg.
+  https://rosettacode.org/wiki/Anadromes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/anadromes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some anadromes: words that when reversed are also words         }
+    { in-place quick sort an array of strings                                }
+    proc s_quicksort = ( ref[]string a, int lb, ub )void:
+         if ub > lb
+         then
+            { more than one element, so must sort                            }
+            int  left  := lb;
+            int  right := ub;
+            { choosing the middle element of the array as the pivot          }
+            string pivot := a[ left + ( ( right + 1 ) - left ) OVER 2 ];
+            while
+                while if left  <= ub then a[ left  ] < pivot else false fi
+                do
+                    left  +:= 1
+                od;
+                while if right >= lb then a[ right ] > pivot else false fi
+                do
+                    right -:= 1
+                od;
+                left <= right
+            do
+                string t   := a[ left  ];
+                a[ left  ] := a[ right ];
+                a[ right ] := t;
+                left      +:= 1;
+                right     -:= 1
+            od;
+            s_quicksort( a, lb,   right );
+            s_quicksort( a, left, ub    )
+         fi { s quicksort } ;
+    { returns TRUE if item is in list, FALSE otherwise                       }
+    { - based on the iterative routine in the binary search task             }
+    proc contains = ( []string list, string item, int lb, ub )bool:
+         begin
+            int  low  := lb,
+            int  high := ub;
+            while low < high do
+                int mid =  ( low + high ) OVER 2;
+                if   list[ mid ] > item then high := mid - 1
+                elif list[ mid ] < item then low  := mid + 1
+                else low := high := mid
+                fi
+            od;
+            list[ low ] = item
+         end { contains } ;
+
+    { set the end of file handler for stand in                               }
+    on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+
+    [ 1 : 500 000 ]string words;
+    int   t_count    := 0;
+    int   w_count    := 0;
+    int   max_length := 0;
+    bool  at_eof     := false;
+    while
+        string word_;
+        read( ( word_, newline ) );
+        NOT at_eof
+    do
+        t_count +:= 1;
+        int w_length := 1 + ( UPB word_ - LWB word_ );
+        if w_length > 6 then
+            w_count +:= 1;
+            words[ w_count ] := word_;
+            if w_length > max_length then max_length := w_length fi
+        fi
+    od;
+    print( ( "read ", whole( t_count, 0 ), " words, "
+           , "the longest is ", whole( max_length, 0 ), " characters"
+           , newline
+           , "     ", whole( w_count, 0 ), " words are longer than 6 characters"
+           , newline, newline
+           )
+         );
+    s_quicksort( words, 1, w_count ); { sort the words for binary search      }
+    print( ( "The following anadromes are present:", newline, newline ) );
+    int a_count := 0;
+    for i to w_count do
+        string word_ = words[ i ];
+        string reverse_word := "";
+        for w_pos from LWB word_ to UPB word_ do word_[ w_pos ] +=: reverse_word od;
+        if word_ < reverse_word then
+            if contains( words, reverse_word, 1, w_count ) then
+                { have an anadromic pair                                      }
+                int w_length = 1 + ( UPB words[ i ] - LWB words[ i ] );
+                to 10 - w_length do print( ( " " ) ) od;
+                print( ( words[ i ], " :: ", reverse_word, newline ) );
+                a_count +:= 1
+            fi
+        fi
+    od;
+    print( ( newline, "Found ", whole( a_count, 0 ), " anadromes", newline ) )
+end
+)

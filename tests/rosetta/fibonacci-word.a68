@@ -1,0 +1,97 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Fibonacci word", ALGOL 68 solution fibonacci-word.alg.
+  https://rosettacode.org/wiki/Fibonacci_word#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/fibonacci-word.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ calculate some details of "Fibonacci Words"               }
+
+{ fibonacci word 1 = "1"                                    }
+{ fibonacci word 2 = "0"                                    }
+{                3 = word 2 cat word 1 = "01"               }
+{                n = word n-1 cat word n-2                  }
+
+{ note the words contain only the characters "0" and "1"    }
+{ also                                                      }
+{    C(word n) = C(word n-1) + C(word n-2)                  }
+{           where C(x) = the number of characters in x      }
+{ Similarly,                                                }
+{      C0(word n) = C0(word n-1) + C0(word n-2)             }
+{ and  C1(word n) = C1(word n-1) + C1(word n-2)             }
+{      where C0(x) = the number of "0"s in x and            }
+{            C1(x) = the number of "1"s in x                }
+
+{ we therefore don't have to calculate the words themselves }
+
+
+{ prints the statistics for the fibonacci words from 1 to max number }
+proc print_fibonacci_word_stats = ( int max_number )void:
+begin
+
+    { prints some statistics for a fibonacci word:                   }
+    {        the word number, its length and its entropy             }
+    proc print_one_words_stats = ( int word_
+                                 , int zeros
+                                 , int ones
+                                 )void:
+    begin
+        real probability := 0;
+        real entropy     := 0;
+        int  word_length  = zeros + ones;
+        if zeros > 0
+        then
+            { the word contains some zeros }
+            probability := zeros / word_length;
+            entropy    -:= probability * log( probability )
+        fi;
+        if ones > 0
+        then
+            { the word contains some ones }
+            probability := ones  / word_length;
+            entropy    -:= probability * log( probability )
+        fi;
+        { we want entropy in bits so convert to log base 2 }
+        entropy /:= log( 2 );
+        print( ( whole( word_, -5 ), " ", whole( word_length, -12 ) ) );
+        print( ( " ", fixed( entropy, -8, 4 ), newline ) )
+    end; { print one words stats }
+
+    int zeros_one     = 0; { number of zeros in word 1 }
+    int ones_one     = 1; { number of ones  in word 1 }
+    int zeros_two     = 1; { number of zeros in word 2 }
+    int ones_two     = 0; { number of ones  in word 2 }
+    print( ( " word       length  entropy", newline ) );
+    if max_number > 0
+    then
+        { we want at least one number's statistics }
+        print_one_words_stats( 1, zeros_one, ones_one );
+        if max_number > 1
+        then
+            { we want at least 2 number's statistics }
+            print_one_words_stats( 2, zeros_two, ones_two );
+            if max_number > 2
+            then
+                { we want more statistics }
+                int zeros_n_minus_1 := zeros_two;
+                int ones_n_minus_1 := ones_two;
+                int zeros_n_minus_2 := zeros_one;
+                int ones_n_minus_2 := ones_one;
+                for word_ from 3 to max_number do
+                    int zeros_n := zeros_n_minus_1 + zeros_n_minus_2;
+                    int ones_n := ones_n_minus_1 + ones_n_minus_2;
+                    print_one_words_stats( word_, zeros_n, ones_n );
+                    zeros_n_minus_2 := zeros_n_minus_1;
+                    ones_n_minus_2 := ones_n_minus_1;
+                    zeros_n_minus_1 := zeros_n;
+                    ones_n_minus_1 := ones_n
+                od
+            fi
+        fi
+    fi
+end; { print fibonacci word stats }
+
+{ print the statistics for the first 37 fibonacci words }
+print_fibonacci_word_stats( 37 )
+)

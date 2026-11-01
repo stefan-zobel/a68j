@@ -1,0 +1,15 @@
+{ a68j-options: -fnest-java }
+{ Formal holes naming Java methods and fields. }
+begin
+   proc (real) real cbrt = nest Java "java.lang.Math.cbrt";
+   proc (real, real) real hypot = nest Java "java.lang.Math.hypot";
+   proc (int) int bitcount = nest Java "java.lang.Integer.bitCount";
+   long real pi = nest Java "java.lang.Math.PI";
+   int maxint = nest Java "java.lang.Integer.MAX_VALUE";
+   proc (int) string tobin = nest Java "java.lang.Integer.toBinaryString";
+   proc (string) int parse = nest Java "java.lang.Integer.parseInt";
+   proc ([] int) string arr = nest Java "java.util.Arrays.toString";
+   puts (fixed (cbrt (27.0), 0, 3) + " " + fixed (hypot (3.0, 4.0), 0, 3) + " " + whole (bitcount (255), 0) + "'n");
+   puts (fixed (pi, 0, 10) + " " + whole (maxint, 0) + " " + tobin (10) + " " + whole (parse ("123") + 1, 0) + "'n");
+   puts (arr ((3, 1, 4, 1, 5)) + "'n")
+end

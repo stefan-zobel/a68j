@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Factors of an integer", ALGOL 68 solution factors-of-an-integer.alg.
+  https://rosettacode.org/wiki/Factors_of_an_integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/factors-of-an-integer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Yieldint = proc(int)void;
+
+proc gen_factors = (int n, Yieldint yield)void: (
+  for i from 1 to ENTIER sqrt(n) do
+    if n MOD i = 0 then
+      yield(i);
+      int other = n OVER i;
+      if i NE other then yield(n OVER i) fi
+    fi
+  od
+);
+
+[]int nums2factor = (45, 53, 64);
+
+for i to UPB nums2factor do
+  int num = nums2factor[i];
+  string sep := ": ";
+  print(num);
+{ FOR INT j IN } gen_factors(num, { ) DO ( }
+{}   (int j)void:(
+       print((sep,whole(j,0)));
+       sep:=", "
+{ OD } ));
+  print(new_line)
+od
+)

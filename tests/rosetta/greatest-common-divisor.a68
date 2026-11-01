@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Greatest common divisor", ALGOL 68 solution greatest-common-divisor.alg.
+  https://rosettacode.org/wiki/Greatest_common_divisor#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/greatest-common-divisor.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  proc gcd = (int m, n) int: (
+    if int a = ABS m, b = ABS n;
+      a = 0
+    then
+      b
+    elif b = 0 then
+      a
+    elif a > b  then
+      gcd(b, a MOD b)
+    else
+      gcd(a, b MOD a)
+    fi
+  );
+  test:(
+    for a from 33 by -33 to -33 do
+      for b from 77 by -77 to -77 do
+        print(("The gcd of ", whole(a,-6)," and ", whole(b,-6)," is ", whole(gcd(a,b),-6),newline))
+      od
+    od;
+    int c = 49865, d = 69811;
+    print(("The gcd of ", whole(c,-6)," and ", whole(d,-6)," is ", whole(gcd(c,d),-6),newline))
+  )
+end
+)

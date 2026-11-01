@@ -1,0 +1,383 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Compiler/Simple file inclusion pre processor", ALGOL 68 solution compiler-simple-file-inclusion-pre-processor.alg.
+  https://rosettacode.org/wiki/Compiler/Simple_file_inclusion_pre_processor#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/compiler-simple-file-inclusion-pre-processor.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Algol 68 pre-processor                                                      }
+{ Processes "read" pragmas in an Algol 68 upper stropping source              }
+{    It is assumed _ is allowd in tags and bold words                         }
+{    It is assumed that {} are alternatives for () as in ALGOL 68G            }
+{       to use {} as ALGOL 68RS/algol68toc style nestable brief-comments,     }
+{       change rs style brief comments to TRUE                                }
+{    ALGOL 68G ( and probably other compilers ) allow quote-stropped bold     }
+{       words to appear in an otherwise upper-stropped source,                }
+{           e.g. BEGIN 'SKIP' END would be a valid program                    }
+{       this is not supported here so pragmatic comments such as:             }
+{       'PR' read "someFile" 'PR' will cause problems                         }
+{    pragmatic comments should be disabled by PR pragmats off PR,             }
+{       this is not implemented                                               }
+{    the "read" must be in lower case                                         }
+{    ALGOL 68G's read pragmatic comment only includes the file the first time }
+{       it is mentioned in a read pragmatic comment - this is implemented     }
+{       here by keeping a list of the included files - the list is limited to }
+{       200 entries                                                           }
+begin
+
+    { TRUE if {} delimits a nestable brief comment, as in ALGOL 68RS and      }
+    {      algol68toc, FALSE if {} are alternatives to () as in ALGOL 68G     }
+    bool rs_style_brief_comments = false;
+
+    { input file information                                                  }
+    mode Infile = struct( ref file src         { actual source file           }
+                        , string   line        { latest source line           }
+                        , int      pos         { character position in line   }
+                        );
+    { initialises the INFILE f to be associated with the FILE src             }
+    prio INIT = 9;
+    op   INIT = ( ref file src, ref Infile f )ref Infile:
+         begin
+            line of f := "";
+            pos  of f := 1 + UPB line of f;
+            src  of f := src;
+            set_eof_handler( f );
+            f
+         end { INIT } ;
+    { TRUE if EOF has been reached, FALSE otherwise                           }
+    bool at_eof := false;
+    char c      := " ";
+    { newline character                                                       }
+    char nl      = REPR 10;
+    { maximum number of include files that can be nested                      }
+    int max_include_depth = 10;
+    { source file stack                                                       }
+    [ 0 : max_include_depth ]Infile in_stack;
+    { current include depth                                                   }
+    int include_depth := 0;
+    { number of errors reported                                               }
+    int error_count   := 0;
+    { number of included files                                                }
+    int include_count := 0;
+    { names of previously included files                                      }
+    [ 1 : 200 ]string included_files;
+
+    { sets the logical file end procedure of the specified file to a routine  }
+    { that allows us to detect EOF on a source file                           }
+    proc set_eof_handler = ( ref Infile fl )void:
+         on_logical_file_end( src of fl
+                            , ( ref file f )bool:
+                              begin
+                                  { note that we reached EOF on the           }
+                                  { latest read                               }
+                                  if NOT at_eof
+                                  then
+                                      { first time we have spotted eof,       }
+                                      { we need to call newline so that       }
+                                      { if the last line didn't have a        }
+                                      { newline at the end, it is still read  }
+                                      { however that will call this routine   }
+                                      { so we have to ensure we only do it    }
+                                      { once                                  }
+                                      at_eof := true;
+                                      newline( f )
+                                  fi;
+                                  { return TRUE so processing can continue    }
+                                  true
+                              end
+                            );
+
+    { reports an error                                                        }
+    proc error = ( string message )void:
+         begin
+            error_count +:= 1;
+            print( ( newline, newline, "**** ", message, newline ) )
+         end { error } ;
+    { gets the next source character, handling end-of-file on include files   }
+    { the source character is stored in c                                     }
+    proc next_char = void:
+         begin
+            while
+                bool read_again := false;
+                ref Infile s = in_stack[ include_depth ];
+                if pos of s <= UPB line of s then
+                    { not past the end of the source line                     }
+                    c := ( line of s )[ pos of s ];
+                    pos of s +:= 1
+                elif
+                    { past the end of the current source line - get the next  }
+                    at_eof := false;
+                    get( src of s, ( line of s, newline ) );
+                    NOT at_eof
+                then
+                    { got a new line                                          }
+                    line of s +:= nl;
+                    pos  of s  := LWB line of s;
+                    read_again := true
+                elif include_depth = 0 then
+                    { eof on the main source                                  }
+                    line of s := ""
+                else
+                    { got eof on an include file                              }
+                    include_depth -:= 1;
+                    read_again     := true;
+                    at_eof         := false;
+                    close( src of s )
+                fi;
+                read_again
+            do skip od
+         end { next char } ;
+    { returns TRUE if the current character is whitespace                     }
+    proc have_whitespace = bool: c <= " ";
+    { returns TRUE if the current character is a string delimiter             }
+    proc have_string_delimiter = bool: c = """";
+    { returns TRUE if the current character can start a bold word             }
+    proc have_bold = bool: c >= "A" AND c <= "Z";
+    { returns TRUE if the current character can start a brief tag             }
+    proc have_tag  = bool: c >= "a" AND c <= "z";
+    { reports an unterminated construct ( e.g. string, comment )              }
+    proc unterminated = ( string construct )void:
+         error( "Unterminated " + construct );
+    { outputs ch to stand out                                                 }
+    proc out_char = ( char ch )void:
+         if ch = nl then print( ( newline ) ) else print( ch ) fi;
+    { outputs str to stand out                                                }
+    proc out_string = ( string str )void: print( ( str ) );
+    { outputs a brief comment to stand out                                    }
+    {    end char is the closing delimiter,                                   }
+    {    nested char is the opening delimiter for nestable brief comments     }
+    {        if nested char is blank, the brief comment does not nest         }
+    {    this handles ALGOL 68RS and algol68toc style {} comments             }
+    proc skip_brief_comment = ( char end_char, char nested_char )void:
+         begin
+            out_char( c );
+            while next_char;
+                  NOT at_eof AND c /= end_char
+            do
+                if c = nested_char AND NOT have_whitespace then
+                    { nested brief comment                                    }
+                    skip_brief_comment( end_char, nested_char )
+                else
+                    { notmal comment char                                     }
+                    out_char( c )
+                fi
+            od;
+            if at_eof then
+                { unterminated comment                                        }
+                unterminated( """" + end_char + """ comment" );
+                c := end_char
+            fi;
+            out_char( c );
+            next_char
+         end { skip brief comment } ;
+    { gets a string of spaces from the source                                 }
+    proc get_whitespace = string:
+         begin
+            string result := "";
+            while NOT at_eof AND have_whitespace do result +:= c; next_char od;
+            result
+         end { get whitespace } ;
+    { gets a string denotation from the source                                }
+    proc in_string = string:
+         begin
+            string result := "";
+            { within a string denotation, '' denotes the ' character          }
+            while have_string_delimiter do
+                while result +:= c;
+                      next_char;
+                      NOT at_eof AND NOT have_string_delimiter
+                do skip od;
+                if NOT have_string_delimiter then
+                    { unterminated string                                     }
+                    unterminated( "string" );
+                    c := """"
+                fi;
+                result +:= c;
+                next_char
+            od;
+            result
+         end { in string } ;
+    { returns s unquoted                                                      }
+    proc unquote_string = ( string s )string:
+         begin
+            string result := "";
+            { within a string denotation, '' denotes the ' character          }
+            int c_pos := LWB s + 1;
+            while cpos < UPB s do
+                char ch = s[ c_pos ];
+                if ch = """" then
+                    { have an embedded quote - it will be doubled             }
+                    c_pos +:= 1
+                fi;
+                result +:= ch;
+                c_pos  +:= 1
+            od;
+            result
+         end { unquote string } ;
+    { gets a bold word from then source                                       }
+    proc get_bold_word = string:
+         begin
+            string result := "";
+            while have_bold OR c = "_" do result +:= c; next_char od;
+            result
+         end { get bold word } ;
+    { geta a brief tag from the source                                        }
+    proc get_tag = string:
+         begin
+            string result := "" ;
+            while have_tag OR c = "_" do result +:= c; next_char od;
+            result
+         end { get tag } ;
+    { copies the source to the output until a bold word is encountered        }
+    proc skip_to_bold = string:
+         if at_eof
+         then ""
+         else string result := "";
+              while out_char( c );
+                    next_char;
+                    NOT at_eof
+                AND NOT have_bold
+              do skip od;
+              if NOT at_eof then result := get_bold_word fi;
+              result
+         fi { skip to bold } ;
+    { handles a bold PRAGMA, COMMENT or other bold word                       }
+    proc bold_word_or_pragment = void:
+         if string bold_word := get_bold_word;
+            bold_word = "CO" OR bold_word = "COMMENT"
+         then
+            { have a bold comment                                             }
+            string delimiter = bold_word;
+            while out_string( bold_word );
+                  bold_word := skip_to_bold;
+                  NOT at_eof
+              AND bold_word /= delimiter
+            do skip od;
+            if at_eof then
+                { unterminated commant                                        }
+                unterminated( """" + delimiter + """ comment" )
+            fi;
+            out_string( delimiter )
+         elif bold_word = "PR" OR bold_word = "PRAGMA"
+         then
+            { have a pragmatic comment - could be file inclusion              }
+            string delimiter  = bold_word;
+            string pragment  := bold_word;
+            string op_        := "";
+            string file_name := "";
+            { skip spaces after the PR/PRAGMA                                 }
+            pragment +:= get_whitespace;
+            { get the operation, if there is a tag                            }
+            if have_tag then
+                { have an operation                                           }
+                op_        := get_tag;
+                pragment +:= op_ + get_whitespace
+            fi;
+            { get the file name, if there is one                              }
+            if have_string_delimiter then
+                { have a file name                                            }
+                file_name := in_string;
+                pragment +:= file_name + get_whitespace;
+                file_name := unquote_string( file_name )
+            fi;
+            { should now have the closing delimiter                           }
+            if NOT have_bold then
+                { no bold word in/at-the-end-of the pragment                  }
+                bold_word := ""
+            else
+                { have a bold word - could be the delimiter                   }
+                pragment +:= ( bold_word := get_bold_word )
+            fi;
+            if op_        /= "read"
+            OR file_name  = ""
+            OR bold_word /= delimiter
+            then
+                { not a read pragmatic comment                                }
+                out_string( pragment );
+                if bold_word /= delimiter then
+                    { haven't got the closing delimiter yet                   }
+                    while bold_word := skip_to_bold;
+                          NOT at_eof
+                      AND bold_word /= delimiter
+                    do skip od;
+                    if at_eof then
+                        { unterminated comment                                }
+                        unterminated( """" + delimiter + """" )
+                    fi;
+                    out_string( delimiter )
+                fi
+            elif { check for an already included file and add the name to     }
+                 { the list if it hasn't been included before                 }
+                 bool already_included := false;
+                 for file_pos to include_count
+                 while NOT ( already_included := included_files[ file_pos ] = file_name )
+                 do skip od;
+                 if NOT already_included then
+                     { first time this file has been included                 }
+                     { - add it to the list                                   }
+                     if include_count < UPB included_files then
+                         { room to include this file                          }
+                         included_files[ include_count +:= 1 ] := file_name
+                     else
+                         { too many include files                             }
+                         error( "Too many include files: " + file_name )
+                     fi
+                 fi;
+                 already_included
+            then
+                { the file is already included - the pragma should be ignored }
+                skip
+            elif
+                { check the include file depth                                }
+                include_depth >= UPB in_stack
+            then
+                { max include depth exceeded                                  }
+                out_string( pragment );
+                error( "Include files nested too deply: " + file_name )
+            elif ref file inc = heap file;
+                 open( inc, file_name, stand_in_channel ) /= 0
+            then
+                { couldn't open the file                                      }
+                out_string( pragment );
+                error( "Unable to include: " + file_name )
+            else
+                { file opened OK                                              }
+                in_stack[ include_depth +:= 1 ] := inc INIT heap Infile
+            fi
+         else
+            { some other bold word                                            }
+            out_string( bold_word )
+         fi { bold word or pragment } ;
+
+    { copy the source to stand out, expanding read/incldue pragmas            }
+
+    in_stack[ include_depth := 0 ] := stand_in INIT heap Infile;
+    next_char;
+    while NOT at_eof do
+        if   c = "#" then
+            { brief comment                                                   }
+            skip_brief_comment( "#", " " )
+        elif c = "{" AND rs_style_brief_comments then
+            { nestable brief comment ( ALGOL 68RS and algol68toc )            }
+            skip_brief_comment( "}", "{" )
+        elif have_string_delimiter then
+            { STRING or CHAR denotation                                       }
+            out_string( in_string )
+        elif have_bold then
+            { have a bold word                                                }
+            bold_word_or_pragment
+        else
+            { anything else                                                   }
+            out_char( c );
+            next_char
+        fi
+    od;
+
+    if error_count > 0 then
+        { had errors processing the source                                    }
+        print( ( "**** ", whole( error_count, 0 ), " errors", newline ) )
+    fi
+
+end
+)

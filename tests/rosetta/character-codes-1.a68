@@ -1,0 +1,13 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Character codes", ALGOL 68 solution character-codes-1.alg.
+  https://rosettacode.org/wiki/Character_codes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/character-codes-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  printf(($gl$, ABS "a")); { for ASCII this prints "+97" EBCDIC prints "+129" }
+  printf(($gl$, REPR 97))  { for ASCII this prints "a"; EBCDIC prints "/" }
+)
+)

@@ -1,0 +1,46 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Hamming numbers", ALGOL 68 solution hamming-numbers-1.alg.
+  https://rosettacode.org/wiki/Hamming_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/hamming-numbers-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ 
+
+mode Series = flex [1 : 0] Unt, { Initially, no elements }
+     Unt = long long int; { A 100-digit unsigned integer }
+
+proc hamming_number = (int n) Unt: { The n-th Hamming number }
+     case n
+     in 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 { First 10 in a table }
+     out { Additional operators }
+         op MIN = (int i, j) int: (i < j | i | j), MIN = (Unt i, j) Unt: (i < j | i | j);
+         prio MIN = 9;
+         op LAST = (Series h) Unt: h[UPB h]; { Last element of a series }
+         op +:= = (ref Series s, Unt elem) void:
+            { Extend a series by one element, only keep the elements you need }
+            (int lwb = (i MIN j) MIN k, upb = UPB s;
+             ref Series new_s = heap flex [lwb : upb + 1] Unt;
+             (new_s[lwb : upb] := s[lwb : upb], new_s[upb + 1] := elem);
+             s := new_s
+            );
+         { Determine the n-th hamming number iteratively }
+         Series h := 1, { Series, initially one element }
+         Unt m2 := 2, m3 := 3, m5 := 5, { Multipliers }
+         int i := 1, j := 1, k := 1; { Counters }
+         to n - 1
+         do h +:= (m2 MIN m3) MIN m5;
+            (LAST h = m2 | m2 := 2 * h[i +:= 1]);
+            (LAST h = m3 | m3 := 3 * h[j +:= 1]);
+            (LAST h = m5 | m5 := 5 * h[k +:= 1])
+         od;
+         LAST h
+     esac;
+
+for k to 20
+do print ((whole (hamming_number (k), 0), blank))
+od;
+print ((newline, whole (hamming_number (1 691), 0)));
+print ((newline, whole (hamming_number (1 000 000), 0)))
+)

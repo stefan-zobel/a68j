@@ -1,0 +1,48 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Window creation", ALGOL 68 solution window-creation.alg.
+  https://rosettacode.org/wiki/Window_creation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/window-creation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+PROGRAM firstgtk CONTEXT void
+USE standard
+begin
+mode Gdata = ref bits;
+mode Guint = bits;
+mode Gsize = bits;
+mode Gtype = Gsize;
+mode Gtypeclass = struct(Gtype g_type);
+mode Gtypeinstance = struct(ref Gtypeclass g_class);
+mode Gtkwidgetprivate = ref bits;
+
+mode Gobject = struct(
+                Gtypeinstance g_type_instance,
+                Guint ref_count,
+                ref Gdata qdata);
+
+mode Gtkwidget = struct(
+                Gobject parent_instance,
+      ref Gtkwidgetprivate priv);
+
+proc(ref int,ref CCHARPTRPTR)void gtk_init = ALIEN "GTK_INIT"
+        "#define GTK_INIT(argc,argv) gtk_init(argc,argv)";
+proc(int)ref Gtkwidget gtk_window_new = ALIEN "GTK_WINDOW_NEW"
+        "#define GTK_WINDOW_NEW(type) (void *)gtk_window_new(type)";
+proc(ref Gtkwidget)void gtk_widget_show = ALIEN "GTK_WIDGET_SHOW"
+        "#define GTK_WIDGET_SHOW(widget) gtk_widget_show((void *)widget)";
+proc gtk_main = void: CODE "gtk_main();";
+
+int gtk_window_toplevel = 0;
+file argf;
+ref Gtkwidget window;
+
+open(argf,"",arg_channel);
+gtk_init(argc,argv);
+window:=gtk_window_new(gtk_window_toplevel);
+gtk_widget_show(window);
+gtk_main
+end
+FINISH
+)

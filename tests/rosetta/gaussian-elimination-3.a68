@@ -1,0 +1,87 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gaussian elimination", ALGOL 68 solution gaussian-elimination-3.alg.
+  https://rosettacode.org/wiki/Gaussian_elimination#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gaussian-elimination-3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ PRELUDE REQUIRES
+  MODE SCAL = REAL,
+  REAL near min scal = min real ** 0.99,
+  MODE VEC = []REAL,
+  MODE MAT = [,]REAL,
+  FORMAT scal repr = real repr,
+  and various OPerators of MAT and VEC
+END }
+
+{ PRELUDE PROVIDES
+  PROC(MAT a, b)MAT gaussian elimination;
+  PROC(REF MAT a, b)REF MAT in situ gaussian elimination
+END }
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{ using Gaussian elimination, find x where A*x = b }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+proc in_situ_gaussian_elimination = (ref MAT a, b)ref MAT: (
+{ Note: a and b are modified "in situ", and b is returned as x }
+
+  for diag to UPB a-1 do
+    int pivot_row := diag; SCAL pivot_factor := ABS a[diag,diag];
+    for row from diag + 1 to UPB a do { Full pivoting }
+      SCAL abs_a_diag = ABS a[row,diag];
+      if abs_a_diag>=pivot_factor then
+        pivot_row := row; pivot_factor := abs_a_diag fi
+    od;
+  { now we have the "best" diag to full pivot, do the actual pivot }
+    if diag NE pivot_row then
+    { a[pivot row,] =:= a[diag,]; XXX: unoptimised } {DB}
+      a[pivot_row,diag:] =:= a[diag,diag:]; { XXX: optimised }
+      b[pivot_row,] =:= b[diag,] { swap/pivot the diags of a & b }
+    fi;
+
+    if ABS a[diag,diag] <= near_min_scal then
+      raise_value_error("singular matrix") fi;
+    SCAL a_diag_reciprocal := 1 / a[diag, diag];
+
+    for row from diag+1 to UPB a do
+      SCAL factor = a[row,diag] * a_diag_reciprocal;
+    { a[row,] -:= factor * a[diag,] XXX: "unoptimised" } {DB}
+      a[row,diag+1:] -:= factor * a[diag,diag+1:];{ XXX: "optimised" }
+      b[row,] -:= factor * b[diag,]
+    od
+  od;
+
+{ We have a triangular matrix, at this point we can traverse backwards
+  up the diagonal calculating b\A Converting it initial to a diagonal
+  matrix, then to the identity.  }
+
+  for diag from UPB a by -1 to 1+LWB a do
+
+    if ABS a[diag,diag] <= near_min_scal then
+      raise_value_error("Zero pivot encountered?") fi;
+    SCAL a_diag_reciprocal = 1 / a[diag,diag];
+
+    for row to diag-1 do
+      SCAL factor = a[row,diag] * a_diag_reciprocal;
+    { a[row,diag] -:= factor * a[diag,diag]; XXX: "unoptimised" so remove } {DB}
+      b[row,] -:= factor * b[diag,]
+    od;
+{ Now we have only diagonal elements we can simply divide b
+  by the values along the diagonal of A. }
+    b[diag,] *:= a_diag_reciprocal
+  od;
+
+  b { EXIT }
+);
+
+proc gaussian_elimination = (MAT in_a, in_b)MAT: (
+{ Note: a and b are cloned and not modified "in situ" }
+  [UPB in_a, 2 UPB in_a]SCAL a := in_a;
+  [UPB in_b, 2 UPB in_b]SCAL b := in_b;
+  in_situ_gaussian_elimination(a,b)
+);
+
+skip
+)

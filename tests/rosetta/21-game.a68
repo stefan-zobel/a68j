@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "21 game", ALGOL 68 solution 21-game.alg.
+  https://rosettacode.org/wiki/21_game#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/21-game.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+if  print( ( "Player who reaches 21, wins", newline ) );    { 21 game - based on the EasyLang sample }
+    int      human   = 1, computer = 2;
+    []string name    = ( "Human   ", "Computer" );
+    int      player := human, sum := 0;
+    string   a      := "?";
+    while a /= "y" AND a /= "n" AND a /= "q" do
+        print( ( "Do you want to go first (y/n/q) " ) );
+        read( ( a, newline ) );
+        if a = "n" then player := computer fi
+    od;
+    a /= "q"
+then
+    while
+        int add := if player = human then
+                       a := "?";
+                       while a /= "q" AND a /= "1" AND a /= "2" AND a /= "3" do
+                           print( ( newline, "Add 1, 2 or 3 (q to quit) " ) );
+                           read( ( a, newline ) )
+                       od;
+                       if a = "1" then 1 elif a = "2" then 2 else 3 fi
+                   elif sum MOD 4 = 1 then
+                       { player = computer, optimal move not possible }
+                       ENTIER ( random * 3 ) + 1
+                   else
+                       { player = computer, can make the optimal move }
+                       4 - ( sum + 3 ) MOD 4
+                   fi;
+        sum +:= add;
+        if a /= "q" then
+            print( ( name[ player ], ": ", whole( add, 0 ), " --> ", whole( sum, 0 ), newline ) )
+        fi;
+        a /= "q" AND sum < 21
+    do
+        player := if player = human then computer else human fi
+    od;
+    if a /= "q" then
+        print( ( newline ) );
+        print( ( if player = human then "Congratulations, you won" else "Sorry, you lost" fi ) );
+        print( ( newline ) )
+    fi
+fi
+)

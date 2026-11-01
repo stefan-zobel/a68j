@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Composite numbers k with no single digit factors whose factors are all substrings of k", ALGOL 68 solution composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k.alg.
+  https://rosettacode.org/wiki/Composite_numbers_k_with_no_single_digit_factors_whose_factors_are_all_substrings_of_k#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find composite k with no single digit factors whose factors are all substrings of k }
+    { returns TRUE if the string representation of f is a substring of k str, FALSE otherwise }
+    proc is_substring = ( string k_str, int f )bool:
+         begin
+            string f_str   = whole( f, 0 );
+            int    f_len   = ( UPB f_str - LWB f_str ) + 1;
+            bool   result := false;
+            int f_end    := ( LWB k_str + f_len ) - 2;
+            for f_pos from LWB k_str to ( UPB k_str + 1 ) - f_len while NOT result do
+                f_end +:= 1;
+                result := k_str[ f_pos : f_end ] = f_str
+            od;
+            result
+         end { is substring } ;
+    { task }
+    int required_numbers = 20;
+    int k_count         := 0;
+    { k must be odd and > 9 }
+    for k from 11 by 2 while k_count < required_numbers do
+        if k MOD 3 /= 0 AND k MOD 5 /= 0 AND k MOD 7 /= 0 then
+            { no single digit odd prime factors }
+            bool   is_candidate := true;
+            string k_str         = whole( k, 0 );
+            int    v            := k;
+            int    f_count      := 0;
+            for f from 11 by 2 to ENTIER sqrt( k ) + 1 while v > 1 AND is_candidate do
+                if v MOD f = 0 then
+                    { have a factor }
+                    is_candidate := is_substring( k_str, f );
+                    if is_candidate then
+                        { the digits of f ae a substring of v }
+                        while v OVERAB f;
+                              f_count +:= 1;
+                              v MOD f = 0
+                        do skip od
+                    fi
+                fi
+            od;
+            if is_candidate AND ( f_count > 1 OR ( v /= k AND v > 1 ) ) then
+                { have a composite whose factors are up to the root are substrings }
+                if v > 1 then
+                    { there was a factor > the root }
+                    is_candidate := is_substring( k_str, v )
+                fi;
+                if is_candidate then
+                    print( ( " ", whole( k, -8 ) ) );
+                    k_count +:= 1;
+                    if k_count MOD 10 = 0 then print( ( newline ) ) fi
+                fi
+            fi
+        fi
+    od
+end
+)

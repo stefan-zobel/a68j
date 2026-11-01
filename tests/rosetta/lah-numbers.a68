@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Lah numbers", ALGOL 68 solution lah-numbers.alg.
+  https://rosettacode.org/wiki/Lah_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/lah-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { calculate Lah numbers upto L( 12, 12 )                                      }
+      { set the precision for LONG LONG INT                       }
+    { returns Lah Number L( n, k ), f must be a table of factorials to at least n   }
+    proc lah = ( int n, k, []long long int f )long long int:
+         if   n = k          then 1
+         elif n = 0 OR k = 0 then 0
+         elif k = 1          then f[ n ]
+         elif k > n          then 0
+         else
+            { general case: ( n! * ( n - 1 )! ) / ( k! * ( k - 1 )! ) / ( n - k )!  }
+            { we re-arrange the above to:                                           }
+            {   (    n!      /    k! )      -- t1                                   }
+            { * ( ( n - 1 )! / ( k - 1 )! ) -- t2                                   }
+            { / ( n - k )!                                                          }
+            long long int t1 = f[ n     ] OVER f[ k     ];
+            long long int t2 = f[ n - 1 ] OVER f[ k - 1 ];
+            ( t1 * t2 ) OVER f[ n - k ]
+         fi { lah } ;
+    int max_n       = 100; { max n for Lah Numbers                                  }
+    int max_display =  12; { max n to display L( n, k ) values                      }
+    { table of factorials up to max n                                               }
+    [ 1 : max_n ]long long int factorial;
+    begin
+        long long int f := 1;
+        for i to UPB factorial do factorial[ i ] := f *:= i od
+    end;
+    { show the Lah numbers                                                          }
+    print( ( "Unsigned Lah numbers", newline ) );
+    print( ( "n/k  0" ) );
+    for i from 1 to max_display do print( ( whole( i, -11 ) ) ) od;
+    print( ( newline ) );
+    for n from 0 to max_display do
+        print( ( whole( n, -2 ) ) );
+        print( ( whole( lah( n, 0, factorial ), -4 ) ) );
+        for k from 1 to n do
+            print( ( whole( lah( n, k, factorial ), -11 ) ) )
+        od;
+        print( ( newline ) )
+    od;
+    { maximum value of a Lah number for n = 100                                     }
+    long long int max_100 := 0;
+    for k from 0 to 100 do
+        long long int lah_n_k = lah( 100, k, factorial );
+        if lah_n_k > max_100 then max_100 := lah_n_k fi
+    od;
+    print( ( "maximum Lah number for n = 100: ", whole( max_100, 0 ), newline ) )
+end
+)

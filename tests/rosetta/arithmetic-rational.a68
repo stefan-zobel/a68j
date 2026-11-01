@@ -1,0 +1,140 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Arithmetic/Rational", ALGOL 68 solution arithmetic-rational.alg.
+  https://rosettacode.org/wiki/Arithmetic/Rational#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-rational.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+ mode Frac = struct( int num {erator},  den {ominator});
+ FORMAT frac_repr = $g(-0)"//"g(-0)$;
+
+ proc gcd = (int a, b) int: { greatest common divisor }
+   (a = 0 | b |: b = 0 | a |: ABS a > ABS b  | gcd(b, a MOD b) | gcd(a, b MOD a));
+
+ proc lcm = (int a, b)int: { least common multiple }
+   a OVER gcd(a, b) * b;
+
+ proc raise_not_implemented_error = ([]string args)void: (
+   put(stand_error, ("Not implemented error: ",args, newline));
+   stop
+ );
+
+ prio // = 9; { higher then the ** operator }
+ op // = (int num, den)Frac: ( { initialise and normalise }
+   int common = gcd(num, den);
+   if den < 0 then
+     ( -num OVER common, -den OVER common)
+   else
+     ( num OVER common, den OVER common)
+   fi
+ );
+
+ op + = (Frac a, b)Frac: (
+   int common = lcm(den of a, den of b);
+   Frac result := ( common OVER den of a * num of a + common OVER den of b * num of b, common );
+   num of result//den of result
+ );
+
+ op - = (Frac a, b)Frac: a + -b,
+    * = (Frac a, b)Frac: (
+   int num = num of a * num of b,
+       den = den of a * den of b;
+   int common = gcd(num, den);
+   (num OVER common) // (den OVER common)
+ );
+
+ op /  = (Frac a, b)Frac: a * Frac(den of b, num of b),{ real division }
+    %  = (Frac a, b)int: ENTIER (a / b),               { integer divison }
+    %* = (Frac a, b)Frac: a/b - FRACINIT ENTIER (a/b), { modulo division }
+    ** = (Frac a, int exponent)Frac:
+     if exponent >= 0 then
+       (num of a ** exponent, den of a ** exponent )
+     else
+       (den of a ** exponent, num of a ** exponent )
+     fi;
+
+ op REALINIT = (Frac frac)real: num of frac / den of frac,
+    FRACINIT = (int num)Frac: num // 1,
+    FRACINIT = (real num)Frac: (
+      { express real number as a fraction } { a future execise! }
+      raise_not_implemented_error(("Convert a REAL to a FRAC","!"));
+      skip
+    );
+
+ op <  = (Frac a, b)bool: num of (a - b) <  0,
+    >  = (Frac a, b)bool: num of (a - b) >  0,
+    <= = (Frac a, b)bool: NOT ( a > b ),
+    >= = (Frac a, b)bool: NOT ( a < b ),
+    =  = (Frac a, b)bool: (num of a, den of a) = (num of b, den of b),
+    /= = (Frac a, b)bool: (num of a, den of a) /= (num of b, den of b);
+
+ { Unary operators }
+ op - = (Frac frac)Frac: (-num of frac, den of frac),
+    ABS = (Frac frac)Frac: (ABS num of frac, ABS den of frac),
+    ENTIER = (Frac frac)int: (num of frac OVER den of frac) * den of frac;
+
+ { Operators for extended characters set, and increment/decrement:
+ OP +:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a + b ),
+    +=: = (FRAC a, REF FRAC b)REF FRAC: ( b := a + b ),
+    -:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a - b ),
+    *:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a * b ),
+    /:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a / b ),
+    %:= = (REF FRAC a, FRAC b)REF FRAC: ( a := FRACINIT (a % b) ),
+    %*:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a %* b );
+
+ # OP aliases for extended character sets (eg: Unicode, APL, ALCOR and GOST 10859) #
+ OP ×  = (FRAC a, b)FRAC: a * b,
+    ÷  = (FRAC a, b)INT: a OVER b,
+    ÷× = (FRAC a, b)FRAC: a MOD b,
+    ÷* = (FRAC a, b)FRAC: a MOD b,
+    %× = (FRAC a, b)FRAC: a MOD b,
+    ≤  = (FRAC a, b)FRAC: a <= b,
+    ≥  = (FRAC a, b)FRAC: a >= b,
+    ≠  = (FRAC a, b)BOOL: a /= b,
+    ↑  = (FRAC frac, INT exponent)FRAC: frac ** exponent,
+
+    ÷×:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a MOD b ),
+    %×:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a MOD b ),
+    ÷*:= = (REF FRAC a, FRAC b)REF FRAC: ( a := a MOD b );
+
+ # BOLD aliases for CPU that only support uppercase for 6-bit bytes  - wrist watches #
+ OP OVER = (FRAC a, b)INT: a % b,
+    MOD = (FRAC a, b)FRAC: a %*b,
+    LT = (FRAC a, b)BOOL: a <  b,
+    GT = (FRAC a, b)BOOL: a >  b,
+    LE = (FRAC a, b)BOOL: a <= b,
+    GE = (FRAC a, b)BOOL: a >= b,
+    EQ = (FRAC a, b)BOOL: a =  b,
+    NE = (FRAC a, b)BOOL: a /= b,
+    UP = (FRAC frac, INT exponent)FRAC: frac**exponent;
+
+ # the required standard assignment operators #
+ OP PLUSAB  = (REF FRAC a, FRAC b)REF FRAC: ( a +:= b ), # PLUS #
+    PLUSTO  = (FRAC a, REF FRAC b)REF FRAC: ( a +=: b ), # PRUS #
+    MINUSAB = (REF FRAC a, FRAC b)REF FRAC: ( a *:= b ),
+    DIVAB   = (REF FRAC a, FRAC b)REF FRAC: ( a /:= b ),
+    OVERAB  = (REF FRAC a, FRAC b)REF FRAC: ( a %:= b ),
+    MODAB   = (REF FRAC a, FRAC b)REF FRAC: ( a %*:= b );
+
+END }
+E xample: searching_for P erfect N umbers.
+ Frac sum:= FRACINIT 0;
+ FORMAT perfect = $b(" perfect!","")$;
+
+ for i from 2 to 2**19 do
+   int candidate := i;
+   Frac sum := 1 // candidate;
+   real real_sum := 1 / candidate;
+   for factor from 2 to ENTIER sqrt(candidate) do
+     if candidate MOD factor = 0 then
+       sum :=  sum + 1 // factor + 1 // ( candidate OVER factor);
+       real_sum +:= 1 / factor + 1 / ( candidate OVER factor)
+     fi
+   od;
+   if den of sum  = 1 then
+     printf(($"Sum of reciprocal factors of "g(-0)" = "g(-0)" exactly, about "g(0,real width) f(perfect)l$,
+             candidate, ENTIER sum, real_sum, ENTIER sum = 1))
+   fi
+ od
+)

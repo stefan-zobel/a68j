@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Extend your language", ALGOL 68 solution extend-your-language.alg.
+  https://rosettacode.org/wiki/Extend_your_language#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/extend-your-language.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ operator to turn two boolean values into an integer - name inspired by the COBOL sample }
+prio ALSO = 1;
+op   ALSO = ( bool av, bv )int: if av AND bv then 1 elif av then 2 elif bv then 3 else 4 fi;
+
+{ using the above operator, we can use the standard CASE construct to provide the }
+{ required costruct, e.g.:                                                        }
+bool a := true, b := false;
+case a ALSO b
+  in print( ( "both:    a and b are TRUE",  newline ) )
+   , print( ( "first:   only a is TRUE",    newline ) )
+   , print( ( "second:  only b is TRUE",    newline ) )
+   , print( ( "neither: a and b are FALSE", newline ) )
+esac
+)

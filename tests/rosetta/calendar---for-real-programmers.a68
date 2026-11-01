@@ -1,0 +1,117 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Calendar - for "REAL" programmers", ALGOL 68 solution calendar---for-real-programmers.alg.
+  https://rosettacode.org/wiki/Calendar_-_for_%22REAL%22_programmers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/calendar---for-real-programmers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+' '
+
+'proc' PRINT CALENDAR = ('int' YEAR, PAGE WIDTH)'void': 'begin'
+
+  ()'string' MONTH NAMES = (
+      "JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE",
+      "JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"),
+    WEEKDAY NAMES = ("SU","MO","TU","WE","TH","FR","SA");
+  'FORMAT' WEEKDAY FMT = $G,N('UPB' WEEKDAY NAMES - 'LWB' WEEKDAY NAMES)(" "G)$;
+
+  { 'JUGGLE' THE CALENDAR FORMAT TO FIT THE PRINTER/SCREEN WIDTH }
+  'int' DAY WIDTH = 'UPB' WEEKDAY NAMES(1), DAY GAP=1;
+  'int' MONTH WIDTH = (DAY WIDTH+DAY GAP) * 'UPB' WEEKDAY NAMES-1;
+  'int' MONTH HEADING LINES = 2;
+  'int' MONTH LINES = (31 'OVER' 'UPB' WEEKDAY NAMES+MONTH HEADING LINES+2); { +2 FOR HEAD/TAIL WEEKS }
+  'int' YEAR COLS = (PAGE WIDTH+1) 'OVER' (MONTH WIDTH+1);
+  'int' YEAR ROWS = ('UPB' MONTH NAMES-1)'OVER' YEAR COLS + 1;
+  'int' MONTH GAP = (PAGE WIDTH - YEAR COLS*MONTH WIDTH + 1)'OVER' YEAR COLS;
+  'int' YEAR WIDTH = YEAR COLS*(MONTH WIDTH+MONTH GAP)-MONTH GAP;
+  'int' YEAR LINES = YEAR ROWS*MONTH LINES;
+
+  'mode' 'MONTHBOX' = (MONTH LINES, MONTH WIDTH)'char';
+  'mode' 'YEARBOX'  = (YEAR  LINES, YEAR  WIDTH)'char';
+
+  'int' WEEK START = 1; { 'SUNDAY' }
+
+  'proc' DAYS in MONTH = ('int' YEAR, MONTH)'int':
+    'case' MONTH 'in' 31,
+      'if' YEAR 'MOD' 4 'EQ' 0 'AND' YEAR 'MOD' 100 'NE' 0 'OR' YEAR 'MOD' 400 'EQ' 0 'then' 29 'else' 28 'fi',
+      31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    'esac';
+
+  'proc' DAY of WEEK = ('int' YEAR, MONTH, DAY)'int': 'begin'
+    { 'DAY' OF THE WEEK BY 'ZELLER'’S 'CONGRUENCE' ALGORITHM FROM 1887 }
+    'int' Y := YEAR, M := MONTH, D := DAY, C;
+    'if' M <= 2 'then' M +:= 12; Y -:= 1 'fi';
+    C := Y 'OVER' 100;
+    Y 'MODAB' 100;
+    (D - 1 + ((M + 1) * 26) 'OVER' 10 + Y + Y 'OVER' 4 + C 'OVER' 4 - 2 * C) 'MOD' 7
+  'end';
+
+  'mode' 'SIMPLEOUT' = 'union'('string', ()'string', 'int');
+
+  'proc' CPUTF = ('ref'()'char' out, 'FORMAT' FMT, 'SIMPLEOUT' ARGV)'void':'begin'
+    'file' F; 'string' S; ASSOCIATE(F,S);
+    PUTF(F, (FMT, ARGV));
+    out(:'UPB' S):=S;
+    CLOSE(F)
+  'end';
+
+  'proc' MONTH REPR = ('int' YEAR, MONTH)'MONTHBOX':'begin'
+    'MONTHBOX' MONTH BOX; 'for' LINE 'to' 'UPB' MONTH BOX 'do' MONTH BOX(LINE,):=" "* 2 'UPB' MONTH BOX 'od';
+    'string' MONTH NAME = MONTH NAMES(MONTH);
+
+  { CENTER THE TITLE }
+    CPUTF(MONTH BOX(1,(MONTH WIDTH - 'UPB' MONTH NAME ) 'OVER' 2+1:), $G$, MONTH NAME);
+    CPUTF(MONTH BOX(2,), WEEKDAY FMT, WEEKDAY NAMES);
+
+    'int' FIRST DAY := DAY of WEEK(YEAR, MONTH, 1);
+    'for' DAY 'to' DAYS in MONTH(YEAR, MONTH) 'do'
+      'int' LINE = (DAY+FIRST DAY-WEEK START) 'OVER' 'UPB' WEEKDAY NAMES + MONTH HEADING LINES + 1;
+      'int' char =((DAY+FIRST DAY-WEEK START) 'MOD' 'UPB' WEEKDAY NAMES)*(DAY WIDTH+DAY GAP) + 1;
+      CPUTF(MONTH BOX(LINE,char:char+DAY WIDTH-1),$G(-DAY WIDTH)$, DAY)
+    'od';
+    MONTH BOX
+  'end';
+
+  'proc' YEAR REPR = ('int' YEAR)'YEARBOX':'begin'
+    'YEARBOX' YEAR BOX;
+    'for' LINE 'to' 'UPB' YEAR BOX 'do' YEAR BOX(LINE,):=" "* 2 'UPB' YEAR BOX 'od';
+    'for' MONTH ROW 'from' 0 'to' YEAR ROWS-1 'do'
+      'for' MONTH COL 'from' 0 'to' YEAR COLS-1 'do'
+        'int' MONTH = MONTH ROW * YEAR COLS + MONTH COL + 1;
+        'if' MONTH > 'UPB' MONTH NAMES 'then'
+          DONE
+        'else'
+          'int' MONTH COL WIDTH = MONTH WIDTH+MONTH GAP;
+          YEAR BOX(
+            MONTH ROW*MONTH LINES+1 : (MONTH ROW+1)*MONTH LINES,
+            MONTH COL*MONTH COL WIDTH+1 : (MONTH COL+1)*MONTH COL WIDTH-MONTH GAP
+          ) := MONTH REPR(YEAR, MONTH)
+        'fi'
+      'od'
+    'od';
+    DONE: YEAR BOX
+  'end';
+
+  'int' CENTER = (YEAR COLS*(MONTH WIDTH+MONTH GAP) - MONTH GAP - 1) 'OVER' 2;
+  'int' INDENT = (PAGE WIDTH - YEAR WIDTH) 'OVER' 2;
+
+  PRINTF((
+    $N(INDENT + CENTER - 9)K  G L$, "(INSERT SNOOPY HERE)",
+    $N(INDENT + CENTER - 1)K 4D L$, YEAR, $L$,
+    $N(INDENT)K N(YEAR WIDTH)(G)  L$, YEAR REPR(YEAR)
+  ))
+'end';
+
+MAIN: 'begin'
+'{' INSPIRED BY HTTP://WWW.EE.RYERSON.CA/~ELF/hack/realmen.html
+           REAL PROGRAMMERS DONT USE PASCAL - ED POST
+            DATAMATION, VOLUME 29 NUMBER 7, JULY 1983
+              THE REAL PROGRAMMERS NATURAL HABITAT
+"TAPED TO THE WALL IS A LINE-PRINTER SNOOPY CALENDER FOR THE YEAR 1969"
+'}'
+  'int' MANKIND STEPPED ON THE MOON = 1969,
+      LINE PRINTER WIDTH = 132; { AS AT 1969! }
+  PRINT CALENDAR(MANKIND STEPPED ON THE MOON, LINE PRINTER WIDTH)
+'end'
+)

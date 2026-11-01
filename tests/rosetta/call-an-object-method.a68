@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Call an object method", ALGOL 68 solution call-an-object-method.alg.
+  https://rosettacode.org/wiki/Call_an_object_method#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/call-an-object-method.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { demonstrate a possible method of simulating class & instance methods  }
+    { declare a "class"                                                       }
+    mode Animal = struct( string                 species
+                        , proc( ref Animal )void print    { instance method   }
+                        , proc void              cm       { class method      }
+                        );
+    { constructor                                                             }
+    proc new_animal = ( string species )ref ref Animal:
+         begin
+             heap Animal     newv := Animal( species
+                                           , ( ref Animal this )void:
+                                               print( ( "[animal instance[", species of this, "]]" ) )
+                                           , void: print( ( "[animal class method called]" ) )
+                                           );
+             heap ref Animal newa := newv;
+             newa
+         end { new animal } ;
+
+    ref Animal a
+           := new_animal( "PANTHERA TIGRIS" ); { create an instance of ANIMAL }
+    cm of a;                                   { call the class method        }
+    ( print of a )( a )                        { call the instance method     }
+end
+)

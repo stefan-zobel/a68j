@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Two identical strings", ALGOL 68 solution two-identical-strings.alg.
+  https://rosettacode.org/wiki/Two_identical_strings#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/two-identical-strings.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show the decimal and binary representations of numbers that are of the concatenation of }
+      { two identical binary strings                                                            }
+    { returns a binary representation of v }
+    op TOBINSTRING = ( int v )string:
+       if v = 0 then "0"
+       else
+            string result := "";
+            int rest := v;
+            while rest > 0 do
+                if ODD rest then "1" else "0" fi +=: result;
+                rest OVERAB 2
+            od;
+            result
+       fi { TOBINSTRING } ;
+    int power_of_2 := 1;
+    for b while if b = power_of_2 then
+                    power_of_2 *:= 2
+                fi;
+                int cat_value = ( b * power_of_2 ) + b;
+                cat_value < 1000
+    do
+        print( ( whole( cat_value, -4 ), ": ", TOBINSTRING cat_value, newline ) )
+    od
+end
+)

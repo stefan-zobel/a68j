@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Random number generator (included)", ALGOL 68 solution random-number-generator-included--1.alg.
+  https://rosettacode.org/wiki/Random_number_generator_(included)#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/random-number-generator-included--1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc ℒ next_random = (ref ℒ int a)ℒ real: ( a :=
+¢ the_next_pseudo-random ℒ integral_value_after 'a' from_a_uniformly_distributed_sequence_on_the_interval
+ [ℒ 0,ℒ maxint] ¢;
+
+¢ the_real_value_corresponding_to 'a' according_to_some_mapping_of_integral_values
+ [ℒ 0, ℒ max_int] into_real_values [ℒ 0, ℒ 1)
+i.e. such_that -0 <= x < 1 such_that_the_sequence_of_real_values_so_produced_preserves_the_properties_of_pseudo
+-randomness_and_uniform_distribution_of_the_sequence_of_integral_values
+ ¢);
+
+int ℒ last_random := { some initial random number };
+proc ℒ random = ℒ real: ℒ next_random(ℒ last_random);
+)

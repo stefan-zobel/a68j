@@ -1,0 +1,90 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Elliptic curve arithmetic", ALGOL 68 solution elliptic-curve-arithmetic.alg.
+  https://rosettacode.org/wiki/Elliptic_curve_arithmetic#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/elliptic-curve-arithmetic.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { elliptic curve arithmetic     - translation of the C sample }
+
+    int  bx0 = 7;
+    mode Pt  = struct( real x, y );
+
+    { using max real for INIFINTY                                   }
+    proc zero = Pt: ( max_real, max_real );
+
+    op   ISZERO = ( Pt p )bool: x of p > 1e20 OR x of p < -1e20;
+    op   - = ( Pt p )Pt: ( x of p, - y of p );
+
+    op   DBL = ( Pt p )Pt:
+         if   ISZERO p
+         then p
+         else real l  = ( 3 * x of p * x of p ) / ( 2 * y of p );
+              real rx = l * l - 2 * x of p;
+              ( rx, l * ( x of p - rx ) - y of p )
+         fi { DBL } ;
+    op   = = ( Pt p, q )bool: x of p = x of q AND y of p = y of q;
+    op   + = ( Pt p, q )Pt:
+         if   p = q
+         then DBL p
+         elif ISZERO p
+         then q
+         elif ISZERO q
+         then p
+         elif x of q = x of p
+         then zero
+         else real l  = ( y of q - y of p ) / ( x of q - x of p );
+              real rx = l * l - x of p - x of q;
+              ( rx, l * ( x of p - rx ) - y of p )
+         fi { ~ } ;
+    op   +:= = ( ref Pt p, Pt q )ref Pt: p := p + q;
+    op   * = ( Pt p_in, int n )Pt:
+         begin
+            Pt  p := p_in, r := zero;
+            int i := 1;
+            while i <= n do
+                if ABS ( BIN i AND BIN n ) /= 0 then r +:= p fi;
+                p  := DBL p;
+                i *:= 2
+            od;
+            r
+         end { * } ;
+
+    op   TOPT = ( real y )Pt:
+         if   real v = y * y - bx0; v = 0
+         then zero
+         else ( SIGN v * ABS v ^ ( 1 / 3 ), y )
+         fi { TOPT } ;
+    op   TOPT = ( int  y )Pt: TOPT real( y );
+    op   FMT  = ( real v )string:
+         begin
+            string result := fixed( v, -18, 3 );
+            int    s_pos  := 1;
+            while result[ s_pos ] = " " do s_pos +:= 1 od;
+            result[ s_pos : ]
+         end { FMT } ;
+    proc show = ( string s, Pt p )void:
+         print( ( s
+                , if   ISZERO p
+                  then "Zero"
+                  else ( "(" + FMT x of p + ", " + FMT y of p + ")" )
+                  fi
+                , newline
+                )
+              ) { show } ;
+
+     begin {  task                                                  }
+         Pt a = TOPT 1, b = TOPT 2;
+         Pt c = a + b;
+         Pt d = -c;
+         show( "a = ", a );
+         show( "b = ", b );
+         show( "c = a + b = ", c );
+         show( "d = -c = ", d );
+         show( "c + d = ", c + d );
+         show( "a + b + d = ", a + ( b + d ) );
+         show( "a * 12345 = ", a * 12345 )
+    end
+end
+)

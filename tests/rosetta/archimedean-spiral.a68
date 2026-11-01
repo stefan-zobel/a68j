@@ -1,0 +1,45 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Archimedean spiral", ALGOL 68 solution archimedean-spiral.alg.
+  https://rosettacode.org/wiki/Archimedean_spiral#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/archimedean-spiral.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw an Archimedian spiral using ASCII art                           }
+      { Translation of Applesoft Basic via AWK and Algol W                   }
+    proc max = ( int x, y )int: if x > y then x else y fi;
+    proc min = ( int x, y )int: if x < y then x else y fi;
+    [ 1 : 255, 1 : 255 ]char arr;
+    for i from 1 LWB arr to 1 UPB arr do
+        for j from 2 LWB arr to 2 UPB arr do arr[ i, j ] := " " od
+    od;
+    int x_min := 1 UPB arr + 1, y_min := 2 UPB arr + 1;
+    int x_max := 1 LWB arr - 1, y_max := 2 LWB arr - 1;
+    real m  = 6 * pi, h  = 96, s  = 0.02;
+    real w  = 1.5 * h;
+    real t := s;
+    while t <= m do                                           { build spiral }
+        real r = t + 1;
+        int  x = ROUND ( r * cos( t ) + w );
+        int  y = ROUND ( r * sin( t ) + h );
+        if   x >= 1 LWB arr AND y >= 2 LWB arr
+        AND  x <= 1 UPB arr AND y <= 2 UPB arr
+        then
+            arr[ x, y ] := "*";
+            x_min := min( x_min, x );
+            x_max := max( x_max, x );
+            y_min := min( y_min, y );
+            y_max := max( y_max, y );
+        fi;
+        t +:= s
+    od;
+    for i from x_min to x_max do                              { print spiral }
+        for j from y_min to y_max do
+            char c = arr[ i, j ];
+            print( ( c, c ) )
+        od;
+        print( ( newline ) )
+    od
+end
+)

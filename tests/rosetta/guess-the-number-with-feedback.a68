@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Guess the number/With feedback", ALGOL 68 solution guess-the-number-with-feedback.alg.
+  https://rosettacode.org/wiki/Guess_the_number/With_feedback#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/guess-the-number-with-feedback.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ simple guess-the-number game }
+
+main:(
+
+    bool valid_input := true;
+
+    { register an error handler so we can detect and recover from }
+    { invalid input }
+    on_value_error( stand_in
+                  , ( ref file f )bool:
+                    begin
+                        valid_input := false;
+                        true
+                    end
+                  );
+
+    { construct a random integer between 1 and 100                }
+    int   number = 1 + ROUND ( random * 99 );
+
+    print( ( "I''m thinking of a number between 1 and 100", newline ) );
+
+    { read the user's guesses until they guess correctly          }
+    { we give feedback so they can find the number using interval }
+    { halving                                                     }
+    while
+        print( ( "What do you think it is? " ) );
+        int guess;
+        while
+            valid_input := true;
+            read( ( guess, newline ) );
+            NOT valid_input
+        do
+            print( ( "Please guess a number between 1 and 100", newline ) )
+        od;
+        number /= guess
+    do
+        if number > guess
+        then
+            { the user's guess was too small }
+            print( ( newline, "My number is higher than that", newline ) )
+        else
+            { the user's guess was too large }
+            print( ( newline, "My number is lower than that",  newline ) )
+        fi
+    od;
+    print( ( "That''s correct!", newline ) )
+)
+)

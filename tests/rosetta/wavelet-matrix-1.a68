@@ -1,0 +1,162 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Wavelet Matrix", ALGOL 68 solution wavelet-matrix-1.alg.
+  https://rosettacode.org/wiki/Wavelet_Matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/wavelet-matrix-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ wavelet_matrix.incl.a68: Translated from the FreeBASIC sample              }
+
+    { BitRank class for rank operations                                      }
+    mode Bitrank = struct( ref[]bits bitr              { Array to store bits }
+                         , ref[]int  count           { Array to store counts }
+                         );
+
+    { WaveletMatrix class                                                    }
+    mode Waveletmatrix = struct( ref[]Bitrank b          { Array of BitRanks }
+                               , ref[]int     posic       { posicition array }
+                               , int          height  { Height of the matrix }
+                               );	
+
+    { Get bit at position bn from value, NB in Algol 68, the leftmost bit is }
+    { bit 1, the rightmost is numbered bits width                            }
+    proc get_bit_at = ( int value, bn )int: ABS ( ( bits_width - bn ) ELEM BIN value );
+
+    { Count number of 1's in [0, i)                                          }
+    proc rank1 = ( ref Bitrank br, int i )int:
+         begin
+            int block_index := i SHR  6;
+            int bitposic    := i AND 63;
+            int count       := 0;
+
+            { Add count   from previous blocks                               }
+            if block_index > 0 then count := ( count of br )[ block_index - 1 ] fi;
+
+            { Count bits in current block                                    }
+            for j from 0 to bitposic - 1 do
+                if ( ( bitr of br )[ block_index ] AND ( 1 SHL j ) ) /= 16r0 then count +:= 1 fi
+            od;
+            count
+         end { rank1 } ;
+
+    { Count number of 0's in [0, i)                                          }
+    proc rank0 = ( ref Bitrank br, int i )int: i - rank1( br, i );
+
+    { Initialize a BitRank structure                                         }
+    proc init_bit_rank = ( ref Bitrank br, int size )void:
+         begin
+            int num_blocks = ( size + 63 ) OVER 64;
+            heap[ 0 : num_blocks ]bits new_bits;
+            heap[ 0 : num_blocks ]int  new_counts;
+            bitr of br  := new_bits;
+            count of br := new_counts;
+            for i from 0 to num_blocks do
+                ( bitr of br  )[ i ] := 16r0;
+                ( count of br )[ i ] := 0
+            od
+         end { init bit rank } ;
+
+    { Initialize the WaveletMatrix with a vector                             }
+    proc create_wavelet_matrix = ( []int vec, int n, max_val )Waveletmatrix:
+         begin
+            { Calculate height based on maximum value                        }
+            Waveletmatrix wm;
+            height of wm := 0;
+            int tmp      := max_val;
+            while tmp > 0 do
+                height of wm +:= 1;
+                tmp OVERAB 2
+            od;
+            { Initialize arrays                                              }
+            heap[ 0 : height of wm - 1 ]Bitrank new_b;
+            heap[ 0 : height of wm - 1 ]int     new_posic;
+            b of wm     := new_b;
+            posic of wm := new_posic;
+            { Create a copy of the input vector for manipulation             }
+            [ 0 : n - 1 ]int tmp_vec := vec[ at 0 ];
+
+            for h from 0 to height of wm - 1 do
+                { Initialize BitRank                                         }
+                init_bit_rank( ( b of wm )[ h ], n );
+                { Count zeros                                                }
+                int zeros := 0;
+                for i from 0 to n - 1 do
+                    if get_bit_at( tmp_vec[ i ], height of wm - h - 1 ) = 0 then
+                        zeros +:= 1
+                    else
+                        { Set bit in BitRank                                 }
+                        int block_idx = i SHR  6;
+                        int bitposic  = i AND 63;
+                        ( bitr of ( b of wm )[ h ] )[ block_idx ] ORAB ( 1 SHL bitposic )
+                    fi
+                od;
+
+                { Build count array                                          }
+                int running_count := 0;
+                for i from 0 to UPB bitr of ( b of wm )[ h ] do
+                    int  bit_count := 0;
+                    bits bitr      := ( bitr of ( b of wm )[ h ] )[ i ];
+
+                    { Count bits in this block                               }
+                    while bitr /= 16r0 do
+                        if ( bitr AND 1 ) /= 16r0 then bit_count +:= 1 fi;
+                        bitr SHRAB 1
+                    od;
+
+                    ( count of ( b of wm )[ h ] )[ i ] := running_count;
+                    running_count +:= bit_count
+                od;
+
+                { Stable partition - separate 0's and 1's                    }
+                [ 0 :     zeros - 1 ]int zero_values;
+                [ 0 : n - zeros - 1 ]int one_values;
+                int zero_idx := 0, one_idx := 0;
+
+                for i from 0 to n - 1 do
+                    if get_bit_at( tmp_vec[ i ], height of wm - h - 1 ) = 0 then
+                        zero_values[ zero_idx ] := tmp_vec[ i ];
+                        zero_idx               +:= 1
+                    else
+                        one_values[  one_idx  ] := tmp_vec[ i ];
+                        one_idx                +:= 1
+                    fi
+                od;
+
+                { Combine arrays back                                        }
+                tmp_vec[     0 : zeros - 1 ] := zero_values[ 0 :     zeros - 1 ];
+                tmp_vec[ zeros :     n - 1 ] := one_values[  0 : n - zeros - 1 ];
+
+                ( posic of wm )[ h ] := zeros
+            od;
+
+            wm
+
+         end { create wavelet matrix } ;
+
+    { kth smallest element in [l, r)                                         }
+    proc quantile = ( ref Waveletmatrix wm, int k_in, l_in, r_in )int:
+         begin
+            int k := k_in, l := l_in, r := r_in;
+            int res := 0;
+            for i from 0 to height of wm - 1 do
+                int zeros = rank0( ( b of wm )[ i ], r )
+                          - rank0( ( b of wm )[ i ], l )
+                          ;
+                if zeros > k then                     { Go to left (0) child }
+                    l := rank0( ( b of wm )[ i ], l );
+                    r := rank0( ( b of wm )[ i ], r )
+                else                                {  Go to right (1) child }
+                    l  := ( posic of wm )[ i ] + rank1( ( b of wm )[ i ], l );
+                    r  := ( posic of wm )[ i ] + rank1( ( b of wm )[ i ], r );
+                    k -:= zeros;
+                    res ORAB ( 1 SHL ( height of wm - i - 1 ) )
+                fi
+            od;
+
+            res
+         end { quantile } ;
+
+
+{ end wavelet_matrix.incl.a68                                                }
+)

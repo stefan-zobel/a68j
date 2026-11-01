@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Intersecting number wheels", ALGOL 68 solution intersecting-number-wheels.alg.
+  https://rosettacode.org/wiki/Intersecting_number_wheels#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/intersecting-number-wheels.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { a number wheel element                                                  }
+    mode Nwelement = union( char { wheel name }, int { wheel value } );
+    { a number wheel                                                          }
+    mode Nw = struct( char name, ref int position, flex[ 1 : 0 ]Nwelement values );
+    { get the next value from a number wheel in an array of number wheels     }
+    { note: invalid wheel names will cause subscript range errors             }
+    op   NEXT = ( []Nw wheels )int:
+         begin
+            int  result;
+            bool found := false;
+            int  w     := LWB wheels; { start with the first wheel            }
+            while NOT found do
+                if position of wheels[ w ] > UPB values of wheels[ w ] then
+                    { passed the end of the wheel, go back to the start       }
+                    position of wheels[ w ] := LWB values of wheels[ w ]
+                fi;
+                Nwelement e = ( values of wheels[ w ] )[ position of wheels[ w ] ];
+                position of wheels[ w ] +:= 1;
+                case e
+                  in ( int  n ): begin result := n; found := true end
+                   , ( char c ): begin
+                                     w := LWB wheels;
+                                     while name of wheels[ w ] /= c do w +:= 1 od
+                                 end
+                esac
+            od;
+            result
+         end { NEXT } ;
+    { prints the first n values from an array of wheels                       }
+    proc show = ( int n, []Nw wheels )void:
+         begin
+            print( ( "First ", whole( n, 0 ), " values from the Intersecting Number Wheels:" ) );
+            for i from LWB wheels to UPB wheels do
+                print( ( newline, "    ", name of wheels[ i ], ":" ) );
+                for v from LWB values of wheels[ i ] to UPB values of wheels[ i ] do
+                    case ( values of wheels[ i ] )[ v ]
+                      in ( int  n ): print( ( " ", whole( n, 0 ) ) )
+                       , ( char c ): print( ( " ", c ) )
+                    esac
+                od
+            od;
+            print( ( newline, "        " ) );
+            to n do print( ( " ", whole( NEXT wheels, 0 ) ) ) od;
+            print( ( newline, newline ) )
+         end { show } ;
+    { show some wheels in action                                              }
+    show( 20, ( Nw( "A", loc int := 1, (  1,   2,   3  ) ) ) );
+    show( 20, ( Nw( "A", loc int := 1, (  1,  "B",  2  ) )
+              , Nw( "B", loc int := 1, (  3,   4       ) ) ) );
+    show( 20, ( Nw( "A", loc int := 1, (  1,  "D", "D" ) )
+              , Nw( "D", loc int := 1, (  6,   7,   8  ) ) ) );
+    show( 20, ( Nw( "A", loc int := 1, (  1,  "B", "C" ) )
+              , Nw( "B", loc int := 1, (  3,   4       ) )
+              , Nw( "C", loc int := 1, (  5,  "B"      ) ) ) )
+end
+)

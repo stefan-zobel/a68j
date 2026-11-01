@@ -1,0 +1,41 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Last list item", ALGOL 68 solution last-list-item-2.alg.
+  https://rosettacode.org/wiki/Last_list_item#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/last-list-item-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the last element after repeatedly adding the sum }
+      { of the two smallest elements and removing them }
+    [ 1 : 9 ]int a := ( 6, 81, 243, 14, 25, 49, 123, 69, 11 );
+    int a_count := UPB a;
+    while a_count > 1 do
+        print( ( "List:" ) );for i to a_count do print( ( " ", whole( a[ i ], 0 ) ) ) od;
+        int s1pos, s2pos;
+        if a[ 1 ] < a[ 2 ]
+        then s1pos := 1; s2pos := 2
+        else s1pos := 2; s2pos := 1
+        fi;
+        for i from 3 to a_count do
+            if   a[ i ] < a[ s1pos ] then s2pos := s1pos; s1pos := i
+            elif a[ i ] < a[ s2pos ] then s2pos := i
+            fi
+        od;
+        int sum = a[ s1pos ] + a[ s2pos ];
+        print( ( "; two smallest: " , whole( a[ s1pos ], 0 ), " @ ", whole( s1pos, 0 )
+               , " and ",             whole( a[ s2pos ], 0 ), " @ ", whole( s2pos, 0 )
+               , "; sum = ", whole( sum, 0 )
+               , newline
+               )
+             );
+        int m_pos := 0;
+        for i to a_count do
+            if i /= s1pos AND i /= s2pos then a[ m_pos +:= 1 ] := a[ i ] fi
+        od;
+        a[ m_pos + 1 ] := sum;
+        a_count -:= 1
+    od;
+    print( ( "Last item is ", whole( a[ 1 ], 0 ), ".", newline ) )
+end
+)

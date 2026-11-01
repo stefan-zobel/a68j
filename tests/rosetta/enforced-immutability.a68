@@ -1,0 +1,13 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Enforced immutability", ALGOL 68 solution enforced-immutability.alg.
+  https://rosettacode.org/wiki/Enforced_immutability#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/enforced-immutability.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int max_allowed = 20;
+real pi = 3.1415 9265;    { pi is constant that the compiler will enforce     }
+ref real var = loc real;  { var is a constant pointer to a local REAL address }
+var := pi { constant pointer var has the REAL value referenced assigned pi    }
+)

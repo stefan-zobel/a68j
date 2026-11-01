@@ -1,0 +1,33 @@
+{ Initial values of names, as ga68 makes them: a LOC variable without rows
+  holds the SKIP value of its mode (a CHAR is a blank, a union is united
+  with its first mode), a generator (HEAP, LOC in a formula, a row) fills
+  modes without rows with zeroes (fill_in_buffer): CHARs are NUL there, and
+  the union is united with its first mode too. A union with rows is not
+  united with any mode. }
+begin
+  proc code = (char c) string: whole (ABS c, 0);
+  proc show = (string s) void: puts (s + "'n");
+
+  union (int, real) u;
+  case u in (int i): show ("int " + whole (i, 0)), (real r): show ("real") out show ("none") esac;
+  struct (char c, int i) s;
+  show (code (c of s));
+  [3] char cs; show (code (cs[1]));
+  char c; show (code (c));
+  [2] struct (char c, string t) st; show (code (c of st[1]));
+  struct (char c, [2] int r) sr; show (code (c of sr));
+  union (int, string) us;
+  case us in (int i): show ("int"), (string s): show ("string") out show ("none") esac;
+  struct (union (bool, char) v, int k) su;
+  case v of su in (bool b): show ("bool"), (char x): show ("char") out show ("none") esac;
+
+  mode S = struct (char c, int i);
+  ref S h = heap S; show (code (c of h));
+  ref S l = loc S; show (code (c of l));
+  heap S hv; show (code (c of hv));
+  ref union (int, real) hu = heap union (int, real);
+  case hu in (int i): show ("int"), (real r): show ("real") out show ("none") esac;
+  heap char hc; show (code (hc));
+  ref [] char rc = heap [3] char; show (code (rc[2]));
+  [2] struct (char c, string s) x; show (code (c of x[2]))
+end

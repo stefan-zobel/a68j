@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Linear congruential generator", ALGOL 68 solution linear-congruential-generator.alg.
+  https://rosettacode.org/wiki/Linear_congruential_generator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/linear-congruential-generator.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+{
+   Algol 68 Genie checks for integer overflow whereas the reference
+   language leaves the result undefined so for portability we need to
+   see how wide a variable must be to hold the maximum possible value
+   before range reduction. This occurs in the BSD RNG when
+   rseed=2147483647 and is therefore 2147483647 * 1103515245 + 12345 =
+   2369780942852710860, which itself is 19 decimal digits.  Use
+   evironmental queries to determine the width needed.
+}
+   mode Randint = union (int, long int, long long int);
+   Randint rseed := (int_width > 18 | 0 |:
+		     long_int_width > 18 |
+		     long 0 | long long 0);
+   proc srand = (int x) void :
+   (rseed | (int): rseed := x,
+    (long int): rseed := LENG x | rseed := LENG LENG x);
+   proc bsd_rand = int :
+   begin
+      case rseed in
+      (int ri):
+      begin
+	 int a = 1103515245, c = 12345, m1 = 2^16, m2 = 2^15;
+{
+   That curious declaration is because 2^31 might overflow during
+   compilation but the MODE declaration for RANDINT guarantees that it
+   will not overflow at run-time.  We assume that an INT is at least
+   32 bits wide, otherwise a similar workaround would be needed for
+   the declaration of a.
+}
+	 int result = (ri * a + c) MOD (m1 * m2); rseed := result;
+	 result
+      end,
+      (long int rli):
+      begin
+	 long int a = long 1103515245, c = long 12345, m = long 2^31;
+	 long int result = (rli * a + c) MOD m; rseed := result;
+	 SHORTEN result
+      end,
+      (long long int rlli) :
+      begin
+	 long long int a = long long 1103515245,
+	 c = long long 12345, m = long long 2^31;
+	 long long int result = (rlli * a + c) MOD  m; rseed := result;
+	 SHORTEN SHORTEN result
+      end
+      esac
+   end;
+   proc ms_rand = int :
+   begin
+      case rseed in
+      (int ri):
+      begin
+	 int a = 214013, c = 2531011, m1 = 2^15, m2 = 2^16;
+	 int result = (ri * a + c) MOD (m1 * m2); rseed := result;
+	 result % m2
+      end,
+      (long int rli):
+      begin
+	 long int a = long 214013, c = long 2531011, m = long 2^31, m2 = long 2^16;
+	 long int result = (rli * a + c) MOD m; rseed := result;
+	 SHORTEN (result % m2)
+      end,
+      (long long int rlli) :
+      begin
+	 long long int a = long long 214013,
+	 c = long long 2531011, m = long long 2^31, m2 = long long 2^16;
+	 long long int result = (rlli * a + c) MOD m; rseed := result;
+	 SHORTEN SHORTEN (result % m2)
+      end
+      esac
+   end;
+   srand (0);
+   to 10 do printf (($g(0)l$, bsd_rand)) od;
+   print (newline);
+   srand (0);
+   to 10 do printf (($g(0)l$, ms_rand)) od;
+   srand (0)
+end
+)

@@ -1,0 +1,33 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Horizontal sundial calculations", ALGOL 68 solution horizontal-sundial-calculations.alg.
+  https://rosettacode.org/wiki/Horizontal_sundial_calculations#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/horizontal-sundial-calculations.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  real lat, slat, lng, ref_;
+  print ( "Enter latitude       => " ); read (lat);
+  print ( "Enter longitude      => " ); read (lng);
+  print ( "Enter legal meridian => " ); read (ref_);
+  new_line(stand_out);
+
+  slat := sin(lat*2*pi/360) ;
+  print ( ("    sine of latitude:   ", float(slat,8,2,1), new_line ) );
+  print ( ("    diff longitude:     ", fixed((lng - ref_),0,3), new_line, new_line ) );
+
+  print ( ("Hour, sun hour angle, dial hour line angle from 6am to 6pm", new_line ));
+
+  for h from -6 to 6
+  do
+     real hra , hla ;              { define hour angle and hour line angle }
+     hra := 15 * h ;               { hour angle is 15 times the hour }
+     hra := hra - (lng - ref_);     { but correct for longitude difference }
+     hla := arc_tan ( slat * tan(hra*2*pi/360) ) * 360 / ( 2*pi) ;
+     { page 132 of a68gdoc.pdf documentationfile }
+     print ("HR="+whole(h,3)+"; HRA="+fixed(hra,8,3)+"; HLA="+fixed(hla,8,3));
+     new_line(stand_out)
+  od
+end
+)

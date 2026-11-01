@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Prime triplets", ALGOL 68 solution prime-triplets.alg.
+  https://rosettacode.org/wiki/Prime_triplets#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/prime-triplets.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find primes p where p+2 and p+6 are also prime                    }
+    { reurns a list of primes up to n }
+    proc prime_list = ( int n )[]int:
+         begin
+            { sieve the primes to n }
+            int no = 0, yes = 1;
+            [ 1 : n ]int p;
+            p[ 1 ] := no; p[ 2 ] := yes;
+            for i from 3 by 2 to n do p[ i ] := yes od;
+            for i from 4 by 2 to n do p[ i ] := no  od;
+            for i from 3 by 2 to ENTIER sqrt( n ) do
+                if p[ i ] = yes then for s from i * i by i + i to n do p[ s ] := no od fi
+            od;
+            { replace the sieve with a list }
+            int p_pos := 0;
+            for i to n do if p[ i ] = yes then p[ p_pos +:= 1 ] := i fi od;
+            p[ 1 : p_pos ]
+         end { prime list } ;
+    { prints the elements of list }
+    proc print_list = ( int width, []int list )void:
+         begin
+            print( ( "[" ) );
+            for i from LWB list to UPB list do print( ( " ", whole( list[ i ], width ) ) ) od;
+            print( ( " ]" ) )
+         end { print list } ;
+    { attempts to find patterns in the differences of primes and prints the results }
+    proc try_differences = ( []int primes, []int pattern )void:
+         begin
+            int    pattern_length = ( UPB pattern - LWB pattern ) + 1;
+            [ 1 :  pattern_length + 1 ]int first; for i to UPB first do first[ i ] := 0 od;
+            [ 1 :  pattern_length + 1 ]int last;  for i to UPB last  do last[  i ] := 0 od;
+            int    count := 0;
+            for p from LWB primes + pattern_length to UPB primes do
+                bool matched := true;
+                int e_pos    := LWB pattern;
+                for e from p - pattern_length to p - 1
+                while matched := primes[ e + 1 ] - primes[ e ] = pattern[ e_pos ]
+                do
+                    e_pos +:= 1
+                od;
+                if matched then
+                    { found a matching sequence }
+                    count +:= 1;
+                    print_list( -4, primes[ p - pattern_length : p ] );
+                    if count MOD 6 = 0 then print( ( newline ) ) else print( ( " " ) ) fi
+                fi
+            od;
+            print( ( newline, "Found ", whole( count, 0 ), " prime sequence(s) that differ by: " ) );
+            print_list( 0, pattern );
+            print( ( newline ) )
+        end { try differences } ;
+    int max_number = 5 500;
+    []int    p_list = prime_list( max_number - 1 );
+    print( ( "Prime triplets under ", whole( max_number, 0 ), ":", newline ) );
+    try_differences( p_list, ( 2, 4 ) )
+end
+)

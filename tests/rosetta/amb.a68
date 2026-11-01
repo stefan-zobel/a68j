@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Amb", ALGOL 68 solution amb.alg.
+  https://rosettacode.org/wiki/Amb#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/amb.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Page = flex[0]string;
+mode Yieldpage = proc(Page)void;
+mode Iterpage = proc(Yieldpage)void;
+
+op INITITERPAGE = (Page self)Iterpage:
+  (Yieldpage yield)void: { scope violation }
+    for i to UPB self do
+      yield(self[i])
+    od;
+
+op + = (Iterpage for_strings, Page b)Iterpage:
+  (Yieldpage yield)void: { scope violation }
+    for_strings((Page amb)void:(
+      [UPB amb + 1]string joined;
+      joined[:UPB amb] := amb;
+      string last_string := amb[UPB amb];
+      char last_char := last_string[UPB last_string];
+      for i to UPB b do
+        if last_char = b[i][1] then
+          joined[UPB joined] := b[i];
+          yield(joined)
+        fi
+      od
+    ));
+
+op + = (Page a, Page b)Iterpage: INITITERPAGE a + b;
+
+Iterpage gen_amb :=
+   Page("the", "that", "a") +
+   Page("frog", "elephant", "thing") +
+   Page("walked", "treaded", "grows") +
+   Page("slowly", "quickly");
+
+Page sep;
+{FOR PAGE amb IN } gen_amb( { ) DO }
+{}  (Page amb)void:
+    print((amb[1]+" "+amb[2]+" "+amb[3]+" "+amb[4], new_line))
+{OD} )
+)

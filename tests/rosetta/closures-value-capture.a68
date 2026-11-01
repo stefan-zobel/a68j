@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Closures/Value capture", ALGOL 68 solution closures-value-capture.alg.
+  https://rosettacode.org/wiki/Closures/Value_capture#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/closures-value-capture.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[1:10]proc(bool)int squares;
+
+for i from 1 to 10 do
+        heap int captured_i := i;
+        squares[i] := ((ref int by_ref_i, int by_val_i,bool b)int:(int i = by_ref_i; (b|by_ref_i := 0); by_val_i*i))
+                (captured_i, captured_i,)
+od;
+
+for i from 1 to 8 do print(squares[i](i MOD 2 = 0)) od;
+print(new_line);
+for i from 1 to 10 do print(squares[i](false)) od
+)

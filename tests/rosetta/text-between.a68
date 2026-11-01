@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Text between", ALGOL 68 solution text-between.alg.
+  https://rosettacode.org/wiki/Text_between#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/text-between.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { some utility operators                                                 }
+    { returns the length of a string                                         }
+    op   LENGTH = ( string a )int: ( UPB a - LWB a ) + 1;
+    { returns the position of s in t or UPB t + 1 if s is not present        }
+    prio INDEXOF = 1;
+    op   INDEXOF = ( string t, string s )int:
+         if int pos; string_in_string( s, pos, t ) then pos else UPB t + 1 fi;
+    { returns the text after s in t or "" if s is not present                }
+    prio AFTER   = 1;
+    op   AFTER   = ( string t, string s )string:
+         if int pos = t INDEXOF s; pos > UPB t then "" else t[ pos + LENGTH s : ] fi;
+    { returns the text before s in t or t if s is not present                }
+    prio BEFORE  = 1;
+    op   BEFORE  = ( string t, string s )string:
+         if int pos = t INDEXOF s; pos > UPB t then t else t[ : pos - 1 ] fi;
+
+    { mode to hold a pair of STRINGs for the BETWEEN operator                }
+    mode Stringpair = struct( string left, right );
+    { returns a STRINGPAIR composed of a and b (standard priority for AND)   }
+    op   AND     = ( string a, string b )Stringpair: (        a,         b  );
+    { although not used in this task, in general, we would need these        }
+    { additional operators for CHARs as "a" is a CHAR denotation,            }
+    { not a STRING of length 1 - un-comment as necessary                     }
+{  OP   AND     = ( STRING a, CHAR   b )STRINGPAIR: ( STRING(a),        b  );
+    OP   AND     = ( CHAR   a, CHAR   b )STRINGPAIR: ( STRING(a), STRING(b) );
+    OP   AND     = ( CHAR   a, STRING b )STRINGPAIR: (        a , STRING(b) );
+}
+    { traceing flag for BETWEEN - if TRUE, debug output is shown             }
+    bool trace_between := false;
+    { returns the text of s between the delimitors specified in d            }
+    prio BETWEEN = 1;
+    op   BETWEEN = ( string s, Stringpair d )string:
+         begin
+            string result := s;
+            if  left of d /= "start" then result := result AFTER   left of d fi;
+            if right of d /= "end"   then result := result BEFORE right of d fi;
+            if trace_between then
+                { show debug output                                          }
+                print( ( "Text: """,                     s, """", newline
+                       , "Start delimiter: """,  left of d, """", newline
+                       , "End delimiter: """,   right of d, """", newline
+                       , "Output: """,              result, """", newline
+                       ,                                          newline
+                       )
+                     )
+            fi;
+            result
+         end { BETWEEN } ;
+
+    { test cases                                                             }
+    begin
+        string s;
+        trace_between := true;
+        s := "Hello Rosetta Code world" BETWEEN "Hello "  AND " world";
+        s := "Hello Rosetta Code world" BETWEEN "start"   AND " world";
+        s := "Hello Rosetta Code world" BETWEEN "Hello "  AND "end";
+        s := "</div><div style=""french"">bonjour</div>"
+                                        BETWEEN "<div style=""french"">"
+                                                          AND "</div>";
+        s := "<text>Hello <span>Rosetta Code</span> world</text><table style=""myTable"">"
+                                        BETWEEN "<text>"  AND "<table>";
+        s := "<table style=""myTable""><tr><td>hello world</td></tr></table>"
+                                        BETWEEN "<table>" AND "</table>";
+        s := "The quick brown fox jumps over the lazy other fox"
+                                        BETWEEN "quick "  AND " fox";
+        s := "One fish two fish red fish blue fish"
+                                        BETWEEN "fish "   AND " red";
+        s := "FooBarBazFooBuxQuux"      BETWEEN "Foo"     AND "Foo";
+        trace_between := false
+    end
+end
+)

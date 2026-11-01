@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find the missing permutation", ALGOL 68 solution find-the-missing-permutation.alg.
+  https://rosettacode.org/wiki/Find_the_missing_permutation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-the-missing-permutation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the missing permutation in a list using the XOR method of the Raku sample }
+    { the list to find the missing permutation of }
+    []string list = ( "ABCD", "CABD", "ACDB", "DACB", "BCDA"
+                    , "ACBD", "ADCB", "CDAB", "DABC", "BCAD"
+                    , "CADB", "CDBA", "CBAD", "ABDC", "ADBC"
+                    , "BDCA", "DCBA", "BACD", "BADC", "BDAC"
+                    , "CBDA", "DBCA", "DCAB"
+                    );
+    { sets b to b XOR v and returns b }
+    prio XORAB = 1;
+    op   XORAB = ( ref bits b, bits v )ref bits: b := b XOR v;
+
+    { loop through each character of each element of the list }
+    for c_pos from LWB list[ LWB list ] to UPB list[ LWB list ] do
+        { loop through each element of the list }
+        bits m := 16r0;
+        for l_pos from LWB list to UPB list do
+            m XORAB BIN ABS list[ l_pos ][ c_pos ]
+        od;
+        print( ( REPR ABS m ) )
+    od
+end
+)

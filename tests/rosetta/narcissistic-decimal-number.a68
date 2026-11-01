@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Narcissistic decimal number", ALGOL 68 solution narcissistic-decimal-number.alg.
+  https://rosettacode.org/wiki/Narcissistic_decimal_number#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/narcissistic-decimal-number.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ print the first 25 narcissistic numbers                                 }
+begin
+
+    [ 0 : 9 ]int power := ( []int( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ) )[ at 0 ];
+    int count       := 0;
+    int candidate   := 0;
+    int prev_digits := 0;
+    int digits      := 0;
+
+    for d9 from 0 to 2 do
+        if d9 > 0 AND digits < 9 then digits := 9 fi;
+        for d8 from 0 to 9 do
+            if d8 > 0 AND digits < 8 then digits := 8 fi;
+            for d7 from 0 to 9 do
+                if d7 > 0 AND digits < 7 then digits := 7 fi;
+                for d6 from 0 to 9 do
+                    if d6 > 0 AND digits < 6 then digits := 6 fi;
+                    for d5 from 0 to 9 do
+                        if d5 > 0 AND digits < 5 then digits := 5 fi;
+                        for d4 from 0 to 9 do
+                            if d4 > 0 AND digits < 4 then digits := 4 fi;
+                            for d3 from 0 to 9 do
+                                if d3 > 0 AND digits < 3 then digits := 3 fi;
+                                for d2 from 0 to 9 do
+                                    if d2 > 0 AND digits < 2 then digits := 2 fi;
+                                    for d1 from 0 to 9 do
+
+                                        if prev_digits /= digits then
+                                            { number of digits has increased - increase the powers }
+                                            prev_digits := digits;
+                                            for i from 2 to 9 do power[ i ] *:= i od
+                                        fi;
+
+                                        { sum the digits'th powers of the    }
+                                        { digits of candidate                }
+                                        int sum = power[ d1 ] + power[ d2 ] + power[ d3 ]
+                                                + power[ d4 ] + power[ d5 ] + power[ d6 ]
+                                                + power[ d7 ] + power[ d8 ] + power[ d9 ]
+                                                ;
+                                        if candidate = sum then
+                                            { found another narcissistic decimal number            }
+                                            print( ( " ", whole( candidate, 0 ) ) );
+                                            count +:= + 1;
+                                            if count >= 25 then goto done fi
+                                        fi;
+                                        candidate +:= 1
+                                    od
+                                od
+                            od
+                        od
+                    od
+                od
+            od
+        od
+    od;
+done:
+    print( ( newline ) )
+
+end
+)

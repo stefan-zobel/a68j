@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gaussian elimination", ALGOL 68 solution gaussian-elimination-1.alg.
+  https://rosettacode.org/wiki/Gaussian_elimination#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gaussian-elimination-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ PROVIDES
+  MODE FIXED; INT fixed exception, unfixed exception;
+  PROC (STRING message) FIXED raise, raise value error
+END }
+
+{ Note: ℵ indicates attribute is "private", and
+        should not be used outside of this prelude }
+
+mode Fixed = bool; { if an exception is detected, can it be fixed "on-site"? }
+Fixed fixed_exception = true, unfixed_exception = false;
+
+mode {ℵ}Simpleoutv = [0]union(char, string, int, real, bool, bits);
+mode {ℵ}Simpleoutm = [0]{ℵ}Simpleoutv;
+mode {ℵ}Simpleoutt = [0]{ℵ}Simpleoutm;
+mode Simpleout  = [0]{ℵ}Simpleoutt;
+
+proc raise = ({ℵ}Simpleout message)Fixed: (
+  putf(stand_error, ($"Exception:"$, $xg$, message, $l$));
+  stop
+);
+
+proc raise_value_error = ({ℵ}Simpleout message)Fixed:
+  if raise(message) NE fixed_exception then exception_value_error; false fi;
+
+skip
+)

@@ -1,0 +1,90 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "ABC problem", ALGOL 68 solution abc-problem.alg.
+  https://rosettacode.org/wiki/ABC_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abc-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ ABC problem:                                                               }
+{ determine whether we can spell words with a set of blocks                  }
+
+{ Returns TRUE if we can spell the word using the blocks, FALSE otherwise    }
+{ Returns TRUE for an empty string                                           }
+proc can_spell = ( string word_, [][]string block_set )bool:
+    begin
+
+        { construct a set of flags to indicate whether the blocks are used   }
+        { or not                                                             }
+        [ 1 LWB block_set : 1 UPB block_set ]bool used;
+        for block_pos from LWB used to UPB used
+        do
+            used[ block_pos ] := false
+        od;
+
+        { initialliy assume we can spell the word                            }
+        bool result := true;
+
+        { check we can spell the word with the set of blocks                 }
+        for word_pos from LWB word_ to UPB word_ while result
+        do
+            char c = if   is_lower( word_[ word_pos ] )
+                     then to_upper( word_[ word_pos ] )
+                     else           word_[ word_pos ]
+                     fi;
+
+            { look through the unused blocks for the current letter          }
+            bool found := false;
+            for block_pos from 1 LWB block_set to 1 UPB block_set
+            while NOT found
+            do
+                if  (  c = block_set[ block_pos ][ 1 ][ 1 ]
+                    OR c = block_set[ block_pos ][ 2 ][ 1 ]
+                    )
+                AND NOT used[ block_pos ]
+                then
+                    { found an unused block with the required letter         }
+                    found             := true;
+                    used[ block_pos ] := true
+                fi
+            od;
+
+            result := found
+
+        od;
+
+        result
+    end; { can spell }
+
+
+{ main } (
+
+    [][]string abc_blocks { construct the list of blocks                     }
+                  = ( ( "B", "O" ), ( "X", "K" ), ( "D", "Q" ), ( "C", "P" )
+                    , ( "N", "A" ), ( "G", "T" ), ( "R", "E" ), ( "T", "G" )
+                    , ( "Q", "D" ), ( "F", "S" ), ( "J", "W" ), ( "H", "U" )
+                    , ( "V", "I" ), ( "A", "N" ), ( "O", "B" ), ( "E", "R" )
+                    , ( "F", "S" ), ( "L", "Y" ), ( "P", "C" ), ( "Z", "M" )
+                    );
+
+    { test the can spell procedure                                           }
+    proc test_can_spell = ( string word_, [][]string block_set )void:
+        write( ( ( "can spell: """
+                 + word_
+                 + """ -> "
+                 + if can_spell( word_, block_set ) then "yes" else "no" fi
+                 )
+               , newline
+               )
+             );
+
+    test_can_spell( "A",       abc_blocks );
+    test_can_spell( "BaRK",    abc_blocks );
+    test_can_spell( "BOOK",    abc_blocks );
+    test_can_spell( "TREAT",   abc_blocks );
+    test_can_spell( "COMMON",  abc_blocks );
+    test_can_spell( "SQUAD",   abc_blocks );
+    test_can_spell( "CONFUSE", abc_blocks )
+
+)
+)

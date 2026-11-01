@@ -1,0 +1,159 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "MD5", ALGOL 68 solution md5.alg.
+  https://rosettacode.org/wiki/MD5#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/md5.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Based on wikipedia article pseudocode }
+
+{ s specifies the per-round shift amounts }
+[]int s = (7,12,17,22, 7,12,17,22, 7,12,17,22, 7,12,17,22,
+           5, 9,14,20, 5, 9,14,20, 5, 9,14,20, 5, 9,14,20,
+           4,11,16,23, 4,11,16,23, 4,11,16,23, 4,11,16,23,
+           6,10,15,21, 6,10,15,21, 6,10,15,21, 6,10,15,21);
+
+[]bits k = (16rd76aa478, 16re8c7b756, 16r242070db, 16rc1bdceee,
+	    16rf57c0faf, 16r4787c62a, 16ra8304613, 16rfd469501,
+	    16r698098d8, 16r8b44f7af, 16rffff5bb1, 16r895cd7be,
+	    16r6b901122, 16rfd987193, 16ra679438e, 16r49b40821,
+	    16rf61e2562, 16rc040b340, 16r265e5a51, 16re9b6c7aa,
+	    16rd62f105d, 16r02441453, 16rd8a1e681, 16re7d3fbc8,
+	    16r21e1cde6, 16rc33707d6, 16rf4d50d87, 16r455a14ed,
+	    16ra9e3e905, 16rfcefa3f8, 16r676f02d9, 16r8d2a4c8a,
+	    16rfffa3942, 16r8771f681, 16r6d9d6122, 16rfde5380c,
+	    16ra4beea44, 16r4bdecfa9, 16rf6bb4b60, 16rbebfbc70,
+	    16r289b7ec6, 16reaa127fa, 16rd4ef3085, 16r04881d05,
+	    16rd9d4d039, 16re6db99e5, 16r1fa27cf8, 16rc4ac5665,
+	    16rf4292244, 16r432aff97, 16rab9423a7, 16rfc93a039,
+	    16r655b59c3, 16r8f0ccc92, 16rffeff47d, 16r85845dd1,
+	    16r6fa87e4f, 16rfe2ce6e0, 16ra3014314, 16r4e0811a1,
+	    16rf7537e82, 16rbd3af235, 16r2ad7d2bb, 16reb86d391);
+
+op + = (bits a, b) bits:
+   begin
+      bits c = BIN (ABS (a AND 16rffff) + ABS (b AND 16rffff));
+      bits d = BIN (ABS (a SHR 16) + ABS (b SHR 16) + ABS (c SHR 16));
+      (c AND 16rffff) OR (d SHL 16)
+   end;
+
+{[0:63]LONG INT k;
+FOR i FROM 0 TO 63 DO
+   k[i] :=  ENTIER (ABS (sin(i+1)) * LONG INT(2)**32)
+OD;}
+
+proc md5 = (string intext) string:
+   begin
+      { Initialize variables: }
+      bits a0 := 16r67452301,
+           a1 := 16refcdab89,
+           a2 := 16r98badcfe,
+           a3 := 16r10325476;
+
+      string text := intext;
+
+      { Pre-processing: adding a single 1 bit }
+      text +:= REPR 128;
+
+      { Pre-processing: padding with zeros
+        append "0" bit until message length in bits ≡ 448 (mod 512) }
+      while ELEMS text MOD 64 ≠ 56 do
+         text +:= REPR 0
+      od;
+
+      { append original length in bits mod (2 pow 64) to message }
+      text +:= dec2asc (ELEMS intext * 8);
+
+      { MD5 rounds }
+      { Process the message in successive 512-bit chunks: }
+      while text ≠ "" do
+	 { for each 512-bit (64 byte) chunk of message }
+	 []char chunk = text[1:64]; text := text[65:];
+	 { break chunk into sixteen 32-bit words M[j], 0 <= j <= 15 }
+	 [0:15]bits m;
+         for j from 0 to 15 do
+             m[j] := BIN (ABS chunk[j*4+1]) OR
+	             BIN (ABS chunk[j*4+2]) SHL 8 OR
+	             BIN (ABS chunk[j*4+3]) SHL 16 OR
+	             BIN (ABS chunk[j*4+4]) SHL 24
+          od;
+          int g;
+	  bits a, b, c, d, f, dtemp;
+
+	  { Initialize hash value for this chunk }
+	  a := a0;
+          b := a1;
+          c := a2;
+          d := a3;
+          for i from 0 to 63 do
+             if 0 <= i AND i <= 15 then
+		f := (b AND c) OR ((NOT b) AND d);
+		g := i
+	     elif 16 <= i AND i <= 31 then
+		 f := (d AND b) OR ((NOT d) AND c);
+		 g := (5×i + 1) MOD 16
+	     elif 32 <= i AND i <= 47 then
+		 f := b XOR c XOR d;
+		 g := (3×i + 5) MOD 16
+	     elif 48 <= i AND i <= 63 then
+		 f := c XOR (b OR (NOT d));
+		 g := (7×i) MOD 16
+	     fi;
+	     dtemp := d;
+	     d := c;
+	     c := b;
+	     b := b + leftrotate ((a + f + k[1+i] + m[g]), s[1+i]);
+	     a := dtemp
+          od;
+	  { Add this chunk's hash to result so far }
+          a0 := a0 + a;
+          a1 := a1 + b;
+          a2 := a2 + c;
+          a3 := a3 + d
+       od;
+       revhex (a0) + revhex (a1) + revhex (a2) + revhex (a3)
+    end;
+
+proc leftrotate = (bits x, int c) bits:
+    (x SHL c) OR (x SHR (32-c));
+
+{ dec2asc: dec to 8 byte asc }
+proc dec2asc = (int nn)string:
+   begin
+      string h := ""; int n := nn;
+      for i to 8 do
+         h +:= REPR (n MOD 256);
+         n ÷:= 256
+      od;
+      h
+   end;
+
+ proc revhex = (bits x) string :
+   begin { Convert to lowercase hexadecimal STRING }
+      proc hexdig = (bits x) char: (REPR (ABS(x) <= 9 | ABS(x) + ABS("0") | ABS(x) - 10 + ABS("a")));
+      hexdig (x SHR 4 AND 16rf) +
+      hexdig (x AND 16rf) +
+      hexdig (x SHR 12 AND 16rf) +
+      hexdig (x SHR 8 AND 16rf) +
+      hexdig (x SHR 20 AND 16rf) +
+      hexdig (x SHR 16 AND 16rf) +
+      hexdig (x SHR 28 AND 16rf) +
+      hexdig (x SHR 24 AND 16rf)
+   end;
+
+string testmsg = "The quick brown fox jumps over the lazy dog";
+string checksum = "9e107d9d372bb6826bd81d3542a419d6";
+
+print ((testmsg, new_line));
+print ((checksum, new_line));
+
+string test = md5 (testmsg);
+
+if test = checksum then
+   print (("passed", new_line));
+   print ((test, new_line))
+else
+   print (("failed"))
+fi
+)

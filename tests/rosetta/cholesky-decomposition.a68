@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cholesky decomposition", ALGOL 68 solution cholesky-decomposition.alg.
+  https://rosettacode.org/wiki/Cholesky_decomposition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cholesky-decomposition.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+mode Field=long real;
+proc (Field)Field field_sqrt = long_sqrt;
+int field_prec = 5;
+FORMAT field_fmt = $g(-(2+1+field prec),field prec)$;
+
+mode Mat = [0,0]Field;
+
+proc cholesky = (Mat a) Mat:(
+    [UPB a, 2 UPB a]Field l;
+
+    for i from LWB a to UPB a do
+        for j from 2 LWB a to i do
+            Field s := 0;
+            for k from 2 LWB a to j-1 do
+                s +:= l[i,k] * l[j,k]
+            od;
+            l[i,j] := if i = j
+                      then field_sqrt(a[i,i] - s)
+                      else 1.0 / l[j,j] * (a[i,j] - s) fi
+        od;
+        for j from i+1 to 2 UPB a do
+            l[i,j]:=0 { Not required if matrix is declared as triangular }
+        od
+    od;
+    l
+);
+
+proc print_matrix_v1 =(Mat a)void:(
+    for i from LWB a to UPB a do
+        for j from 2 LWB a to 2 UPB a do
+            printf(($g(-(2+1+field prec),field prec)$, a[i,j]))
+        od;
+        printf($l$)
+    od
+);
+
+proc print_matrix =(Mat a)void:(
+    FORMAT vector_fmt = $"("f(field  fmt)n(2 UPB a-2 LWB a)(", " f(field  fmt))")"$;
+    FORMAT matrix_fmt = $"("f(vector fmt)n(  UPB a-  LWB a)(","lxf(vector fmt))")"$;
+    printf((matrix_fmt, a))
+);
+
+main: (
+    Mat m1 = ((25, 15, -5),
+              (15, 18,  0),
+              (-5,  0, 11));
+    Mat c1 = cholesky(m1);
+    print_matrix(c1);
+    printf($l$);
+
+    Mat m2 = ((18, 22,  54,  42),
+              (22, 70,  86,  62),
+              (54, 86, 174, 134),
+              (42, 62, 134, 106));
+    Mat c2 = cholesky(m2);
+    print_matrix(c2)
+)
+)

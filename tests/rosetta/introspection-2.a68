@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Introspection", ALGOL 68 solution introspection-2.alg.
+  https://rosettacode.org/wiki/Introspection#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/introspection-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    mode Ssmodes = union(short short bits, short short bytes, {SHORT SHORT CHAR,}
+                         short short int, short short real, short short compl);
+    mode  Smodes = union(short bits, short bytes, {SHORT CHAR,}
+                         short int, short real, short compl);
+    mode  Nmodes = union(bits, bytes, char, int, real, compl);
+    mode  Lmodes = union(long bits, long bytes, {LONG CHAR,}
+                         long int, long real, long compl);
+    mode Llmodes = union(long long bits, long long bytes, {LONG LONG CHAR,}
+                         long long int, long long real, long long compl);
+    mode  Xmodes = union(bool, sema, string, void, channel, file, FORMAT);
+
+    mode Modes = union(Ssmodes, Smodes, Nmodes, Llmodes, Lmodes, Xmodes);
+
+    op REPRTYPEOF = (Modes val)string:
+      case val in
+        (void):"VOID",
+        (int):"INT",(short int):"SHORT INT",(short short int):"SHORT SHORT INT",
+                    (long int):"LONG INT",(long long int):"LONG LONG INT",
+        (real):"REAL",(short real):"SHORT REAL",(short short real):"SHORT SHORT REAL",
+                      (long real):"LONG REAL",(long long real):"LONG LONG REAL",
+        (compl):"COMPL",(short compl):"SHORT COMPL",(short short compl):"SHORT SHORT COMPL",
+                        (long compl):"LONG COMPL",(long long compl):"LONG LONG COMPL",
+        (bits):"BITS",(short bits):"SHORT BITS",(short short bits):"SHORT SHORT BITS",
+                      (long bits):"LONG BITS",(long long bits):"LONG LONG BITS",
+        (bytes):"BYTES",(short bytes):"SHORT BYTES",(short short bytes):"SHORT SHORT BYTES",
+                        (long bytes):"LONG BYTES",(long long bytes):"LONG LONG BYTES",
+        (char):"CHAR",{(SHORT CHAR):"SHORT CHAR",(SHORT SHORT CHAR):"SHORT SHORT CHAR",
+                       (LONG CHAR):"LONG CHAR",(LONG LONG CHAR):"LONG LONG CHAR",}
+        (bool):"BOOL",
+        (string):"STRING",
+        (sema):"SEMA",
+        (channel):"CHANNEL",
+        (file):"FILE",
+        (FORMAT):"FORMAT"
+      out
+        "ARRAY, PROC or STRUCT"
+      esac;
+
+    []Modes x = (empty, 1, 2.0, 3 I 4, short short 5, short 6, long 7, long long 8,
+                 8r666, bytes_pack("abc"), true, "xyz", LEVEL 1,
+                 stand_in_channel, stand_in, $ddd$);
+
+    string sep := "";
+    print(("Array member types: "));
+    for i to UPB x do
+      print((sep,REPRTYPEOF x[i]));
+      sep := ", "
+    od
+end
+)

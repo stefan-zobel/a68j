@@ -1,0 +1,168 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Autogram checker", ALGOL 68 solution autogram-checker.alg.
+  https://rosettacode.org/wiki/Autogram_checker#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/autogram-checker.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ string utilities }
+op LC = (char ch) char: if ch >= "A" AND ch <= "Z" then REPR (ABS ch + 32) else ch fi;
+op LC = (string s) string: (
+  flex[UPB s]char res;
+  for i to UPB s do res[i] := LC s[i] od;
+  res);
+op INDEXOF = ([]string ss, string s) int: (
+  int res := 0;
+  for i to UPB ss do
+    if s = ss[i] then res := i; return fi
+  od;
+  return: res);
+prio INDEXOF = 7;
+proc split = (string s, []char seps) []string:
+  begin
+    { count... }
+    int n := 0;
+    bool prev_in_sep := true;
+    for i to UPB s do
+      bool in_sep = char_in_string(s[i], loc int, seps);
+      if ~in_sep AND prev_in_sep then n +:= 1 fi;
+      prev_in_sep := in_sep
+    od;
+    { ...then fill }
+    [n] string result;
+    prev_in_sep := true;
+    int start, idx := 1;
+    for i to UPB s do
+      bool in_sep = char_in_string(s[i], loc int, seps);
+      if ~in_sep AND prev_in_sep then start := i
+      elif in_sep AND ~prev_in_sep then
+        result[idx] := s[start : i-1];
+        idx +:= 1
+      fi;
+      prev_in_sep := in_sep
+    od;
+    if idx = n then result[idx] := s[start : ] fi;
+    result
+  end;
+{ array comparison }
+op = = ([]int a, []int b) bool: (
+  if LWB a ~= LWB b OR UPB a ~= UPB b then return_false fi;
+  for i from LWB a to UPB a do if a[i] ~= b[i] then return_false fi od;
+  true exit
+  return_false: false);
+
+{ task starts here }
+
+{ these are the only punctuation marks we'll count }
+[]char punct = ",''-!";
+{ and these are their names }
+[]string punct_names = ("comma", "apostrophe", "hyphen", "exclamation");
+{ here's their offset in the count array }
+int punct_offset = ABS "z";
+
+{ this reports the character counts the autogram says it has. }
+{ autogram should be in lower case }
+proc stated_counts = (string autogram) []int:
+  begin
+    []string units_words = ("one", "two", "three", "four", "five", "six", "seven",
+                            "eight", "nine", "ten", "eleven", "twelve", "thirteen",
+                            "fourteen", "fifteen", "sixteen", "seventeen",
+                            "eighteen", "nineteen");
+    []string tens_words = ("ten", "twenty", "thirty", "forty", "fifty", "sixty",
+                           "seventy", "eighty", "ninety");
+
+    [ABS "a" : ABS "z" + UPB punct]int counts;
+    for i from LWB counts to UPB counts do counts[i] := 0 od;
+
+    []string words = split(autogram, " .,-:");
+
+    { we'll advance word by word, trying to detect a numeral and a letter }
+    int idx := 1;
+    while idx < UPB words do
+      int saved_idx = idx;
+      int tens = tens_words INDEXOF words[idx];
+      if tens > 0 then idx +:= 1 fi;
+      int units := units_words INDEXOF words[idx];
+      if units = 0 AND words[idx] = "single" then units := 1 fi;
+      if units > 0 then idx +:= 1 fi;
+      int n = tens * 10 + units;
+      { if we read a number (and we aren't out of words), let's see what that
+        number is counting }
+      if n > 0 AND idx <= UPB words then
+        string letter := words[idx];
+        { let's strip the plural ending, if any }
+        int upb := UPB letter;
+        if upb > 1 AND letter[upb] = "s" then upb -:= 1 fi;
+        if upb > 1 AND letter[upb] = "''" then upb -:= 1 fi;
+
+        int slot := -1;  { index in the count array to update }
+        { single char: }
+        if upb = 1 then
+          if letter[1] >= "a" AND letter[1] <= "z" then
+            slot := ABS letter[1]
+          elif int pos; char_in_string(letter[1], pos, punct) then
+            slot := punct_offset + pos
+          fi
+        else { a word, it must be a spelled-out punctuation mark }
+          if int pos = punct_names INDEXOF letter[1:upb]; pos > 0 then
+            slot := punct_offset + pos
+          fi
+        fi;
+        if slot ~= -1 then
+          counts[slot] +:= n
+        else
+          idx := saved_idx
+        fi
+      else
+        idx :=saved_idx
+      fi;
+      idx +:= 1
+    od;
+    counts
+  end;
+
+{ counts letters and some punctuation. the string should be in lower case }
+proc actual_counts = (string autogram) []int:
+  begin
+    [ABS "a" : ABS "z" + UPB punct]int counts;
+    for i from LWB counts to UPB counts do counts[i] := 0 od;
+    for i to UPB autogram do
+      char ch = autogram[i];
+      if ch >= "a" AND ch <= "z" then counts[ABS ch] +:= 1
+      elif int pos; char_in_string(ch, pos, punct) then
+        counts[punct_offset + pos] +:= 1
+      fi
+    od;
+    counts
+  end;
+
+proc check = (string autogram, bool with_punct) void:
+  begin
+    print(("  The sentence:", new_line, """", autogram, """", new_line));
+    []int stated = stated_counts(LC autogram);
+    []int actual = actual_counts(LC autogram);
+    bool match = if with_punct then stated = actual
+                               else stated[:ABS "z"] = actual[:ABS "z"]
+                 fi;
+    printf(($"  " b("is", "isn''t"), " a" b(" punctuation-including", "n") " autogram." ll$,
+            match, with_punct))
+  end;
+
+
+check("This sentence employs two a''s, two c''s, two d''s, twenty-eight e''s, five f''s, three g''s, eight h''s, eleven i''s, three l''s, two m''s, thirteen n''s, nine o''s, two p''s, five r''s, twenty-five s''s, twenty-three t''s, six v''s, ten w''s, two x''s, five y''s, and one z.", false);
+
+check("This sentence employs two a''s, two c''s, two d''s, twenty eight e''s, five f''s, three g''s, eight h''s, eleven i''s, three l''s, two m''s, thirteen n''s, nine o''s, two p''s, five r''s, twenty five s''s, twenty three t''s, six v''s, ten w''s, two x''s, five y''s, and one z.", false);
+
+check("Only the fool would take trouble to verify that his sentence was composed of ten a''s, three b''s, four c''s, four d''s, forty-six e''s, sixteen f''s, four g''s, thirteen h''s, fifteen i''s, two k''s, nine l''s, four m''s, twenty-five n''s, twenty-four o''s, five p''s, sixteen r''s, forty-one s''s, thirty-seven t''s, ten u''s, eight v''s, eight w''s, four x''s, eleven y''s, twenty-seven commas, twenty-three apostrophes, seven hyphens and, last but not least, a single !", true);
+
+check("This pangram contains four as, one b, two cs, one d, thirty es, six fs, five gs, seven hs, eleven is, one j, one k, two ls, two ms, eighteen ns, fifteen os, two ps, one q, five rs, twenty-seven ss, eighteen ts, two us, seven vs, eight ws, two xs, three ys, & one z.", false);
+
+check("This sentence contains one hundred and ninety-seven letters: four a''s, one b, three c''s, five d''s, thirty-four e''s, seven f''s, one g, six h''s, twelve i''s, three l''s, twenty-six n''s, ten o''s, ten r''s, twenty-nine s''s, nineteen t''s, six u''s, seven v''s, four w''s, four x''s, five y''s, and one z.", false);
+
+check("Thirteen e''s, five f''s, two g''s, five h''s, eight i''s, two l''s, three n''s, six o''s, six r''s, twenty s''s, twelve t''s, three u''s, four v''s, six w''s, four x''s, two y''s.", false);
+
+check("Fifteen e''s, seven f''s, four g''s, six h''s, eight i''s, four n''s, five o''s, six r''s, eighteen s''s, eight t''s, four u''s, three v''s, two w''s, three x''s.", true);
+
+check("Sixteen e''s, five f''s, three g''s, six h''s, nine i''s, five n''s, four o''s, six r''s, eighteen s''s, eight t''s, three u''s, three v''s, two w''s, four z''s.", false)
+)

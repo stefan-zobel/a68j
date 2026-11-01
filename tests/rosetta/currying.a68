@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Currying", ALGOL 68 solution currying.alg.
+  https://rosettacode.org/wiki/Currying#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/currying.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Raising a function to a power }
+
+mode Fun = proc (real) real;
+proc pow = (Fun f, int n, real x) real: f(x) ** n;
+op ** = (Fun f, int n) Fun: pow (f, n, );
+
+{ Example: sin (3 x) = 3 sin (x) - 4 sin^3 (x) (follows from DeMoivre's theorem) }
+
+real x = read_real;
+print ((new_line, sin (3 * x),  3 *  sin (x) - 4 * (sin ** 3) (x)))
+)

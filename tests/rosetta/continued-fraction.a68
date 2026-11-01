@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Continued fraction", ALGOL 68 solution continued-fraction.alg.
+  https://rosettacode.org/wiki/Continued_fraction#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/continued-fraction.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc cf = (int steps, proc (int) int a, proc (int) int b) real:
+begin
+  real result;
+  result := 0;
+  for n from steps by -1 to 1 do
+      result := b(n) / (a(n) + result)
+  od;
+  a(0) + result
+end;
+
+proc asqr2 = (int n) int: (n = 0 | 1 | 2);
+proc bsqr2 = (int n) int: 1;
+
+proc anap = (int n) int: (n = 0 | 2 | n);
+proc bnap = (int n) int: (n = 1 | 1 | n - 1);
+
+proc api = (int n) int: (n = 0 | 3 | 6);
+proc bpi = (int n) int: (n = 1 | 1 | (2 * n - 1) ** 2);
+
+int precision = 10000;
+
+print (("Precision: ", precision, newline));
+print (("Sqr(2):    ", cf(precision, asqr2, bsqr2), newline));
+print (("Napier:    ", cf(precision, anap, bnap), newline));
+print (("Pi:        ", cf(precision, api, bpi)))
+)

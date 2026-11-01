@@ -1,0 +1,162 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "B-spline", ALGOL 68 solution b-spline.alg.
+  https://rosettacode.org/wiki/B-spline#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/b-spline.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { construct a B-Spline                                                 }
+
+    { mode to hold a B Spline                                                }
+    mode Bspline = struct( flex[ 1 : 0, 1 : 2 ]int control_points
+                         , int n
+                         , int k
+                         , flex[ 1 : 0 ]int t
+                         );
+    proc  uniform_knot_vector = ( int lb, ub )[]int:
+          begin
+             [ lb : ub ]int range;
+             for n from lb to ub do range[ n ] := n od;
+             range
+          end { uniform knot vector } ;
+
+    proc calculate_bspline = ( ref Bspline cbs, int cbi, cbk, cbx )real:
+         if   cbk = 1
+         then ABS ( ( t of cbs )[ cbi ] <= cbx AND cbx < ( t of cbs )[ cbi + 1 ] )
+         else
+              proc helper = ( ref Bspline bs, int i, k, x )real:
+                   if ( t of bs )[ i + k ] /= ( t of bs )[ i ]
+                   then ( x - ( t of bs )[ i ] ) / ( ( t of bs )[ i + k ] - ( t of bs )[ i ] )
+                   else 0
+                   fi { helper } ;
+              (     helper( cbs, cbi,     cbk - 1, cbx ) ) * calculate_bspline( cbs, cbi,     cbk - 1, cbx )
+            + ( 1 - helper( cbs, cbi + 1, cbk - 1, cbx ) ) * calculate_bspline( cbs, cbi + 1, cbk - 1, cbx )
+         fi { calculate bspline } ;
+
+    proc round = ( real n )int: ENTIER( n + 0.5 );
+
+    proc get_bspline_points = ( ref Bspline bs )[,]int:
+         begin
+            int p_from = ( t of bs )[     k of bs ];
+            int p_to   = ( t of bs )[ 1 + n of bs ] - 1;
+            [ p_from : p_to, 1 : 2 ]int points;
+            for x from p_from to p_to do
+                real sum_x := 0;
+                real sum_y := 0;
+                for i to n of bs do
+                    real f = calculate_bspline( bs, i, k of bs, x );
+                    sum_x +:= f * ( control_points of bs )[ i, 1 ];
+                    sum_y +:= f * ( control_points of bs )[ i, 2 ]
+                od;
+                points[ x, 1 ] := round( sum_x );
+                points[ x, 2 ] := round( sum_y )
+            od;
+            points
+         end { get bspline points } ;
+
+    proc raytrace = ( int x0, y0, x2, y2, ref[,]bool rtplot, proc( ref[,]bool, int, int )void visit )void:
+         begin
+            int x    := x0;
+            int y    := y0;
+            int dx   := ABS ( x2 - x );
+            int dy   := ABS ( y2 - y );
+            int n     = 1 + dx + dy;
+            int dir_x = if x2 > x then 1 else -1 fi;
+            int dir_y = if y2 > y then 1 else -1 fi;
+            int err  := dx - dy;
+            dx *:= 2;
+            dy *:= 2;
+            to n do
+                visit( rtplot, x, y );
+                if   err > 0
+                then x +:= dir_x; err -:= dy
+                else y +:= dir_y; err +:= dx
+                fi
+            od
+         end { raytrace } ;
+
+    proc plot_line = ( ref[,]bool plplot, int x1, y1, x2, y2 )void:
+         raytrace( x1, y1, x2, y2, plplot
+                 , ( ref[,]bool plot, int x, int y )void: if   x >= 0
+                                                          AND  y >= 0
+                                                          AND  x < 1 UPB plot
+                                                          AND  y < 2 UPB plot
+                                                          then plot[ x + 1, y + 1 ] := true
+                                                          fi
+                );
+
+    proc plot_bspline = ( ref Bspline bs, ref[,]bool bsplot, real scale_x, scale_y )void:
+         if k of bs > n of bs OR k of bs < 1 then
+            print( ( "k (= ", whole( k of bs, 0 ), ") can''t be more than ", whole( n of bs, 0 ) ) );
+            print( ( " or less than 1.", newline ) );
+            stop
+         else
+            [,]int points = get_bspline_points( bs );
+            { Plot the curve. }
+            for i from 1 LWB points to 1 UPB points - 1 do
+                int p1x = points[ i,     1 ], p1y = points[ i,     2 ];
+                int p2x = points[ i + 1, 1 ], p2y = points[ i + 1, 2 ];
+                plot_line( bsplot
+                         , round( p1x * scale_x ), round( p1y * scale_y )
+                         , round( p2x * scale_x ), round( p2y * scale_y )
+                         )
+            od
+         fi { plot bspline } ;
+
+    { print the plot - outputs @ or blank depending on whether the point is plotted or not }
+    proc print_plot = ( [,]bool plot )void:
+         for row from 1 LWB plot
+         to begin { find the highest used row }
+                int max_row := 1 UPB plot;
+                while if max_row < 1 LWB plot
+                      then false
+                      else
+                          bool empty_row := true;
+                          for column from 2 LWB plot to 2 UPB plot
+                          while empty_row := NOT plot[ column, max_row ]
+                          do
+                              skip
+                          od;
+                          empty_row
+                      fi
+                do
+                    max_row -:= 1
+                od;
+                max_row
+            end
+         do
+             int max_column := 2 UPB plot;
+             while if max_column < 2 LWB plot then false else NOT plot[ max_column, row ] fi
+             do
+                 max_column -:= 1
+             od;
+             for column from 2 LWB plot to max_column do
+                 print( ( if plot[ column, row ] then "@" else " " fi ) )
+             od;
+             print( ( newline ) )
+         od { print plot } ;
+
+    begin { task }
+        [,]int  control_points
+             =   ( ( 171, 171 ), ( 185, 111 ), ( 202, 109 ), ( 202, 189 ), ( 328, 160 ), ( 208, 254 )
+                 , ( 241, 330 ), ( 164, 252 ), (  69, 278 ), ( 139, 208 ), (  72, 148 ), ( 168, 172 )
+                 );
+        int     k = 4;  { Polynomial degree is one less than this i.e. cubic. }
+        Bspline bs := ( control_points
+                      , UPB control_points
+                      , k
+                      , uniform_knot_vector( 1, UPB control_points + k )
+                      );
+
+        real scale_x = 0.4; { Since we print the plot to the console as text let's scale things appropriately. }
+        real scale_y = 0.2;
+        [ 1 : 350, 1 : 350 ]bool plot;
+        for r from 1 LWB plot to 1 UPB plot do
+            for c from 2 LWB plot to 2 UPB plot do plot[ c, r ] := false od
+        od;
+        plot_bspline( bs, plot, scale_x, scale_y );
+        print_plot( plot )
+    end
+end
+)

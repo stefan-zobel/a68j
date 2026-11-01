@@ -1,0 +1,94 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Binomial transform", ALGOL 68 solution binomial-transform.alg.
+  https://rosettacode.org/wiki/Binomial_transform#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/binomial-transform.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { binomial transform - translation of the C sample                     }
+    { returns factorial n, n must be at most 20                              }
+    proc factorial = ( int n )long int:
+         if n > 20 then 0 { too big for LONG INT                             }
+         else
+            long int factorial_n := 1;
+            for i from 2 to n do factorial_n *:= i od;
+            factorial_n
+         fi { factorial } ;
+    { returns the binomial coefficient ( n k )                               }
+    proc binomial = ( int n, k )long int:
+         factorial( n ) OVER factorial( n - k ) OVER factorial( k );
+    { sets n to the forward transform of a                                   }
+    proc bt_forward = ( ref[]long int b, []long int a )void:
+         begin
+            ref[]long int b0 = b[ at 0 ];
+            []long int    a0 = a[ at 0 ];
+            for n from 0 to UPB b0 do
+               b0[ n ] := 0;
+               for k from 0 to n do b0[ n ] +:= binomial( n, k ) * a0[ k ] od
+            od
+         end { bt forward } ;
+    { sets a to the inverse transform of b                                   }
+    proc bt_inverse = ( ref[]long int a, []long int b )void:
+         begin
+            ref[]long int a0 = a[ at 0 ];
+            []long int    b0 = b[ at 0 ];
+            for n from 0 to UPB a0 do
+                a0[ n ] := 0;
+                for k from 0 to n do
+                    a0[ n ] +:= binomial( n, k ) * b0[ k ] * if ODD ( n - k ) then -1 else 1 fi
+                od
+             od
+         end { bt inverse } ;
+    { sets b to the self inverse of a                                        }
+    proc bt_self_inverting = ( ref[]long int b, []long int a )void:
+         begin
+            ref[]long int b0 = b[ at 0 ];
+            []long int    a0 = a[ at 0 ];
+            for n from 0 to UPB b0 do
+                b0[ n ] := 0;
+                for k from 0 to n do
+                    b0[ n ] +:= binomial( n, k ) * a0[ k ] * if ODD k then -1 else 1 fi
+                od
+            od
+         end { bt self inverse } ;
+
+    { task test cases                                                        }
+    [][]long int seqs = ( ( 1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862
+                          , 16796, 58786, 208012, 742900, 2674440, 9694845
+                          , 35357670, 129644790, 477638700, 1767263190
+                          )
+                        , ( 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+                        , ( 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144
+                          , 233, 377, 610, 987, 1597, 2584, 4181
+                          )
+                        , ( 1, 0, 0, 1, 0, 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12, 16, 21, 28, 37 )
+                        );
+    [ 1 : UPB seqs[ LWB seqs ] ]long int fwd, res;
+    []string names = ( "Catalan number sequence:"
+                     , "Prime flip-flop sequence:"
+                     , "Fibonacci number sequence:"
+                     , "Padovan number sequence:"
+                     );
+    for i to UPB seqs do
+        print( ( names[ i ], newline ) );
+        for j to UPB seqs[ i ] do print( ( whole( seqs[ i ][ j ], 0 ), " " ) ) od;
+        print( ( newline, "Forward binomial transform:", newline ) );
+        bt_forward( fwd, seqs[ i ] );
+        for j to UPB fwd do print( ( whole( fwd[ j ], 0 ), " " ) ) od;
+        print( ( newline, "Inverse binomial transform:", newline ) );
+        bt_inverse( res, seqs[ i ] );
+        for j to UPB res do print( ( whole( res[ j ], 0 ), " " ) ) od;
+        print( ( newline, "Round trip:", newline ) );
+        bt_inverse( res, fwd );
+        for j to UPB res do print( ( whole( res[ j ], 0 ), " " ) ) od;
+        print( ( newline, "Self-inverting:", newline ) );
+        bt_self_inverting( fwd, seqs[ i ] );
+        for j to UPB fwd do print( ( whole( fwd[ j ], 0 ), " " ) ) od;
+        print( ( newline, "Re-inverted:", newline ) );
+        bt_self_inverting( res, fwd );
+        for j to UPB res do print( ( whole( res[ j ], 0 ), " " ) ) od;
+        if i < UPB seqs then print( ( newline, newline ) ) else print( ( newline ) ) fi
+    od
+end
+)

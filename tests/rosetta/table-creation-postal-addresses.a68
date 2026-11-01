@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Table creation/Postal addresses", ALGOL 68 solution table-creation-postal-addresses.alg.
+  https://rosettacode.org/wiki/Table_creation/Postal_addresses#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/table-creation-postal-addresses.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Address = struct(
+	int page,
+	flex[50]char street,
+	flex[25]char city,
+	flex[2]char state,
+	flex[10]char zip
+);
+FORMAT address_repr = $"Page: "gl"Street: "gl"City: "gl"State: "gl"Zip: "gll$;
+
+int errno;
+file sequence; errno := open(sequence, "sequence.txt", stand_back_channel);
+sema sequence_sema := LEVEL 1;
+
+op NEXTVAL = ([]char table_name)int: (
+  int out_;
+  { INT table page = 0; } { only one sequence implemented }
+  { DOWN sequence sema; } { NO interprocess concurrency protection }
+    on_open_error(sequence,
+      (ref file f)bool: (
+        reset(sequence); {set(table page,1,1);}
+        put(sequence, 0);
+        try_again;
+        false
+      )
+    );
+    try_again:
+    reset(sequence); {set(table page,1,1);} get(sequence,out_);
+    out_ +:=1;
+    reset(sequence); {set(table page,1,1);} put(sequence,out_);
+  { UP sequence sema; }
+  out_
+);
+
+op INIT = (ref Address self)ref Address: ( page of self := NEXTVAL "address"; self);
+
+ref Address john_brown = INIT loc Address;
+
+john_brown := (page of john_brown, "10 Downing Street","London","England","SW1A 2AA");
+
+printf((address_repr, john_brown));
+
+file address_table;
+errno := open(address_table,"address.txt",stand_back_channel);
+{ set(address table, page OF john brown,1,1);  - standard set page not available in a68g }
+put_bin(address_table, john_brown);
+close(address_table)
+)

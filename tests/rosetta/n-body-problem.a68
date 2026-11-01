@@ -1,0 +1,145 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "N-body problem", ALGOL 68 solution n-body-problem.alg.
+  https://rosettacode.org/wiki/N-body_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/n-body-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { N Body Problem - translated from the Python sample }
+
+    mode Vector = struct( real x, y, z );
+
+    op   + = ( Vector self, other )Vector:
+         ( x of self + x of other, y of self + y of other, z of self + z of other);
+
+    op   - = ( Vector self, other )Vector:
+         ( x of self - x of other, y of self - y of other, z of self - z of other );
+
+    op   * = ( Vector self, real other )Vector:
+         ( x of self * other, y of self * other, z of self * other );
+
+    op   = = ( Vector self, other )bool:
+         x of self = x of other AND y of self = y of other AND z of self = z of other;
+
+    op   TOSTRING = ( int v )string: whole( v, 0 );
+    op   TOSTRING = ( real v )string: fixed( v, -9, 6 );
+    op   TOSTRING = ( Vector self )string:
+         TOSTRING x of self + "  " + TOSTRING y of self + "  " + TOSTRING z of self;
+
+    op   ABS = ( Vector self )real:
+         sqrt( ( x of self * x of self ) + ( y of self * y of self ) + ( z of self * z of self ) );
+
+    op   +:= = ( ref Vector self, Vector other )ref Vector: self := self + other;
+
+    Vector origin = ( 0, 0, 0 );
+
+    mode Nbody = struct( real        gc
+                       , int         bodies
+                       , int         time_steps
+                       , ref[]real   masses
+                       , ref[]Vector positions, velocities, accelerations
+                       );
+
+    prio INIT = 1;
+    op   INIT = ( ref Nbody self, string filename )void:
+         if file data;
+            open( data, filename, stand_back_channel ) /= 0
+         then
+            print( ( "Unable to open ", filename, newline ) );
+            stop
+         else
+            get( data, ( gc of self, bodies of self, time_steps of self, newline ) );
+            masses of self        := heap[ 1 : bodies of self ]real;
+            positions of self     := heap[ 1 : bodies of self ]Vector;
+            velocities of self    := heap[ 1 : bodies of self ]Vector;
+            accelerations of self := heap[ 1 : bodies of self ]Vector;
+            for i to bodies of self do
+               get( data, ( ( masses of self )[ i ], newline ) );
+               get( data, ( x of ( positions of self )[ i ]
+                          , y of ( positions of self )[ i ]
+                          , z of ( positions of self )[ i ]
+                          , newline
+                          )
+                  );
+               get( data, ( x of ( velocities of self )[ i ]
+                          , y of ( velocities of self )[ i ]
+                          , z of ( velocities of self )[ i ]
+                          , newline
+                          )
+                  );
+               ( accelerations of self )[ i ] := origin
+            od;
+            close( data );
+            print( ( "Contents of ", filename, newline ) );
+            print( ( TOSTRING gc of self, " ", TOSTRING bodies of self, " " ) );
+            print( ( TOSTRING time_steps of self, newline ) );
+            for i to bodies of self do
+                print( ( TOSTRING ( masses of self     )[ i ], newline ) );
+                print( ( TOSTRING ( positions of self  )[ i ], newline ) );
+                print( ( TOSTRING ( velocities of self )[ i ], newline ) )
+            od;
+            print( ( newline ) );
+            print( ( "Body   :      x          y          z    |" ) );
+            print( ( "     vx         vy         vz", newline ) )
+         fi { INIT } ;
+
+    op   COMPUTEACCELERATIONS = ( ref Nbody self )void:
+         for i to bodies of self do
+            ( accelerations of self )[ i ] := origin;
+            for j to bodies of self do
+                if i /= j then
+                    real temp = ( gc of self * ( masses of self )[ j ] )
+                              / ( ABS ( ( positions of self )[ i ] - ( positions of self )[ j ] ) ^ 3 );
+                    ( accelerations of self )[ i ]
+                        +:= ( ( positions of self )[ j ] - ( positions of self )[ i ] ) * temp
+                fi
+            od
+         od { COMPUTEACCELERATIONS } ;
+
+    op   COMPUTEPOSITIONS = ( ref Nbody self )void:
+         for i to bodies of self do
+            ( positions of self )[ i ] +:= ( velocities of self )[ i ] + ( accelerations of self )[ i ] * 0.5
+         od { COMPUTEPOSITIONS } ;
+
+    op   COMPUTEVELOCITIES = ( ref Nbody self )void:
+         for i to bodies of self do
+            ( velocities of self )[ i ] +:= ( accelerations of self )[ i ]
+         od { COMPUTEVELOCITES } ;
+
+    op   RESOLVECOLLISIONS = ( ref Nbody self )void:
+         for i to bodies of self do
+            for j to bodies of self do
+                if ( positions of self )[ i ] = ( positions of self )[ j ] then
+                    Vector vj                    = ( velocities of self )[ j ];
+                    ( velocities of self )[ j ] := ( velocities of self )[ i ];
+                    ( velocities of self )[ i ] := vj
+                fi
+            od
+         od { RESOLVECOLLISIONS } ;
+
+    op   SIMULATE = ( ref Nbody self )void:
+         begin
+            COMPUTEACCELERATIONS self;
+            COMPUTEPOSITIONS     self;
+            COMPUTEVELOCITIES    self;
+            RESOLVECOLLISIONS    self
+         end { SIMULATE } ;
+
+    Nbody nb;
+    nb INIT "nbody.txt";
+    for t to time_steps of nb do
+        print( ( newline, "Cycle ", TOSTRING t, newline ) );
+        SIMULATE nb;
+        for i to bodies of nb do
+            print( ( "Body ", TOSTRING i
+                   , " : ",   TOSTRING (  positions of nb )[ i ]
+                   , " | ",   TOSTRING ( velocities of nb )[ i ]
+                   , newline
+                   )
+                 )
+        od
+    od
+
+end
+)

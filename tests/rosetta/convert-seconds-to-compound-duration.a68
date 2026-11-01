@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Convert seconds to compound duration", ALGOL 68 solution convert-seconds-to-compound-duration.alg.
+  https://rosettacode.org/wiki/Convert_seconds_to_compound_duration#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/convert-seconds-to-compound-duration.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ MODE to hold the compound duration }
+mode Duration = struct( int weeks, days, hours, minutes, seconds );
+
+{ returns number of seconds converted to a DURATION }
+op TODURATION = ( long int number_of_seconds )Duration:
+   begin
+       long int time     := number_of_seconds;
+       Duration result   := Duration( 0, 0, 0, 0, 0 );
+       seconds of result := SHORTEN ( time MOD  60 );
+       time OVERAB 60;
+       minutes of result := SHORTEN ( time MOD  60 );
+       time OVERAB 60;
+       hours   of result := SHORTEN ( time MOD  24 );
+       time OVERAB 24;
+       days    of result := SHORTEN ( time MOD   7 );
+       time OVERAB 7;
+       weeks   of result := SHORTEN   time;
+       result
+   end { DURATION } ;
+{ returns number of seconds converted to a DURATION }
+op TODURATION = ( int number_of_seconds )Duration: TODURATION LENG number_of_seconds;
+
+{ returns a readable form of the DURATION }
+op TOSTRING = ( Duration t )string:
+   begin
+       string result    := "";
+       string separator := "";
+       if weeks   of t /= 0 then
+           result +:= separator + whole( weeks   of t, 0 ) + " wk";  separator := ", "
+       fi;
+       if days    of t /= 0 then
+           result +:= separator + whole( days    of t, 0 ) + " d";   separator := ", "
+       fi;
+       if hours   of t /= 0 then
+           result +:= separator + whole( hours   of t, 0 ) + " hr";  separator := ", "
+       fi;
+       if minutes of t /= 0 then
+           result +:= separator + whole( minutes of t, 0 ) + " min"; separator := ", "
+       fi;
+       if seconds of t /= 0 then
+           result +:= separator + whole( seconds of t, 0 ) + " sec"; separator := ", "
+       fi;
+       if result = ""
+       then
+           { duration is 0 }
+           result := "0 sec"
+       fi;
+       result
+   end { TOSTRING } ;
+
+{ test cases }
+print( ( TOSTRING TODURATION    7259, newline ) );
+print( ( TOSTRING TODURATION   86400, newline ) );
+print( ( TOSTRING TODURATION 6000000, newline ) )
+)

@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Largest proper divisor of n", ALGOL 68 solution largest-proper-divisor-of-n.alg.
+  https://rosettacode.org/wiki/Largest_proper_divisor_of_n#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/largest-proper-divisor-of-n.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+for n to 100 do { show the largest proper divisors for n = 1..100 }
+    int largest_proper_divisor := 1;
+    for j from ( n OVER 2 ) by -1 to 2 while largest_proper_divisor = 1 do
+        if n MOD j = 0 then
+            largest_proper_divisor := j
+        fi
+    od;
+    print( ( whole( largest_proper_divisor, -3 ) ) );
+    if n MOD 10 = 0 then print( ( newline ) ) fi
+od
+)

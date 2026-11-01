@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find prime numbers of the form n*n*n+2", ALGOL 68 solution find-prime-numbers-of-the-form-n-n-n+2.alg.
+  https://rosettacode.org/wiki/Find_prime_numbers_of_the_form_n*n*n%2B2#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-prime-numbers-of-the-form-n-n-n+2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Find n such that n^3 + 2 is a prime for n < 200                      }
+    for n to 199 do
+        int candidate = ( n * n * n ) + 2;
+        { there will only be 199 candidates, so a primality check by trial   }
+        { division should be OK                                              }
+        bool is_prime := true;
+        for f from 2 to ENTIER sqrt( candidate )
+        while is_prime := candidate MOD f /= 0
+        do skip od;
+        if is_prime then
+            { n^3 + 2 is prime                                               }
+            print( ( whole( n, -4 ), ": ", whole( candidate, -8 ), newline ) )
+        fi
+    od
+end
+)

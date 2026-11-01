@@ -1,0 +1,80 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Weird numbers", ALGOL 68 solution weird-numbers.alg.
+  https://rosettacode.org/wiki/Weird_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/weird-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find wierd numbers - abundant but not semiperfect numbers - translation of Go }
+    { returns the divisors of n in descending order }
+    proc divisors = ( int n )[]int:
+         begin
+            int max_divs = 2 * ENTIER sqrt( n );
+            [ 1 : max_divs ]int divs;
+            [ 1 : max_divs ]int divs2;
+            int d_pos := 0, d2_pos := 0;
+            divs[ d_pos +:= 1 ] := 1;
+            for i from 2 while i * i <= n do
+                if n MOD i = 0 then
+                    int j = n OVER i;
+                    divs[ d_pos +:= 1 ] := i;
+                    if i /= j then divs2[ d2_pos +:= 1 ] := j fi
+                fi
+            od;
+            for i from d_pos by -1 while i > 0 do
+                divs2[ d2_pos +:= 1 ] := divs[ i ]
+            od;
+            divs2[ 1 : d2_pos ]
+         end { divisors } ;
+    { returns TRUE if n with divisors divs, is abundant, FALSE otherwise }
+    proc abundant = ( int n, []int divs )bool:
+         begin
+            int sum := 0;
+            for i from LWB divs to UPB divs do sum +:= divs[ i ] od;
+            sum > n
+         end { abundant } ;
+    { returns TRUE if n with divisors divs, is semiperfect, FALSE otherwise }
+    proc semiperfect = ( int n, []int divs, int lb, ub )bool:
+         if   ub < lb
+         then false
+         elif int h = divs[ lb ];
+              n < h
+         then semiperfect( n,     divs, lb + 1, ub )
+         elif n = h
+         then true
+         elif semiperfect( n - h, divs, lb + 1, ub )
+         then true
+         else semiperfect( n,     divs, lb + 1, ub )
+         fi { semiperfect } ;
+    { returns a sieve where FALSE = abundant and not semiperfect }
+    proc sieve = ( int limit )[]bool:
+         begin { Only interested in even numbers >= 2 }
+            [ 1 : limit ]bool w; for i from 1 to limit do w[ i ] := false od;
+            for i from 2 by 2 to limit do
+                if NOT w[ i ] then
+                    []int divs = divisors( i );
+                    if NOT abundant( i, divs ) then
+                        w[ i ] := true
+                    elif semiperfect( i, divs, LWB divs, UPB divs ) then
+                        for j from i by i to limit do w[ j ] := true od
+                    fi
+                fi
+            od;
+            w
+         end { sieve } ;
+    begin { task }
+        []bool w = sieve( 17 000 );
+        int count := 0;
+        int max = 25;
+        print( ( "The first 25 weird numbers are:", newline ) );
+        for n from 2 by 2 while count < max do
+            if NOT w[ n ] then
+                print( ( whole( n, 0 ), " " ) );
+                count +:= 1
+            fi
+        od;
+        print( ( newline ) )
+    end
+end
+)

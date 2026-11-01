@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Wasteful, equidigital and frugal numbers", ALGOL 68 solution wasteful-equidigital-and-frugal-numbers.alg.
+  https://rosettacode.org/wiki/Wasteful,_equidigital_and_frugal_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/wasteful-equidigital-and-frugal-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { wasteful, equidigital and frugal numbers - translation of the EasyLang sample }
+
+  int wasteful = 1, equidigital = 2, frugal = 3;
+  []string title = ( "wasteful", "equidigital", "frugal" );
+
+  [ 1 : 2 000 000 ]int d; for i to UPB d do d[ i ] := 0 od;
+  proc classify = void: begin
+     int ndig := 1; int n10 := 10;
+     d[ 1 ] := 1;
+     for i from 2 to UPB d do
+        if i = n10 then ndig +:= 1; n10 *:= 10 fi;
+        if   d[ i ] = 0
+        then d[ i ] := ndig;
+             for j from i + i by i to UPB d do
+                int h := j;
+                int e := 0;
+                int edig := 1; int e10 := 10;
+                while h MOD i = 0 do
+                   h  := h OVER i;
+                   e +:= 1;
+                   if e = e10 then edig +:= 1; e10 *:= 10 fi
+                od;
+                h := 0;
+                if e > 1 then h := edig fi;
+                d[ j ] +:= ndig + h
+             od
+        fi
+     od;
+     ndig := 1; n10 := 10;
+     for i to UPB d do
+        if i = n10 then ndig +:= 1; n10 *:= 10 fi;
+        d[ i ]  := if   d[ i ] > ndig
+                   then wasteful
+                   elif d[ i ] = ndig
+                   then equidigital
+                   else frugal
+                   fi
+     od
+  end { classify } ;
+  proc show = ( int t )void: begin
+     int i := 1, count := 0;
+     print( ( "First 50 ", title[ t ], " numbers:", newline ) );
+     while if   d[ i ] = t
+           then if   ( count +:= 1 ) <= 50
+                then print( ( whole( i, -5 ) ) );
+                     if count MOD 10 = 0 then print( ( newline ) ) fi
+                fi
+           fi;
+           count < 10000
+     do i +:= 1 od;
+     print( ( newline, "10 000th ", title[ t ], " number: ", whole( i, 0 ), newline, newline ) )
+  end { show } ;
+
+  classify;
+  show( wasteful    );
+  show( equidigital );
+  show( frugal      );
+  print( ( "Under 1 000 000, the counts are:", newline ) );
+  [ wasteful : frugal ]int sum := ( 0, 0, 0 );
+  for i to 999 999 do sum[ d[ i ] ] +:= 1 od;
+  for h from LWB sum to UPB sum do
+      print( ( "    ", title[ h ], ": ", whole( sum[ h ], 0 ), newline ) )
+  od
+end
+)

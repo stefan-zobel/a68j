@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Doomsday rule", ALGOL 68 solution doomsday-rule.alg.
+  https://rosettacode.org/wiki/Doomsday_rule#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/doomsday-rule.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the day of the week of dates using John Conway's Doomsday rule }
+    { returns the day of the week (Sunday = 0, Monday = 1,...) for the date }
+    {         specified by ccyy, mm and dd                                  }
+    proc dow = ( int ccyy, mm, dd )int:
+        begin
+            int  doomsday     = ( { Tuesday } 2
+                              + ( 5 * ( ccyy MOD   4 ) )
+                              + ( 4 * ( ccyy MOD 100 ) )
+                              + ( 6 * ( ccyy MOD 400 ) )
+                              )
+                            MOD 7;
+            bool is_leap_year = ccyy MOD 4 = 0
+                            AND ( ccyy MOD 100 /= 0 OR ccyy MOD 400 = 0 );
+            int  anchor_day   = case mm
+                                  in if is_leap_year then 4 else 3 fi
+                                   , if is_leap_year then 1 else 7 fi
+                                   , 7, 4, 2, 6, 4, 1, 5, 3, 7, 5
+                                esac;
+        ( doomsday + ( dd - anchor_day ) ) MOD 7
+    end { dow } ;
+    begin { task test cases }
+        { prints a test date and its day of the week }
+        proc test_dow = ( int ccyy, mm, dd )void:
+             begin
+                 []char   digit    = "0123456789"[ at 0 ];
+                 []string day_name =
+                          []string( "Sunday",   "Monday", "Tuesday", "Wednesday"
+                                  , "Thursday", "Friday", "Saturday"
+                                  )[ at 0 ];
+                 print( ( whole( ccyy, 0 )
+                        , "-",  digit[ mm OVER 10 ], digit[ mm MOD 10 ]
+                        , "-",  digit[ dd OVER 10 ], digit[ dd MOD 10 ]
+                        , ": ", day_name[ dow( ccyy, mm, dd ) ]
+                        , newline
+                        )
+                      )
+            end { test dow } ;
+        test_dow( 1800,  1,  6 );
+        test_dow( 1875,  3, 29 );
+        test_dow( 1915, 12,  7 );
+        test_dow( 1970, 12, 23 );
+        test_dow( 2043,  5, 14 );
+        test_dow( 2077,  2, 12 );
+        test_dow( 2101,  4,  2 );
+        test_dow( 2022,  6, 19 )
+    end
+end
+)

@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sort the letters of string in alphabetical order", ALGOL 68 solution sort-the-letters-of-string-in-alphabetical-order.alg.
+  https://rosettacode.org/wiki/Sort_the_letters_of_string_in_alphabetical_order#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sort-the-letters-of-string-in-alphabetical-order.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns s with the characters sorted into lexicographic order          }
+    op   LSORT = ( string s )string:
+         begin
+            [ 1 : UPB s[ @ 1 ] ]char c := s[ @ 1 ];
+            for u from UPB c - 1 by -1 to LWB c
+            while
+                bool sorted := true;
+                for p from LWB c by 1 to u do
+                    if c[ p ] > c[ p + 1 ] then
+                        char t := c[ p ];
+                        c[ p     ] := c[ p + 1 ];
+                        c[ p + 1 ] := t;
+                        sorted := false
+                    fi
+                od;
+                NOT sorted
+            do skip od;
+            c
+         end; { SORT }
+    print( ( LSORT "The quick brown fox jumps over the lazy dog, apparently", newline ) );
+    print( ( LSORT "Now is the time for all good men to come to the aid of their country.", newline ) )
+end
+)

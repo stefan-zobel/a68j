@@ -1,0 +1,15 @@
+{ Lists and Hashmaps together: Hashmaps makes Lists public (access pub Lists). }
+access Hashmaps (
+   Int_int_map squares = new_int_int_map;
+   Intlist l = new_intlist;
+   for i to 10 do i AT squares := i * i; l +:= i od;
+   3 AT l := 30;
+   3 AT squares +:= 1;
+   Stringlist names = new_stringlist;
+   String_int_map pos = new_string_int_map;
+   names +:= [] string ("c", "a", "b");
+   for i to SIZE names do i ELEM names AT pos := i od;
+   puts ("HAS: " + (l HAS 30 | "T" | "F") + (l HAS 3 | "T" | "F") + ", REMOVE 2: " + whole (l REMOVE 2, 0) + " " + whole (2 ELEM l, 0) + "'n");
+   puts (whole (SIZE l, 0) + " " + whole (3 ELEM l, 0) + " " + whole (3 ELEM squares, 0) + " " +
+         whole ("b" ELEM pos, 0) + " " + whole (UPB SORT stringlist_of (KEYS pos), 0) + "'n")
+)

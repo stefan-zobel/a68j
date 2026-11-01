@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Orbital elements", ALGOL 68 solution orbital-elements.alg.
+  https://rosettacode.org/wiki/Orbital_elements#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/orbital-elements.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { orbital elements }
+
+    mode Vector = struct( real x, y, z );
+
+    op +   = ( Vector v, w )Vector: ( x of v + x of w, y of v + y of w, z of v + z of w );
+    op *   = ( Vector v, real m )Vector: ( x of v * m, y of v * m, z of v * m );
+    op /   = ( Vector v, real d )Vector: v * ( 1 / d );
+    op ABS = ( Vector v )real: sqrt( x of v * x of v + y of v * y of v + z of v * z of v );
+
+    proc muladd = ( Vector  v1, v2, real x1, x2 )Vector: ( v1 * x1 ) + ( v2 * x2 );
+    proc set_v  = ( ref Vector v, w, []Vector ps )void:
+         begin v := ps[ LWB ps ]; w := ps[ UPB ps ] end;
+    proc rotate = ( Vector i, j, real alpha )[]Vector:
+         ( muladd( i, j,  cos( alpha ), sin( alpha ) ), muladd( i, j, -sin( alpha ), cos( alpha ) ) );
+    proc orbital_state_vectors = ( real semimajor_axis, eccentricity, inclination
+                                      , longitude_of_ascending_node, argument_of_periapsis
+                                      , true_anomaly
+                                 , ref Vector position, speed
+                                 ) void:
+         begin
+            Vector i := ( 1.0, 0.0, 0.0 ), j := ( 0.0, 1.0, 0.0 ), k := ( 0.0, 0.0, 1.0 );
+            set_v( i, j,          rotate( i, j, longitude_of_ascending_node ) );
+            set_v( j, loc Vector, rotate( j, k, inclination                 ) );
+            set_v( i, j,          rotate( i, j, argument_of_periapsis       ) );
+            real l = if eccentricity /= 1 then 1 - eccentricity * eccentricity else 2 fi
+                   * semimajor_axis;
+            real c       = cos( true_anomaly ), s = sin( true_anomaly );
+            real r       = l / ( 1.0 + eccentricity * c );
+            real rprime  = s * r * r / l;
+            position    := muladd( i, j, c, s ) * r;
+            speed       := muladd( i, j, rprime * c - r * s, rprime * s + r * c );
+            speed       := speed / ABS speed;
+            speed       := speed * sqrt( 2 / r - 1 / semimajor_axis )
+         end { orbital state vectors } ;
+
+    op   FMT = ( real v )string:
+         begin
+            string result := fixed( ABS v, 0, 15 );
+            if result[ LWB result ] = "." then "0" +=: result fi;
+            while result[ UPB result ] = "0" do result := result[ : UPB result - 1 ] od;
+            if result[ UPB result ] = "." then result := result[ : UPB result - 1 ] fi;
+            if v < 0 then "-" + result else result fi
+         end { FMT } ;
+    op TOSTRING = ( Vector v )string: "(" + FMT x of v + ", " + FMT y of v + ", " + FMT z of v + ")";
+
+    begin
+        real longitude = 355 / ( 113 * 6 );
+        Vector position, speed;
+        orbital_state_vectors( 1.0, 0.1, 0.0, longitude, 0.0, 0.0, position, speed );
+        print( ( "Position : ", TOSTRING position, newline ) );
+        print( ( "Speed    : ", TOSTRING speed,    newline ) )
+    end
+end
+)

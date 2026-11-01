@@ -1,0 +1,72 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ray-casting algorithm", ALGOL 68 solution ray-casting-algorithm.alg.
+  https://rosettacode.org/wiki/Ray-casting_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ray-casting-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+mode Point = struct( real x, y );
+
+mode Polygon = struct( string name, flex[ 1 : 0 ]Point points );
+proc contains = ( Polygon self, Point p )bool:
+     begin
+        bool odd := false, real eps = 1e-9;
+        proc rayseg = ( Point p_in, a_in, b_in )bool:
+             begin
+                proc max = ( real m, n )real: if m > n then m else n fi;
+                proc min = ( real m, n )real: if m < n then m else n fi;
+                Point p := p_in, a := a_in, b := b_in;
+                if y of a > y of b then Point t = a; a := b; b := t fi;
+                if y of p = y of a OR y of p = y of b then y of p+:= eps fi;
+                if y of p < y of a OR y of p > y of b OR x of p > max( x of a, x of b )
+                then false
+                elif x of p < min( x of a, x of b )
+                then true
+                else
+                    real red = if x of a = x of b then max_real else ( y of b - y of a ) / ( x of b - x of a ) fi;
+                    real blu = if x of a = x of p then max_real else ( y of p - y of a ) / ( x of p - x of a ) fi;
+                    blu >= red
+                fi
+             end { rayseq } ;
+
+        int len_points = ( UPB points of self - LWB points of self ) + 1;
+        for i from LWB points of self to UPB points of self do
+            Point a = ( points of self )[ i ];
+            Point b = ( points of self )[ ( i MOD len_points ) + 1 ];
+            if rayseg( p, a, b ) then odd := NOT odd fi
+        od;
+        odd
+     end { contains } ;
+
+[]Polygon polygons =
+    ( ( "square"
+      , ( ( 0, 0 ), (  10,   0 ), ( 10, 10 ), ( 0,    10 ) )
+      )
+    , ( "squarehole"
+      , ( ( 0, 0 ), (  10,   0 ), ( 10, 10 ), ( 0,    10 ), ( 2.5, 2.5 ), ( 7.5, 2.5 ), ( 7.5, 7.5 ), ( 2.5, 7.5 ) )
+      )
+    , ( "strange"
+      , ( ( 0, 0 ), ( 2.5, 2.5 ), (  0, 10 ), ( 2.5, 7.5 ), ( 7.5, 7.5 ), (  10,  10 ), ( 10,    0 ), ( 2.5, 2.5 ) )
+      )
+    , ( "hexagon"
+      , ( ( 3, 0 ), (   7,   0 ), ( 10,  5 ), ( 7,    10 ), ( 3,    10 ), (   0,   5 ) )
+      )
+    );
+[]Point points = ( ( 5, 5 ), (5 , 8 ), ( -10, 5 ), ( 0, 5 ), ( 10, 5 ), ( 8, 5 ), ( 10, 10 ) );
+
+for p from LWB polygons to UPB polygons do
+    Polygon poly = polygons[ p ];
+    print(( "Does ''", name of poly, "'' contain the point..", newline ) );
+    for i from LWB points to UPB points do
+        Point pt = points[ i ];
+        print( ( "  ( ", fixed( x of pt, -5, 1 ), ", ", fixed( y of pt, -5, 1 ), " ) " ) );
+        print( ( if contains( poly, pt ) then " true" else " false" fi, newline ) )
+    od;
+    print( ( newline ) )
+od
+
+end
+)

@@ -1,0 +1,125 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Greedy algorithm for Egyptian fractions", ALGOL 68 solution greedy-algorithm-for-egyptian-fractions.alg.
+  https://rosettacode.org/wiki/Greedy_algorithm_for_Egyptian_fractions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/greedy-algorithm-for-egyptian-fractions.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { compute some Egyptian fractions }
+      { set the number of digits for LONG LONG INT }
+    proc gcd = ( long long int a, b )long long int:
+        if b = 0 then
+            if a < 0 then
+                - a
+            else
+                a
+            fi
+        else
+            gcd( b, a MOD b )
+        fi ; { gcd }
+    mode Rational       = struct( long long int num, den );
+    mode Listofrational = struct( Rational element, ref Listofrational next );
+    ref Listofrational  nil_list_of_rational = nil;
+    op   TOSTRING = (           int a )string: whole( a, 0 );
+{  OP   TOSTRING = (      LONG INT a )STRING: whole( a, 0 ); # not needed for the task # }
+    op   TOSTRING = ( long long int a )string: whole( a, 0 );
+    op   TOSTRING = (      Rational a )string:
+         if den of a = 1
+         then TOSTRING num of a
+         else TOSTRING num of a + "/" + TOSTRING den of a
+         fi ; { TOSTRING }
+    op   TOSTRING = ( ref Listofrational lr )string:
+         begin
+             ref Listofrational p      := lr;
+             string             result := "[";
+             while p isnt nil_list_of_rational do
+                 result +:= TOSTRING element of p;
+                 if next of p is nil_list_of_rational then
+                     p := nil
+                 else
+                     p := next of p;
+                     result +:= " + "
+                 fi
+             od;
+             result + "]"
+         end ; { TOSTRING }
+    op   CEIL = ( long long real v )long long int:
+         if long long int result := ENTIER v;
+            ABS v > ABS result
+         then result + 1
+         else result
+         fi ;  { CEIL }
+    op   EGYPTIAN = ( Rational rp )ref Listofrational:
+         if Rational r := rp;
+            num of r = 0 OR num of r = 1
+         then heap Listofrational := ( r, nil_list_of_rational )
+         else
+            ref Listofrational result     := nil_list_of_rational;
+            ref Listofrational end_result := nil_list_of_rational;
+            proc add = ( Rational rn )void:
+                 if end_result is nil_list_of_rational then
+                    result     := heap Listofrational := ( rn, nil_list_of_rational );
+                    end_result := result
+                 else
+                    next of end_result := heap Listofrational := ( rn, nil_list_of_rational );
+                    end_result         := next of end_result
+                 fi ; { add }
+            if num of r > den of r then
+                add( Rational( num of r OVER den of r, 1 ) );
+                r := ( num of r MOD den of r, den of r )
+            fi;
+            proc mod_func = ( long long int m, n )long long int: ( ( m MOD n ) + n ) MOD n;
+            while num of r /= 0 do
+                long long int q = CEIL( den of r / num of r );
+                add( Rational( 1, q ) );
+                r := Rational( mod_func( - ( den of r ), num of r ), ( den of r ) * q )
+            od;
+            result
+         fi ; { EGYPTIAN }
+    begin { task test cases }
+        []Rational test_cases = ( Rational( 43, 48 ), Rational( 5, 121 ), Rational( 2014, 59 ) );
+        for r_pos from LWB test_cases to UPB test_cases do
+            print( ( TOSTRING test_cases[ r_pos ], " -> ", TOSTRING EGYPTIAN test_cases[ r_pos ], newline ) )
+        od;
+        { find the fractions with the most terms and the largest denominator }
+        print( ( "For rationals with numerator and denominator in 1..99:", newline ) );
+        Rational           largest_denominator  := ( 0, 1 );
+        ref Listofrational max_denominator_list := nil_list_of_rational;
+        long long int      max_denominator      := 0;
+        Rational           most_terms           := ( 0, 1 );
+        ref Listofrational most_terms_list      := nil_list_of_rational;
+        int                max_terms            := 0;
+        for num to 99 do
+            for den to 99 do
+                Rational           r  = Rational( num, den );
+                ref Listofrational e := EGYPTIAN r;
+                ref Listofrational p := e;
+                int terms := 0;
+                while p isnt nil_list_of_rational do
+                   terms +:= 1;
+                   if den of element of p > max_denominator then
+                       largest_denominator  := r;
+                       max_denominator      := den of element of p;
+                       max_denominator_list := e
+                   fi;
+                   p := next of p
+                od;
+                if terms > max_terms then
+                    most_terms      := r;
+                    max_terms       := terms;
+                    most_terms_list := e
+                fi
+            od
+        od;
+        print( ( "    ", TOSTRING most_terms, " has the most terms: ", TOSTRING max_terms, newline
+               , "    ", TOSTRING most_terms_list, newline
+               )
+             );
+        print( ( "    ", TOSTRING largest_denominator, " has the largest denominator:", newline
+               , "    ", TOSTRING max_denominator_list, newline
+               )
+             )
+    end
+end
+)

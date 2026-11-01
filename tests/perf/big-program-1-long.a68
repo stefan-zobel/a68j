@@ -1,0 +1,210 @@
+{ The long run of big-program-1.a68: the same 14 kernels in the main
+  program with scale = 40 instead of 4, so that it runs about half a
+  minute (the bubble sort alone makes 5*10^9 comparisons) and the start of
+  the JVM and the time until C2 has compiled the loops no longer count.
+  Apart from this comment and the value of scale the file is identical to
+  big-program-1.a68.  ga68 needs a larger stack for it than the usual
+  8 MB (ulimit -s unlimited), otherwise the last kernel crashes with a
+  segmentation fault.  Used by docs/optimizations.md, section 7. }
+begin
+  int scale = 40;
+
+  { 1. Sieve of Eratosthenes. }
+  int sieve_n = 2 000 000;
+  [2 : sieve_n] bool composite;
+  for i from 2 to sieve_n do composite[i] := false od;
+  int primes := 0;
+  for i from 2 to sieve_n do
+     if NOT composite[i] then
+        primes +:= 1;
+        if i <= sieve_n OVER i then
+           for j from i * i by i to sieve_n do composite[j] := true od
+        fi
+     fi
+  od;
+  puts ("primes below " + whole (sieve_n, 0) + ": " + whole (primes, 0) + "'n");
+
+  { 2. Collatz: the longest chain below a bound. }
+  int collatz_n = 300 000 * scale;
+  int best := 0, best_start := 0;
+  for start to collatz_n do
+     long int x := LENG start;
+     int len := 1;
+     while x /= long 1 do
+        x := (ODD x | long 3 * x + long 1 | x OVER long 2);
+        len +:= 1
+     od;
+     if len > best then best := len; best_start := start fi
+  od;
+  puts ("longest Collatz chain below " + whole (collatz_n, 0) + ": " + whole (best_start, 0)
+        + " (" + whole (best, 0) + " steps)'n");
+
+  { 3. Matrix product. }
+  int mn = 120;
+  [mn, mn] real ma, mb, mc;
+  for i to mn do
+     for j to mn do
+        ma[i, j] := (i + j) / mn;
+        mb[i, j] := (i - j) / mn
+     od
+  od;
+  to scale do
+     for i to mn do
+        for j to mn do
+           real s := 0.0;
+           for k to mn do s +:= ma[i, k] * mb[k, j] od;
+           mc[i, j] := s
+        od
+     od
+  od;
+  real trace := 0.0;
+  for i to mn do trace +:= mc[i, i] od;
+  puts ("trace of the product: " + fixed (trace, 0, 4) + "'n");
+
+  { 4. Sum of digits. }
+  int digit_n = 3 000 000 * scale;
+  long int digit_total := long 0;
+  for i to digit_n do
+     int v := i, s := 0;
+     while v > 0 do s +:= v MOD 10; v := v OVER 10 od;
+     digit_total +:= LENG s
+  od;
+  puts ("sum of the digits of 1 .. " + whole (digit_n, 0) + ": " + whole (digit_total, 0) + "'n");
+
+  { 5. Greatest common divisors. }
+  int gcd_n = 700 * scale;
+  int coprime := 0;
+  for a to gcd_n do
+     for b to 1000 do
+        int x := a, y := b;
+        while y /= 0 do int t = x MOD y; x := y; y := t od;
+        if x = 1 then coprime +:= 1 fi
+     od
+  od;
+  puts ("coprime pairs: " + whole (coprime, 0) + "'n");
+
+  { 6. Bubble sort of pseudo-random numbers. }
+  int sort_n = 2500 * scale;
+  [sort_n] int data;
+  int seed := 12345;
+  for i to sort_n do
+     seed := (seed * 1103 + 12345) MOD 65536;
+     data[i] := seed
+  od;
+  for i to sort_n - 1 do
+     for j to sort_n - i do
+        if data[j] > data[j + 1] then
+           int t = data[j]; data[j] := data[j + 1]; data[j + 1] := t
+        fi
+     od
+  od;
+  bool sorted := true;
+  for i to sort_n - 1 do (data[i] > data[i + 1] | sorted := false) od;
+  puts ("sorted: " + (sorted | "yes" | "no") + ", smallest " + whole (data[1], 0)
+        + ", largest " + whole (data[sort_n], 0) + "'n");
+
+  { 7. Counting the ways to make change. }
+  [] int coins = (1, 2, 5, 10, 20, 50, 100, 200);
+  int amount = 20 000 * scale;
+  [0 : amount] long int ways;
+  for i from 0 to amount do ways[i] := long 0 od;
+  ways[0] := long 1;
+  for c to UPB coins do
+     int coin = coins[c];
+     for v from coin to amount do ways[v] := (ways[v] + ways[v - coin]) MOD long 1 000 000 007 od
+  od;
+  puts ("ways to make " + whole (amount, 0) + ", modulo 1000000007: " + whole (ways[amount], 0) + "'n");
+
+  { 8. Numerical integration (midpoint rule). }
+  int steps = 5 000 000 * scale;
+  long real h = long 1.0 / LENG steps;
+  long real area := long 0.0;
+  for i to steps do
+     long real x = (LENG i - long 0.5) * h;
+     area +:= long 4.0 / (long 1.0 + x * x)
+  od;
+  puts ("pi is about " + fixed (area * h, 0, 8) + "'n");
+
+  { 9. Perfect numbers. }
+  int perfect_n = 30 000 * scale;
+  int perfect := 0;
+  for n from 2 to perfect_n do
+     int s := 1;
+     for d from 2 while d * d <= n do
+        if n MOD d = 0 then
+           s +:= d;
+           if d * d /= n then s +:= n OVER d fi
+        fi
+     od;
+     if s = n then perfect +:= 1 fi
+  od;
+  puts ("perfect numbers below " + whole (perfect_n, 0) + ": " + whole (perfect, 0) + "'n");
+
+  { 10. Strings: counting palindromic numbers. }
+  int pal_n = 300 000 * scale;
+  int palindromes := 0;
+  for i to pal_n do
+     string s = whole (i, 0);
+     bool p := true;
+     int l := 1, r := UPB s;
+     while p AND l < r do
+        (s[l] /= s[r] | p := false);
+        l +:= 1; r -:= 1
+     od;
+     (p | palindromes +:= 1)
+  od;
+  puts ("palindromic numbers up to " + whole (pal_n, 0) + ": " + whole (palindromes, 0) + "'n");
+
+  { 11. N queens, counted with an explicit stack of columns. }
+  int nq = 10;
+  [nq] int col;
+  int solutions := 0, row := 1;
+  col[1] := 0;
+  while row > 0 do
+     col[row] +:= 1;
+     if col[row] > nq then
+        row -:= 1
+     else
+        bool safe := true;
+        for r to row - 1 while safe do
+           int d = col[r] - col[row];
+           if d = 0 OR d = row - r OR d = r - row then safe := false fi
+        od;
+        if safe then
+           if row = nq then solutions +:= 1 else row +:= 1; col[row] := 0 fi
+        fi
+     fi
+  od;
+  puts ("solutions of " + whole (nq, 0) + " queens: " + whole (solutions, 0) + "'n");
+
+  { 12. Fibonacci numbers modulo a prime, and their period. }
+  int modulus = 1 000 003;
+  int fa := 0, fb := 1, period := 0;
+  for i to 10 * modulus while period = 0 do
+     int fc = (fa + fb) MOD modulus;
+     fa := fb; fb := fc;
+     if fa = 0 AND fb = 1 then period := i fi
+  od;
+  puts ("Pisano period of " + whole (modulus, 0) + ": " + whole (period, 0) + "'n");
+
+  { 13. Floating point: a logistic map, iterated. }
+  real xl := 0.5;
+  int above := 0;
+  for i to 10 000 000 * scale do
+     xl := 3.9 * xl * (1.0 - xl);
+     (xl > 0.5 | above +:= 1)
+  od;
+  puts ("logistic map above 0.5: " + whole (above, 0) + " times, last " + fixed (xl, 0, 6) + "'n");
+
+  { 14. Counting the divisors of all numbers below a bound (a sieve). }
+  int div_n = 1 000 000 * scale;
+  [div_n] int ndiv;
+  for i to div_n do ndiv[i] := 0 od;
+  for d to div_n do
+     for m from d by d to div_n do ndiv[m] +:= 1 od
+  od;
+  int most := 0, most_at := 0;
+  for i to div_n do (ndiv[i] > most | most := ndiv[i]; most_at := i) od;
+  puts ("most divisors below " + whole (div_n, 0) + ": " + whole (most_at, 0)
+        + " (" + whole (most, 0) + ")'n")
+end

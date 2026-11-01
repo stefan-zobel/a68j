@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Primality by Wilson's theorem", ALGOL 68 solution primality-by-wilsons-theorem.alg.
+  https://rosettacode.org/wiki/Primality_by_Wilson's_theorem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/primality-by-wilsons-theorem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { find primes using Wilson's theorem:                               }
+    {    p is prime if ( ( p - 1 )! + 1 ) mod p = 0                     }
+
+    { returns true if p is a prime by Wilson's theorem, false otherwise }
+    {         computes the factorial mod p at each stage, so as to      }
+    {         allow numbers whose factorial won't fit in 32 bits        }
+    proc is_wilson_prime = ( int p )bool:
+         begin
+            int factorial_mod_p := 1;
+            for i from 2 to p - 1 do factorial_mod_p *:= i MODAB p od;
+            factorial_mod_p = p - 1
+         end { is wilson prime } ;
+
+    for i to 100 do if is_wilson_prime( i ) then print( ( " ", whole( i, 0 ) ) ) fi od
+end
+)

@@ -1,0 +1,91 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Classes", ALGOL 68 solution classes.alg.
+  https://rosettacode.org/wiki/Classes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/classes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Mydata = struct(
+    int name1
+);
+struct(
+    int name2,
+    proc (ref Mydata)ref Mydata new,
+    proc (ref Mydata)void init,
+    proc (ref Mydata)void some_method
+) class_my_data;
+class_my_data := (
+  { name2 := } 2, { Class attribute }
+
+  { PROC new := } (ref Mydata new)ref Mydata:(
+        (init of class_my_data)(new);
+        new
+   ),
+
+  { PROC init := } (ref Mydata self)void:(
+        """ Constructor  (Technically an initializer rather than a true ''constructor'') """;
+        name1 of self := 0 { Instance attribute }
+    ),
+
+  { PROC some method := } (ref Mydata self)void:(
+        """ Method """;
+        name1 of self := 1;
+        name2 of class_my_data := 3
+    )
+);
+
+{ class name, invoked as a function is the constructor syntax }
+ref Mydata my_data = (new of class_my_data)(loc Mydata);
+
+mode Genderopt = union(string, void);
+mode Ageopt = union(int, void);
+
+mode Myotherdata = struct(
+    string name,
+    Genderopt gender,
+    Ageopt age
+);
+struct (
+    int count,
+    proc (ref Myotherdata, string, Genderopt, Ageopt)ref Myotherdata new,
+    proc (ref Myotherdata, string, Genderopt, Ageopt)void init,
+    proc (ref Myotherdata)void del
+) class_my_other_data;
+class_my_other_data := (
+  { count := } 0,  { Population of "(init OF class my other data)" objects }
+{ PROC new := } (ref Myotherdata new, string name, Genderopt gender, Ageopt age)ref Myotherdata:(
+          (init of class_my_other_data)(new, name, gender, age);
+          new
+      ),
+
+  { PROC init := } (ref Myotherdata self, string name, Genderopt gender, Ageopt age)void:(
+        """ One initializer required, others are optional (with different defaults) """;
+        count of class_my_other_data +:= 1;
+        name of self := name;
+        gender of self := gender;
+        case gender of self in
+            (void):gender of self := "Male"
+        esac;
+        age of self := age
+    ),
+
+  { PROC del := } (ref Myotherdata self)void:(
+        count of class_my_other_data -:= 1
+    )
+);
+
+proc attribute_error := string: error_char; { mend the error with the "error char" }
+
+{ Allocate the instance from HEAP }
+ref Myotherdata person1 =  (new of class_my_other_data)(heap Myotherdata, "John", empty, empty);
+print (((name of person1), ": ",
+        (gender of person1|(string gender):gender|attribute_error), " "));  { "John Male" }
+print (((age of person1|(int age):age|attribute_error), new_line)); { Raises AttributeError exception! }
+
+{ Allocate the instance from LOC (stack) }
+ref Myotherdata person2 = (new of class_my_other_data)(loc Myotherdata, "Jane", "Female", 23);
+print (((name of person2), ": ",
+        (gender of person2|(string gender):gender|attribute_error), " "));
+print (((age of person2|(int age):age|attribute_error), new_line))  { "Jane Female 23" }
+)

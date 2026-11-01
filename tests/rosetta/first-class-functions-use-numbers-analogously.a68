@@ -1,0 +1,31 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "First-class functions/Use numbers analogously", ALGOL 68 solution first-class-functions-use-numbers-analogously.alg.
+  https://rosettacode.org/wiki/First-class_functions/Use_numbers_analogously#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/first-class-functions-use-numbers-analogously.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+real
+  x  := 2,
+  xi := 0.5,
+  y  := 4,
+  yi := 0.25,
+  z  := x + y,
+  zi := 1 / ( x + y );
+
+mode F = proc(real)real;
+
+proc multiplier = (real n1, n2)F: ((real m)real: n1 * n2 * m);
+
+{ Numbers as members of collections }
+[]real num_list = (x, y, z),
+       inv_num_list = (xi, yi, zi);
+
+{ Apply numbers from list }
+for key to UPB num_list do
+  real n = num_list[key],
+       inv_n = inv_num_list[key];
+  print ((multiplier(inv_n, n)(.5), new_line))
+od
+)

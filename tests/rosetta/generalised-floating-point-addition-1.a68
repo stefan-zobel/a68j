@@ -1,0 +1,106 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Generalised floating point addition", ALGOL 68 solution generalised-floating-point-addition-1.alg.
+  https://rosettacode.org/wiki/Generalised_floating_point_addition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/generalised-floating-point-addition-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{  Define the basic addition operators }
+{  for the generalised base            }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+
+{ derived DIGIT operators }
+op + = (DIGIT arg)DIGIT: arg;
+op + = (DIGIT a,b)DIGIT: (DIGIT out_ := a; MOID(out_ +:= b); out_);
+
+{ derived hybrid of DIGIT & DIGITS operators }
+op + = (DIGITS a, DIGIT b)DIGITS: a + INITDIGITS b;
+op + = (DIGIT a, DIGITS b)DIGITS: INITDIGITS a + a;
+op +:= = (ref DIGITS lhs, DIGIT arg)DIGITS: lhs := lhs + arg;
+
+{ derived DIGITS operators }
+op + = (DIGITS arg)DIGITS: arg;
+op +:= = (ref DIGITS lhs, DIGITS arg)DIGITS: lhs := lhs + arg;
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{            TASK CODE             }
+{ Actual generic addition operator }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+op + = (DIGITS a, b)DIGITS: (
+  if SIGN a = 0 then b elif SIGN b = 0 then a
+  else
+    mode Signed = DIGIT;
+
+    int extreme_highest = MSD a MIN MSD b,
+        overlap_highest = MSD a MAX MSD b,
+        overlap_lowest  = LSD a MIN LSD b,
+        extreme_lowest  = LSD a MAX LSD b;
+
+    Signed zero = ZERO loc Signed;
+    int order = digit_order of arithmetic;
+    DIGITS out_;
+
+    if overlap_highest > overlap_lowest then { Either: NO overlapping digits }
+
+      [extreme_highest:extreme_lowest]Signed a_plus_b;
+
+{ First: simply insert the known digits with their correct sign }
+      a_plus_b[MSD a:LSD a] := a[@1];
+      a_plus_b[MSD b:LSD b] := b[@1];
+
+{ Next: Zero any totally non overlapping digit }
+      for place from overlap_highest+order by order to overlap_lowest-order
+      do a_plus_b[place] := zero od;
+
+{ Finally: normalise by removing leading & trailing "zero" digit }
+      out_ := INITDIGITS a_plus_b
+
+    else { Or: Add ALL overlapping digits }
+
+      [extreme_highest+(carry of arithmetic|order|0):extreme_lowest]Signed a_plus_b;
+
+{   First: Deal with the non overlapping Least Significant Digits }
+      a_plus_b[overlap_lowest-order:] := (LSD a > LSD b|a|b) [overlap_lowest-order:];
+
+{   Or: Add any overlapping digits }
+      Signed carry := zero;
+      for place from overlap_lowest by order to overlap_highest do
+        Signed digit_a = a[place], digit_b = b[place];
+        ref Signed result = a_plus_b[place];
+        if carry of arithmetic then { used in big float }
+          result := carry;
+          carry := ( result +:= digit_a );
+          MOID( carry +:= ( result +:= (digit_b) ) )
+        else
+          result  := digit_a;
+          MOID( result +:= digit_b )
+        fi
+      od;
+
+{   Next: Deal with the non overlapping Most Significant digits }
+      for place from overlap_highest+order by order to extreme_highest do
+        []DIGIT etc = (MSD a < MSD b|a|b);
+        ref Signed result = a_plus_b[place];
+        if carry of arithmetic then
+          result := carry;
+          carry := ( result +:= etc[place] )
+        else
+          result := etc[place]
+        fi
+      od;
+
+{   Next: Deal with the carry }
+      if carry of arithmetic then
+        a_plus_b[extreme_highest+order] := carry
+      fi;
+
+{   Finally: normalise by removing leading & trailing "zero" digits }
+      out_ := INITDIGITS a_plus_b
+
+    fi;
+    out_ { EXIT }
+  fi
+);
+)

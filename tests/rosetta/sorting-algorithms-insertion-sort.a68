@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Insertion sort", ALGOL 68 solution sorting-algorithms-insertion-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Insertion_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-insertion-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Data = ref char;
+
+proc in_place_insertion_sort = (ref[]Data item)void:
+begin
+   int first := LWB item;
+   int last  := UPB item;
+   int j;
+   Data value;
+   for i from first + 1 to last do
+      value := item[i];
+      j := i - 1;
+   {  WHILE j >= LWB item AND j <= UPB item ANDF item[j] > value DO // example of ANDF extension }
+      while ( j >= LWB item AND j <= UPB item | item[j]>value | false ) do { no extension! }
+         item[j + 1] := item[j];
+         j -:=  1
+      od;
+      item[j + 1] := value
+   od
+end { in place insertion sort };
+
+[32]char data := "big fjords vex quick waltz nymph";
+[UPB data]Data ref_data;  for i to UPB data do ref_data[i] := data[i] od;
+in_place_insertion_sort(ref_data);
+for i to UPB ref_data do print(ref_data[i]) od; print(new_line);
+print((data))
+)

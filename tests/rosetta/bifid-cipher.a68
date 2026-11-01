@@ -1,0 +1,150 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bifid cipher", ALGOL 68 solution bifid-cipher.alg.
+  https://rosettacode.org/wiki/Bifid_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bifid-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Bifid cipher                                                         }
+
+    { mode to hold the details of a Bifid cipher                             }
+    mode Bifid = struct( string key        { the Polybius square, linearised }
+                       , string pre_from    { pre-translation, "from" string }
+                       , string pre_to        { pre-tramslatiion "to" string }
+                       );
+
+    { string utilities                                                       }
+
+    { returns the length of s                                                }
+    op   LENGTH = ( string s )int: ( UPB s - LWB s ) + 1;
+    { returns the index of c in s, or LWB s - 1 if it is not present         }
+    prio INDEXOF = 1;
+    op   INDEXOF = ( string s, char c )int:
+         begin
+            int index := LWB s - 1;
+            void( char_in_string( c, index, s ) );      { discard the result }
+            index
+         end { INDEXOF } ;
+    { returns text with the characters in from chars replaced with the       }
+    {         corresponding characters in to chars                           }
+    proc translate = ( string text, from_chars, to_chars )string:
+         if   LWB from_chars /= LWB to_chars OR UPB from_chars /= UPB to_chars
+         then """from"" and ""to"" have different bounds (translate)"
+         elif from_chars = ""
+         then text
+         else { the from and to strings have the same bounds                 }
+              string result := text;
+              for r_pos from LWB result to UPB result do
+                  int t_pos = from_chars INDEXOF result[ r_pos ];
+                  if  t_pos >= LWB from_chars then result[ r_pos ] := to_chars[ t_pos ] fi
+              od;
+              result
+         fi { translate } ;
+    { end string utilities                                                   }
+
+    { returns text encrypted according to cipher                             }
+    prio ENCRYPT = 9;
+    op   ENCRYPT = ( string text, Bifid cipher )string:
+         if   string key     = ( key of cipher )[ at 1 ];
+              int key_length = LENGTH key;
+              int sq_width   = ENTIER sqrt( key_length );
+              sq_width * sq_width /= key_length
+         then "**** Bifid key is not a square"
+         else { the key is a square                                          }
+              string msg1  = translate( text, pre_from of cipher, pre_to of cipher )[ at 1 ];
+              string msg  := "";
+              for m_pos from LWB msg1 to UPB msg1 do
+                  if msg1[ m_pos ] /= " " then msg +:= msg1[ m_pos ] fi
+              od;
+              int    m_max = LENGTH msg;
+              [ 1 : 2 * m_max ]int coordinates;
+              for m_pos to m_max do
+                  int c_index := key INDEXOF msg[ m_pos ];
+                  if  c_index >= LWB key then c_index -:= 1 fi;
+                  coordinates[ m_pos         ] := c_index OVER sq_width;
+                  coordinates[ m_pos + m_max ] := c_index MOD  sq_width
+              od;
+              string result := "";
+              for c_pos by 2 to UPB coordinates do
+                  result +:= key[ ( coordinates[ c_pos     ] * sq_width )
+                                +   coordinates[ c_pos + 1 ]
+                                + 1
+                                ]
+              od;
+              result
+         fi { ENCRYPT } ;
+
+    { returns text decrypted according to cipher                             }
+    prio DECRYPT = 9;
+    op   DECRYPT = ( string text, Bifid cipher )string:
+         if   string key     = ( key of cipher )[ at 1 ];
+              int key_length = LENGTH key;
+              int sq_width   = ENTIER sqrt( key_length );
+              sq_width * sq_width /= key_length
+         then "**** Bifid key is not a square"
+         else { the key is a square                                          }
+              string msg   = text[ at 1 ];
+              int    m_max = LENGTH msg;
+              [ 1 : 2 * m_max ]int coordinates;
+              int c_pos := 0;
+              for m_pos to m_max do
+                  int c_index := key INDEXOF msg[ m_pos ];
+                  if  c_index >= LWB key then c_index -:= 1 fi;
+                  coordinates[ c_pos +:= 1 ] := c_index OVER sq_width;
+                  coordinates[ c_pos +:= 1 ] := c_index MOD  sq_width
+              od;
+              string result := "";
+              for i to m_max do
+                  result +:= key[ ( coordinates[ i         ] * sq_width )
+                                +   coordinates[ i + m_max ]
+                                + 1
+                                ]
+              od;
+              result
+         fi { DECRYPT } ;
+
+    { tests the ENCRYPT and DECRYPT operators                                }
+    proc test_bifid = ( Bifid cipher, string text )void:
+         begin
+            string code = text ENCRYPT cipher;
+            print( ( text, " -> ", code,                newline ) );
+            print( ( code, " -> ", code DECRYPT cipher, newline ) )
+         end { text bifid } ;
+
+    { Bifid ciphers for tests                                                }
+
+    Bifid bifid_5_abc = ( "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+                        , "Jabcdefghijklmnopqrstuvwxyz"
+                        , "IABCDEFGHIIKLMNOPQRSTUVWXYZ"
+                        );
+    Bifid bifid_5_bgw = ( "BGWKZQPNDSIOAXEFCLUMTHYVR"
+                        , "Jabcdefghijklmnopqrstuvwxyz"
+                        , "IABCDEFGHIIKLMNOPQRSTUVWXYZ"
+                        );
+    Bifid bifid_6_abc = ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                        , "abcdefghijklmnopqrstuvwxyz"
+                        , "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                        );
+    Bifid bifid_8_abc = ( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\/"
+                        , " "
+                        , "/"
+                        );
+
+    { basic task - using 5x5 Polybius squares                                }
+    test_bifid( bifid_5_abc, "ATTACKATDAWN" );
+    print( ( newline ) );
+    test_bifid( bifid_5_bgw, "FLEEATONCE" );
+    test_bifid( bifid_5_bgw, "ATTACKATDAWN" );
+    test_bifid( bifid_5_bgw, "The invasion will begin on the first of January" );
+    print( ( newline ) );
+
+    { bonus - using a 6x6 square                                             }
+    test_bifid( bifid_6_abc, "The invasion will begin on the first of January" );
+    print( ( newline ) );
+
+    { bonus - using an 8x8 square                                            }
+    test_bifid( bifid_8_abc, "The invasion will begin on the first of January" )
+
+end
+)

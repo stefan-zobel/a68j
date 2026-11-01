@@ -1,0 +1,61 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pathological floating point problems", ALGOL 68 solution pathological-floating-point-problems.alg.
+  https://rosettacode.org/wiki/Pathological_floating_point_problems#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pathological-floating-point-problems.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+
+    { show the sizes of REAL, LONG REAL and LONG LONG real }
+    print( ( "Approximate sizes of real numbers available: " ) );
+    print( ( "REAL: ",                         whole(           real_width, 0 ) ) );
+    print( ( ", LONG REAL: ",                  whole(      long_real_width, 0 ) ) );
+    print( ( ", default for LONG LONG REAL: ", whole( long_long_real_width, 0 ) ) );
+    print( ( newline, newline ) );
+
+    { task 1 }
+    begin
+        print( ( whole( long_real_width, -4 ), " digit REAL numbers", newline ) );
+        [ 1 : 100 ]long real v;
+        v[ 1 ] := 2;
+        v[ 2 ] := -4;
+        for n from 3 to UPB v do v[ n ] := 111 - ( 1130 / v[ n - 1 ] ) + ( 3000 / ( v[ n - 1 ] * v[ n - 2 ] ) ) od;
+        for n from  3 to  8       do print( ( "n = ", whole( n, 3 ), " ", fixed( v[ n ], -22, 16 ), newline ) ) od;
+        for n from 20 by 10 to 50 do print( ( "n = ", whole( n, 3 ), " ", fixed( v[ n ], -22, 16 ), newline ) ) od;
+        print( ( "n = 100 ", fixed( v[ 100 ], -22, 16 ), newline ) )
+    end;
+    begin
+        print( ( whole( long_long_real_width, -4 ), " digit REAL numbers", newline ) );
+        [ 1 : 100 ]long long real v;
+        v[ 1 ] := 2;
+        v[ 2 ] := -4;
+        for n from 3 to UPB v do v[ n ] := 111 - ( 1130 / v[ n - 1 ] ) + ( 3000 / ( v[ n - 1 ] * v[ n - 2 ] ) ) od;
+        print( ( "n = 100 ", fixed( v[ 100 ], -22, 16 ), newline ) )
+    end;
+    print( ( newline ) );
+    { task 2 }
+    begin
+        print( ( "standard precision REAL numbers...", newline ) );
+        real chaotic_balance := exp( 1 ) - 1;
+        print( ( "           initial chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) );
+        for i from 1 to 25 do ( chaotic_balance *:= i ) -:= 1 od;
+        print( ( "           25 year chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) )
+    end;
+    begin
+        print( ( "double precision LONG REAL numbers...", newline ) );
+        long real chaotic_balance := long_exp( 1 ) - 1;
+        print( ( "           initial chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) );
+        for i from 1 to 25 do ( chaotic_balance *:= i ) -:= 1 od;
+        print( ( "           25 year chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) )
+    end;
+    begin
+        print( ( whole( long_long_real_width, -10 ), " digit LONG LONG REAL numbers...", newline ) );
+        long long real chaotic_balance := long_long_exp( 1 ) - 1;
+        print( ( "           initial chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) );
+        for i from 1 to 25 do ( chaotic_balance *:= i ) -:= 1 od;
+        print( ( "           25 year chaotic balance: ", fixed( chaotic_balance, -22, 16 ), newline ) )
+    end
+end
+)

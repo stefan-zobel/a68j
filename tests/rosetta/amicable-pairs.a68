@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Amicable pairs", ALGOL 68 solution amicable-pairs.alg.
+  https://rosettacode.org/wiki/Amicable_pairs#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/amicable-pairs.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find amicable pairs p1, p2 where each is equal to the other's proper divisor sum }
+    [ 1 : 20 000 ]int pd_sum; { table of proper divisors }
+    for n to UPB pd_sum do pd_sum[ n ] := 1 od;
+    for i from 2 to UPB pd_sum
+        do for j from i + i by i to UPB pd_sum do
+            pd_sum[ j ] +:= i
+        od
+    od;
+    { find the amicable pairs up to 20 000                            }
+    for p1 to UPB pd_sum - 1 do
+        int pd_sum_p1 = pd_sum[ p1 ];
+        if pd_sum_p1 > p1 AND pd_sum_p1 <= UPB pd_sum then
+            if pd_sum[ pd_sum_p1 ] = p1 then
+                print( ( whole( p1, -6 ), " and ", whole( pd_sum_p1, -6 ), " are an amicable pair", newline ) )
+            fi
+        fi
+    od
+end
+)

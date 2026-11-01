@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Monads/Writer monad", ALGOL 68 solution monads-writer-monad.alg.
+  https://rosettacode.org/wiki/Monads/Writer_monad#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/monads-writer-monad.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    mode Mwriter = struct( long real value
+                         , string    log
+                         );
+    prio BIND = 9;
+    op   BIND = ( Mwriter m, proc( long real )Mwriter f )Mwriter:
+    (    Mwriter n := f( value of m );
+         log of n  := log of m + log of n;
+         n
+    );
+
+    op   LEN     = ( string s )int: ( UPB s + 1 ) - LWB s;
+    prio PAD     = 9;
+    op   PAD     = ( string s, int width )string: if LEN s >= width then s else s + ( width - LEN s ) * " " fi;
+
+    proc unit    = ( long real v, string s )Mwriter: ( v, "  " + s PAD 17 + ":" + fixed( v, -19, 15 ) + REPR 10 );
+
+    proc root    = ( long real v )Mwriter: unit( long_sqrt( v ), "Took square root" );
+    proc add_one = ( long real v )Mwriter: unit( v+1, "Added one" );
+    proc half    = ( long real v )Mwriter: unit( v/2, "Divided by two" );
+
+    Mwriter mw2 := unit( 5, "Initial value" ) BIND root BIND add_one BIND half;
+    print( ( "The Golden Ratio is", fixed( value of mw2, -19, 15 ), newline ) );
+    print( ( newline, "This was derived as follows:-", newline ) );
+    print( ( log of mw2 ) )
+end
+)

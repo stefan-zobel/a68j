@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Radix sort", ALGOL 68 solution sorting-algorithms-radix-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Radix_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-radix-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc radixsort = (ref []int array) void:
+(
+    [UPB array]int zero;
+    [UPB array]int one;
+    bits mask := 16r01;
+    int zero_index  := 0,
+        one_index   := 0,
+        array_index := 1;
+
+    while ABS(mask) > 0 do
+        while array_index <= UPB array do
+            if (BIN(array[array_index]) AND mask) = 16r0 then
+                zero_index +:= 1;
+                zero[zero_index] := array[array_index]
+            else
+                one_index +:= 1;
+                one[one_index] := array[array_index]
+            fi;
+            array_index +:= 1
+        od;
+
+        array_index := 1;
+        for i from 1 to zero_index do
+            array[array_index] := zero[i];
+            array_index +:= 1
+        od;
+
+        for i from 1 to one_index do
+            array[array_index] := one[i];
+            array_index +:=1
+        od;
+
+        array_index := 1;
+        zero_index := one_index := 0;
+        mask := mask SHL 1
+    od
+);
+
+main:
+(
+    [10]int a;
+    for i from 1 to UPB a do
+        a[i] := ROUND(random*1000)
+    od;
+
+    print(("Before:", a));
+    print((newline, newline));
+    radixsort(a);
+    print(("After: ", a))
+)
+)

@@ -1,0 +1,26 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Here document", ALGOL 68 solution here-document.alg.
+  https://rosettacode.org/wiki/Here_document#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/here-document.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+
+[]string help = (
+"Usage: thingy [OPTIONS]",
+"     -h                        Display this usage message",
+"     -H hostname               Hostname to connect to"
+);
+
+printf(($gl$,help,$l$));
+
+printf(($gl$,
+"The river was deep but I swam it, Janet.",
+"The future is ours so let''s plan it, Janet.",
+"So please don''t tell me to can it, Janet.",
+"I''ve one thing to say and that''s ...",
+"Dammit. Janet, I love you."
+))
+)

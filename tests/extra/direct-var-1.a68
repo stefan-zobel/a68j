@@ -1,0 +1,21 @@
+{ Variables kept in JVM locals by a68j, and variables that must stay names. }
+begin int a, b := 3, c;
+      real r := 1.5; bool f := false; char ch := "a"; bits m := 16r0f;
+      long int la := long 5;
+      a := 1; a +:= b; a *:= 2; a -:= 1; a %:= 2; a %*:= 2;
+      r +:= 1; r *:= 2.0; r /:= 4; f := NOT f; m := m OR 16rf0;
+      la +:= long 10;
+      c := b := 7;                     { b's name is the value of b := 7 }
+      ref int rb = b; rb := 8;
+      proc inc = void: a +:= 100;      { a is used by a routine }
+      inc;
+      int k := 0;
+      (again: k +:= 1; if k < 5 then goto again fi);
+      int u := v + 1; int v := 2;      { use before declaration: SKIP value }
+      to 3 do int w; w +:= 1; puts (whole (w, 0)) od;
+      puts ("'n");
+      puts (whole (a, 0)); puts (" "); puts (whole (b, 0)); puts (" "); puts (whole (c, 0)); puts (" ");
+      puts (fixed (r, 0, 3)); puts (" "); puts ((f | "T" | "F")); puts (" "); puts (ch); puts (" ");
+      puts (whole (ABS m, 0)); puts (" "); puts (whole (la, 0)); puts (" "); puts (whole (k, 0)); puts (" ");
+      puts (whole (u, 0)); puts (" "); puts (whole (v, 0)); puts ("'n")
+end

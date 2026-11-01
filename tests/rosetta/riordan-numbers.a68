@@ -1,0 +1,84 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Riordan numbers", ALGOL 68 solution riordan-numbers.alg.
+  https://rosettacode.org/wiki/Riordan_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/riordan-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Riordan numbers }
+    { returns a table of the Riordan numbers 0 .. n }
+    op   RIORDAN = ( int n )[]long int:
+         begin
+            [ 0 : n ]long int a;
+            if n >= 0 then
+                a[ 0 ] := 1;
+                if n >= 1 then
+                    a[ 1 ] := 0;
+                    for i from 2 to UPB a do
+                        a[ i ] := ( ( i - 1 )
+                                  * ( ( 2 * a[ i - 1 ] )
+                                    + ( 3 * a[ i - 2 ] )
+                                    )
+                                  )
+                             OVER ( i + 1 )
+                    od
+                fi
+            fi;
+            a
+         end { RIORDAN } ;
+    { returns a string representation of n with commas                       }
+    proc commatise = ( string unformatted )string:
+         begin
+            string result      := "";
+            int    ch_count    := 0;
+            for c from UPB unformatted by -1 to LWB unformatted do
+                if  ch_count <= 2 then
+                    ch_count +:= 1
+                else
+                    ch_count  := 1;
+                    if unformatted[ c ] = " " then " " else "," fi +=: result
+                fi;
+                unformatted[ c ] +=: result
+            od;
+            result
+         end; { commatise }
+    { returns the length of s                                                }
+    op LENGTH = ( string s )int: ( UPB s - LWB s ) + 1;
+    begin { show some Riordann numbers                                       }
+        []long int r = RIORDAN 31;
+        int shown := 0;
+        for i from LWB r to UPB r do
+            print( ( commatise( whole( r[ i ], -15 ) ) ) );
+            if ( shown +:= 1 ) = 4 then
+                print( ( newline ) );
+                shown := 0
+            fi
+        od
+    end;
+    begin { calculate the length of the 1 000th and 10 000th Riordan numbers }
+          { allow up to 5 000 digits for LONG LONG INT    }
+        long long int r2 := -1, r1 := 1, r := 0;
+        print( ( newline ) );
+        for i from 2 to 9 999 do
+            r2 := r1;
+            r1 := r;
+            r := ( ( i - 1 )
+                 * ( ( 2 * r1 )
+                   + ( 3 * r2 )
+                   )
+                 )
+              OVER ( i + 1 );
+            if i = 999 OR i = 9 999 then
+                string rs = whole( r, 0 )[ @ 1 ];
+                print( ( "The ", whole( i + 1, -6 ), "th number is: "
+                       , rs[ 1 : 20 ], "...", rs[ LENGTH rs - 19 : ]
+                       , " with ", whole( LENGTH rs, -5 ), " digits"
+                       , newline
+                       )
+                     )
+            fi
+        od
+    end
+end
+)

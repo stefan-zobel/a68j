@@ -1,0 +1,36 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Stooge sort", ALGOL 68 solution sorting-algorithms-stooge-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Stooge_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-stooge-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ swaps the values of the two REF INTs }
+prio =:= = 1;
+op   =:= = ( ref int a, b )void: ( int t := a; a := b; b := t );
+
+{ returns the array of INTs sorted via the stooge sort algorithm }
+proc stooge_sort = ( []int array )[]int:
+     begin
+         proc stooge_sort_segment = ( ref[]int l, int i, j )void:
+             begin
+                 if l[j] < l[i] then l[ i ] =:= l[ j ] fi;
+                 if j - i > 1
+                 then
+                     int t := (j - i + 1) OVER 3;
+                     stooge_sort_segment( l, i,     j - t );
+                     stooge_sort_segment( l, i + t, j     );
+                     stooge_sort_segment( l, i,     j - t )
+                 fi
+             end { stooge sort segment } ;
+
+         [ LWB array : UPB array ]int result := array;
+         stooge_sort_segment( result, LWB result, UPB result );
+         result
+     end { stooge sort } ;
+
+{ test the stooge sort }
+[]int data = ( 67, -201, 0, 9, 9, 231, 4 );
+print( ( "before: ", data, newline, "after:  ", stooge_sort( data ), newline ) )
+)

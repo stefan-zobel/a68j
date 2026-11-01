@@ -1,0 +1,60 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Factorize string into Lyndon words", ALGOL 68 solution factorize-string-into-lyndon-words.alg.
+  https://rosettacode.org/wiki/Factorize_string_into_Lyndon_words#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/factorize-string-into-lyndon-words.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Factorize a string into Lyndon words - translated of the Python sample }
+
+    proc chen_fox_lyndon_factorization = ( string s )[]string:
+         begin
+            int n  = UPB s;
+            int i := LWB s;
+            flex[ 1 : 100 ]string factorization;
+            int f_max := LWB factorization;
+            while i <= n do
+                int j := i + 1, k := i;
+                while if j <= n then s[ k ] <= s[ j ] else false fi do
+                    if s[ k ] < s[ j ] then
+                        k  := i
+                    else
+                        k +:= 1
+                    fi;
+                    j +:= 1
+                od;
+                while i <= k do
+                    f_max +:= 1;
+                    if f_max > UPB factorization then
+                        [ 1 : UPB factorization + 20 ]string new_factorization;
+                        new_factorization[ 1 : UPB factorization ] := factorization;
+                        factorization := new_factorization
+                    fi;
+                    factorization[ f_max ] := s[ i : i + j - k - 1 ];
+                    i +:= j - k
+                od
+            od;
+            string check := "";
+            for j to f_max do check +:= factorization[ j ] od;
+            if check /= s then print( ( "Incorrect factorization", newline ) ); stop fi;
+            factorization[ 1 : f_max ]
+         end { chen fox lyndon factorization } ;
+
+    { Example use with Thue-Morse sequence                                     }
+    string m := "0";
+    to 7 do
+         string m0 = m;
+         for i from LWB m to UPB m do
+             if m[ i ]  = "0" then m[ i ] := "1" elif m[ i ]  = "1" then m[ i ] := "0" fi
+         od;
+         m0 +=: m
+    od;
+
+    []string m_factors = chen_fox_lyndon_factorization( m );
+    for i from LWB m_factors to UPB m_factors do
+        print( ( m_factors[ i ], newline ) )
+    od
+
+end
+)

@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Cumulative standard deviation", ALGOL 68 solution cumulative-standard-deviation-1.alg.
+  https://rosettacode.org/wiki/Cumulative_standard_deviation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/cumulative-standard-deviation-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Value = struct(char value),
+     Stddev = struct(char stddev),
+     Mean = struct(char mean),
+     Var = struct(char var),
+     Count = struct(char count),
+     Reset = struct(char reset);
+
+mode Action = union ( Value, Stddev, Mean, Var, Count, Reset );
+
+long real sum := 0;
+long real sum2 := 0;
+int num := 0;
+
+proc stat_object = (long real v, Action action)long real:
+(
+
+  long real m;
+
+  case action in
+  (Value):(
+    num +:= 1;
+    sum +:= v;
+    sum2 +:= v*v;
+    stat_object(0, loc Stddev)
+  ),
+  (Stddev):
+    long_sqrt(stat_object(0, loc Var)),
+  (Mean):
+    if num>0 then sum/long real(num) else 0 fi,
+  (Var):(
+    m := stat_object(0, loc Mean);
+    if num>0 then sum2/long real(num)-m*m else 0 fi
+  ),
+  (Count):
+    num,
+  (Reset):
+    sum := sum2 := num := 0
+  esac
+);
+
+{ main } (
+  []long real v = ( 2,4,4,4,5,5,7,9 );
+  long real sd;
+
+  for i from LWB v to UPB v do
+    sd := stat_object(v[i], loc Value);
+    printf(($"value: "g(0,6)," standard dev := "g(0,6)l$, v[i], sd))
+  od
+
+)
+)

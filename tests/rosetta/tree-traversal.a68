@@ -1,0 +1,133 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Tree traversal", ALGOL 68 solution tree-traversal.alg.
+  https://rosettacode.org/wiki/Tree_traversal#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/tree-traversal.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Value = int;
+proc value_repr = (Value value)string: whole(value, 0);
+
+mode Nodes = struct ( Value value, ref Nodes left, right);
+mode Node = ref Nodes;
+
+proc tree = (Value value, Node left, right)Node:
+  heap Nodes := (value, left, right);
+
+proc preorder = (Node node, proc (Value)void action)void:
+  if node isnt Node(nil) then
+    action(value of node);
+    preorder(left of node, action);
+    preorder(right of node, action)
+  fi;
+
+proc inorder = (Node node, proc (Value)void action)void:
+  if node isnt Node(nil) then
+    inorder(left of node, action);
+    action(value of node);
+    inorder(right of node, action)
+  fi;
+
+proc postorder = (Node node, proc (Value)void action)void:
+  if node isnt Node(nil) then
+    postorder(left of node, action);
+    postorder(right of node, action);
+    action(value of node)
+  fi;
+
+proc destroy_tree = (Node node)void:
+  postorder(node, (Value skip_)void:
+  { free(node) - PR garbage collect hint PR }
+    node := (skip, nil, nil)
+  );
+
+{ helper queue for level order }
+mode Qnodes = struct (ref Qnodes next, Node value);
+mode Qnode = ref Qnodes;
+
+
+mode Queues = struct (Qnode begin_, end_);
+mode Queue = ref Queues;
+
+proc enqueue = (Queue queue, Node node)void:
+(
+  heap Qnodes qnode := (nil, node);
+  if end_ of queue isnt Qnode(nil) then
+    next of end_ of queue
+  else
+    begin_ of queue
+  fi := end_ of queue := qnode
+);
+
+proc queue_empty = (Queue queue)bool:
+  begin_ of queue is Qnode(nil);
+
+proc dequeue = (Queue queue)Node:
+(
+  Node out_ := value of begin_ of queue;
+  Qnode second := next of begin_ of queue;
+{ free(begin OF queue); PR garbage collect hint PR }
+  Qnode(begin_ of queue) := (nil, nil);
+  begin_ of queue := second;
+  if queue_empty(queue) then
+    end_ of queue := begin_ of queue
+  fi;
+  out_
+);
+
+proc level_order = (Node node, proc (Value)void action)void:
+(
+  heap Queues queue := (Qnode(nil), Qnode(nil));
+  enqueue(queue, node);
+  while NOT queue_empty(queue)
+  do
+    Node next := dequeue(queue);
+    if next isnt Node(nil) then
+      action(value of next);
+      enqueue(queue, left of next);
+      enqueue(queue, right of next)
+    fi
+  od
+);
+
+proc print_node = (Value value)void:
+  print((" ",value_repr(value)));
+
+main: (
+  Node node := tree(1,
+                tree(2,
+                     tree(4,
+                          tree(7, nil, nil),
+                          nil),
+                     tree(5, nil, nil)),
+                tree(3,
+                     tree(6,
+                          tree(8, nil, nil),
+                          tree(9, nil, nil)),
+                     nil));
+
+  mode Test = struct(
+    string name,
+    proc(Node,proc(Value)void)void order
+  );
+
+  proc test = (Test test)void:(
+    string pad=" "*(12-UPB name of test);
+    print((name of test,pad,": "));
+    (order of test)(node, print_node);
+    print(new_line)
+  );
+
+  []Test test_list = (
+    ("preorder",preorder),
+    ("inorder",inorder),
+    ("postorder",postorder),
+    ("level order",level_order)
+  );
+
+  for i to UPB test_list do test(test_list[i]) od;
+
+  destroy_tree(node)
+)
+)

@@ -1,0 +1,58 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "First perfect square in base n with n unique digits", ALGOL 68 solution first-perfect-square-in-base-n-with-n-unique-digits.alg.
+  https://rosettacode.org/wiki/First_perfect_square_in_base_n_with_n_unique_digits#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/first-perfect-square-in-base-n-with-n-unique-digits.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the first perfect square in base n with n unique digits n=1..16 }
+    [ 0 : 15 ]bits dmask; { masks for recording the digits in a BITS string  }
+    dmask[ 0 ] := 16r1;
+    for i to UPB dmask do dmask[ i ] := BIN ( 2 * ABS dmask[ i - 1 ] ) od;
+    { base digits                                                            }
+    string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+    { returns a string representation of n in base b                         }
+    {         the result is balank padded on the left to at least w digits   }
+    proc to_base = ( long int n, int b, w )string:
+         begin
+            string result := "";
+            long int v := ABS n;
+            while v > 0 do
+                digits[ SHORTEN ( v MOD b ) + 1 ] +=: result;
+                v OVERAB b
+            od;
+            if   int len = ( UPB result - LWB result ) + 1;
+                 len < w
+            then
+                 ( ( w - len ) * " " ) + result
+            else result
+            fi
+         end { to base } ;
+    bits all_digits := dmask[ 0 ];
+    for b from 2 to 16 do
+        all_digits    := all_digits OR dmask[ b - 1 ];
+        long int root := 1;
+        to b - 1 do root *:= b od;
+        root       := ENTIER long_sqrt( root );
+        bool found := false;
+        while NOT found do
+            long int square = root * root;
+            long int v     := square;
+            bits present   := 16r0;
+            while v > 0 do
+                present := present OR dmask[ SHORTEN ( v MOD b ) ];
+                v OVERAB b
+            od;
+            if found := present = all_digits then
+                print( ( "Base: ", whole( b, -2 )
+                       , ":", to_base( root, b, 20 ), "^2 = ", to_base( square, b, 0 )
+                       , newline
+                       )
+                     )
+            fi;
+            root +:= 1
+        od
+    od
+end
+)

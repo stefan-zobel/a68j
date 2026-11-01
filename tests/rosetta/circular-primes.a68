@@ -1,0 +1,75 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Circular primes", ALGOL 68 solution circular-primes.alg.
+  https://rosettacode.org/wiki/Circular_primes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/circular-primes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find circular primes - primes where all cyclic permutations  }
+      { of the digits are also prime                                 }
+    { genertes a sieve of circular primes, only the first            }
+    { permutation of each prime is flagged as TRUE                   }
+    op   CIRCULARPRIMESIEVE = ( int n )[]bool:
+         begin
+            [ 0 : n ]bool prime;
+            prime[ 0 ] := prime[ 1 ] := false;
+            prime[ 2 ] := true;
+            for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+            for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+            for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+                if prime[ i ] then
+                    for s from i * i by i + i to UPB prime do prime[ s ] := false od
+                fi
+            od;
+            int first_digit_multiplier := 10;
+            int max_with_multiplier    := 99;
+            { the 1 digit primes are non-curcular, so start at 10    }
+            for i from 10 to UPB prime do
+                if i > max_with_multiplier then
+                    { starting a new power of ten                    }
+                    first_digit_multiplier *:= 10;
+                    max_with_multiplier    *:= 10 +:= 9
+                fi;
+                if prime[ i ] then
+                    { have a prime }
+                    { cycically permute the number until we get back }
+                    { to the original - flag all the permutations    }
+                    { except the original as non-prime               }
+                    int permutation := i;
+                    while permutation :=   ( permutation OVER 10 )
+                                       + ( ( permutation MOD  10 ) * first_digit_multiplier )
+                                       ;
+                          permutation /= i
+                    do
+                        if NOT prime[ permutation ] then
+                            { the permutation is not prime           }
+                            prime[ i ] := false
+                        elif permutation > i then
+                            { haven't permutated e.g. 101 to 11      }
+                            if NOT prime[ permutation ] then
+                                { i is not a circular prime          }
+                                prime[ i ] := false
+                            fi;
+                            prime[ permutation ] := false
+                        fi
+                    od
+                fi
+            od;
+            prime
+         end { CIRCULARPRIMESIEVE } ;
+    { construct a sieve of circular primes up to 999 999              }
+    { only the first permutation is included                          }
+    []bool c_prime = CIRCULARPRIMESIEVE 999 999;
+    { print the first 19 circular primes }
+    int c_count := 0;
+    print( ( "First 19 circular primes: " ) );
+    for i while c_count < 19 do
+        if c_prime[ i ] then
+            print( ( " ", whole( i, 0 ) ) );
+            c_count +:= 1
+        fi
+    od;
+    print( ( newline ) )
+end
+)

@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bell numbers", ALGOL 68 solution bell-numbers.alg.
+  https://rosettacode.org/wiki/Bell_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bell-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show some Bell numbers }
+    proc show_bell = ( int n, long long int bell_number )void:
+         print( ( whole( n, -2 ), ": ", whole( bell_number, 0 ), newline ) );
+    int max_bell = 50;
+    [ 0 : max_bell - 2 ]long long int a; for i to UPB a do a[ i ] := 0 od;
+    a[ 0 ] := 1;
+    show_bell( 1, a[ 0 ] );
+    for n from 0 to UPB a do
+        { replace a with the next line of the triangle }
+        a[ n ] := a[ 0 ];
+        for j from n by -1 to 1 do
+            a[ j - 1 ] +:= a[ j ]
+        od;
+        if   n < 14       then
+            show_bell( n + 2, a[ 0 ] )
+        elif n = UPB a then
+            print( ( "...", newline ) );
+            show_bell( n + 2, a[ 0 ] )
+        fi
+    od
+end
+)

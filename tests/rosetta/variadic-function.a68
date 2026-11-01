@@ -1,0 +1,26 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Variadic function", ALGOL 68 solution variadic-function.alg.
+  https://rosettacode.org/wiki/Variadic_function#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/variadic-function.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  mode Strint = union(string, int, proc(ref file)void, void);
+
+  proc print_strint = (flex[]Strint argv)void: (
+    for i to UPB argv do
+      case argv[i] in
+        (int i):print(whole(i,-1)),
+        (string s):print(s),
+        (proc(ref file)void f):f(stand_out),
+        (void):print(error_char)
+      esac;
+      if i NE UPB argv then print((" ")) fi
+    od
+  );
+
+ print_strint(("Mary","had",1,"little",empty,new_line))
+)
+)

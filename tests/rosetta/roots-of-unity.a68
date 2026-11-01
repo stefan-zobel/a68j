@@ -1,0 +1,17 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Roots of unity", ALGOL 68 solution roots-of-unity.alg.
+  https://rosettacode.org/wiki/Roots_of_unity#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/roots-of-unity.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+FORMAT complex_fmt=$g(-6,4)"⊥"g(-6,4)$;
+for root from 2 to 10 do
+  printf(($g(4)$,root));
+  for n from 0 to root-1 do
+    printf(($xf(complex fmt)$,complex_exp( 0 I 2*pi*n/root)))
+  od;
+  printf($l$)
+od
+)

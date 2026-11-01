@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "User input/Text", ALGOL 68 solution user-input-text.alg.
+  https://rosettacode.org/wiki/User_input/Text#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/user-input-text.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+print("Enter a string: ");
+string s := read_string;
+print("Enter a number: ");
+int i := read_int;
+~
+)

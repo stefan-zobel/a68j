@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Jacobi symbol", ALGOL 68 solution jacobi-symbol.alg.
+  https://rosettacode.org/wiki/Jacobi_symbol#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/jacobi-symbol.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Jacobi symbol - translation of the Wren sample }
+
+    proc jacobi = ( int a_in, n_in )int:
+         if n_in <= 0 OR NOT ODD n_in then
+            print( ( "The ''n'' parameter of jacobi must be an odd positive integer.", newline ) );
+            stop
+         else
+            int a      := a_in MOD n_in, n := n_in;
+            int result := 1;
+            while a /= 0 do
+                while NOT ODD a do
+                    a OVERAB 2;
+                    int nm8 = n MOD 8;
+                    if nm8 = 3 OR nm8 = 5 then result := - result fi
+                od;
+                int t = a;
+                a    := n;
+                n    := t;
+                if a MOD 4 = 3 AND n MOD 4 = 3 then result := - result fi;
+                a MODAB n
+            od;
+            if n = 1 then result else 0 fi
+         fi { jacobi } ;
+
+    print( ( "Table of jacobi(a, n):", newline ) );
+    print( ( "n/a   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15", newline ) );
+    print( ( "---------------------------------------------------------------", newline ) );
+    for n by 2 to 29 do
+        print( ( whole( n, -3 ) ) );
+        for a to 15 do print( ( whole( jacobi( a, n ), -4 ) ) ) od;
+        print( ( newline ) )
+    od
+
+end
+)

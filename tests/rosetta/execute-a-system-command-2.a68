@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Execute a system command", ALGOL 68 solution execute-a-system-command-2.alg.
+  https://rosettacode.org/wiki/Execute_a_system_command#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/execute-a-system-command-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+op ! = (string cmd)bool: system(cmd) = 0;
+
+if ! "touch test.tmp" ANDF ( ! "ls test.tmp" ANDF ! "rm test.tmp" ) then
+  print (("test.tmp now gone!", new_line))
+fi
+)

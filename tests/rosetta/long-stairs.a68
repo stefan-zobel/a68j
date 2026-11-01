@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Long stairs", ALGOL 68 solution long-stairs.alg.
+  https://rosettacode.org/wiki/Long_stairs#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/long-stairs.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int trials = 10000;
+int t_total := 0, s_total := 0;
+
+print(("Seconds  steps behind  steps ahead", new_line));
+
+for i to trials do
+  int stairs := 100, location := 0, seconds := 0;
+  do
+    seconds +:= 1;
+    location +:= 1;
+    if location > stairs then break fi;
+    to 5 do
+      int roll = ENTIER (next_random * stairs + 1);
+      if roll <= location then location +:= 1 fi;
+      stairs +:= 1
+    od;
+    if i = 1 AND seconds >= 600 AND seconds <= 609 then
+      print(("  ",        whole(seconds, 0),
+             "        ",  whole(location, 0),
+             "         ", whole(stairs-location, 0),
+             new_line))
+    fi
+  od;
+  break:
+  t_total +:= seconds;
+  s_total +:= stairs
+od;
+
+print(("Average seconds: ",  fixed(t_total / trials, 0, 4),
+       ",  Average steps: ", fixed(s_total / trials, 0, 4),
+       new_line))
+)

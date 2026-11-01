@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Arithmetic-geometric mean/Calculate Pi", ALGOL 68 solution arithmetic-geometric-mean-calculate-pi.alg.
+  https://rosettacode.org/wiki/Arithmetic-geometric_mean/Calculate_Pi#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-geometric-mean-calculate-pi.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { calculate PI using the arithmetic-geometric mean                       }
+      {                                      - translation of the Sidef sample }
+         { set the precision of LONG LONG REAL for ALGOL 68G }
+                             { this cannot be changed dynamically in ALGOL 68G }
+    { the Sidef sample sets its precision to 4 * the number of digits required }
+    {         however the result appears to be the same here with fewer digits }
+    {            though ALGOL 68 Genie version 3 requires more than 100 digita }
+
+    mode Bigreal  = long long real;
+    mode Bigint   = long long int;
+    proc(Bigreal)Bigreal big_sqrt = long_long_sqrt;
+
+    proc agm_pi = ( int digits )Bigreal:
+         begin
+             Bigreal an := 1;
+             Bigreal bn := big_sqrt( 0.5 );
+             Bigreal tn := 0.5 ^ 2;
+             Bigint  pn := 1;
+
+             while pn < digits do
+                Bigreal prev_an := an;
+                an       := ( bn + an ) / 2;
+                bn       := big_sqrt( bn * prev_an );
+                prev_an -:= an;
+                tn      -:= pn * ( prev_an ^ 2 );
+                pn      *:= 2
+             od;
+
+             ( ( an + bn ) ^ 2 ) / ( 4 * tn )
+         end { agm pi } ;
+
+    print( ( fixed( agm_pi( 100 ), 0, 99 ) ) )
+
+end
+)

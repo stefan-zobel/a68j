@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Scope/Function names and labels", ALGOL 68 solution scope-function-names-and-labels.alg.
+  https://rosettacode.org/wiki/Scope/Function_names_and_labels#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/scope-function-names-and-labels.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+if proc x = ...;
+   ...
+then
+    { can call x here }
+    proc y = ...;
+    ...
+    go to l1 { invalid!! }
+else
+    { can call x here, but not y }
+    ...
+    l1: ...
+fi
+)

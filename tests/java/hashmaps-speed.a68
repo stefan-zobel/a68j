@@ -1,0 +1,14 @@
+{ 1 000 000 int keys and 200 000 string keys in hash maps. }
+access Hashmaps (
+   Int_int_map m = new_int_int_map;
+   int n = 1000000;
+   for i to n do i * 1009 MOD 1000003 AT m := i od;
+   int sum := 0;
+   for i to n do sum +:= (i * 1009 MOD 1000003) ELEM m MOD 7 od;
+   for i by 2 to n do m REMOVE (i * 1009 MOD 1000003) od;
+   int hits := 0;
+   for i to n do (m HAS i | hits +:= 1) od;
+   String_int_map w = new_string_int_map;
+   for i to 200000 do whole (i MOD 50000, 0) AT w +:= 1 od;
+   puts (whole (SIZE m, 0) + " " + whole (sum, 0) + " " + whole (hits, 0) + " " + whole (SIZE w, 0) + " " + whole ("4711" ELEM w, 0) + "'n")
+)

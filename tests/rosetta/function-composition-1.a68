@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Function composition", ALGOL 68 solution function-composition-1.alg.
+  https://rosettacode.org/wiki/Function_composition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/function-composition-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode F = proc(real)real; { ALGOL 68 is strong typed }
+
+{ As a procedure for real to real functions }
+proc compose = (F f, g)F: (real x)real: f(g(x));
+
+op (F,F)F O = compose; { or an OPerator that can be overloaded }
+
+{ Example use: }
+F sin_arc_sin = compose(sin, arc_sin);
+print((sin_arc_sin(0.5), (sin O arc_sin)(0.5), new_line))
+)

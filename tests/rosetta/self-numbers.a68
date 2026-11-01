@@ -1,0 +1,69 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Self numbers", ALGOL 68 solution self-numbers.alg.
+  https://rosettacode.org/wiki/Self_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/self-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some self numbers numbers n such that there is no g such that g + sum of g's digits = n }
+    int max_number = 1 999 999 999 + 82; { maximum n plus g we will condifer }
+    { sieve the self numbers up to 1 999 999 999 }
+    [ 0 : max_number ]bool self; for i to UPB self do self[ i ] := true od;
+    int n := 0;
+    for s0 from 0 to 1 do
+        for d1 from 0 to 9 do
+            int s1 = s0 + d1;
+            for d2 from 0 to 9 do
+                int s2 = s1 + d2;
+                for d3 from 0 to 9 do
+                    int s3 = s2 + d3;
+                    for d4 from 0 to 9 do
+                        int s4 = s3 + d4;
+                        for d5 from 0 to 9 do
+                            int s5 = s4 + d5;
+                            for d6 from 0 to 9 do
+                                int s6 = s5 + d6;
+                                for d7 from 0 to 9 do
+                                    int s7 = s6 + d7;
+                                    for d8 from 0 to 9 do
+                                        int s8 = s7 + d8;
+                                        for d9 from 0 to 9 do
+                                            int s9 = s8 + d9;
+                                            self[ s9 + n ] := false;
+                                            n +:= 1
+                                        od
+                                    od
+                                od
+                            od
+                        od
+                    od
+                od
+            od
+        od
+    od;
+    { show the first 50 self numbers }
+    int s_count := 0;
+    for i to UPB self while s_count < 50 do
+        if self[ i ] then
+            print( ( " ", whole( i, -3 ) ) );
+            if ( s_count +:= 1 ) MOD 18 = 0 then print( ( newline ) ) fi
+        fi
+    od;
+    print( ( newline ) );
+    { show the self numbers with power-of-10 indxes }
+    int s_show := 1;
+    s_count    := 0;
+    print( ( "              nth self", newline ) );
+    print( ( "        n       number", newline ) );
+    for i to UPB self do
+        if self[ i ] then
+            s_count +:= 1;
+            if s_count = s_show then
+                print( ( whole( s_show, -9 ), "  ", whole( i, -11 ), newline ) );
+                s_show *:= 10
+            fi
+        fi
+    od
+end
+)

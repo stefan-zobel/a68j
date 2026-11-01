@@ -1,0 +1,179 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Particle swarm optimization", ALGOL 68 solution particle-swarm-optimization.alg.
+  https://rosettacode.org/wiki/Particle_swarm_optimization#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/particle-swarm-optimization.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { particle swarm optimisation - translation of Go }
+
+    mode Ff = proc([]real)real;
+
+    mode Parameters = struct( real omega, phip, phig );
+
+    mode State      = struct( int           iter
+                            , ref[]real     gbpos
+                            , real          gbval
+                            , ref[]real     min
+                            , ref[]real     max
+                            , Parameters    params
+                            , ref[,]real    pos
+                            , ref[,]real    vel
+                            , ref[,]real    bpos
+                            , ref[]real     bval
+                            , int           nparticles
+                            , int           ndims
+                            );
+
+    op   FMT = ( int    v )string: whole( v, 0 );
+    op   FMT = ( real   v )string: fixed( v, -18, 15 );
+    op   FMT = ( []real v )string:
+         begin
+            string result := "", prefix := "";
+            for i from LWB v to UPB v do
+                result +:= prefix + FMT v[ i ];
+                prefix := " "
+            od;
+            "[" + result + "]"
+         end { FMT } ;
+    proc println = ( string line )void: print( ( line, newline ) );
+
+    prio REPORT = 9;
+    op   REPORT = ( State s, string testfunc )void:
+         begin
+             println( "Test Function        : " + testfunc );
+             println( "Iterations           : " + FMT iter of s );
+             println( "Global Best Position : " + FMT gbpos of s );
+             println( "Global Best Value    : " + FMT gbval of s )
+         end { REPORT } ;
+
+    proc psoinit = ( []real min, max, Parameters params, int nparticles )ref State:
+         begin
+            int ndims = ( UPB min - LWB min ) + 1;
+            heap State result
+              := State( { iter       } 0
+                      , { gbpos      } heap[                 1 : ndims ]real
+                      , { gbval      } max_real
+                      , { min        } heap[                 1 : ndims ]real := min[ at 1 ]
+                      , { max        } heap[                 1 : ndims ]real := max[ at 1 ]
+                      , { params     } params
+                      , { pos        } heap[ 1 : nparticles, 1 : ndims ]real
+                      , { val        } heap[ 1 : nparticles, 1 : ndims ]real
+                      , { bpos       } heap[ 1 : nparticles, 1 : ndims ]real
+                      , { bval       } heap[ 1 : nparticles            ]real
+                      , { nparticles } nparticles
+                      , { ndims      } ndims
+                      );
+            for i to nparticles do
+                (  pos of result )[ i, : ] := min[ at 1 ];
+                ( bpos of result )[ i, : ] := min[ at 1 ];
+                ( bval of result )[ i    ] := max_real;
+                for j to ndims do ( vel of result )[ i, j ] := 0 od
+            od;
+            for i to ndims do
+                ( gbpos of result )[ i ] := max_real
+            od;
+            result
+         end { psoinit } ;
+
+    prio PSO = 9;
+    op   PSO = ( ref State y, Ff fn )ref State:    { updates in-place the STATE y }
+         begin
+            int   nparticles = nparticles of y, ndims = ndims of y;
+            [ 1 : nparticles ]real v;
+            Parameters    p     = params of y;
+            real          omega =  omega of p, phip = phip of p, phig = phig of p;
+            ref[]real     gbpos =  gbpos of y;
+            ref[]real     min   =    min of y;
+            ref[]real     max   =    max of y;
+            ref[,]real    pos   =    pos of y;
+            ref[,]real    vel   =    vel of y;
+            ref[,]real    bpos  =   bpos of y;
+            ref[]real     bval  =   bval of y;
+            for j to nparticles do
+                { evaluate }
+                v[ j ] := fn( pos[ j, : ] );
+                { update }
+                if v[ j ] < bval[ j ] then
+                    bpos[ j, : ] := pos[ j, : ]; { FOR TIO.RUN, replace this line with: }
+                                                 { FOR k TO ndims DO bpos[ j, k ] := pos[ j, k ] OD; }
+                    bval[ j ] := v[ j ]
+                fi;
+                if bval[ j ] < gbval of y then
+                    gbval of y := bval[ j    ];
+                    gbpos      := bpos[ j, : ]
+                fi
+            od;
+            real rg = random;
+            for j to nparticles do
+                { migrate }
+                real rp  = random;
+                bool ok := true;
+                for k to ndims do
+                    vel[ j, k ] := omega * vel[ j, k ]
+                                 + phip * rp * ( bpos[ j, k ] - pos[ j, k ] )
+                                 + phig * rg * ( gbpos[   k ] - pos[ j, k ] );
+                    pos[ j, k ] +:= vel[ j, k ];
+                    if ok then
+                        ok := min[ k ] < pos[ j, k ] AND max[ k ] > pos[ j, k ]
+                    fi
+                od;
+                if NOT ok then
+                    for k to ndims do
+                        pos[ j, k ] := min[ k ] + ( max[ k ] - min[ k ] ) * random
+                    od
+                fi
+            od;
+            iter of y +:= 1;
+            y
+         end { pso } ;
+
+    { performs n iterations of the STATE y, updating y in-place }
+    proc iterate = ( Ff fn, int n, ref State y )ref State:
+         begin
+            to n do y PSO fn od;
+            y
+         end { iterate } ;
+
+    proc mccormick = ( []real x )real:
+         begin
+            real  a = x[ LWB x ], b = x[ LWB x + 1 ];
+            sin( a + b ) + ( a - b ) * ( a - b ) + 1.0 + 2.5 * b - 1.5 * a
+         end { mccormick } ;
+
+    proc michalewicz = ( []real x )real:
+         begin
+            real sum := 0.0;
+            for i from LWB x to UPB x do
+                real j = x[ i ];
+                real k = sin( i * j * j / pi );
+                sum  +:= sin( j ) * ( k ^ 20 )
+            od;
+            - sum
+         end { michalewicz } ;
+
+
+    begin
+
+        State st := psoinit( { min        } ( -1.5, -3.0 )
+                           , { max        } (  4.0,  4.0 )
+                           , { params     } (  0.0,  0.6, 0.3 )
+                           , { nparticles } 100
+                           );
+        st := iterate( mccormick, 40, st );
+        st REPORT "McCormick";
+        println( "f(-.54719, -1.54719) : " + FMT mccormick( ( -0.54719, -1.54719 ) ) );
+        println( "" );
+
+        st := psoinit( { min        } ( 0.0, 0.0 )
+                     , { max        } ( pi,  pi  )
+                     , { params     } ( 0.3, 0.3, 0.3 )
+                     , { nparticles } 1000
+                     );
+        st := iterate( michalewicz, 30, st );
+        st REPORT "Michalewicz (2D)";
+        println( "f(2.20, 1.57)        : " + FMT michalewicz( ( 2.2, 1.57 ) ) )
+    end
+end
+)

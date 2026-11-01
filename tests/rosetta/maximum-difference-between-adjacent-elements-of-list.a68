@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Maximum difference between adjacent elements of list", ALGOL 68 solution maximum-difference-between-adjacent-elements-of-list.alg.
+  https://rosettacode.org/wiki/Maximum_difference_between_adjacent_elements_of_list#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/maximum-difference-between-adjacent-elements-of-list.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the maximum difference between consecutive list elements         }
+    { returns the maximum difference between pairs of elements of list        }
+    op   MAXDELTA = ( []real list )real:
+         begin
+            real max_diff := 0;
+            for i from LWB list to UPB list - 1 do
+                real delta = ABS ( list[ i ] - list[ i + 1 ] );
+                if delta > max_diff then
+                    max_diff := delta { found a higher difference             }
+                fi
+            od;
+            max_diff
+         end; { MAXDELTA }
+    { returns r converted to a string with trailing 0 decimal places removed  }
+    op   TOSTRING = ( real r )string:
+         begin
+            string result  := fixed( r, 0, 10 );
+            if result[ LWB result ] = "." then result := "0" + result fi;
+            int    r_end   := UPB result;
+            int    r_start := LWB result;
+            while if r_end <= r_start then false else result[ r_end ] = "0" fi do
+               r_end -:= 1
+            od;
+            if r_end > LWB result then
+                { if all decimal places were "0", remove the "." as well      }
+                if result[ r_end ] = "." then r_end -:= 1 fi
+            fi;
+            result[ r_start : r_end ]
+         end; { TOSTRING }
+    { test the MAXDELTA operator                                              }
+    proc test_max_delta = ( []real list )void:
+         begin
+            real max_diff = MAXDELTA list;
+            print( ( "Max difference [" ) );
+            for i from LWB list to UPB list do
+                print( ( " ", TOSTRING list[ i ] ) )
+            od;
+            print( ( " ] is ", TOSTRING max_diff, ":",  newline ) );
+            for i from LWB list to UPB list - 1 do
+                if real diff = ABS ( list[ i ] - list[ i + 1 ] );
+                   diff = max_diff
+                then
+                    print( ( "    ", TOSTRING list[ i ], ", ", TOSTRING list[ i + 1 ]
+                           , " ==> ", TOSTRING diff
+                           , newline
+                           )
+                         )
+                fi
+            od
+         end; { test max delta }
+    { task test case                                                          }
+    test_max_delta( ( 1, 8, 2, -3, 0, 1, 1, -2.3, 0, 5.5, 8, 6, 2, 9, 11, 10, 3 ) );
+    { additional test cases                                                   }
+    test_max_delta( ( -1.1, -1.2 ) ); test_max_delta( ( pi, pi, pi ) );
+    test_max_delta( ( )            ); test_max_delta( ( 776.591 )    )
+end
+)

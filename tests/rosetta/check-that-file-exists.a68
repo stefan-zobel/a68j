@@ -1,0 +1,49 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Check that file exists", ALGOL 68 solution check-that-file-exists.alg.
+  https://rosettacode.org/wiki/Check_that_file_exists#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/check-that-file-exists.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Check files and directories exist                               }
+
+{ check a file exists by attempting to open it for input          }
+{ returns TRUE if the file exists, FALSE otherwise                }
+proc file_exists = ( string file_name )bool:
+    if  file f;
+        open( f, file_name, stand_in_channel ) = 0
+    then
+        { file opened OK so must exist                            }
+        close( f );
+        true
+    else
+        { file cannot be opened - assume it does not exist        }
+        false
+    fi { file exists } ;
+
+{ print a suitable messages if the specified file exists          }
+proc test_file_exists = ( string name )void:
+    print( ( "file: "
+           , name
+           , if file_exists( name ) then " does" else " does not" fi
+           , " exist"
+           , newline
+           )
+         );
+{ print a suitable messages if the specified directory exists     }
+proc test_directory_exists = ( string name )void:
+    print( ( "dir:  "
+           , name
+           , if file_is_directory( name ) then " does" else " does not" fi
+           , " exist"
+           , newline
+           )
+         );
+
+{ test the flies and directories mentioned in the task exist or not }
+test_file_exists( "input.txt" );
+test_file_exists( "\input.txt");
+test_directory_exists( "docs" );
+test_directory_exists( "\docs" )
+)

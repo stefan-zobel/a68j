@@ -1,0 +1,34 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Nth root", ALGOL 68 solution nth-root.alg.
+  https://rosettacode.org/wiki/Nth_root#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/nth-root.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+real default_p = 0.001;
+
+proc nth_root = (int n, long real a, p)long real:
+(
+  [2]long real x := (a, a/n);
+
+  while ABS(x[2] - x[1]) > p do
+    x := (x[2], ((n-1)*x[2] + a/x[2]**(n-1))/n )
+  od;
+  x[2]
+);
+
+prio ROOT = 8;
+op ROOT = (int n, long real a)long real: nth_root(n, a, default_p);
+op ROOT = (int n, int a)long real: nth_root(n, a, default_p);
+
+main:
+(
+  printf(($2(" "gl)$,
+         nth_root(10, long 7131.5 ** 10, default_p),
+         nth_root(5, 34, default_p)));
+  printf(($2(" "gl)$,
+         10 ROOT ( long 7131.5 ** 10 ),
+         5 ROOT 34))
+)
+)

@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pisano period", ALGOL 68 solution pisano-period.alg.
+  https://rosettacode.org/wiki/Pisano_period#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pisano-period.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the Pisano period of some primes and composites                 }
+
+    int max_number = 180;                  { maximum number we will consider }
+    { sieve the primes to max number                                         }
+    [ 1 : max_number ]bool is_prime; for i to UPB is_prime do is_prime[ i ] := ODD i od;
+    is_prime[ 1 ] := false;
+    is_prime[ 2 ] := true;
+    for s from 3 by 2 to ENTIER sqrt( max_number ) do
+        if is_prime[ s ] then
+            for p from s * s by s to UPB is_prime do is_prime[ p ] := false od
+        fi
+    od;
+
+    { returns the Pisano period of m                                         }
+    proc pisano = ( int m )int:
+         begin
+            int p := 0;
+            int c := 1;
+            int r := 0;
+            for i from 0 to m * m while r = 0 do
+                int t  = p;
+                p     := c;
+                c     := ( t + c ) MOD m;
+                if p = 0 AND c = 1 then r := i + 1 fi
+            od;
+            if r = 0 then 1 else r fi
+         end { pisano } ;
+
+    { returns the Pisano period of p^k or 0 if p is not prime or k < 1       }
+    proc pisano_prime = ( int p, k )int:
+         if NOT is_prime[ p ] OR k < 1 then 0 else p ^ ( k - 1 ) * pisano( p ) fi;
+
+    print( ( "Pisano period of p^2 where p is a prime < 15:", newline ) );
+    for p to 15 do
+        if is_prime[ p ] then print( ( " ", whole( p, 0 ), ":", whole( pisano_prime( p, 2 ), 0 ) ) ) fi
+    od;
+    print( ( newline ) );
+    print( ( "Pisano period of primes up to 180, non-primes shown as ""*"":", newline ) );
+    for p to 180 do
+        if NOT is_prime[ p ]
+        then print( ( "   *" ) )
+        else print( ( whole( pisano_prime( p, 1 ), -4 ) ) )
+        fi;
+        if p MOD 10 = 0 then print( ( newline ) ) fi
+    od;
+    print( ( newline ) );
+    print( ( "Pisano period of positive integers up to 180:", newline ) );
+    for n to 180 do
+        print( ( whole( pisano( n ), -4 ) ) );
+        if n MOD 10 = 0 then print( ( newline ) ) fi
+    od
+
+end
+)

@@ -1,0 +1,25 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sierpinski triangle", ALGOL 68 solution sierpinski-triangle.alg.
+  https://rosettacode.org/wiki/Sierpinski_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sierpinski-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc sierpinski = (int n)[]string: (
+    flex[0]string d := "*";
+    for i to n do
+        [UPB d * 2]string next;
+        string sp := " " * (2 ** (i-1));
+        for x to UPB d do
+          string dx = d[x];
+          next[x] := sp+dx+sp;
+          next[UPB d+x] := dx+" "+dx
+        od;
+        d := next
+    od;
+    d
+);
+
+printf(($gl$,sierpinski(4)))
+)

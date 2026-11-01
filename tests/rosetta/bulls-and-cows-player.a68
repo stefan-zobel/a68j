@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bulls and cows/Player", ALGOL 68 solution bulls-and-cows-player.alg.
+  https://rosettacode.org/wiki/Bulls_and_cows/Player#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bulls-and-cows-player.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ This breaks a unique code of `n' pegs and `m' colours you think of. }
+
+int pegs = 4, colours = 6;
+
+mode List = flex [1 : 0] Combination,
+     Combination = [pegs] Colour,
+     Colour = int;
+
+op +:= = (ref List u, Combination v) ref List:
+   { Add one combination to a list. }
+   ([UPB u + 1] Combination w; w[ : UPB u] := u; w[UPB w] := v; u := w);
+
+proc gen = (ref Combination part, int peg) void:
+     { Generate all unique [colours!/(colours-pegs)!] combinations. }
+     if peg > pegs
+     then all_combs +:= part
+     else for i to colours
+          do if bool unique := true;
+                for j to peg - 1 while unique
+                do unique := part[j] ~= i
+                od;
+                unique
+             then part[peg] := i;
+                  gen (part, peg + 1)
+             fi
+          od
+     fi;
+
+List all_combs;
+gen (loc Combination, 1);
+
+proc break_code = (List sieved) void:
+     { Present a trial and sieve the list with the entered score. }
+     case UPB sieved + 1
+     in { No elements. } printf ($l"Inconsistent scores"l$),
+        { One element. } printf (($l"Solution is "4(xd)l$, sieved[1]))
+     out printf (($l4(dx)$, sieved[1]));
+     { Read the score as a sequence of "c" and "b". }
+         int col_ok := 0, pos_ok := 0, string z := "";
+         while z = ""
+         do read ((z, new_line))
+         od;
+         for i to UPB z
+         do (z[i] = "c" | col_ok |: z[i] = "b" | pos_ok) +:= 1
+         od;
+         (pos_ok = pegs | stop);
+     { Survivors are combinations with score as entered. }
+         List survivors;
+         for i from 2 to UPB sieved
+         do int col_ok_i := 0, pos_ok_i := 0;
+            for u to pegs
+            do for v to pegs
+               do if sieved[1][u] = sieved[i][v]
+                  then (u = v | pos_ok_i | col_ok_i) +:= 1
+                  fi
+               od
+            od;
+            (col_ok = col_ok_i AND pos_ok = pos_ok_i | survivors +:= sieved[i])
+         od;
+     { Solution must be among the survivors. }
+         break_code (survivors)
+     esac;
+
+break_code (all_combs)
+)

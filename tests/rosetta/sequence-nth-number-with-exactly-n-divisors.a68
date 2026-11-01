@@ -1,0 +1,48 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sequence: nth number with exactly n divisors", ALGOL 68 solution sequence:-nth-number-with-exactly-n-divisors.alg.
+  https://rosettacode.org/wiki/Sequence:_nth_number_with_exactly_n_divisors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sequence:-nth-number-with-exactly-n-divisors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    int max_number = 500 000; { maximum number we will count the divisors of }
+    { form a table of proper divisor counts                                  }
+    [ 1 : max_number ]int pdc; for i to UPB pdc do pdc[ i ] := 1 od;
+    pdc[ 1 ] := 0;
+    for i from 2 to UPB pdc do
+        for j from i + i by i to UPB pdc do pdc[ j ] +:= 1 od
+    od;
+    { find the first few primes                                              }
+    [ 1 : 30 ]int prime;
+    int p_count := 0;
+    for i while p_count < UPB prime do
+        if pdc[ i ] = 1 then prime[ p_count +:= 1 ] := i fi
+    od;
+    { show the nth number with n divisors                                    }
+    int w = -43;  { width to print the numbers (negative means no leading +) }
+    print( ( " 1: ", whole( 1, w ), " | 1", newline ) );
+    for i from 2 to 23 do
+        print( ( whole( i, -2 ), ": " ) );
+        if pdc( i ) = 1 then
+            print( ( whole( LENG LENG prime[ i ] ^ ( i - 1 ), w ), newline ) )
+        else
+            int c := 0;
+            for j to UPB pdc while c < i do
+                if pdc[ j ] = i - 1 then
+                    c +:= 1;
+                    if c = i then
+                        print( ( whole( j, w ), " | 1" ) );
+                        for d from 2 to j OVER 2 do
+                            if j MOD d = 0 then print( ( " ", whole( d, 0 ) ) ) fi
+                        od;
+                        print( ( " ", whole( j, 0 ), newline ) )
+                    fi
+                fi
+            od
+        fi
+    od
+
+end
+)

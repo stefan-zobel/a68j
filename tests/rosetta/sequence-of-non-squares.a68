@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sequence of non-squares", ALGOL 68 solution sequence-of-non-squares.alg.
+  https://rosettacode.org/wiki/Sequence_of_non-squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sequence-of-non-squares.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc non_square = (int n)int: n + ENTIER(0.5 + sqrt(n));
+
+main: (
+
+    { first 22 values (as a list) has no squares: }
+    for i to 22 do
+        print((whole(non_square(i),-3),space))
+    od;
+    print(new_line);
+
+    { The following check shows no squares up to one million:  }
+    for i to 1 000 000 do
+        real j = sqrt(non_square(i));
+        if j = ENTIER j then
+            put(stand_out, ("Error: number is a square:", j, new_line));
+            stop
+        fi
+    od
+)
+)

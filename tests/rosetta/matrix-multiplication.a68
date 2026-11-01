@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Matrix multiplication", ALGOL 68 solution matrix-multiplication.alg.
+  https://rosettacode.org/wiki/Matrix_multiplication#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/matrix-multiplication.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Field = long real; { field type is LONG REAL }
+int default_upb:=3;
+mode Vector = [default_upb]Field;
+mode Matrix = [default_upb,default_upb]Field;
+
+{ crude exception handling }
+proc void raise_index_error := void: ( putf(stand_error, $x"Exception: index error."l$); stop );
+
+{ define the vector/matrix operators }
+op * = (Vector a,b)Field: ( { basically the dot product }
+    Field result:=0;
+    if LWB a/=LWB b OR UPB a/=UPB b then raise_index_error fi;
+    for i from LWB a to UPB a do result+:= a[i]*b[i] od;
+    result
+  );
+
+ op * = (Vector a, Matrix b)Vector: ( { overload vector times matrix }
+    [2 LWB b:2 UPB b]Field result;
+    if LWB a/=LWB b OR UPB a/=UPB b then raise_index_error fi;
+    for j from 2 LWB b to 2 UPB b do result[j]:=a*b[,j] od;
+    result
+  );
+{ this is the task portion }
+op * = (Matrix a, b)Matrix: ( { overload matrix times matrix }
+    [LWB a:UPB a, 2 LWB b:2 UPB b]Field result;
+    if 2 LWB a/=LWB b OR 2 UPB a/=UPB b then raise_index_error fi;
+    for k from LWB result to UPB result do result[k,]:=a[k,]*b od;
+    result
+  );
+
+ { Some sample matrices to test }
+test:(
+  Matrix a=((1,  1,  1,   1), { matrix A }
+            (2,  4,  8,  16),
+            (3,  9, 27,  81),
+            (4, 16, 64, 256));
+
+  Matrix b=((  4  , -3  ,  4/3,  -1/4 ), { matrix B }
+            (-13/3, 19/4, -7/3,  11/24),
+            (  3/2, -2  ,  7/6,  -1/4 ),
+            ( -1/6,  1/4, -1/6,   1/24));
+
+  Matrix prod = a * b; { actual multiplication example of A x B }
+
+  FORMAT real_fmt = $g(-6,2)$; { width of 6, with no '+' sign, 2 decimals }
+  proc real_matrix_printf= (FORMAT real_fmt, Matrix m)void:(
+    FORMAT vector_fmt = $"("n(2 UPB m-1)(f(real fmt)",")f(real fmt)")"$;
+    FORMAT matrix_fmt = $x"("n(UPB m-1)(f(vector fmt)","lxx)f(vector fmt)");"$;
+    { finally print the result }
+    printf((matrix_fmt,m))
+  );
+
+  { finally print the result }
+  print(("Product of a and b: ",new_line));
+  real_matrix_printf(real_fmt, prod)
+)
+)

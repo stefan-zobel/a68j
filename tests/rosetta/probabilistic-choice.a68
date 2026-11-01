@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Probabilistic choice", ALGOL 68 solution probabilistic-choice.alg.
+  https://rosettacode.org/wiki/Probabilistic_choice#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/probabilistic-choice.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int trials = 1 000 000;
+
+mode Lreal = long real;
+
+mode Item = struct(
+  string name,
+  int prob_count,
+  Lreal expect,
+        mapping
+);
+int col_width = 9;
+FORMAT real_repr = $g(-col width+1, 6)$,
+       item_repr = $"Name: "g", Prob count: "g(0)", Expect: "f(real repr)", Mapping: ", f(real repr)l$;
+
+[8]Item items := (
+  ( "aleph",  0, ~, ~ ),
+  ( "beth",   0, ~, ~ ),
+  ( "gimel",  0, ~, ~ ),
+  ( "daleth", 0, ~, ~ ),
+  ( "he",     0, ~, ~ ),
+  ( "waw",    0, ~, ~ ),
+  ( "zayin",  0, ~, ~ ),
+  ( "heth",   0, ~, ~ )
+);
+
+main:
+(
+  Lreal offset = 5; { const }
+
+{ initialise items }
+  Lreal total_sum := 0;
+  for i from LWB items to UPB items - 1 do
+    expect of items[i] := 1/(i-1+offset);
+    total_sum +:= expect of items[i]
+  od;
+  expect of items[UPB items] := 1 - total_sum;
+
+  mapping of items[LWB items] := expect of items[LWB items];
+  for i from LWB items + 1 to UPB items do
+    mapping of items[i] := mapping of items[i-1] + expect of items[i]
+  od;
+
+  { printf((item repr, items)) }
+
+{ perform the sampling }
+  proc sample = (ref[]Lreal mapping)int:(
+    int out_;
+    Lreal rand_real = random;
+    for j from LWB items to UPB items do
+      if rand_real < mapping[j] then
+        out_ := j;
+	done
+      fi
+    od;
+    done: out_
+  );
+
+  for i to trials do
+      prob_count of items[sample(mapping of items)] +:= 1
+  od;
+
+  FORMAT indent = $17k$;
+
+{ print the results }
+  printf(($"Trials: "g(0)l$, trials));
+  printf(($"Items:"$,indent));
+  for i from LWB items to UPB items do printf(($gn(col width)k" "$, name of items[i])) od;
+  printf(($l"Target prob.:"$, indent, $f(real repr)" "$, expect of items));
+  printf(($l"Attained prob.:"$, indent));
+  for i from LWB items to UPB items do printf(($f(real repr)" "$, prob_count of items[i]/trials)) od;
+  printf($l$)
+)
+)

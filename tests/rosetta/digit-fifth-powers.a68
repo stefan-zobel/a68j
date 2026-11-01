@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Digit fifth powers", ALGOL 68 solution digit-fifth-powers.alg.
+  https://rosettacode.org/wiki/Digit_fifth_powers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/digit-fifth-powers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    []int fifth = []int( 0, 1, 2^5, 3^5, 4^5, 5^5, 6^5, 7^5, 8^5, 9^5 )[ at 0 ];
+    { as observed by the Julia sample, 9^5 * 7 has only 6 digits whereas 9^5 * 6 has 6 digits }
+    { so only up to 6 digit numbers need be considered }
+    { also, the digit fifth power sum is independent ofg the order of the digits }
+    [ 1 : 100 ]int sums; for i to UPB sums do sums[ i ] := 0 od;
+    [ 0 :   9 ]int used; for i from 0 to 9 do used[ i ] := 0 od;
+    int s_count := 0;
+    for d1 from 0 to 9 do
+        int s1 = fifth[ d1 ];
+        used[ d1 ] +:= 1;
+        for d2 from d1 to 9 do
+            int s2 = fifth[ d2 ] + s1;
+            used[ d2 ] +:= 1;
+            for d3 from d2 to 9 do
+                int s3 = fifth[ d3 ] + s2;
+                used[ d3 ] +:= 1;
+                for d4 from d3 to 9 do
+                    int s4 = fifth[ d4 ] + s3;
+                    used[ d4 ] +:= 1;
+                    for d5 from d4 to 9 do
+                        int s5 = fifth[ d5 ] + s4;
+                        used[ d5 ] +:= 1;
+                        for d6 from d5 to 9 do
+                            int s6 = fifth[ d6 ] + s5;
+                            used[ d6 ] +:= 1;
+                            { s6 is the sum of the fifth powers of the digits }
+                            { check it it is composed of the digits d1 - d6   }
+                            [ 0 : 9 ]int check; for i from 0 to 9 do check[ i ] := 0 od;
+                            int v := s6;
+                            to 6 do
+                                check[ v MOD 10 ] +:= 1;
+                                v OVERAB 10
+                            od;
+                            bool same := true;
+                            for i from 0 to 9 while ( same := used[ i ] = check[ i ] ) do skip od;
+                            if same then
+                                { found a number that is the sum of the fifth powers of its digits }
+                                sums[ s_count +:= 1 ] := s6
+                            fi;
+                            used[ d6 ] -:= 1
+                        od { d6 } ;
+                        used[ d5 ] -:= 1
+                    od { d5 } ;
+                    used[ d4 ] -:= 1
+                od { d4 } ;
+                used[ d3 ] -:= 1
+            od { d3 } ;
+            used[ d2 ] -:= 1
+        od { d2 } ;
+        used[ d1 ] -:= 1
+    od { d1 } ;
+    { sum and print the sums - ignore 0 and 1 }
+    int total := 0;
+    print( ( "Numbers that are the sums of the fifth powers of their digits: " ) );
+    for i to s_count do
+        if sums[ i ] > 1 then
+            print( ( " ", whole( sums[ i ], 0 ) ) );
+            total +:= sums[ i ]
+        fi
+    od;
+    print( ( newline ) );
+    print( ( "Total: ", whole( total, 0 ), newline ) )
+end
+)

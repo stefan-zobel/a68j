@@ -1,0 +1,76 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Circle sort", ALGOL 68 solution sorting-algorithms-circle-sort.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Circle_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-circle-sort.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { circlesort                                                           }
+
+    { swaps a and b                                                          }
+    prio =:= = 9;
+    op   =:= = ( ref int a, b )void: begin int t = a; a := b; b := t end;
+
+    { sorts data in-place and returns a reference to data                    }
+    op   CIRCLESORT = ( ref[]int data_to_sort )ref[]int:
+         begin
+            proc circlesort = ( ref[]int data, int low, high, swaps_so_far )int:
+                 if low >= high then swaps_so_far
+                 else
+                    int swaps := swaps_so_far;
+                    int hi    := high;
+                    int lo    := low;
+                    int mid    = ( hi - lo ) OVER 2;
+                    while lo < hi do
+                        if  data[ lo ] > data[ hi ] then
+                            data[ lo ] =:= data[ hi ];
+                            swaps      +:= 1
+                        fi;
+                        lo +:= 1;
+                        hi -:= 1
+                    od;
+                    if lo = hi AND hi < UPB data then
+                        if data[ lo ] > data[ hi + 1 ] then
+                            data[ lo ] =:= data[ hi + 1 ];
+                            swaps      +:= 1
+                        fi
+                    fi;
+                    swaps := circlesort( data, low, low + mid,      swaps );
+                    swaps := circlesort( data, low + mid + 1, high, swaps )
+                 fi { circlesort } ;
+
+            while circlesort( data_to_sort, LWB data_to_sort, UPB data_to_sort, 0 ) > 0 do skip od;
+            data_to_sort
+         end { CIRCLESORT } ;
+
+    { prints the elements of an array of integers separated by spaces         }
+    op   SHOW = ( []int list )void:
+         for i from LWB list to UPB list do
+            print( ( " ", whole( list[ i ], 0 ) ) )
+         od { SHOW } ;
+
+    { tests the CIRCLESORT operator                                          }
+    proc test_circle_sort = ( []int unsorted )void:
+         begin
+             [ LWB unsorted : UPB unsorted ]int data := unsorted;
+             print( ( "[" ) );
+             SHOW unsorted;
+             print( ( " ]", newline, "    -> [" ) );
+             SHOW CIRCLESORT data;
+             print( ( " ]", newline ) )
+         end { test circle sort } ;
+
+    { task test case                                                         }
+    test_circle_sort( ( 6, 7, 8, 9, 2, 5, 3, 4, 1 ) );
+    { test cases from the Action! sample                                     }
+    test_circle_sort( ( 1, 4, -1, 0, 3, 7, 4, 8, 20, -6 ) );
+    test_circle_sort( ( 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 ) );
+    test_circle_sort( ( 101, 102, 103, 104, 105, 106, 107, 108 ) );
+    test_circle_sort( ( 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1 ) );
+    { additional tests                                                       }
+    test_circle_sort( ( ) );
+    test_circle_sort( ( 1 ) )
+
+end
+)

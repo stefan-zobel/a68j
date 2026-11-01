@@ -1,0 +1,102 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Binary strings", ALGOL 68 solution binary-strings.alg.
+  https://rosettacode.org/wiki/Binary_strings#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/binary-strings.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ String creation }
+string a,b,c,d,e,f,g,h,i,j,l,r;
+a := "hello world";
+print((a, new_line));
+
+{ String destruction (for garbage collection) }
+b := ();
+begin
+  loc string lb := "hello earth";  { allocate off the LOC stack  }
+  heap string hb := "hello moon"; { allocate out of the HEAP space }
+  ~
+end; { local variable "lb" has LOC stack space recovered at END }
+
+{ String assignment }
+c := "a"+REPR 0+"b";
+print (("string length c:", UPB c, new_line));{ ==> 3 }
+
+{ String comparison }
+l := "ab"; r := "CD";
+
+bool result;
+FORMAT summary = $""""g""" is "b("","NOT ")"lexicographically "g" """g""""l$ ;
+
+result := l <  r OR l LT r;              printf((summary, l, result, "less than", r));
+result := l <= r OR l LE r { OR l ≤ r }; printf((summary, l, result, "less than or equal to", r));
+result := l  = r OR l EQ r;              printf((summary, l, result, "equal to", r));
+result := l /= r OR l NE r { OR l ≠ r }; printf((summary, l, result, "not equal to", r));
+result := l >= r OR l GE r { OR l ≥ r }; printf((summary, l, result, "greater than or equal to", r));
+result := l >  r OR l GT r;              printf((summary, l, result, "greater than", r));
+
+{ String cloning and copying }
+e := f;
+
+{ Check if a string is empty }
+if g = "" then print(("g is empty", new_line)) fi;
+if UPB g = 0 then print(("g is empty", new_line)) fi;
+
+{ Append a byte to a string }
+h +:= "A";
+
+{ Append a string to a string }
+h +:= "BCD";
+h PLUSAB "EFG";
+
+{ Prepend a string to a string - because STRING addition isn't communitive }
+"789" +=: h;
+"456" PLUSTO h;
+print(("The result of prepends and appends: ", h, new_line));
+
+{ Extract a substring from a string }
+i := h[2:3];
+print(("Substring 2:3 of ",h," is ",i, new_line));
+
+{ Replace every occurrences of a byte (or a string) in a string with another string }
+proc replace = (string string_, old, new, int count)string: (
+  int pos;
+  string tail := string_, out_;
+  to count while string_in_string(old, pos, tail) do
+    out_ +:= tail[:pos-1]+new;
+    tail := tail[pos+UPB old:]
+  od;
+  out_+tail
+);
+
+j := replace("hello world", "world", "planet", max_int);
+print(("After replace string: ", j, new_line));
+
+int offset = 7;
+{ Replace a character at an offset in the string }
+j[offset] := "P";
+print(("After replace 7th character: ", j, new_line));
+
+{ Replace a substring at an offset in the string }
+j[offset:offset+3] := "PlAN";
+print(("After replace 7:10th characters: ", j, new_line));
+
+{ Insert a string before an offset in the string }
+j := j[:offset-1]+"INSERTED "+j[offset:];
+print(("Insert string before 7th character: ", j, new_line));
+
+{ Join strings  }
+a := "hel";
+b := "lo w";
+c := "orld";
+d := a+b+c;
+
+print(("a+b+c is ",d, new_line));
+
+{ Pack a string into the target CPU's word }
+bytes word_ := bytes_pack(d);
+
+{ Extract a CHAR from a CPU word }
+print(("7th byte in CPU word is: ", offset ELEM word_, new_line))
+)

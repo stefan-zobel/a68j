@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Constrained random points on a circle", ALGOL 68 solution constrained-random-points-on-a-circle.alg.
+  https://rosettacode.org/wiki/Constrained_random_points_on_a_circle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/constrained-random-points-on-a-circle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc clrscr = void:
+        printf(($g"[2J"$,REPR 27)); { ansi.sys }
+
+proc gotoxy = (int x,y)void:
+        printf(($g"["g(0)";"g(0)"H"$,REPR 27, y,x)); { ansi.sys }
+
+mode Point = struct(
+    int x,y
+);
+
+int radius = 15;
+int inside_radius = 10;
+
+Point center = (radius+1, radius+1);
+
+flex[0]Point set;
+
+proc swap_with_last_set = (int position,int where_last_set)void:
+(
+        int temp := x of set[position];
+        x of set[position]:=x of set[where_last_set];
+        x of set[where_last_set] := temp;
+
+        temp := y of set[position];
+        y of set[position]:=y of set[where_last_set];
+        y of set[where_last_set] := temp
+);
+
+proc create_set = void:
+(
+        set := heap[(2*radius+1)**2]Point;
+        int x,y,i:=LWB set;
+
+        for x from -radius to radius do
+                for y from -radius to radius do
+                        if sqrt(x*x+y*y)>=inside_radius AND sqrt(x*x+y*y)<=radius then
+                                x of set[i] := x;
+                                y of set[i] := y;
+                                i+:=1
+                        fi
+                od
+        od;
+
+        set:=set[:i-1]
+);
+
+proc plot_fuzzy_set = (char ch)void:
+(
+        int pos,i;
+
+        to UPB set do
+                pos := ENTIER(random * UPB set) + 1;
+
+                gotoxy(x of center + x of set[pos],y of center + y of set[pos]);
+
+                print(ch);
+
+                swap_with_last_set(pos,UPB set)
+
+        od
+);
+
+main:
+(
+        { srand((INT)time(NIL)); }
+
+        clrscr;
+        create_set;
+        plot_fuzzy_set("*");
+        gotoxy(2*radius+1, 2*radius+1);
+        newline(stand_in)
+)
+)

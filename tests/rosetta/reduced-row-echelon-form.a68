@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Reduced row echelon form", ALGOL 68 solution reduced-row-echelon-form.alg.
+  https://rosettacode.org/wiki/Reduced_row_echelon_form#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/reduced-row-echelon-form.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Field = real; { FIELD can be REAL, LONG REAL etc, or COMPL, FRAC etc }
+mode Vec = [0]Field;
+mode Mat = [0,0]Field;
+
+proc to_reduced_row_echelon_form = (ref Mat m)void: (
+    int lead_col := 2 LWB m;
+
+    for this_row from LWB m to UPB m do
+        if lead_col > 2 UPB m then return fi;
+        int other_row := this_row;
+        while m[other_row,lead_col] = 0 do
+            other_row +:= 1;
+            if other_row > UPB m then
+                other_row := this_row;
+                lead_col +:= 1;
+                if lead_col > 2 UPB m then return fi
+            fi
+        od;
+        if this_row /= other_row then
+            Vec swap = m[this_row,lead_col:];
+            m[this_row,lead_col:] := m[other_row,lead_col:];
+            m[other_row,lead_col:] := swap
+        fi;
+        Field scale = 1/m[this_row,lead_col];
+        if scale /= 1 then
+            m[this_row,lead_col] := 1;
+            for col from lead_col+1 to 2 UPB m do m[this_row,col] *:= scale od
+        fi;
+        for other_row from LWB m to UPB m do
+            if this_row /= other_row then
+                real scale = m[other_row,lead_col];
+                m[other_row,lead_col]:=0;
+                for col from lead_col+1 to 2 UPB m do m[other_row,col] -:= scale*m[this_row,col] od
+            fi
+        od;
+        lead_col +:= 1
+    od;
+    return: empty
+);
+
+[3,4]Field mat := (
+   ( 1, 2, -1, -4),
+   ( 2, 3, -1, -11),
+   (-2, 0, -3, 22)
+);
+
+to_reduced_row_echelon_form( mat );
+
+FORMAT
+  real_repr = $g(-7,4)$,
+  vec_repr = $"("n(2 UPB mat-1)(f(real repr)", ")f(real repr)")"$,
+  mat_repr = $"("n(1 UPB mat-1)(f(vec repr)", "lx)f(vec repr)")"$;
+
+printf((mat_repr, mat, $l$))
+)

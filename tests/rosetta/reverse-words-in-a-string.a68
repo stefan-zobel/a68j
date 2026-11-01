@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Reverse words in a string", ALGOL 68 solution reverse-words-in-a-string.alg.
+  https://rosettacode.org/wiki/Reverse_words_in_a_string#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/reverse-words-in-a-string.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns original phrase with the order of the words reversed }
+{ a word is a sequence of non-blank characters                 }
+proc reverse_word_order = ( string original_phrase )string:
+     begin
+        string words_reversed := "";
+        string separator      := "";
+        int    start_pos      := LWB original_phrase;
+        while
+            { skip leading spaces }
+            while if start_pos <= UPB original_phrase
+                  then original_phrase[ start_pos ] = " "
+                  else false
+                  fi
+            do start_pos +:= 1
+            od;
+            start_pos <= UPB original_phrase
+        do
+            { have another word, find it }
+            int end_pos := start_pos;
+            while if end_pos <= UPB original_phrase
+                  then original_phrase[ end_pos ] /= " "
+                  else false
+                  fi
+            do end_pos +:= 1
+            od;
+            ( original_phrase[ start_pos : end_pos - 1 ] + separator ) +=: words_reversed;
+            separator := " ";
+            start_pos := end_pos + 1
+        od;
+        words_reversed
+     end { reverse word order } ;
+
+{ reverse the words in the lines as per the task }
+print( ( reverse_word_order ( "--------- Ice and Fire ------------ " ), newline ) );
+print( ( reverse_word_order ( "                                    " ), newline ) );
+print( ( reverse_word_order ( "fire, in end will world the say Some" ), newline ) );
+print( ( reverse_word_order ( "ice. in say Some                    " ), newline ) );
+print( ( reverse_word_order ( "desire of tasted I''ve what From     " ), newline ) );
+print( ( reverse_word_order ( "fire. favor who those with hold I   " ), newline ) );
+print( ( reverse_word_order ( "                                    " ), newline ) );
+print( ( reverse_word_order ( "... elided paragraph last ...       " ), newline ) );
+print( ( reverse_word_order ( "                                    " ), newline ) );
+print( ( reverse_word_order ( "Frost Robert -----------------------" ), newline ) )
+)

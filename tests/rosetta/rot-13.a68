@@ -1,0 +1,23 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rot-13", ALGOL 68 solution rot-13.alg.
+  https://rosettacode.org/wiki/Rot-13#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rot-13.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  char c;
+  on_logical_file_end(stand_in, (ref file f)bool: (stop; skip));
+  on_line_end(stand_in, (ref file f)bool: (print(new_line); false));
+  do
+    read(c);
+    if c >= "A" AND c <= "M" OR c >= "a" AND c <= "m" then
+      c := REPR(ABS c + 13)
+    elif c >= "N" AND c <= "Z" OR c >= "n" AND c <= "z" then
+      c := REPR(ABS c - 13)
+    fi;
+    print(c)
+  od
+end { rot13 }
+)

@@ -1,0 +1,70 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dividuus numbers", ALGOL 68 solution dividuus-numbers.alg.
+  https://rosettacode.org/wiki/Dividuus_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dividuus-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Dividuus Numbers: numbers divisible by their digit sum, digit product, }
+      { digital root and multiplicative root                                             }
+
+    op   ISDIVIDUUS = ( int n )bool:
+         begin
+            int abs_n = ABS n;
+            int v := abs_n, sum := 0, product := 1;
+            while v > 0 AND product > 0 do
+                int d = v MOD 10;
+                v    OVERAB 10;
+                sum     +:= d;
+                product *:= d
+            od;
+            bool dividuus := sum /= 0 AND product /= 0;
+            if dividuus then
+                dividuus := abs_n MOD sum = 0 AND abs_n MOD product = 0
+            fi;
+            if dividuus then
+                int mr := product;
+                while mr > 9 do
+                    int x := mr;
+                    mr    := 1;
+                    while x > 0 AND mr > 0 do
+                        mr   *:= x MOD 10;
+                        x OVERAB 10
+                    od
+                od;
+                if dividuus := mr /= 0 then dividuus := abs_n MOD mr = 0 fi
+            fi;
+            if dividuus then
+                int dr := sum;
+                while dr > 9 do
+                    int x := dr;
+                    dr    := 0;
+                    while x > 0 do
+                        dr   +:= x MOD 10;
+                        x OVERAB 10
+                    od
+                od;
+                if dividuus := dr /= 0 then dividuus := abs_n MOD dr = 0 fi
+            fi;
+            dividuus
+         end { ISDIVIDUUS } ;
+
+    begin { task }
+        print( ( "First 50 Dividuus Numbers:", newline ) );
+        int d_count := 0;
+        for n while d_count < 50 do
+            if ISDIVIDUUS n then
+                print( ( whole( n, -6 ) ) );
+                if ( d_count +:= 1 ) MOD 10 = 0 then print( ( newline ) ) fi
+            fi
+        od;
+        int lo = 990 000 000, hi = 1 000 000 000;
+        print( ( newline, "Dividuus Numbers between ", whole( lo, 0 ), " and ", whole( hi, 0 ), ": " ) );
+        for n from lo to hi do
+            if ISDIVIDUUS n then print( ( whole( n, -12 ) ) ) fi
+        od;
+        print( ( newline ) )
+    end
+end
+)

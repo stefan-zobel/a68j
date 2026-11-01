@@ -1,0 +1,67 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find common directory path", ALGOL 68 solution find-common-directory-path.alg.
+  https://rosettacode.org/wiki/Find_common_directory_path#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-common-directory-path.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Utilities code }
+
+char dir_sep = "/"; { Assume POSIX }
+
+proc dir_name = (string dir)string: (
+  string out_;
+  for pos from UPB dir by -1 to LWB dir do
+    if dir[pos] = dir_sep then
+      out_ := dir[:pos-1];
+      go to out_exit
+    fi
+  od;
+  { else: } out_:="";
+  out_exit: out_
+);
+
+proc shortest = ([]string string_list)string: (
+  int min := max_int;
+  int min_key := LWB string_list - 1;
+  for key from LWB string_list to UPB string_list do
+    if UPB string_list[key][@1] < min then
+      min := UPB string_list[key][@1];
+      min_key := key
+    fi
+  od;
+  string_list[min_key]
+);
+
+{ Actual code }
+
+proc common_prefix = ([]string strings)string: (
+  if LWB strings EQ UPB strings then
+    { exit: } strings[LWB strings]
+  else
+    string prefix := shortest(strings);
+    for pos from LWB prefix to UPB prefix do
+      char first = prefix[pos];
+      for key from LWB strings+1 to UPB strings do
+        if strings[key][@1][pos] NE first then
+          prefix := prefix[:pos-1];
+          go to prefix_exit
+        fi
+      od
+    od;
+    prefix_exit: prefix
+  fi
+);
+
+{ Test code }
+
+test:(
+  []string dir_list = (
+    "/home/user1/tmp/coverage/test",
+    "/home/user1/tmp/covert/operator",
+    "/home/user1/tmp/coven/members"
+  );
+  print((dir_name(common_prefix(dir_list)), new_line))
+)
+)

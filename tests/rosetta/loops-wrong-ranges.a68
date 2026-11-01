@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Loops/Wrong ranges", ALGOL 68 solution loops-wrong-ranges.alg.
+  https://rosettacode.org/wiki/Loops/Wrong_ranges#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/loops-wrong-ranges.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns the first n elements of the sequences of values specified by s sstart, s stop and increment }
+    proc sequence = ( int n, s_start, s_stop, increment )[]int:
+         begin
+            [ 1 : n ]int s;
+            for j from LWB s to UPB s do s[ j ] := 0 od;
+            int s_pos := LWB s - 1;
+            for j from s_start by increment to s_stop while s_pos < n do
+               s[ s_pos +:= 1 ] := j
+            od;
+            s[ LWB s : s_pos ]
+         end { sequence } ;
+
+    { tests the sequence procedure }
+    proc test_sequence = ( int s_start, s_stop, increment, string legend )void:
+         begin
+            []int s = sequence( 10, s_start, s_stop, increment );
+            print( ( legend, ": " ) );
+            for i from LWB s to UPB s do print( ( " ", whole( s[ i ], -4 ) ) ) od;
+            print( ( newline ) )
+         end { test sequence } ;
+    { task trest cases }
+
+    test_sequence( -2,  2,  1, "Normal                                     " );
+    test_sequence( -2,  2,  0, "Zero increment                             " );
+    test_sequence( -2,  2, -1, "Increments away from stop value            " );
+    test_sequence( -2,  2, 10, "First increment is beyond stop value       " );
+    test_sequence(  2, -2,  1, "Start more than stop: positive increment   " );
+    test_sequence(  2,  2,  1, "Start equal stop: positive increment       " );
+    test_sequence(  2,  2, -1, "Start equal stop: negative increment       " );
+    test_sequence(  2,  2,  0, "Start equal stop: zero increment           " );
+    test_sequence(  0,  0,  0, "Start equal stop equal zero: zero increment" )
+
+end
+)

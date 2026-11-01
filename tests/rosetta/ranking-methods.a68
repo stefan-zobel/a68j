@@ -1,0 +1,160 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Ranking methods", ALGOL 68 solution ranking-methods.alg.
+  https://rosettacode.org/wiki/Ranking_methods#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/ranking-methods.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { rank some scores by various methods                                   }
+    { MODE to hold the scores                                                 }
+    mode Result = struct( int score, string name );
+    { returns the standard ranking of s                                       }
+    proc standard_ranking = ( []Result s )[]int:
+         if LWB s > UPB s then []int() { no scores                            }
+         else                          { have some scores                     }
+            [ LWB s : UPB s ]int ranked;
+            int position := 1;
+            ranked[ LWB s ] := position;
+            for i from LWB s + 1 to UPB s do
+                ranked[ i ] := if score of s[ i ] = score of s[ i - 1 ] then
+                                   { same score as the previous               }
+                                   position
+                               else
+                                   { different score, increase the position   }
+                                   position := i
+                               fi
+            od;
+            ranked
+         fi { standard ranking } ;
+    { returns the modified ranking of s                                       }
+    proc modified_ranking = ( []Result s )[]int:
+         if LWB s > UPB s then []int() { no scores                            }
+         else                          { have some scores                     }
+            [ LWB s : UPB s ]int ranked;
+            int position := ( UPB s + 1 ) - LWB s;
+            ranked[ UPB s ] := position;
+            for i from UPB s - 1 by -1 to LWB s do
+                ranked[ i ] := if score of s[ i ] = score of s[ i + 1 ] then
+                                   { same score as the previous               }
+                                   position
+                               else
+                                   { different score, decrease the position   }
+                                   position := i
+                               fi
+            od;
+            ranked
+         fi { modified ranking } ;
+    { returns the debse ranking of s                                          }
+    proc dense_ranking = ( []Result s )[]int:
+         if LWB s > UPB s then []int() { no scores                            }
+         else                          { have some scores                     }
+            [ LWB s : UPB s ]int ranked;
+            int position := 1;
+            ranked[ LWB s ] := position;
+            for i from LWB s + 1 to UPB s do
+                ranked[ i ] := if score of s[ i ] = score of s[ i - 1 ] then
+                                   { same score as the previous               }
+                                   position
+                               else
+                                   { different score, increase the position   }
+                                   position +:= 1
+                               fi
+            od;
+            ranked
+         fi { dense ranking } ;
+    { returns the ordinal ranking of s                                        }
+    proc ordinal_ranking = ( []Result s )[]int:
+         if LWB s > UPB s then []int() { no scores                            }
+         else                          { have some scores                     }
+            [ LWB s : UPB s ]int ranked;
+            int position := 0;
+            for i from LWB s to UPB s do
+                ranked[ i ] := position +:= 1
+            od;
+            ranked
+         fi { ordinal ranking } ;
+    { regturns the fractional ranking of s                                    }
+    proc fractional_ranking = ( []Result s )[]real:
+         if LWB s > UPB s then []real() { no scores                           }
+         else                          { have some scores                     }
+            [ LWB s : UPB s ]real ranked;
+            for i from LWB s to UPB s do
+                ranked[ i ]
+                    := if if   i = LWB s
+                          then false
+                          else score of s[ i ] = score of s[ i - 1 ]
+                          fi
+                       then
+                           { same score as the previous                       }
+                           ranked[ i - 1 ]
+                       else
+                           { first score or different score to the previous   }
+                           int same_count := 1;
+                           int sum        := i;
+                           for j from i + 1 to UPB s
+                           while score of s[ i ] = score of s[ j ]
+                           do
+                               same_count +:= 1;
+                               sum        +:= j
+                           od;
+                           sum / same_count
+                       fi
+            od;
+            ranked
+         fi { fractional ranking } ;
+    { shows the integer ranking of some scores                                }
+    proc show_integral_ranking = ( []Result s, []int ranking, string title )void:
+         begin
+            print( ( title, " competition ranking:", newline ) );
+            for i from LWB s to UPB s do
+                print( ( whole( ranking[ i ], -3 )
+                       , ": "
+                       , whole( score of s[ i ], -3 )
+                       , " "
+                       , name of s[ i ]
+                       , newline
+                       )
+                     )
+            od;
+            print( ( newline ) )
+         end { show integral ranking } ;
+    { shows the real ranking of some scores                                   }
+    proc show_real_ranking = ( []Result s, []real ranking, string title )void:
+         begin
+            print( ( title, " competition ranking:", newline ) );
+            for i from LWB s to UPB s do
+                print( ( if int integer_rank = ENTIER ranking[ i ];
+                            integer_rank = ranking[ i ]
+                         then
+                             whole( integer_rank, -3 ) + "   "
+                         else
+                             fixed( ranking[ i ], -6, 2 )
+                         fi
+                       , ": "
+                       , whole( score of s[ i ], -3 ), " "
+                       , name of s[ i ]
+                       , newline
+                       )
+                     )
+            od;
+            print( ( newline ) )
+         end { show real ranking } ;
+
+    { scores to rank - task test cases                                        }
+    []Result scores = ( ( 44, "Solomon" )
+                      , ( 42, "Jason"   )
+                      , ( 42, "Errol"   )
+                      , ( 41, "Garry"   )
+                      , ( 41, "Bernard" )
+                      , ( 41, "Barry"   )
+                      , ( 39, "Stephen" )
+                      );
+    show_integral_ranking( scores,   standard_ranking( scores ), "standard"   );
+    show_integral_ranking( scores,   modified_ranking( scores ), "modified"   );
+    show_integral_ranking( scores,      dense_ranking( scores ), "dense"      );
+    show_integral_ranking( scores,    ordinal_ranking( scores ), "ordinal"    );
+    show_real_ranking(     scores, fractional_ranking( scores ), "fractional" )
+
+end
+)

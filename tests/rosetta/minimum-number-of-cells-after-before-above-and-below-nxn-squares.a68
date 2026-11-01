@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Minimum number of cells after, before, above and below NxN squares", ALGOL 68 solution minimum-number-of-cells-after-before-above-and-below-nxn-squares.alg.
+  https://rosettacode.org/wiki/Minimum_number_of_cells_after,_before,_above_and_below_NxN_squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/minimum-number-of-cells-after-before-above-and-below-nxn-squares.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show the minimum number of cells above, below, before and after each }
+      { cell in a suare matrix                                               }
+
+    proc min = ( int a, b )int: if a < b then a else b fi;
+
+    proc print_min_cells = ( int n )void:
+         begin
+            { deduce how many digits we need to show so the counts are all   }
+            { the same width                                                 }
+            int w = begin
+                        int width := 1, v := ( ( n - ( ABS NOT ODD n ) ) OVER 2 );
+                        while v > 9 do v OVERAB 10; width +:= 1 od;
+                        width
+                    end;
+            print( ( "Minimum number of cells after, before, above and below "
+                   , whole( n, 0 )
+                   , " x "
+                   , whole( n, 0 )
+                   , " square:"
+                   , newline
+                   )
+                 );
+            for r from 0 to n - 1 do
+                for c from 0 to n - 1 do print( ( whole( min( n-r-1, min( r, min( c, n-c-1 ) ) ), -w ), " " ) ) od;
+                print( ( newline ) )
+            od
+         end { print min cells } ;
+
+    []int tests = ( 10, 9, 2, 1, 21 );
+    for i from LWB tests to UPB tests do
+        print_min_cells( tests[ i ] );
+        print( ( newline ) )
+    od
+
+end
+)

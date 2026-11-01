@@ -1,0 +1,2 @@
+{ k UPB a with an invalid dimension: the error names the position (Std.upb_i_rows with file and line). }
+begin [2:4, 0:9] int b; puts (whole (1 LWB b, 0) + whole (2 UPB b, 0) + "'n"); int k := 3; puts (whole (k UPB b, 0)) end

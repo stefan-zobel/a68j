@@ -1,0 +1,41 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Best shuffle", ALGOL 68 solution best-shuffle.alg.
+  https://rosettacode.org/wiki/Best_shuffle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/best-shuffle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { shuffle a string so as many as possible characters are moved }
+    proc best_shuffle = ( string orig )string:
+    begin
+        string res := orig;
+        for i from LWB orig to UPB orig do
+            for j from LWB orig to UPB orig do
+                if i /= j AND orig[ i ] /= res[ j ] AND orig[ j ] /= res[ i ] then
+                    char tmp = res[ i ]; res[ i ] := res[ j ]; res[ j ] := tmp
+                fi
+            od
+        od;
+        res
+    end { best shuffle } ;
+    proc test = ( string orig )void:
+    begin
+        string res   := best_shuffle( orig );
+        int    score := 0;
+        for i from LWB orig to UPB orig do
+            if orig[ i ] = res[ i ] then
+                score +:= 1
+            fi
+        od;
+        print( ( orig, ", ", res, ", (", whole( score, 0 ), ")", newline ) )
+    end { test } ;
+
+    test( "abracadabra" );
+    test( "seesaw"      );
+    test( "elk"         );
+    test( "grrrrrr"     );
+    test( "up"          );
+    test( "a"           )
+end
+)

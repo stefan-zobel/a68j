@@ -1,0 +1,76 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "String comparison", ALGOL 68 solution string-comparison.alg.
+  https://rosettacode.org/wiki/String_comparison#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/string-comparison.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string sa := "abc   ", sb := "ABC ";
+
+{ when comparing strings, Algol 68 ignores trailing blanks                    }
+{ so e.g. "a" = "a " is true                                                  }
+
+{ test procedure, prints message if condition is TRUE                         }
+proc test = ( bool condition, string message )void:
+    if condition then print( ( message, newline ) ) fi;
+
+{ equality?                                                                   }
+test( sa = sb, "sa = sb" );
+{ inequality?                                                                 }
+test( sa /= sb, "sa not = sb" );
+
+{ lexically ordered before?                                                   }
+test( sa < sb, "sa < sb" );
+
+{ lexically ordered after?                                                    }
+test( sa >s_b, "sa > sb" );
+
+{ Algol 68's builtin string comparison operators are case-sensitive.          }
+{ To perform case insensitive comparisons, procedures or operators            }
+{ would need to be written                                                    }
+{ e.g.                                                                        }
+
+{ compare two strings, ignoring case                                          }
+{ Note the "to upper" PROC is an Algol 68G extension                          }
+{ It could be written in standard Algol 68 (assuming ASCII) as e.g.           }
+{    PROC to upper = ( CHAR c )CHAR:                                          }
+{         IF c < "a" OR c > "z" THEN c                                        }
+{         ELSE REPR ( ( ABS c - ABS "a" ) + ABS "A" ) FI;                     }
+proc caseless_comparison = ( string a, b )int:
+     begin
+         int a_max   = UPB a, b_max  = UPB b;
+         int a_pos  := LWB a, b_pos := LWB b;
+         int result := 0;
+         while result = 0
+           AND ( a_pos <= a_max OR b_pos <= b_max )
+         do
+             char a_char := to_upper( if a_pos <= a_max then a[ a_pos ] else " " fi );
+             char b_char := to_upper( if b_pos <= b_max then b[ b_pos ] else " " fi );
+             result := ABS a_char - ABS b_char;
+             a_pos +:= 1;
+             b_pos +:= 1
+         od;
+         if result < 0 then -1 elif result > 0 then 1 else 0 fi
+     end ; { caseless comparison }
+
+{ compare two strings for equality, ignoring case                             }
+proc equal_ignoring_case = ( string a, b )bool: caseless_comparison( a, b ) = 0;
+{ similar procedures for inequality and lexical ording ...                    }
+
+test( equal_ignoring_case( sa, sb ), "sa = sb (ignoring case)" );
+
+
+{ Algol 68 is strongly typed - strings cannot be compared to e.g. integers    }
+{ unless procedures or operators are written, e.g.                            }
+{ e.g. OP = = ( STRING a, INT b )BOOL: a = whole( b, 0 );                     }
+{      OP = = ( INT a, STRING b )BOOL: b = a;                                 }
+{ etc.                                                                        }
+
+{ Algol 68 also has <= and >= comparison operators for testing for            }
+{ "lexically before or equal" and "lexically after or equal"                  }
+test( sa <= sb, "sa <= sb" );
+test( sa >= sb, "sa >= sb" )
+
+{ there are no other forms of string comparison builtin to Algol 68           }
+)

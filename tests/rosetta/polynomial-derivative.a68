@@ -1,0 +1,54 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polynomial derivative", ALGOL 68 solution polynomial-derivative.alg.
+  https://rosettacode.org/wiki/Polynomial_derivative#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-derivative.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the derivatives of polynominals, given their coefficients }
+    { returns the derivative polynominal of the polynominal defined by }
+    {         the array of coeficients, where the coefficients are in  }
+    {         order of increasing power of x                          }
+    op DERIVATIVE = ( []int p )[]int:
+    begin
+        [ 1 : UPB p - 1 ]int result;
+        for i from 2 to UPB p do
+            result[ i - 1 ] := ( i - 1 ) * p[ i ]
+        od;
+        result
+    end { DERIVATIVE } ;
+    { prints the polynomial defined by the coefficients in p }
+    op SHOW = ( []int p )void:
+    begin
+        bool first := true;
+        for i from UPB p by -1 to LWB p do
+            if p[ i ] /= 0 then
+                if first then
+                    if   p[ i ] < 0 then print( ( "-" ) ) fi
+                else
+                    if   p[ i ] < 0
+                    then print( ( " - " ) )
+                    else print( ( " + " ) )
+                    fi
+                fi;
+                first := false;
+                if   i = LWB p
+                then print( ( whole( ABS p[ i ], 0 ) ) )
+                else
+                    if ABS p[ i ] > 1 then print( ( whole( ABS p[ i ], 0 ) ) ) fi;
+                    print( ( "x" ) );
+                    if i > LWB p + 1 then print( ( "^", whole( i - 1, 0 ) ) ) fi
+                fi
+            fi
+        od;
+        if first then
+            { all coefficients were 0 }
+            print( ( "0" ) )
+        fi
+    end { SHOW } ;
+    { task test cases }
+    proc test = ( []int p )void: begin SHOW p; print( ( " -> " ) ); SHOW DERIVATIVE p; print( ( newline ) ) end;
+    test( ( 5 ) ); test( ( 4, -3 ) ); test( ( -1, 6, 5 ) ); test( ( -4, 3, -2, 1 ) ); test( ( 1, 1, 0, -1, -1 ) )
+end
+)

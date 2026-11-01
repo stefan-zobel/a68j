@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Largest five adjacent number", ALGOL 68 solution largest-five-adjacent-number.alg.
+  https://rosettacode.org/wiki/Largest_five_adjacent_number#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/largest-five-adjacent-number.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generate 1000 random digits and find the largest/smallest numbers formed from 5 consecutive digits }
+    [ 1 : 1000 ]char digits;
+    for i to UPB digits do digits[ i ] := REPR ( ENTIER ( next_random * 10 ) + ABS "0" ) od;
+    string max_number := digits[ 1 : 5 ];
+    string min_number := digits[ 1 : 5 ];
+    for i from 2 to UPB digits - 4 do
+        string next_number = digits[ i : i + 4 ];
+        if next_number > max_number
+        then
+            { found a new higher number }
+            max_number := next_number
+        fi;
+        if next_number < min_number
+        then
+            { found a new lower number }
+            min_number := next_number
+        fi
+    od;
+    print( ( "Largest  5 consecutive digits from 1000 random digits: ", max_number, newline ) );
+    print( ( "Smallest 5 consecutive digits from 1000 random digits: ", min_number, newline ) )
+end
+)

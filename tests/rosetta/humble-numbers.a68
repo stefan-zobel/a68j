@@ -1,0 +1,54 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Humble numbers", ALGOL 68 solution humble-numbers.alg.
+  https://rosettacode.org/wiki/Humble_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/humble-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some Humble numbers - numbers with no prime factors above 7      }
+    int max_humble       = 2048;
+    int max_shown_humble = 50;
+    proc min = ( int a, b )int: if a < b then a else b fi;
+    [ 1 : max_humble ]int h;
+    [ 0 : 6 ]int h_count;
+    for i from LWB h_count to UPB h_count do h_count[ i ] := 0 od;
+    int p2    := 2, p3    := 3, p5    := 5, p7    := 7;
+    int last2 := 1, last3 := 1, last5 := 1, last7 := 1;
+    { 1 is the first humble number ( 2^0 * 3^0 * 5^0 * 7^0 ) and has 1 digit  }
+    h[ 1 ] := 1;
+    h_count[ 1 ] := 1;
+    print( ( "1" ) );
+    for n from 2 to max_humble do
+        { the next humble number is the lowest of the next multiples of       }
+        {     2, 3, 5, 7                                                      }
+        int m = min( min( min( p2, p3 ), p5 ), p7 );
+        h[ n ] := m;
+        if n <= max_shown_humble then print( ( " ", whole( m, 0 ) ) ) fi;
+        if m = p2 then p2 := 2 * h[ last2 +:= 1 ] fi;
+        if m = p3 then p3 := 3 * h[ last3 +:= 1 ] fi;
+        if m = p5 then p5 := 5 * h[ last5 +:= 1 ] fi;
+        if m = p7 then p7 := 7 * h[ last7 +:= 1 ] fi;
+        h_count[ if   m <        10 then 1
+                 elif m <       100 then 2
+                 elif m <     1 000 then 3
+                 elif m <    10 000 then 4
+                 elif m <   100 000 then 5
+                 elif m < 1 000 000 then 6
+                 else                    0
+                 fi
+               ] +:= 1
+    od;
+    print( ( newline ) );
+    for i to 6 do
+        print( ( "There are "
+               , whole( h_count[ i ], -4 )
+               , " Humble numbers with "
+               , whole( i, 0 )
+               , " digits"
+               , newline
+               )
+             )
+    od
+end
+)

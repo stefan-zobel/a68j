@@ -1,0 +1,38 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Shoelace formula for polygonal area", ALGOL 68 solution shoelace-formula-for-polygonal-area.alg.
+  https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/shoelace-formula-for-polygonal-area.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { returns the area of the polygon defined by the points p using the Shoelace formula }
+    op  AREA = ( [,]real p )real:
+        begin
+            [,]real points = p[ at 1, at 1 ]; { normalise array bounds to start at 1 }
+            if 2 UPB points /= 2 then
+                { the points do not have 2 coordinates }
+                -1
+            else
+                real   result := 0;
+                int    n       = 1 UPB points;
+                if n > 1 then
+                    { there at least two points }
+                    []real x   = points[ :, 1 ];
+                    []real y   = points[ :, 2 ];
+                    for i to 1 UPB points - 1 do
+                        result +:= x[ i     ] * y[ i + 1 ];
+                        result -:= x[ i + 1 ] * y[ i     ]
+                    od;
+                    result     +:= x[ n ] * y[ 1 ];
+                    result     -:= x[ 1 ] * y[ n ]
+                fi;
+                ( ABS result ) / 2
+            fi
+        end { AREA } ;
+
+    { test case as per the task }
+    print( ( fixed( AREA [,]real( ( 3.0, 4.0 ), ( 5.0, 11.0 ), ( 12.0, 8.0 ), ( 9.0, 5.0 ), ( 5.0, 6.0 ) ), -6, 2 ), newline ) )
+end
+)

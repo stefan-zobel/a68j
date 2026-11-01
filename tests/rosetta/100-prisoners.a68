@@ -1,0 +1,75 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "100 prisoners", ALGOL 68 solution 100-prisoners.alg.
+  https://rosettacode.org/wiki/100_prisoners#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/100-prisoners.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { 100 prisoners                                                        }
+
+{  begin code from the Knuth shuffle task                                  }
+proc between = (int a, b)int :
+(
+  ENTIER (random * ABS (b-a+1) + (a<b|a|b))
+);
+
+proc knuth_shuffle = (ref[]int a)void:
+(
+  for i from LWB a to UPB a do
+    int j = between(LWB a, UPB a);
+    int t = a[i];
+    a[i] := a[j];
+    a[j] := t
+  od
+);
+{  end   code from the Knuth shuffle task                                  }
+
+    int number_of_prisoners = 100;
+
+    { tries to find the prisoners' numbers in the drawers, choosing drawers  }
+    {       by the optimal strategy if `use optimal strategy` is TRUE or     }
+    {       at random otherwise; returns TRUE if alll prisoners were found   }
+    {       FALSE otherwise                                                  }
+    proc try_drawers = ( bool use_optimal_strategy, ref[]int drawers )bool:
+         begin
+            bool found := true;
+            [ LWB drawers : UPB drawers ]bool tried;
+            for prisoner to number_of_prisoners while found do
+                for i from LWB drawers to UPB drawers do tried[ i ] := false od;
+                found := false;
+                int  drawer_to_try := if   use_optimal_strategy
+                                      then prisoner
+                                      else between( LWB drawers, UPB drawers )
+                                      fi;
+                to 50 while NOT ( found := prisoner = drawers[ drawer_to_try ] ) do
+                    tried[ drawer_to_try ] := true;
+                    if use_optimal_strategy then
+                        drawer_to_try := drawers[ drawer_to_try ]
+                    else
+                        while tried[ drawer_to_try ] do
+                            drawer_to_try := between( LWB drawers, UPB drawers )
+                        od
+                    fi
+                od
+            od;
+            found
+         end { try drawers } ;
+
+    begin { run the random and optimal strategies and compare the successes  }
+        int tests         = 10 000;  { number of times to try the strategies }
+        int random_count := 0, optimal_count := 0;
+        [ 1 : 100 ]int drawers;
+        to tests do
+            for i from LWB drawers to UPB drawers do drawers[ i ] := i od;
+            knuth_shuffle( drawers );
+            if try_drawers( false, drawers ) then random_count  +:= 1 fi;
+            if try_drawers( true,  drawers ) then optimal_count +:= 1 fi
+        od;
+        print( ( "100 prisoners: success rate via  random choice: " ) );
+        print( ( fixed( ( random_count  * 100 ) / tests, - 6, 2 ), "%", newline ) );
+        print( ( "               success rate via optimal choice: " ) );
+        print( ( fixed( ( optimal_count * 100 ) / tests, - 6, 2 ), "%", newline ) )
+    end
+end
+)

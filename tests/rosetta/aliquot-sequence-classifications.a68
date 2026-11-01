@@ -1,0 +1,115 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Aliquot sequence classifications", ALGOL 68 solution aliquot-sequence-classifications.alg.
+  https://rosettacode.org/wiki/Aliquot_sequence_classifications#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/aliquot-sequence-classifications.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { aliquot sequence classification                                         }
+    { maximum sequence length we consider                                     }
+    int max_sequence_length = 16;
+    { possible classifications                                                }
+    string         perfect_classification    = "perfect        ";
+    string        amicable_classification    = "amicable       ";
+    string        sociable_classification    = "sociable       ";
+    string        aspiring_classification    = "aspiring       ";
+    string          cyclic_classification    = "cyclic         ";
+    string     terminating_classification    = "terminating    ";
+    string non_terminating_classification    = "non terminating";
+    { structure to hold an aliquot sequence and its classification            }
+    mode Aliquot = struct( string                              classification
+                         , [ 1 : max_sequence_length ]long int sequence
+                         , int                                 length
+                         );
+    { maximum value for sequence elements - if any element is more than this, }
+    { we assume it is non-teriminating                                        }
+    long int max_element = 140 737 488 355 328;
+    { returns the sum of the proper divisors of n                             }
+    op DIVISORSUM = ( long int n )long int:
+       begin
+            long int abs_n = ABS n;
+            if abs_n < 2 then
+                0 { -1, 0 and 1 have no proper divisors                       }
+            else
+                { have a number with possible divisors                        }
+               long int result := 1; { 1 is always a divisor                  }
+               { a FOR loop counter can only be an INT, hence the WHILE loop  }
+               long int d      := ENTIER long_sqrt( abs_n );
+               while d > 1 do
+                   if abs_n MOD d = 0 then
+                       { found another divisor                                }
+                       result +:= d;
+                       if d * d /= abs_n then
+                           { add the other divisor                            }
+                           result +:= abs_n OVER d
+                       fi
+                   fi;
+                   d -:= 1
+               od;
+               result
+            fi
+       end { DIVISORSUM } ;
+    { generates the aliquot sequence of the number k and its classification   }
+    { at most max elements of the sequence are considered                     }
+    op CLASSIFY = ( long int k )Aliquot :
+       begin
+           Aliquot result;
+           classification of result := "non-terminating";
+           int lb = LWB sequence of result;
+           int ub = UPB sequence of result;
+           ( sequence of result )[ lb ] := k; { the first element is always k }
+           length     of result         := 1;
+           for i from lb + 1 to ub do
+               ( sequence of result )[ i ] := 0
+           od;
+           bool classified := false;
+           long int prev_k := k;
+           for i from lb + 1 to ub while NOT classified do
+               length of result +:= 1;
+               long int next_k := ( sequence of result )[ i ] := DIVISORSUM prev_k;
+               classified := true;
+               if   next_k = 0 then { the sequence terminates                 }
+                    classification of result := terminating_classification
+               elif next_k > max_element then { the sequence gets too large   }
+                    classification of result := non_terminating_classification
+               elif next_k = k then { the sequence that returns to k          }
+                   classification of result
+                       := if   i = lb + 1 then  perfect_classification
+                          elif i = lb + 2 then amicable_classification
+                          else                 sociable_classification
+                          fi
+               elif next_k = prev_k then { the sequence repeats with non-k    }
+                   classification of result := aspiring_classification
+               else { check for repeating sequence with a period more than 1  }
+                   classified := false;
+                   for prev_pos from lb to i - 2 while NOT classified do
+                       if classified := ( sequence of result )[ prev_pos ] = next_k then
+                           { found a repeatition                              }
+                           classification of result := cyclic_classification
+                       fi
+                   od
+               fi;
+               prev_k := next_k
+           od;
+           result
+       end { CLASSIFY } ;
+    { test cases as per the task                                              }
+    []long int test_cases =
+        (   1,    2,   3,   4,   5,    6,     7,       8,   9,  10
+        ,  11,   12,  28, 496, 220, 1184, 12496, 1264460, 790, 909
+        , 562, 1064, 1488
+        ,  15355717786080
+        );
+    for i from LWB test_cases to UPB test_cases do
+        long int k   := test_cases[ i ];
+        Aliquot  seq  = CLASSIFY k;
+        print( ( whole( k, -14 ), ": ", classification of seq, ":" ) );
+        for e from LWB sequence of seq + 1 to length of seq do
+            print( ( " ", whole( ( sequence of seq )[ e ], 0 ) ) )
+        od;
+        print( ( newline ) )
+    od
+end
+)

@@ -1,0 +1,40 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find first missing positive", ALGOL 68 solution find-first-missing-positive.alg.
+  https://rosettacode.org/wiki/Find_first_missing_positive#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-first-missing-positive.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find the lowest positive integer not present in various arrays }
+    { returns the lowest positive integer not present in r }
+    proc min_missing_positive = ( []int r )int:
+         begin
+            []int a = r[ at 1 ]; { a is r wih lower bound 1 }
+            { as noted in the J sample, the maximum possible minimum }
+            { missing positive integer is one more than the length of the array }
+            { note the values between 1 and UPB a present in a }
+            [ 1 : UPB a ]bool present;
+            for i to UPB a do present[ i ] := false od;
+            for i to UPB a do
+                int ai = a[ i ];
+                if ai >= 1 AND ai <= UPB a then
+                    present[ ai ] := true
+                fi
+            od;
+            { find the lowest value not in present }
+            int result := UPB a + 1;
+            bool found := false;
+            for i to UPB a while NOT found do
+                if NOT present[ i ] then
+                    found  := true;
+                    result := i
+                fi
+            od;
+            result
+         end { min missing positive } ;
+     print( ( " ", whole( min_missing_positive( ( 1, 2,  0         ) ), 0 ) ) );
+     print( ( " ", whole( min_missing_positive( ( 3, 4, -1,  1     ) ), 0 ) ) );
+     print( ( " ", whole( min_missing_positive( ( 7, 8,  9, 11, 12 ) ), 0 ) ) )
+end
+)

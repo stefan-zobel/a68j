@@ -1,0 +1,86 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Dutch national flag problem", ALGOL 68 solution dutch-national-flag-problem.alg.
+  https://rosettacode.org/wiki/Dutch_national_flag_problem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/dutch-national-flag-problem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Dutch national flag problem: sort a set of randomly arranged red, white and blue balls into order }
+      { ball sets are represented by STRING items, red by "R", white by "W" and blue by "B" }
+    { returns the balls sorted into red, white and blue order }
+    proc sort_balls = ( string balls )string:
+    begin
+        [ 1 : ( UPB balls + 1 ) - LWB balls ]char result, white, blue;
+        int r_pos := 0, w_pos := 0, b_pos := 0;
+        { copy the red balls into the result and split the white and blue }
+        { into separate lists }
+        for pos from LWB balls to UPB balls do
+            char b = balls[ pos ];
+            if b = "R" then
+                { red ball - add to the result }
+                result[ r_pos +:= 1 ] := b
+            elif b = "W" then
+                { white ball }
+                white[ w_pos  +:= 1 ] := b
+            else
+                { must be blue }
+                blue[ b_pos   +:= 1 ] := b
+            fi
+        od;
+        { add the white balls to the list }
+        if w_pos > 0 then
+            { there were some white balls - add them to the result }
+            result[ r_pos + 1 : r_pos + w_pos ] := white[ 1 : w_pos ];
+            r_pos +:= w_pos
+        fi;
+        { add the blue balls to the list }
+        if b_pos > 0 then
+            { there were some blue balls - add them to the end of the result }
+            result[ r_pos + 1 : r_pos + b_pos ] := blue[ 1 : b_pos ];
+            r_pos +:= b_pos
+        fi;
+        result[ 1 : r_pos ]
+    end { sort balls } ;
+    { returns TRUE if balls is sorted, FALSE otherwise }
+    proc sorted_balls = ( string balls )bool:
+    begin
+        bool result := true;
+        for i from LWB balls + 1 to UPB balls
+        while result := (  char prev = balls[ i - 1 ];
+                           char curr = balls[ i     ];
+                           prev = curr
+                        OR ( prev = "R" AND curr = "W" )
+                        OR ( prev = "R" AND curr = "B" )
+                        OR ( prev = "W" AND curr = "B" )
+                        )
+        do skip od;
+        result
+    end { sorted balls } ;
+    { constructs an unsorted random string of n balls }
+    proc random_balls = ( int n )string:
+    begin
+        string result := n * "?";
+        while for i to n do
+                  result[ i ] := if   int r = ENTIER( next_random * 3 ) + 1;
+                                      r = 1
+                                 then "R"
+                                 elif r = 2
+                                 then "W"
+                                 else "B"
+                                 fi
+              od;
+              sorted_balls( result )
+        do skip od;
+        result
+    end { random balls } ;
+    { tests }
+    for i from 11 by 3 to 17 do
+        string balls;
+        balls := random_balls( i );
+        print( ( "before: ", balls, if sorted_balls( balls ) then " initially sorted??" else "" fi, newline ) );
+        balls := sort_balls( balls );
+        print( ( "after:  ", balls, if sorted_balls( balls ) then "" else " NOT" fi, " sorted", newline ) )
+    od
+end
+)

@@ -1,0 +1,51 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Web scraping", ALGOL 68 solution web-scraping.alg.
+  https://rosettacode.org/wiki/Web_scraping#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/web-scraping.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string
+   domain="tycho.usno.navy.mil",
+   page="cgi-bin/timer.pl";
+
+string { search for the needle in the haystack }
+   needle = "UTC",
+   hay_stack = "http://"+domain+"/"+page,
+
+   re_success="^HTTP/[0-9.]* 200",
+   re_result_description="^HTTP/[0-9.]* [0-9]+ [a-zA-Z ]*",
+   re_doctype ="\s\s<![Dd][Oo][Cc][Tt][Yy][Pp][Ee] [^>]+>\s+";
+
+proc raise_error = (string msg)void: ( put(stand_error, (msg, new_line)); stop);
+
+proc is_html_page = (ref string page) bool: (
+     bool out_=grep_in_string(re_success, page, nil, nil) = 0;
+     if int start, end_;
+        grep_in_string(re_result_description, page, start, end_) = 0
+     then
+        page:=page[end_+1:];
+        if grep_in_string(re_doctype, page, start, end_) = 0
+        then page:=page[start+2:]
+        else raise_error("unknown format retrieving page")
+        fi
+     else raise_error("unknown error retrieving page")
+     fi;
+     out_
+);
+
+string reply;
+int rc = http_content (reply, domain, haystack, 0);
+if rc = 0 AND is_html_page (reply)
+then
+  string line; file freply; associate(freply, reply);
+  on_logical_file_end(freply, (ref file freply)bool: (done; skip));
+  do
+    get(freply,(line, new_line));
+    if string_in_string(needle, nil, line) then print((line, new_line)) fi
+  od;
+  done: skip
+else raise_error (strerror (rc))
+fi
+)

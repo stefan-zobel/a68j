@@ -1,0 +1,7 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ A Java class of the user (tests/java/demo/Util.java), found with -fjava-classpath. }
+begin
+   proc (string) string greet = nest Java "demo.Util.greet";
+   proc (int) long int fib = nest Java "demo.Util.fib";
+   puts (greet ("Algol 68") + " fib 90 = " + whole (fib (90), 0) + "'n")
+end

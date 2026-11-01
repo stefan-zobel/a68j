@@ -1,0 +1,8 @@
+{ Deep recursion: the JVM backend runs the program on a thread with a
+  large stack. }
+begin proc depth = (int n) int: (n = 0 | 0 | 1 + depth (n - 1));
+      puts (whole (depth (20000), 0) + "'n");
+      proc ack = (int m, n) int:
+         (m = 0 | n + 1 |: n = 0 | ack (m - 1, 1) | ack (m - 1, ack (m, n - 1)));
+      puts (whole (ack (2, 300), 0) + "'n")
+end

@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pythagorean quadruples", ALGOL 68 solution pythagorean-quadruples.alg.
+  https://rosettacode.org/wiki/Pythagorean_quadruples#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pythagorean-quadruples.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { find values of d where d^2 =/= a^2 + b^2 + c^2 for any integers a, b, c }
+    { where d in [1..2200], a, b, c =/= 0                                     }
+    { max number to check }
+    int max_number = 2200;
+    int max_square = max_number * max_number;
+    { table of numbers that can be the sum of two squares }
+    [ 1 : max_square ]bool sum_of_two_squares; for n to max_square do sum_of_two_squares[ n ] := false od;
+    for a to max_number do
+        int a2 = a * a;
+        for b from a to max_number while int sum2 = ( b * b ) + a2;
+                                         sum2 <= max_square do
+            sum_of_two_squares[ sum2 ] := true
+        od
+    od;
+    { now find d such that d^2 - c^2 is in sum of two squares }
+    [ 1 : max_number ]bool solution; for n to max_number do solution[ n ] := false od;
+    for d to max_number do
+        int d2 = d * d;
+        for c to d - 1 while NOT solution[ d ] do
+            int diff2 = d2 - ( c * c );
+            if sum_of_two_squares[ diff2 ] then
+                solution[ d ] := true
+            fi
+        od
+    od;
+    { print the numbers whose squares are not the sum of three squares }
+    for d to max_number do
+        if NOT solution[ d ] then
+            print( ( " ", whole( d, 0 ) ) )
+        fi
+    od;
+    print( ( newline ) )
+end
+)

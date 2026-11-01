@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Factorial primes", ALGOL 68 solution factorial-primes.alg.
+  https://rosettacode.org/wiki/Factorial_primes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/factorial-primes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some factorial primes - primes that are f - 1 or f + 1      }
+      {      for some factorial f                                        }
+
+{ is prime PROC based on the one in the primality by trial division task }
+  proc is_prime = ( long int p )bool:
+    if p <= 1 OR NOT ODD p then
+      p = 2
+    else
+      bool prime := true;
+      for i from 3 by 2 to SHORTEN ENTIER long_sqrt(p) while prime := p MOD i /= 0 do skip od;
+      prime
+    fi;
+{ end of code based on the primality by trial division task              }
+
+    long int f        := 1;
+    int      fp_count := 0;
+    for n while fp_count < 10 do
+        f *:= n;
+        char fp_op := "-";
+        for offset from -1 by 2 to 1 do
+            if  long int fp = f + offset;
+                is_prime( fp )
+            then
+                print( ( whole( fp_count +:= 1, -2 ), ":", whole( n, -4 )
+                       , "! ", fp_op, " 1 = ", whole( fp, 0 )
+                      , newline
+                      )
+                    )
+            fi;
+            fp_op := "+"
+        od
+    od
+end
+)

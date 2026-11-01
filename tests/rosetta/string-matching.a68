@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "String matching", ALGOL 68 solution string-matching.alg.
+  https://rosettacode.org/wiki/String_matching#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/string-matching.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ define some appropriate OPerators }
+prio STARTSWITH = 5, ENDSWITH = 5;
+op STARTSWITH = (string str, prefix)bool: { assuming LWB = 1 }
+  if UPB str < UPB prefix then false else str[:UPB prefix]=prefix fi;
+op ENDSWITH = (string str, suffix)bool: { assuming LWB = 1 }
+  if UPB str < UPB suffix then false else str[UPB str-UPB suffix+1:]=suffix fi;
+
+int loc_, loc2;
+
+print((
+  "abcd" STARTSWITH "ab", { returns TRUE }
+  "abcd" ENDSWITH "zn", { returns FALSE }
+  string_in_string("bb",loc_,"abab"), { returns FALSE }
+  string_in_string("ab",loc_,"abab"), { returns TRUE }
+  (string_in_string("bb",loc_,"abab")|loc_|-1), { returns -1 }
+  (string_in_string("ab",loc_,"abab")|loc_|-1), { returns +1 }
+  (string_in_string("ab",loc2,"abab"[loc_+1:])|loc_+loc2|-1) { returns +3 }
+))
+)

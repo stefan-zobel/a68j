@@ -1,0 +1,70 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Shell sort", ALGOL 68 solution sorting-algorithms-shell-sort-1.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Shell_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-shell-sort-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+{
+  REQUIRES(
+    MODE SORTELEMENT = mode of element of array to be sorted...
+    OP < = (SORTELEMENT a, b)BOOL: a < b;
+  )
+END }
+
+mode Sortelementcmp = proc(SORTELEMENT,SORTELEMENT)bool;
+
+{ create a global sort procedure for convenience }
+proc(SORTELEMENT,SORTELEMENT)bool sort_cmp_default := (SORTELEMENT a, b)bool: a < b;
+proc sort_cmp_rev = (SORTELEMENT a, b)bool: NOT sort_cmp_default(a,b);
+
+{ Alternative gap calculations: }
+{     ⌊n/2**k⌋; ⌊n/2⌋; Θ(n**2) [when n=2**p]; Donald Shell 1959 }
+proc sort_gap_shell = (int k, n)int: n OVER 2;
+{     2 ⌊n/2**(k+1)⌋+1; 2 ⌊n/4⌋+1, ..., 3, 1; Θ(n**(3/2)); Frank & Lazarus, 1960 }
+{     2**k-1; 1, 3, 7, 15, 31, 63, ...; Θ(n**(3/2)); Hibbard, 1963 }
+{     2**k+1, prefixed with 1; 1, 3, 5, 9, 17, 33, 65, ...; Θ(n**(3/2)); Papernov & Stasevich, 1965 }
+{     successive numbers of the form 2**p 3**q; 1, 2, 3, 4, 6, 8, 9, 12, ...; Θ(n log**2 n); Pratt 1971 }
+{     (3**k-1)/2, not greater than ⌈n/3⌉; 1, 4, 13, 40, 121, ...; Θ(n**(3/2)); Knuth 1973 }
+{     ∏a[q], where r=⌊√(2k+√(2k))⌋ and a[q]=min(n∈𝒩:n≥(5/2)**(q+1) and ∀ p:0≤ p<q → gcd(a[p],n)=1);
+      limit where 0≤q<r and q≠(r**2+r)/2-k
+         1, 3, 7, 21, 48, 112, ...; O(n e**√(8ln(5/2)ln n)); Incerpi & Sedgewick, 1985 }
+{     4**k+3×2**(k-1)+1, prefixed with 1; 1, 8, 23, 77, 281, ...; Θ(n**(4/3)); Sedgewick, 1986 }
+{     9(4**(k-1)-2**(k-1))+1, 4**(k+1)-6×2**k+1; 1, 5, 19, 41, 109, ...; Θ(n**(4/3)); Sedgewick, 1986 }
+{     h[k]=max(⌊5h[k-1]/11⌋, 1), h[0]=n; ⌊5N/11⌋, ⌊5/11 ⌊5N/11⌋⌋, ..., 1; Θ(?); Gonnet & Baeza-Yates, 1991 }
+proc sort_gap_gonnet_and_baeza_yates = (int k, n)int: if n=2 then 1 else n*5 OVER 11 fi;
+{     ⌈(9**k-4**k)/(5×4**(k-1))⌉; 1, 4, 9, 20, 46, 103, ...; Θ(?); Tokuda, 1992 }
+{     unknown; 1, 4, 10, 23, 57, 132, 301, 701; Θ(?); Ciura, 2001 }
+
+{ set default gap calculation }
+proc (int {k}, int {n})int sort_gap := sort_gap_gonnet_and_baeza_yates;
+
+proc shell_sort_in_place = (ref []SORTELEMENT array, union(void, Sortelementcmp) opt_cmp)ref[]SORTELEMENT:(
+  Sortelementcmp cmp := (opt_cmp|(Sortelementcmp cmp): cmp | sort_cmp_default);
+  int n := ( UPB array + LWB array + 1 ) OVER 2; { initial gap }
+  for k while n NE 0 do
+    for index from LWB array to UPB array do
+      int i := index;
+      SORTELEMENT element = array[i];
+      while ( i - LWB array >= n | cmp(element, array[i-n]) | false ) do
+        array[i] := array[i-n];
+        i -:= n
+      od;
+      array[i] := element
+    od;
+    n := sort_gap(k,n)
+  od;
+  array
+);
+
+proc shell_sort = ([]SORTELEMENT seq)[]SORTELEMENT:
+  shell_sort_in_place(loc[LWB seq: UPB seq]SORTELEMENT:=seq, empty);
+
+proc shell_sort_rev = ([]SORTELEMENT seq)[]SORTELEMENT:
+  shell_sort_in_place(loc[LWB seq: UPB seq]SORTELEMENT:=seq, sort_cmp_rev);
+
+skip
+)

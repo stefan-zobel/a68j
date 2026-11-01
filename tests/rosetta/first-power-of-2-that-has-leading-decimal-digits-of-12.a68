@@ -1,0 +1,59 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "First power of 2 that has leading decimal digits of 12", ALGOL 68 solution first-power-of-2-that-has-leading-decimal-digits-of-12.alg.
+  https://rosettacode.org/wiki/First_power_of_2_that_has_leading_decimal_digits_of_12#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/first-power-of-2-that-has-leading-decimal-digits-of-12.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find values of p( L, n ) where p( L, n ) is the nth-smallest j such that          }
+{      the decimal representation of 2^j starts with the digits of L                }
+begin
+    { returns a string representation of n with commas                              }
+    proc commatise = ( long int n )string:
+         begin
+            string result      := "";
+            string unformatted  = whole( n, 0 );
+            int    ch_count    := 0;
+            for c from UPB unformatted by -1 to LWB unformatted do
+                if   ch_count <= 2 then ch_count +:= 1
+                else                    ch_count  := 1; "," +=: result
+                fi;
+                unformatted[ c ] +=: result
+            od;
+            result
+         end { commatise } ;
+    { returns p( prefix, occurance )                                                 }
+    proc p = ( int prefix, int occurance )long int:
+    begin
+        long int quarter_long_max_int = long_max_int OVER 4;
+        long int p2                  := 1;
+        int      count               := 0;
+        int      power               := 0;
+        while count < occurance do
+            power       +:= 1;
+            p2          +:= p2;
+            long int pre := p2;
+            while pre > prefix do
+                pre OVERAB 10
+            od;
+            if pre = prefix then
+                count +:= 1
+            fi;
+            if p2 > quarter_long_max_int then
+                p2 OVERAB 10 000
+            fi
+        od;
+        power
+    end { p } ;
+    { prints p( prefix, occurance )                                                 }
+    proc print_p = ( int prefix, int occurance )void:
+        print( ( "p(", whole( prefix, 0 ), ", ", whole( occurance, 0 ), ") = ", commatise( p( prefix, occurance ) ), newline ) );
+    { task test cases                                                               }
+    print_p(  12,      1 );
+    print_p(  12,      2 );
+    print_p( 123,     45 );
+    print_p( 123,  12345 );
+    print_p( 123, 678910 )
+end
+)

@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Experimental Verification of the NKTg Law in Earth Orbit Based on NASA?s 2025 Earth Dataset", ALGOL 68 solution experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset.alg.
+  https://rosettacode.org/wiki/Experimental_Verification_of_the_NKTg_Law_in_Earth_Orbit_Based_on_NASA%E2%80%99s_2025_Earth_Dataset#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { NKTg Law in Earth orbit - translation of Rust via Pluto }
+
+    real dm_dt       = -1.8;  { kg/s }
+
+    op   LEN         = ( string s )int: 1 + UPB s - LWB s;
+    prio PAD         = 9;
+    op   PAD         = ( string s, int w )string:
+                       if int l = LEN s; l >= w then s else s + ( ( w - l ) * " " ) fi;
+    op   PAD         = ( int w, string s )string:
+                       if int l = LEN s; l >= w then s else ( ( w - l ) * " " ) + s fi;
+
+    mode Orbitaldata = struct( string date, real x, v, m );
+    mode Resultrow   = struct( string date
+                             , real p, nktg1, nktg2, v_sim, v_nasa, err
+                             );
+    mode Observation = struct( string date, real v );
+    op   TOSTRING    = ( Resultrow r )string:
+                                       date of r PAD 12       + " "
+                     + 14 PAD float(      p of r, -10, 3, 3 ) + " "
+                     + 14 PAD float(  nktg1 of r, -10, 3, 3 ) + " "
+                     + 14 PAD float(  nktg2 of r, -10, 3, 3 ) + " "
+                     + 12 PAD float(  v_sim of r, -10, 3, 3 ) + " "
+                     + 12 PAD float( v_nasa of r, -10, 3, 3 ) + " "
+                     +        fixed(    err of r, -10, 4    ) + "%"
+                     ;
+    proc momentum    = ( real m, v )real: m * v;
+    proc nktg1       = ( real x, p )real: x * p;
+    proc nktg2       = ( real    p )real: dm_dt * p;
+    proc relative_error = ( real sim, nasa )real: ( sim - nasa ) / nasa * 100;
+
+    { Simulated NKTg 2025 dataset. }
+    []Orbitaldata sim_2025
+                = ( ( "01/01/2025", 1.471012e11, 3.0276e4, 5.97219e24 )
+                  , ( "04/01/2025", 1.494953e11, 2.9791e4, 5.97218999999998e24 )
+                  , ( "07/01/2025", 1.520965e11, 2.9282e4, 5.97218999999997e24 )
+                  , ( "10/01/2025", 1.496328e11, 2.9764e4, 5.97218999999995e24 )
+                  , ( "12/31/2025", 1.471025e11, 3.0276e4, 5.97218999999994e24 )
+                  );
+
+    { NASA observed velocities. }
+    []Observation nasa_2025
+                = ( ( "01/01/2025", 3.0287e4 )
+                  , ( "04/01/2025", 2.9791e4 )
+                  , ( "07/01/2025", 2.9291e4 )
+                  , ( "10/01/2025", 2.9778e4 )
+                  , ( "12/31/2025", 3.0286e4 )
+                  );
+
+    print( ( newline, "Experimental Verification of NKTg Law (Earth 2025)", newline, newline ) );
+    print( ( "Date" PAD 12 ) );
+    print( ( " " + 14 PAD "Momentum(p)" + " " + 14 PAD "NKTg1"  + " " + 14 PAD "NKTg2" ) );
+    print( ( " " + 12 PAD "v_sim"       + " " + 12 PAD "v_NASA" + " " + 10 PAD "Error", newline ) );
+    print( ( "-" * 95, newline ) );
+
+    for i from  LWB sim_2025 to UPB sim_2025 do
+        Orbitaldata data = sim_2025[ i ];
+        if date of data /= date of nasa_2025[ i ] then
+            print( ( "**** Date mismatch on observation/simulation ", whole( i, 0 ), newline ) )
+        else
+            real p      = momentum( m of data, v of data );
+            real n1     = nktg1( x of data, p );
+            real n2     = nktg2( p );
+            real v_sim  = v of data;
+            real v_nasa = v of nasa_2025[ i ];
+            real err    = relative_error( v of data, v_nasa );
+            print( ( TOSTRING Resultrow( date of data, p, n1, n2, v_sim, v_nasa, err ), newline ) )
+        fi
+    od
+
+end
+)

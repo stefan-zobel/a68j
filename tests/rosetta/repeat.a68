@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Repeat", ALGOL 68 solution repeat.alg.
+  https://rosettacode.org/wiki/Repeat#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/repeat.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { operator that executes a procedure the specified number of times        }
+    op REPEAT = ( int count, proc void routine )void: to count do routine od;
+
+    { make REPEAT a low priority operater                                     }
+    prio REPEAT = 1;
+
+    { can also create variant that passes the iteration count as a parameter  }
+    op REPEAT = ( int count, proc( int )void routine )void:
+       for iteration to count do routine( iteration ) od;
+
+    { PROC to test the REPEAT operator with                                   }
+    proc say_something = void: print( ( "something", newline ) );
+
+    3 REPEAT say_something;
+
+    { PROC to test the variant                                                }
+    proc show_squares = ( int n )void:
+         print( ( whole( n, 0 ), " ", whole( n * n, 0 ), newline ) );
+
+    3 REPEAT show_squares
+
+end
+)

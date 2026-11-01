@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Doubly-linked list/Definition", ALGOL 68 solution doubly-linked-list-definition-2.alg.
+  https://rosettacode.org/wiki/Doubly-linked_list/Definition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/doubly-linked-list-definition-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+mode Listnew = LINKNEW;
+mode List = ref Listnew;
+
+op LISTINIT = (List self)List: (
+  self := (self, self, ~);
+  self
+);
+
+op ISEMPTY = (List self)bool:
+  (List(prev of self) :=: List(self)) AND (List(self) :=: List(next of self));
+
+op HEAD = (List self)LINK: next of self;
+
+op TAIL = (List self)LINK: prev of self;
+
+{ insert after }
+op +:= = (LINK cursor, LINK link)LINK: (
+  next of link := next of cursor;
+  prev of link := cursor;
+  next of cursor := link;
+  prev of next of link := link;
+  link
+);
+
+{ insert before }
+op +=: = (LINK link, LINK cursor)LINK: prev of cursor +:= link;
+
+{ delete current and step forward }
+op -:= = (List ignore, LINK link)LINK: (
+  next of prev of link := next of link;
+  prev of next of link := prev of link;
+  next of link := prev of link := nil; { garbage collection hint }
+  link
+);
+
+{ delete current and step backward }
+prio -=: = 1;
+op -=: = (List link, List ignore)LINK: (
+  ignore -:= link; prev of link
+);
+
+prio ISIN = 1; { low priority }
+
+op ISIN = (LINK link, List self)bool:
+  link isnt LINK(self);
+
+skip
+)

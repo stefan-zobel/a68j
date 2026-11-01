@@ -1,0 +1,3 @@
+tests/java/nest-java-off.a68:3:33: error: Java is not a valid language indication
+tests/java/nest-java-off.a68:4:40: error: Java is not a valid language indication
+exit 1

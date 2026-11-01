@@ -1,0 +1,72 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Wordle comparison", ALGOL 68 solution wordle-comparison.alg.
+  https://rosettacode.org/wiki/Wordle_comparison#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/wordle-comparison.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ utility functions: }
+
+proc join = ([]string row, string joiner) string:
+  begin
+    bool first := true;
+    string result := "";
+    for i from LWB row to UPB row do
+      if NOT first then result +:= joiner
+                   else first := false
+      fi;
+      result +:= row[i]
+    od;
+    result
+  end;
+
+proc fill = (ref []string row, string s) void:
+  begin
+    for i from LWB row to UPB row do row[i] := s od
+  end;
+
+{ actual solution: }
+
+proc wordle_comparison = (string word_, guess) []string:
+  begin
+    string copy := word_;
+    { we'll just replace matched chars with NULs in copy
+      to avoid further matches }
+    [UPB guess]string result;
+    fill(result, "");
+    { first the greens: }
+    for i to UPB guess do
+      if i <= UPB copy AND copy[i] = guess[i] then
+        result[i] := "green";
+        copy[i] := REPR 0
+      fi
+    od;
+    { then the rest: }
+    for i to UPB guess do
+      if result[i] = "" then
+        for j to UPB copy do
+          if copy[j] = guess[i] then
+            result[i] := "yellow";
+            copy[j] := REPR 0;
+            next
+          fi
+        od;
+        result[i] := "grey";
+        next: skip
+      fi
+    od;
+    result
+  end;
+
+[,]string pairs = (("ALLOW", "LOLLY"),
+                   ("BULLY", "LOLLY"),
+                   ("ROBIN", "ALERT"),
+                   ("ROBIN", "SONIC"),
+                   ("ROBIN", "ROBIN"));
+for i to UPB pairs do
+  print((pairs[i,1], " v ", pairs[i,2], " => ",
+         join(wordle_comparison(pairs[i,1], pairs[i,2]), ", "),
+         newline))
+od
+)

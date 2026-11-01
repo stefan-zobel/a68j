@@ -1,0 +1,58 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Arithmetic numbers", ALGOL 68 solution arithmetic-numbers.alg.
+  https://rosettacode.org/wiki/Arithmetic_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find arithmetic numbers - numbers whose average divisor is an integer }
+      { i.e. sum of divisors MOD count of divisors = 0                        }
+    int max_number            = 500 000;    { maximum number we will consider }
+    [ 1 : max_number ]int d_sum;
+    [ 1 : max_number ]int d_count;
+    { all positive integers are divisible by 1 and so have at least 1 divisor }
+    for i to max_number do d_sum[ i ] := d_count[ i ] := 1 od;
+    { construct the divisor sums and counts                                   }
+    for i from 2 to max_number do
+        for j from i by i to max_number do
+            d_count[ j ] +:= 1;
+            d_sum[   j ] +:= i
+        od
+    od;
+    { count arithmetic numbers, and show the first 100, the 1 000th, 10 000th }
+    { and the 100 000th and show how many are composite                       }
+    int max_arithmetic = 100 000;
+    int a_count       := 0;
+    int c_count       := 0;
+    for i to max_number while a_count < max_arithmetic do
+        if d_sum[ i ] MOD d_count[ i ] = 0 then
+            { have an arithmetic number                                       }
+            if d_count[ i ] > 2 then
+                { the number is composite                                     }
+                c_count +:= 1
+            fi;
+            a_count +:= 1;
+            if a_count <= 100 then
+                print( ( " ", whole( i, -3 ) ) );
+                if a_count MOD 10 = 0 then print( ( newline ) ) fi
+            elif a_count =   1 000
+              OR a_count =  10 000
+              OR a_count = 100 000
+            then
+                print( ( newline ) );
+                print( ( "The ", whole( a_count, 0 )
+                       , "th arithmetic number is: ", whole( i, 0 )
+                       , newline
+                       )
+                     );
+                print( ( "    There are ", whole( c_count, 0 )
+                       , " composite arithmetic numbers up to ", whole( i, 0 )
+                       , newline
+                       )
+                     )
+            fi
+        fi
+    od
+end
+)

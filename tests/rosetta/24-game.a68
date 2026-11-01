@@ -1,0 +1,118 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "24 game", ALGOL 68 solution 24-game.alg.
+  https://rosettacode.org/wiki/24_game#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/24-game.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { play the 24 game - present the user with 4 digits and invite them to  }
+      { enter an expression using the digits that evaluates to 24             }
+
+    [ 0 : 9 ]int expression_digits;          { the digits entered by the user }
+    [ 0 : 9 ]int puzzle_digits;                   { the digits for the puzzle }
+    proc eval = ( string expr )real:              { parses and evaluates expr }
+         begin
+            { syntax: expression = term ( ( "+" | "-" ) term )*               }
+            {         term       = factor ( ( "*" | "/" ) factor ) *          }
+            {         factor     = "0" | "1" | "2" | ... | "9"                }
+            {                    | "(" expression ")"                         }
+            int  x_pos := LWB expr - 1;
+            int  x_end := UPB expr;
+            bool ok    := true;
+            proc error = ( string msg )void:
+                 if ok then                        { this is the firstt error }
+                    ok := false;
+                    print( ( msg, newline ) );
+                    x_pos := x_end + 1
+                 fi { error } ;
+            proc curr_ch = char: if x_pos > x_end then REPR 0 else expr[ x_pos ] fi;
+            proc next_ch = void: while x_pos +:= 1; curr_ch = " " do skip od;
+            proc factor = real:
+                 if curr_ch >= "0" AND curr_ch <= "9" then
+                    int  digit  = ABS curr_ch - ABS "0";
+                    real result = digit;
+                    expression_digits[ digit ] +:= 1;
+                    next_ch;
+                    result
+                 elif curr_ch = "(" then
+                    next_ch;
+                    real result = expression;
+                    if curr_ch = ")" then
+                        next_ch
+                    else
+                        error( """)"" expected after sub-expression" )
+                    fi;
+                    result
+                 else
+                    error( "Unexpected """ + curr_ch + """" );
+                    0
+                 fi { factor } ;
+            proc expr_term = real:
+                 begin
+                    real result := factor;
+                    while curr_ch = "*" OR curr_ch = "/" do
+                        char op_ = curr_ch;
+                        next_ch;
+                        if op_ = "*" then result *:= factor else result /:= factor fi
+                    od;
+                    result
+                 end { expr term } ;
+            proc expression = real:
+                 begin
+                    real result := expr_term;
+                    while curr_ch = "+" OR curr_ch = "-" do
+                        char op_ = curr_ch;
+                        next_ch;
+                        if op_ = "+" then result +:= expr_term else result -:= expr_term fi
+                    od;
+                    result
+                 end { expression } ;
+
+            next_ch;
+            if curr_ch = REPR 0 then
+                error( "Missing expression" );
+                0
+            else
+                real result = expression;
+                if curr_ch /= REPR 0 then
+                   error( "Unexpected text: """ + expr[ x_pos : ] + """ after expression" )
+                fi;
+                result
+            fi
+         end { eval } ;
+
+    while
+        for i from 0 to 9 do                   { initialise the digit counts }
+            expression_digits[ i ] := 0;
+            puzzle_digits[     i ] := 0
+        od;
+        print( ( "Enter an expression using these digits:" ) );
+        to 4 do                                       { pick 4 random digits }
+            int digit := 1 + ENTIER ( next_random * 9 );
+            if digit > 9 then digit := 9 fi;
+            puzzle_digits[ digit ] +:= 1;
+            print( ( whole( digit, - 2 ) ) )
+        od;
+        print( ( " that evaluates to 24: " ) );
+        { get and check the expression                                       }
+        string expr;
+        read( ( expr, newline ) );
+        real result = eval( expr );
+        bool same  := true;
+        for i from 0 to 9 while same := puzzle_digits[ i ] = expression_digits[ i ] do skip od;
+        if NOT same then
+            print( ( "That expression didn''t contain the puzzle digits", newline ) )
+        elif result = 24 then
+            print( ( "Yes! That expression evaluates to 24", newline ) )
+        else
+            print( ( "No - that expression evaluates to ", fixed( result, -8, 4 ), newline ) )
+        fi;
+        print( ( newline, "Play again [y/n]? " ) );
+        string play_again;
+        read( ( play_again, newline ) );
+        play_again = "y" OR play_again = "Y" OR play_again = ""
+    do skip od
+
+end
+)

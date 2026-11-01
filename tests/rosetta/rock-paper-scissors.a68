@@ -1,0 +1,98 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rock-paper-scissors", ALGOL 68 solution rock-paper-scissors.alg.
+  https://rosettacode.org/wiki/Rock-paper-scissors#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rock-paper-scissors.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { rock/paper/scissors game                                             }
+    { counts of the number of times the player has chosen each move        }
+    { we initialise each to 1 so that the total isn't zero when we are     }
+    { choosing the computer's first move (as in the Ada version)           }
+    int    r_count := 1;
+    int    p_count := 1;
+    int    s_count := 1;
+    { counts of how many games the player and computer have won            }
+    int    player_count   := 0;
+    int    computer_count := 0;
+    print( ( "rock/paper/scissors", newline, newline ) );
+    while
+        char player_move;
+        { get the players move - r => rock, p => paper, s => scissors      }
+        {                        q => quit                                 }
+        while
+            print( ( "Please enter your move (r/p/s) or q to quit: " ) );
+            read( ( player_move, newline ) );
+            (   player_move /= "r"
+            AND player_move /= "p"
+            AND player_move /= "s"
+            AND player_move /= "q"
+            )
+        do
+            print( ( "Unrecognised move", newline ) )
+        od;
+        { continue playing until the player chooses quit                   }
+        player_move /= "q"
+    do
+        { decide the computer's move based on the player's history         }
+        char  computer_move;
+        int   move_count     = r_count + p_count + s_count;
+        { predict player will play rock  if the random number              }
+        {     is in the range 0 .. rock / total                            }
+        { predict player will play paper if the random number              }
+        {     is in the range rock / total .. ( rock + paper ) / total     }
+        { predict player will play scissors otherwise                      }
+        real  r_limit        = r_count / move_count;
+        real  p_limit        = r_limit + ( p_count / move_count );
+        real  random_move    = next_random;
+        if    random_move < r_limit then
+            { we predict the player will choose rock - we choose paper     }
+            computer_move := "p"
+        elif  random_move < p_limit then
+            { we predict the player will choose paper - we choose scissors }
+            computer_move := "s"
+        else
+            { we predict the player will choose scissors - we choose rock  }
+            computer_move := "r"
+        fi;
+        print( ( "You chose: " + player_move, newline ) );
+        print( ( "I   chose: " + computer_move, newline ) );
+        if   player_move = computer_move then
+            { both players chose the same - draw                           }
+            print( ( "We draw", newline ) )
+        else
+            { players chose different moves - there is a winner            }
+            if ( player_move = "r" AND computer_move = "s" )
+            OR ( player_move = "p" AND computer_move = "r" )
+            OR ( player_move = "s" AND computer_move = "p" )
+            then
+                player_count +:= 1;
+                print( ( "You win", newline ) )
+            else
+                computer_count +:= 1;
+                print( ( "I win",   newline ) )
+            fi;
+            print( ( "You won: "
+                   , whole( player_count  , 0 )
+                   , ", I won: "
+                   , whole( computer_count, 0 )
+                   , newline
+                   )
+                 )
+        fi;
+        if   player_move = "r" then
+            { player chose rock                                            }
+            r_count +:= 1
+        elif player_move = "p" then
+            { player chose paper                                           }
+            p_count +:= 1
+        else
+            { player chose scissors                                        }
+            s_count +:= 1
+        fi
+    od;
+    print( ( "Thanks for a most enjoyable game", newline ) )
+end
+)

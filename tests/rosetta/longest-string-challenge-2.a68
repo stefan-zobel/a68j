@@ -1,0 +1,98 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Longest string challenge", ALGOL 68 solution longest-string-challenge-2.alg.
+  https://rosettacode.org/wiki/Longest_string_challenge#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/longest-string-challenge-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ The standard SIGN operator returns -1 if its operand is < 0 }
+{                                  ,  0 if its operand is   0 }
+{                                  ,  1 if its operand is > 0 }
+{ This array maps he results of SIGN to FALSE or TRUE for the }
+{ ATLEASTASLONGAS operator defined below                      }
+[ -1 : 1 ]bool not_shorter;
+not_shorter[ -1 ] := false;
+not_shorter[  0 ] := false;
+not_shorter[  1 ] := true;
+
+{ Set the priorities for the dyadic operators defined below   }
+{ 9 is the highest priority, so a LOMGERTHAN b AND ...        }
+{ is parsed correctly                                         }
+prio ATLEASTASLONGAS = 9
+   , LONGERTHAN      = 9
+   ;
+
+
+op   NONEMPTYSTRING  = ( string a )string: " " + a[ at 1 ];
+
+{ STRING x is at least as long as STRING y if the substring   }
+{ of x from the upper bound of y to the end of x is at least  }
+{ one character long                                          }
+{ Note that Algol 68 doesn't raise an error if the substring  }
+{ start position is after the upper bound of the string, but  }
+{ does object if the start position is before the lower bound }
+{ - hence the need for the NONEMPTYSTRING operator to ensure  }
+{   we don't try executing a[ 0 : ] when b is ""              }
+op   ATLEASTASLONGAS = ( string x, string y )bool:
+     begin
+        string a = NONEMPTYSTRING x;
+        string b = NONEMPTYSTRING y;
+        not_shorter[ SIGN UPB a[ UPB b : ] ]
+     end { ATLEASTASLONGAS } ;
+
+{ x is longer than y if x is at least as long as y and        }
+{ y is not at least as long as x                              }
+op   LONGERTHAN      = ( string x, string y )bool: x ATLEASTASLONGAS y AND NOT ( y ATLEASTASLONGAS x );
+{ additional LONGERTHAN operators to handle single chatracter }
+{ STRINGs which are actually CHAR values in Algol 68          }
+{ Not needed for the task, but useful for testing LONGERTHAN  }
+{ OP   LONGERTHAN      = ( CHAR   x, CHAR   y )BOOL: FALSE;
+   OP   LONGERTHAN      = ( CHAR   x, STRING y )BOOL: STRING( x ) LONGERTHAN y;
+   OP   LONGERTHAN      = ( STRING x, CHAR   y )BOOL: x LONGERTHAN STRING( y );
+}
+
+{ # basic test of LONGERTHAN: # C-MMENT
+print( ( "abc" LONGERTHAN "bbcd", "ABC" LONGERTHAN "", "" LONGERTHAN "abc", "DEF" LONGERTHAN "DEF", "abcd" LONGERTHAN "a", newline ) );
+C-MMENT }
+
+proc read_a_line = ( ref file f )string:
+     begin
+         string line;
+         get( f, ( line, newline ) );
+         if at_eof then "" else line fi
+     end { read a line } ;
+
+{ EOF handler for standard input                              }
+bool at_eof := false;
+on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+
+{ recursively find the longest line(s) in the specified file  }
+{ and print them                                              }
+proc print_longest_lines = ( ref file f, string longest_so_far )string:
+     begin
+        if at_eof then
+            longest_so_far
+        else
+            string s = read_a_line( f );
+            string t = if s LONGERTHAN longest_so_far
+                       then
+                           print_longest_lines( f, s )
+                       else
+                           print_longest_lines( f, longest_so_far )
+                       fi;
+            if s ATLEASTASLONGAS t AND t ATLEASTASLONGAS s
+            then
+                { this line is as long as the longest          }
+                print( ( s, newline ) );
+                s
+            else
+                { shorter line - return the longest            }
+                t
+            fi
+        fi
+    end { print longest lines } ;
+
+{ find the logest lines from standard inoout                   }
+void( print_longest_lines( stand_in, read_a_line( stand_in ) ) )
+)

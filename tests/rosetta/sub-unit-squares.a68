@@ -1,0 +1,53 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sub-unit squares", ALGOL 68 solution sub-unit-squares.alg.
+  https://rosettacode.org/wiki/Sub-unit_squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sub-unit-squares.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some sub-unit squares: squares which are still squares when 1 }
+      { is subtracted from each of their digits                            }
+      { the sub-unit squares must end in 36 (see task discussion) and so   }
+      { the square formed by subtracting 1 from each digit must end in 25  }
+      { so, as with the J sample, we start with the "25" square and test   }
+      { the incremented square                                             }
+    { find the sub unit squares - note that 1 is a special case            }
+    print( ( "1" ) );
+    int      su_count    :=  1;
+    long int add_ones    :=  1;
+    long int power_of_10 := 10;
+    for n from 5 by 10 while su_count < 7 do
+        long int sq = ( LENG n ) * ( LENG n );
+        while sq > power_of_10 do
+            { the square has more digits than the previous one             }
+            power_of_10 *:= 10;
+            add_ones    *:= 10 +:= 1
+        od;
+        if  long int add_unit_sq = sq + add_ones;
+            add_unit_sq < power_of_10
+        then
+            { squaring the number with one added to the digits has the     }
+            { same number of digits as the original square                 }
+            if  long int root        = ENTIER long_sqrt( add_unit_sq );
+                root * root = add_unit_sq
+            then
+                { the add unit square is actually a square                 }
+                { make sure there are no 0s in the add unit square as they }
+                { can't be decremented to a positive digit                 }
+                if  bool no_zeros := true;
+                    long int v    := add_unit_sq;
+                    while v > 0 AND no_zeros do
+                        no_zeros := v MOD 10 /= 0;
+                        v OVERAB 10
+                    od;
+                    no_zeros
+                then
+                    print( ( " ", whole( add_unit_sq, 0 ) ) );
+                    su_count +:= 1
+                fi
+            fi
+        fi
+    od
+end
+)

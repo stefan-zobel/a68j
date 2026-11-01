@@ -1,0 +1,131 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pig Latin", ALGOL 68 solution pig-latin.alg.
+  https://rosettacode.org/wiki/Pig_Latin#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pig-latin.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Convert words to Pig Latin }
+
+    { returns TRUE if c is a lowercase letter, FALSE otherwise }
+    op   ISLOWER = ( char c )bool: c >= "a" AND c <= "z";
+
+    { returns TRUE if c is an uppercase letter, FALSE otherwise }
+    op   ISUPPER = ( char c )bool: c >= "A" AND c <= "Z";
+
+    { returns TRUE if c is a letter, FALSE otherwise }
+    op   ISLETTER = ( char c )bool: ISUPPER c OR ISLOWER c;
+
+    { returns TRUE s starts with a letter or ' followed by a letter }
+    op   ISLETTER = ( string s )bool:
+         ISLETTER s[ LWB s ] OR ( s[ LWB s ] = "''" AND ISLETTER s[ LWB s + 1 ] );
+
+    { returns c in lowercase if it is an uppercase letter, c otherwise }
+    op   TOLOWER = ( char c )char: if ISUPPER c then REPR ( ( ABS c - ABS "A" ) + ABS "a" ) else c fi;
+
+    { returns c in uppercase if it is an lowercase letter, c otherwise }
+    op   TOUPPER = ( char c )char: if ISLOWER c then REPR ( ( ABS c - ABS "a" ) + ABS "A" ) else c fi;
+
+    { returns TRUE if c is a vowel, FALSE otherwise }
+    op   ISVOWEL = ( char c )bool: char_in_string( c, nil, "aeiouAEIOU" );
+
+    { returns TRUE if c is a vowel or y, FALSE otherwise }
+    op   ISVOWELY = ( char c )bool: ISVOWEL c OR TOUPPER c = "Y";
+
+    { returns s encoded in Pig Latin }
+    op   TOPIGLATIN = ( string sentence )string:
+         begin
+            string result  := "";
+            bool   in_word := false;
+            int    s_max    = UPB sentence;
+            string s        = sentence + REPR 0;
+            int    s_pos   := LWB s;
+            while s_pos <= s_max AND s[ s_pos ] /= REPR 0 do
+                { copy to a word }
+                while s_pos <= s_max AND NOT ISLETTER s[ s_pos ] do
+                    result +:= s[ s_pos ];
+                    s_pos  +:= 1
+                od;
+                if ISLETTER s[ s_pos ] then
+                    { have another word }
+                    string front  := "", word_ :=  "";
+                    { get the front - the text up to the first vowel }
+                    bool uppercase  = ISUPPER s[ s_pos ];
+                    bool all_upper := uppercase;
+                    if s_pos <= s_max AND TOUPPER s[ s_pos ] = "Y" then
+                        { word starts with a Y/y treat it as a consonant, all other Y/ys are "vowels" }
+                        front +:= "y";
+                        s_pos +:= 1
+                    fi;
+                    while s_pos <= s_max AND ISLETTER s[ s_pos ] AND NOT ISVOWELY s[ s_pos ] do
+                        all_upper := all_upper AND ISUPPER s[ s_pos ];
+                        front +:= s[ s_pos ];
+                        if s_pos < s_max AND TOUPPER s[ s_pos ] = "Q" AND TOUPPER s[ s_pos + 1 ] = "U"
+                        then
+                            all_upper := all_upper AND ISUPPER s[ s_pos + 1 ];
+                            front +:= s[ s_pos + 1 ];
+                            s_pos +:= 1
+                        fi;
+                        s_pos     +:= 1
+                    od;
+                    while if s_pos <= s_max then ISLETTER s[ s_pos : s_pos + 1 ] else false fi do
+                        if ISLETTER s[ s_pos ] then all_upper := all_upper AND ISUPPER s[ s_pos ] fi;
+                        word_  +:= s[ s_pos ];
+                        s_pos +:= 1
+                    od;
+                    if all_upper then
+                        { the whole word was in uppercase, ensure the result is }
+                        if front /= "" then front[ LWB front ] := TOUPPER front[ LWB front ] fi;
+                        word_ +:= if front = "" then "WAY" else front + "AY" fi
+                    else
+                        if front /= "" then front[ LWB front ] := TOLOWER front[ LWB front ] fi;
+                        word_ +:= if front = "" then "way" else front + "ay" fi;
+                        if uppercase then
+                            { should upcase the first letter of the new word }
+                            word_[ LWB word_ ] := TOUPPER word_[ LWB word_ ]
+                        fi
+                    fi;
+                    result +:= word_
+                fi
+            od;
+            result
+         end { TOPIGLATIN } ;
+
+    []string tests =
+             ( ""
+             , " "
+             , "123456!"
+             , "Stop! In the name of Wuv!"
+             , "My word!"
+             , "ESA JAXA NASA"
+             , "this is ''quoted''"
+             , "MgClBr (Na,K)AlSiO4"
+
+             , "pig  latin"
+             , "rosetta  code"
+             , "the quick brown fox jumps over the lazy dog"
+             , "by the way"
+             , "ytterbium"
+             , "banana"
+             , "BaNaNa"
+             , "bAnAnA"
+             , "BANANA"
+             , "pig"
+             , "black"
+             , "a"
+             , "open"
+             , "hello world"
+             , "Hello, World!"
+             , "o''hare O''HARE o''hare don''t"
+             );
+    for t_pos from LWB tests to UPB tests do
+        string test = tests[ t_pos ];
+        int    pad  = 25 - ( UPB test - LWB test );
+        if pad > 0 then print( ( " " * pad ) ) fi;
+        print( ( "[", tests[ t_pos ], "]" ) );
+        if pad < 0 then print( ( newline, 28 * " " ) ) fi;
+        print( ( " -> [", TOPIGLATIN test, "]", newline ) )
+    od
+end
+)

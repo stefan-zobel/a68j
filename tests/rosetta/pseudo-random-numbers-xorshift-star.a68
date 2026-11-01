@@ -1,0 +1,48 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pseudo-random numbers/Xorshift star", ALGOL 68 solution pseudo-random-numbers-xorshift-star.alg.
+  https://rosettacode.org/wiki/Pseudo-random_numbers/Xorshift_star#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pseudo-random-numbers-xorshift-star.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generate some pseudo random numbers using Xorshift star }
+    { note that although LONG INT is 64 bits in Algol 68G, LONG BITS is longer than 64 bits }
+    long bits state;
+    long int  const      = ABS long 16r2545f4914f6cdd1d;
+    long int  one_shl_32 = ABS ( long 16r1 SHL 32 );
+    { sets the state to the specified seed value }
+    proc seed = ( long int num )void: state := BIN num;
+    { XOR and assign convenience operator }
+    prio XORAB = 1;
+    op   XORAB = ( ref long bits x, long bits v )ref long bits: x := ( x XOR v ) AND long 16rffffffffffffffff;
+    { gets the next pseudo random integer }
+    proc next_int = long int:
+         begin
+            long bits x := state;
+            x XORAB ( x SHR 12 );
+            x XORAB ( x SHL 25 );
+            x XORAB ( x SHR 27 );
+            state := x;
+            SHORTEN ABS ( 16rffffffff AND BIN ( ABS x * LENG const ) SHR 32 )
+         end { next int } ;
+    { gets the next pseudo random real }
+    proc next_float = long real: next_int / one_shl_32;
+    begin { task test cases }
+        seed( 1234567 );
+        print( ( whole( next_int, 0 ), newline ) ); { 3540625527 }
+        print( ( whole( next_int, 0 ), newline ) ); { 2750739987 }
+        print( ( whole( next_int, 0 ), newline ) ); { 4037983143 }
+        print( ( whole( next_int, 0 ), newline ) ); { 1993361440 }
+        print( ( whole( next_int, 0 ), newline ) ); { 3809424708 }
+        { count the number of occurances of 0..4 in a sequence of pseudo random reals scaled to be in [0..5) }
+        seed( 987654321 );
+        [ 0 : 4 ]int counts; for i from LWB counts to UPB counts do counts[ i ] := 0 od;
+        to 100 000 do counts[ SHORTEN ENTIER ( next_float * 5 ) ] +:= 1 od;
+        for i from LWB counts to UPB counts do
+            print( ( whole( i, -2 ), ": ", whole( counts[ i ], -6 ) ) )
+        od;
+        print( ( newline ) )
+    end
+end
+)

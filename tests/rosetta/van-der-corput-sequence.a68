@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Van der Corput sequence", ALGOL 68 solution van-der-corput-sequence.alg.
+  https://rosettacode.org/wiki/Van_der_Corput_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/van-der-corput-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show members of the van der Corput sequence in various bases         }
+      { translated from the C sample                                         }
+
+    { sets num and denom to the numerator and denominator of the nth member  }
+    { of the van der Corput sequence in the specified base                   }
+    proc vc = ( int nth, base,  ref int num, denom )void:
+         begin
+            int p := 0, q := 1, n := nth;
+
+            while n /= 0 do
+                p    *:= base +:= n MOD base;
+                q    *:= base;
+                n OVERAB base
+            od;
+
+            num   := p;
+            denom := q;
+
+            { reduce the numerrator and denominator by their gcd             }
+            while p /= 0 do n := p; p := q MOD p; q := n od;
+            num   OVERAB q;
+            denom OVERAB q
+         end { vc } ;
+
+    { task                                                                   }
+    for b from 2 to 5 do
+        print( ( "base ", whole( b, 0 ), ":" ) );
+        for i from 0 to 9 do
+            int d, n;
+            vc( i, b, n, d );
+            if n /= 0
+            then print( ( "  ", whole( n, 0 ), "/", whole( d, 0 ) ) )
+            else print( ( "  0" ) )
+            fi
+        od;
+        print( ( newline ) )
+    od
+end
+)

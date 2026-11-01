@@ -1,0 +1,44 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numerical integration/Tanh-Sinh Quadrature", ALGOL 68 solution numerical-integration-tanh-sinh-quadrature.alg.
+  https://rosettacode.org/wiki/Numerical_integration/Tanh-Sinh_Quadrature#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numerical-integration-tanh-sinh-quadrature.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Numerical integration/Tanh-Sinh Quadrature - from the pseudo-code   }
+
+{  # uncomment these procedurez if your implementation doesn't have sinh, cosh and tanh #
+    PROC cosh = ( REAL x )REAL: ( exp( x ) + exp( - x ) ) / 2;
+    PROC sinh = ( REAL x )REAL: ( exp( x ) - exp( - x ) ) / 2;
+    PROC tanh = ( REAL x )REAL: sinh( x ) / cosh( x );
+}
+
+    proc tanh_sinh = ( proc(real)real func, real lower, upper, int steps, real acc )real:
+         begin
+            real half_pi = pi / 2;
+            real h  := 0.1;
+            real h0  = ( upper - lower ) / 2, h1 = ( lower + upper ) / 2;
+            real rr := 0;
+            real ro := rr + 1 + ( 2 * acc ); { ensure ro is not < acc initially }
+            int  nk := 1;
+            to steps while ABS ( rr - ro ) >= acc do
+                ro      := rr;
+                int  n   = ( nk *:= 2 ) - 1;
+                real ss := 0;
+                for i from - n to n do
+                    real t  = i * h;
+                    real sh = sinh( t ), ch = cosh( t );
+                    real th = tanh( sh * half_pi );
+                    real dx = ( ch * half_pi ) / ( cosh( sh * half_pi ) ^ 2 );
+                    ss +:= func( h1 + h0 * th ) * h * dx
+                od;
+                rr := h0 * ss
+            od;
+            rr
+         end { tanh sinh } ;
+
+    print( ( fixed( tanh_sinh( exp, -3, 3, 5, 1e-8 ), -12, 7 ), newline ) )
+
+end
+)

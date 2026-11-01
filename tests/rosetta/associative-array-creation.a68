@@ -1,0 +1,79 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Associative array/Creation", ALGOL 68 solution associative-array-creation.alg.
+  https://rosettacode.org/wiki/Associative_array/Creation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/associative-array-creation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+
+  mode Color = bits;
+  FORMAT color_repr = $"16r"16r6d$;
+
+  { This is an associative array which maps strings to ints }
+  mode Item = struct(string key, Color value);
+  ref[]Item color_map_items := loc[0]Item;
+
+  proc color_map_find = (string color)ref Color:(
+    ref Color out_;
+{ linear search! }
+    for index from LWB key of color_map_items to UPB key of color_map_items do
+      if color = key of color_map_items[index] then
+        out_ := value of color_map_items[index]; go to found
+      fi
+    od;
+      nil exit
+    found:
+      out_
+  );
+
+  proc color_map = (string color)ref Color:(
+    ref Color out_ = color_map_find(color);
+    if out_ :=: ref Color(nil) then { extend color map array }
+      heap[UPB key of color_map_items + 1]Item color_map_append;
+      color_map_append[:UPB key of color_map_items] := color_map_items;
+      color_map_items := color_map_append;
+      value of (color_map_items[UPB value of color_map_items] := (color, 16r000000)) { black }
+    else
+      out_
+    fi
+  );
+
+  { First, populate it with some values }
+  color_map("red") := 16rff0000;
+  color_map("green") := 16r00ff00;
+  color_map("blue") := 16r0000ff;
+  color_map("my favourite color") := 16r00ffff;
+
+  { then, get some values out }
+  Color color := color_map("green"); { color gets 16r00ff00 }
+  color := color_map("black"); { accessing unassigned values assigns them to 16r0 }
+
+  { get some value out without accidentally inserting new ones }
+  ref Color value = color_map_find("green");
+  if value :=: ref Color(nil) then
+    put(stand_error, ("color not found!", new_line))
+  else
+    printf(($"green: "f(color repr)l$, value))
+  fi;
+
+  { Now I changed my mind about my favourite color, so change it }
+  color_map("my favourite color") := 16r337733;
+
+  { print out all defined colors }
+  for index from LWB color_map_items to UPB color_map_items do
+    Item item = color_map_items[index];
+    putf(stand_error, ($"color map("""g""") = "f(color repr)l$, item))
+  od;
+
+  FORMAT fmt;
+  FORMAT comma_sep = $"("n(UPB color map items-1)(f(fmt)", ")f(fmt)")"$;
+
+  fmt := $""""g""""$;
+  printf(($g$,"keys: ", comma_sep, key of color_map_items, $l$));
+  fmt := color_repr;
+  printf(($g$,"values: ", comma_sep, value of color_map_items, $l$))
+
+)
+)

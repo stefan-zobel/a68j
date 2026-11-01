@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Euler's identity", ALGOL 68 solution eulers-identity.alg.
+  https://rosettacode.org/wiki/Euler's_identity#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/eulers-identity.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { calculate an approximation to e^(i pi) + 1 which should be 0 (Euler's identity) }
+
+    { returns e^ix for long real x, using the series:                                 }
+    {      exp(ix) = 1 - x^2/2! + x^4/4! - ... + i(x - x^3/3! + x^5/5! - x^7/7! ... ) }
+    {      the expansion stops when successive terms differ by less than 1e-15        }
+    proc expi = ( long real x )long compl:
+         begin
+            long real t              := 1;
+            long real real_part      := 1;
+            long real imaginary_part := 0;
+            long real divisor        := 1;
+            bool      even_power     := false;
+            bool      subtract       := false;
+            long real diff           := 1;
+            for n from 1 while ABS diff > 1e-15 do
+                divisor *:= n;
+                t       *:= x;
+                long real e_term := t / divisor;
+                if even_power then
+                    { this term is real }
+                    subtract := NOT subtract;
+                    long real prev := real_part;
+                    if subtract then
+                        real_part -:= e_term
+                    else
+                        real_part +:= e_term
+                    fi;
+                    diff := prev - real_part
+                else
+                    { this term is imaginary }
+                    long real prev := imaginary_part;
+                    if subtract then
+                        imaginary_part -:= e_term
+                    else
+                        imaginary_part +:= e_term
+                    fi;
+                    diff := prev - imaginary_part
+                fi;
+                even_power := NOT even_power
+            od;
+            ( real_part, imaginary_part )
+         end { expi } ;
+    long compl eulers_identity = expi( long_pi ) + 1;
+    print( ( "e^(i*pi) + 1 ~ "
+           , fixed( re of eulers_identity, -23, 20 )
+           , " "
+           , fixed( im of eulers_identity,  23, 20 )
+           , "i"
+           , newline
+           )
+         )
+end
+)

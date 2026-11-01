@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "N'th", ALGOL 68 solution nth.alg.
+  https://rosettacode.org/wiki/N'th#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/nth.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ PROC to suffix a number with st, nd, rd or th as appropriate }
+proc nth = ( int number )string:
+begin
+    int number_mod_100 = number MOD 100;
+{ RESULT }
+    whole( number, 0 )
+  + if number_mod_100 >= 10 AND number_mod_100 <= 20
+    then
+        { numbers in the range 10 .. 20 always have "th" }
+        "th"
+    else
+        { not in the range 10 .. 20, suffix is st, nd, rd or th }
+        { depending on the final digit                          }
+        case number MOD 10
+        in  { 1 } "st"
+        ,   { 2 } "nd"
+        ,   { 3 } "rd"
+        out       "th"
+        esac
+    fi
+end; { nth }
+
+{ PROC to test nth, displays nth for all numbers in the range from .. to  }
+proc test_nth = ( int from_, int to_ )void:
+begin
+    int test_count := 0;
+    for test_value from from_ to to_
+    do
+        string test_result = nth( test_value );
+        print( ( "        "[ 1 : 8 - UPB test_result ], test_result ) );
+        test_count +:= 1;
+        if test_count MOD 8 = 0
+        then
+            print( ( newline ) )
+        fi
+    od;
+    if test_count MOD 8 /= 0
+    then
+        print( ( newline ) )
+    fi;
+    print( ( newline ) )
+end; { test nth }
+
+test_nth(    0,   25 );
+test_nth(  250,  265 );
+test_nth( 1000, 1025 )
+)

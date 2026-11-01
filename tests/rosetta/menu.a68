@@ -1,0 +1,37 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Menu", ALGOL 68 solution menu.alg.
+  https://rosettacode.org/wiki/Menu#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/menu.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc menu_select := (flex[]string items, union(string, void) prompt)string:
+(
+        int choice;
+
+        if LWB items <= UPB items then
+                while
+                        for i from LWB items to UPB items do
+                                printf(($g(0)") "gl$, i, items[i]))
+                        od;
+                        case prompt in
+                                (string prompt):printf(($g" "$, prompt)),
+                                (void):printf($"Choice ? "$)
+                        esac;
+                        read((choice, new_line));
+                { WHILE } 1 > choice OR choice > UPB items
+                do skip od;
+                items[choice]
+        else
+                ""
+        fi
+);
+
+test:(
+        flex[0]string items := ("fee fie", "huff and puff", "mirror mirror", "tick tock");
+        string prompt := "Which is from the three pigs : ";
+
+        printf(($"You chose "g"."l$, menu_select(items, prompt)))
+)
+)

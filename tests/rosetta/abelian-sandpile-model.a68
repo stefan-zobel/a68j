@@ -1,0 +1,101 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Abelian sandpile model", ALGOL 68 solution abelian-sandpile-model.alg.
+  https://rosettacode.org/wiki/Abelian_sandpile_model#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/abelian-sandpile-model.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { model Abelian sandpiles }
+    { returns TRUE if the sandpile s is stable, FALSE otherwise }
+    op STABLE = ( [,]int s )bool:
+       begin
+           bool result := true;
+           for i from 1 LWB s to 1 UPB s while result do
+               for j from 2 LWB s to 2 UPB s while result := s[ i, j ] < 4 do skip od
+           od;
+           result
+       end { STABLE } ;
+    { returns the sandpile s after avalanches }
+    op AVALANCHE = ( [,]int s )[,]int:
+       begin
+           [ 1 : 1 UPB s, 1 : 2 UPB s ]int result := s[ at 1, at 1 ];
+           while bool had_avalanche := false;
+                 for i to 1 UPB s do
+                     for j to 2 UPB s do
+                         if result[ i, j ] >= 4 then
+                             { unstable pile }
+                             had_avalanche := true;
+                             result[ i, j ] -:= 4;
+                             if i > 1       then result[ i - 1, j     ] +:= 1 fi;
+                             if i < 1 UPB s then result[ i + 1, j     ] +:= 1 fi;
+                             if j > 1       then result[ i,     j - 1 ] +:= 1 fi;
+                             if j < 2 UPB s then result[ i,     j + 1 ] +:= 1 fi
+                         fi
+                     od
+                 od;
+                 had_avalanche
+           do skip od;
+           result
+       end { AVALANCHE } ;
+    { returns the maximum element of s }
+    op   MAX = ( [,]int s )int:
+         begin
+            int result := s[ 1 LWB s, 2 LWB s ];
+            for i from 1 LWB s to 1 UPB s do
+                for j from 2 LWB s to 2 UPB s do
+                    if s[ i, j ] > result then result := s[ i, j ] fi
+                od
+            od;
+            result
+         end { MAX } ;
+    { prints the sandpile s }
+    proc show_sandpile = ( string title, [,]int s )void:
+    begin
+        print( ( title, newline ) );
+        if 1 UPB s >= 1 LWB s AND 2 UPB s >= 2 LWB s then
+            { non-empty sandpile }
+            int width := 1; { find tthe width needed for each element }
+            int v     := MAX s;
+            while v > 9 do
+                v OVERAB 10;
+                width +:= 1
+            od;
+            for i to 1 UPB s do
+                for j to 2 UPB s do
+                    print( ( " ", whole( s[ i, j ], - width ) ) )
+                od;
+                print( ( newline ) )
+            od
+        fi
+    end { show sandpile } ;
+    { printys a sandpile before and after the avalanches }
+    proc show_sandpile_before_and_after = ( [,]int s )void:
+         begin
+             [ 1 LWB s : 1 UPB s, 2 LWB s : 2 UPB s ]int t := s;
+             show_sandpile( "before: ", t );
+             while NOT STABLE t do
+                 t := AVALANCHE t
+             od;
+             show_sandpile( "after: ", t );
+             print( ( newline ) )
+         end { show sandpile before and after } ;
+    { task test case }
+    [,]int s1 = ( (  0,  0,  0,  0,  0 )
+                , (  0,  0,  0,  0,  0 )
+                , (  0,  0, 16,  0,  0 )
+                , (  0,  0,  0,  0,  0 )
+                , (  0,  0,  0,  0,  0 )
+                );
+    show_sandpile_before_and_after( s1 );
+    { test case from 11l, C, etc. }
+    [ 1 : 10, 1 : 10 ]int s2;
+    for i from 1 LWB s2 to 1 UPB s2 do
+        for j from 2 LWB s2 to 2 UPB s2 do
+            s2[ i, j ] := 0
+        od
+    od;
+    s2[ 6, 6 ] := 64;
+    show_sandpile_before_and_after( s2 )
+end
+)

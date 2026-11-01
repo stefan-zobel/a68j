@@ -1,0 +1,67 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "SEDOLs", ALGOL 68 solution sedols.alg.
+  https://rosettacode.org/wiki/SEDOLs#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sedols.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[]int sedol_weights = (1, 3, 1, 7, 3, 9);
+string reject = "AEIOUaeiou";
+
+proc strcspn = (string s,reject)int: (
+  int out_:=0;
+  for i to UPB s do
+    if char_in_string(s[i], loc int, reject) then
+      return_out
+    fi;
+    out_:=i
+  od;
+  return_out: out_
+);
+
+proc sedol_checksum = (ref string sedol6)int:
+(
+  int out_;
+
+  int len := UPB sedol6;
+  int sum := 0;
+
+  if sedol6[len-1] = REPR 10 then len-:=1; sedol6[len]:=null_char fi;
+  if len = 7 then
+    putf(stand_error, ($"SEDOL code already checksummed? ("g")"l$, sedol6));
+    out_ := ABS ( BIN ABS sedol6[6] AND 16r7f); return_out
+  fi;
+  if len > 7 OR len < 6 OR strcspn(sedol6, reject) /= 6 then
+    putf(stand_error, ($"not a SEDOL code? ("g")"l$, sedol6));
+    out_ := -1; return_out
+  fi;
+  for i to UPB sedol6 do
+    sum+:=sedol_weights[i]*
+      if is_digit(sedol6[i]) then
+        ABS sedol6[i]- ABS "0"
+      elif is_alpha(sedol6[i]) then
+        (ABS to_upper(sedol6[i])-ABS "A") + 10
+      else
+        putf(stand_error, $"SEDOL with not alphanumeric digit"l$);
+        out_:=-1; return_out
+      fi
+  od;
+  out_ := (10 - (sum MOD 10)) MOD 10 + ABS "0";
+  return_out: out_
+);
+
+main:
+(
+  string line;
+
+  on_logical_file_end(stand_in, (ref file f)bool: done);
+  do getf(stand_in, ($gl$,line));
+    int sr := sedol_checksum(line);
+    if sr > 0 then
+      printf(($ggl$, line, REPR sedol_checksum(line)))
+    fi
+  od;
+  done: skip
+)
+)

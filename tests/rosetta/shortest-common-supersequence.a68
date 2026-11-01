@@ -1,0 +1,28 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Shortest common supersequence", ALGOL 68 solution shortest-common-supersequence.alg.
+  https://rosettacode.org/wiki/Shortest_common_supersequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/shortest-common-supersequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    prio SCS = 1;
+    { returns the shortest common supersequence of x and y }
+    op   SCS = ( string x, y )string:
+         if   x = "" then y
+         elif y = "" then x
+         elif x[ LWB x ] = y[ LWB y ]
+         then x[ LWB x ] + ( x[ LWB x + 1 : ] SCS y[ LWB y + 1 : ] )
+         elif string x_y_sub = x SCS y[ LWB y + 1 : ];
+              string x_sub_y = x[ LWB x + 1 : ] SCS y;
+              int x_y_sub_size = ( UPB x_y_sub - LWB x_y_sub ) + 1;
+              int x_sub_y_size = ( UPB x_sub_y - LWB x_sub_y ) + 1;
+              x_y_sub_size <= x_sub_y_size
+         then y[ LWB y ] + x_y_sub
+         else x[ LWB x ] + x_sub_y
+         fi { SCS } ;
+
+    print( ( "abcbdab" SCS "bdcaba", newline ) )
+end
+)

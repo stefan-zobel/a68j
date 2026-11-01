@@ -1,0 +1,4 @@
+begin int a := 0, b := 0;
+      par (a := 1, b := 2, puts ("x"), puts ("y"));
+      puts (whole (a + b, 0)); puts ("'n")
+end

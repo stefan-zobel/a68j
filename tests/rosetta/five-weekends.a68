@@ -1,0 +1,62 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Five weekends", ALGOL 68 solution five-weekends.alg.
+  https://rosettacode.org/wiki/Five_weekends#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/five-weekends.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+five_weekends: begin
+  int m, year, nfives := 0, not5 := 0;
+  bool no5weekend;
+
+  mode Month = struct(
+    int n,
+    [3]char name
+  ) { MODE MONTH };
+
+  []Month month = (
+    Month(13, "Jan"),
+    Month(3,  "Mar"),
+    Month(5,  "May"),
+    Month(7,  "Jul"),
+    Month(8,  "Aug"),
+    Month(10, "Oct"),
+    Month(12, "Dec")
+  );
+
+  for year from 1900 to 2100 do
+    if year = 1905 then printf($"..."l$) fi;
+    no5weekend := true;
+    for m to UPB month do
+      if n of month(m) = 13 then
+        if day_of_week(1, n of month(m), year-1) = 6 then
+          if year<1905 OR year > 2096 then printf(($g, 5zl$, name of month(m), year)) fi;
+          nfives +:= 1;
+          no5weekend := false
+        fi
+      else
+        if day_of_week(1, n of month(m), year) = 6 then
+          if year<1905 OR year > 2096 then printf(($g, 5zl$, name of month(m), year)) fi;
+          nfives +:= 1;
+          no5weekend := false
+        fi
+      fi
+    od;
+    if no5weekend then not5 +:= 1 fi
+  od;
+
+  printf(($g, g(0)l$, "Number of months with five weekends between 1900 and 2100 = ", nfives));
+  printf(($g, g(0)l$, "Number of years between 1900 and 2100 with no five weekend months = ", not5));
+
+{ contains }
+
+  proc day_of_week = (int d, m, y)int: begin
+    int j, k;
+    j := y OVER 100;
+    k := y MOD 100;
+    (d + (m+1)*26 OVER 10 + k + k OVER 4 + j OVER 4 + 5*j) MOD 7
+  end { function day_of_week };
+  skip
+end { program five_weekends }
+)

@@ -1,0 +1,24 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Stack", ALGOL 68 solution stack-1.alg.
+  https://rosettacode.org/wiki/Stack#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/stack-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+{ REQUIRES:
+  MODE OBJVALUE = ~ # Mode/type of actual obj to be stacked #
+END }
+
+mode Objnextlink = struct(
+  ref Objnextlink next,
+  OBJVALUE value { ... etc. required }
+);
+
+proc obj_nextlink_new = ref Objnextlink:
+  heap Objnextlink;
+
+proc obj_nextlink_free = (ref Objnextlink free)void:
+  next of free := obj_stack_empty { give the garbage collector a BIG hint }
+)

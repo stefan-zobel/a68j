@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Chebyshev coefficients", ALGOL 68 solution chebyshev-coefficients.alg.
+  https://rosettacode.org/wiki/Chebyshev_coefficients#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/chebyshev-coefficients.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Chebyshev Coefficients }
+
+    proc chebyshev_coef = ( proc( real )real func, real min, max, int n )[]real:
+         begin
+
+            proc map = ( real x, min_x, max_x, min_to, max_to )real:
+               ( x - min_x ) / ( max_x - min_x ) * ( max_to - min_to ) + min_to;
+
+            [ 0 : n - 1 ]real coef; for i from LWB coef to UPB coef do coef[ i ] := 0 od;
+            for i from 0 to UPB coef do
+                real m = map( cos( pi * ( i + 0.5 ) / n ), -1, 1, min, max );
+                real f = func( m ) * 2 / n;
+                for j from 0 to UPB coef do
+                    coef[ j ] +:= f * cos( pi * j * ( i + 0.5 ) / n )
+                od
+            od;
+            coef
+         end { chebyshev coef } ;
+
+    begin
+        int n = 10;
+        real min := 0, max := 1;
+        []real c = chebyshev_coef( cos, min, max, n );
+        print( ( "Coefficients:", newline ) );
+        for i from LWB c to UPB c do
+            print( ( fixed( c[ i ], -18, 14 ), newline ) )
+        od
+    end
+
+end
+)

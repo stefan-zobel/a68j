@@ -1,0 +1,166 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Bernstein basis polynomials", ALGOL 68 solution bernstein-basis-polynomials.alg.
+  https://rosettacode.org/wiki/Bernstein_basis_polynomials#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/bernstein-basis-polynomials.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Bernstein Basis Polynomials - translated from the Algol 60      }
+      { Note the 'Subrptoghram (n) designations are as specified in the }
+      { task                                                            }
+
+    mode Berntwo   = struct( string label, real b0, b1, b2 );
+    mode Bernthree = struct( string label, real b0, b1, b2, b3 );
+
+    prio EVAL      = 5; { set the priority of the dyadic EVAL  }
+
+    { Subprogram (1): transform monomial coefficients          }
+    {     a0, a1, a2 to Bernstein coefficients b0, b1, b2      }
+    proc tobern2 = ( real a0, a1, a2, ref Berntwo b )void:
+         begin
+            b0 of b := a0;
+            b1 of b := a0 + ((1/2) * a1);
+            b2 of b := a0 + a1 + a2
+         end { tobern2 } ;
+
+    { Subprogram (2): evaluate, at t, the polynomial with      }
+    {    Bernstein coefficients b0, b1, b2. Use de Casteljau's }
+    {    algorithm                                             }
+    op EVAL = ( Berntwo b, real t )real:
+         begin
+            real s    = 1 - t;
+            real b01  = (s * b0 of b) + (t * b1 of b);
+            real b12  = (s * b1 of b) + (t * b2 of b);
+            (s * b01) + (t * b12)
+         end { EVAL } ;
+
+    { Subprogram (3): transform monomial coefficients          }
+    {     a0, a1, a2, a3 to Bernstein coefficients b0, b1,     }
+    {     b2, b3                                               }
+    proc tobern3 = ( real a0, a1, a2, a3, ref Bernthree b )void:
+         begin
+            b0 of b := a0;
+            b1 of b := a0 + ((1/3) * a1);
+            b2 of b := a0 + ((2/3) * a1) + ((1/3) * a2);
+            b3 of b := a0 + a1 + a2 + a3
+         end { tobern3 } ;
+
+    { Subprogram (4): evaluate, at t, the polynomial           }
+    {    with Bernstein coefficients b0, b1, b2, b3. Use       }
+    {    de Casteljau's algorithm                              }
+    op EVAL = ( Bernthree b, real t )real:
+         begin
+            real s    = 1 - t;
+            real b01  = (s * b0 of b) + (t * b1 of b);
+            real b12  = (s * b1 of b) + (t * b2 of b);
+            real b23  = (s * b2 of b) + (t * b3 of b);
+            real b012 = (s * b01) + (t * b12);
+            real b123 = (s * b12) + (t * b23);
+            (s * b012) + (t * b123)
+         end { EVAL };
+
+    { Subprogram (5): transform the quadratic Bernstein        }
+    {    coefficients q0, q1, q2 to the cubic Bernstein        }
+    {    coefficients c0, c1, c2, c3;                          }
+    op   TOBERNTHREE = ( Berntwo q )Bernthree:
+         begin
+            heap Bernthree c;
+            b0 of c := b0 of q;
+            b1 of c := ((1/3) * b0 of q) + ((2/3) * b1 of q);
+            b2 of c := ((2/3) * b1 of q) + ((1/3) * b2 of q);
+            b3 of c := b2 of q;
+            c
+         end { TOBERNTHREE } ;
+
+    begin
+
+        { returns x as a string without trailing 0 decoimals    }
+        proc f = ( real x )string:
+             begin
+                 string v       := fixed( x, -14, 11 );
+                 int    end_pos := UPB v;
+                 while if end_pos < LWB v then false else v[ end_pos ] = "0" fi do
+                     end_pos -:= 1
+                 od;
+                 if end_pos >= LWB v then
+                     if v[ end_pos ] = "." then end_pos -:= 1 fi
+                 fi;
+                 int start_pos := LWB v;
+                 while if start_pos > end_pos then false else v[ start_pos ] = " " fi do
+                     start_pos +:= 1
+                 od;
+                 if end_pos < start_pos then "0" else v[ start_pos : end_pos ] fi
+             end { f } ;
+
+        prio SHOWEVAL = 5;
+        { prints the result of evaluating p with x             }
+        op   SHOWEVAL = ( Berntwo   p, real x )void:
+             print( ( "  ", label of p, " ( ", f( x ), " ) = ", f( p EVAL x ), newline ) );
+        { prints the result of evaluating p with x             }
+        op   SHOWEVAL = ( Bernthree p, real x )void:
+             print( ( "  ", label of p, " ( ", f( x ), " ) = ", f( p EVAL x ), newline ) );
+        { returns a string representation of the values of p   }
+        op   TOSTRING = ( Berntwo   p )string:
+             "( " + f( b0 of p ) + ", " + f( b1 of p ) + ", " + f( b2 of p ) + " )";
+        { returns a string representation of the values of p   }
+        op   TOSTRING = ( Bernthree p )string:
+             "( " + f( b0 of p ) + ", " + f( b1 of p ) + ", " + f( b2 of p ) + ", " + f( b3 of p ) + " )";
+        { returns a string representation of the values of p   }
+        op   TOSTRING = ( []real p )string:
+             begin
+                string result    := "(", separator := "";
+                for i from LWB p to UPB p do
+                    result   +:= separator + " " + f( p[ i ] );
+                    separator := ","
+                od;
+                result + " )"
+             end { TOSTRING } ;
+
+        Berntwo   p2 := Berntwo  ( "p", 0, 0, 0 );
+        Berntwo   q2 := Berntwo  ( "q", 0, 0, 0 );
+
+        Bernthree p3 := Bernthree( "p", 0, 0, 0, 0 );
+        Bernthree q3 := Bernthree( "q", 0, 0, 0, 0 );
+        Bernthree r3 := Bernthree( "r", 0, 0, 0, 0 );
+
+        real p0m = 1, p1m = 0, p2m = 0;
+        real q0m = 1, q1m = 2, q2m = 3;
+        real r0m = 1, r1m = 2, r2m = 3, r3m = 4;
+
+        tobern2( p0m, p1m, p2m, p2 );
+        tobern2( q0m, q1m, q2m, q2 );
+        print( ( "Subprogram (1) examples:", newline ) );
+        print( ( "  mono ", TOSTRING []real( p0m, p1m, p2m ), " --> bern ", TOSTRING p2, newline ) );
+        print( ( "  mono ", TOSTRING []real( q0m, q1m, q2m ), " --> bern ", TOSTRING q2, newline ) );
+
+        print( ( "Subprogram (2) examples:", newline ) );
+        p2 SHOWEVAL 0.25;
+        p2 SHOWEVAL 7.50;
+        q2 SHOWEVAL 0.25;
+        q2 SHOWEVAL 7.50;
+
+        tobern3( p0m, p1m, p2m, 0,   p3 );
+        tobern3( q0m, q1m, q2m, 0,   q3 );
+        tobern3( r0m, r1m, r2m, r3m, r3 );
+        print( ( "Subprogram (3) examples:", newline ) );
+        print( ( "  mono ", TOSTRING []real( p0m, p1m, p2m, 0   ), " --> bern ", TOSTRING p3, newline ) );
+        print( ( "  mono ", TOSTRING []real( q0m, q1m, q2m, 0   ), " --> bern ", TOSTRING q3, newline ) );
+        print( ( "  mono ", TOSTRING []real( r0m, r1m, r2m, r3m ), " --> bern ", TOSTRING r3, newline ) );
+
+        print( ( "Subprogram (4) examples:", newline ) );
+        p3 SHOWEVAL 0.25;
+        p3 SHOWEVAL 7.50;
+        q3 SHOWEVAL 0.25;
+        q3 SHOWEVAL 7.50;
+        r3 SHOWEVAL 0.25;
+        r3 SHOWEVAL 7.50;
+
+        print( ( "Subprogram (5) examples:", newline ) );
+        print( ( "  bern ", TOSTRING p2, " --> bern ", TOSTRING TOBERNTHREE p2, newline ) );
+        print( ( "  bern ", TOSTRING q2, " --> bern ", TOSTRING TOBERNTHREE q2, newline ) )
+
+    end
+
+end
+)

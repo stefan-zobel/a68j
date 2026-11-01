@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Merge sort", ALGOL 68 solution sorting-algorithms-merge-sort-2.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Merge_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-merge-sort-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc opt_merge_sort = ([]ref DATA m)[]ref DATA: (
+    if LWB m >= UPB m then
+        m
+    else
+        int middle = ( UPB m + LWB m ) OVER 2;
+        []ref DATA left = opt_merge_sort(m[:middle]);
+        []ref DATA right = opt_merge_sort(m[middle+1:]);
+        opt_merge(left, right)[at LWB m]
+    fi
+);
+
+proc opt_merge = ([]ref DATA left, right)[]ref DATA:(
+    [UPB left - LWB left + 1 + UPB right - LWB right + 1]ref DATA result;
+    int index_left:=LWB left, index_right:=LWB right;
+
+    for index to UPB result do
+        { change the direction of this comparison to change the direction of the sort }
+        if index_right > UPB right then
+            result[index:] := left[index_left:];
+            stop_iteration
+        elif index_left > UPB left then
+            result[index:] := right[index_right:];
+            stop_iteration
+        elif left[index_left] <= right[index_right] then
+            result[index] := left[index_left]; index_left +:= 1
+        else
+            result[index] := right[index_right]; index_right +:= 1
+        fi
+    od;
+stop_iteration:
+    result
+);
+
+{ create an array of pointers to the data being sorted }
+[UPB char_array_data]ref DATA data; for i to UPB char_array_data do data[i] := char_array_data[i] od;
+
+[]ref char result = opt_merge_sort(data);
+for i to UPB result do print((result[i])) od; print(new_line)
+)

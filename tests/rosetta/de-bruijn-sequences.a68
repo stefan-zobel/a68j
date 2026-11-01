@@ -1,0 +1,110 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "De Bruijn sequences", ALGOL 68 solution de-bruijn-sequences.alg.
+  https://rosettacode.org/wiki/De_Bruijn_sequences#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/de-bruijn-sequences.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { de Bruijn sequences - translation of the Phix sample                 }
+
+    heap[ 1 : 6000 ]char initial_sequence;
+    ref[]char de_bruijn := initial_sequence;      { will increase in size as }
+                                                                    { needed }
+    int s_len := 0;                         { current length of the sequence }
+    { adds v to the de Bruijn sequence, extending it if necessary            }
+    proc add_element = ( int v )void:
+         begin
+            s_len +:= 1;
+            if s_len > UPB de_bruijn then
+                heap[ 1 : UPB de_bruijn + 6000 ]char new_sequence;
+                new_sequence[ 1 : UPB de_bruijn ] := de_bruijn;
+                de_bruijn                         := new_sequence
+            fi;
+            de_bruijn[ s_len ] := REPR ( ABS "0" + v )
+         end { add element } ;
+
+    for n from 0 to 99 do                           { construct the sequence }
+        int a1 = n OVER 10;
+        int a2 = n MOD  10;
+        if a2 >= a1 then
+            add_element( a1 );
+            if a1 /= a2 then add_element( a2 ) fi;
+            for m from n + 1 to 99 do
+                int m2 = m MOD 10;
+                if m2 > a1 then
+                    add_element( a1 );
+                    add_element( a2 );
+                    add_element( m OVER 10 );
+                    add_element( m2 )
+                fi
+            od
+        fi
+    od;
+    add_element( 0 ); add_element( 0 ); add_element( 0 );
+    de_bruijn := de_bruijn[ 1 : s_len ];
+
+    print( ( "de Bruijn sequence length: ", whole( s_len, 0 ), newline, newline ) );
+    print( ( "First 130 characters:", newline ) );
+    for i to 130 do print( ( de_bruijn[ i ] ) ) od; print( ( newline, newline ) );
+    print( ( "Last 130 characters:", newline ) );
+    for i from s_len - 129 to s_len do print( ( de_bruijn[ i ] ) ) od; print( ( newline, newline ) );
+
+    { checks all pins are in the sequence, returns the ones that aren't      }
+    proc check = ( []char sequence )string:
+         begin
+            { returns TRUE if "0" <= c <= "9", FALSE otherwise               }
+            op ISDIGIT = ( char c )bool: c >= "0" AND c <= "9";
+            { returns c converted to an integer, assumes "0" <= c <= "9"     }
+            op DIGIT = ( char c )int: ABS c - ABS "0";
+            [ 0 : UPB sequence - 3 ]int found; for i from LWB found to UPB found do found[ i ] := 0 od;
+            string res := "";
+            for i to UPB found do
+                if  ISDIGIT sequence[ i     ] AND ISDIGIT sequence[ i + 1 ]
+                AND ISDIGIT sequence[ i + 2 ] AND ISDIGIT sequence[ i + 3 ]
+                then
+                    int k :=     DIGIT sequence[ i     ];
+                    k *:= 10 +:= DIGIT sequence[ i + 1 ];
+                    k *:= 10 +:= DIGIT sequence[ i + 2 ];
+                    k *:= 10 +:= DIGIT sequence[ i + 3 ];
+                    if k >= LWB found AND k <= UPB found then found[ k ] +:= 1 fi
+                fi
+            od;
+            int errors := 0;
+            for i from LWB found to UPB found - 1 do
+                if   int k = found[ i ];
+                     k /= 1
+                then string e := whole( i, -4);
+                     for j from LWB e to UPB e do if e[ j ] = " " then e[ j ] := "0" fi od;
+                     "Pin number " +=: e;
+                     e +:= if k = 0
+                           then " missing"
+                           else " occurs " + whole( k, 0 ) + " times"
+                           fi;
+                     res    +:= e + REPR 10;
+                     errors +:= 1
+                fi
+            od;
+            if errors = 0 then
+                res := "No errors found"
+            else
+                string prefix := whole( errors, 0 ) + " error";
+                if errors > 1 then prefix +:= "s" fi;
+                prefix +:= " found" + REPR 10;
+                prefix +=: res
+            fi;
+            res
+         end { check } ;
+
+    print( ( "Missing 4 digit PINs in this sequence: ", check( de_bruijn ), newline ) );
+    [ 1 : UPB de_bruijn ]char reversed;
+    int r_pos := 0;
+    for i from UPB de_bruijn by -1 to 1 do reversed[ r_pos +:= 1 ] := de_bruijn[ i ] od;
+    print( ( "Missing 4 digit PINs in the reversed sequence: ", check( reversed ), newline ) );
+    print( ( newline, "4444th digit in the sequence: ", de_bruijn[ 4444 ] ) );
+    print( ( " (setting it to ""."")", newline ) );
+    de_bruijn[ 4444 ] := ".";
+    print( ( "Re-running checks: ", check( de_bruijn ), newline ) )
+
+end
+)

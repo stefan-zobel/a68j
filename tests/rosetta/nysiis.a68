@@ -1,0 +1,178 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "NYSIIS", ALGOL 68 solution nysiis.alg.
+  https://rosettacode.org/wiki/NYSIIS#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/nysiis.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { NYSIIS algorithm                                                     }
+
+    { returns str in upper-case with non-letters removed                     }
+    op   TOALPHAUPPER = ( string str )string:
+         begin
+            string result := "";
+            for i from LWB str to UPB str do
+                char c = str[ i ];
+                if   c >= "a" AND c <= "z"
+                then result +:= REPR ( ABS c + ( ABS "A" - ABS "a" ) )
+                elif c >= "A" AND c <= "Z"
+                then result +:= c
+                fi
+            od;
+            result
+         end { TOALPHAUPPER } ;
+    { returns str with all characters in delete removed                      }
+    prio REMOVE = 1;
+    op   REMOVE = ( string str, char delete )string:
+         begin
+            string result := "";
+            for i from LWB str to UPB str do
+                char c = str[ i ];
+                if c /= delete then
+                    result +:= c
+                fi
+            od;
+            result
+         end { REMOVE } ;
+    { returns str with with the character at pos removed                     }
+    op   REMOVE = ( string str, int pos )string:
+         if pos < LWB str OR pos > UPB str
+         then str
+         elif pos = LWB str
+         then str[ LWB str + 1 : ]
+         elif pos = UPB str
+         then str[ : LENGTH str - 1 ]
+         else str[ : pos - 1 ] + str[ pos + 1 : ]
+         fi { REMOVE } ;
+    { returns the length of str                                              }
+    op   LENGTH = ( string str )int: ( UPB str - LWB str ) + 1;
+    { returns TRUE is str starts with prefix, FALSE otherwise                }
+    prio STARTSWITH = 9;
+    op   STARTSWITH = ( string str, prefix )bool:
+         if int p_len = LENGTH prefix;
+            p_len > LENGTH str
+         then false
+         else str[ LWB str : LWB str + p_len - 1 ] = prefix
+         fi { STARTSWITH } ;
+    op   STARTSWITH = ( string str, char prefix )bool: str STARTSWITH string(prefix);
+    { returns TRUE if c is a vowel (AEIOU), FALSE otherwise                  }
+    op   VOWEL = ( char c )bool: c = "A" OR c = "E" OR c = "I" OR c = "O" OR c = "U";
+    { returns the character from str following pos, if there is one,         }
+    {         REPR 0 otherwise                                               }
+    prio FOLLOWING = 9;
+    op   FOLLOWING = ( string str, int pos )char: if pos < UPB str then str[ pos + 1 ] else REPR 0 fi;
+    { left pads str to at least w charaters                                  }
+    prio PAD = 9;
+    op   PAD = ( int w, string str )string:
+         if LENGTH str >= w then str else ( ( w - LENGTH str ) * " " ) + str fi;
+
+    { returns the NYSIIS code of name                                        }
+    op   NYSIIS = ( string name )string:
+         begin
+            string cname := ( TOALPHAUPPER ( name REMOVE " " ) );
+            if   cname STARTSWITH "MAC" then cname[ 1 : 3 ] := "MCC"
+            elif cname STARTSWITH "KN"  then cname[ 1 : 2 ] := "NN"
+            elif cname STARTSWITH "K"   then cname[ 1     ] := "C"
+            elif cname STARTSWITH "PH"  then cname[ 1 : 2 ] := "FF"
+            elif cname STARTSWITH "PF"  then cname[ 1 : 2 ] := "FF"
+            elif cname STARTSWITH "SCH" then cname[ 1 : 3 ] := "SSS"
+            fi;
+            int    r_len  := LENGTH cname;
+            string suffix = cname[ r_len - 1 : r_len ];
+            if   suffix = "EE" OR suffix = "IE" then cname[ r_len - 1 : ] := "Y "
+            elif suffix = "DT" OR suffix = "RT" OR suffix = "RD"
+              OR suffix = "NT" OR suffix = "ND" then cname[ r_len - 1 : ] := "D "
+            fi;
+            int r_pos := 2;
+            while if r_pos > r_len then false else cname[ r_pos ] /= " " fi do
+                char p = cname[ r_pos - 1 ];
+                char c = cname[ r_pos     ];
+                char n = cname FOLLOWING r_pos;
+                if c = "E" then
+                    if n = "V" then cname[ r_pos : r_pos + 1 ] := "AF" else cname[ r_pos ] := "A" fi
+                elif VOWEL c then cname[ r_pos ] := "A"
+                elif c = "Q" then cname[ r_pos ] := "G"
+                elif c = "Z" then cname[ r_pos ] := "S"
+                elif c = "M" then cname[ r_pos ] := "N"
+                elif if r_pos >= r_len - 1 then false else cname[ r_pos : r_pos + 2 ] = "SCH" fi
+                then cname[ r_pos : r_pos + 2 ] := "SSS"
+                elif c = "P" AND n = "H" then cname[ r_pos : r_pos + 1 ] := "FF"
+                elif c = "K" then cname[ r_pos ] := if n = "N" then "N" else "C" fi
+                elif c = "H"
+                 AND ( NOT VOWEL p OR NOT VOWEL n ) then cname[ r_pos ] := p
+                elif c = "W" AND VOWEL p
+                then cname[ r_pos ] := p
+                fi;
+                if cname[ r_pos ] = p
+                then cname := cname REMOVE r_pos; r_len -:= 1
+                else r_pos +:= 1
+                fi
+            od;
+            if cname[ r_len ] = " " then cname := cname REMOVE r_len; r_len -:= 1 fi;
+            if if r_len < 1 then false else c_name[ r_len ] = "S" fi
+            then cname := cname REMOVE r_len;
+                 r_len -:= 1
+            fi;
+            if if r_len < 2 then false else c_name[ r_len - 1 : ] = "AY" fi
+            then cname := cname REMOVE r_len;
+                 cname[ r_len -:= 1 ] := "Y"
+            fi;
+            if if r_len < 1 then false else c_name[ r_len ] = "A" fi
+            then cname := cname REMOVE r_len;
+                 r_len -:= 1
+            fi;
+            cname
+         end { NYSIIS } ;
+
+    { test cases as used in other samples, e.g. 11l                          }
+    [,]string tests = ( (      "Bishop", "BASAP"    )
+                      , (     "Carlson", "CARLSAN"  )
+                      , (        "Carr", "CAR"      )
+                      , (     "Chapman", "CAPNAN"   )
+                      , (    "Franklin", "FRANCLAN" )
+                      , (      "Greene", "GRAN"     )
+                      , (      "Harper", "HARPAR"   )
+                      , (      "Jacobs", "JACAB"    )
+                      , (      "Larson", "LARSAN"   )
+                      , (    "Lawrence", "LARANC"   )
+                      , (      "Lawson", "LASAN"    )
+                      , (  "Louis, XVI", "LASXV"    )
+                      , (       "Lynch", "LYNC"     )
+                      , (   "Mackenzie", "MCANSY"   )
+                      , (    "Matthews", "MAT"      )
+                      , (   "McCormack", "MCARNAC"  )
+                      , (    "McDaniel", "MCDANAL"  )
+                      , (    "McDonald", "MCDANALD" )
+                      , (  "Mclaughlin", "MCLAGLAN" )
+                      , (    "Morrison", "MARASAN"  )
+                      , (    "O''Banion", "OBANAN"   )
+                      , (     "O''Brien", "OBRAN"    )
+                      , (    "Richards", "RACARD"   )
+                      , (       "Silva", "SALV"     )
+                      , (     "Watkins", "WATCAN"   )
+                      , (     "Wheeler", "WALAR"    )
+                      , (      "Willis", "WAL"      )
+                      , (   "brown, sr", "BRANSR"   )
+                      , ( "browne, III", "BRAN"     )
+                      , (  "browne, IV", "BRANAV"   )
+                      , (       "hayes", "HAY"      )
+                      , (      "knight", "NAGT"     )
+                      , (    "mitchell", "MATCAL"   )
+                      , (    "o''daniel", "ODANAL"   )
+                      );
+    for t from 1 LWB tests to 1 UPB tests do
+        string name     = tests[ t, 1 ];
+        string code     = NYSIIS name;
+        string expected = tests[ t, 2 ];
+        print( ( 12 PAD name, " -> ", code
+               , if code = expected
+                 then ""
+                 else "    !! expected " + expected
+                 fi
+               , newline
+               )
+             )
+    od
+end
+)

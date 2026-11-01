@@ -1,0 +1,150 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Arithmetic evaluation", ALGOL 68 solution arithmetic-evaluation.alg.
+  https://rosettacode.org/wiki/Arithmetic_evaluation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-evaluation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int base=10;
+mode Fixed = long real; { numbers in the format 9,999.999 }
+
+{ set the error handler to the default error handler }
+proc eval_error := ( string message )void: (print(("****",message,newline)); stop);
+{ sets the eval error handler }
+proc on_eval_error = ( proc(string)void handler )void: eval_error := handler;
+
+mode Ast = union(Node, Fixed);
+mode Num = ref Ast;
+mode Node = struct(Num a, proc (Fixed,Fixed)Fixed op_, Num b);
+
+op EVAL = (Num ast)Fixed:(
+  case ast in
+    (Fixed num): num,
+    (Node tree): (op_ of tree)(EVAL(a of tree), EVAL (b of tree))
+  esac
+);
+
+op + = (Num a,b)Num: ( heap Ast := Node(a, (Fixed x,y)Fixed:x+y, b) );
+op - = (Num a,b)Num: ( heap Ast := Node(a, (Fixed x,y)Fixed:x-y, b) );
+op * = (Num a,b)Num: ( heap Ast := Node(a, (Fixed x,y)Fixed:x*y, b) );
+op / = (Num a,b)Num: ( heap Ast := Node(a, (Fixed x,y)Fixed:x/y, b) );
+op **= (Num a,b)Num: ( heap Ast := Node(a, (Fixed x,y)Fixed:x**y, b) );
+
+Ast error_value := Fixed(-1);
+
+mode Lex = proc (Tok)Num;
+mode Monadic = proc (Num)Num;
+mode Diadic = proc (Num,Num)Num;
+
+mode Tok = char;
+mode Action = union(Stackaction, Lex, Monadic, Diadic);
+mode Opval = struct(int prio_, Action action);
+mode Opitem = struct(Tok token, Opval opval);
+
+[256]Stackitem stack;
+mode Stackitem = struct(Num value, Opval op_);
+mode Stackaction = proc (ref Stackitem)void;
+
+proc begin_ = (ref Stackitem top)void: prio_ of op_ of top -:= +10;
+proc end_ = (ref Stackitem top)void: prio_ of op_ of top -:= -10;
+
+[8]Opitem op_list :=(
+{  OP  PRIO ACTION }
+  ("^", (8, (Num a,b)Num: a**b)),
+  ("*", (7, (Num a,b)Num: a*b)),
+  ("/", (7, (Num a,b)Num: a/b)),
+  ("+", (6, (Num a,b)Num: a+b)),
+  ("-", (6, (Num a,b)Num: a-b)),
+  ("(",(+10, begin_)),
+  (")",(-10, end_)),
+  ("?", (9, Lex:skip))
+);
+
+proc op_dict = (Tok op_)ref Opval:(
+{ This can be unrolled to increase performance }
+  ref Opitem candidate;
+  for i to UPB op_list while
+    candidate := op_list[i];
+{ WHILE } op_ /= token of candidate do
+    skip
+  od;
+  opval of candidate
+);
+
+proc build_ast = (string expr)Num:(
+
+  int top:=0;
+
+  proc compress_ast_stack = (int prio_, Num in_value)Num:(
+    Num out_value := in_value;
+    for loc_ from top by -1 to 1 while
+      ref Stackitem stack_top := stack[loc_];
+  { WHILE } ( top >= LWB stack | prio_ <= prio_ of op_ of stack_top | false ) do
+      top := loc_ - 1;
+      out_value :=
+        case action of op_ of stack_top in
+          (Monadic op_): op_(value of stack_top), { not implemented }
+          (Diadic op_): op_(value of stack_top,out_value)
+        esac
+    od;
+    out_value
+  );
+
+  Num value := nil;
+  Fixed num_value;
+  int decimal_places;
+
+  for i to UPB expr do
+    Tok token = expr[i];
+    ref Opval this_op := op_dict(token);
+    case action of this_op in
+      (Stackaction action):(
+        if prio_ of thisop = -10 then
+          value := compress_ast_stack(0, value)
+        fi;
+        if top >= LWB stack then
+          action(stack[top])
+        fi
+      ),
+      (Lex):( { a crude lexer }
+        short int digit = ABS token - ABS "0";
+        if 0<= digit AND digit < base then
+          if Num(value) is nil then { first digit }
+            decimal_places := 0;
+            value := heap Ast := num_value := digit
+          else
+            Num(value) := num_value := if decimal_places = 0
+              then
+                num_value * base + digit
+              else
+                decimal_places *:= base;
+                num_value + digit / decimal_places
+              fi
+          fi
+        elif token = "." then
+          decimal_places := 1
+        else
+          skip { and ignore spaces and any unrecognised characters }
+        fi
+      ),
+      (Monadic): skip, { not implemented }
+      (Diadic):(
+        value := compress_ast_stack(prio_ of this_op, value);
+        if top=UPB stack then eval_error("Stack overflow");goto index_error fi;
+        stack[top+:=1]:=Stackitem(value, this_op);
+        value:=nil
+      )
+    esac
+  od;
+  compress_ast_stack(-max_int, value)
+  exit index_error: error_value
+);
+
+{test}(
+   on_eval_error( (string m)void: ( print(("EVAL error: ",m,newline));stop ) );
+   Fixed eval_result
+       = EVAL build_ast("1+1+(1+(1+(1+(1+(1+(1+(1+(1+(1+(1+(1+(1+(1+1/15)/14)/13)/12)/11)/10)/9)/8)/7)/6)/5)/4)/3)/2");
+   print((" euler''s number is about: ", fixed(eval_result,-long_real_width,long_real_width-2), newline))
+)
+)

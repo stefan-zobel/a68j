@@ -1,0 +1,51 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Permutations by swapping", ALGOL 68 solution permutations-by-swapping.alg.
+  https://rosettacode.org/wiki/Permutations_by_swapping#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/permutations-by-swapping.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Heap's algorithm for generating permutations - from the pseudo-code on the Wikipedia page }
+    { generate permutations of a }
+    proc generate = ( int k, ref[]int a, ref int swap_count )void:
+         if k = 1 then
+            output_permutation( a, swap_count )
+         else
+            { Generate permutations with kth unaltered }
+            { Initially k = length a }
+            generate( k - 1, a, swap_count );
+            { Generate permutations for kth swapped with each k-1 initial }
+            for i from 0 to k - 2 do
+                { Swap choice dependent on parity of k (even or odd) }
+                swap_count +:= 1;
+                int swap_item = if ODD k then 0 else i fi;
+                int t           = a[ swap_item ];
+                a[ swap_item ] := a[ k - 1 ];
+                a[ k - 1     ] := t;
+                generate( k - 1, a, swap_count )
+            od
+         fi { generate } ;
+    { generate permutations of a }
+    proc permute = ( ref[]int a )void:
+         begin
+            int swap_count := 0;
+            generate( ( UPB a + 1 ) - LWB a, a[ at 0 ], swap_count )
+         end { permute } ;
+
+    { handle a permutation }
+    proc output_permutation = ( ref[]int a, int swap_count )void:
+         begin
+            print( ( "[" ) );
+            for i from LWB a to UPB a do
+               print( ( whole( a[ i ], 0 ) ) );
+               if i = UPB a then print( ( "]" ) ) else print( ( ", " ) ) fi
+            od;
+            print( ( " sign: ", if ODD swap_count then "-1" else " 1" fi, newline ) )
+         end { output permutation } ;
+
+    [ 1 : 3 ]int a := ( 1, 2, 3 );
+    permute( a )
+
+end
+)

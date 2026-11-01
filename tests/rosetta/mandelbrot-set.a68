@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Mandelbrot set", ALGOL 68 solution mandelbrot-set.alg.
+  https://rosettacode.org/wiki/Mandelbrot_set#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/mandelbrot-set.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int pix = 300, max_iter = 256, real zoom = 0.33 / pix;
+[-pix : pix, -pix : pix] int plane;
+compl ctr = 0.05 I 0.75 { center of set };
+
+{ Compute the length of an orbit. }
+proc iterate = (compl z0) int:
+  begin compl z := 0, int iter := 1;
+        while (iter +:= 1) < max_iter { not converged } AND ABS z < 2 { not diverged }
+        do z := z * z + z0
+        od;
+        iter
+  end;
+
+{ Compute set and find maximum orbit length. }
+int max_col := 0;
+for x from -pix to pix
+do for y from -pix to pix
+   do compl z0 = ctr + (x * zoom) I (y * zoom);
+      if (plane [x, y] := iterate (z0)) < max_iter
+      then (plane [x, y] > max_col | max_col := plane [x, y])
+      fi
+   od
+od;
+
+{ Make a plot. }
+file plot;
+int num_pix = 2 * pix + 1;
+make_device (plot, "gif", whole (num_pix, 0) + "x" + whole (num_pix, 0));
+open (plot, "mandelbrot.gif", stand_draw_channel);
+for x from -pix to pix
+do for y from -pix to pix
+   do int col = (plane [x, y] > max_col | max_col | plane [x, y]);
+      real c = sqrt (1- col / max_col); { sqrt to enhance contrast }
+      draw_colour (plot, c, c, c);
+      draw_point (plot, (x + pix) / (num_pix - 1), (y + pix) / (num_pix  - 1))
+   od
+od;
+close (plot)
+)

@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gauss-Jordan matrix inversion", ALGOL 68 solution gauss-jordan-matrix-inversion.alg.
+  https://rosettacode.org/wiki/Gauss-Jordan_matrix_inversion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gauss-jordan-matrix-inversion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Gauss-Jordan matrix inversion }
+    proc rref = ( ref[,]real m )void:
+         begin
+            int n = 1 UPB m;
+            for r to n do
+                real d = m[ r, r ];
+                if d /= 0 then
+                    for c to  n * 2 do m[ r, c ] := m[ r, c ] / d od
+                else
+                    print( ( "inversion impossible!", newline ) )
+                fi;
+                for i to n do
+                    if i /= r then
+                        real w = m[ i, r ];
+                        for c to n * 2 do m[ i, c ] := m[ i, c ] - w * m[ r, c ] od
+                    fi
+                od
+            od
+         end { rref } ;
+    proc inverse = ( ref[,]real mat )[,]real:
+         begin
+            int n = 1 UPB mat;
+            [ 1 : n, 1 : n     ]real inv;
+            [ 1 : n, 1 : n * 2 ]real aug;
+            for i to n do
+                for j            to n     do aug[ i, j ] := mat[ i, j ] od;
+                for j from 1 + n to n * 2 do aug[ i, j ] := 0           od;
+                aug[ i, i + n ] := 1
+            od;
+            rref( aug );
+            for i to n do
+                for j from n + 1 to 2 * n do inv[ i, j - n ] := aug[ i, j ] od
+            od;
+            inv
+         end { inverse } ;
+    proc show = ( string c, [,]real m )void:
+         begin
+            int n = 1 UPB m;
+            print( ( "matrix ", c, newline ) );
+            for i to n do
+                for j to n do print( ( " ", fixed( m[ i, j ], -8, 3 ) ) ) od;
+                print( ( newline ) )
+            od
+         end { show };
+
+    begin { test }
+        [ 1 : 4, 1 : 4 ]real a, b, c;
+        a := [,]real( (  2,  1,  1,  4 )
+                    , (  0, -1,  0, -1 )
+                    , (  1,  0, -2,  4 )
+                    , (  4,  1,  2,  2 )
+                    );
+        show( "a", a );
+        b := inverse( a );
+        show( "b", b );
+        c := inverse( b );
+        show( "c", c )
+    end
+end
+)

@@ -1,0 +1,75 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Eban numbers", ALGOL 68 solution eban-numbers.alg.
+  https://rosettacode.org/wiki/Eban_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/eban-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Eban numbers - translated from the Lua and Phix samples               }
+
+    mode Interval = struct( int start, end_, bool print );
+
+    []Interval intervals = ( (    2,       1000, true  )
+                           , ( 1000,       4000, true  )
+                           , (    2,      10000, false )
+                           , (    2,    1000000, false )
+                           , (    2,   10000000, false )
+                           , (    2,  100000000, false )
+                           , (    2, 1000000000, false )
+                           );
+    for intp from LWB intervals to UPB intervals do
+        Interval intv = intervals[ intp ];
+        if start of intv = 2 then
+            print( ( "eban numbers up to and including ", whole( end_ of intv, 0 ), ":" ) )
+        else
+            print( ( "eban numbers between ", whole( start of intv, 0 )
+                   , " and ", whole( end_ of intv, 0 ), " (inclusive)"
+                   )
+                 )
+        fi;
+        print( ( newline ) );
+
+        if NOT print of intv then
+            { calculate the count, as in the Phix sample                      }
+            { end OF intv must be a power of 10                               }
+            int p10 := 0;
+            int v   := end_ of intv;
+            while v > p10 do
+                p10  +:=  1;
+                v OVERAB 10
+            od;
+            int n  = p10 - ( p10 OVER 3 );
+            int p5 = n OVER 2;
+            int p4 = ( n + 1 ) OVER 2;
+            print( ( "count = ", whole( ( ( 5 ^ p5 ) * ( 4 ^ p4 ) ) - 1, 0 ), newline ) )
+        else
+            { enumerate the eban numbers, as in the Lua and other samples    }
+            int count := 0;
+            for i from start of intv by 2 to end_ of intv do
+                int b  = i OVER 1 000 000 000;
+                int r := i MOD  1 000 000 000;
+                int m := r OVER     1 000 000;
+                r     := i MOD      1 000 000;
+                int t := r OVER         1 000;
+                r     := r MOD          1 000;
+                if m >= 30 AND m <= 66 then m MODAB 10 fi;
+                if t >= 30 AND t <= 66 then t MODAB 10 fi;
+                if r >= 30 AND r <= 66 then r MODAB 10 fi;
+                if b = 0 OR b = 2 OR b = 4 OR b = 6 then
+                    if m = 0 OR m = 2 OR m = 4 OR m = 6 then
+                        if t = 0 OR t = 2 OR t = 4 OR t = 6 then
+                            if r = 0 OR r = 2 OR r = 4 OR r = 6 then
+                                print( ( whole( i, 0 ), " " ) );
+                                count +:= 1
+                            fi
+                        fi
+                    fi
+                fi
+            od;
+            print( ( newline, "count = ", whole( count, 0 ), newline ) )
+        fi;
+        print( ( newline ) )
+    od
+end
+)

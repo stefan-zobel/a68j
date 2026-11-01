@@ -1,0 +1,105 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "GSTrans string conversion", ALGOL 68 solution gstrans-string-conversion.alg.
+  https://rosettacode.org/wiki/GSTrans_string_conversion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gstrans-string-conversion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { GSTrans string conversion                                            }
+    op   UNQUOTE = ( string s )string:                  { returns s unquoted }
+         if LWB s >= UPB s then s
+         elif s[ LWB s ] /= """" OR s[ UPB s ] /= """" then s
+         else s[ LWB s + 1 : UPB s - 1 ]
+         fi { UNQUOTE } ;
+    op   ENCODE = ( string str )string:                { returns str encoded }
+         begin
+            string result := "";
+            string s       = UNQUOTE str;
+            for i from LWB s to UPB s do
+                int c = ABS s[ i ];
+                result +:= if   c < 32 then
+                                "|" + REPR ( c + 64 )
+                           elif c = ABS """" OR c = ABS "|" then
+                               "|" + s[ i ]
+                           elif c >= 32 AND c <= 126 then
+                                s[ i ]
+                           elif c = 127 then
+                                "|?"
+                           else
+                                "|!" + ENCODE string( REPR( c - 128 ) )
+                           fi
+
+            od;
+            if s /= str then """" + result + """" else result fi
+         end { ENCODE } ;
+    op   DECODE = ( string str )string:                { returns str decoded }
+         begin
+            string result := "";
+            string s       = UNQUOTE str;
+            int i := LWB s;
+            while i <= UPB s do
+                result +:= if   s[ i ] /= "|" then
+                                s[ i ]
+                           elif ( i +:= 1 ) > UPB s then
+                                ""
+                           elif s[ i ] = """" OR s[ i ] = "|" then
+                                s[ i ]
+                           elif s[ i ] = "?" then
+                                REPR 127
+                           elif s[ i ] /= "!" then
+                                int ch = ABS s[ i ] - 64;
+                                if ch < 0 then s[ i ] else REPR ch fi
+                           else
+                                i +:= 1;
+                                if   i > UPB s then
+                                     ""
+                                elif s[ i ] /= "|" then
+                                     int ch = ABS s[ i ] + 128;
+                                     if ch > 255 then s[ i ] else REPR ch fi
+                                elif ( i +:= 1 ) > UPB s then
+                                     ""
+                                else
+                                     string c = DECODE string( "|" + s[ i ] );
+                                     int ch = ABS c[ LWB c ] + 128;
+                                     if ch > 255 then s[ i ] else REPR ch fi
+                                fi
+                           fi;
+                  i +:= 1
+            od;
+            if s /= str then """" + result + """" else result fi
+         end { DECODE } ;
+    op   SHOWBYTES = ( string s )string:  { return s with control characters }
+         begin                            { replaced by their value          }
+            string result := "";
+            for i from LWB s to UPB s do
+                int c = ABS s[ i ];
+                result +:= if c < 32 then
+                               "[" + whole( c, 0 ) + "]"
+                           else
+                               s[ i ]
+                           fi
+             od;
+             result
+          end { SHOWBYTES } ;
+
+    []string test = ( "ALERT|G",    "wert↑",       "@♂aN°$ª7Î"    { test cases }
+                    , "ÙC▼æÔt6¤☻Ì", """@)Ð♠qhýÌÿ", "+☻#o9$u♠©A" { from Julia }
+                    , "♣àlæi6Ú.é",  "ÏÔ♀È♥@ë",     "Rç÷\%◄MZûhZ"
+                    , "ç>¾AôVâ♫↓P"
+                    , REPR 12 + "Hello" + REPR 7 + REPR 10 + REPR 13 { Task test cases  }
+                    , REPR 13 + REPR 10 + REPR 0 + REPR 5 + REPR 244 + REPR 13 + REPR 255
+                    , """quoted|text"""                              { quoted test case }
+                    );
+    for i from LWB test to UPB test do
+        string encoded = ENCODE test[ i ];
+        string decoded = DECODE encoded;
+        print( ( SHOWBYTES test[ i ], " -> ", encoded, " -> ", SHOWBYTES decoded
+               , if decoded = test[ i ] then "" else " ****" fi, newline
+               )
+             )
+    od;
+    string invalid = "|=|1|!";
+    print( ( "Decoding: ", invalid, " -> ", DECODE invalid, newline ) )
+end
+)

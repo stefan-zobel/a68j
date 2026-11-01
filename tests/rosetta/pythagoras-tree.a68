@@ -1,0 +1,104 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Pythagoras tree", ALGOL 68 solution pythagoras-tree.alg.
+  https://rosettacode.org/wiki/Pythagoras_tree#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/pythagoras-tree.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw a pythagoras tree, using SVG                                    }
+
+    mode Pos = real;                             { MODE holding a coordinate }
+
+    { operators for formatting                                               }
+    op   BYTETOHEX = ( int v )char:
+         REPR if v < 10 then ABS "0" + v else ABS "A" + ( v - 10 ) fi;
+    op   TOHEX = ( int v_in )string:
+         if   v_in = 0
+         then "0"
+         else int    v      := vin;
+              string result := "";
+              while  v > 0 do
+                  BYTETOHEX ( v MOD 16 ) +=: result;
+                  v OVERAB 16
+              od;
+              result
+         fi { TOHEX } ;
+    op   FMT = ( int v )string: whole( v, 0 );
+    prio FMT = 9;
+    op   FMT = ( real v, int dp )string:
+         if   v = ENTIER v OR dp = 0
+         then whole( v, 0 )
+         else string result = fixed( v, - dp * 16, ABS dp );
+              int v_pos := LWB result;
+              while result[ v_pos ] = " " do v_pos +:= 1 od;
+              result[ v_pos : ]
+         fi { FMT } ;
+
+    { draws a polygon, points must have an even number of elements           }
+    proc polygon = ( []Pos points, int fill, stroke, real line_width )void:
+         begin
+            print( ( "  <polygon points=''" ) );
+            for p from LWB points to UPB points do
+                print( ( " ", points[ p ] FMT 3 ) )
+            od;
+            print( ( "''", newline, "           " ) );
+            print( ( "style=''fill:#", TOHEX fill,  ";"  ) );
+            print( ( "stroke:#",      TOHEX stroke, ";" ) );
+            print( ( "stroke-width:", line_width FMT 2, ";" ) );
+            print( ( "stroke-linejoin:round;" ) );
+            print( ( "''", newline, "  />", newline ) )
+        end { polygon } ;
+    proc square   = ( Pos x1, y1, x2, y2, x3, y3, x4, y4
+                    , int fill, stroke
+                    , real line_width
+                    ) void: polygon( ( x1, y1, x2, y2, x3, y3, x4, y4 ), fill, stroke, line_width );
+    proc triangle = ( Pos x1, y1, x2, y2, x3, y3
+                    , int fill, stroke
+                    , real line_width
+                    ) void: polygon( ( x1, y1, x2, y2, x3, y3 ),         fill, stroke, line_width );
+
+    proc draw_pythagoras_tree = ( int  height
+                                , Pos  x1, y1, x2, y2
+                                , int  depth, max_depth
+                                , real line_width
+                                ) void:
+         if depth < max_depth then
+            Pos dx     = x2 - x1;
+            Pos dy     = y1 - y2;
+            Pos x3     = x2 + dy;
+            Pos y3     = y2 + dx;
+            Pos x4     = x1 + dy;
+            Pos y4     = y1 + dx;
+            Pos x5     = x4 + 0.5 * ( dx + dy );
+            Pos y5     = y4 + 0.5 * ( dx - dy );
+            int r      = 255 - ROUND ( 255 * ( 0.01 + ( depth / 10 ) ) );
+            int g      = 255 - ROUND ( 255 * ( 0.01 + ( depth / 20 ) ) );
+            int b      = g OVER 3;
+            int fill   = ( ( ( r * 256 ) + g ) * 256 ) + b;
+            int stroke = ABS 16r 444444;
+            { inveret the y-axis, so y=0 is at the bottom                    }
+            Pos i1 = height - y1, i2 = height - y2, i3 = height - y3;
+            Pos i4 = height - y4, i5 = height - y5;
+            square(   x1, i1, x2, i2, x3, i3, x4, i4, fill, stroke, line_width );
+            triangle( x3, i3, x4, i4, x5, i5,         fill, stroke, line_width );
+            draw_pythagoras_tree( height, x4, y4, x5, y5, depth + 1, max_depth, line_width );
+            draw_pythagoras_tree( height, x5, y5, x3, y3, depth + 1, max_depth, line_width )
+         fi { draw pythagoras tree } ;
+
+    proc pythagoras_tree = ( int  width, height
+                           , Pos  x1, y1, x2, y2
+                           , int  max_depth
+                           , real line_width
+                           ) void:
+         begin
+            print( ( "<svg xmlns=''http://www.w3.org/2000/svg''" ) );
+            print( ( " width=''", FMT width, "'' height=''", FMT height, "''>", newline ) );
+            draw_pythagoras_tree( height, x1, y1, x2, y2, 0, max_depth, line_width );
+            print( ( "</svg>", newline ) )
+         end { pythagoras tree };
+
+    pythagoras_tree( 120, 90, 51, 10, 69, 10, 10, 0.03 )
+
+end
+)

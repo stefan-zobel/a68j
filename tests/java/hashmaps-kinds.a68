@@ -1,0 +1,54 @@
+{ All key and value modes of the module Hashmaps. }
+access Hashmaps (
+   Int_int_map ii = new_int_int_map;
+   Int_long_int_map il = new_int_long_int_map_with_capacity (100);
+   Int_real_map ir = new_int_real_map;
+   Int_long_real_map ilr = new_int_long_real_map;
+   Int_bool_map ib = new_int_bool_map;
+   Int_string_map istr = new_int_string_map;
+   Long_int_int_map li = new_long_int_int_map;
+   Long_int_string_map ls = new_long_int_string_map;
+   String_real_map sr = new_string_real_map;
+   String_long_int_map sl = new_string_long_int_map;
+   String_long_real_map slr = new_string_long_real_map;
+   String_bool_map sb = new_string_bool_map;
+   String_string_map ss = new_string_string_map;
+   Long_int_bool_map lb = new_long_int_bool_map;
+   Long_int_real_map lr = new_long_int_real_map;
+   Long_int_long_int_map ll = new_long_int_long_int_map;
+   Long_int_long_real_map llr = new_long_int_long_real_map;
+   String_int_map si = new_string_int_map;
+   for i to 100 do
+      i AT ii := i * i;
+      i AT il := LENG i * long 1000000000;
+      i AT ir := i / 4;
+      i AT ilr := LENG i / long 8;
+      i AT ib := ODD i;
+      i AT istr := whole (i, 0) + "!";
+      LENG i * long 10000000000 AT li := i;
+      LENG i AT ls := "l" + whole (i, 0);
+      whole (i, 0) AT sr := i * 0.5;
+      whole (i, 0) AT sl := LENG i * long 3;
+      whole (i, 0) AT slr := LENG i * long 0.25;
+      whole (i, 0) AT sb := i MOD 3 = 0;
+      whole (i, 0) AT ss := "v" + whole (i, 0);
+      LENG i AT lb := i > 50;
+      LENG i AT lr := i * 2.0;
+      LENG i AT ll := LENG i * LENG i;
+      LENG i AT llr := LENG i * long 1.5;
+      whole (i, 0) AT si := -i
+   od;
+   puts (whole (7 ELEM ii, 0) + " " + whole (7 ELEM il, 0) + " " + fixed (7 ELEM ir, 0, 2) + " " +
+         fixed (7 ELEM ilr, 0, 3) + " " + (7 ELEM ib | "T" | "F") + " " + 7 ELEM istr + "'n");
+   puts (whole (long 70000000000 ELEM li, 0) + " " + long 7 ELEM ls + " " + fixed ("7" ELEM sr, 0, 1) + " " +
+         whole ("7" ELEM sl, 0) + " " + fixed ("7" ELEM slr, 0, 2) + " " + ("9" ELEM sb | "T" | "F") + " " + "7" ELEM ss + "'n");
+   puts ((long 77 ELEM lb | "T" | "F") + " " + fixed (long 7 ELEM lr, 0, 1) + " " + whole (long 7 ELEM ll, 0) + " " +
+         fixed (long 7 ELEM llr, 0, 1) + " " + whole ("7" ELEM si, 0) + "'n");
+   for i by 2 to 100 do ii REMOVE i; istr REMOVE i; ss REMOVE whole (i, 0) od;
+   [] int k = KEYS ii; [] int v = VALUES ii;
+   puts (whole (SIZE ii, 0) + " " + whole (k[1], 0) + " " + whole (v[UPB v], 0) + " " + (VALUES istr)[3] + " " + (KEYS ss)[2] + "'n");
+   [] long int lk = KEYS ll; [] bool bv = VALUES sb; [] long real rv = VALUES llr;
+   puts (whole (lk[UPB lk], 0) + " " + (bv[3] | "T" | "F") + " " + fixed (rv[2], 0, 1) + "'n");
+   { The operators of the different modes do not clash. }
+   puts (whole (SIZE ii + SIZE ss + SIZE ll, 0) + " " + (ii HAS 2 | "T" | "F") + (ss HAS "3" | "T" | "F") + (ll HAS long 5 | "T" | "F") + "'n")
+)

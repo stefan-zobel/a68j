@@ -1,0 +1,123 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Range consolidation", ALGOL 68 solution range-consolidation.alg.
+  https://rosettacode.org/wiki/Range_consolidation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/range-consolidation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { range consolidation                                                  }
+
+    mode Range = struct( real lb, ub );
+
+    { returns a with the bounds swapped if necessary, so lb OF a <= ub OF a  }
+    op   NORMALISE = ( Range a )Range:
+         ( if lb of a < ub of a then lb of a else ub of a fi
+         , if ub of a > lb of a then ub of a else lb of a fi
+         ) { NORMALISE } ;
+    { returns a with each element normalised                                 }
+    op   NORMALISE = ( []Range a )[]Range:
+         begin
+            [ LWB a : UPB a ]Range result;
+            for a_pos from LWB a to UPB a do result[ a_pos ] := NORMALISE a[ a_pos ] od;
+            result
+         end { NORMALISE } ;
+    op   < = ( Range a, b )bool: lb of a < lb of b;
+    op   > = ( Range a, b )bool: lb of a > lb of b;
+
+    { sorts a into order of each element's lb                                }
+    op   SORT = ( []Range qsa )[]Range:
+         begin
+            { in-place quick sort an array of RANGEs from element lb         }
+            {                                                  to element ub }
+            proc quicksort = ( ref[]Range a, int lb, ub )ref[]Range:
+                 if ub <= lb
+                 then
+                    { empty array or only 1 element                          }
+                    a
+                 else
+                    { more than one element, so must sort                    }
+                    int left   := lb;
+                    int right  := ub;
+                    { choosing the middle element of the array as the pivot  }
+                    Range pivot  := a[ left + ( ( right + 1 ) - left ) OVER 2 ];
+                    while
+                        while if left  <= ub then a[ left  ] < pivot else false fi do left  +:= 1 od;
+                        while if right >= lb then a[ right ] > pivot else false fi do right -:= 1 od;
+                        left <= right
+                    do
+                        Range t    := a[ left  ];
+                        a[ left  ] := a[ right ];
+                        a[ right ] := t;
+                        left      +:= 1;
+                        right     -:= 1
+                    od;
+                    void( quicksort( a, lb,   right ) );
+                    quicksort( a, left, ub    )
+                 fi { quicksort } ;
+            quicksort( heap[ LWB qsa : UPB qsa ]Range := qsa, LWB qsa, UPB qsa )
+         end { SORT } ;
+
+    { returns the consolidation of the ranges in a in                        }
+    op   CONSOLIDATE = ( []Range a_in )[]Range:
+         if UPB a_in <= LWB a_in
+         then a_in                                            { 0 or 1 range }
+         else                                              { multiple ranges }
+            []Range a = SORT NORMALISE a_in;
+            [ 1 : 2 * ( ( UPB a - LWB a ) + 1 ) ]Range result;
+            int r_max := 1;
+            result[ r_max ] := a[ LWB a ];
+            for a_pos from LWB a + 1 to UPB a do
+                Range m = result[ r_max ], n = a[ a_pos ];
+                if ub of m < lb of n then
+                    result[ r_max +:= 1 ] := n             { distinct ranges }
+                else
+                    result[ r_max ]                     { overlapping ranges }
+                        := ( if lb of m < lb of n then lb of m else lb of n fi
+                           , if ub of m > ub of n then ub of m else ub of n fi
+                           )
+                fi
+            od;
+            result[ : r_max ]
+         fi { CONSOLIDATE } ;
+
+    op   FMT = ( real v )string:   { prints v with at most 3 decimal places }
+         begin
+            string result := fixed( ABS v, 0, 3 );
+            if result[ LWB result ] = "." then "0" +=: result fi;
+            while result[ UPB result ] = "0" do result := result[ : UPB result - 1 ] od;
+            if result[ UPB result ] = "." then result := result[ : UPB result - 1 ] fi;
+            if v < 0 then "-" else "" fi + result
+         end { FMT } ;
+
+    op   TOSTRING = ( Range a )string: "[ " + FMT lb of a + ", " + FMT ub of a + " ]";
+    op   TOSTRING = ( []Range a )string:
+         begin
+            string result := "[";
+            string prefix := " ";
+            for r_pos from LWB a to UPB a do
+                result +:= prefix + TOSTRING a[ r_pos ];
+                prefix := ", "
+            od;
+            result + " ]"
+         end { TOSTRING } ;
+    prio PAD = 8;                 { right pads s with blanks to w characters }
+    op   PAD = ( string s, int w )string:
+         if   int len = ( UPB s - LWB s ) + 1;
+              len >= w
+         then s
+         else s + ( ( w - len ) * " " )
+         fi { PAD } ;
+
+    { task test cases                                                        }
+
+    proc test = ( []Range a )void:
+         begin print( ( ( TOSTRING a PAD 60 ), " -> ", TOSTRING CONSOLIDATE a, newline ) ) end;
+    test( []Range( Range( 1.1, 2.2 )                                         ) );
+    test( ( ( 6.1, 7.2 ), (  7.2, 8.3 )                                      ) );
+    test( ( ( 4,   3   ), (  2,   1   )                                      ) );
+    test( ( ( 4,   3   ), (  2,   1   ), ( -1, -2 ), ( 3.9, 10 )             ) );
+    test( ( ( 1,   3   ), ( -6,  -1   ), ( -4, -5 ), ( 8,    2 ), ( -6, -6 ) ) )
+
+end
+)

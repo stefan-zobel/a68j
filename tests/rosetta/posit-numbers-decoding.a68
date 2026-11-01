@@ -1,0 +1,126 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Posit numbers/decoding", ALGOL 68 solution posit-numbers-decoding.alg.
+  https://rosettacode.org/wiki/Posit_numbers/decoding#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/posit-numbers-decoding.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { decode posit format numbers - translated from the FreeBASIC sample }
+
+    { returns a formatted representation of v}
+    op   TOSTRING = ( long real v )string:
+         begin
+            string result := if v > -100 000 AND v < 100 000 AND ABS v >= 0.1
+                             then fixed( v, -14, 12 )
+                             else float( v, -22, 15, 4 )
+                             fi;
+            if   result[ LWB result ] = "."
+            then "0" +=: result
+            elif result[ LWB result : LWB result + 1 ] = "-."
+            then result := "-0" + result[ LWB result + 2 : ]
+            fi;
+            if NOT char_in_string( "e", nil, result ) then
+               while result[ UPB result ] = "0" do result := result[ LWB result : UPB result - 1 ] od;
+               if result[ UPB result ] = "." then  result := result[ LWB result : UPB result - 1 ] fi
+            fi;
+            result
+         end { TOSTRING } ;
+    { returns the length of s }
+    op   LENGTH = ( string s )int: ( UPB s - LWB s ) + 1;
+    { returns v in converted to a binary digit string of width w }
+    prio TOBITSTRING = 9;
+    op   TOBITSTRING = ( int v_in, w )string:
+         begin
+            string result := "";
+            int    v      := v_in;
+            while v > 0 do if ODD v then "1" else "0" fi +=: result; v OVERAB 2 od;
+            if LENGTH result < w then ( "0" * ( w - LENGTH result ) ) +=: result fi;
+            result
+         end { TOBITSTRING } ;
+    { returns s converted to an INT, assuming s is a valid binary number }
+    op   FROMBITSTRING = ( string s )int:
+         begin
+            int result := 0;
+            for pos from LWB s to UPB s do
+                result *:= 2;
+                if s[ pos ] = "1" then result +:= 1 fi
+            od;
+            result
+         end { FROMBITSTRING } ;
+
+    { TASK }
+
+    proc min = ( int a, b )int: if a < b then a else b fi;
+
+    proc twos_compliment = ( string sbits, int nbits )string:
+         begin
+            string result := sbits[ @ 1 ];
+            for i to nbits do
+                result[ i ] := if result[ i ] = "0" then "1" else "0" fi
+            od;
+            bool found0 := false;
+            for i from nbits by - 1 to 1 while NOT found0 do
+                if found0 := result[ i ] = "0"
+                then result[ i ] := "1"
+                else result[ i ] := "0"
+                fi
+            od;
+            result
+         end { twos compliment } ;
+
+    proc posit_decode = ( int nbits, es, bits_in )string:
+         if string sbits := bits_in TOBITSTRING nbits;
+            string ibits  = sbits;
+            LENGTH ibits /= nbits
+         then
+            print( ( "Length of """, ibits, """ is not ", whole( nbits, 0 ), newline ) );
+            stop
+         else
+            string result := "";
+            bool s = sbits[ 1 ] = "1";
+            if s then sbits[ 2 : ] := twos_compliment( sbits[ 2 : ], nbits - 1 ) fi;
+            bool b2z = sbits[ 2 ] = "0";
+            int  r  := 0;
+            if NOT char_in_string( if b2z then "1" else "0" fi, r, sbits[ 3 : ] ) then r := -2 fi;
+            long real fs    := 1;
+            long real useed  = 2.0 ^ ( 2 ^ es );
+            int  exponent   := 0;
+            int  fraction   := 0;
+            if r < 0 then
+                if b2z then
+                    result := if s then """NaR""" else """zero""" fi
+                fi;
+                r := nbits - 1
+            else
+                int estart  = r + 3;
+                int efinish = min( r + 2 + es, nbits );
+                exponent   := FROMBITSTRING sbits[ estart : efinish ];
+                fraction   := FROMBITSTRING sbits[ efinish + 1 : ];
+                fs         := 2.0 ^ ( nbits - efinish )
+            fi;
+            if result = "" then
+                int  k  = if b2z then -r else r - 1 fi;
+                result :=
+                    TOSTRING ( if s then -1 else 1 fi * useed ^ k * 2 ^ exponent * ( 1 + fraction / fs ) )
+            fi;
+            ibits + " (es=" + whole( es, 0 ) + ") ==> " + result
+         fi { positDecode } ;
+
+    [,]int tests = ( ( 16, 3, ABS 2r0000110111011101 ), ( 16, 3, ABS 2r1000000000000000 )
+                   , ( 16, 3, ABS 2r0000000000000000 ), ( 16, 1, ABS 2r0110110010101000 )
+                   , ( 16, 1, ABS 2r1001001101011000 ), ( 16, 2, ABS 2r0000000000000001 )
+                   , ( 16, 0, ABS 2r0111111111111111 ), ( 16, 2, ABS 2r0111111111111111 )
+                   , ( 16, 6, ABS 2r0111111111111110 )
+                   , (  8, 1, ABS 2r01000000 ), ( 8, 1, ABS 2r11000000 ), ( 8, 1, ABS 2r00110000 )
+                   , (  8, 1, ABS 2r00100000 ), ( 8, 2, ABS 2r00000001 ), ( 8, 2, ABS 2r01111111 )
+                   , (  8, 7, ABS 2r01111110 )
+                   , ( 32, 2, ABS 2r00000000000000000000000000000001 )
+                   , ( 32, 2, ABS 2r01111111111111111111111111111111 )
+                   , ( 32, 5, ABS 2r01111111111111111111111111111110 )
+                   );
+    for i from LWB tests to UPB tests do
+        print( ( posit_decode( tests[ i, 1 ], tests[ i, 2 ], tests[ i, 3 ] ), newline ) )
+    od
+end
+)

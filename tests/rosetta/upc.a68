@@ -1,0 +1,240 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "UPC", ALGOL 68 solution upc.alg.
+  https://rosettacode.org/wiki/UPC#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/upc.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { number of digits encoded by UPC                                         }
+    int upc_digits = 12;
+    { MODE to hold UPC bar code parse results                                 }
+    mode Upc = struct( bool      valid         { TRUE if the UPC was valid,   }
+                                               { FASLE otherwise              }
+                     , [ 1 : upc_digits ]int digits
+                                               { the digits encoded by the    }
+                                               { UPC if it was valid          }
+                     , bool      inverted      { TRUE if the code was scanned }
+                                               { upside down, FALSE if it was }
+                                               { right-side up                }
+                     , string    error_message { erro rmessage if the string  }
+                                               { was invalid                  }
+                     );
+    { parses the UPC string s and returns a UPC containing the results        }
+    proc parse_upc = ( string s )Upc:
+         begin
+             { returns TRUE if we are at the end of s, FALSE otherwise        }
+             proc at_end = bool: s_pos > UPB s;
+             { counts and skips spaces in s                                   }
+             proc skip_spaces = int:
+                  begin
+                     int spaces := 0;
+                     while if at_end then false else s[ s_pos ] = " " fi do
+                         spaces +:= 1;
+                         s_pos  +:= 1
+                     od;
+                     spaces
+                  end; { skip spaces }
+             { skips over the next number of bits characters of s and returns }
+             { a bit representation ( space = 0, anything else = 1 )          }
+             proc get_value = ( int number_of_bits )bits:
+                  begin
+                     bits value := 2r0;
+                     to number_of_bits while NOT at_end do
+                         value := ( value SHL 1 ) OR if s[ s_pos ] = " " then 2r0 else 2r1 fi;
+                         s_pos +:= 1
+                     od;
+                     value
+                  end; { get value }
+             { the representations of the digits                              }
+             []bits representations = ( 2r 0 0 0 1 1 0 1    { 0 }
+                                      , 2r 0 0 1 1 0 0 1    { 1 }
+                                      , 2r 0 0 1 0 0 1 1    { 2 }
+                                      , 2r 0 1 1 1 1 0 1    { 3 }
+                                      , 2r 0 1 0 0 0 1 1    { 4 }
+                                      , 2r 0 1 1 0 0 0 1    { 5 }
+                                      , 2r 0 1 0 1 1 1 1    { 6 }
+                                      , 2r 0 1 1 1 0 1 1    { 7 }
+                                      , 2r 0 1 1 0 1 1 1    { 8 }
+                                      , 2r 0 0 0 1 0 1 1    { 9 }
+                                      );
+             []bits reversed_digits = ( 2r 0 1 0 0 1 1 1    { 0 }
+                                      , 2r 0 1 1 0 0 1 1    { 1 }
+                                      , 2r 0 0 1 1 0 1 1    { 2 }
+                                      , 2r 0 1 0 0 0 0 1    { 3 }
+                                      , 2r 0 0 1 1 1 0 1    { 4 }
+                                      , 2r 0 1 1 1 0 0 1    { 5 }
+                                      , 2r 0 0 0 0 1 0 1    { 6 }
+                                      , 2r 0 0 1 0 0 0 1    { 7 }
+                                      , 2r 0 0 0 1 0 0 1    { 8 }
+                                      , 2r 0 0 1 0 1 1 1    { 9 }
+                                      );
+             { number of digits in the left and right sides of the UPC        }
+             int digits_per_side = upc_digits OVER 2;
+             Upc result;
+             for d to upc_digits do ( digits of result )[ d ] := 0 od;
+             inverted of result      := false;
+             error_message of result := "unknown error";
+             valid of result         := false;
+             int s_pos               := LWB s;
+             if skip_spaces < 6 { should be 9 but we are being tolerant       }
+             then
+                 { insufficient leading spaces                                }
+                 error_message of result := "missing leading spaces"
+             elif get_value( 3 ) /= 2r101 then
+                 { no start                                                   }
+                 error_message of result := "missing start sequence"
+             else
+                 { ok so far - should now have six digits, each encoded in    }
+                 { seven bits                                                 }
+                 { note we store the digits as 1..10 if the are right-sid up  }
+                 { and -1..-10 if they are inverted, so we can distinguish    }
+                 { right-side up 0 and inverted 0                             }
+                 { the digits are corrected to be 0..9 later                  }
+                 bool valid_digits := true;
+                 for d to digits_per_side while valid_digits do
+                     bits code = get_value( 7 );
+                     bool found_digit := false;
+                     for d_pos to UPB representations while NOT found_digit do
+                         if   code = representations[ d_pos ] then
+                             { found a "normal" digit                         }
+                             found_digit               := true;
+                             ( digits of result )[ d ] := d_pos
+                         elif code = reversed_digits[ d_pos ] then
+                             { found a reversed digit                         }
+                             found_digit               := true;
+                             inverted of result        := true;
+                             ( digits of result )[ d ] := - d_pos
+                         fi
+                     od;
+                     if NOT found_digit then
+                         { have an invalid digit                              }
+                         error_message of result := "invalid digit " + whole( d, 0 );
+                         valid_digits := false
+                     fi
+                 od;
+                 if NOT valid_digits then
+                     { had an error                                           }
+                     skip
+                 elif get_value( 5 ) /= 2r01010 then
+                     { no middle separator                                    }
+                     error_message of result := "missing middle sequence"
+                 else
+                     { should now have 6 negated digits                      }
+                     for d from digits_per_side + 1 to upc_digits while valid_digits do
+                         bits code = NOT get_value( 7 ) AND 16r7f;
+                         bool found_digit := false;
+                         for d_pos to UPB representations while NOT found_digit do
+                             if  code = representations[ d_pos ] then
+                                 { found a normal negated digit               }
+                                 found_digit               := true;
+                                 ( digits of result )[ d ] := d_pos
+                             elif code = reversed_digits[ d_pos ] then
+                                 { found reversed negated digit               }
+                                 found_digit               := true;
+                                 inverted of result        := true;
+                                 ( digits of result )[ d ] := - d_pos
+                             fi
+                         od;
+                         if NOT found_digit then
+                             { have an invalid digit                          }
+                             error_message of result := "invalid digit " + whole( d, 0 );
+                             valid_digits            := false
+                         fi
+                     od;
+                     if NOT valid_digits then
+                         { had an error                                       }
+                         skip
+                     elif get_value( 3 ) /= 2r101 then
+                         { no end sequence                                    }
+                         error_message of result := "missing end sequence"
+                     elif skip_spaces < 6 { should be 9 but we are being      }
+                                          { tolerant                          }
+                     then
+                         { insufficient trailing spaces                       }
+                         error_message of result := "insufficient trailing spaces"
+                     elif NOT at_end then
+                         { extraneous stuff after the trailing spaces         }
+                         error_message of result := "unexpected trailing bits"
+                     else
+                         { valid so far - if there were reversed digits,      }
+                         { check they were all reversed                       }
+                         { and correct the digits to be in 0..9               }
+                         bool all_reversed  := true;
+                         for d to upc_digits do
+                             if ( digits of result )[ d ] < 0 then
+                                 { reversd digit                             }
+                                 ( digits of result )[ d ]  := ABS ( digits of result )[ d ] - 1
+                             else
+                                 { normal digit                               }
+                                 ( digits of result )[ d ] -:= 1;
+                                 all_reversed               := false
+                             fi
+                         od;
+                         if inverted of result AND NOT all_reversed
+                         then
+                             { had a mixture of inverted and non-inverted     }
+                             { digits                                         }
+                             error_message of result := "some reversed digits found"
+                         else
+                             { the code appears valid - check the check sum   }
+                             if inverted of result then
+                                 { the code was reversed - reverse the digits }
+                                 for d to digits_per_side do
+                                     int right_digit
+                                          = ( digits of result )[ ( upc_digits + 1 ) - d ];
+                                     ( digits of result )[ ( upc_digits + 1 ) - d ]
+                                         := ( digits of result )[ d ];
+                                     ( digits of result )[ d ] := right_digit
+                                 od
+                             fi;
+                             int check_sum := 0;
+                             for d from 1 by 2 to upc_digits do
+                                 check_sum +:= 3 * ( digits of result )[ d ]
+                             od;
+                             for d from 2 by 2 to upc_digits do
+                                 check_sum +:=     ( digits of result )[ d ]
+                             od;
+                             if check_sum MOD 10 /= 0 then
+                                 { invalid check digit                        }
+                                 error_message of result := "incorrect check digit"
+                             else
+                                 { the UPC code appears valid                 }
+                                 valid of result         := true
+                             fi
+                         fi
+                     fi
+                 fi
+             fi;
+             result
+         end; { parse upc }
+    { task test cases                                                         }
+    []string tests =
+( "         # #   # ##  #  ## #   ## ### ## ### ## #### # # # ## ##  #   #  ##  ## ###  # ##  ## ### #  # #       "
+, "        # # #   ##   ## # #### #   # ## #   ## #   ## # # # ###  # ###  ##  ## ###  # #  ### ###  # # #         "
+, "         # #    # # #  ###  #   #    # #  #   #    # # # # ## #   ## #   ## #   ##   # # #### ### ## # #         "
+, "       # # ##  ## ##  ##   #  #   #  # ###  # ##  ## # # #   ## ##  #  ### ## ## #   # #### ## #   # #        "
+, "         # # ### ## #   ## ## ###  ##  # ##   #   # ## # # ### #  ## ##  #    # ### #  ## ##  #      # #          "
+, "          # #  #   # ##  ##  #   #   #  # ##  ##  #   # # # # #### #  ##  # #### #### # #  ##  # #### # #         "
+, "         # #  #  ##  ##  # #   ## ##   # ### ## ##   # # # #  #   #   #  #  ### # #    ###  # #  #   # #        "
+, "        # # #    # ##  ##   #  # ##  ##  ### #   #  # # # ### ## ## ### ## ### ### ## #  ##  ### ## # #         "
+, "         # # ### ##   ## # # #### #   ## # #### # #### # # #   #  # ###  #    # ###  # #    # ###  # # #       "
+, "        # # # #### ##   # #### # #   ## ## ### #### # # # #  ### # ###  ###  # # ###  #    # #  ### # #         "
+);
+    for t_pos from LWB tests to UPB tests do
+        Upc code = parse_upc( tests[ t_pos ] );
+        print( ( whole( t_pos, -2 ), ":" ) );
+        if NOT valid of code then
+            { invalid UPC code                                                }
+            print( ( "                       error: ", error_message of code, newline ) )
+        else
+            { valid code                                                      }
+            for d to upc_digits - 1 do print( ( whole( ( digits of code )[ d ], -2 ) ) ) od;
+            print( ( " valid" ) );
+            if inverted of code then print( ( " (inverted)" ) ) fi;
+            print( ( newline ) )
+        fi
+    od
+end
+)

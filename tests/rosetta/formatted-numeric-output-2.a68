@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Formatted numeric output", ALGOL 68 solution formatted-numeric-output-2.alg.
+  https://rosettacode.org/wiki/Formatted_numeric_output#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/formatted-numeric-output-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+(
+  op UNSUPPRESS = ( string v )string: { replace leading spaces with zeros }
+     if   LWB v > UPB v
+     then v { empty string }
+     else string result := v;
+          int    p1     := LWB result;
+          if result[ p1 ] = " " then result[ p1 ] := "0" fi;
+          for p from LWB result + 1 to UPB result do
+              char c = result[ p ];
+              if   c = " "            then result[ p ] := "0"
+              elif c = "-" OR c = "+" then result[ p ] := "0"; result[ p1 ] := c
+              elif c = "e"            then p1 := p + 1
+              fi
+          od;
+          result
+     fi { UNSUPPRESS } ;
+  op SUPPRESSPLUS = ( string v )string: { replace leading space/zero with "+" }
+     if LWB v > UPB v then v elif char c = v[ LWB v ]; c = "+" OR c = "0" then " " + v[ LWB v + 1 : ] else v fi;
+  prio SUPPRESS = 5; { suppress up to d leading zeros }
+  op   SUPPRESS = ( string v, int d )string:
+       if   LWB v > UPB v
+       then v
+       elif char c1 = v[ LWB v ]; c1 /= "+" AND c1 /= "-" AND c1 /= "0"
+       then v
+       else int  len   = ( UPB v - LWB v ) + 1;
+            int  max_p = ( LWB v - 1 ) + if len > d then d else len fi;
+            string result := v;
+            char sign_char = if c1 = "0" then " " else c1 fi;
+            result[ LWB result ] := " ";
+            bool inserted_sign   := false;
+            for p from LWB result + 1 to max_p
+            while char c = result[ p ];
+                  if c /= "0" then result[ p - 1 ] := sign_char; inserted_sign := true fi;
+                  NOT inserted_sign
+            do result[ p ] := " "
+            od;
+            if NOT inserted_sign then result[ max_p ] := sign_char fi;
+            result
+       fi { SUPPRESS } ;
+
+  real r=exp(pi)-pi;
+  print((r,newline));
+  print((fixed(-r,16,4),newline));
+  print((fixed(r,-16,4),newline));
+  print((fixed(r,16,4),newline));
+  print((float(r,16,4,1),newline));
+
+  print((SUPPRESSPLUS UNSUPPRESS fixed(-r,-10,4),newline));
+  print((SUPPRESSPLUS UNSUPPRESS fixed(r,-10,4),newline));
+  print((UNSUPPRESS fixed(r,10,4),newline));
+  print((UNSUPPRESS fixed(ABS r,-10,4),newline));
+
+  print((fixed(ABS r,-10,4),newline));
+
+  print((SUPPRESSPLUS UNSUPPRESS fixed(-r,12,4) SUPPRESS 5,newline));
+  print((SUPPRESSPLUS UNSUPPRESS float(-r,16,4,-3) SUPPRESS 5,newline));
+  print((SUPPRESSPLUS UNSUPPRESS float(-r,-13,4,3),newline));
+  print((SUPPRESSPLUS UNSUPPRESS float(r,-17,4,5),newline))
+)
+)

@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers which are not the sum of distinct squares", ALGOL 68 solution numbers-which-are-not-the-sum-of-distinct-squares.alg.
+  https://rosettacode.org/wiki/Numbers_which_are_not_the_sum_of_distinct_squares#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-which-are-not-the-sum-of-distinct-squares.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find the integers that can't be expressed as the sum of distinct squares
+   it can be proved that if 120-324 can be expressed as the sum of distinct
+   squares then all integers greater than 129 can be so expressed
+   (see the link in the Wren sample) so we need to check that 129-324 can
+   be so expressed and find the numbers below 129 that can't be so expressed
+}
+begin
+    int max_number = 324;
+    [ 0 : max_number ]bool is_sum; for i from LWB is_sum to UPB is_sum do is_sum[ i ] := false od;
+    int max_square = ENTIER sqrt( 324 );
+    [ 0 : max_square ]int  square; for i from LWB square to UPB square do square[ i ] := i * i od;
+
+    proc flag_sum = ( int curr_sum, sq_pos )void:
+         if int next_sum = curr_sum + square[ sq_pos ];
+            next_sum <= UPB is_sum
+         then
+            is_sum[ next_sum ] := true;
+            for i from sq_pos + 1 to UPB square do
+                flag_sum( next_sum, i )
+            od
+         fi { flag sum } ;
+
+    for i from LWB square to UPB square do
+        flag_sum( 0, i )
+    od;
+    { show the numbers that can't be formed from a sum of distinct squares       }
+    { and check 129-324 can be so formed                                         }
+    int unformable := 0;
+    for i from LWB is_sum to UPB is_sum do
+        if NOT is_sum[ i ] then
+            print( ( whole( i, -4 ) ) );
+            if ( unformable +:= 1 ) MOD 12 = 0 then print( ( newline ) ) fi;
+            if i > 128 then
+                print( ( newline, "**** unexpected unformable number: ", whole( i, 0 ), newline ) )
+            fi
+        fi
+    od
+end
+)

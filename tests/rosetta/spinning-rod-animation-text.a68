@@ -1,0 +1,13 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Spinning rod animation/Text", ALGOL 68 solution spinning-rod-animation-text.alg.
+  https://rosettacode.org/wiki/Spinning_rod_animation/Text#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/spinning-rod-animation-text.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+for i to 1 000 do { increase/decrease the TO value for a longer/shorter animation }
+    to 2 000 000 do skip od; { adjust to change the spin rate }
+    print( ( case 1 + i MOD 4 in "/", "-", "\", "|" esac, REPR 8 ) )
+od
+)

@@ -1,0 +1,78 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numerical integration/Romberg integration", ALGOL 68 solution numerical-integration-romberg-integration.alg.
+  https://rosettacode.org/wiki/Numerical_integration/Romberg_integration#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numerical-integration-romberg-integration.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Romberg Integration - translation of the Wren sample                     }
+
+    { MODE returned by the romberg procedure, delta is the difference between    }
+    { the final result and the previous step value                               }
+    mode Rr = struct( real value, real delta );
+
+    proc f8 = ( real v )string: if ABS v < 1 then fixed( v, -10, 8 ) else fixed( v, 0, 8 ) fi;
+
+    { Prints a row of the Romberg table. r is assumed to be [1:n]                }
+    proc print_row = ( int i, []real r )void:
+         begin
+            print( ( "R[", whole( i, 0 ), "] =" ) );
+            for j from 0 to i do print( ( " ", f8( r[ j ] ) ) ) od;
+            print( ( newline ) )
+         end { print row } ;
+
+    { Calculates the integral of a function using Romberg integration.
+       Args:
+           f:         The function to integrate.
+           a:         Lower limit of integration.
+           b:         Upper limit of integration.
+           max steps: Maximum number of steps.
+           acc:       Desired accuracy.
+
+       Returns:
+           The approximate value of the integral and the difference
+           between the final 2 steps
+    }
+    proc romberg = ( proc(real)real f, real a, b, int max_steps, real acc )Rr:
+         begin
+             { Buffers for storing previous and current rows.                    }
+             [ 0 : max_steps - 1 ]real r1, r2; for i from 0 to max_steps - 1 do r1[ i ] := r2[ i ] := 0 od;
+             ref[]real rp := r1, rc := r2, rt;          { "pointers" to the rows }
+             real h := b - a;                                        { step size }
+             rp[ 0 ] := ( f( a ) + f( b ) ) * h * 0.5;  { first trapezoidal step }
+             print_row( 0, rp );
+             int ep := 1;
+             Rr result := ( rp[ 0 ], ( 2 * acc ) + 1 );
+             for i to max_steps - 1 while delta of result >= acc do
+                 h     /:= 2;
+                 real c := 0;
+                 for j to ep do c +:= f( a + ( 2 * j - 1 ) * h ) od;
+                 rc[ 0 ] := h * c + 0.5 * rp[ 0 ];
+                 for j to i do
+                     int nk = 4 ^ j;
+                     rc[ j ] := ( nk * rc[ j - 1 ] - rp[ j - 1 ] ) / ( nk - 1 )
+                 od;
+                 { Print i'th row of R, R[i][i] is the best estimate so far.     }
+                 print_row( i, rc );
+                 value of result := rc[ i ];
+                 delta of result := ABS ( rp[ i - 1 ] - rc[ i ] );
+                 rt  := rp;          { Swap Rp, Rc as we only need the last row. }
+                 rp  := rc;
+                 rc  := rt;
+                 ep *:= 2
+             od;
+             result                                      { return our best guess }
+         end { romberg } ;
+
+    begin                                                                { tests }
+        print( ( "Integration of sin(x) over [0, 1] with a maximum of 5 steps.",       newline ) );
+        Rr rsin = romberg( sin, 0, 1, 5, 1e-8 );
+        print( ( f8( value of rsin ), "     delta: ", float( delta of rsin, -14, 8, 3 ), newline ) );
+        print( ( newline ) );
+        print( ( "Integration of exp(x) over [-3, 3] with a maximum of 5 steps.",      newline ) );
+        Rr rexp = romberg( exp, -3, 3, 5, 1e-8 );
+        print( ( f8( value of rexp ), "     delta: ", float( delta of rexp, -14, 8, 3 ), newline ) )
+    end
+end
+)

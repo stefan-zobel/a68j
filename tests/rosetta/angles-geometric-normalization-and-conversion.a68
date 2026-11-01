@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Angles (geometric), normalization and conversion", ALGOL 68 solution angles-geometric-normalization-and-conversion.alg.
+  https://rosettacode.org/wiki/Angles_(geometric),_normalization_and_conversion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/angles-geometric-normalization-and-conversion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Angles (geometric), normalization and conversion - translated from the 11l sample }
+
+    []real values = ( -2, -1, 0, 1, 2, 6.2831853, 16, 57.2957795, 359, 399, 6399, 1000000 );
+
+    proc norm = ( real x, y )real:
+         begin
+            int  n  = ENTIER ( ABS x / ABS y );
+            real r := x - ( n * y );
+            r
+         end { norm } ;
+
+    proc normd = ( real x )real: norm( x,  360 );
+    proc normg = ( real x )real: norm( x,  400 );
+    proc normm = ( real x )real: norm( x, 6400 );
+    proc normr = ( real x )real: norm( x, 2 * pi );
+
+    proc d2g = ( real x )real: normd( x ) * 10 / 9;
+    proc d2m = ( real x )real: normd( x ) * 160 / 9;
+    proc d2r = ( real x )real: normd( x ) * pi / 180;
+
+    proc g2d = ( real x )real: normg( x ) * 9 / 10;
+    proc g2m = ( real x )real: normg( x ) * 16;
+    proc g2r = ( real x )real: normg( x ) * pi / 200;
+
+    proc m2d = ( real x )real: normm( x ) * 9 / 160;
+    proc m2g = ( real x )real: normm( x ) / 16;
+    proc m2r = ( real x )real: normm( x ) * pi / 3200;
+
+    proc r2d = ( real x )real: normr( x ) *  180 / pi;
+    proc r2g = ( real x )real: normr( x ) *  200 / pi;
+    proc r2m = ( real x )real: normr( x ) * 3200 / pi;
+
+    string underline = "----------------------------------------------------------------------------------";
+    proc f7d7 = ( real v )string: fixed( v, -15, 7 );
+
+    proc print_values = ( string heading, []proc(real)real f )void:
+         begin
+             print( ( heading, newline ) );
+             print( ( underline, newline ) );
+             for i from LWB values to UPB values do
+                 real v = values[ i ];
+                 print( ( f7d7( v ) ) );
+                 for p from LWB f to UPB f do
+                     print( ( "  ", f7d7( f[ p ]( v ) ) ) )
+                 od;
+                 print( ( newline ) )
+             od;
+             print( ( newline ) )
+         end { print values } ;
+
+    print_values( "       Degrees        Normalized         Gradians          Mils            Radians"
+                , ( normd, d2g, d2m, d2r )
+                );
+    print_values( "      Gradians        Normalized         Degrees           Mils            Radians"
+                , ( normg, g2d, g2m, g2r )
+                );
+    print_values( "        Mils          Normalized         Degrees         Gradians          Radians"
+                , ( normm, m2d, m2g, m2r )
+                );
+    print_values( "       Radians        Normalized         Degrees         Gradians          Mils"
+                , ( normr, r2d, r2g, r2m )
+                )
+
+end
+)

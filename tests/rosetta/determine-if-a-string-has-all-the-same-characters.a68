@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Determine if a string has all the same characters", ALGOL 68 solution determine-if-a-string-has-all-the-same-characters.alg.
+  https://rosettacode.org/wiki/Determine_if_a_string_has_all_the_same_characters#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/determine-if-a-string-has-all-the-same-characters.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { return the position of the first different character in s           }
+    {     or UPB s + 1 if all the characters are the same                 }
+    op  FIRSTDIFF = ( string s )int:
+        if UPB s <= LWB s
+        then
+            { 0 or 1 character                                            }
+            UPB s + 1
+        else
+            { two or more characters                                      }
+            int  result := LWB s + 1;
+            char c1      = s[ LWB s ];
+            for s_pos from LWB s + 1 to UPB s while s[ s_pos ] = c1 do result +:= 1 od;
+            result
+        fi { FIRSTDIFF } ;
+    { convert a character to a hex string                                 }
+    proc hex = ( char c )string:
+        begin
+            string result := "";
+            int    n      := ABS c;
+            if n = 0
+            then
+                result := "0"
+            else
+                while n > 0 do
+                    int d = n MOD 16;
+                    n OVERAB 16;
+                    if d < 10
+                    then REPR ( d + ABS "0" )
+                    else REPR ( ( d - 10 ) + ABS "a" )
+                    fi +=: result
+                od
+            fi;
+            result
+        end { hex } ;
+    { show whether s contains all the same character of the first diff    }
+    proc show_first_diff = ( string s )void:
+        if  print( ( """", s, """ (length ", whole( ( UPB s + 1 ) - LWB s, 0 ), "): " ) );
+            int diff_pos = FIRSTDIFF s;
+            diff_pos > UPB s
+        then
+            { all characters the same                                     }
+            print( ( "all characters are the same", newline ) )
+        else
+            { not all characters are the same                             }
+            print( ( "first different character """
+                   , s[ diff_pos ]
+                   , """(0x", hex( s[ diff_pos ] )
+                   , ") at position: "
+                   , whole( diff_pos, 0 )
+                   , newline
+                   )
+                 )
+        fi { show first diff } ;
+    { task test cases                                                     }
+    show_first_diff( ""          );
+    show_first_diff( "   "       );
+    show_first_diff( "2"         );
+    show_first_diff( "333"       );
+    show_first_diff( ".55"       );
+    show_first_diff( "tttTTT"    );
+    show_first_diff( "4444 444k" );
+    show_first_diff( "4444|444k" )
+end
+)

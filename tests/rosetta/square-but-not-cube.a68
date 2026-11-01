@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Square but not cube", ALGOL 68 solution square-but-not-cube.alg.
+  https://rosettacode.org/wiki/Square_but_not_cube#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/square-but-not-cube.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { list the first 30 numbers that are squares but not cubes and also }
+    { show the numbers that are both squares and cubes                  }
+    int count := 0;
+    int c     := 1;
+    int c3    := 1;
+    for s while count < 30 do
+        int sq = s * s;
+        while c3 < sq do
+            c  +:= 1;
+            c3  := c * c * c
+        od;
+        print( ( whole( sq, -5 ) ) );
+        if c3 = sq then
+            { the square is also a cube                                 }
+            print( ( " is also the cube of ", whole( c, -5 ) ) )
+        else
+            { square only                                               }
+            count +:= 1
+        fi;
+        print( ( newline ) )
+    od
+end
+)

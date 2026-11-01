@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Averages/Mean time of day", ALGOL 68 solution averages-mean-time-of-day.alg.
+  https://rosettacode.org/wiki/Averages/Mean_time_of_day#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/averages-mean-time-of-day.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Mean time of day mapping time to angles                      }
+
+    { code from the Averages/Mean angle task - angles are in degrees }
+    proc mean_angle = ([]real angles)real:
+    (
+      int size = UPB angles - LWB angles + 1;
+      real y_part := 0, x_part := 0;
+      for i from LWB angles to UPB angles do
+          x_part +:= cos (angles[i] * pi / 180);
+          y_part +:= sin (angles[i] * pi / 180)
+      od;
+
+      arc_tan2 (y_part / size, x_part / size) * 180 / pi
+    );
+    { end code from the Averages/Mean angle task                     }
+
+    mode Time = struct( int hh, mm, ss );
+
+    op   TOANGLE = ( Time t )real: ( ( ( ( ( ss of t / 60 ) + mm of t ) / 60 ) + hh of t ) * 360 ) / 24;
+    op   TOTIME  = ( real a )Time:
+         begin
+            real t  := ( a * 24 ) / 360;
+            while t <  0 do t +:= 24 od;
+            while t > 24 do t -:= 24 od;
+            int  hh  = ENTIER t;
+            t      -:= hh *:= 60;
+            int  mm  = ENTIER t;
+            int  ss  = ENTIER ( ( t - mm ) * 60 );
+            ( hh, mm, ss )
+         end { TOTIME } ;
+
+    proc mean_time = ( []Time times )Time:
+         begin
+            [ LWB times : UPB times ]real angles;
+            for i from LWB times to UPB times do angles[ i ] := TOANGLE times[ i ] od;
+            TOTIME mean_angle( angles )
+         end { mean time } ;
+
+    op   SHOW = ( Time t )void:
+         begin
+            proc d2 = ( int n )string: if n < 10 then "0" else "" fi + whole( n, 0 );
+            print( ( d2( hh of t ), ":", d2( mm of t ), ":", d2( ss of t ) ) )
+         end { show time } ;
+
+    SHOW mean_time( ( ( 23,00,17 ), ( 23,40,20 ), ( 00,12,45 ), ( 00,17,19 ) ) )
+end
+)

@@ -1,0 +1,52 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "One-dimensional cellular automata", ALGOL 68 solution one-dimensional-cellular-automata-1.alg.
+  https://rosettacode.org/wiki/One-dimensional_cellular_automata#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/one-dimensional-cellular-automata-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int stop_generation = 9;
+int universe_width = 20;
+FORMAT alive_or_dead = $b("#","_")$;
+
+bits universe := 2r01110110101010100100;
+   { universe := BIN ( ENTIER ( random * max int ) ); }
+int upb_universe = bits_width;
+int lwb_universe = bits_width - universe_width + 1;
+
+proc couple = (bits parent, int lwb, upb)bool: (
+  short int sum := 0;
+  for bit from lwb to upb do
+    sum +:= ABS (bit ELEM parent)
+  od;
+  sum = 2
+);
+
+for generation from 0 while
+  printf(($"Generation "d": "$, generation,
+         $f(alive or dead)$, []bool(universe)[lwb_universe:upb_universe],
+         $l$));
+{ WHILE } generation < stop_generation do
+  bits next_universe := 2r0;
+
+  { process the first event horizon manually }
+  if couple(universe,lwb_universe,lwb_universe + 1) then
+    next_universe := 2r10
+  fi;
+
+  { process the middle kingdom in a loop }
+  for bit from lwb_universe + 1 to upb_universe - 1 do
+    if couple(universe,bit-1,bit+1) then
+      next_universe := next_universe OR 2r1
+    fi;
+    next_universe := next_universe SHL 1
+  od;
+
+  { process the last event horizon manually }
+  if couple(universe, upb_universe - 1, upb_universe) then
+    next_universe := next_universe OR 2r1
+  fi;
+  universe := next_universe
+od
+)

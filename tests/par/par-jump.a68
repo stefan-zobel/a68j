@@ -1,0 +1,12 @@
+{ A jump out of a unit ends the parallel clause; the waiting unit is cancelled. }
+begin
+   sema never = LEVEL 0;
+   int reached := 0;
+   par (
+      (DOWN never; puts ("never printed'n")),
+      (reached := 1; goto done)
+   );
+   puts ("not reached'n");
+done:
+   puts ("jumped out, reached = " + whole (reached, 0) + "'n")
+end

@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Compare length of two strings", ALGOL 68 solution compare-length-of-two-strings.alg.
+  https://rosettacode.org/wiki/Compare_length_of_two_strings#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/compare-length-of-two-strings.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { compare string lengths }
+    { returns the length of s using the builtin UPB and LWB operators }
+    op LENGTH = ( string s )int: ( UPB s + 1 ) - LWB s;
+    { prints s and its length }
+    proc show_string = ( string s )void:
+         print( ( """", s, """ has length: ", whole( LENGTH s, 0 ), " bytes.", newline ) );
+    string shorter     = "short";
+    string not_shorter = "longer";
+    if LENGTH shorter >  LENGTH not_shorter then show_string( shorter ) fi;
+    show_string( not_shorter );
+    if LENGTH shorter <= LENGTH not_shorter then show_string( shorter ) fi
+end
+)

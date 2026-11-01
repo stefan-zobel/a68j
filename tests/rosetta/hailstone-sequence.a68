@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Hailstone sequence", ALGOL 68 solution hailstone-sequence.alg.
+  https://rosettacode.org/wiki/Hailstone_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/hailstone-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Lint = { LONG ... } int;
+
+proc hailstone = (int in_n, ref[]Lint array)int:
+(
+    int hs := 1;
+    int index := 0;
+    Lint n := in_n;
+
+    while n /= 1 do
+        hs +:= 1;
+        if array isnt ref[]Lint(nil) then array[index +:= 1] := n fi;
+        n := if ODD n then 3*n+1 else n OVER 2 fi
+    od;
+    if array isnt ref[]Lint(nil) then array[index +:= 1] := n fi;
+    hs
+);
+
+main:
+(
+    int j, hmax := 0;
+    int jatmax, n;
+    int border = 4;
+
+    for j to 100000-1 do
+       n := hailstone(j, nil);
+       if hmax < n then
+           hmax := n;
+           jatmax := j
+       fi
+    od;
+
+    [2]int test := (27, jatmax);
+    for key to UPB test do
+        int val = test[key];
+        n := hailstone(val, nil);
+        [n]Lint array;
+        n := hailstone(val, array);
+
+        printf(($"[ "n(border)(g(0)", ")" ..."n(border)(", "g(0))"] len="g(0)l$,
+            array[:border], array[n-border+1:], n))
+        {;free(array) }
+    od;
+    printf(($"Max "g(0)" at j="g(0)l$, hmax, jatmax))
+{ ELLA Algol68RS:
+    print(("Max",hmax," at j=",jatmax, new line))
+}
+)
+)

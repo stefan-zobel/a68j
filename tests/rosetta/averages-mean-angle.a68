@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Averages/Mean angle", ALGOL 68 solution averages-mean-angle.alg.
+  https://rosettacode.org/wiki/Averages/Mean_angle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/averages-mean-angle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+proc mean_angle = ([]{LONG} real angles){LONG} real:
+(
+  int size = UPB angles - LWB angles + 1;
+  {LONG} real y_part := 0, x_part := 0;
+  for i from LWB angles to UPB angles do
+      x_part +:= {long} cos (angles[i] * {long} pi / 180);
+      y_part +:= {long} sin (angles[i] * {long} pi / 180)
+  od;
+
+  {long} arc_tan2 (y_part / size, x_part / size) * 180 / {long} pi
+);
+
+main:
+(
+  []{LONG} real angle_set_1 = ( 350, 10 );
+  []{LONG} real angle_set_2 = ( 90, 180, 270, 360);
+  []{LONG} real angle_set_3 = ( 10, 20, 30);
+
+  FORMAT summary_fmt=$"Mean angle for "g" set :"-zd.ddddd" degrees"l$;
+  printf ((summary_fmt,"1st", mean_angle (angle_set_1)));
+  printf ((summary_fmt,"2nd", mean_angle (angle_set_2)));
+  printf ((summary_fmt,"3rd", mean_angle (angle_set_3)))
+)
+)

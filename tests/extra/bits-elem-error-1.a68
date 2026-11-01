@@ -1,0 +1,2 @@
+{ ELEM on BITS out of range: the error names the position. }
+begin bits b = 16rff; int i := 40; [1:2] int r; puts ((3 ELEM b | "y" | "n") + whole (1 UPB r, 0) + "'n"); puts ((i ELEM b | "y" | "n")) end

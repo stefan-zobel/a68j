@@ -1,0 +1,130 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Canonicalize CIDR", ALGOL 68 solution canonicalize-cidr.alg.
+  https://rosettacode.org/wiki/Canonicalize_CIDR#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/canonicalize-cidr.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show IPv4 addresses in CIDR notation in canonical form }
+    { mode to hold an IPv4 address in CIDR notation }
+    mode Cidr = struct( long bits address
+                      , int       network_bits
+                      , bool      valid
+                      , string    error
+                      );
+    { returns a CIDR parsed from address }
+    op TOCIDR = ( string address_text )Cidr:
+         begin
+            string    addr         = "." + address_text + "$";
+            string    error       := "";
+            long bits address     := 16r0;
+            int       bits_count  := 0;
+            int       dot_count   := 0;
+            int       slash_count := 0;
+            bool      valid       := true;
+            int       s_pos       := LWB addr;
+            int       s_max        = UPB addr;
+            while s_pos < s_max AND valid do
+                if addr[ s_pos ] = "." then
+                    { must have an octet next }
+                    dot_count +:= 1;
+                    int octet  := 0;
+                    int digits := 0;
+                    while char c = addr[ s_pos +:= 1 ];
+                          c >= "0" AND c <= "9"
+                    do
+                        octet  *:= 10 +:= ( ABS c - ABS "0" );
+                        digits +:= 1
+                    od;
+                    address := ( address SHL 8 ) OR BIN ( octet MOD 256 );
+                    valid := valid AND digits > 0 AND digits < 4 AND octet < 256;
+                    if NOT valid then error := "too many digits/octet to large" fi
+                elif addr[ s_pos ] = "/" then
+                    { must have the network mask length next }
+                    slash_count +:= 1;
+                    while char c = addr[ s_pos +:= 1 ];
+                          c >= "0" AND c <= "9"
+                    do
+                        bits_count  *:= 10 +:= ( ABS c - ABS "0" )
+                    od;
+                    { should be "$" ( end of string marker ) next }
+                    valid := valid AND addr[ s_pos ] = "$";
+                    if NOT valid then error := "bit length not followed by end-of-string" fi
+                elif addr[ s_pos ] = "$" then
+                    { end of address marker - must be the final character }
+                    valid := valid AND s_pos = s_max;
+                    if NOT valid then error := "Invalid character: ""$""" fi
+                else
+                    { invalid character }
+                    valid := false;
+                    error := "Invalid character: """ + addr[ s_pos ] + """"
+                fi
+            od;
+            if valid then
+                { address is OK so far - check it had four octets and one mask length }
+                valid := dot_count   =  4 { note a leading "." was added for parsing }
+                     AND slash_count =  1
+                     AND bits_count  >  0
+                     AND bits_count  < 33;
+                if NOT valid then error := "too many dots, slashes or bits" fi
+            fi;
+            Cidr( address, bits_count, valid, error )
+         end { TOCIDR } ;
+    { returns address in canonical form }
+    op CANONICALISE = ( Cidr address )Cidr:
+         if NOT valid of address then
+            { invalid address }
+            address
+         else
+            { valid address - retain the top most bits }
+            Cidr( address of address AND (   long 16rffffffff
+                                         SHL ( 32 - network_bits of address )
+                                         )
+                , network_bits of address
+                , true
+                , ""
+                )
+         fi { CANONICALISE } ;
+    { returns a readable form of address }
+    op TOSTRING = ( Cidr address )string:
+         begin
+             [ 1 : 4 ]int octet;
+             long bits addr := address of address;
+             for o_pos from UPB octet by -1 to LWB octet do
+                 octet[ o_pos ] := SHORTEN ABS ( addr AND 16rff );
+                 addr           := addr SHR 8
+             od;
+             string result := whole( octet[ LWB octet ], 0 );
+             for o_pos from 1 + LWB octet to UPB octet do
+                 result +:= "." + whole( octet[ o_pos ], 0 )
+             od;
+             result + "/" + whole( network_bits of address, 0 )
+         end { TOSTRING } ;
+    { task examples :          input                 expected result    }
+    [,]string test_cases = ( ( "87.70.141.1/22",     "87.70.140.0/22"   )
+                           , ( "36.18.154.103/12",   "36.16.0.0/12"     )
+                           , ( "62.62.197.11/29",    "62.62.197.8/29"   )
+                           , ( "67.137.119.181/4",   "64.0.0.0/4"       )
+                           , ( "161.214.74.21/24",   "161.214.74.0/24"  )
+                           , ( "184.232.176.184/18", "184.232.128.0/18" )
+                           );
+    for t_pos from 1 LWB test_cases to 1 UPB test_cases do
+        string addr  = test_cases[ t_pos, 1 ];
+        Cidr   canon = CANONICALISE TOCIDR addr;
+        if NOT valid of canon then
+            print( ( "Invalid address: """, addr, """: ", error of canon, newline ) )
+        else
+            string actual   = TOSTRING canon;
+            string expected = test_cases[ t_pos, 2 ];
+            print( ( addr
+                   , " -> "
+                   , actual
+                   , if expected = actual then "" else " ** EXPECTED: """ + expected + """" fi
+                   , newline
+                   )
+                 )
+        fi
+    od
+end
+)

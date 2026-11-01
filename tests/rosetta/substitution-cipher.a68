@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Substitution cipher", ALGOL 68 solution substitution-cipher.alg.
+  https://rosettacode.org/wiki/Substitution_cipher#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/substitution-cipher.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { subsitiution cipher }
+                            {  abcdefghijklmnopqrstuvwxyz   }
+    string substitute_lower = "dthnxkmqrwzseglyoaubjpcfiv";
+    string substitute_upper = "TKXMGVUPOIRFDEJZNYWCAQSLBH";
+                            {  ABCDEFGHIJKLMNOPQRSTUVWXYZ   }
+
+    proc encrypt = ( string plain_text )string:
+         begin
+            proc encode = ( char c, base, string code )char:
+                 code[ ( ABS c - ABS base ) + LWB code ];
+            string result := plain_text;
+            for pos from LWB result to UPB result do
+                char c = result[ pos ];
+                if   c >= "A" AND c <= "Z" then
+                    result[ pos ] := encode( c, "A", substitute_upper )
+                elif c >= "a" AND c <= "z" then
+                    result[ pos ] := encode( c, "a", substitute_lower )
+                fi
+            od;
+            result
+         end { encrypt } ;
+
+    proc decrypt = ( string cipher_text )string:
+         begin
+            proc decode = ( char c, base, string code )char:
+                 begin
+                    int c_pos := 0;
+                    void( char_in_string( c, c_pos, code ) );
+                    REPR ( ABS base + ( c_pos - 1 ) )
+                 end { decode } ;
+            string result := cipher_text;
+            for pos from LWB result to UPB result do
+                char c = result[ pos ];
+                if c >= "A" AND c <= "Z" then
+                    result[ pos ] := decode( c, "A", substitute_upper )
+                elif c >= "a" AND c <= "z" then
+                    result[ pos ] := decode( c, "a", substitute_lower )
+                fi
+            od;
+            result
+         end { decrypt } ;
+
+    proc test_cipher = ( string plain_text )void:
+         if string encoded = encrypt( plain_text );
+            string decoded = decrypt( encoded );
+            print( ( plain_text, " -> ", encoded, newline ) );
+            print( ( encoded,    " -> ", decoded, newline ) );
+            decoded /= plain_text
+         then
+            print( ( "**** encode/decode problem", newline ) )
+         fi { test cipher } ;
+
+    test_cipher( "Sphinx of Black Quartz, judge my vow" );
+    test_cipher( "ABCDEFGHIJKLMNOPQRSTUVWXYZzyxwvutsrqponmlkjihgfedcba" )
+
+end
+)

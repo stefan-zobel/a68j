@@ -1,0 +1,14 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Loop over multiple arrays simultaneously", ALGOL 68 solution loop-over-multiple-arrays-simultaneously.alg.
+  https://rosettacode.org/wiki/Loop_over_multiple_arrays_simultaneously#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/loop-over-multiple-arrays-simultaneously.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+[]union(char,int) x=("a","b","c"), y=("A","B","C"),
+z=(1,2,3);
+for i to UPB x do
+  printf(($ggd$, x[i], y[i], z[i], $l$))
+od
+)

@@ -1,0 +1,109 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Commatizing numbers", ALGOL 68 solution commatizing-numbers.alg.
+  https://rosettacode.org/wiki/Commatizing_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/commatizing-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns text commatized according to the rules of the task and the      }
+{         period, location and separator paramters                        }
+proc commatize = ( string text, int location, int period, string separator )string:
+     if  string str := text[ at 1 ];
+         { handle the options                                             }
+         int    start_position   := if location  = 0  then  1  else location  fi;
+         int    period_length    := if period    = 0  then  3  else period    fi;
+         string separator_string := if separator = "" then "," else separator fi;
+         period_length < 1 OR start_position < 1 OR start_position > UPB str
+     then
+         { invalid parameters - return the text unchanged                 }
+         text
+     elif { attempt to find a non-zero digit                              }
+          int number_pos := start_position;
+          while if number_pos > UPB str
+                then false
+                else str[ number_pos ] < "1" OR str[ number_pos ] > "9"
+                fi
+          do
+              number_pos +:= 1
+          od;
+          number_pos > UPB str
+     then { no digits in the string - return the text unchanged           }
+          text
+     else { have at least one digit                                       }
+          string result := str[ 1 : number_pos - 1 ];
+          { find the final digit                                          }
+          int number_end := number_pos;
+          while if number_end >= UPB str
+                then false
+                else str[ number_end + 1 ] >= "0" AND str[ number_end + 1 ] <= "9"
+                fi
+          do
+              number_end +:= 1
+          od;
+          { copy the digits commatizing as required                       }
+          int   digit_count := ( number_end - number_pos ) + 1;
+          while digit_count > 1 do
+              result      +:= str[ number_pos ];
+              number_pos  +:= 1;
+              digit_count -:= 1;
+              if digit_count MOD period_length = 0 then
+                  { need a comma after this digit                         }
+                  result +:= separator_string
+              fi
+          od;
+          { final digit and the rest of the string                        }
+          result +:= str[ number_pos : ];
+          result
+     fi { commatize } ;
+
+{ modes and operators to allow us to specify optional parameters to the   }
+{ commatizing procedure                                                   }
+mode Commatizingoptions = struct( string text, int location, int period, string separator );
+prio LOCATION  = 9;
+op   LOCATION  = ( string text, int location )Commatizingoptions:
+     Commatizingoptions( text, location, 0, "" );
+prio PERIOD    = 9;
+op   PERIOD    = ( string text, int period   )Commatizingoptions:
+     Commatizingoptions( text, 0, period, "" );
+prio SEPARATOR = 9;
+op   SEPARATOR = ( string text, char   separator )Commatizingoptions:
+     Commatizingoptions( text, 0, 0, separator );
+op   SEPARATOR = ( string text, string separator )Commatizingoptions:
+     Commatizingoptions( text, 0, 0, separator );
+op   LOCATION  = ( Commatizingoptions opts, int location     )Commatizingoptions:
+     Commatizingoptions( text of opts, location, period of opts, separator of opts );
+op   PERIOD    = ( Commatizingoptions opts, int period       )Commatizingoptions:
+     Commatizingoptions( text of opts, location of opts, period, separator of opts );
+op   SEPARATOR = ( Commatizingoptions opts, char   separator )Commatizingoptions:
+     Commatizingoptions( text of opts, location of opts, period of opts, separator );
+op   SEPARATOR = ( Commatizingoptions opts, string separator )Commatizingoptions:
+     Commatizingoptions( text of opts, location of opts, period of opts, separator );
+op   COMMATIZE = ( string text             )string: commatize( text, 0, 0, "" );
+op   COMMATIZE = ( Commatizingoptions opts )string:
+     commatize( text of opts, location of opts, period of opts, separator of opts );
+
+{ test the commatization procedure and operators                          }
+print( ( COMMATIZE( "pi=3.14159265358979323846264338327950288419716939937510582097494459231"
+                    PERIOD 5 SEPARATOR " " LOCATION 6 ), newline ) );
+print( ( COMMATIZE( "The author has two Z$100000000000000 Zimbabwe notes (100 trillion)."
+                    SEPARATOR "." ), newline ) );
+print( ( COMMATIZE( "The author has two Z$100000000000000 Zimbabwe notes (100 trillion)."
+                    SEPARATOR "." PERIOD 6 ), newline ) );
+print( ( COMMATIZE( "The author has two Z$100000000000000 Zimbabwe notes (100 trillion)."
+                    SEPARATOR "__" ), newline ) );
+print( ( COMMATIZE( "The author has two Z$100000000000000 Zimbabwe notes (100 trillion)."
+                    LOCATION 26 PERIOD 1 SEPARATOR "::" ), newline ) );
+print( ( COMMATIZE  """-in Aus$+1411.8millions""", newline ) );
+print( ( COMMATIZE  "===US$0017440 millions=== (in 2000 dollars)", newline ) );
+print( ( COMMATIZE  "123.e8000 is pretty big.", newline ) );
+print( ( COMMATIZE  "The land area of the earth is 57268900(29% of the surface) square miles.", newline ) );
+print( ( COMMATIZE  "Ain''t no numbers in this here words, nohow, no way, Jose.", newline ) );
+print( ( COMMATIZE  "James was never known as 0000000007", newline ) );
+print( ( COMMATIZE ( "Arthur Eddington wrote: I believe there are "
+                   + "15747724136275002577605653961181555468044717914527116709366231425076185631031296 "
+                   + "protons in the universe."
+                   ), newline ) );
+print( ( COMMATIZE  "   $-140000±100 millions.", newline ) );
+print( ( COMMATIZE  "6/9/1946 was a good year for some.", newline ) )
+)

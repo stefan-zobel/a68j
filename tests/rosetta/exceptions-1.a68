@@ -1,0 +1,128 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Exceptions", ALGOL 68 solution exceptions-1.alg.
+  https://rosettacode.org/wiki/Exceptions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/exceptions-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{
+  Define an general event handling mechanism on MODE OBJ:
+  * try to parallel pythons exception handling flexibility
+END }
+
+{
+  REQUIRES:
+    MODE OBJ # These can be a UNION of REF types #
+    OP OBJIS
+  PROVIDES:
+    OP ON, RAISE, RESET
+    PROC obj on, obj raise, obj reset
+END }
+
+{ define object related to OBJ EVENTS }
+mode
+  Raiseobj = proc(OBJ)void, Rawmendobj = proc(OBJ)bool,
+  Mendobj = union(Rawmendobj, proc void), { Generalise: Allow PROC VOID (a GOTO) as a short hand }
+  Newscopeobj = struct(ref Newscopeobj up, Flexobj obj_flex, Flexeventobj event_flex, Mendobj mended),
+  Scopeobj = ref Newscopeobj;
+
+mode Flexobj=flex[0]OBJ;
+
+{ Provide an INIT to convert a GO TO to a MEND ... useful for direct aborts }
+op INITMENDOBJ = (proc void go_to)Mendobj: (go_to; skip);
+
+Scopeobj obj_scope_end = nil;
+Scopeobj obj_scope_begin := obj_scope_end; { INITialise stack }
+OBJ obj_any = empty;
+Eventobj obj_event_any = nil;
+
+{ Some crude Singly Linked-List manipulations of the scopes, aka stack ... }
+{ An event/mended can be shared for all OBJ of the same type: }
+prio INITAB = 1, +=: = 1;
+op INITAB = (Scopeobj lhs, Mendobj obj_mend)Scopeobj:
+  lhs := (obj_scope_end, obj_any, obj_event_any, obj_mend);
+
+op INITSCOPE = (Mendobj obj_mend)Scopeobj: heap Newscopeobj INITAB obj_mend;
+op +=: = (Scopeobj item, ref Scopeobj rhs)Scopeobj: ( up of item := rhs; rhs := item );
+op +=: = (Mendobj mend, ref Scopeobj rhs)Scopeobj: INITSCOPE mend +=: rhs;
+{OP -=: = (REF SCOPEOBJ scope)SCOPEOBJ: scope := up OF scope;}
+
+{ Restore the prio event scope: ~ END }
+proc obj_reset = (Scopeobj up_scope)void: obj_scope_begin := up_scope;
+Mendobj obj_unmendable = (OBJ obj)bool: false;
+
+mode Neweventobj = struct( { the is simple a typed place holder }
+  Scopeobj scope,
+  string description,
+  proc (OBJ {obj}, Mendobj {obj mend})Scopeobj on,
+  proc (OBJ {obj}, string {msg})void raise
+), Eventobj = ref Neweventobj;
+
+mode Flexeventobj = flex[0]Eventobj;
+
+{ Define how to catch an event:
+    obj - IF obj IS NIL then mend event on all OBJects
+    obj mend - PROC to call to repair the object
+    return the prior event scope
+END }
+proc obj_on = (Flexobj obj_flex, Flexeventobj event_flex, Mendobj mend)Scopeobj: (
+  mend +=: obj_scope_begin;
+  if obj_any ISNTIN obj_flex then obj_flex of obj_scope_begin := obj_flex fi;
+  if obj_event_any ISNTIN event_flex then event_flex of obj_scope_begin := event_flex fi;
+  up of obj_scope_begin
+);
+
+prio OBJIS = 4, OBJISNT = 4; { pick the same PRIOrity as EQ and NE }
+op OBJISNT = (OBJ a,b)bool: NOT(a OBJIS b);
+
+prio ISIN = 4, ISNTIN = 4;
+op ISNTIN = (OBJ obj, Flexobj obj_flex)bool: (
+  bool isnt_in := false;
+  for i to UPB obj_flex while isnt_in := obj OBJISNT obj_flex[i] do skip od;
+  isnt_in
+);
+op ISIN = (OBJ obj, Flexobj obj_flex)bool: NOT(obj ISNTIN obj_flex);
+
+op ISNTIN = (Eventobj event, Flexeventobj event_flex)bool: (
+  bool isnt_in := true;
+  for i to UPB event_flex while isnt_in := event isnt event_flex[i] do skip od;
+  isnt_in
+);
+op ISIN = (Eventobj event, Flexeventobj event_flex)bool: NOT(event ISNTIN event_flex);
+
+{ Define how to raise an event, once it is raised try and mend it:
+  if all else fails produce an error message and stop
+END }
+proc obj_raise = (OBJ obj, Eventobj event, string msg)void:(
+  Scopeobj this_scope := obj_scope_begin;
+{ until mended this event should cascade through scope event handlers/members }
+  for i while this_scope isnt Scopeobj(obj_scope_end) do
+    if (obj_any ISIN obj_flex of this_scope OR obj ISIN obj_flex of this_scope ) AND
+       (obj_event_any ISIN event_flex of this_scope OR event ISIN event_flex of this_scope)
+    then
+      case mended of this_scope in
+        (Rawmendobj mend):if mend(obj) then break_mended fi,
+        (proc void go_to): (go_to; stop)
+      out put(stand_error, "undefined: raise stop"); stop
+      esac
+    fi;
+    this_scope := up of this_scope
+  od;
+  put(stand_error, ("OBJ event: ",msg)); stop; false
+exit
+  break_mended: true
+);
+
+{ define ON and some useful(?) RAISE OPs }
+prio ON = 1, RAISE = 1;
+op ON = (Mendobj mend, Eventobj event)Scopeobj: obj_on(obj_any, event, mend),
+   RAISE = (OBJ obj, Eventobj event)void: obj_raise(obj, event, "unnamed event"),
+   RAISE = (OBJ obj, Mendobj mend)void: ( mend ON obj_event_any; obj RAISE obj_event_any),
+   RAISE = (Eventobj event)void: obj_raise(obj_any, event, "unnamed event"),
+   RAISE = (Mendobj mend)void: ( mend ON obj_event_any; RAISE obj_event_any),
+   RAISE = (string msg, Eventobj event)void: obj_raise(obj_any, event, msg);
+op (Scopeobj {up scope})void RESET = obj_reset;
+
+skip
+)

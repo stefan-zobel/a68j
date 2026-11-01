@@ -1,0 +1,20 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Delete a file", ALGOL 68 solution delete-a-file.alg.
+  https://rosettacode.org/wiki/Delete_a_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/delete-a-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  { note the pathnames and commands are Windows specific - adjust for other systems }
+  string root = "\", del  = "del ", rmdir = "rmdir ";
+  proc remove_file = (string file_name)int: system( del  + file_name );
+  proc remove_dir  = (string file_name)int: system(rmdir + file_name );
+  proc report_error = ( string message )void: print( ( message, newline ) );
+  if remove_file("input.txt")        NE 0 then report_error( "Unable to remove input.txt"  ) fi;
+  if remove_file(root + "input.txt") NE 0 then report_error( "Unable to remove " + root + "input.txt" ) fi;
+  if remove_dir("docs")              NE 0 then report_error( "Unable to remove docs" ) fi;
+  if remove_dir(root + "docs")       NE 0 then report_error( "Unable to remove " + root + "docs" ) fi
+end
+)

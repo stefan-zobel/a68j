@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "File input/output", ALGOL 68 solution file-input-output.alg.
+  https://rosettacode.org/wiki/File_input/output#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/file-input-output.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc copy_file_v1 = (string in_name, out_name)void: (
+  { note: algol68toc-1.18 - can compile, but not run v1 }
+  int errno;
+  file in_file, out_file;
+  errno := open(in_file, in_name, stand_in_channel);
+  errno := open(out_file, out_name, stand_out_channel);
+
+  bool in_ended := false;
+  proc call_back_ended = (ref file f) bool: in_ended := true;
+  on_logical_file_end(in_file, call_back_ended);
+
+  string line;
+  while
+    get(in_file, (line, new_line));
+{ WHILE } NOT in_ended do { break to avoid excess new line }
+    put(out_file, (line, new_line))
+  od;
+ended:
+  close(in_file);
+  close(out_file)
+);
+
+proc copy_file_v2 = (string in_name, out_name)void: (
+  int errno;
+  file in_file, out_file;
+  errno := open(in_file, in_name, stand_in_channel);
+  errno := open(out_file, out_name, stand_out_channel);
+
+  proc call_back_ended = (ref file f) bool: go to done;
+  on_logical_file_end(in_file, call_back_ended);
+
+  string line;
+  do
+    get(in_file, line);
+    put(out_file, line);
+    get(in_file, new_line);
+    put(out_file, new_line)
+  od;
+done:
+  close(in_file);
+  close(out_file)
+);
+
+test:(
+  copy_file_v2("input.txt","output.txt")
+)
+)

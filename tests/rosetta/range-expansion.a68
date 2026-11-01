@@ -1,0 +1,174 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Range expansion", ALGOL 68 solution range-expansion.alg.
+  https://rosettacode.org/wiki/Range_expansion#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/range-expansion.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Yieldint = proc(int)void;
+
+mode Range = struct(int lwb, upb);
+mode Rangeint = union(Range, int);
+
+op SIZEOF = ([]Rangeint list)int: (
+{ determine the length of the output array }
+  int upb := LWB list - 1;
+  for key from LWB list to UPB list do
+    case list[key] in
+      (Range value): upb +:= upb of value - lwb of value + 1,
+      (int): upb +:= 1
+    esac
+  od;
+  upb
+);
+
+proc gen_range_expand = ([]Rangeint list, Yieldint yield)void:
+  for key from LWB list to UPB list do
+    case list[key] in
+      (Range range): for value from lwb of range to upb of range do yield(value) od,
+      (int int_): yield(int_)
+    esac
+  od;
+
+proc range_expand = ([]Rangeint list)[]int: (
+  [LWB list: LWB list + SIZEOF list - 1]int out_;
+  int upb := LWB out_ - 1;
+{ FOR INT value IN } gen_range_expand(list, { ) DO }
+{}   (int value)void:
+    out_[upb +:= 1] := value
+{ OD });
+  out_
+);
+
+{
+test:(
+  []RANGEINT list = (-6, RANGE(-3, -1), RANGE(3, 5),  RANGE(7, 11), 14, 15, RANGE(17, 20));
+  print((range expand(list), new line))
+)
+}
+
+
+{ converts string containing a comma-separated list of ranges and values to a []RANGEINT }
+op TORANGE = ( string s )[]Rangeint:
+begin
+
+    { counts the number of elements - one more than the number of commas }
+    { and so assumes there is always at least one element                }
+    proc count_elements = int:
+    begin
+
+        int    elements := 1;
+
+        for pos from LWB s to UPB s
+        do
+            if s[ pos ] = ","
+            then
+                elements +:= 1
+            fi
+        od;
+
+    { RESULT }
+        elements
+    end; { count elements }
+
+    ref[]Rangeint result = heap [ 1 : count_elements ]Rangeint;
+
+    { does the actual parsing - assumes the string is syntatically valid and doesn't check for errors }
+    { - in particular, a string with no elements will cause problems, as will space characters in the string }
+    proc parse_range_string = []Rangeint:
+    begin
+
+        int  element := 0;
+        int  str_pos := 1;
+
+        proc next       = void: str_pos +:= 1;
+        proc curr_char  = char: if str_pos > UPB s then "?" else s[ str_pos ] fi;
+        proc have_minus = bool: curr_char = "-";
+        proc have_digit = bool: curr_char >= "0" AND curr_char <= "9";
+
+
+        { parses a number out of the string }
+        { the number must be a sequence of digits with an optional leading minus sign }
+        proc get_number = int:
+        begin
+
+            int number := 0;
+
+            int sign_multiplier = if have_minus
+                                  then
+                                      { negaive number }
+                                      { skip the sign }
+                                      next;
+                                      -1
+                                  else
+                                      { positive number }
+                                      1
+                                  fi;
+
+            while curr_char >= "0" AND curr_char <= "9"
+            do
+                number *:= 10;
+                number +:= ( ABS curr_char - ABS "0" );
+                next
+            od;
+
+        { RESULT }
+            number * sign_multiplier
+        end; { get number }
+
+
+        { main parsing }
+        while str_pos <= UPB s
+        do
+            if have_minus OR have_digit
+            then
+                { have the start of a number }
+                int from_value = get_number;
+                element +:= 1;
+                if NOT have_minus
+                then
+                    { not a range }
+                    result[ element ] := from_value
+                else
+                    { have a range }
+                    next;
+                    int to_value = get_number;
+                    result[ element ] := Range( from_value, to_value )
+                fi
+            else
+                { should be a comma }
+                next
+            fi
+        od;
+    { RESULT }
+        result
+    end; { parse range string }
+
+
+{ RESULT }
+    parse_range_string
+end; { TORANGE }
+
+
+{ converts a []INT to a comma separated string of the elements }
+op TOSTRING = ( []int values )string:
+begin
+
+    string result    := "";
+    string separator := "";
+
+    for pos from LWB values to UPB values
+    do
+        result +:= ( separator + whole( values[ pos ], 0 ) );
+        separator := ","
+    od;
+
+{ RESULT }
+    result
+end; { TOSTRING }
+
+
+{ test }
+print( ( TOSTRING range_expand( TORANGE "-6,-3--1,3-5,7-11,14,15,17-20" ), newline ) )
+)

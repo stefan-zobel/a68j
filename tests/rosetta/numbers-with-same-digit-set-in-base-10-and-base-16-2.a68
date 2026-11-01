@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numbers with same digit set in base 10 and base 16", ALGOL 68 solution numbers-with-same-digit-set-in-base-10-and-base-16-2.alg.
+  https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numbers-with-same-digit-set-in-base-10-and-base-16-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find numbers with the same digit set in base 10 and base 16 }
+      {      translation of the EasyLang sample                     }
+    proc digit_set = ( int n_in, b )bits:
+         begin
+            int  n    := n_in;
+            bits dset := 16r0;
+            while n > 0 do
+                bits h = 16r1 SHL ( n MOD b );
+                dset := dset OR h;
+                n OVERAB b
+            od;
+            dset
+         end { digit set } ;
+
+    int max_number = 100 000;
+    int hd_count := 0;
+    for i from 0 to max_number - 1 do
+        if digit_set( i, 10 ) = digit_set( i, 16 ) then
+            print( ( " ", whole( i, -7 ) ) );
+            if ( hd_count +:= 1 ) MOD 10 = 0 then print( ( newline ) ) fi
+        fi
+    od;
+    print( ( newline ) );
+    print( ( "Found ", whole( hd_count, 0 ), " numbers up to ", whole( max_number, 0 ) ) );
+    print( ( " where the decimal and hexadecimal representations use the same digits", newline ) )
+end
+)

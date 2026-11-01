@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Rainbow", ALGOL 68 solution rainbow.alg.
+  https://rosettacode.org/wiki/Rainbow#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/rainbow.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { generate SVG to show the word RAINBOW in the colours of the spectrum }
+    proc max = ( int a, b )int: if a < b then b else a fi;
+    string text = "RAINBOW";
+    []string colour = ( "red", "orange", "yellow", "green", "blue", "indigo", "violet" );
+    int      c_len  = ( UPB colour - LWB colour ) + 1;   { number of colours }
+    int      x     := 30;
+    int      y      = 30;
+    print( ( "<svg xmlns=''http://www.w3.org/2000/svg'' width=''"
+           , whole( ( c_len * 20 ) + 60, 0 ), "'' "
+           , "height=''50'' style=''font:bold 30px monospace''>", newline
+           , "  <rect width=''100%'' height=''100%'' fill=''grey''/>", newline
+           )
+         );
+    for i from LWB text to UPB text do
+        string c_name = colour[ max( 1, i MOD ( c_len + 1 ) ) ];
+        print( ( "  <text x=''", whole( x, 0 ), "'' y=''", whole( y, 0 ), "'' " ) );
+        print( ( "fill=''", c_name, "'' stroke=''", c_name, "''>", text[ i ], "</text>", newline ) );
+        x +:= 20
+    od;
+    print( ( "</svg>", newline ) )
+end
+)

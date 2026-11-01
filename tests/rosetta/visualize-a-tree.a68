@@ -1,0 +1,110 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Visualize a tree", ALGOL 68 solution visualize-a-tree.alg.
+  https://rosettacode.org/wiki/Visualize_a_tree#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/visualize-a-tree.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ outputs nested html tables to visualise a tree }
+
+{ mode representing nodes of the tree }
+mode Node = struct( string value, ref Node child, ref Node sibling );
+ref  Node nil_node = nil;
+
+{ tags etc. }
+string table = "<table border=""1"" cellspacing=""4"">"
+     , elbat = "</table>"
+     , tr    = "<tr>"
+     , rt    = "</tr>"
+     , td    = "<td style=""text-align: center; vertical-align: top; """
+     , dt    = "</td>"
+     , nbsp  = "&nbsp;"
+     ;
+char   nl    = REPR 10;
+
+{ returns the number of child elements of tree }
+op CHILDCOUNT = ( ref Node tree )int:
+    begin
+        int      result := 0;
+        ref Node child  := child of tree;
+        while ref Node( child ) isnt nil_node
+        do
+            result +:= 1;
+            child   := sibling of child
+        od;
+        result
+    end { CHILDCOUNT } ;
+
+{ generates nested HTML tables from the tree }
+op  TOHTML = ( ref Node tree )string:
+    if tree is nil_node
+    then
+        { no node }
+        ""
+    else
+        { hae at least one node }
+        string result     := "";
+        int    child_count = CHILDCOUNT tree;
+        result +:= table + nl
+                 +   tr  + nl
+                 +     td + " colspan="""
+                          + whole( if child_count < 1 then 1 else child_count fi, 0 )
+                          + """>" + nbsp + value of tree + nbsp
+                 +     dt + nl
+                 +   rt  + nl
+                 ;
+        if child_count > 0
+        then
+            { the node has branches }
+            ref Node  child  := child of tree;
+            child   := child of tree;
+            result +:= tr + nl;
+            while child isnt nil_node
+            do
+                result +:= td + ">" + nl
+                         + if CHILDCOUNT child < 1 then nbsp + value of child + nbsp else TOHTML child fi
+                         + dt + nl;
+                child := sibling of child
+            od;
+            result +:= rt + nl
+        fi;
+        result +:= elbat + nl
+    fi { TOHTML } ;
+
+{ test the tree visualisation }
+
+{ returns a new node with the specified value and no child or siblings }
+proc new_node = ( string value )ref Node: heap Node := Node( value, nil_node, nil_node );
+{ appends a sibling node to the node n, returns the sibling }
+op +:= = ( ref Node n, ref Node sibling_node )ref Node:
+    begin
+        ref Node sibling := n;
+        while ref Node( sibling of sibling ) isnt nil_node
+        do
+            sibling := sibling of sibling
+        od;
+        sibling of sibling := sibling_node { will get a potential scope violation warning }
+    end { +:= } ;
+{ appends a new sibling node to the node n, returns the sibling }
+op +:= = ( ref Node n, string   sibling_value )ref Node: n +:= new_node( sibling_value );
+{ adds a child node to the node n, returns the child }
+op /:= = ( ref Node n, ref Node child_node    )ref Node: child of n := child_node;
+{ adda a new child node to the node n, returns the child }
+op /:= = ( ref Node n, string   child_value   )ref Node: n /:= new_node( child_value );
+
+Node animals  := new_node( "animals"  );
+Node fish     := new_node( "fish"     );
+Node reptiles := new_node( "reptiles" );
+Node mammals  := new_node( "mammals"  );
+Node primates := new_node( "primates" );
+Node sharks   := new_node( "sharks"   );
+sharks   /:= "great-white" +:= "hammer-head";
+fish     /:= "cod"         +:= sharks           +:= "piranha";
+reptiles /:= "iguana"      +:= "brontosaurus";
+primates /:= "gorilla"     +:= "lemur";
+mammals  /:= "sloth"       +:= "horse"          +:= "bison" +:= primates;
+animals  /:= fish          +:= reptiles         +:= mammals;
+
+print( ( TOHTML animals ) )
+)

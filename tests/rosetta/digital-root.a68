@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Digital root", ALGOL 68 solution digital-root.alg.
+  https://rosettacode.org/wiki/Digital_root#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/digital-root.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ calculates the digital root and persistance of n }
+proc digital_root = ( long long int n, ref int root, persistance )void:
+     begin
+         long long int number := ABS n;
+         persistance := 0;
+         while persistance PLUSAB 1;
+               long long int digit_sum := 0;
+               while number > 0
+               do
+                   digit_sum PLUSAB number MOD 10;
+                   number    OVERAB 10
+               od;
+               number := digit_sum;
+               number > 9
+         do
+               skip
+         od;
+         root := SHORTEN SHORTEN number
+     end; { digital root }
+
+{ calculates and prints the digital root and persistace of number }
+proc print_digital_root_and_persistance = ( long long int number )void:
+     begin
+         int    root, persistance;
+         digital_root( number, root, persistance );
+         print( ( whole( number, -15 ), " root: ", whole( root, 0 ), " persistance: ", whole( persistance, -3 ), newline ) )
+     end; { print digital root and persistance }
+
+{ test the digital root proc }
+begin print_digital_root_and_persistance(       627615 )
+    ; print_digital_root_and_persistance(        39390 )
+    ; print_digital_root_and_persistance(       588225 )
+    ; print_digital_root_and_persistance( 393900588225 )
+end
+)

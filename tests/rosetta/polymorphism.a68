@@ -1,0 +1,116 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Polymorphism", ALGOL 68 solution polymorphism.alg.
+  https://rosettacode.org/wiki/Polymorphism#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/polymorphism.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Algol 68 provides for polymorphic operators but not procedures             }
+
+{ define the CIRCLE and POINT modes                                          }
+mode Point  = struct( real x, y    );
+mode Circle = struct( real x, y, r );
+
+{ getters                                                                    }
+op XCOORD = ( Point p )real: x of p;
+op YCOORD = ( Point p )real: y of p;
+
+op XCOORD = ( Circle c )real: x of c;
+op YCOORD = ( Circle c )real: y of c;
+op RADIUS = ( Circle c )real: r of c;
+
+{ returns the centre of the circle                                           }
+op CENTRE = ( Circle c )Point: ( x of c, y of c );
+
+{ setters                                                                    }
+{ the setters are dyadic operators so need a priority - we make them lowest  }
+{ priority, like PLUSAB etc.                                                 }
+{ They could have the same names as the getters but this seems clearer?      }
+prio SETXCOORD = 1
+   , SETYCOORD = 1
+   , SETRADIUS = 1
+   ;
+{ the setters return the POINT/CIRCLE being modified so we can write e.g.    }
+{ "PRINT ( p SETXCOORD 3 )"                                                  }
+op   SETXCOORD = ( ref Point  p, real x )ref Point:  ( x of p := x; p );
+op   SETYCOORD = ( ref Point  p, real y )ref Point:  ( y of p := y; p );
+
+op   SETXCOORD = ( ref Circle c, real x )ref Circle: ( x of c := x; c );
+op   SETYCOORD = ( ref Circle c, real y )ref Circle: ( y of c := y; c );
+op   SETRADIUS = ( ref Circle c, real r )ref Circle: ( r of c := r; c );
+
+{ operands of an operator are not automatically coerced from INT to REAL so  }
+{ we also need these operators                                               }
+op   SETXCOORD = ( ref Point  p, int  x )ref Point:  ( x of p := x; p );
+op   SETYCOORD = ( ref Point  p, int  y )ref Point:  ( y of p := y; p );
+
+op   SETXCOORD = ( ref Circle c, int  x )ref Circle: ( x of c := x; c );
+op   SETYCOORD = ( ref Circle c, int  y )ref Circle: ( y of c := y; c );
+op   SETRADIUS = ( ref Circle c, int  r )ref Circle: ( r of c := r; c );
+
+{ PRINT operator                                                             }
+op PRINT = ( Point  p )void: print( ( "Point(", x of p, ",", y of p, ")" ) );
+op PRINT = ( Circle c )void:
+   begin print( ( "Circle(", r of c, " @ " ) ); PRINT CENTRE c; print( ( ")" ) ) end;
+
+{ copy constructors                                                          }
+{ A copy constructor is not needed as assignment will generate a copy        }
+{ e.g.: "POINT pa, pb; pa := ...; pb := pa; ..." will make pb a copy of pa   }
+
+{ assignment                                                                 }
+{ It is not possible to redefine the assignment "operator" in Algol 68 but   }
+{ assignment is automatically provided so no code need be written for e.g.   }
+{ "CIRCLE c1 := ...."                                                        }
+
+{ destructors                                                                }
+{ Algol 68 does not include destructors. A particular postlude could,        }
+{ in theory be provided if specific cleanup was requried, but this would     }
+{ occur at the end of the program, not at the end of the lifetime of the     }
+{ object.                                                                    }
+
+{ default constructor                                                        }
+{ Algol 68 automatically provides generators HEAP and LOC, which will        }
+{ create new objects of the specified MODE, e.g. HEAP CIRCLE will create a   }
+{ new CIRCLE. HEAP allocates apace on the heap, LOC allocates in on the      }
+{ stack (so the new item disappears when the enclosing block procedure or    }
+{ operator finishes)                                                         }
+
+{ a suitable "display" (value list enclosed in "(" and ")") can be cast to   }
+{ the relevent MODE, allowing us to write e.g.:                              }
+{ "POINT( 3.1, 2.2 )" where we need a new item.                              }
+
+{ "constructors" with other than all the fields in the correct order could   }
+{ be provided as procedures but each would need a distinct name              }
+{ e.g.                                                                       }
+proc new_circle_at_the_origin = ( real r )ref Circle:
+      ( ( heap Circle SETRADIUS r ) SETXCOORD 0 ) SETYCOORD 0;
+proc new_point_at_the_origin = ref Point:
+      ( heap Point SETXCOORD 0 ) SETYCOORD 0;
+
+
+{ examples of use                                                            }
+
+begin
+
+    Circle c1 := Circle( 1.1, 2.4, 4.1 );
+    Point  p1 := new_point_at_the_origin;
+    Point  p2 := new_point_at_the_origin;
+
+    PRINT c1; print( ( newline ) );
+
+    { move c1 so it is centred on p1                                         }
+    ( c1 SETXCOORD XCOORD p1 ) SETYCOORD YCOORD p1;
+
+    PRINT c1; print( ( newline ) );
+
+    { offset p2 from the centre of c1                                        }
+    p2 SETXCOORD ( XCOORD c1 + 1.0 ) SETYCOORD ( YCOORD c1 + 6.0 );
+    { and a new circle with a larger radius at that point                    }
+    Circle c2 := new_circle_at_the_origin( 10 );
+    c2 SETXCOORD XCOORD p2 SETYCOORD YCOORD p2 SETRADIUS ENTIER ( RADIUS c1 + 5.1 );
+
+    PRINT c2; print( ( newline  ) )
+
+end
+)

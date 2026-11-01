@@ -1,0 +1,10 @@
+begin mode P = struct (int a, b);
+      P p := (1, 2);
+      ref [] P rp = p;
+      a of rp[1] := 10;
+      puts (whole (a of p, 0)); puts (" ");
+      ref [] int ra = a of rp;
+      ra[1] := 20; puts (whole (a of p, 0)); puts (" ");
+      rp[1] := (5, 6); puts (whole (b of p, 0)); puts (" ");
+      [] P vp = rp; p := (7, 8); puts (whole (a of vp[1], 0)); puts ("'n")
+end

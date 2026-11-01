@@ -1,0 +1,19 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Arithmetic/Integer", ALGOL 68 solution arithmetic-integer.alg.
+  https://rosettacode.org/wiki/Arithmetic/Integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-integer.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  long int a=355, b=113;
+  printf(($"a PLUS b = a+b = "gl$, a + b));
+  printf(($"a MINUS b = a-b = "gl$, a - b));
+  printf(($"a TIMES b = a*b = a×b = "gl$, a * b));
+  printf(($"a DIV b = a/b = "gl$, a / b));
+  printf(($"a OVER b = a%b = a÷b = "gl$, a % b));
+  printf(($"a MOD b = a%*b = a%×b = a÷×b = a÷*b = "gl$, a %* b));
+  printf(($"a UP b = a**b = a↑b = "gl$, a ** b))
+)
+)

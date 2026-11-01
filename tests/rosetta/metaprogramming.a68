@@ -1,0 +1,143 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Metaprogramming", ALGOL 68 solution metaprogramming.alg.
+  https://rosettacode.org/wiki/Metaprogramming#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/metaprogramming.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ This example uses ALGOL 68 user defined operators to add a COBOL-style     }
+{ "INSPECT statement" to ALGOL 68                                            }
+{                                                                            }
+{ The (partial) syntax of the COBOL INSPECT is:                              }
+{    INSPECT string-variable REPLACING ALL     string BY string              }
+{ or INSPECT string-variable REPLACING LEADING string BY string              }
+{ or INSPECT string-variable REPLACING FIRST   string BY string              }
+{                                                                            }
+{ Because "BY" is a reserved bold word in ALGOL 68, we use "WITH" instead    }
+{                                                                            }
+{ We define unary  operators INSPECT, ALL, LEADING and FIRST                 }
+{       and binary operators REPLACING and WITH                              }
+{ We choose the priorities of REPLACING and WITH so that parenthesis is not  }
+{ needed to ensure the correct interpretation of the "statement"             }
+{                                                                            }
+{ We also provide a unary DISPLAY operator for a partial COBOL DISPLAY       }
+{ statement                                                                  }
+
+{ INSPECTEE is returned by the INSPECT unary operator                        }
+mode Inspectee   = struct( ref string item, int option );
+
+{ INSPECTTOREPLACE is returned by the binary REPLACING operator              }
+mode Inspecttoreplace
+                 = struct( ref string item, int option, string to_replace );
+{ REPLACEMENT is returned by the unary ALL, LEADING and FIRST operators      }
+mode Replacement = struct( int option, string replace );
+
+{ REPLACING option codes, these are the option values for a REPLACEMENT      }
+int  replace_all     = 1;
+int  replace_leading = 2;
+int  replace_first   = 3;
+
+op   INSPECT   = ( ref string s )Inspectee: ( s, 0 );
+op   ALL       = ( string replace )Replacement: ( replace_all,     replace );
+op   LEADING   = ( string replace )Replacement: ( replace_leading, replace );
+op   FIRST     = ( string replace )Replacement: ( replace_first,   replace );
+op   ALL       = ( char   replace )Replacement: ( replace_all,     replace );
+op   LEADING   = ( char   replace )Replacement: ( replace_leading, replace );
+op   FIRST     = ( char   replace )Replacement: ( replace_first,   replace );
+
+op   REPLACING = ( Inspectee inspected, Replacement replace )Inspecttoreplace:
+                     ( item    of inspected
+                     , option  of replace
+                     , replace of replace
+                     );
+
+op   WITH      = ( Inspecttoreplace inspected, char   replace_with )ref string:
+    begin
+        string with := replace_with;
+        inspected WITH with
+    end; { WITH }
+
+op   WITH      = ( Inspecttoreplace inspected, string replace_with )ref string:
+    begin
+
+        string    to_replace  = to_replace of inspected;
+        int       pos        := 0;
+        string    rest       := item of inspected;
+        string    result     := "";
+
+        if   option of inspected = replace_all
+        then
+            { replace all occurances of "to replace" with "replace with"     }
+            while string_in_string( to_replace, pos, rest )
+            do
+                result +:= rest[ 1 : pos - 1 ] + replace_with;
+                rest    := rest[ pos + UPB to_replace : ]
+            od
+
+        elif option of inspected = replace_leading
+        then
+            { replace leading occurances of "to replace" with "replace with" }
+            while if string_in_string( to_replace, pos, rest )
+                  then
+                      pos = 1
+                  else
+                      false
+                  fi
+            do
+                result +:= replace_with;
+                rest    := rest[ 1 + UPB to_replace : ]
+            od
+
+        elif option of inspected = replace_first
+        then
+            { replace first occurance of "to replace" with "replace with"    }
+            if string_in_string( to_replace, pos, rest )
+            then
+                result +:= rest[ 1 : pos - 1 ] + replace_with;
+                rest    := rest[ pos + UPB to_replace : ]
+            fi
+
+        else
+            { unsupported replace option }
+            write( ( newline, "*** unsupported INSPECT REPLACING...", newline ) );
+            stop
+        fi;
+
+        result +:= rest;
+        item of inspected := result
+    end; { WITH }
+
+op   DISPLAY = ( string s )void: write( ( s, newline ) );
+
+prio REPLACING = 2, WITH = 1;
+
+
+begin { test the INSPECT and DISPLAY "verbs" }
+
+    string  text := "some text";
+    DISPLAY text;
+
+    INSPECT text REPLACING FIRST   "e"    WITH "bbc";
+    DISPLAY text;
+
+    INSPECT text REPLACING ALL     "b"    WITH "X";
+    DISPLAY text;
+
+    INSPECT text REPLACING ALL     "text" WITH "some";
+    DISPLAY text;
+
+    INSPECT text REPLACING LEADING "som"  WITH "k";
+    DISPLAY text;
+
+    text := "another test";
+    DISPLAY text;
+
+    INSPECT text REPLACING FIRST   "anot" WITH "ABC";
+    DISPLAY text;
+
+    INSPECT text REPLACING LEADING "A"    WITH "_";
+    DISPLAY text
+
+end
+)

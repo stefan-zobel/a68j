@@ -1,0 +1,93 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Padovan sequence", ALGOL 68 solution padovan-sequence.alg.
+  https://rosettacode.org/wiki/Padovan_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/padovan-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show members of the Padovan Sequence calculated in various ways }
+    { returns the first n elements of the Padovan sequence by the       }
+    {         recurance relation: P(n)=P(n-2)+P(n-3)	                }
+    op PADOVANI = ( int n )[]int:
+       begin
+           [ 0 : n - 1 ]int p; p[ 0 ] := p[ 1 ] := p[ 2 ] := 1;
+           for i from 3 to UPB p do
+               p[ i ] := p[ i - 2 ] + p[ i - 3 ]
+           od;
+           p
+       end; { PADOVANI }
+    { returns the first n elements of the Padovan sequence by           }
+    {         computing by truncation P(n)=floor(p^(n-1) / s + .5)      }
+    {                where s = 1.0453567932525329623                    }
+    {                  and p = the "plastic ratio"                      }
+    op PADOVANC = ( int n )[]int:
+       begin
+           long real    s   = 1.0453567932525329623;
+           long real    p   = 1.324717957244746025960908854;
+           long real    pf := 1 / p;
+           [ 0 : n - 1 ]int result;
+           for i from LWB result to UPB result do
+               result[ i ] := SHORTEN ENTIER ( pf / s + 0.5 );
+               pf         *:= p
+           od;
+           result
+       end; { PADOVANC }
+    { returns the first n L System strings of the Padovan sequence      }
+    op PADOVANL = ( int n )[]string:
+       begin
+           [ 0 : n - 1 ]string l; l[ 0 ] := "A"; l[ 1 ] := "B"; l[ 2 ] := "C";
+           for i from 3 to UPB l do
+               l[ i ] := l[ i - 3 ] + l[ i - 2 ]
+           od;
+           l
+    end; { PADOVANC }
+    { returns TRUE if a and b have the same values, FALSE otherwise     }
+    op = = ( []int a, b )bool:
+       if LWB a /= LWB b OR UPB a /= UPB b
+       then { rows are not the same size } false
+       else
+           bool result := true;
+           for i from LWB a to UPB a while result := a[ i ] = b[ i ] do skip od;
+           result
+       fi; { = }
+    { returns the number of elements in a                               }
+    op LENGTH = ( []int a )int: ( UPB a - LWB a ) + 1;
+    { returns the number of characters in s                             }
+    op LENGTH = ( string s )int: ( UPB s - LWB s ) + 1;
+    { returns a string representation of n                              }
+    op TOSTRING = ( int n )string: whole( n, 0 );
+    { generate 64 elements of the sequence and 32 L System values       }
+    []int    iterative  = PADOVANI 64;
+    []int    calculated = PADOVANC 64;
+    []string l_system   = PADOVANL 32;
+    [ LWB l_system : UPB l_system ]int l_length;
+    for i from LWB l_length to UPB l_length do l_length[ i ] := LENGTH l_system[ i ] od;
+    { first 20 terms                                                    }
+    print( ( "First 20 terms of the Padovan Sequence", newline ) );
+    for i from LWB iterative to 19 do
+        print( ( " ", TOSTRING iterative[ i ] ) )
+    od;
+    print( ( newline ) );
+    print( ( "The first "
+           , TOSTRING LENGTH iterative
+           , " iterative and calculated values "
+           , if iterative = calculated then "are the same" else "differ" fi
+           , newline
+           )
+         );
+    { print the first 10 values of the L System strings                 }
+    print( ( newline, "First 10 L System strings", newline ) );
+    for i from LWB l_system to 9 do
+        print( ( " ", l_system[ i ] ) )
+    od;
+    print( ( newline ) );
+    print( ( "The first "
+           , TOSTRING LENGTH l_length
+           , " iterative values and L System lengths "
+           , if l_length = iterative[ LWB l_length : UPB l_length @ LWB l_length ] then "are the same" else "differ" fi
+           ,  newline
+           )
+         )
+end
+)

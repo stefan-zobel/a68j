@@ -1,0 +1,32 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Date format", ALGOL 68 solution date-format.alg.
+  https://rosettacode.org/wiki/Date_format#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/date-format.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ define the layout of the date/time as provided by the call to local time }
+struct ( int sec, min, hour, mday, mon, year, wday, yday, isdst) tm = (6,5,4,3,2,1,7,~,8);
+
+FORMAT { some useful format declarations }
+  ymd_repr = $4d,"-"2d,"-"2d$,
+  month_repr =    $c("January","February","March","April","May","June","July",
+                     "August","September","October","November","December")$,
+  week_day_repr = $c("Sunday","Monday","Tuesday","Wednesday",
+                     "Thursday","Friday","Saturday")$,
+  dmdy_repr =     $f(week day repr)", "f(month repr)" "g(-0)", "g(-4)$,
+
+  mon  = $c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")$,
+  wday = $c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")$,
+  tz   = $c("MSK","MSD")$,
+  unix_time_repr = $f(wday)" "f(mon)z-d," "dd,":"dd,":"dd," "f(tz)" "dddd$;
+
+[]int now = local_time;
+
+printf((ymd_repr,       now[year of tm:mday of tm], $l$));
+printf((dmdy_repr,      now[wday of tm], now[mon of tm], now[mday of tm], now[year of tm], $l$));
+
+printf((unix_time_repr, now[wday of tm], now[mon of tm], now[mday of tm],
+                        now[hour of tm:sec of tm], now[isdst of tm]+1, now[year of tm], $l$))
+)

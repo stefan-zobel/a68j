@@ -1,0 +1,1329 @@
+name	task	status
+100-prisoners	100-prisoners	prepared
+10001th-prime	10001th-prime	missing include primes.incl.a68
+2048	2048	prepared
+21-game	21-game	prepared
+24-game	24-game	prepared
+4-rings-or-4-squares-puzzle	4-rings-or-4-squares-puzzle	prepared
+9-billion-names-of-god-the-integer	9-billion-names-of-God-the-integer	prepared
+99-bottles-of-beer	99-bottles-of-beer	prepared
+a+b-1	A+B	prepared
+a+b-2	A+B	prepared
+abc-correlation	ABC-correlation	missing include files.incl.a68
+abc-incremental-counts	ABC-incremental-counts	missing include sort.incl.a68
+abc-problem	ABC-problem	prepared
+abc-words-1	ABC-words	missing include files.incl.a68
+abc-words-2	ABC-words	missing include files.incl.a68
+aks-test-for-primes	AKS-test-for-primes	prepared
+ascii-control-characters	ASCII-control-characters	prepared
+abbreviations-easy	Abbreviations-easy	prepared
+abbreviations-simple	Abbreviations-simple	prepared
+abelian-sandpile-model	Abelian-sandpile-model	prepared
+abelian-sandpile-model-identity	Abelian-sandpile-model-Identity	prepared
+abundant-deficient-and-perfect-number-classifications	Abundant-deficient-and-perfect-number-classifications	prepared
+abundant-odd-numbers	Abundant-odd-numbers	prepared
+accumulator-factory	Accumulator-factory	prepared
+achilles-numbers	Achilles-numbers	missing include primes.incl.a68
+ackermann-function	Ackermann-function	prepared
+additive-primes	Additive-primes	missing include primes.incl.a68
+address-of-a-variable-1	Address-of-a-variable	prepared
+address-of-a-variable-2	Address-of-a-variable	prepared
+air-mass	Air-mass	prepared
+align-columns	Align-columns	prepared
+aliquot-sequence-classifications	Aliquot-sequence-classifications	prepared
+almkvist-giullera-formula-for-pi	Almkvist-Giullera-formula-for-pi	prepared
+almost-prime	Almost-prime	prepared
+alternade-words	Alternade-words	missing include files.incl.a68 sort.incl.a68
+amb	Amb	prepared
+amicable-pairs	Amicable-pairs	prepared
+anadromes	Anadromes	prepared
+anagrams	Anagrams	missing include aArray.a68
+anagrams-deranged-anagrams	Anagrams-Deranged-anagrams	missing include aArray.a68
+anaprimes	Anaprimes	prepared
+angle-difference-between-two-bearings	Angle-difference-between-two-bearings	prepared
+angles-geometric-normalization-and-conversion	Angles-geometric-normalization-and-conversion	prepared
+anonymous-recursion	Anonymous-recursion	prepared
+anti-primes	Anti-primes	prepared
+ap-rys-constant	Ap-rys-constant	prepared
+append-numbers-at-same-position-in-strings	Append-numbers-at-same-position-in-strings	prepared
+apply-a-callback-to-an-array	Apply-a-callback-to-an-array	prepared
+apply-a-digital-filter-direct-form-ii-transposed-	Apply-a-digital-filter-direct-form-II-transposed-	prepared
+approximate-equality	Approximate-equality	prepared
+arbitrary-precision-integers-included-	Arbitrary-precision-integers-included-	prepared
+archimedean-spiral	Archimedean-spiral	prepared
+arithmetic-complex	Arithmetic-Complex	prepared
+arithmetic-integer	Arithmetic-Integer	prepared
+arithmetic-rational	Arithmetic-Rational	prepared
+arithmetic-derivative-1	Arithmetic-derivative	prepared
+arithmetic-derivative-2	Arithmetic-derivative	prepared
+arithmetic-evaluation	Arithmetic-evaluation	prepared
+arithmetic-geometric-mean	Arithmetic-geometric-mean	prepared
+arithmetic-geometric-mean-calculate-pi	Arithmetic-geometric-mean-Calculate-Pi	prepared
+arithmetic-numbers	Arithmetic-numbers	prepared
+array-concatenation	Array-concatenation	prepared
+array-length	Array-length	prepared
+arrays	Arrays	prepared
+ascending-primes	Ascending-primes	missing include primes.incl.a68 sort.incl.a68
+assertions-1	Assertions	prepared
+assertions-2	Assertions	prepared
+associative-array-creation	Associative-array-Creation	prepared
+associative-array-iteration	Associative-array-Iteration	prepared
+associative-array-merging	Associative-array-Merging	missing include aArrayBase.a68
+attractive-numbers	Attractive-numbers	missing include primes.incl.a68
+autogram-checker	Autogram-checker	prepared
+averages-arithmetic-mean	Averages-Arithmetic-mean	prepared
+averages-mean-angle	Averages-Mean-angle	prepared
+averages-mean-time-of-day	Averages-Mean-time-of-day	prepared
+averages-median	Averages-Median	prepared
+averages-mode	Averages-Mode	missing include rows.incl.a68 sort.incl.a68
+averages-pythagorean-means	Averages-Pythagorean-means	prepared
+averages-root-mean-square	Averages-Root-mean-square	prepared
+averages-simple-moving-average	Averages-Simple-moving-average	prepared
+b-spline	B-spline	prepared
+babbage-problem	Babbage-problem	prepared
+bacon-cipher	Bacon-cipher	prepared
+balanced-brackets	Balanced-brackets	prepared
+barnsley-fern	Barnsley-fern	prepared
+base-16-numbers-needing-a-to-f	Base-16-numbers-needing-a-to-f	prepared
+base58check-encoding	Base58Check-encoding	prepared
+base64-encode-data	Base64-encode-data	prepared
+bell-numbers	Bell-numbers	prepared
+benfords-law	Benfords-law	prepared
+berlekamp-massey-algorithm	Berlekamp-Massey-algorithm	prepared
+bernoulli-numbers	Bernoulli-numbers	prepared
+bernoullis-triangle	Bernoullis-triangle	prepared
+bernstein-basis-polynomials	Bernstein-basis-polynomials	prepared
+best-shuffle	Best-shuffle	prepared
+bifid-cipher	Bifid-cipher	prepared
+bin-given-limits	Bin-given-limits	prepared
+binary-coded-decimal	Binary-coded-decimal	prepared
+binary-digits	Binary-digits	prepared
+binary-search	Binary-search	prepared
+binary-strings	Binary-strings	prepared
+binomial-transform	Binomial-transform	prepared
+bioinformatics-base-count	Bioinformatics-Base-count	prepared
+biorhythms	Biorhythms	prepared
+birthday-problem	Birthday-problem	prepared
+bitmap	Bitmap	missing include prelude/Bitmap.a68
+bitmap-b-zier-curves-cubic-1	Bitmap-B-zier-curves-Cubic	prepared
+bitmap-b-zier-curves-cubic-2	Bitmap-B-zier-curves-Cubic	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68 prelude/Bitmap/Bezier_curves/Cubic.a68
+bitmap-b-zier-curves-quadratic	Bitmap-B-zier-curves-Quadratic	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68
+bitmap-bresenhams-line-algorithm	Bitmap-Bresenhams-line-algorithm	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68
+bitmap-midpoint-circle-algorithm-1	Bitmap-Midpoint-circle-algorithm	prepared
+bitmap-midpoint-circle-algorithm-2	Bitmap-Midpoint-circle-algorithm	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68 prelude/Bitmap/Midpoint_circle_algorithm.a68
+bitwise-io	Bitwise-IO	prepared
+bitwise-operations-1	Bitwise-operations	prepared
+bitwise-operations-2	Bitwise-operations	prepared
+blum-integer	Blum-integer	prepared
+boolean-values	Boolean-values	prepared
+boustrophedon-transform	Boustrophedon-transform	prepared
+box-the-compass	Box-the-compass	prepared
+brilliant-numbers	Brilliant-numbers	missing include primes.incl.a68
+bulls-and-cows	Bulls-and-cows	prepared
+bulls-and-cows-player	Bulls-and-cows-Player	prepared
+burrows-wheeler-transform	Burrows-Wheeler-transform	missing include sort.incl.a68
+cordic	CORDIC	prepared
+crc-32	CRC-32	prepared
+csv-data-manipulation	CSV-data-manipulation	prepared
+csv-to-html-translation-1	CSV-to-HTML-translation	prepared
+csv-to-html-translation-2	CSV-to-HTML-translation	prepared
+cusip	CUSIP	prepared
+caesar-cipher	Caesar-cipher	prepared
+calculating-the-value-of-e	Calculating-the-value-of-e	prepared
+calendar	Calendar	prepared
+calendar---for-real-programmers	Calendar---for-REAL-programmers	prepared
+calkin-wilf-sequence-1	Calkin-Wilf-sequence	prepared
+calkin-wilf-sequence-2	Calkin-Wilf-sequence	prepared
+call-a-foreign-language-function-1	Call-a-foreign-language-function	prepared
+call-a-foreign-language-function-2	Call-a-foreign-language-function	prepared
+call-a-function	Call-a-function	prepared
+call-an-object-method	Call-an-object-method	prepared
+calmo-numbers	Calmo-numbers	missing include primes.incl.a68
+calmosoft-primes-1	CalmoSoft-primes	prepared
+calmosoft-primes-2	CalmoSoft-primes	missing include primes.incl.a68
+camel-case-and-snake-case	Camel-case-and-snake-case	prepared
+canonicalize-cidr	Canonicalize-CIDR	prepared
+cantor-set	Cantor-set	prepared
+carmichael-3-strong-pseudoprimes	Carmichael-3-strong-pseudoprimes	prepared
+cartesian-product-of-two-or-more-lists	Cartesian-product-of-two-or-more-lists	prepared
+case-sensitivity-of-identifiers-1	Case-sensitivity-of-identifiers	prepared
+case-sensitivity-of-identifiers-2	Case-sensitivity-of-identifiers	prepared
+casting-out-nines	Casting-out-nines	prepared
+catalan-numbers-1	Catalan-numbers	prepared
+catalan-numbers-2	Catalan-numbers	prepared
+catalan-numbers-pascals-triangle	Catalan-numbers-Pascals-triangle	prepared
+catamorphism	Catamorphism	prepared
+centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	Centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	prepared
+centroid-of-a-set-of-n-dimensional-points	Centroid-of-a-set-of-N-dimensional-points	prepared
+change-e-letters-to-i-in-words	Change-e-letters-to-i-in-words	missing include files.incl.a68 sort.incl.a68
+changeable-words	Changeable-words	missing include files.incl.a68 sort.incl.a68
+chaocipher	Chaocipher	prepared
+character-codes-1	Character-codes	prepared
+character-codes-2	Character-codes	prepared
+character-codes-3	Character-codes	prepared
+chebyshev-coefficients	Chebyshev-coefficients	prepared
+check-if-a-polygon-overlaps-with-a-rectangle	Check-if-a-polygon-overlaps-with-a-rectangle	prepared
+check-if-two-polygons-overlap	Check-if-two-polygons-overlap	prepared
+check-that-file-exists	Check-that-file-exists	prepared
+chemical-calculator	Chemical-calculator	prepared
+chernicks-carmichael-numbers	Chernicks-Carmichael-numbers	missing include primes.incl.a68
+cheryls-birthday	Cheryls-birthday	prepared
+chinese-remainder-theorem	Chinese-remainder-theorem	prepared
+chinese-zodiac	Chinese-zodiac	prepared
+cholesky-decomposition	Cholesky-decomposition	prepared
+chowla-numbers	Chowla-numbers	prepared
+chronological-order	Chronological-order	missing include files.incl.a68 sort.incl.a68
+cipollas-algorithm	Cipollas-algorithm	prepared
+circles-of-given-radius-through-two-points	Circles-of-given-radius-through-two-points	prepared
+circular-primes	Circular-primes	prepared
+cistercian-numerals	Cistercian-numerals	prepared
+classes	Classes	prepared
+closures-value-capture	Closures-Value-capture	prepared
+code-golf-1	Code-Golf	prepared
+code-golf-2	Code-Golf	prepared
+collect-and-sort-square-numbers-in-ascending-order-from-three-lists	Collect-and-sort-square-numbers-in-ascending-order-from-three-lists	missing include rows.incl.a68 sort.incl.a68
+collections	Collections	prepared
+color-difference-cie-e2000	Color-Difference-CIE-E2000	prepared
+colorful-numbers	Colorful-numbers	prepared
+combinations-1	Combinations	prepared
+combinations-2	Combinations	missing include prelude_combinations.a68
+combinations-and-permutations-1	Combinations-and-permutations	prepared
+combinations-and-permutations-2	Combinations-and-permutations	missing include prelude_combinations_and_permutations.a68
+combinations-with-repetitions-square-digit-chain	Combinations-with-repetitions-Square-digit-chain	prepared
+comma-quibbling	Comma-quibbling	prepared
+command-line-arguments	Command-line-arguments	prepared
+commatizing-numbers	Commatizing-numbers	prepared
+common-list-elements	Common-list-elements	prepared
+common-sorted-list	Common-sorted-list	missing include sort.incl.a68 rows.incl.a68
+compare-a-list-of-strings	Compare-a-list-of-strings	prepared
+compare-length-of-two-strings	Compare-length-of-two-strings	prepared
+compiler-simple-file-inclusion-pre-processor	Compiler-Simple-file-inclusion-pre-processor	prepared
+compiler-code-generator	Compiler-code-generator	prepared
+compiler-lexical-analyzer	Compiler-lexical-analyzer	prepared
+composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k	Composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k	prepared
+compound-data-type-1	Compound-data-type	prepared
+compound-data-type-2	Compound-data-type	prepared
+compound-data-type-3	Compound-data-type	prepared
+compound-data-type-4	Compound-data-type	prepared
+concatenate-two-primes-is-also-prime	Concatenate-two-primes-is-also-prime	missing include primes.incl.a68
+concurrent-computing	Concurrent-computing	prepared
+conjugate-a-latin-verb	Conjugate-a-Latin-verb	prepared
+conjugate-transpose	Conjugate-transpose	prepared
+consecutive-primes-with-ascending-or-descending-differences	Consecutive-primes-with-ascending-or-descending-differences	prepared
+constrained-random-points-on-a-circle	Constrained-random-points-on-a-circle	prepared
+continued-fraction	Continued-fraction	prepared
+continued-fraction-arithmetic-construct-from-rational-number	Continued-fraction-Arithmetic-Construct-from-rational-number	prepared
+continued-fraction-convergents	Continued-fraction-convergents	prepared
+convert-csv-records-to-tsv	Convert-CSV-records-to-TSV	prepared
+convert-seconds-to-compound-duration	Convert-seconds-to-compound-duration	prepared
+convex-hull	Convex-hull	prepared
+coprime-triplets	Coprime-triplets	prepared
+coprimes	Coprimes	prepared
+copy-a-string	Copy-a-string	prepared
+copy-stdin-to-stdout	Copy-stdin-to-stdout	prepared
+count-how-many-vowels-and-consonants-occur-in-a-string	Count-how-many-vowels-and-consonants-occur-in-a-string	prepared
+count-in-factors	Count-in-factors	prepared
+count-in-octal	Count-in-octal	prepared
+count-occurrences-of-a-substring	Count-occurrences-of-a-substring	prepared
+count-the-coins-1	Count-the-coins	prepared
+count-the-coins-2	Count-the-coins	prepared
+count-the-coins-0-1	Count-the-coins-0-1	prepared
+count-the-occurrence-of-each-digit-in-e	Count-the-occurrence-of-each-digit-in-e	missing include rows.incl.a68
+cousin-primes	Cousin-primes	missing include primes.incl.a68
+cramers-rule	Cramers-rule	prepared
+create-a-file	Create-a-file	prepared
+create-a-two-dimensional-array-at-runtime	Create-a-two-dimensional-array-at-runtime	prepared
+create-an-html-table	Create-an-HTML-table	prepared
+create-an-executable-for-a-program-in-an-interpreted-language-1	Create-an-executable-for-a-program-in-an-interpreted-language	prepared
+create-an-executable-for-a-program-in-an-interpreted-language-2	Create-an-executable-for-a-program-in-an-interpreted-language	prepared
+create-an-executable-for-a-program-in-an-interpreted-language-3	Create-an-executable-for-a-program-in-an-interpreted-language	prepared
+cuban-primes	Cuban-primes	missing include primes.incl.a68
+cubic-special-primes	Cubic-special-primes	missing include primes.incl.a68
+cullen-and-woodall-numbers	Cullen-and-Woodall-numbers	missing include primes.incl.a68
+cumulative-standard-deviation-1	Cumulative-standard-deviation	prepared
+cumulative-standard-deviation-2	Cumulative-standard-deviation	prepared
+cumulative-standard-deviation-3	Cumulative-standard-deviation	prepared
+currency	Currency	prepared
+currying	Currying	prepared
+curve-that-touches-three-points	Curve-that-touches-three-points	prepared
+curzon-numbers	Curzon-numbers	prepared
+cycle-detection	Cycle-detection	missing include rows.incl.a68
+cyclops-numbers	Cyclops-numbers	missing include primes.incl.a68
+damm-algorithm	Damm-algorithm	prepared
+date-format	Date-format	prepared
+date-manipulation	Date-manipulation	prepared
+day-of-the-week	Day-of-the-week	prepared
+day-of-the-week-of-christmas-and-new-year	Day-of-the-week-of-Christmas-and-New-Year	prepared
+days-between-dates	Days-between-dates	prepared
+de-bruijn-sequences	De-Bruijn-sequences	prepared
+de-polignac-numbers	De-Polignac-numbers	prepared
+death-star	Death-Star	prepared
+deceptive-numbers	Deceptive-numbers	missing include primes.incl.a68
+decorate-sort-undecorate-idiom	Decorate-sort-undecorate-idiom	prepared
+decreasing-contiguous-subsequences	Decreasing-contiguous-subsequences	prepared
+define-a-primitive-data-type	Define-a-primitive-data-type	prepared
+delegates	Delegates	prepared
+delete-a-file	Delete-a-file	prepared
+demings-funnel	Demings-funnel	missing include rows.incl.a68
+department-numbers	Department-numbers	prepared
+descending-primes	Descending-primes	missing include primes.incl.a68 sort.incl.a68
+detect-division-by-zero	Detect-division-by-zero	prepared
+determinant-and-permanent	Determinant-and-permanent	prepared
+determine-if-a-string-has-all-the-same-characters	Determine-if-a-string-has-all-the-same-characters	prepared
+determine-if-a-string-has-all-unique-characters	Determine-if-a-string-has-all-unique-characters	prepared
+determine-if-a-string-is-collapsible	Determine-if-a-string-is-collapsible	prepared
+determine-if-a-string-is-numeric	Determine-if-a-string-is-numeric	prepared
+determine-if-a-string-is-squeezable	Determine-if-a-string-is-squeezable	prepared
+determine-if-two-triangles-overlap	Determine-if-two-triangles-overlap	prepared
+determine-sentence-type	Determine-sentence-type	prepared
+dice-game-probabilities	Dice-game-probabilities	prepared
+digit-fifth-powers	Digit-fifth-powers	prepared
+digital-root	Digital-root	prepared
+digital-root-multiplicative-digital-root	Digital-root-Multiplicative-digital-root	prepared
+dijkstras-algorithm-1	Dijkstras-algorithm	prepared
+dijkstras-algorithm-2	Dijkstras-algorithm	missing include prelude_dijkstras_algorithm.a68
+dinesmans-multiple-dwelling-problem	Dinesmans-multiple-dwelling-problem	prepared
+disarium-numbers	Disarium-numbers	prepared
+discordian-date	Discordian-date	prepared
+discrete-fourier-transform	Discrete-Fourier-transform	prepared
+display-a-linear-combination	Display-a-linear-combination	prepared
+display-an-outline-as-a-nested-table-1	Display-an-outline-as-a-nested-table	prepared
+display-an-outline-as-a-nested-table-2	Display-an-outline-as-a-nested-table	prepared
+distinct-power-numbers	Distinct-power-numbers	prepared
+distribution-of-0-digits-in-factorial-series	Distribution-of-0-digits-in-factorial-series	prepared
+diversity-prediction-theorem	Diversity-prediction-theorem	prepared
+dividuus-numbers	Dividuus-numbers	prepared
+doomsday-rule	Doomsday-rule	prepared
+dot-product	Dot-product	prepared
+double-twin-primes	Double-twin-primes	missing include primes.incl.a68
+doubly-linked-list-definition-1	Doubly-linked-list-Definition	prepared
+doubly-linked-list-definition-2	Doubly-linked-list-Definition	prepared
+doubly-linked-list-definition-3	Doubly-linked-list-Definition	missing include prelude/Doubly-linked_list_Link.a68 prelude/Doubly-linked_list_Operator.a68
+doubly-linked-list-element-definition	Doubly-linked-list-Element-definition	prepared
+doubly-linked-list-element-insertion	Doubly-linked-list-Element-insertion	prepared
+doubly-linked-list-traversal-1	Doubly-linked-list-Traversal	prepared
+doubly-linked-list-traversal-2	Doubly-linked-list-Traversal	missing include LinkedList.alg
+dragon-curve-1	Dragon-curve	prepared
+dragon-curve-2	Dragon-curve	prepared
+dragon-curve-3	Dragon-curve	missing include prelude/turtle_draw.a68 prelude/exception.a68
+dragon-curve-4	Dragon-curve	missing include lsystem.incl.a68
+draw-a-cuboid	Draw-a-cuboid	prepared
+duffinian-numbers	Duffinian-numbers	prepared
+dutch-national-flag-problem	Dutch-national-flag-problem	prepared
+dynamic-variable-names	Dynamic-variable-names	prepared
+earliest-difference-between-prime-gaps	Earliest-difference-between-prime-gaps	missing include primes.incl.a68
+eban-numbers	Eban-numbers	prepared
+egyptian-division	Egyptian-division	prepared
+eisenstein-primes	Eisenstein-primes	prepared
+element-wise-operations	Element-wise-operations	prepared
+elementary-cellular-automaton	Elementary-cellular-automaton	prepared
+elementary-cellular-automaton-random-number-generator	Elementary-cellular-automaton-Random-number-generator	prepared
+elliptic-curve-arithmetic	Elliptic-curve-arithmetic	prepared
+emirp-primes	Emirp-primes	missing include primes.incl.a68
+empty-directory	Empty-directory	prepared
+empty-program-1	Empty-program	prepared
+empty-program-2	Empty-program	prepared
+empty-string	Empty-string	prepared
+enforced-immutability	Enforced-immutability	prepared
+english-cardinal-anagrams	English-cardinal-anagrams	missing include sort.incl.a68
+entropy	Entropy	prepared
+entropy-narcissist	Entropy-Narcissist	prepared
+enumerations-1	Enumerations	prepared
+enumerations-2	Enumerations	prepared
+environment-variables	Environment-variables	prepared
+equal-prime-and-composite-sums	Equal-prime-and-composite-sums	prepared
+equilibrium-index	Equilibrium-index	prepared
+erd-s-nicolas-numbers	Erd-s-Nicolas-numbers	prepared
+erd-s-primes	Erd-s-primes	missing include primes.incl.a68
+esthetic-numbers	Esthetic-numbers	prepared
+ethiopian-multiplication	Ethiopian-multiplication	prepared
+euclid-mullin-sequence	Euclid-Mullin-sequence	prepared
+euclidean-rhythm	Euclidean-rhythm	prepared
+euler-method	Euler-method	prepared
+eulers-identity	Eulers-identity	prepared
+eulers-sum-of-powers-conjecture	Eulers-sum-of-powers-conjecture	prepared
+evaluate-binomial-coefficients	Evaluate-binomial-coefficients	prepared
+even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	Even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	prepared
+even-or-odd	Even-or-odd	prepared
+evolutionary-algorithm	Evolutionary-algorithm	prepared
+exactly-three-adjacent-3-in-lists	Exactly-three-adjacent-3-in-lists	prepared
+exceptions-1	Exceptions	prepared
+exceptions-2	Exceptions	missing include prelude/event_base(obj).a68
+exceptions-catch-an-exception-thrown-in-a-nested-call	Exceptions-Catch-an-exception-thrown-in-a-nested-call	prepared
+execute-brain--1	Execute-Brain-	prepared
+execute-brain--2	Execute-Brain-	prepared
+execute-brain--3	Execute-Brain-	prepared
+execute-computer-zero	Execute-Computer-Zero	prepared
+execute-hq9+	Execute-HQ9+	prepared
+execute-a-system-command-1	Execute-a-system-command	prepared
+execute-a-system-command-2	Execute-a-system-command	prepared
+experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset	Experimental-Verification-of-the-NKTg-Law-in-Earth-Orbit-Based-on-NASA-s-2025-Earth-Dataset	prepared
+exponentiation-operator-1	Exponentiation-operator	prepared
+exponentiation-operator-2	Exponentiation-operator	prepared
+exponentiation-order	Exponentiation-order	prepared
+exponentiation-with-infix-operators-in-or-operating-on-the-base	Exponentiation-with-infix-operators-in-or-operating-on-the-base	prepared
+extend-your-language	Extend-your-language	prepared
+extra-primes	Extra-primes	prepared
+extract-file-extension	Extract-file-extension	prepared
+extreme-primes	Extreme-primes	missing include primes.incl.a68
+fasta-format	FASTA-format	prepared
+factorial-base-numbers-indexing-permutations-of-a-collection	Factorial-base-numbers-indexing-permutations-of-a-collection	prepared
+factorial-primes	Factorial-primes	prepared
+factorions	Factorions	prepared
+factorize-string-into-lyndon-words	Factorize-string-into-Lyndon-words	prepared
+factors-of-a-mersenne-number	Factors-of-a-Mersenne-number	missing include prelude/is_prime.a68 prelude/pow_mod.a68
+factors-of-an-integer	Factors-of-an-integer	prepared
+fairshare-between-two-and-more	Fairshare-between-two-and-more	prepared
+farey-sequence	Farey-sequence	prepared
+fast-fourier-transform-1	Fast-Fourier-transform	prepared
+fast-fourier-transform-2	Fast-Fourier-transform	missing include Template.Fast_Fourier_transform.a68
+faulhabers-triangle	Faulhabers-triangle	prepared
+feigenbaum-constant-calculation	Feigenbaum-constant-calculation	prepared
+fermat-numbers	Fermat-numbers	missing include primes.incl.a68
+fermat-pseudoprimes	Fermat-pseudoprimes	prepared
+fibonacci-n-step-number-sequences	Fibonacci-n-step-number-sequences	prepared
+fibonacci-sequence-1	Fibonacci-sequence	prepared
+fibonacci-sequence-2	Fibonacci-sequence	prepared
+fibonacci-sequence-3	Fibonacci-sequence	prepared
+fibonacci-sequence-4	Fibonacci-sequence	prepared
+fibonacci-sequence-5	Fibonacci-sequence	prepared
+fibonacci-word	Fibonacci-word	prepared
+file-extension-is-in-extensions-list	File-extension-is-in-extensions-list	prepared
+file-input-output	File-input-output	prepared
+file-modification-time	File-modification-time	prepared
+file-size	File-size	prepared
+filter	Filter	prepared
+find-adjacent-primes-which-differ-by-a-square-integer	Find-adjacent-primes-which-differ-by-a-square-integer	missing include primes.incl.a68
+find-common-directory-path	Find-common-directory-path	prepared
+find-first-and-last-set-bit-of-a-long-integer-1	Find-first-and-last-set-bit-of-a-long-integer	prepared
+find-first-and-last-set-bit-of-a-long-integer-2	Find-first-and-last-set-bit-of-a-long-integer	missing include Template.Find_first_and_last_set_bit.a68
+find-first-missing-positive	Find-first-missing-positive	prepared
+find-if-a-point-is-within-a-triangle	Find-if-a-point-is-within-a-triangle	prepared
+find-limit-of-recursion	Find-limit-of-recursion	prepared
+find-minimum-number-of-coins-that-make-a-given-value	Find-minimum-number-of-coins-that-make-a-given-value	prepared
+find-prime-n-such-that-reversed-n-is-also-prime	Find-prime-n-such-that-reversed-n-is-also-prime	prepared
+find-prime-numbers-of-the-form-n-n-n+2	Find-prime-numbers-of-the-form-n-n-n+2	prepared
+find-square-difference	Find-square-difference	prepared
+find-squares-n-where-n+1-is-prime	Find-squares-n-where-n+1-is-prime	missing include primes.incl.a68
+find-the-intersection-of-two-lines	Find-the-intersection-of-two-lines	prepared
+find-the-last-sunday-of-each-month	Find-the-last-Sunday-of-each-month	prepared
+find-the-missing-permutation	Find-the-missing-permutation	prepared
+find-words-which-contain-all-the-vowels	Find-words-which-contain-all-the-vowels	missing include files.incl.a68
+find-words-which-contain-the-most-consonants	Find-words-which-contain-the-most-consonants	missing include files.incl.a68 sort.incl.a68
+find-words-which-contains-more-than-3-e-vowels	Find-words-which-contains-more-than-3-e-vowels	missing include files.incl.a68
+find-words-whose-first-and-last-three-letters-are-equal	Find-words-whose-first-and-last-three-letters-are-equal	missing include files.incl.a68
+find-words-with-alternating-vowels-and-consonants	Find-words-with-alternating-vowels-and-consonants	missing include files.incl.a68
+finite-state-machine	Finite-state-machine	prepared
+first-9-prime-fibonacci-number	First-9-prime-Fibonacci-number	missing include primes.incl.a68
+first-class-functions	First-class-functions	prepared
+first-class-functions-use-numbers-analogously	First-class-functions-Use-numbers-analogously	prepared
+first-perfect-square-in-base-n-with-n-unique-digits	First-perfect-square-in-base-n-with-n-unique-digits	prepared
+first-power-of-2-that-has-leading-decimal-digits-of-12	First-power-of-2-that-has-leading-decimal-digits-of-12	prepared
+five-weekends	Five-weekends	prepared
+fivenum	Fivenum	missing include rows.incl.a68 sort.incl.a68
+fizzbuzz-1	FizzBuzz	prepared
+fizzbuzz-2	FizzBuzz	prepared
+fizzbuzz-3	FizzBuzz	prepared
+flatten-a-list-1	Flatten-a-list	prepared
+flatten-a-list-2	Flatten-a-list	prepared
+flow-control-structures-1	Flow-control-structures	prepared
+flow-control-structures-2	Flow-control-structures	prepared
+flow-control-structures-3	Flow-control-structures	prepared
+flow-control-structures-4	Flow-control-structures	prepared
+floyd-warshall-algorithm	Floyd-Warshall-algorithm	prepared
+floyds-triangle	Floyds-triangle	prepared
+forbidden-numbers	Forbidden-numbers	prepared
+forest-fire	Forest-fire	prepared
+fork	Fork	prepared
+formatted-numeric-output-1	Formatted-numeric-output	prepared
+formatted-numeric-output-2	Formatted-numeric-output	prepared
+fortunate-numbers	Fortunate-numbers	missing include primes.incl.a68
+forward-difference	Forward-difference	prepared
+four-is-magic	Four-is-magic	prepared
+four-sides-of-square	Four-sides-of-square	prepared
+fractran	Fractran	prepared
+frobenius-numbers	Frobenius-numbers	prepared
+function-composition-1	Function-composition	prepared
+function-composition-2	Function-composition	prepared
+function-definition	Function-definition	prepared
+function-prototype	Function-prototype	prepared
+fusc-sequence	Fusc-sequence	prepared
+gstrans-string-conversion	GSTrans-string-conversion	prepared
+gamma-function	Gamma-function	prepared
+gapful-numbers	Gapful-numbers	prepared
+gauss-jordan-matrix-inversion	Gauss-Jordan-matrix-inversion	prepared
+gaussian-elimination-1	Gaussian-elimination	prepared
+gaussian-elimination-2	Gaussian-elimination	prepared
+gaussian-elimination-3	Gaussian-elimination	prepared
+gaussian-elimination-4	Gaussian-elimination	prepared
+gaussian-elimination-5	Gaussian-elimination	missing include prelude_exception.a68 prelude_mat_lib.a68 prelude_gaussian_elimination.a68 postlude_exception.a68
+gaussian-primes	Gaussian-primes	missing include primes.incl.a68
+general-fizzbuzz	General-FizzBuzz	prepared
+generalised-floating-point-addition-1	Generalised-floating-point-addition	prepared
+generalised-floating-point-addition-2	Generalised-floating-point-addition	prepared
+generalised-floating-point-addition-3	Generalised-floating-point-addition	missing include Template.Big_float.Base.a68
+generalised-floating-point-addition-4	Generalised-floating-point-addition	prepared
+generalised-floating-point-addition-5	Generalised-floating-point-addition	missing include prelude/general.a68 Template.Big_float.Addition.a68 Template.Big_float_BCD.Base.a68 Template.Big_float.Subtraction.a68
+generalised-floating-point-multiplication-1	Generalised-floating-point-multiplication	prepared
+generalised-floating-point-multiplication-2	Generalised-floating-point-multiplication	missing include Template.Big_float_BCD.Base.a68
+generalised-floating-point-multiplication-3	Generalised-floating-point-multiplication	missing include prelude/general.a68 Template.Big_float.Multiplication.a68 Template.Balanced_ternary_float.Base.a68 Template.Big_float.Addition.a68 Template.Big_float.Subtraction.a68
+generate-lower-case-ascii-alphabet-1	Generate-lower-case-ASCII-alphabet	prepared
+generate-lower-case-ascii-alphabet-2	Generate-lower-case-ASCII-alphabet	prepared
+generate-random-numbers-without-repeating-a-value	Generate-random-numbers-without-repeating-a-value	missing include rows.incl.a68
+generator-exponential-1	Generator-Exponential	prepared
+generator-exponential-2	Generator-Exponential	missing include Template.Generator.a68
+generic-swap	Generic-swap	prepared
+giuga-numbers	Giuga-numbers	prepared
+goldbachs-comet	Goldbachs-comet	missing include primes.incl.a68
+golden-ratio-convergence	Golden-ratio-Convergence	prepared
+goodstein-sequence	Goodstein-Sequence	prepared
+gospers-hack	Gospers-hack	missing include bits.incl.a68
+gradient-descent	Gradient-descent	prepared
+gray-code	Gray-code	prepared
+greatest-common-divisor	Greatest-common-divisor	prepared
+greatest-element-of-a-list	Greatest-element-of-a-list	prepared
+greatest-prime-dividing-the-n-th-cubefree-number	Greatest-prime-dividing-the-n-th-cubefree-number	prepared
+greatest-subsequential-sum	Greatest-subsequential-sum	prepared
+greedy-algorithm-for-egyptian-fractions	Greedy-algorithm-for-Egyptian-fractions	prepared
+guess-the-number	Guess-the-number	prepared
+guess-the-number-with-feedback	Guess-the-number-With-feedback	prepared
+guess-the-number-with-feedback-player-	Guess-the-number-With-feedback-player-	prepared
+http	HTTP	prepared
+hailstone-sequence	Hailstone-sequence	prepared
+halt-and-catch-fire	Halt-and-catch-fire	prepared
+hamming-numbers-1	Hamming-numbers	prepared
+hamming-numbers-2	Hamming-numbers	prepared
+happy-numbers	Happy-numbers	prepared
+harmonic-series	Harmonic-series	prepared
+harriss-spiral	Harriss-Spiral	prepared
+harshad-or-niven-series	Harshad-or-Niven-series	prepared
+hashtron-inference	Hashtron-inference	prepared
+haversine-formula	Haversine-formula	prepared
+held-karp-algorithm	Held-Karp-algorithm	missing include bits.incl.a68
+hello-world-graphical	Hello-world-Graphical	prepared
+hello-world-line-printer	Hello-world-Line-printer	prepared
+hello-world-newbie	Hello-world-Newbie	prepared
+hello-world-newline-omission	Hello-world-Newline-omission	prepared
+hello-world-standard-error	Hello-world-Standard-error	prepared
+hello-world-text	Hello-world-Text	prepared
+here-document	Here-document	prepared
+heronian-triangles	Heronian-triangles	prepared
+hex-words	Hex-words	missing include files.incl.a68
+hickerson-series-of-almost-integers	Hickerson-series-of-almost-integers	prepared
+higher-order-functions	Higher-order-functions	prepared
+hilbert-curve	Hilbert-curve	prepared
+hofstadter-conway-$10-000-sequence	Hofstadter-Conway-$10-000-sequence	prepared
+hofstadter-q-sequence	Hofstadter-Q-sequence	prepared
+holidays-related-to-easter	Holidays-related-to-Easter	prepared
+honaker-primes	Honaker-primes	prepared
+horizontal-sundial-calculations	Horizontal-sundial-calculations	prepared
+horners-rule-for-polynomial-evaluation	Horners-rule-for-polynomial-evaluation	prepared
+host-introspection	Host-introspection	prepared
+hostname	Hostname	prepared
+humble-numbers	Humble-numbers	prepared
+i-before-e-except-after-c	I-before-E-except-after-C	missing include files.incl.a68
+iban	IBAN	prepared
+isbn13-check-digit	ISBN13-check-digit	prepared
+iccanobif-primes	Iccanobif-primes	prepared
+identity-matrix-1	Identity-matrix	prepared
+identity-matrix-2	Identity-matrix	prepared
+identity-matrix-3	Identity-matrix	prepared
+identity-matrix-4	Identity-matrix	missing include prelude/vector_base.a68 prelude/matrix_base.a68 prelude/matrix_ident.a68
+identity-matrix-5	Identity-matrix	missing include prelude/matrix.a68
+idiomatically-determine-all-the-characters-that-can-be-used-for-symbols	Idiomatically-determine-all-the-characters-that-can-be-used-for-symbols	prepared
+idiomatically-determine-all-the-lowercase-and-uppercase-letters	Idiomatically-determine-all-the-lowercase-and-uppercase-letters	prepared
+idoneal-numbers	Idoneal-numbers	prepared
+implicit-type-conversion	Implicit-type-conversion	prepared
+inconsummate-numbers-in-base-10	Inconsummate-numbers-in-base-10	prepared
+increasing-gaps-between-consecutive-niven-numbers	Increasing-gaps-between-consecutive-Niven-numbers	prepared
+increment-a-numerical-string	Increment-a-numerical-string	prepared
+infinity	Infinity	prepared
+inner-classes	Inner-classes	prepared
+input-output-for-lines-of-text	Input-Output-for-lines-of-text	prepared
+input-output-for-pairs-of-numbers-1	Input-Output-for-pairs-of-numbers	prepared
+input-output-for-pairs-of-numbers-2	Input-Output-for-pairs-of-numbers	prepared
+input-loop-1	Input-loop	prepared
+input-loop-2	Input-loop	prepared
+integer-comparison	Integer-comparison	prepared
+integer-overflow-1	Integer-overflow	prepared
+integer-overflow-2	Integer-overflow	prepared
+integer-sequence	Integer-sequence	prepared
+intersecting-number-wheels	Intersecting-number-wheels	prepared
+introspection-1	Introspection	prepared
+introspection-2	Introspection	prepared
+introspection-3	Introspection	prepared
+introspection-4	Introspection	prepared
+inventory-sequence	Inventory-sequence	prepared
+inverted-syntax	Inverted-syntax	prepared
+isograms-and-heterograms	Isograms-and-heterograms	missing include files.incl.a68 sort.incl.a68
+isqrt-integer-square-root-of-x	Isqrt-integer-square-root-of-X	prepared
+iterated-digits-squaring	Iterated-digits-squaring	prepared
+jaccard-index	Jaccard-index	prepared
+jacobi-symbol	Jacobi-symbol	prepared
+jacobsthal-numbers	Jacobsthal-numbers	missing include primes.incl.a68
+jaro-winkler-distance	Jaro-Winkler-distance	missing include aArray.a68
+jaro-similarity	Jaro-similarity	prepared
+jensens-device	Jensens-Device	prepared
+jewels-and-stones	Jewels-and-stones	prepared
+jordan-p-lya-numbers	Jordan-P-lya-numbers	prepared
+josephus-problem	Josephus-problem	prepared
+juggler-sequence	Juggler-sequence	prepared
+julia-set-1	Julia-set	prepared
+julia-set-2	Julia-set	prepared
+kahan-summation	Kahan-summation	prepared
+kaprekar-numbers	Kaprekar-numbers	prepared
+kempner-numbers	Kempner-numbers	prepared
+kernighans-large-earthquake-problem	Kernighans-large-earthquake-problem	missing include files.incl.a68
+klarner-rado-sequence	Klarner-Rado-sequence	prepared
+knapsack-problem-0-1	Knapsack-problem-0-1	missing include bits.incl.a68
+knapsack-problem-continuous	Knapsack-problem-Continuous	prepared
+knapsack-problem-unbounded	Knapsack-problem-Unbounded	prepared
+knights-tour	Knights-tour	prepared
+knuth-shuffle	Knuth-shuffle	prepared
+koch-curve	Koch-curve	missing include lsystem.incl.a68
+kronecker-product	Kronecker-product	prepared
+kronecker-product-based-fractals	Kronecker-product-based-fractals	prepared
+l-system	L-system	missing include lsystem.incl.a68
+lu-decomposition	LU-decomposition	prepared
+lah-numbers	Lah-numbers	prepared
+langtons-ant	Langtons-ant	prepared
+largest-difference-between-adjacent-primes	Largest-difference-between-adjacent-primes	missing include primes.incl.a68
+largest-five-adjacent-number	Largest-five-adjacent-number	prepared
+largest-int-from-concatenated-ints	Largest-int-from-concatenated-ints	prepared
+largest-number-divisible-by-its-digits	Largest-number-divisible-by-its-digits	prepared
+largest-palindrome-product-1	Largest-palindrome-product	prepared
+largest-palindrome-product-2	Largest-palindrome-product	prepared
+largest-prime-factor	Largest-prime-factor	prepared
+largest-product-in-a-grid	Largest-product-in-a-grid	prepared
+largest-proper-divisor-of-n	Largest-proper-divisor-of-n	prepared
+last-friday-of-each-month	Last-Friday-of-each-month	prepared
+last-list-item-1	Last-list-item	missing include sort.incl.a68
+last-list-item-2	Last-list-item	prepared
+law-of-cosines---triples	Law-of-cosines---triples	prepared
+leap-year	Leap-year	prepared
+least-common-multiple	Least-common-multiple	prepared
+least-m-such-that-n-+-m-is-prime	Least-m-such-that-n-+-m-is-prime	missing include primes.incl.a68
+left-factorials	Left-factorials	prepared
+legendre-prime-counting-function	Legendre-prime-counting-function	missing include primes.incl.a68
+lempel-ziv-complexity	Lempel-Ziv-complexity	prepared
+length-of-an-arc-between-two-angles	Length-of-an-arc-between-two-angles	prepared
+leonardo-numbers	Leonardo-numbers	prepared
+letter-frequency	Letter-frequency	prepared
+levenshtein-distance	Levenshtein-distance	prepared
+linear-congruential-generator	Linear-congruential-generator	prepared
+list-comprehensions	List-comprehensions	prepared
+list-division-1	List-division	missing include rows.incl.a68
+list-division-2	List-division	missing include rows.incl.a68
+literals-floating-point	Literals-Floating-point	prepared
+literals-integer	Literals-Integer	prepared
+literals-string-1	Literals-String	prepared
+literals-string-10	Literals-String	prepared
+literals-string-2	Literals-String	prepared
+literals-string-3	Literals-String	prepared
+literals-string-4	Literals-String	prepared
+literals-string-5	Literals-String	prepared
+literals-string-6	Literals-String	prepared
+literals-string-7	Literals-String	prepared
+literals-string-8	Literals-String	prepared
+literals-string-9	Literals-String	prepared
+logical-operations	Logical-operations	prepared
+logistic-curve-fitting-in-epidemiology	Logistic-curve-fitting-in-epidemiology	prepared
+long-multiplication-1	Long-multiplication	prepared
+long-multiplication-2	Long-multiplication	prepared
+long-multiplication-3	Long-multiplication	prepared
+long-multiplication-4	Long-multiplication	prepared
+long-primes	Long-primes	prepared
+long-stairs	Long-stairs	prepared
+long-year	Long-year	prepared
+longest-common-prefix	Longest-common-prefix	prepared
+longest-common-subsequence	Longest-common-subsequence	prepared
+longest-common-substring	Longest-common-substring	prepared
+longest-common-suffix	Longest-common-suffix	prepared
+longest-increasing-subsequence	Longest-increasing-subsequence	missing include rows.incl.a68
+longest-palindromic-substrings	Longest-palindromic-substrings	prepared
+longest-string-challenge-1	Longest-string-challenge	prepared
+longest-string-challenge-2	Longest-string-challenge	prepared
+look-and-say-sequence	Look-and-say-sequence	prepared
+loop-over-multiple-arrays-simultaneously	Loop-over-multiple-arrays-simultaneously	prepared
+loops-break	Loops-Break	prepared
+loops-continue	Loops-Continue	prepared
+loops-do-while	Loops-Do-while	prepared
+loops-downward-for-1	Loops-Downward-for	prepared
+loops-downward-for-2	Loops-Downward-for	prepared
+loops-for	Loops-For	prepared
+loops-foreach-1	Loops-Foreach	prepared
+loops-foreach-2	Loops-Foreach	prepared
+loops-increment-loop-index-within-loop-body	Loops-Increment-loop-index-within-loop-body	prepared
+loops-infinite-1	Loops-Infinite	prepared
+loops-infinite-2	Loops-Infinite	prepared
+loops-n-plus-one-half-1	Loops-N-plus-one-half	prepared
+loops-n-plus-one-half-2	Loops-N-plus-one-half	prepared
+loops-n-plus-one-half-3	Loops-N-plus-one-half	prepared
+loops-nested	Loops-Nested	prepared
+loops-while	Loops-While	prepared
+loops-with-multiple-ranges	Loops-With-multiple-ranges	prepared
+loops-wrong-ranges	Loops-Wrong-ranges	prepared
+lucas-lehmer-test	Lucas-Lehmer-test	prepared
+ludic-numbers	Ludic-numbers	prepared
+luhn-test-of-credit-card-numbers	Luhn-test-of-credit-card-numbers	prepared
+lunar-arithmetic	Lunar-arithmetic	prepared
+lychrel-numbers	Lychrel-numbers	missing include aArray.a68
+m-bius-function	M-bius-function	prepared
+md5	MD5	prepared
+mad-libs	Mad-Libs	prepared
+magic-8-ball	Magic-8-ball	prepared
+magic-constant	Magic-constant	prepared
+magic-numbers	Magic-numbers	prepared
+magic-squares-of-doubly-even-order	Magic-squares-of-doubly-even-order	prepared
+magic-squares-of-odd-order	Magic-squares-of-odd-order	prepared
+magic-squares-of-singly-even-order	Magic-squares-of-singly-even-order	prepared
+magnanimous-numbers	Magnanimous-numbers	missing include primes.incl.a68
+man-or-boy-test	Man-or-boy-test	prepared
+mandelbrot-set	Mandelbrot-set	prepared
+map-range	Map-range	prepared
+matrix-exponentiation-operator-1	Matrix-exponentiation-operator	prepared
+matrix-exponentiation-operator-2	Matrix-exponentiation-operator	prepared
+matrix-exponentiation-operator-3	Matrix-exponentiation-operator	missing include Matrix_algebra.a68 Matrix-exponentiation_operator.a68
+matrix-multiplication	Matrix-multiplication	prepared
+matrix-transposition	Matrix-transposition	prepared
+matrix-with-two-diagonals	Matrix-with-two-diagonals	prepared
+maximum-difference-between-adjacent-elements-of-list	Maximum-difference-between-adjacent-elements-of-list	prepared
+maximum-triangle-path-sum	Maximum-triangle-path-sum	prepared
+mayan-numerals	Mayan-numerals	prepared
+mcnuggets-problem	McNuggets-problem	prepared
+meissel-mertens-constant	Meissel-Mertens-constant	prepared
+memory-allocation-1	Memory-allocation	prepared
+memory-allocation-2	Memory-allocation	prepared
+memory-allocation-3	Memory-allocation	prepared
+memory-allocation-4	Memory-allocation	prepared
+memory-allocation-5	Memory-allocation	prepared
+memory-layout-of-a-data-structure	Memory-layout-of-a-data-structure	prepared
+menu	Menu	prepared
+mersenne-primes	Mersenne-primes	missing include primes.incl.a68
+mertens-function	Mertens-function	prepared
+metaprogramming	Metaprogramming	prepared
+metered-concurrency	Metered-concurrency	prepared
+mian-chowla-sequence	Mian-Chowla-sequence	prepared
+middle-three-digits	Middle-three-digits	prepared
+miller-rabin-primality-test	Miller-Rabin-primality-test	missing include prelude/pow_mod.a68
+minimum-multiple-of-m-where-digital-sum-equals-m	Minimum-multiple-of-m-where-digital-sum-equals-m	prepared
+minimum-number-of-cells-after-before-above-and-below-nxn-squares	Minimum-number-of-cells-after-before-above-and-below-NxN-squares	prepared
+minimum-numbers-of-three-lists	Minimum-numbers-of-three-lists	missing include rows.incl.a68
+minimum-positive-multiple-in-base-10-using-only-0-and-1	Minimum-positive-multiple-in-base-10-using-only-0-and-1	prepared
+minimum-primes	Minimum-primes	missing include primes.incl.a68
+modified-random-distribution	Modified-random-distribution	prepared
+modular-arithmetic	Modular-arithmetic	prepared
+modular-exponentiation	Modular-exponentiation	prepared
+modular-inverse	Modular-inverse	prepared
+monads-maybe-monad	Monads-Maybe-monad	prepared
+monads-writer-monad	Monads-Writer-monad	prepared
+monte-carlo-methods	Monte-Carlo-methods	prepared
+monty-hall-problem	Monty-Hall-problem	prepared
+mosaic-matrix	Mosaic-matrix	prepared
+mosers-circle-problem	Mosers-circle-problem	prepared
+most-frequent-k-chars-distance	Most-frequent-k-chars-distance	prepared
+motzkin-numbers	Motzkin-numbers	missing include primes.incl.a68
+move-to-front-algorithm	Move-to-front-algorithm	prepared
+multi-dimensional-array-1	Multi-dimensional-array	prepared
+multi-dimensional-array-2	Multi-dimensional-array	prepared
+multi-dimensional-array-3	Multi-dimensional-array	prepared
+multi-dimensional-array-4	Multi-dimensional-array	prepared
+multi-dimensional-array-5	Multi-dimensional-array	prepared
+multi-dimensional-array-6	Multi-dimensional-array	prepared
+multi-dimensional-array-7	Multi-dimensional-array	prepared
+multi-dimensional-array-8	Multi-dimensional-array	prepared
+multi-dimensional-array-9	Multi-dimensional-array	prepared
+multifactorial	Multifactorial	prepared
+multiple-distinct-objects	Multiple-distinct-objects	prepared
+multiple-regression	Multiple-regression	prepared
+multiplication-tables	Multiplication-tables	prepared
+multiplicative-order	Multiplicative-order	missing include prelude/pow_mod.a68 prelude/sort.a68 prelude/gcd.a68 prelude/iterator.a68
+multiplicatively-perfect-numbers	Multiplicatively-perfect-numbers	missing include primes.incl.a68
+multisplit	Multisplit	prepared
+munchausen-numbers-1	Munchausen-numbers	prepared
+munchausen-numbers-2	Munchausen-numbers	prepared
+mutual-recursion	Mutual-recursion	prepared
+n-body-problem	N-body-problem	prepared
+n-grams	N-grams	prepared
+n-queens-problem	N-queens-problem	prepared
+n-smooth-numbers	N-smooth-numbers	prepared
+nysiis	NYSIIS	prepared
+named-parameters	Named-parameters	prepared
+naming-conventions-1	Naming-conventions	prepared
+naming-conventions-2	Naming-conventions	prepared
+naming-conventions-3	Naming-conventions	prepared
+naming-conventions-4	Naming-conventions	prepared
+naming-conventions-5	Naming-conventions	prepared
+naming-conventions-6	Naming-conventions	prepared
+narcissist	Narcissist	prepared
+narcissistic-decimal-number	Narcissistic-decimal-number	prepared
+native-shebang	Native-shebang	prepared
+negative-base-numbers	Negative-base-numbers	prepared
+neighbour-primes	Neighbour-primes	missing include primes.incl.a68
+nested-function	Nested-function	prepared
+next-highest-int-from-digits	Next-highest-int-from-digits	prepared
+next-special-primes	Next-special-primes	missing include primes.incl.a68
+nice-primes	Nice-primes	missing include primes.incl.a68
+nim-game	Nim-game	prepared
+nimber-arithmetic	Nimber-arithmetic	missing include bits.incl.a68
+non-continuous-subsequences-1	Non-continuous-subsequences	prepared
+non-continuous-subsequences-2	Non-continuous-subsequences	prepared
+non-decimal-radices-convert-1	Non-decimal-radices-Convert	prepared
+non-decimal-radices-convert-2	Non-decimal-radices-Convert	prepared
+non-decimal-radices-input	Non-decimal-radices-Input	prepared
+non-decimal-radices-output	Non-decimal-radices-Output	prepared
+non-transitive-dice	Non-transitive-dice	prepared
+nth	Nth	prepared
+nth-root	Nth-root	prepared
+null-object	Null-object	prepared
+number-names-1	Number-names	prepared
+number-names-2	Number-names	prepared
+number-reversal-game	Number-reversal-game	prepared
+numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits	Numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits	prepared
+numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16	Numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16	prepared
+numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits	Numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits	prepared
+numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1	Numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1	prepared
+numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1	Numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1	prepared
+numbers-which-are-not-the-sum-of-distinct-squares	Numbers-which-are-not-the-sum-of-distinct-squares	prepared
+numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors	Numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors	prepared
+numbers-whose-binary-and-ternary-digit-sums-are-prime	Numbers-whose-binary-and-ternary-digit-sums-are-prime	missing include primes.incl.a68
+numbers-whose-count-of-divisors-is-prime	Numbers-whose-count-of-divisors-is-prime	prepared
+numbers-with-equal-rises-and-falls	Numbers-with-equal-rises-and-falls	prepared
+numbers-with-prime-digits-whose-sum-is-13	Numbers-with-prime-digits-whose-sum-is-13	prepared
+numbers-with-same-digit-set-in-base-10-and-base-16-1	Numbers-with-same-digit-set-in-base-10-and-base-16	prepared
+numbers-with-same-digit-set-in-base-10-and-base-16-2	Numbers-with-same-digit-set-in-base-10-and-base-16	prepared
+numeric-error-propagation	Numeric-error-propagation	prepared
+numeric-separator-syntax	Numeric-separator-syntax	prepared
+numerical-integration	Numerical-integration	prepared
+numerical-integration-adaptive-simpsons-method	Numerical-integration-Adaptive-Simpsons-method	prepared
+numerical-integration-romberg-integration	Numerical-integration-Romberg-integration	prepared
+numerical-integration-tanh-sinh-quadrature	Numerical-integration-Tanh-Sinh-Quadrature	prepared
+ohalloran-numbers	OHalloran-numbers	prepared
+object-serialization	Object-serialization	prepared
+odd-and-square-numbers	Odd-and-square-numbers	prepared
+odd-squarefree-semiprimes	Odd-squarefree-semiprimes	prepared
+odd-word-problem	Odd-word-problem	prepared
+odd-words	Odd-words	missing include files.incl.a68 sort.incl.a68
+old-russian-measure-of-length	Old-Russian-measure-of-length	prepared
+old-lady-swallowed-a-fly-1	Old-lady-swallowed-a-fly	prepared
+old-lady-swallowed-a-fly-2	Old-lady-swallowed-a-fly	prepared
+one-dimensional-cellular-automata-1	One-dimensional-cellular-automata	prepared
+one-dimensional-cellular-automata-2	One-dimensional-cellular-automata	prepared
+one-of-n-lines-in-a-file	One-of-n-lines-in-a-file	prepared
+one-two-primes	One-two-primes	missing include primes.incl.a68
+optional-parameters	Optional-parameters	prepared
+orbital-elements	Orbital-elements	prepared
+order-two-numerical-lists	Order-two-numerical-lists	prepared
+ordered-words-1	Ordered-words	prepared
+ordered-words-2	Ordered-words	missing include files.incl.a68
+ormiston-pairs	Ormiston-pairs	missing include primes.incl.A68
+overloaded-operators	Overloaded-operators	prepared
+own-digits-power-sum	Own-digits-power-sum	prepared
+padovan-n-step-number-sequences	Padovan-n-step-number-sequences	prepared
+padovan-sequence	Padovan-sequence	prepared
+pairs-with-common-factors	Pairs-with-common-factors	prepared
+palindrome-dates	Palindrome-dates	prepared
+palindrome-detection	Palindrome-detection	prepared
+palindromic-primes	Palindromic-primes	missing include primes.incl.a68
+palindromic-primes-in-base-16	Palindromic-primes-in-base-16	missing include primes.incl.a68
+pan-base-non-primes	Pan-base-non-primes	missing include primes.incl.a68
+pandigital-prime-1	Pandigital-prime	prepared
+pandigital-prime-2	Pandigital-prime	prepared
+pangram-checker	Pangram-checker	prepared
+parsing-rpn-calculator-algorithm	Parsing-RPN-calculator-algorithm	prepared
+parsing-rpn-to-infix-conversion	Parsing-RPN-to-infix-conversion	prepared
+parsing-shunting-yard-algorithm	Parsing-Shunting-yard-algorithm	prepared
+partial-function-application	Partial-function-application	prepared
+particle-swarm-optimization	Particle-swarm-optimization	prepared
+partition-an-integer-x-into-n-primes	Partition-an-integer-x-into-n-primes	prepared
+partition-function-p	Partition-function-P	prepared
+pascal-matrix-generation	Pascal-matrix-generation	prepared
+pascals-triangle	Pascals-triangle	prepared
+pascals-triangle-puzzle	Pascals-triangle-Puzzle	prepared
+pathological-floating-point-problems	Pathological-floating-point-problems	prepared
+peano-curve	Peano-curve	missing include lsystem.incl.a68
+pell-numbers	Pell-numbers	missing include primes.incl.a68
+pells-equation	Pells-equation	prepared
+penta-power-prime-seeds	Penta-power-prime-seeds	missing include primes.incl.a68
+pentagram	Pentagram	prepared
+percolation-mean-run-density	Percolation-Mean-run-density	prepared
+perfect-numbers	Perfect-numbers	prepared
+perfect-shuffle	Perfect-shuffle	prepared
+perfect-totient-numbers	Perfect-totient-numbers	prepared
+periodic-table	Periodic-table	prepared
+perlin-noise	Perlin-noise	prepared
+permutation-test	Permutation-test	prepared
+permutations-1	Permutations	prepared
+permutations-2	Permutations	missing include prelude_permutations.a68
+permutations-by-swapping	Permutations-by-swapping	prepared
+permutations-with-repetitions-1	Permutations-with-repetitions	prepared
+permutations-with-repetitions-2	Permutations-with-repetitions	missing include prelude_permutations_with_repetitions.a68
+pernicious-numbers	Pernicious-numbers	prepared
+pfaffian-and-hfaffian	Pfaffian-and-hfaffian	prepared
+phrase-reversals	Phrase-reversals	prepared
+pi	Pi	prepared
+pick-random-element	Pick-random-element	prepared
+pierpont-primes	Pierpont-primes	missing include primes.incl.a68
+pig-latin	Pig-Latin	prepared
+piprimes	Piprimes	missing include primes.incl.a68
+pisano-period	Pisano-period	prepared
+playfair-cipher	Playfair-cipher	prepared
+playing-cards	Playing-cards	prepared
+plot-coordinate-pairs	Plot-coordinate-pairs	missing include prelude/errata.a68 prelude/exception.a68 prelude/math_lib.a68 prelude/graph_2d.a68 postlude/exception.a68
+pointers-and-references-1	Pointers-and-references	prepared
+pointers-and-references-10	Pointers-and-references	prepared
+pointers-and-references-11	Pointers-and-references	prepared
+pointers-and-references-2	Pointers-and-references	prepared
+pointers-and-references-3	Pointers-and-references	prepared
+pointers-and-references-4	Pointers-and-references	prepared
+pointers-and-references-5	Pointers-and-references	prepared
+pointers-and-references-6	Pointers-and-references	prepared
+pointers-and-references-7	Pointers-and-references	prepared
+pointers-and-references-8	Pointers-and-references	prepared
+pointers-and-references-9	Pointers-and-references	prepared
+pollards-rho-algorithm	Pollards-rho-algorithm	missing include primes.incl.a68
+polymorphic-copy	Polymorphic-copy	prepared
+polymorphism	Polymorphism	prepared
+polynomial-derivative	Polynomial-derivative	prepared
+polynomial-long-division	Polynomial-long-division	prepared
+polynomial-regression	Polynomial-regression	prepared
+polynomial-synthetic-division	Polynomial-synthetic-division	prepared
+population-count	Population-count	prepared
+posit-numbers-decoding	Posit-numbers-decoding	prepared
+positive-decimal-integers-with-the-digit-1-occurring-exactly-twice	Positive-decimal-integers-with-the-digit-1-occurring-exactly-twice	prepared
+power-set	Power-set	prepared
+practical-numbers	Practical-numbers	prepared
+pragmatic-directives	Pragmatic-directives	prepared
+price-fraction	Price-fraction	prepared
+primality-by-wilsons-theorem	Primality-by-Wilsons-theorem	prepared
+primality-by-trial-division	Primality-by-trial-division	prepared
+prime-conspiracy	Prime-conspiracy	prepared
+prime-decomposition	Prime-decomposition	prepared
+prime-numbers-of-measurement	Prime-numbers-of-measurement	prepared
+prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime	Prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime	prepared
+prime-numbers-which-contain-123	Prime-numbers-which-contain-123	missing include primes.incl.a68
+prime-numbers-whose-neighboring-pairs-are-tetraprimes	Prime-numbers-whose-neighboring-pairs-are-tetraprimes	missing include rows.incl.a68
+prime-reciprocal-sum	Prime-reciprocal-sum	missing include primes.incl.a68
+prime-triangle	Prime-triangle	prepared
+prime-triplets	Prime-triplets	prepared
+prime-words	Prime-words	missing include primes.incl.a68 files.incl.a68
+primes---allocate-descendants-to-their-ancestors	Primes---allocate-descendants-to-their-ancestors	missing include primes.incl.a68 sort.incl.a68 rows.incl.a68
+primes-which-contain-only-one-odd-digit	Primes-which-contain-only-one-odd-digit	missing include primes.incl.a68
+primes-whose-first-and-last-number-is-3	Primes-whose-first-and-last-number-is-3	missing include primes.incl.a68
+primes-whose-sum-of-digits-is-25-1	Primes-whose-sum-of-digits-is-25	missing include primes.incl.a68
+primes-whose-sum-of-digits-is-25-2	Primes-whose-sum-of-digits-is-25	prepared
+primes-with-digits-in-nondecreasing-order	Primes-with-digits-in-nondecreasing-order	missing include primes.incl.a68
+primes:-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68
+print-itself-1	Print-itself	prepared
+print-itself-2	Print-itself	prepared
+print-itself-3	Print-itself	missing include files.incl.a68
+probabilistic-choice	Probabilistic-choice	prepared
+problem-of-apollonius	Problem-of-Apollonius	prepared
+product-of-divisors-1	Product-of-divisors	prepared
+product-of-divisors-2	Product-of-divisors	prepared
+product-of-min-and-max-prime-factors	Product-of-min-and-max-prime-factors	prepared
+program-name	Program-name	prepared
+program-termination	Program-termination	prepared
+proper-divisors-1	Proper-divisors	prepared
+proper-divisors-2	Proper-divisors	prepared
+pseudo-random-numbers-middle-square-method	Pseudo-random-numbers-Middle-square-method	prepared
+pseudo-random-numbers-pcg32	Pseudo-random-numbers-PCG32	prepared
+pseudo-random-numbers-splitmix64	Pseudo-random-numbers-Splitmix64	prepared
+pseudo-random-numbers-xorshift-star	Pseudo-random-numbers-Xorshift-star	prepared
+punched-cards	Punched-cards	prepared
+pythagoras-tree	Pythagoras-tree	prepared
+pythagorean-quadruples	Pythagorean-quadruples	prepared
+pythagorean-triples	Pythagorean-triples	prepared
+quad-power-prime-seeds	Quad-power-prime-seeds	missing include primes.incl.a68
+quadrat-special-primes	Quadrat-special-primes	missing include primes.incl.a68
+quaternion-1	Quaternion	prepared
+quaternion-2	Quaternion	missing include prelude/Quaternion.a68
+queue-definition-1	Queue-Definition	prepared
+queue-definition-2	Queue-Definition	prepared
+queue-usage-1	Queue-Usage	prepared
+queue-usage-2	Queue-Usage	missing include prelude/link.a68 prelude/queue_base.a68 test/data_stigler_diet.a68
+quickselect-algorithm	Quickselect-algorithm	prepared
+quine-1	Quine	prepared
+quine-2	Quine	prepared
+quoting-constructs	Quoting-constructs	prepared
+rpg-attributes-generator	RPG-attributes-generator	prepared
+rsa-code	RSA-code	prepared
+radical-of-an-integer	Radical-of-an-integer	prepared
+rainbow	Rainbow	prepared
+ramanujan-primes	Ramanujan-primes	missing include primes.incl.a68
+ramanujans-constant	Ramanujans-constant	prepared
+ramer-douglas-peucker-line-simplification	Ramer-Douglas-Peucker-line-simplification	prepared
+random-latin-squares	Random-Latin-squares	prepared
+random-number-generator-included--1	Random-number-generator-included-	prepared
+random-number-generator-included--2	Random-number-generator-included-	prepared
+random-numbers	Random-numbers	prepared
+random-sentence-from-book-1	Random-sentence-from-book	missing include aArray.a68
+random-sentence-from-book-2	Random-sentence-from-book	prepared
+range-consolidation	Range-consolidation	prepared
+range-expansion	Range-expansion	prepared
+range-extraction-1	Range-extraction	prepared
+range-extraction-2	Range-extraction	missing include Template_Range_extraction_Base.a68
+range-extraction-3	Range-extraction	missing include Template_Range_extraction_Iterative.a68
+range-extraction-4	Range-extraction	missing include Template_Range_extraction_Base.a68
+range-modifications	Range-modifications	prepared
+ranking-methods	Ranking-methods	prepared
+rare-numbers	Rare-numbers	prepared
+ray-casting-algorithm	Ray-casting-algorithm	prepared
+read-a-file-line-by-line	Read-a-file-line-by-line	prepared
+read-a-specific-line-from-a-file	Read-a-specific-line-from-a-file	prepared
+read-entire-file-1	Read-entire-file	prepared
+read-entire-file-2	Read-entire-file	prepared
+real-constants-and-functions	Real-constants-and-functions	prepared
+reduced-row-echelon-form	Reduced-row-echelon-form	prepared
+regular-expressions-1	Regular-expressions	prepared
+regular-expressions-2	Regular-expressions	prepared
+remove-duplicate-elements	Remove-duplicate-elements	missing include aArray.a68
+remove-lines-from-a-file	Remove-lines-from-a-file	prepared
+remove-vowels-from-a-string	Remove-vowels-from-a-string	prepared
+rename-a-file	Rename-a-file	prepared
+rep-string	Rep-string	prepared
+repeat	Repeat	prepared
+repeat-a-string	Repeat-a-string	prepared
+repunit-primes	Repunit-primes	missing include primes.incl.a68
+return-multiple-values	Return-multiple-values	prepared
+reverse-a-string	Reverse-a-string	prepared
+reverse-words-in-a-string	Reverse-words-in-a-string	prepared
+rhonda-numbers	Rhonda-numbers	prepared
+rice-coding	Rice-coding	prepared
+riordan-numbers	Riordan-numbers	prepared
+rock-paper-scissors	Rock-paper-scissors	prepared
+rodrigues-rotation-formula	Rodrigues-rotation-formula	prepared
+roman-numerals-decode	Roman-numerals-Decode	prepared
+roman-numerals-encode	Roman-numerals-Encode	prepared
+roots-of-a-function	Roots-of-a-function	prepared
+roots-of-a-quadratic-function	Roots-of-a-quadratic-function	prepared
+roots-of-unity	Roots-of-unity	prepared
+rosetta-code-rank-languages-by-popularity-1	Rosetta-Code-Rank-languages-by-popularity	missing include prelude/sort.a68
+rosetta-code-rank-languages-by-popularity-2	Rosetta-Code-Rank-languages-by-popularity	prepared
+rot-13	Rot-13	prepared
+round-robin-tournament-schedule	Round-robin-tournament-schedule	prepared
+run-length-encoding	Run-length-encoding	prepared
+runge-kutta-method	Runge-Kutta-method	prepared
+runtime-evaluation-1	Runtime-evaluation	prepared
+runtime-evaluation-2	Runtime-evaluation	prepared
+runtime-evaluation-in-an-environment	Runtime-evaluation-In-an-environment	prepared
+ruth-aaron-numbers	Ruth-Aaron-numbers	prepared
+s-expressions	S-expressions	prepared
+sedols	SEDOLs	prepared
+send-+-more-=-money	SEND-+-MORE-=-MONEY	prepared
+safe-and-sophie-germain-primes	Safe-and-Sophie-Germain-primes	missing include primes.incl.a68
+safe-primes-and-unsafe-primes	Safe-primes-and-unsafe-primes	prepared
+sailors-coconuts-and-a-monkey-problem	Sailors-coconuts-and-a-monkey-problem	prepared
+sattolo-cycle	Sattolo-cycle	prepared
+scope-function-names-and-labels	Scope-Function-names-and-labels	prepared
+search-a-list-1	Search-a-list	prepared
+search-a-list-2	Search-a-list	prepared
+search-a-list-of-records	Search-a-list-of-records	prepared
+selective-file-copy	Selective-file-copy	prepared
+selectively-replace-multiple-instances-of-a-character-within-a-string	Selectively-replace-multiple-instances-of-a-character-within-a-string	prepared
+self-contained-numbers	Self-contained-numbers	prepared
+self-describing-numbers	Self-describing-numbers	prepared
+self-numbers	Self-numbers	prepared
+semiprime	Semiprime	prepared
+semordnilap	Semordnilap	missing include files.incl.a68
+separate-the-house-number-from-the-street-name	Separate-the-house-number-from-the-street-name	prepared
+sequence-of-non-squares	Sequence-of-non-squares	prepared
+sequence-of-primes-by-trial-division	Sequence-of-primes-by-trial-division	prepared
+sequence-of-primorial-primes-1	Sequence-of-primorial-primes	missing include primes.incl.a68
+sequence-of-primorial-primes-2	Sequence-of-primorial-primes	prepared
+sequence:-nth-number-with-exactly-n-divisors	Sequence:-nth-number-with-exactly-n-divisors	prepared
+sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	Sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	prepared
+sequence:-smallest-number-with-exactly-n-divisors	Sequence:-smallest-number-with-exactly-n-divisors	prepared
+set	Set	missing include aArray.a68
+seven-sided-dice-from-five-sided-dice	Seven-sided-dice-from-five-sided-dice	prepared
+shape-machine-1	Shape-Machine	prepared
+shape-machine-2	Shape-Machine	prepared
+shape-machine-3	Shape-Machine	prepared
+shell-one-liner-1	Shell-one-liner	prepared
+shell-one-liner-2	Shell-one-liner	prepared
+shift-list-elements-to-left-by-3	Shift-list-elements-to-left-by-3	prepared
+shoelace-formula-for-polygonal-area	Shoelace-formula-for-polygonal-area	prepared
+short-circuit-evaluation-1	Short-circuit-evaluation	prepared
+short-circuit-evaluation-2	Short-circuit-evaluation	prepared
+shortest-common-supersequence	Shortest-common-supersequence	prepared
+show-ascii-table	Show-ASCII-table	prepared
+show-the-decimal-value-of-a-number-of-1s-appended-with-a-3-then-squared-1	Show-the-decimal-value-of-a-number-of-1s-appended-with-a-3-then-squared	prepared
+show-the-decimal-value-of-a-number-of-1s-appended-with-a-3-then-squared-2	Show-the-decimal-value-of-a-number-of-1s-appended-with-a-3-then-squared	prepared
+sierpinski-arrowhead-curve	Sierpinski-arrowhead-curve	missing include lsystem.incl.a68
+sierpinski-carpet	Sierpinski-carpet	prepared
+sierpinski-square-curve	Sierpinski-square-curve	missing include lsystem.incl.a68
+sierpinski-triangle	Sierpinski-triangle	prepared
+sierpinski-triangle-graphical	Sierpinski-triangle-Graphical	missing include lsystem.incl.a68
+sieve-of-eratosthenes	Sieve-of-Eratosthenes	prepared
+sign-of-an-integer-signum-	Sign-of-an-integer-signum-	prepared
+singly-linked-list-element-definition	Singly-linked-list-Element-definition	prepared
+singly-linked-list-element-insertion	Singly-linked-list-Element-insertion	prepared
+singly-linked-list-element-removal	Singly-linked-list-Element-removal	prepared
+singly-linked-list-reversal	Singly-linked-list-Reversal	prepared
+singly-linked-list-traversal	Singly-linked-list-Traversal	prepared
+sisyphus-sequence	Sisyphus-sequence	missing include rows.incl.a68
+sleep	Sleep	prepared
+sleeping-beauty-problem	Sleeping-Beauty-problem	prepared
+smallest-multiple	Smallest-multiple	missing include primes.incl.a68
+smallest-number-k-such-that-k+2^m-is-composite-for-all-m-less-than-k	Smallest-number-k-such-that-k+2^m-is-composite-for-all-m-less-than-k	missing include primes.incl.a68
+smallest-numbers	Smallest-numbers	prepared
+smallest-power-of-6-whose-decimal-expansion-contains-n	Smallest-power-of-6-whose-decimal-expansion-contains-n	prepared
+smallest-square-that-begins-with-n	Smallest-square-that-begins-with-n	prepared
+smarandache-prime-digital-sequence	Smarandache-prime-digital-sequence	prepared
+smith-numbers	Smith-numbers	prepared
+snake-and-ladder	Snake-and-ladder	prepared
+soloways-recurring-rainfall	Soloways-recurring-rainfall	prepared
+solve-a-hidato-puzzle	Solve-a-Hidato-puzzle	missing include sort.incl.a68
+solve-a-holy-knights-tour	Solve-a-Holy-Knights-tour	prepared
+solve-a-numbrix-puzzle	Solve-a-Numbrix-puzzle	missing include sort.incl.a68
+solve-equations-with-substitution-method	Solve-equations-with-substitution-method	prepared
+solve-hanging-lantern-problem	Solve-hanging-lantern-problem	prepared
+solve-the-no-connection-puzzle	Solve-the-no-connection-puzzle	prepared
+solve-triangle-solitaire-puzzle	Solve-triangle-solitaire-puzzle	prepared
+sorensen-dice-coefficient	Sorensen-Dice-coefficient	missing include files.incl.a68 sort.incl.a68
+sort-an-array-of-composite-structures	Sort-an-array-of-composite-structures	missing include prelude/sort.a68
+sort-an-integer-array	Sort-an-integer-array	prepared
+sort-disjoint-sublist	Sort-disjoint-sublist	missing include sort.incl.a68 rows.incl.a68
+sort-numbers-lexicographically	Sort-numbers-lexicographically	prepared
+sort-primes-from-list-to-a-list-1	Sort-primes-from-list-to-a-list	missing include primes.incl.a68 rows.incl.a68 sort.incl.a68
+sort-primes-from-list-to-a-list-2	Sort-primes-from-list-to-a-list	prepared
+sort-the-letters-of-string-in-alphabetical-order	Sort-the-letters-of-string-in-alphabetical-order	prepared
+sort-three-variables	Sort-three-variables	prepared
+sort-using-a-custom-comparator	Sort-using-a-custom-comparator	prepared
+sorting-algorithms-bead-sort	Sorting-algorithms-Bead-sort	prepared
+sorting-algorithms-bogosort	Sorting-algorithms-Bogosort	prepared
+sorting-algorithms-bubble-sort	Sorting-algorithms-Bubble-sort	prepared
+sorting-algorithms-circle-sort	Sorting-algorithms-Circle-sort	prepared
+sorting-algorithms-cocktail-sort-1	Sorting-algorithms-Cocktail-sort	prepared
+sorting-algorithms-cocktail-sort-2	Sorting-algorithms-Cocktail-sort	prepared
+sorting-algorithms-cocktail-sort-3	Sorting-algorithms-Cocktail-sort	prepared
+sorting-algorithms-cocktail-sort-with-shifting-bounds	Sorting-algorithms-Cocktail-sort-with-shifting-bounds	prepared
+sorting-algorithms-comb-sort	Sorting-algorithms-Comb-sort	missing include rows.incl.a68
+sorting-algorithms-counting-sort	Sorting-algorithms-Counting-sort	prepared
+sorting-algorithms-cycle-sort	Sorting-algorithms-Cycle-sort	prepared
+sorting-algorithms-gnome-sort	Sorting-algorithms-Gnome-sort	prepared
+sorting-algorithms-heapsort	Sorting-algorithms-Heapsort	prepared
+sorting-algorithms-insertion-sort	Sorting-algorithms-Insertion-sort	prepared
+sorting-algorithms-merge-sort-1	Sorting-algorithms-Merge-sort	prepared
+sorting-algorithms-merge-sort-2	Sorting-algorithms-Merge-sort	prepared
+sorting-algorithms-pancake-sort	Sorting-algorithms-Pancake-sort	prepared
+sorting-algorithms-permutation-sort	Sorting-algorithms-Permutation-sort	prepared
+sorting-algorithms-quicksort	Sorting-algorithms-Quicksort	prepared
+sorting-algorithms-radix-sort	Sorting-algorithms-Radix-sort	prepared
+sorting-algorithms-selection-sort	Sorting-algorithms-Selection-sort	prepared
+sorting-algorithms-shell-sort-1	Sorting-algorithms-Shell-sort	prepared
+sorting-algorithms-shell-sort-2	Sorting-algorithms-Shell-sort	missing include prelude/sort/shell.a68
+sorting-algorithms-stooge-sort	Sorting-algorithms-Stooge-sort	prepared
+soundex	Soundex	prepared
+special-characters-1	Special-characters	prepared
+special-characters-2	Special-characters	prepared
+special-divisors	Special-divisors	prepared
+special-factorials	Special-factorials	prepared
+special-neighbor-primes	Special-neighbor-primes	missing include primes.incl.a68
+special-pythagorean-triplet	Special-pythagorean-triplet	prepared
+special-variables-1	Special-variables	prepared
+special-variables-2	Special-variables	prepared
+specific-characters	Specific-characters	prepared
+spelling-of-ordinal-numbers	Spelling-of-ordinal-numbers	prepared
+sphenic-numbers	Sphenic-numbers	missing include primes.incl.A68
+spinning-rod-animation-text	Spinning-rod-animation-Text	prepared
+spiral-matrix	Spiral-matrix	prepared
+split-a-character-string-based-on-change-of-character	Split-a-character-string-based-on-change-of-character	prepared
+square-but-not-cube	Square-but-not-cube	prepared
+square-form-factorization	Square-form-factorization	prepared
+square-free-integers	Square-free-integers	prepared
+stack-1	Stack	prepared
+stack-2	Stack	prepared
+stack-3	Stack	prepared
+stack-4	Stack	missing include prelude/next_link.a68 prelude/stack_base.a68 test/data_stigler_diet.a68
+stack-5	Stack	prepared
+stair-climbing-puzzle-1	Stair-climbing-puzzle	prepared
+stair-climbing-puzzle-2	Stair-climbing-puzzle	prepared
+start-from-a-main-routine	Start-from-a-main-routine	prepared
+statistics-basic	Statistics-Basic	prepared
+steady-squares	Steady-squares	prepared
+steffensens-method	Steffensens-method	prepared
+stem-and-leaf-plot-1	Stem-and-leaf-plot	missing include sort.incl.a68
+stem-and-leaf-plot-2	Stem-and-leaf-plot	prepared
+stern-brocot-sequence	Stern-Brocot-sequence	prepared
+stirling-numbers-of-the-first-kind	Stirling-numbers-of-the-first-kind	prepared
+stirling-numbers-of-the-second-kind	Stirling-numbers-of-the-second-kind	prepared
+straddling-checkerboard	Straddling-checkerboard	prepared
+strange-numbers	Strange-numbers	prepared
+strange-plus-numbers	Strange-plus-numbers	prepared
+strange-unique-prime-triplets	Strange-unique-prime-triplets	missing include primes.incl.a68
+stream-merge	Stream-merge	prepared
+string-append	String-append	prepared
+string-case	String-case	prepared
+string-comparison	String-comparison	prepared
+string-concatenation	String-concatenation	prepared
+string-interpolation-included--1	String-interpolation-included-	prepared
+string-interpolation-included--2	String-interpolation-included-	prepared
+string-length-1	String-length	prepared
+string-length-2	String-length	prepared
+string-matching	String-matching	prepared
+string-prepend	String-prepend	prepared
+strip-a-set-of-characters-from-a-string	Strip-a-set-of-characters-from-a-string	prepared
+strip-comments-from-a-string	Strip-comments-from-a-string	prepared
+strip-control-codes-and-extended-characters-from-a-string	Strip-control-codes-and-extended-characters-from-a-string	prepared
+strip-whitespace-from-a-string-top-and-tail-1	Strip-whitespace-from-a-string-Top-and-tail	prepared
+strip-whitespace-from-a-string-top-and-tail-2	Strip-whitespace-from-a-string-Top-and-tail	prepared
+strong-and-weak-primes	Strong-and-weak-primes	prepared
+sturmian-word	Sturmian-word	prepared
+sub-unit-squares	Sub-unit-squares	prepared
+subleq	Subleq	prepared
+substitution-cipher	Substitution-cipher	prepared
+substring	Substring	prepared
+substring-top-and-tail	Substring-Top-and-tail	prepared
+substring-primes	Substring-primes	missing include primes.incl.a68
+subtractive-generator	Subtractive-generator	prepared
+successive-prime-differences	Successive-prime-differences	prepared
+sudan-function	Sudan-function	prepared
+sudoku	Sudoku	prepared
+sum-and-product-of-an-array	Sum-and-product-of-an-array	prepared
+sum-and-product-puzzle	Sum-and-product-puzzle	prepared
+sum-data-type-1	Sum-data-type	prepared
+sum-data-type-2	Sum-data-type	prepared
+sum-digits-of-an-integer-1	Sum-digits-of-an-integer	prepared
+sum-digits-of-an-integer-2	Sum-digits-of-an-integer	prepared
+sum-multiples-of-3-and-5	Sum-multiples-of-3-and-5	prepared
+sum-of-a-series	Sum-of-a-series	prepared
+sum-of-divisors	Sum-of-divisors	prepared
+sum-of-elements-below-main-diagonal-of-matrix	Sum-of-elements-below-main-diagonal-of-matrix	prepared
+sum-of-first-n-cubes	Sum-of-first-n-cubes	prepared
+sum-of-primes-in-odd-positions-is-prime	Sum-of-primes-in-odd-positions-is-prime	missing include primes.incl.a68
+sum-of-square-and-cube-digits-of-an-integer-are-primes	Sum-of-square-and-cube-digits-of-an-integer-are-primes	missing include primes.incl.a68
+sum-of-squares-1	Sum-of-squares	prepared
+sum-of-squares-2	Sum-of-squares	prepared
+sum-of-squares-3	Sum-of-squares	prepared
+sum-of-the-digits-of-n-is-substring-of-n	Sum-of-the-digits-of-n-is-substring-of-n	prepared
+sum-of-two-adjacent-numbers-are-primes	Sum-of-two-adjacent-numbers-are-primes	missing include primes.incl.a68
+sum-to-100	Sum-to-100	missing include sort.incl.a68
+summarize-primes	Summarize-primes	missing include primes.incl.a68
+summation-of-primes	Summation-of-primes	missing include primes.incl.a68
+super-poulet-numbers	Super-Poulet-numbers	missing include primes.incl.a68
+super-d-numbers	Super-d-numbers	prepared
+sylvesters-sequence	Sylvesters-sequence	prepared
+symmetric-difference	Symmetric-difference	missing include aArray.a68
+synchronous-concurrency	Synchronous-concurrency	prepared
+system-time	System-time	prepared
+table-creation-postal-addresses	Table-creation-Postal-addresses	prepared
+take-notes-on-the-command-line	Take-notes-on-the-command-line	missing include files.incl.a68
+tau-function	Tau-function	prepared
+tau-number	Tau-number	prepared
+temperature-conversion	Temperature-conversion	prepared
+terminal-control-clear-the-screen	Terminal-control-Clear-the-screen	prepared
+ternary-logic-1	Ternary-logic	missing include Template_operators_logical_mixin.a68
+ternary-logic-2	Ternary-logic	prepared
+ternary-logic-3	Ternary-logic	missing include prelude/general.a68 Ternary_logic.a68
+test-integerness	Test-integerness	prepared
+text-between	Text-between	prepared
+text-processing-1	Text-processing-1	prepared
+text-processing-2	Text-processing-2	missing include files.incl.a68
+text-processing-max-licenses-in-use	Text-processing-Max-licenses-in-use	prepared
+textonyms	Textonyms	missing include aArray.a68
+the-name-game	The-Name-Game	prepared
+the-twelve-days-of-christmas	The-Twelve-Days-of-Christmas	prepared
+the-sieve-of-sundaram	The-sieve-of-Sundaram	prepared
+thieles-interpolation-formula	Thieles-interpolation-formula	prepared
+three-word-location	Three-word-location	prepared
+thue-morse	Thue-Morse	prepared
+tokenize-a-string	Tokenize-a-string	prepared
+tokenize-a-string-with-escaping	Tokenize-a-string-with-escaping	prepared
+top-rank-per-group	Top-rank-per-group	prepared
+total-circles-area	Total-circles-area	prepared
+totient-function	Totient-function	prepared
+towers-of-hanoi-1	Towers-of-Hanoi	prepared
+towers-of-hanoi-2	Towers-of-Hanoi	prepared
+trabb-pardo-knuth-algorithm	Trabb-Pardo-Knuth-algorithm	prepared
+tree-traversal	Tree-traversal	prepared
+triangular-numbers	Triangular-numbers	prepared
+trigonometric-functions	Trigonometric-functions	prepared
+triplet-of-three-numbers	Triplet-of-three-numbers	missing include primes.incl.a68
+tropical-algebra-overloading	Tropical-algebra-overloading	prepared
+truncatable-primes	Truncatable-primes	prepared
+truth-table	Truth-table	prepared
+tuppers-self-referential-formula	Tuppers-self-referential-formula	prepared
+twin-primes	Twin-primes	prepared
+twin-primes-whose-sum-is-square-number-1	Twin-primes-whose-sum-is-square-number	prepared
+twin-primes-whose-sum-is-square-number-2	Twin-primes-whose-sum-is-square-number	missing include primes.incl.a68
+two-identical-strings	Two-identical-strings	prepared
+two-sum	Two-sum	prepared
+twos-complement	Twos-complement	prepared
+upc	UPC	prepared
+url-decoding	URL-decoding	prepared
+url-encoding	URL-encoding	prepared
+url-parser	URL-parser	missing include uriParser.a68
+ulam-numbers	Ulam-numbers	prepared
+ulam-spiral-for-primes-	Ulam-spiral-for-primes-	missing include primes.incl.a68
+ultra-useful-primes	Ultra-useful-primes	missing include primes.incl.a68
+undefined-values	Undefined-values	prepared
+undulating-numbers	Undulating-numbers	prepared
+unescape-a-string	Unescape-a-string	prepared
+unicode-strings	Unicode-strings	prepared
+unique-characters-1	Unique-characters	prepared
+unique-characters-2	Unique-characters	prepared
+unique-characters-in-each-string	Unique-characters-in-each-string	prepared
+unprimeable-numbers	Unprimeable-numbers	missing include primes.incl.a68
+untouchable-numbers	Untouchable-numbers	missing include primes.incl.a68
+upside-down-numbers	Upside-down-numbers	prepared
+useless-instructions	Useless-instructions	prepared
+user-defined-pipe-and-redirection-operators-1	User-defined-pipe-and-redirection-operators	prepared
+user-defined-pipe-and-redirection-operators-2	User-defined-pipe-and-redirection-operators	prepared
+user-defined-pipe-and-redirection-operators-3	User-defined-pipe-and-redirection-operators	prepared
+user-defined-pipe-and-redirection-operators-4	User-defined-pipe-and-redirection-operators	missing include Iterator_pipe_page.a68 Iterator_pipe_operators.a68 Iterator_pipe_utilities.a68
+user-input-text	User-input-Text	prepared
+van-eck-sequence	Van-Eck-sequence	prepared
+van-der-corput-sequence	Van-der-Corput-sequence	prepared
+variable-declaration-reset	Variable-declaration-reset	prepared
+variable-size-get	Variable-size-Get	prepared
+variables-1	Variables	prepared
+variables-2	Variables	prepared
+variables-3	Variables	prepared
+variables-4	Variables	prepared
+variables-5	Variables	prepared
+variadic-function	Variadic-function	prepared
+vector	Vector	prepared
+vector-products	Vector-products	prepared
+verhoeff-algorithm	Verhoeff-algorithm	prepared
+vigen-re-cipher	Vigen-re-cipher	prepared
+vile-and-dopey-numbers	Vile-and-Dopey-numbers	missing include rows.incl.a68
+visualize-a-tree	Visualize-a-tree	prepared
+vogels-approximation-method	Vogels-approximation-method	missing include rows.incl.a68
+wagstaff-primes	Wagstaff-primes	prepared
+walk-a-directory-non-recursively	Walk-a-directory-Non-recursively	prepared
+walk-a-directory-recursively	Walk-a-directory-Recursively	prepared
+walsh-matrix	Walsh-matrix	prepared
+wasteful-equidigital-and-frugal-numbers	Wasteful-equidigital-and-frugal-numbers	prepared
+wavelet-matrix-1	Wavelet-Matrix	prepared
+wavelet-matrix-2	Wavelet-Matrix	missing include bits.incl.a68 rows.incl.a68 sort.incl.a68 wavelet_matrix.incl.a68
+web-scraping	Web-scraping	prepared
+weird-numbers	Weird-numbers	prepared
+welchs-t-test	Welchs-t-test	prepared
+wieferich-primes	Wieferich-primes	missing include primes.incl.a68
+wilson-primes-of-order-n	Wilson-primes-of-order-n	missing include primes.incl.a68
+window-creation	Window-creation	prepared
+window-creation-x11	Window-creation-X11	prepared
+wireworld	Wireworld	prepared
+wolstenholme-numbers	Wolstenholme-numbers	missing include primes.incl.a68
+word-break-problem	Word-break-problem	prepared
+word-frequency	Word-frequency	missing include aArrayBase.a68
+word-ladder	Word-ladder	prepared
+word-wheel	Word-wheel	prepared
+wordle-comparison	Wordle-comparison	prepared
+words-containing-the-substring	Words-containing-the-substring	missing include files.incl.a68
+words-from-neighbour-ones	Words-from-neighbour-ones	missing include files.incl.a68 sort.incl.a68
+worthwhile-task-shaving	Worthwhile-task-shaving	prepared
+write-entire-file	Write-entire-file	prepared
+write-float-arrays-to-a-text-file	Write-float-arrays-to-a-text-file	prepared
+xml-output-1	XML-Output	prepared
+xml-output-2	XML-Output	prepared
+y-combinator-1	Y-combinator	prepared
+y-combinator-2	Y-combinator	prepared
+yellowstone-sequence	Yellowstone-sequence	prepared
+yin-and-yang	Yin-and-yang	prepared
+zebra-puzzle	Zebra-puzzle	prepared
+zeckendorf-number-representation	Zeckendorf-number-representation	prepared
+zero-to-the-zero-power	Zero-to-the-zero-power	prepared
+zig-zag-matrix	Zig-zag-matrix	prepared
+zsigmondy-numbers	Zsigmondy-numbers	prepared

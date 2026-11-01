@@ -1,0 +1,77 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Mayan numerals", ALGOL 68 solution mayan-numerals.alg.
+  https://rosettacode.org/wiki/Mayan_numerals#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/mayan-numerals.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { print Mayan numerals                                                   }
+    { Mayan numerals are base-20 positional numbers, each digit consists of  }
+    { four four character lines in a box                                     }
+
+    { converts n to a mayan representation                                   }
+    op TOMAYAN = ( int n )[]string:
+       begin
+           { cartouche boarders, etc.                                        }
+           char    top_left   = REPR 201; char    top_middle = REPR 203; char    top_right  = REPR 187;
+           char bottom_left   = REPR 200; char bottom_middle = REPR 202; char bottom_right  = REPR 188;
+           char vertical      = REPR 186; char horizontal    = REPR 205; char turtle        = "@";
+           string   horizontal_edge = horizontal + horizontal + horizontal + horizontal;
+           { representations of 1, 2, 3 etc.                                 }
+           []string fragment = ( " .  ", " .. ", "... ", "....", "----" );
+           string blanks = "    "; string zero = " " + turtle + "  ";
+           { build the cartouche                                             }
+           int final_line = 6;
+           [ 1 : final_line ]string result;
+           if n < 0 then                    { negative numbers not supported }
+               for i to final_line do result[ i ] := "?" od
+           else                                              { 0 or negative }
+               for i to final_line do result[ i ] := ""  od;
+               top_right +=: result[ 1 ];      { right edge of the cartouche }
+               for i from 2 to final_line - 1 do vertical +=: result[ i ] od;
+               bottom_right +=: result[ final_line ];
+               int rest := n;                                  { number body }
+               while
+                   int digit := rest MOD 20; rest OVERAB 20;
+                   int f     := digit;
+                   horizontal_edge +=: result[ 1 ];
+                   for i from final_line - 1 by -1 to 2 do
+                       if   f >= 5 then
+                           fragment[ 5 ] +=: result[ i ]
+                       elif f  = 0 then
+                           if i = final_line - 1 then zero else blanks fi +=: result[ i ]
+                       else
+                           fragment[ digit MOD 5 ] +=: result[ i ]
+                       fi;
+                       if f > 5 then f -:= 5 else f := 0 fi
+                   od;
+                   horizontal_edge +=: result[ final_line ];
+                   rest > 0
+               do
+                   { add a separator                                         }
+                   top_middle +=:result[ 1 ];
+                   for i from 2 to UPB result - 1 do vertical +=: result[ i ] od;
+                   bottom_middle +=: result[ final_line ]
+               od;
+               top_left +=: result[ 1 ];        { left edge of the cartouche }
+               for i from 2 to final_line - 1 do vertical +=: result[ i ] od;
+               bottom_left +=: result[ final_line ]
+           fi;
+           result
+       end { TOMAYAN } ;
+    { print n as a mayan number                                              }
+    proc print_mayan = ( int n )void:
+         begin
+             []string cartouche = TOMAYAN n;
+             for i to UPB cartouche do print( ( cartouche[ i ], newline ) ) od
+         end { print mayan } ;
+
+    []int test_cases = ( 4 005, 8 017, 326 205, 886 205, 68, 1303 );
+    for n from LWB test_cases to UPB test_cases do
+        print( ( "Mayan representation of ", whole( test_cases[ n ], 0 ), newline ) );
+        print_mayan( test_cases[ n ] )
+    od
+end
+)

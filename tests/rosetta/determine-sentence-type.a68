@@ -1,0 +1,47 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Determine sentence type", ALGOL 68 solution determine-sentence-type.alg.
+  https://rosettacode.org/wiki/Determine_sentence_type#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/determine-sentence-type.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { determuine the type of a sentence by looking at the final punctuation  }
+    char exclamation = "E"; { classification codes... }
+    char question    = "Q";
+    char serious     = "S";
+    char neutral     = "N";
+    { returns the type(s) of the sentence(s) in s - exclamation, question,     }
+    {                     serious or neutral; if there are multiple sentences  }
+    {                     the types are separated by |                         }
+    proc classify = ( string s )string:
+         begin
+            string result := "";
+            bool pending_neutral := false;
+            for s_pos from LWB s to UPB s do
+                if   pending_neutral := false;
+                     char c = s[ s_pos ];
+                     c = "?"
+                then result +:= question    + "|"
+                elif c = "!"
+                then result +:= exclamation + "|"
+                elif c = "."
+                then result +:= serious     + "|"
+                else pending_neutral := true
+                fi
+            od;
+            if   pending_neutral
+            then result +:= neutral + "|"
+            fi;
+            { if s was empty, then return an empty string, otherwise remove the final separator }
+            if result = "" then "" else result[ LWB result : UPB result - 1 ] fi
+         end { classify } ;
+    { task test case }
+    print( ( classify( "hi there, how are you today? I''d like to present to you the washing machine 9001. "
+                     + "You have been nominated to win one of these! Just make sure you don''t break it"
+                     )
+           , newline
+           )
+         )
+end
+)

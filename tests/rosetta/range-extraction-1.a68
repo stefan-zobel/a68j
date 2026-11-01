@@ -1,0 +1,63 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Range extraction", ALGOL 68 solution range-extraction-1.alg.
+  https://rosettacode.org/wiki/Range_extraction#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/range-extraction-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{}{
+  REQUIRES(MODE SCALAR, OP(SCALAR,SCALAR)BOOL =, OP(SCALAR,SCALAR)SCALAR +);
+}{}
+mode Scalarlist = flex[0]SCALAR;
+mode Yieldint = proc(SCALAR)void;
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{ Declarations for manipulating lists of range pairs [lwb:upb] }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+mode Range = struct(SCALAR lwb, upb);
+mode Rangelist = flex[0]Range;
+mode Yieldrange = proc(Range)void;
+
+proc range_repr = (Range range)string: (
+  string lwb := whole(lwb of range,0);
+  if lwb of range = upb of range then
+    lwb
+  else
+    { "["+lwb+":"+whole(upb OF range,0)+"]"  }
+    lwb+"-"+whole(upb of range,0)
+  fi
+);
+
+{ OP REPR = (RANGE range)STRING: range repr(range); } { firmly related to UNIRANGE }
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+{ Declarations for manipulating lists containing pairs AND lone INTs }
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+mode Unirange = union(SCALAR, Range);
+mode Unirangelist = flex[0]Unirange;
+mode Yieldunirange = proc(Unirange)void;
+
+proc unirange_repr = (Unirange unirange)string:
+  case unirange in
+    (Range range): range_repr(range),
+    (SCALAR scalar): whole(scalar,0)
+  esac;
+
+op (Unirange)string REPR = unirange_repr; { alias }
+
+{ The closest thing Algol68 has to inheritance is the UNION }
+mode Unirangelists = union(Unirangelist, Rangelist, Scalarlist);
+
+proc unirange_list_repr = (Unirangelist unirange_list)string: (
+{}{ Produce a STRING representation of a UNIRANGELIST }{}
+  string out_ { := "("}, sep := "";
+  for key from LWB unirange_list to UPB unirange_list do
+    out_ +:= sep + REPR unirange_list[key];
+    sep := "," { +" " }
+  od;
+  out_ { +")" }
+);
+
+op (Unirangelist)string REPR = unirange_list_repr; { alias }
+)

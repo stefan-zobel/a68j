@@ -1,0 +1,78 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Evolutionary algorithm", ALGOL 68 solution evolutionary-algorithm.alg.
+  https://rosettacode.org/wiki/Evolutionary_algorithm#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/evolutionary-algorithm.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+string target := "METHINKS IT IS LIKE A WEASEL";
+
+proc fitness = (string tstrg)real:
+(
+   int sum := 0;
+   for i from LWB tstrg to UPB tstrg do
+      sum +:= ABS(ABS target[i] - ABS tstrg[i])
+   od;
+   { fitness := } 100.0*exp(-sum/10.0)
+);
+
+proc rand_char = char:
+(
+   {STATIC} []char ucchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+   { rand char := } ucchars[ENTIER (random*UPB ucchars)+1]
+);
+
+proc mutate = (ref string kid, parent, real mutate_rate)void:
+(
+   for i from LWB parent to UPB parent do
+      kid[i] := if random < mutate_rate then rand_char else parent[i] fi
+   od
+);
+
+proc kewe = ( string parent, int iters, real fits, real mrate)void:
+(
+   printf(($"#"4d" fitness: "g(-6,2)"% "g(-6,4)" ''"g"''"l$, iters, fits, mrate, parent))
+);
+
+proc evolve = void:
+(
+   flex[UPB target]char parent;
+   real fits;
+   [100]flex[UPB target]char kid;
+   int iters := 0;
+   kid[LWB kid] := loc[UPB target]char;
+   real mutate_rate = 0.05;
+
+   {  initialize  }
+   for i from LWB parent to UPB parent do
+      parent[i] := rand_char
+   od;
+
+   fits := fitness(parent);
+   while
+      int j;
+      real kf;
+      for j from LWB kid to UPB kid do
+         mutate(kid[j], parent, mutate_rate)
+      od;
+      for j from LWB kid to UPB kid do
+         kf := fitness(kid[j]);
+         if fits < kf then
+            fits := kf;
+            parent := kid[j]
+         fi
+      od;
+      fits < 100.0
+   do
+      kewe( parent, iters, fits, mutate_rate );
+      iters+:=1
+   od;
+   kewe( parent, iters, fits, mutate_rate )
+);
+
+main:
+(
+   evolve
+)
+)

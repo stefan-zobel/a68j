@@ -1,0 +1,43 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Luhn test of credit card numbers", ALGOL 68 solution luhn-test-of-credit-card-numbers.alg.
+  https://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/luhn-test-of-credit-card-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc to_int = (char c)int:
+    ABS c - ABS "0";
+
+proc confirm = (string id)bool:
+(
+    bool is_odd_digit := true;
+    int s := 0;
+    string cp;
+
+    for cp_key from UPB id by -1 to LWB id do
+        int k := to_int(id[cp_key]);
+        s +:=
+            if is_odd_digit then k
+            elif k /= 9 then 2*k MOD 9
+            else 9
+            fi;
+        is_odd_digit := NOT is_odd_digit
+    od;
+    0 = s MOD 10
+);
+
+main:
+(
+    []string t_cases = (
+        "49927398716",
+        "49927398717",
+        "1234567812345678",
+        "1234567812345670"
+    );
+    for cp_key to UPB t_cases do
+        string cp = t_cases[cp_key];
+        print((cp, ": ", confirm(cp), new_line))
+    od
+)
+)

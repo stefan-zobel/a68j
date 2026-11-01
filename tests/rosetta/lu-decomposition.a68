@@ -1,0 +1,121 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "LU decomposition", ALGOL 68 solution lu-decomposition.alg.
+  https://rosettacode.org/wiki/LU_decomposition#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/lu-decomposition.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { LU decomposition - translation of the Kotlin sample }
+
+    op   * = ( [,]real this, other )[,]real:
+         if  1 LWB this /= 2 LWB other OR 1 UPB this /= 2 UPB other
+         then print( ( "Cannot multiply matrices: " ) );
+              print( ( "[", whole( 1 LWB this,  0 ), ":", whole( 1 UPB this,  0 ) ) );
+              print( ( ",", whole( 2 LWB this,  0 ), ":", whole( 2 UPB this,  0 ), "]" ) );
+              print( ( " X " ) );
+              print( ( "[", whole( 1 LWB other, 0 ), ":", whole( 1 UPB other, 0 ) ) );
+              print( ( ",", whole( 2 LWB other, 0 ), ":", whole( 2 UPB other, 0 ), "]" ) );
+              print( ( newline ) );
+              stop
+         else [ 1 LWB this : 1 UPB this, 2 LWB other : 2 UPB other ]real result;
+              for i from 1 LWB this to 1 UPB this do
+                  for j from 2 LWB other to 2 UPB other do
+                      result[ i, j ] := 0;
+                      for k from 1 LWB other to 1 UPB other do
+                          result[ i, j ] +:= this[ i, k ] * other[ k, j ]
+                      od
+                  od
+              od;
+              result
+         fi { * } ;
+
+    op   PIVOTISE = ( [,]real m_in )[,]real:
+         begin
+            [,]real m = m_in[ at 1, at 1 ];
+            int n = ( 1 UPB m - 1 LWB m ) + 1;
+            [ 1 : n, 1 : n ]real im;
+            for i to n do
+                for j to n do im[ i, j ] := 0 od;
+                im[ i, i ] := 1
+            od;
+            for i to n do
+                real max := ABS m[ i, i ];
+                int  row := i;
+                for j from i to n do
+                    if ABS m[ j, i ] > max then
+                        max := ABS m[ j, i ];
+                        row := j
+                    fi
+                od;
+                if i /= row then
+                    []real t      = im[ i,   : ];
+                    im[ i,   : ] := im[ row, : ];
+                    im[ row, : ] := t
+                fi
+            od;
+            im
+         end { PIVOTISE } ;
+
+    mode Decomposition = struct( [ 1 : 1, 1 : 1 ]real l, u, p );
+
+    op   LU = ( [,]real a_in )Decomposition:
+         begin
+            [,]real a = a_in[ at 1, at 1 ];
+            int n = ( 1 UPB a_in - 1 LWB a_in ) + 1;
+            [ 1 : n, 1 : n ]real l, u;
+            [,]real p  = PIVOTISE a;
+            [,]real a2 = p * a;
+            for i to n do for j to n do l[ i, j ] := u[ i, j ] := 0 od od;
+            for j to n do
+                l[ j, j ] := 1;
+                for i to j do
+                    real sum := 0;
+                    for k to i do sum +:= u[ k, j ] * l[ i, k ] od;
+                    u[ i, j ] := a2[ i, j ] - sum
+                od;
+                for i from j + 1 to n do
+                    real sum := 0;
+                    for k to j do sum +:= u[ k, j ] * l[ i, k ] od;
+                    l[ i, j ] := ( a2[ i, j ] - sum ) / u[ j, j ]
+                od
+            od;
+            Decomposition( l, u, p )
+         end { LU } ;
+
+    proc show_matrix = ( string title, [,]real m, int fw, fdp )void:
+         begin
+             print( ( "    ", title, newline ) );
+             for i from 1 LWB m to 1 UPB m do
+                 print( ( "        " ) );
+                 for j from 2 LWB m to 2 UPB m do print( ( fixed( m[ i, j ], -fw, fdp ), "  " ) ) od;
+                 print( ( newline ) )
+             od
+         end { show matrix } ;
+
+    begin { test the LU decomposition operator                               }
+        [,]real a1 = ( ( 1.0,  3.0,  5.0 )
+                     , ( 2.0,  4.0,  7.0 )
+                     , ( 1.0,  1.0,  0.0 )
+                     );
+        Decomposition d1 = LU a1;
+        print( ( "EXAMPLE 1:-", newline ) );
+        show_matrix( "A:", a1,      1, 0 );
+        show_matrix( "L:", l of d1, 8, 5 );
+        show_matrix( "U:", u of d1, 8, 5 );
+        show_matrix( "P:", p of d1, 1, 0 );
+        print( ( newline ) );
+        [,]real a2 = ( ( 11.0,  9.0, 24.0,  2.0 )
+                     , (  1.0,  5.0,  2.0,  6.0 )
+                     , (  3.0, 17.0, 18.0,  1.0 )
+                     , (  2.0,  5.0,  7.0,  1.0 )
+                     );
+        Decomposition d2 = LU a2;
+        print( ( "EXAMPLE 2:-", newline ) );
+        show_matrix( "A:", a2,      2, 0 );
+        show_matrix( "L:", l of d2, 8, 5 );
+        show_matrix( "U:", u of d2, 8, 5 );
+        show_matrix( "P:", p of d2, 1, 0 )
+    end
+end
+)

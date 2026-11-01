@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Strip whitespace from a string/Top and tail", ALGOL 68 solution strip-whitespace-from-a-string-top-and-tail-1.alg.
+  https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/strip-whitespace-from-a-string-top-and-tail-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns "text" with leading non-printing characters removed }
+proc trim_leading_whitespace = ( string text )string:
+begin
+    int pos := LWB text;
+    while
+        if pos > UPB text
+        then
+            false
+        else
+            text[ pos ] <= " "
+        fi
+    do
+        pos +:= 1
+    od;
+    text[ pos : ]
+end; { trim leading whitespace }
+
+{ returns "text" with trailing non-printing characters removed }
+proc trim_trailing_whitespace = ( string text )string:
+begin
+    int pos := UPB text;
+    while
+        if pos < LWB text
+        then
+            false
+        else
+            text[ pos ] <= " "
+        fi
+    do
+        pos -:= 1
+    od;
+    text[ : pos ]
+end; { trim trailing whitespace }
+
+{ returns "text" with leading and trailing non-printing characters removed }
+proc trim_whitespace = ( string text )string:
+begin
+    trim_trailing_whitespace( trim_leading_whitespace( text ) )
+end; { trim whitespace }
+
+begin
+    string test = "   leading and trailing spaces surrounded this text   ";
+
+    print( ( "trim  leading: """ + trim_leading_whitespace ( test ) + """", newline ) );
+    print( ( "trim trailing: """ + trim_trailing_whitespace( test ) + """", newline ) );
+    print( ( "trim     both: """ + trim_whitespace         ( test ) + """", newline ) )
+end
+)

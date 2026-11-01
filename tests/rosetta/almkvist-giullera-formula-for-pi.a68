@@ -1,0 +1,98 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Almkvist-Giullera formula for pi", ALGOL 68 solution almkvist-giullera-formula-for-pi.alg.
+  https://rosettacode.org/wiki/Almkvist-Giullera_formula_for_pi#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/almkvist-giullera-formula-for-pi.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ Almkvist-Giullera formula for pi - translated from the C++ sample         }
+
+                     { set precision for LONG LONG modes }
+mode Integer = long long int;
+mode Float   = long long real;
+
+Integer zero = 0, one = 1, ten = 10;
+
+{ iterative Greatest Common Divisor routine, returns the gcd of m and n }
+proc gcd = ( Integer m, n )Integer:
+     begin
+        Integer a := ABS m, b := ABS n;
+        while b /= 0 do
+            Integer new_a = b;
+            b        := a MOD b;
+            a        := new_a
+        od;
+        a
+    end { gcd } ;
+
+{ code from the Arithmetic/Rational task modified to use LONG LONG INT       }
+ mode Rational = struct( Integer num {erator},  den {ominator} );
+
+  proc lcm = ( Integer a, b )Integer:                { least common multiple }
+   a OVER gcd(a, b) * b;
+
+  prio // = 9;                                 { higher then the ** operator }
+  op // = ( Integer num, den )Rational: (         { initialise and normalise }
+   Integer common = gcd( num, den );
+   if den < 0 then
+     ( -num OVER common, -den OVER common )
+   else
+     ( num OVER common, den OVER common )
+   fi
+ );
+
+ op + = (Rational a, b)Rational: (
+   Integer common = lcm( den of a, den of b );
+   Rational result := ( common OVER den of a * num of a + common OVER den of b * num of b, common );
+   num of result//den of result
+ );
+
+ op +:= = (ref Rational a, Rational b)ref Rational: ( a := a + b );
+
+{ end code from the Arithmetic/Rational task modified to use LONG LONG INT   }
+
+op / = ( Float f, Rational r )Float: ( f * den of r ) / num of r;
+
+Integer ag_factorial_n    := 1;
+int     ag_last_factorial := 0;
+{ returns factorial n, using ag factorial n and ag last factorial to reduce }
+{ the number of calculations                                                }
+proc ag_factorial = ( int n )Integer:
+     begin
+         if n < ag_last_factorial then
+             ag_last_factorial := 0;
+             ag_factorial_n    := 1
+         fi;
+         while ag_last_factorial < n do
+             ag_factorial_n *:= ( ag_last_factorial +:= 1 )
+         od;
+         ag_factorial_n
+     end { ag gfgactorial } ;
+
+{ Return the integer portion of the nth term of Almkvist-Giullera sequence. }
+proc almkvist_giullera = ( int n )Integer:
+    ag_factorial( 6 * n ) * 32 * ( 532 * n * n + 126 * n + 9 ) OVER ( ( ag_factorial( n ) ^ 6 ) * 3 );
+
+begin
+    print( (  "n |                  Integer portion of nth term", newline ) );
+    print( (  "--+---------------------------------------------", newline ) );
+    for n from 0 to 9 do
+        print( ( whole( n, 0 ), " | ", whole( almkvist_giullera( n ), -44 ), newline ) )
+    od;
+    Float    epsilon = Float(10) ^ -70;
+    Float    prev   := 0, pi_approx := 0;
+    Rational sum    := zero // one;
+    for n from 0
+    while
+        Rational nth_term = almkvist_giullera( n ) // ( ten ^ ( 6 * n + 3 ) );
+        sum             +:= nth_term;
+        pi_approx        := long_long_sqrt( Float(1) / sum );
+        ABS ( pi_approx - prev ) >= epsilon
+    do
+        prev := pi_approx
+    od;
+    print( ( newline, "Pi to 70 decimal places is:", newline ) );
+    print( ( fixed( pi_approx, -72, 70 ), newline ) )
+end
+)

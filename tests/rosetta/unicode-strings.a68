@@ -1,0 +1,310 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Unicode strings", ALGOL 68 solution unicode-strings.alg.
+  https://rosettacode.org/wiki/Unicode_strings#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/unicode-strings.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/local/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+{ UNICHAR/UNICODE must be printed using REPR to convert to UTF8 }
+
+mode Unichar = struct(bits {31} bits_); { assuming bits width >=31 }
+mode Unicode = flex[0]Unichar;
+
+op INITUNICHAR = (bits bits_)Unichar: (Unichar out_; bits_ of out_ := {ABS} bits_; out_);
+op INITUNICHAR = (char char_)Unichar: (Unichar out_; bits_ of out_ := BIN ABS char_; out_);
+op INITBITS = (Unichar unichar)bits: {BIN} bits_ of unichar;
+
+proc raise_value_error = ([]union(FORMAT,bits,string)argv )void: (
+  putf(stand_error, argv); stop
+);
+
+mode Yieldchar =    proc(char)void;    mode Genchar =    proc(Yieldchar)void;
+mode Yieldunichar = proc(Unichar)void; mode Genunichar = proc(Yieldunichar)void;
+
+prio DOCONV = 1;
+
+{ Convert a stream of UNICHAR into a stream of UTFCHAR }
+op DOCONV = (Genunichar gen_unichar, Yieldchar yield)void:(
+  bits non_ascii = NOT 2r1111111;
+{ FOR UNICHAR unichar IN } gen_unichar( { ) DO ( }
+{}   (Unichar unichar)void: (
+    bits bits_ := INITBITS unichar;
+    if (bits_ AND non_ascii) = 2r0 then { ascii }
+      yield(REPR ABS bits_)
+    else
+      flex[6]char buf := "?"*6; { initialise work around }
+      int bytes_ := 0;
+      bits byte_lead_bits = 2r10000000;
+      for ofs from UPB buf by -1 while
+        bytes_ +:= 1;
+        buf[ofs]:= REPR ABS (byte_lead_bits OR bits_ AND 2r111111);
+        bits_ := bits_ SHR 6;
+    { WHILE } bits_ NE 2r0 do
+        skip
+      od;
+      bits first_byte_lead_bits = BIN (ABS(2r1 SHL bytes_)-2) SHL (UPB buf - bytes_ + 1);
+      buf := buf[UPB buf-bytes_+1:];
+      buf[1] := REPR ABS(BIN ABS buf[1] OR first_byte_lead_bits);
+      for i to UPB buf do yield(buf[i]) od
+    fi
+{ OD } ))
+);
+
+{ Convert a STRING into a stream of UNICHAR }
+op DOCONV = (string string_, Yieldunichar yield)void: (
+  proc gen_char = (Yieldchar yield)void:
+    for i from LWB string_ to UPB string_ do yield(string_[i]) od;
+  gen_char DOCONV yield
+);
+
+{ Prosser/Thompson UTF8 encoding scheme
+Bits Last code point Byte 1   Byte 2   Byte 3   Byte 4   Byte 5   Byte 6
+ 7   U+007F          0xxxxxxx
+11   U+07FF          110xxxxx 10xxxxxx
+16   U+FFFF          1110xxxx 10xxxxxx 10xxxxxx
+21   U+1FFFFF        11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+26   U+3FFFFFF       111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+31   U+7FFFFFFF      1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+END }
+
+{ Quickly calculate the length of the UTF8 encoded string }
+proc upb_utf8 = (string utf8_string)int:(
+  int bytes_to_go := 0;
+  int upb := 0;
+  for i from LWB utf8_string to UPB utf8_string do
+    char byte := utf8_string[i];
+    if bytes_to_go = 0 then { start new utf char }
+      bytes_to_go :=
+        if   ABS byte <= ABS 2r01111111 then 1 {  7 bits }
+        elif ABS byte <= ABS 2r11011111 then 2 { 11 bits }
+        elif ABS byte <= ABS 2r11101111 then 3 { 16 bits }
+        elif ABS byte <= ABS 2r11110111 then 4 { 21 bits }
+        elif ABS byte <= ABS 2r11111011 then 5 { 26 bits }
+        elif ABS byte <= ABS 2r11111101 then 6 { 31 bits }
+        else raise_value_error(("Invalid UTF-8 bytes", BIN ABS byte)); ~ fi
+    fi;
+    bytes_to_go -:= 1; { skip over trailing bytes }
+    if bytes_to_go = 0 then upb +:= 1 fi
+  od;
+  upb
+);
+
+{ Convert a stream of CHAR into a stream of UNICHAR }
+op DOCONV = (Genchar gen_char, Yieldunichar yield)void: (
+  int bytes_to_go := 0;
+  int lshift;
+  bits mask, out_;
+
+  { FOR CHAR byte IN } gen_char( { ) DO ( }
+  {}   (char byte)void: (
+      int bits_ := ABS byte;
+      if bytes_to_go = 0 then { start new unichar }
+        bytes_to_go :=
+          if   bits_ <= ABS 2r01111111 then 1 {  7 bits }
+          elif bits_ <= ABS 2r11011111 then 2 { 11 bits }
+          elif bits_ <= ABS 2r11101111 then 3 { 16 bits }
+          elif bits_ <= ABS 2r11110111 then 4 { 21 bits }
+          elif bits_ <= ABS 2r11111011 then 5 { 26 bits }
+          elif bits_ <= ABS 2r11111101 then 6 { 31 bits }
+          else raise_value_error(("Invalid UTF-8 bytes", BIN bits_)); ~ fi;
+        if bytes_to_go = 1 then
+          lshift := 7; mask := 2r1111111
+        else
+          lshift := 7 - bytes_to_go; mask :=  BIN(ABS(2r1 SHL lshift)-1)
+        fi;
+        out_ := mask AND BIN bits_;
+
+        lshift := 6; mask := 2r111111 { subsequently pic 6 bits at a time }
+      else
+        out_ := (out_ SHL lshift) OR ( mask AND BIN bits_)
+      fi;
+      bytes_to_go -:= 1;
+      if bytes_to_go = 0 then yield(INITUNICHAR out_) fi
+  { OD } ))
+);
+
+{ Convert a string of UNICHAR into a stream of UTFCHAR }
+op DOCONV = (Unicode unicode, Yieldchar yield)void:(
+  proc gen_unichar = (Yieldunichar yield)void:
+    for i from LWB unicode to UPB unicode do yield(unicode[i]) od;
+  gen_unichar DOCONV yield
+);
+
+{ Some convenience/shorthand U operators }
+{ Convert a BITS into a UNICODE char }
+op U = (bits bits_)Unichar:
+  INITUNICHAR bits_;
+
+{ Convert a []BITS into a UNICODE char }
+op U = ([]bits array_bits)[]Unichar:(
+  [LWB array_bits:UPB array_bits]Unichar out_;
+  for i from LWB array_bits to UPB array_bits do bits_ of out_[i]:=array_bits[i] od;
+  out_
+);
+
+{ Convert a CHAR into a UNICODE char }
+op U = (char char_)Unichar:
+  INITUNICHAR char_;
+
+{ Convert a STRING into a UNICODE string }
+op U = (string utf8_string)Unicode: (
+  flex[upb_utf8(utf8_string)]Unichar out_;
+  int i := 0;
+{ FOR UNICHAR char IN } utf8_string DOCONV (
+{}   (Unichar char_)void:
+       out_[i+:=1] := char_
+{ OD });
+  out_
+);
+
+{ Convert a UNICODE string into a UTF8 STRING }
+op REPR = (Unicode string_)string: (
+  string out_;
+{ FOR CHAR char IN } string_ DOCONV (
+{}   (char char_)void: (
+       out_ +:= char_
+{ OD }));
+  out_
+);
+
+{ define the most useful OPerators on UNICODE CHARacter arrays }
+{ Note: LWB, UPB and slicing works as per normal }
+
+op + = (Unicode a,b)Unicode: (
+  [UPB a + UPB b]Unichar out_;
+  out_[:UPB a]:= a; out_[UPB a+1:]:= b;
+  out_
+);
+
+op + = (Unicode a, Unichar b)Unicode: a+Unicode(b);
+op + = (Unichar a, Unicode b)Unicode: Unicode(a)+b;
+op + = (Unichar a,b)Unicode: Unicode(a)+b;
+
+{ Suffix a character to the end of a UNICODE string }
+op +:= = (ref Unicode a, Unicode b)void: a := a + b;
+op +:= = (ref Unicode a, Unichar b)void: a := a + b;
+
+{ Prefix a character to the beginning of a UNICODE string }
+op +=: = (Unicode b, ref Unicode a)void: a := b + a;
+op +=: = (Unichar b, ref Unicode a)void: a := b + a;
+
+op * = (Unicode a, int n)Unicode: (
+  Unicode out_ := a;
+  for i from 2 to n do out_ +:= a od;
+  out_
+);
+op * = (int n, Unicode a)Unicode: a * n;
+
+op * = (Unichar a, int n)Unicode: Unicode(a)*n;
+op * = (int n, Unichar a)Unicode: n*Unicode(a);
+
+op *:= = (ref Unicode a, int b)void: a := a * b;
+
+{ Wirthy Operators }
+op LT = (Unichar a,b)bool: ABS bits_ of a LT ABS bits_ of b,
+   LE = (Unichar a,b)bool: ABS bits_ of a LE ABS bits_ of b,
+   EQ = (Unichar a,b)bool: ABS bits_ of a EQ ABS bits_ of b,
+   NE = (Unichar a,b)bool: ABS bits_ of a NE ABS bits_ of b,
+   GE = (Unichar a,b)bool: ABS bits_ of a GE ABS bits_ of b,
+   GT = (Unichar a,b)bool: ABS bits_ of a GT ABS bits_ of b;
+
+{ ASCII OPerators }
+op <  = (Unichar a,b)bool: a LT b,
+   <= = (Unichar a,b)bool: a LE b,
+    = = (Unichar a,b)bool: a EQ b,
+   /= = (Unichar a,b)bool: a NE b,
+   >= = (Unichar a,b)bool: a GE b,
+   >  = (Unichar a,b)bool: a GT b;
+
+{ Non ASCII OPerators
+OP ≤ = (UNICHAR a,b)BOOL: a LE b,
+   ≠ = (UNICHAR a,b)BOOL: a NE b,
+   ≥ = (UNICHAR a,b)BOOL: a GE b;
+}
+
+{ Compare two UNICODE strings for equality }
+proc unicode_cmp = (Unicode str_a,str_b)int: (
+
+  if LWB str_a > LWB str_b then exit_lt elif LWB str_a < LWB str_b then exit_gt fi;
+
+  int min_upb = UPB(UPB str_a < UPB str_b | str_a | str_b );
+
+  for i from LWB str_a to min_upb do
+    Unichar a := str_a[i], Unichar b := str_b[i];
+    if a < b then exit_lt elif a > b then exit_gt fi
+  od;
+
+  if UPB str_a > UPB str_b then exit_gt elif UPB str_a < UPB str_b then exit_lt fi;
+
+  exit_eq:  0 exit
+  exit_lt: -1 exit
+  exit_gt:  1
+);
+
+op LT = (Unicode a,b)bool: unicode_cmp(a,b)< 0,
+   LE = (Unicode a,b)bool: unicode_cmp(a,b)<=0,
+   EQ = (Unicode a,b)bool: unicode_cmp(a,b) =0,
+   NE = (Unicode a,b)bool: unicode_cmp(a,b)/=0,
+   GE = (Unicode a,b)bool: unicode_cmp(a,b)>=0,
+   GT = (Unicode a,b)bool: unicode_cmp(a,b)> 0;
+
+{ ASCII OPerators }
+op <  = (Unicode a,b)bool: a LT b,
+   <= = (Unicode a,b)bool: a LE b,
+    = = (Unicode a,b)bool: a EQ b,
+   /= = (Unicode a,b)bool: a NE b,
+   >= = (Unicode a,b)bool: a GE b,
+   >  = (Unicode a,b)bool: a GT b;
+
+{ Non ASCII OPerators
+OP ≤ = (UNICODE a,b)BOOL: a LE b,
+   ≠ = (UNICODE a,b)BOOL: a NE b,
+   ≥ = (UNICODE a,b)BOOL: a GE b;
+}
+
+{ - Todo: for all UNICODE and UNICHAR
+  Add NonASCII OPerators: ×, ×:=,
+  Add ASCII Operators: &, &:=, &=:
+  Add Wirthy OPerators: PLUSTO, PLUSAB, TIMESAB for UNICODE/UNICHAR,
+  Add UNICODE against UNICHAR comparison OPerators,
+  Add char_in_string and string_in_string PROCedures,
+  Add standard Unicode functions:
+    to_upper_case, to_lower_case, unicode_block, char_count,
+    get_directionality, get_numeric_value, get_type, is_defined,
+    is_digit, is_identifier_ignorable, is_iso_control,
+    is_letter, is_letter_or_digit, is_lower_case, is_mirrored,
+    is_space_char, is_supplementary_code_point, is_title_case,
+    is_unicode_identifier_part, is_unicode_identifier_start,
+    is_upper_case, is_valid_code_point, is_whitespace
+END }
+
+test:(
+
+  Unichar aircraft := U 16r 2708;
+  printf(($"aircraft: "$, $"16r"16rdddd$, Unicode(aircraft), $g$, " => ", REPR Unicode(aircraft), $l$));
+
+  Unicode chinese_forty_two = U 16r 56db + U 16r 5341 + U 16r 4e8c;
+  printf(($"chinese forty two: "$, $g$, REPR chinese_forty_two, ", length string = ", UPB chinese_forty_two, $l$));
+
+  Unicode poker = U "A123456789♥♦♣♠JQK";
+  printf(($"poker: "$, $g$, REPR poker, ", length string = ", UPB poker, $l$));
+
+  Unicode selectric := U"×÷≤≥≠¬∨∧⏨→↓↑□⌊⌈⎩⎧○⊥¢";
+  printf(($"selectric: "$, $g$, REPR selectric, $l$));
+  printf(($"selectric*4: "$, $g$, REPR(selectric*4), $l$));
+
+  print((
+    "1 < 2 is ",  U"1" < U"2", ", ",
+    "111 < 11 is ",U"111" < U"11", ", ",
+    "111 < 12 is ",U"111" < U"12", ", ",
+    "♥ < ♦ is ",  U"♥" < U"♦", ", ",
+    "♥Q < ♥K is ",U"♥Q" < U"♥K", " & ",
+    "♥J < ♥K is ",U"♥J" < U"♥K", new_line
+  ))
+
+)
+)

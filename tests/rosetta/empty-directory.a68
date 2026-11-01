@@ -1,0 +1,41 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Empty directory", ALGOL 68 solution empty-directory.alg.
+  https://rosettacode.org/wiki/Empty_directory#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/empty-directory.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ returns TRUE if the specified directory is empty, FALSE if it doesn't exist or is non-empty }
+proc is_empty_directory = ( string directory )bool:
+     if NOT file_is_directory( directory )
+     then
+         { directory doesn't exist }
+         false
+     else
+         { directory is empty if it contains no files or just "." and possibly ".." }
+         []string files   = get_directory( directory );
+         bool     result := false;
+         for f from LWB files to UPB files
+         while result := files[ f ] = "." OR files[ f ] = ".."
+         do
+             skip
+         od;
+         result
+     fi { is empty directory } ;
+
+{ test the is empty directory procedure }
+{ show whether the directories specified on the command line ( following "-" ) are empty or not }
+bool directory_name_parameter := false;
+for i to argc do
+    if argv( i ) = "-"
+    then
+        { marker to indicate directory names follow }
+        directory_name_parameter := true
+    elif directory_name_parameter
+    then
+        { have a directory name - report whether it is emty or not }
+        print( ( argv( i ), " is ", if is_empty_directory( argv( i ) ) then "empty" else "not empty" fi, newline ) )
+    fi
+od
+)

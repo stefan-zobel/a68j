@@ -1,0 +1,73 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Read a specific line from a file", ALGOL 68 solution read-a-specific-line-from-a-file.alg.
+  https://rosettacode.org/wiki/Read_a_specific_line_from_a_file#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/read-a-specific-line-from-a-file.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ reads the line with number "number" (counting from 1)       }
+{ from the file named "file name" and returns the text of the }
+{ in "line". If an error occurs, the result is FALSE and a    }
+{ message is returned in "err". If no error occurs, TRUE is   }
+{ returned                                                    }
+proc read_specific_line = ( string     file_name
+                          , int        number        { line 7 }
+                          , ref string line
+                          , ref string err
+                          )bool:
+     if file    input_file;
+        line := "";
+        open( input_file, file_name, stand_in_channel ) /= 0
+     then
+        { failed to open the file }
+        err := "Unable to open """ + file_name + """";
+        false
+     else
+        { file opened OK }
+        err  := "";
+        bool at_eof := false;
+        { set the EOF handler for the file             }
+        { notes that we reached EOF on the latest read }
+        { and returns TRUE so processing can continue  }
+        on_logical_file_end( input_file
+                           , ( ref file f )bool: at_eof := true
+                           );
+        int    line_number := 0;
+        string text;
+        while line_number < number
+          AND NOT at_eof
+        do
+            get( input_file, ( text, newline ) );
+            line_number +:= 1
+        od;
+        { close the file }
+        close( input_file );
+        { return the line or an error message depending on whether }
+        { we got a line with the required number or not            }
+        if line_number = number
+        then
+            { got the required line }
+            line := text;
+            true
+        else
+            { not enough lines in the file }
+            err  := """" + file_name + """ is too short";
+            false
+        fi
+     fi; { read specific line }
+begin
+    { read the seventh line of this source and print it }
+    { (or an error message if we can't)                 }
+    string line;
+    string err;
+    if read_specific_line( "read-specific-line.a68", 7, line, err )
+    then
+        { got the line }
+        print( ( "line seven is: """ + line + """", newline ) )
+    else
+        { got an error }
+        print( ( "unable to read line: """ + err + """" ) )
+    fi
+end
+)

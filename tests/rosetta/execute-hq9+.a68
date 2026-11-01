@@ -1,0 +1,56 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Execute HQ9+", ALGOL 68 solution execute-hq9+.alg.
+  https://rosettacode.org/wiki/Execute_HQ9%2B#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/execute-hq9+.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ the increment-only accumulator }
+int hq9accumulator := 0;
+
+{ interpret a HQ9+ code string }
+proc hq9 = ( string code )void:
+    for i to UPB code
+    do
+        char   op_ = code[ i ];
+        if op_ = "Q" OR op_ = "q"
+        then
+            { display the program }
+            print( ( code, newline ) )
+        elif op_ = "H" OR op_ = "h"
+        then
+            print( ( "Hello, world!", newline ) )
+        elif op_ = "9"
+        then
+            { 99 bottles of beer }
+            for bottles from 99 by -1 to 1 do
+                 string bottle_count = whole( bottles, 0 ) + if bottles > 1 then " bottles" else " bottle" fi;
+                 print( ( bottle_count, " of beer on the wall", newline ) );
+                 print( ( bottle_count, " bottles of beer.",    newline ) );
+                 print( ( "Take one down, pass it around,",     newline ) );
+                 if bottles > 1
+                 then
+                     print( ( whole( bottles - 1, 0 ), " bottles of beer on the wall.", newline, newline ) )
+                 fi
+            od;
+            print( ( "No more bottles of beer on the wall.", newline ) )
+        elif op_ = "+"
+        then
+            { increment the accumulator }
+            hq9accumulator +:= 1
+        else
+            { unimplemented operation }
+            print( ( """", op_, """ not implemented", newline ) )
+        fi
+    od;
+
+
+{ test the interpreter }
+begin
+    string code;
+    print( ( "HQ9+> " ) );
+    read( ( code, newline ) );
+    hq9( code )
+end
+)

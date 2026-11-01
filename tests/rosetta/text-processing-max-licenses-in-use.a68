@@ -1,0 +1,81 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Text processing/Max licenses in use", ALGOL 68 solution text-processing-max-licenses-in-use.alg.
+  https://rosettacode.org/wiki/Text_processing/Max_licenses_in_use#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/text-processing-max-licenses-in-use.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+proc report = (ref file file_in)int: (
+
+  mode Time = [19]char;
+  struct ([3]char inout, Time time, int jobnum) record;
+  FORMAT record_fmt = $"License "g" @ "g" for job "g(0)l$;
+
+  flex[1]Time max_time;
+
+  int lic_out := 0, max_out := LWB max_time-1, max_count := LWB max_time-1;
+  bool file_in_ended := false;
+  on_logical_file_end(file_in, (ref file file_in)bool: file_in_ended := true);
+  while
+    getf(file_in, (record_fmt, record));
+{ WHILE } NOT file_in_ended do
+    if inout of record = "OUT" then
+      lic_out +:= 1
+    elif lic_out > 0 then { incase license already "OUT" }
+      lic_out -:= 1
+    fi;
+
+    if lic_out > max_out then
+      max_out := lic_out;
+      max_count := LWB max_time-1
+    fi;
+    if lic_out = max_out then
+      if max_count = UPB max_time then
+        [UPB max_time*2]Time new_max_time;
+        new_max_time[:UPB max_time] := max_time;
+        max_time := new_max_time
+        { ;putf(stand error, ($"increasing UPB max time (now it is "g(0)")"l$, UPB max time)); }
+      fi;
+      max_time[max_count +:= 1] := time of record
+    fi
+  od;
+
+  printf(($"Maximum simultaneous license use is "g(0)" at the following times:"l$, max_out));
+  for lic_out from LWB max_time to max_count do
+    printf(($gl$, max_time[lic_out]))
+  od;
+
+  0 exit
+  exit_report_error: errno
+);
+
+int errno;
+
+{
+  Usage:
+    a68g Text_processing_3.a68 --exit Text_processing_3.dat
+    a68g Text_processing_3.a68 < Text_processing_3.dat
+END }
+
+main:
+(
+  int argv1 := 4;
+  if argc >= argv1 then
+    for i from argv1 to argc do
+      file file_in;
+      errno := open(file_in, argv(i), stand_in_channel);
+      if errno /= 0 then
+        putf(stand_error, ($"cannot read "gl$, argv(1)));
+        exit_main_error
+      else
+        report(file_in)
+      fi;
+      close(file_in)
+    od
+  else
+    report(stand_in)
+  fi;
+  exit_main_error: skip
+)
+)

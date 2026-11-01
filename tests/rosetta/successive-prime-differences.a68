@@ -1,0 +1,77 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Successive prime differences", ALGOL 68 solution successive-prime-differences.alg.
+  https://rosettacode.org/wiki/Successive_prime_differences#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/successive-prime-differences.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find some sequences of primes where the gaps between the elements }
+      { follow specific patterns                                          }
+    { reurns a list of primes up to n }
+    proc prime_list = ( int n )[]int:
+         begin
+            { sieve the primes to n }
+            int no = 0, yes = 1;
+            [ 1 : n ]int p;
+            p[ 1 ] := no; p[ 2 ] := yes;
+            for i from 3 by 2 to n do p[ i ] := yes od;
+            for i from 4 by 2 to n do p[ i ] := no  od;
+            for i from 3 by 2 to ENTIER sqrt( n ) do
+                if p[ i ] = yes then for s from i * i by i + i to n do p[ s ] := no od fi
+            od;
+            { replace the sieve with a list }
+            int p_pos := 0;
+            for i to n do if p[ i ] = yes then p[ p_pos +:= 1 ] := i fi od;
+            p[ 1 : p_pos ]
+         end { prime list } ;
+    { prints the elements of list }
+    proc print_list = ( string name, []int list )void:
+         begin
+            print( ( name, "[" ) );
+            for i from LWB list to UPB list do print( ( " ", whole( list[ i ], 0 ) ) ) od;
+            print( ( " ]" ) )
+         end { print list } ;
+    { attempts to find patterns in the differences of primes and prints the results }
+    proc try_differences = ( []int primes, []int pattern )void:
+         begin
+            int    pattern_length = ( UPB pattern - LWB pattern ) + 1;
+            [ 1 :  pattern_length + 1 ]int first; for i to UPB first do first[ i ] := 0 od;
+            [ 1 :  pattern_length + 1 ]int last;  for i to UPB last  do last[  i ] := 0 od;
+            int    count := 0;
+            for p from LWB primes + pattern_length to UPB primes do
+                bool matched := true;
+                int e_pos    := LWB pattern;
+                for e from p - pattern_length to p - 1
+                while matched := primes[ e + 1 ] - primes[ e ] = pattern[ e_pos ]
+                do
+                    e_pos +:= 1
+                od;
+                if matched then
+                    { found a matching sequence }
+                    count +:= 1;
+                    last   := primes[ p - pattern_length : p @ 1 ];
+                    if count = 1 then first := last fi
+                fi
+            od;
+            print( ( "  Found ", whole( count, 0 ), " prime sequence(s) that differ by: " ) );
+            print_list( "", pattern );
+            print( ( newline ) );
+            if count > 0 then
+                { found at least one sequence }
+                print_list( "    first: ", first );
+                print_list( "    last: ",  last  );
+                print( ( newline ) )
+            fi;
+            print( ( newline ) )
+         end { try differences } ;
+    int max_number = 1 000 000;
+    []int    p_list = prime_list( max_number );
+    print( ( "For primes up to ", whole( max_number, 0 ), "...", newline ) );
+    try_differences( p_list, ( 2 )               );try_differences( p_list, ( 1 )               );
+    try_differences( p_list, ( 2, 2 )            );try_differences( p_list, ( 2, 4 )            );
+    try_differences( p_list, ( 4, 2 )            );try_differences( p_list, ( 6, 4, 2 )         );
+    try_differences( p_list, ( 2, 4, 6, 8 )      );try_differences( p_list, ( 2, 4, 6, 8, 10 )  );
+    try_differences( p_list, ( 32, 16, 8, 4, 2 ) )
+end
+)

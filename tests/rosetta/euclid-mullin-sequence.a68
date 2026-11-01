@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Euclid-Mullin sequence", ALGOL 68 solution euclid-mullin-sequence.alg.
+  https://rosettacode.org/wiki/Euclid-Mullin_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/euclid-mullin-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find elements of the Euclid-Mullin sequence: starting from 2,         }
+      { the next element is the smallest prime factor of 1 + the product      }
+      { of the previous elements                                              }
+    print( ( " 2" ) );
+    long long int product := 2;
+    from 2 to 16 do
+        long long int next := product + 1;
+        { find the first prime factor of next                                 }
+        long long int p := 3;
+        bool      found := false;
+        while p * p <= next AND NOT ( found := next MOD p = 0 ) do
+            p +:= 2
+        od;
+        if found then next := p fi;
+        print( ( " ", whole( next, 0 ) ) );
+        product *:= next
+    od
+end
+)

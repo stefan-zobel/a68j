@@ -1,0 +1,68 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Even numbers which cannot be expressed as the sum of two twin primes", ALGOL 68 solution even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes.alg.
+  https://rosettacode.org/wiki/Even_numbers_which_cannot_be_expressed_as_the_sum_of_two_twin_primes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find even numbers that are not the sum of two twin primes           }
+
+    { prints the non-twin prime sum numbers                                 }
+    proc show_non_twin_prime_sums = ( string legend, []bool p2sums )void:
+         begin
+            print( ( legend, ":", newline ) );
+            int count   := 0;
+            int per_line = 10;
+            for i from 2 by 2 to max_number do
+                if NOT p2sum[ i ] then
+                    print( ( whole( i, - 6 ) ) );
+                    if ( count +:= 1 ) MOD per_line = 0 then print( ( newline ) ) fi
+                fi
+            od;
+            if count MOD per_line /= 0 then print( ( newline ) ) fi;
+            print( ( "Found ", whole( count, 0 ), newline, newline ) )
+         end { print non twin primes sums } ;
+
+    int max_number = 100 000;             { maximum number we will consider }
+    [ 0 : max_number ]bool prime;          { sieve the primes to max number }
+    prime[ 0 ] := prime[ 1 ] := false;
+    prime[ 2 ] := true;
+    for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+    for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+    for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+        if prime[ i ] then
+            for s from i * i by i + i to UPB prime do prime[ s ] := false od
+        fi
+    od;
+    prime[ 2 ] := false;           { restrict the sieve to twin primes only }
+    for i from 3 by 2 to max_number - 2 do
+        if prime[ i ] AND NOT prime[ i - 2 ] AND NOT prime[ i + 2 ] then
+            prime[ i ] := false
+        fi
+    od;
+    { construct a table of the even numbers that can be formed by summing   }
+    { two twin primes                                                       }
+    [ 1 : max_number ]bool p2sum; for i to UPB p2sum do p2sum[ i ] := false od;
+    for i from 3 by 2 to max_number do
+        if prime[ i ] then
+            for j from i to ( max_number + 1 ) - i do
+                if prime[ j ] then p2sum[ i + j ] := true fi
+            od
+        fi
+    od;
+
+    { print the even numbers which aren't the sum of 2 twin primes          }
+    show_non_twin_prime_sums( "Non twin prime sums", p2sum );
+
+    { adjust the table as if 1 was a twin prime                             }
+    p2sum[ 2 ] := true;
+    for i from 3 by 2 to max_number do
+        if prime[ i ] then p2sum[ i + 1 ] := true fi
+    od;
+
+    { print the revised even numbers which aren't the sum of 2 twin primes  }
+    show_non_twin_prime_sums( "Non twin prime sums (including 1)", p2sum )
+
+end
+)

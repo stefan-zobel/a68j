@@ -1,0 +1,102 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sort using a custom comparator", ALGOL 68 solution sort-using-a-custom-comparator.alg.
+  https://rosettacode.org/wiki/Sort_using_a_custom_comparator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sort-using-a-custom-comparator.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ define the MODE that will be sorted }
+mode Sitem = string;
+{--- Swap function ---}
+proc swap = (ref[]Sitem array, int first, int second) void:
+(
+    Sitem temp := array[first];
+    array[first] := array[second];
+    array[second]:= temp
+);
+{--- Quick sort partition arg function with custom comparision function ---}
+proc quick = (ref[]Sitem array, int first, int last, proc(Sitem,Sitem)int compare) void:
+(
+    int   smaller := first + 1,
+          larger  := last;
+    Sitem pivot   := array[first];
+    while smaller <= larger do
+        while compare(array[smaller], pivot) < 0 AND smaller < last do
+            smaller +:= 1
+        od;
+        while compare( array[larger], pivot) > 0 AND larger > first do
+            larger  -:= 1
+        od;
+        if smaller < larger then
+            swap(array, smaller, larger);
+            smaller +:= 1;
+            larger  -:= 1
+        else
+            smaller +:= 1
+        fi
+    od;
+    swap(array, first, larger);
+    if first < larger-1 then
+        quick(array, first, larger-1, compare)
+    fi;
+    if last > larger +1 then
+        quick(array, larger+1, last, compare)
+    fi
+);
+{--- Quick sort array function with custom comparison function ---}
+proc quicksort = (ref[]Sitem array, proc(Sitem,Sitem)int compare) void:
+(
+  if UPB array > LWB array then
+    quick(array, LWB array, UPB array, compare)
+  fi
+);
+{***************************************************************}
+begin
+    op LENGTH  = (string a)int: ( UPB a + 1 ) - LWB a;
+    op TOLOWER = (string a)string:
+       begin
+           string result := a;
+           for i from LWB result to UPB result do
+               char c = a[i];
+               if c >= "A" AND c <= "Z" then result[i] := REPR ( ( ABS c - ABS "A" ) + ABS "a" ) fi
+           od;
+           result
+       end { TOLOWER } ;
+    { custom comparison, descending sort on length }
+    { if lengths are equal, sort lexicographically }
+    proc compare = (Sitem a, b)int:
+         if   int a_length = LENGTH a;
+              int b_length = LENGTH b;
+              a_length < b_length
+         then
+             { a is shorter than b }  1
+         elif a_length > b_length
+         then
+             { a is longer than b  } -1
+         elif string lower_a = TOLOWER a;
+              string lower_b = TOLOWER b;
+              lower_a < lower_b
+         then
+              { lowercase a is before lowercase b } -1
+         elif lower_a > lower_b
+         then
+              { lowercase a is after lowercase b  }  1
+         elif a > b
+         then
+             { a and b are equal ignoring case,        }
+             { but a is after b considering case       }  1
+         elif a < b
+         then
+             { a and b are equal ignoring case,        }
+             { but a is before b considering case      } -1
+         else
+             { the strings are equal                   }  0
+         fi { compare } ;
+    []Sitem orig = ("Here", "are", "some", "sample", "strings", "to", "be", "sorted");
+    [LWB orig : UPB orig]Sitem data := orig;
+    print(("Before:"));for i from LWB data to UPB data do print((" ",data[i])) od; print((newline));
+    quicksort(data, compare);
+    print(("After :"));for i from LWB data to UPB data do print((" ",data[i])) od; print((newline))
+end
+)

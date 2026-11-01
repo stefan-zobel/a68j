@@ -1,0 +1,1 @@
+begin real a := 7, b := 0; real c = a / b; puts ((c > 1e30 | "inf" | "fin")); puts ("'n"); int x := 3, y := 0; real z = x / y; puts ((z > 1e30 | "inf" | "fin")); puts ("'n") end

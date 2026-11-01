@@ -1,0 +1,50 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Combinations with repetitions/Square digit chain", ALGOL 68 solution combinations-with-repetitions-square-digit-chain.alg.
+  https://rosettacode.org/wiki/Combinations_with_repetitions/Square_digit_chain#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/combinations-with-repetitions-square-digit-chain.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Combinations with repetitions: Square digit chain }
+      { translated from the Kotlin sample                 }
+
+    proc ends_with_one = ( int n )bool:
+         if   n = 0
+         then false
+         else int  sum     := ABS n;
+              while int nn := sum;
+                    sum := 0;
+                    while nn > 0 do
+                        int digit = nn MOD 10;
+                        sum +:= digit * digit;
+                        nn  OVERAB 10
+                    od;
+                    sum /= 1 AND sum /= 89
+              do skip od;
+              sum = 1
+         fi { ends with one } ;
+
+    begin
+        []int ks = ( 7, 8, 11, 14, 17 );
+        for k_pos from LWB ks to UPB ks do
+           int k = ks[ k_pos ];
+           [ 0 : k * 81 + 1 ]long int sums;
+           sums[ 0 ] := 1; for i from 1 to UPB sums do sums[ i ] := 0 od;
+           for n to k do
+               for i from n * 81 by -1 to 1 do
+                    for j to 9 while int s = j * j; s <= i
+                    do sums[ i ] +:= sums[ i - s ]
+                    od
+               od
+           od;
+           long int count1 := 0;
+           for i to k * 81 do if ends_with_one( i ) then count1 +:= sums[ i ] fi od;
+           long int limit = ( LENG 10 ) ^ k - 1;
+           print( ( "For k = ", whole( k, -2 ), " in the range 1 to ", whole( limit, 0 ), newline ) );
+           print( ( whole( count1, 0 ), " numbers produce 1 and " ) );
+           print( ( whole( limit - count1, 0 ), " numbers produce 89", newline, newline ) )
+        od
+    end
+end
+)

@@ -1,0 +1,22 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Case-sensitivity of identifiers", ALGOL 68 solution case-sensitivity-of-identifiers-2.alg.
+  https://rosettacode.org/wiki/Case-sensitivity_of_identifiers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/case-sensitivity-of-identifiers-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+'begin_'
+    'string_' dog = "Benjamin";
+    'begin_'
+        'string_' D og = "Samba";
+        'begin_'
+            'string_' DOG = "Bernie";
+            'if_' DOG /= D og 'or' DOG /= dog
+            'then_' print( ( "The three dogs are named: ", dog, ", ", D og, " and ", DOG ) )
+            'else_' print( ( "There is just one dog named: ", DOG ) )
+            'fi_'
+        'end_'
+    'end_'
+'end_'
+)

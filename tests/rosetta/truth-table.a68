@@ -1,0 +1,91 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Truth table", ALGOL 68 solution truth-table.alg.
+  https://rosettacode.org/wiki/Truth_table#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/truth-table.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ prints the truth table of a boolean expression composed of the 26 lowercase variables a..z, }
+{ the boolean operators AND, OR, XOR and NOT and the literal values TRUE and FALSE            }
+{ The evaluation is done with the Algol 68G evaluate function which is an extension           }
+proc print_truth_table = ( string expr )void:
+     begin
+
+        { recursively prints the truth table }
+        proc print_line = ( int lv )void:
+             if lv > UPB bv
+             then
+                 { at the end of the variables - print the line }
+                 for le to UPB bv do
+                     if used[ le ] then print( ( " ", bv[ le ], " " ) ) fi
+                 od;
+                 print( ( "     ", evaluate( expr ), newline ) )
+             elif used[ lv ]
+             then
+                 { have another variable }
+                 bv[ lv ] := true;
+                 print_line( lv + 1 );
+                 bv[ lv ] := false;
+                 print_line( lv + 1 )
+             else
+                 { this variable is not used }
+                 print_line( lv + 1 )
+             fi { print line } ;
+
+        { returns the name of the variable number }
+        proc variable_name = ( int number )char: REPR ( number + ( ABS "a" - 1 ) );
+
+        { the 26 boolean variables }
+        bool a := false, b := false, c := false, d := false, e := false, f := false;
+        bool g := false, h := false, i := false, j := false, k := false, l := false;
+        bool m := false, n := false, o := false, p := false, q := false, r := false;
+        bool s := false, t := false, u := false, v := false, w := false, x := false;
+        bool y := false, z := false;
+        { table of the variables allowng access by number }
+        []ref bool bv = ( a, b, c, d, e, f, g, h, i, j, k, l, m
+                        , n, o, p, q, r, s, t, u, v, w, x, y, z
+                        );
+        [ 26 ]bool used;
+        bool at_least_one_variable := false;
+        { determine which variables are used in the expression }
+        for iv to UPB bv do
+            used[ iv ] := char_in_string( variable_name( iv ), nil, expr );
+            if used[ iv ]then at_least_one_variable := true fi
+        od;
+        { print truth table headings }
+        print( ( expr, ":", newline ) );
+        for iv to UPB bv do
+            if used[ iv ] then print( ( " ", variable_name( iv ), " " ) ) fi
+        od;
+        print( ( " value", newline ) );
+        for iv to UPB bv do
+            if used[ iv ] then print( ( " - " ) ) fi
+        od;
+        print( ( " -----", newline ) );
+        { evaluate the expression for each cobination of variables }
+        if at_least_one_variable
+        then
+             { the expression does not consist of literals only }
+             for iv to UPB bv do bv[ iv ] := false od;
+             print_line( LWB bv )
+        else
+             { the expression is constant }
+             print( ( "     ", evaluate( expr ), newline ) )
+        fi
+     end { print truth table } ;
+
+{ print truth tables from the user's expressions }
+print( ( "Please enter Boolean expressions using variables a, b, c, ..., z,",                  newline ) );
+print( ( "operators AND, OR, NOT and XOR and literals TRUE and FALSE",                         newline ) );
+print( ( "(Note operators and TRUE/FALSE must be uppercase and variables must be lower case)", newline ) );
+print( ( "Enter a blank line to quit",                                                         newline ) );
+while
+    string expr;
+    print( ( "expression> " ) );
+    read( ( expr, newline ) );
+    expr /= ""
+do
+    print_truth_table( expr )
+od
+)

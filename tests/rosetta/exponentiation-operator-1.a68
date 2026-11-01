@@ -1,0 +1,70 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Exponentiation operator", ALGOL 68 solution exponentiation-operator-1.alg.
+  https://rosettacode.org/wiki/Exponentiation_operator#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/exponentiation-operator-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+main:(
+  int two=2, thirty=30; { test constants }
+  proc void undefined;
+
+{ First implement exponentiation using a rather slow but sure FOR loop }
+  proc int_pow = (int base, exponent)int: ( { PROC cannot be over loaded }
+    if exponent<0 then undefined fi;
+    int out_:=( exponent=0 | 1 | base );
+    from 2 to exponent do out_*:=base od;
+    out_
+  );
+
+  printf(($" One Gibi-unit is: int pow("g(0)","g(0)")="g(0)" - (cost: "g(0)
+           " INT multiplications)"l$,two, thirty, int_pow(two,thirty),thirty-1));
+
+{ implement exponentiation using a faster binary technique and WHILE LOOP }
+  op ** = (int base, exponent)int: (
+    bits binary_exponent:=BIN exponent ; { do exponent arithmetic in binary }
+    int out_ := if bits_width ELEM binary_exponent then base else 1 fi;
+    int sq := if exponent < 0 then undefined; ~ else base fi;
+
+    while
+      binary_exponent := binary_exponent SHR 1;
+      binary_exponent /= BIN 0
+    do
+      sq *:= sq;
+      if bits_width ELEM binary_exponent then out_ *:= sq fi
+    od;
+    out_
+  );
+
+  printf(($" One Gibi-unit is: "g(0)"**"g(0)"="g(0)" - (cost: "g(0)
+           " INT multiplications)"l$,two, thirty, two ** thirty,8));
+
+  op ** = (real in_base, int in_exponent)real: ( { ** INT Operator can be overloaded }
+    real base := ( in_exponent<0 | 1/in_base | in_base);
+    int exponent := ABS in_exponent;
+    bits binary_exponent:=BIN exponent ; { do exponent arithmetic in binary }
+    real out_ := if bits_width ELEM binary_exponent then base else 1 fi;
+    real sq := base;
+
+    while
+      binary_exponent := binary_exponent SHR 1;
+      binary_exponent /= BIN 0
+    do
+      sq *:= sq;
+      if bits_width ELEM binary_exponent then out_ *:= sq fi
+    od;
+    out_
+  );
+
+  printf(($" One Gibi-unit is: "g(0,1)"**"g(0)"="g(0,1)" - (cost: "g(0)
+           " REAL multiplications)"l$, 2.0, thirty, 2.0 ** thirty,8));
+
+  op ** = (real base, real exponent)real: ( { ** REAL Operator can be overloaded }
+    exp(ln(base)*exponent)
+  );
+
+  printf(($" One Gibi-unit is: "g(0,1)"**"g(0,1)"="g(0,1)" - (cost: "
+           "depends on precision)"l$, 2.0, 30.0, 2.0 ** 30.0))
+)
+)

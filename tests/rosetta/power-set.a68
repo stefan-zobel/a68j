@@ -1,0 +1,36 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Power set", ALGOL 68 solution power-set.alg.
+  https://rosettacode.org/wiki/Power_set#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/power-set.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Member = int;
+
+proc power_set = ([]Member s)[][]Member:(
+  [2**UPB s]flex[1:0]Member r;
+  int upb_r := 0;
+  r[upb_r +:= 1] := []Member(());
+  for i to UPB s do
+    Member e = s[i];
+    for j to upb_r do
+      [UPB r[j] + 1]Member x;
+      x[:UPB x-1] := r[j];
+      x[UPB x] := e; { append to the end of x }
+      r[upb_r +:= 1] := x { append to end of r }
+    od
+  od;
+  r[upb_r] := s;
+  r
+);
+{ Example: }
+test:(
+  [][]Member set = power_set((1, 2, 4));
+  for member to UPB set do
+    int upb = UPB set[member];
+    FORMAT repr_set = $"("f( upb=0 | $$ | $n(upb-1)(d", ")d$ )");"$;
+    printf(($"set["d"] = "$,member, repr_set, set[member],$l$))
+  od
+)
+)

@@ -1,0 +1,113 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Hamming numbers", ALGOL 68 solution hamming-numbers-2.alg.
+  https://rosettacode.org/wiki/Hamming_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/hamming-numbers-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { hamming numbers translation of Julia "processing an error band" sample }
+
+      { sets the number of digits for LONG LONG INT         }
+                         { should be enough for hamming numbers up to 10^9     }
+    mode Hband = struct( real v, [ 1 : 3 ]int p );
+
+    prio =:= = 9;
+    op   =:= = ( ref Hband swap_a, with_b )ref Hband:
+         begin Hband t := with_b; with_b := swap_a; swap_a := t end;
+
+    proc sort_descending_bands = ( ref[]Hband a, int lb, ub )void:
+         if ub > lb
+         then                            { more than one element, so must sort }
+            int left  := lb;
+            int right := ub;
+            { choosing the middle element of the array as the pivot            }
+            Hband pivot := a[ left + ( ( right + 1 ) - left ) OVER 2 ];
+            while
+                while if left  <= ub then v of a[ left  ] > v of pivot else false fi
+                do
+                    left  +:= 1
+                od;
+                while if right >= lb then v of a[ right ] < v of pivot else false fi
+                do
+                    right -:= 1
+                od;
+                left <= right
+            do
+                a[ left  ] =:= a[ right ];
+                left       +:= 1;
+                right      -:= 1
+            od;
+            sort_descending_bands( a, lb,      right );
+            sort_descending_bands( a, left, ub       )
+         fi { sort descending bands } ;
+
+    proc ceil = ( real x )int: if int i = ENTIER x; x = i then i else i + 1 fi;
+
+    real log10of2 = log( 2 );
+    proc log2 = ( real x )real: log( x ) / log10of2;
+
+    proc nthhamming = ( int n )[]int:
+         if   { take care of trivial cases too small for band size estimation to work... }
+              n < 1 then print(("nthhamming:  argument must be greater than zero!!!",newline));stop
+         elif n < 2 then (0, 0, 0)
+         elif n < 3 then (1, 0, 0)
+         else { larger cases }
+
+              { some constants... }
+              real log2of3 = log2(3), log2of5 = log2(5);
+              real fctr = 6.0 * log2of3 * log2of5, crctn = log2(sqrt(30));
+              real log2est = (fctr * n)^(1.0 / 3.0) - crctn; { log2 answer from WP formula }
+              real log2hi  = log2est + 1.0 / log2est, width = 2.0 / log2est; { up to 2X higher/lower }
+
+              { loop to find the count of regular numbers and band of possible candidates... }
+              int count   := 0;
+              [ 1 : 20 + ENTIER log2est ]Hband band;
+              int bandpos := 0;
+              for fives from 0 to ceil(log2hi / log2of5) - 1 do
+                  real log2p     = log2hi - fives * log2of5;
+                  for threes from 0 to ceil(log2p / log2of3) - 1 do
+                      real log2q = log2p - threes * log2of3;
+                      int  twos  = ENTIER log2q;
+                      real frac  = log2q - twos;
+                      count    +:= twos + 1;
+                      if frac <= width then
+                         band[ bandpos +:= 1 ] := (log2hi - frac, (twos, threes, fives))
+                      fi
+                  od
+              od;
+
+              { process the band found including checks for validity and range... }
+              if n > count
+              then print(("nthhamming:  band high estimate is too low!!!",newline));stop
+              elif int ndx = count - n + 1;
+                   ndx > UPB band
+              then print(("nthhamming:  band width estimate is too narrow!!!",newline));stop
+              else { sort into descending order }
+                   sort_descending_bands( band, 1, bandpos );
+                   { get and return the answer... }
+                   p of band[ndx]
+              fi
+         fi { nthhamming } ;
+
+    proc trival = ( []int lr )long long int:
+         long long int(2)^lr[1] * long long int(3)^lr[2] * long long int(5)^lr[3];
+
+    proc print_hamming = ( string which, int n )void:
+         begin
+             []int p = nthhamming( n );
+             print( ( "Hamming number ", which, ": " ) );
+             print( ( "2^" + whole( p[ 1 ], 0 ), " * 3^" + whole( p[ 2 ], 0 ), " * 5^", whole( p[ 3 ], 0 ) ) );
+             if n <= 1 000 000 000 then print( ( newline,"                      ", whole( trival( p ), 0 ) ) ) fi;
+             print( ( newline ) )
+         end { print hamming } ;
+
+    for x to 20 do print( ( whole( trival( nthhamming( x ) ), 0 ), " " ) ) od; print( ( newline ) );
+    print_hamming( " 1691",              1691 );
+    print_hamming( " 10^6",         1 000 000 );
+    print_hamming( " 10^9",     1 000 000 000 );
+    if max_int OVER 1 000 000 > 1 000 000 then
+        print_hamming( "10^12", 1 000 000 * 1 000 000 )
+    fi
+end
+)

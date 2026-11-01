@@ -1,0 +1,141 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Undulating numbers", ALGOL 68 solution undulating-numbers.alg.
+  https://rosettacode.org/wiki/Undulating_numbers#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/undulating-numbers.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { show some Undulating numbers - numbers whose digits form the pattern }
+      {                                ABAB...                               }
+
+    long int max_number = long 2 ^ 53;     { maximum number we will consider }
+    string   max_name   = "2^53";          { "name" of max number            }
+    { returns TRUE if n is prime, FALSE otherwise - uses trial division      }
+    proc is_prime = ( long int n )bool:
+         if   n < 3       then n = 2
+         elif n MOD 3 = 0 then n = 3
+         elif NOT ODD n   then false
+         else
+             bool is_a_prime := true;
+             int  f          := 5;
+             int  f2         := 25;
+             int  to_next    := 24;
+             while f2 <= n AND is_a_prime do
+                 is_a_prime := n MOD f /= 0;
+                 f         +:= 2;
+                 f2        +:= to_next;
+                 to_next   +:= 8
+             od;
+             is_a_prime
+         fi { is prime } ;
+    { returns s with comma separators                                        }
+    proc commatise = ( string s )string:
+         begin
+            string result := "";
+            int r_pos     := -1;
+            for s_pos from UPB s by -1 to LWB s do
+                if ( r_pos +:= 1 ) = 3 then
+                    r_pos := 0;
+                    "," +=: result
+                fi;
+                s[ s_pos ] +=: result
+            od;
+            result
+         end { commatise } ;
+    { returns a string representation of the undulating number in base b     }
+    {         with first digit f and second digit s with d digits in total   }
+    proc undulating_string = ( int d, f, s, b )string:
+         begin
+            string un    := "";
+            char   fc     = REPR ( f + ABS "0" );
+            char   sc     = REPR ( s + ABS "0" );
+            for digit from d by -1 to 1 do
+                if ODD digit then fc else sc fi +=: un
+            od;
+            commatise( un )
+         end { undulating string } ;
+    { shows various Undulating numbers in base b                             }
+    proc print_undulation = ( int b )void:
+         begin
+            long int un          := 0;
+            int      un_count    := 0;
+            int      p_count     := 0;
+            int      last_d      := 0;
+            int      last_f      := 0;
+            int      last_s      := 0;
+            long int last_un     := 0;
+            [ 1 : ( b - 1 ) * ( b - 1 ) ]long int prime_un;
+            for digits from 3 while un < max_number do
+                if digits = 3 OR digits = 4 then
+                    print( ( whole( digits, 0 ), " digit Undulating Numbers in base " ) );
+                    print( ( whole( b, 0 ) ) );
+                    if b /= 10 then print( ( " (shown in base 10)" ) ) fi;
+                    print( ( ":", newline ) )
+                fi;
+                for f to b - 1 while  un < max_number do
+                    for s from 0 to b - 1 while  un < max_number do
+                        if f /= s then
+                            un        := 0;
+                            for d to digits do
+                                un *:= b
+                                   +:= if ODD d then f else s fi
+                            od;
+                            if un < max_number then
+                                un_count +:= 1;
+                                last_un   := un;
+                                last_d    := digits;
+                                last_f    := f;
+                                last_s    := s;
+                                if digits = 3 OR digits = 4 then
+                                    print( ( " ", whole( un, -digits ) ) );
+                                    if digits = 3 then
+                                        if is_prime( un ) then
+                                            prime_un[ p_count +:= 1 ] := un
+                                        fi
+                                    fi
+                                elif un_count = 600 then
+                                   print( ( "Undulating number 600 in base ", whole( b, 0 ), ": " ) );
+                                   print( ( undulating_string( digits, f, s, b ) ) );
+                                   if b /= 10 then
+                                       print( ( newline, "        which is: " ) );
+                                       print( ( commatise( whole( un, 0 ) ) ) );
+                                       print( ( " in base 10", newline ) )
+                                   fi;
+                                   print( ( newline ) )
+                                fi
+                            fi
+                        fi
+                    od;
+                    if digits = 3 OR digits = 4 then print( ( newline ) ) fi
+                od;
+                if digits = 3 OR digits = 4 then
+                    print( ( newline ) );
+                    if digits = 4 then
+                        print( ( "Prime 3 digit Undulating Numbers in base " ) );
+                        print( ( whole( b, 0 ) ) );
+                        if b /= 10 then print( ( " (shown in base 10)" ) ) fi;
+                        print( ( ":", newline ) );
+                        for i to p_count do
+                            print( ( whole( prime_un[ i ], -4 ) ) );
+                            if i MOD b = ( b - 1 ) then print( ( newline ) ) fi
+                        od;
+                        if p_count MOD b /= ( b - 1 ) then print( ( newline ) ) fi;
+                        print( ( newline ) )
+                    fi
+                fi
+            od;
+            print( ( "There are ", whole( un_count, 0 ) ) );
+            print( ( " Undulating nnumbers in base ", whole( b, 0 ), " before ", max_name, newline ) );
+            print( ( "The last is: ", undulating_string( last_d, last_f, last_s, b ), newline ) );
+            if b /= 10 then
+                print( ( "   which is: ", commatise( whole( last_un, 0 ) ), " in base 10", newline ) )
+            fi
+         end { print undulation } ;
+
+    print_undulation( 10 ); { base 10 undulating numbers                }
+    print( ( newline ) );
+    print_undulation(  7 )  { base  7 undulating numbers                }
+
+end
+)

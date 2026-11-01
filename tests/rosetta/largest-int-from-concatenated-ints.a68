@@ -1,0 +1,55 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Largest int from concatenated ints", ALGOL 68 solution largest-int-from-concatenated-ints.alg.
+  https://rosettacode.org/wiki/Largest_int_from_concatenated_ints#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/largest-int-from-concatenated-ints.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    op TOINT = ( string s)int:
+    begin
+        int result := 0;
+        for s_pos from LWB s to UPB s do
+            result *:= 10 +:= ( ABS s[ s_pos ] - ABS "0" )
+        od;
+        result
+    end { TOINT } ;
+    op TOSTRING = ( int n )string: whole( n, 0 );
+    op PRINT = ( []int a )void:
+       for a_pos from LWB a to UPB a do
+            print( ( TOSTRING a[ a_pos ] ) )
+       od { PRINT } ;
+
+    { returns an array containing the values of a sorted such that           }
+    {         concatenating the values would result in the largest value     }
+    op CONCATSORT = ( []int a )[]int:
+       if LWB a >= UPB a then                            { 0 or 1 element(s) }
+           a
+       else                                             { 2 or more elements }
+           [ 1 : ( UPB a - LWB a ) + 1 ]int result := a[ at 1 ];
+           { re-order adjacent numbers so they have the highest concatenated }
+           while bool swapped := false;                              { value }
+                 for i_pos to UPB result - 1 do
+                     string l := TOSTRING result[ i_pos     ];
+                     string r := TOSTRING result[ i_pos + 1 ];
+                     if TOINT ( l + r ) < TOINT ( r + l ) then
+                         int t = result[ i_pos + 1 ];
+                         result[ i_pos + 1 ] := result[ i_pos ];
+                         result[ i_pos     ] := t;
+                         swapped             := true
+                     fi
+                 od;
+                 swapped
+           do skip od;
+           result
+       fi { CONCATSORT } ;
+
+    { task test cases }
+    PRINT CONCATSORT []int( 1, 34, 3, 98, 9, 76, 45, 4 );
+    print( ( newline ) );
+    PRINT CONCATSORT []int( 54, 546, 548, 60 );
+    print( ( newline ) )
+
+end
+)

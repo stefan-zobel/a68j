@@ -1,0 +1,176 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Range modifications", ALGOL 68 solution range-modifications.alg.
+  https://rosettacode.org/wiki/Range_modifications#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/range-modifications.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Range = struct (int lwb, upb);
+op LWB = (Range r) int: lwb of r;
+op UPB = (Range r) int: upb of r;
+
+proc parse_range = (string s) Range:
+  begin
+    file f; associate(f, loc string := s);
+    Range r; get(f, (lwb of r, space, upb of r));
+    close(f);
+    r
+  end;
+
+proc put_range = (ref file f, Range r) void:
+  put(f, (whole(LWB r, 0), "-", whole(UPB r, 0)));
+
+proc print_range = (Range r) void: put_range(stand_out, r);
+
+proc parse_ranges = (string s) flex[]Range:
+  begin
+    flex[1:0]Range rs;
+    int pos; string buf := s;
+    while char_in_string(",", pos, buf) do
+      append(rs, parse_range(buf[ : pos-1]));
+      buf := buf[pos+1 : ]
+    od;
+    if UPB buf > 1 then append(rs, parse_range(buf)) fi;
+    rs
+  end;
+
+proc put_ranges = (ref file f, []Range rs) void:
+  for i to UPB rs do
+    if i > 1 then put(f, ",") fi;
+    put_range(f, rs[i])
+  od;
+
+proc print_ranges = ([]Range rs) void: put_ranges(stand_out, rs);
+
+proc in_range = (Range r, int n) bool: n >= LWB r AND n <= UPB r;
+
+proc insert_at = (ref flex[]Range rs, int pos, Range r) void:
+  begin
+    [UPB rs + 1]Range tmp;
+    tmp[ : pos-1] := rs[ : pos-1];
+    tmp[pos+1 : ] := rs[pos : ];
+    tmp[pos] := r;
+    rs := tmp
+  end;
+
+proc delete_at = (ref flex[]Range rs, int pos) void:
+  begin
+    [UPB rs - 1]Range tmp;
+    tmp[ : pos-1] := rs[1 : pos-1];
+    tmp[pos : ] := rs[pos+1 : ];
+    rs := tmp
+  end;
+
+proc append = (ref flex[]Range rs, Range r) void: insert_at(rs, UPB rs + 1, r);
+
+int inside = 1, before = 2, after = 3;
+mode Position = struct (int pos, rel);
+proc pos = (Position p) int: pos of p;
+proc rel = (Position p) int: rel of p;
+
+proc index = ([]Range rs, int n) Position:
+  begin
+    Position res;
+    for i to UPB rs do
+      if in_range(rs[i], n) then res := (i, inside); return fi;
+      if n < LWB rs[i] then res := (i, before); return fi
+    od;
+    res := (UPB rs, after);
+    return: res
+  end;
+
+proc add_to_ranges = (ref flex[]Range rs, int n) void:
+  begin
+    Position p := index(rs, n);
+    int idx = pos(p);
+    if rel(p) = before then
+      Range r := rs[idx];
+      if LWB r = n + 1 then
+        r := rs[idx] := (n, UPB r)
+      else
+        r := (n, n);
+        insert_at(rs, idx, r)
+      fi;
+      if idx > 1 then
+        if UPB rs[idx-1] = LWB r - 1 then
+          rs[idx-1] := (LWB rs[idx-1], UPB r);
+          delete_at(rs, idx)
+        fi
+      fi
+    elif rel(p) = after then
+      if if UPB rs >= 1 then UPB rs[UPB rs] = n - 1 else false fi then
+        rs[UPB rs] := (LWB rs[UPB rs], n)
+      else
+        append(rs, (n, n))
+      fi
+    fi
+  end;
+
+proc remove_from_ranges = (ref flex[]Range rs, int n) void:
+  begin
+    Position p := index(rs, n);
+    int idx = pos(p);
+    if rel(p) = inside then
+      Range r = rs[idx];
+      if n = LWB r AND n = UPB r then
+        delete_at(rs, idx)
+      elif n = LWB r then
+        rs[idx] := (n+1, UPB r)
+      elif n = UPB r then
+        rs[idx] := (LWB r, n-1)
+      else
+        Range first  = (LWB r, n-1),
+              second = (n+1, UPB r);
+        rs[idx] := second;
+        insert_at(rs, idx, first)
+      fi
+    fi
+  end;
+
+flex[1:0]Range rs;
+
+proc start = (string s) void:
+  begin
+    rs := parse_ranges(s);
+    print(" Start: "); print_ranges(rs); print(new_line)
+  end;
+proc add = (int n) void:
+  begin
+    print(("   add: ", whole(n, 0), ": "));
+    add_to_ranges(rs, n);
+    print_ranges(rs); print(new_line)
+  end;
+proc remove = (int n) void:
+  begin
+    print(("remove: ", whole(n, 0), ": "));
+    remove_from_ranges(rs, n);
+    print_ranges(rs); print(new_line)
+  end;
+
+start("");
+add(77);
+add(79);
+add(78);
+remove(77);
+remove(78);
+remove(79);
+print(new_line);
+
+start("1-3,5-5");
+add(1);
+remove(4);
+add(7);
+add(8);
+add(6);
+remove(7);
+print(new_line);
+
+start("1-5,10-25,27-30");
+add(26);
+add(9);
+add(7);
+remove(26);
+remove(9);
+remove(7)
+)

@@ -1,0 +1,93 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Execute Brain****", ALGOL 68 solution execute-brain--3.alg.
+  https://rosettacode.org/wiki/Execute_Brain****#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/execute-brain--3.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ BF>
+>++++++++[<+++++++++>-]<.>>+>+>++>[-]+<[>[->+<<++++>]<<]>.+++++++..+++.>>+++++++.<<<[[-]<[-]>]<+++++++++++++++.>>.+++.------.--------.>>+.>++++.
+}
+begin
+  mode Daddr = int; { data address }
+  mode Data  = int;
+  Data zero  = 0;
+  [-255:255]Data data;  { finite data space }
+  for i from LWB data to UPB data do data[i] := zero od;
+  Daddr addr := ( UPB data + LWB data ) OVER 2;
+
+  addr +:= 1;
+  data[ addr ] +:= 8;
+  while data[ addr ] /= zero do
+    addr -:= 1;
+    data[ addr ] +:= 9;
+    addr +:= 1;
+    data[ addr ] -:= 1
+  od;
+  addr -:= 1;
+  print( ( REPR data[ addr ] ) );
+  addr +:= 2;
+  data[ addr ] +:= 1;
+  addr +:= 1;
+  data[ addr ] +:= 1;
+  addr +:= 1;
+  data[ addr ] +:= 2;
+  addr +:= 1;
+  while data[ addr ] /= zero do
+    data[ addr ] -:= 1
+  od;
+  data[ addr ] +:= 1;
+  addr -:= 1;
+  while data[ addr ] /= zero do
+    addr +:= 1;
+    while data[ addr ] /= zero do
+      data[ addr ] -:= 1;
+      addr +:= 1;
+      data[ addr ] +:= 1;
+      addr -:= 2;
+      data[ addr ] +:= 4;
+      addr +:= 1
+    od;
+    addr -:= 2
+  od;
+  addr +:= 1;
+  print( ( REPR data[ addr ] ) );
+  data[ addr ] +:= 7;
+  print( ( REPR data[ addr ] ) );
+  print( ( REPR data[ addr ] ) );
+  data[ addr ] +:= 3;
+  print( ( REPR data[ addr ] ) );
+  addr +:= 2;
+  data[ addr ] +:= 7;
+  print( ( REPR data[ addr ] ) );
+  addr -:= 3;
+  while data[ addr ] /= zero do
+    while data[ addr ] /= zero do
+      data[ addr ] -:= 1
+    od;
+    addr -:= 1;
+    while data[ addr ] /= zero do
+      data[ addr ] -:= 1
+    od;
+    addr +:= 1
+  od;
+  addr -:= 1;
+  data[ addr ] +:= 15;
+  print( ( REPR data[ addr ] ) );
+  addr +:= 2;
+  print( ( REPR data[ addr ] ) );
+  data[ addr ] +:= 3;
+  print( ( REPR data[ addr ] ) );
+  data[ addr ] -:= 6;
+  print( ( REPR data[ addr ] ) );
+  data[ addr ] -:= 8;
+  print( ( REPR data[ addr ] ) );
+  addr +:= 2;
+  data[ addr ] +:= 1;
+  print( ( REPR data[ addr ] ) );
+  addr +:= 1;
+  data[ addr ] +:= 4;
+  print( ( REPR data[ addr ] ) )
+end
+)

@@ -1,0 +1,42 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sorting algorithms/Cocktail sort", ALGOL 68 solution sorting-algorithms-cocktail-sort-1.alg.
+  https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sorting-algorithms-cocktail-sort-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Data = char;
+proc swap = (ref Data a,b)void:(
+  Data tmp:=a; a:=b; b:=tmp
+);
+
+proc cocktail_sort = (ref[]Data a)void: (
+  while
+    bool swapped := false;
+    for i from LWB a to UPB a - 1 do
+      if a[ i ] > a[ i + 1 ] then { test whether the two elements are in the wrong order }
+        swap( a[ i ], a[ i + 1 ] ); { let the two elements change places }
+        swapped := true
+      fi
+    od;
+    if NOT swapped then
+      { we can exit the outer loop here if no swaps occurred. }
+      break_do_while_loop
+    fi;
+    swapped := false;
+    for i from UPB a - 1 to LWB a do
+      if a[ i ] > a[ i + 1 ] then
+        swap( a[ i ], a[ i + 1 ] );
+        swapped := true
+      fi
+    od;
+{ WHILE } swapped { if no elements have been swapped, then the list is sorted }
+  do skip od;
+  break_do_while_loop: skip
+);
+
+[32]char data := "big fjords vex quick waltz nymph";
+cocktail_sort(data);
+print(data)
+)

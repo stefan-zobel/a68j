@@ -1,0 +1,103 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Smarandache prime-digital sequence", ALGOL 68 solution smarandache-prime-digital-sequence.alg.
+  https://rosettacode.org/wiki/Smarandache_prime-digital_sequence#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/smarandache-prime-digital-sequence.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ find elements of the Smarandache prime-digital sequence - primes whose    }
+{ digits are all primes                                                     }
+{ Uses the observations that the final digit of 2 or more digit Smarandache }
+{ primes must be 3 or 7 and the only prime digits are 2, 3, 5 and 7         }
+{ Needs --heap 256m for Algol 68G                                           }
+begin
+    { construct a sieve of primes up to 10 000 000                          }
+    int prime_max = 10 000 000;
+    [ prime_max ]bool prime; for i to UPB prime do prime[ i ] := true od;
+    for s from 2 to ENTIER sqrt( prime_max ) do
+        if prime[ s ] then
+            for p from s * s by s to prime_max do prime[ p ] := false od
+        fi
+    od;
+    { consruct the Smarandache primes up to 10 000 000                      }
+    [ prime_max ]bool smarandache; for i to UPB prime do smarandache[ i ] := false od;
+    [   ]int prime_digits = ( 2, 3, 5, 7 );
+    [ 7 ]int digits      := ( 0, 0, 0, 0, 0, 0, 0 );
+    { tests whether the current digits form a Smarandache prime             }
+    proc try_smarandache = void:
+         begin
+            int possible_prime := 0;
+            for i to UPB digits do
+                possible_prime *:= 10 +:= digits[ i ]
+            od;
+            smarandache[ possible_prime ] := prime[ possible_prime ]
+         end { try smarandache } ;
+    { tests whether the current digits plus 3 or 7 form a Smarandache prime }
+    proc try_smarandache_3_or_7 = void:
+         begin
+            digits[ UPB digits ] := 3;
+            try_smarandache;
+            digits[ UPB digits ] := 7;
+            try_smarandache
+         end { try smarandache 3 or 7 } ;
+    { the 1 digit primes are all Smarandache primes                         }
+    for d7 to UPB prime_digits do smarandache[ prime_digits[ d7 ] ] := true od;
+    { try the possible 2, 3, etc. digit numbers composed of prime digits    }
+    for d6 to UPB prime_digits do
+        digits[ 6 ] := prime_digits[ d6 ];
+        try_smarandache_3_or_7;
+        for d5 to UPB prime_digits do
+            digits[ 5 ] := prime_digits[ d5 ];
+            try_smarandache_3_or_7;
+            for d4 to UPB prime_digits do
+                digits[ 4 ] := prime_digits[ d4 ];
+                try_smarandache_3_or_7;
+                for d3 to UPB prime_digits do
+                    digits[ 3 ] := prime_digits[ d3 ];
+                    try_smarandache_3_or_7;
+                    for d2 to UPB prime_digits do
+                        digits[ 2 ] := prime_digits[ d2 ];
+                        try_smarandache_3_or_7;
+                        for d1 to UPB prime_digits do
+                            digits[ 1 ] := prime_digits[ d1 ];
+                            try_smarandache_3_or_7
+                        od;
+                        digits[ 1 ] := 0
+                    od;
+                    digits[ 2 ] := 0
+                od;
+                digits[ 3 ] := 0
+            od;
+            digits[ 4 ] := 0
+        od;
+        digits[ 5 ] := 0
+    od;
+    { print some Smarandache primes                                           }
+    int count  := 0;
+    int s100   := 0;
+    int s1000  := 0;
+    int s_last := 0;
+    int p_last := 0;
+    print( ( "First 25 Smarandache primes:", newline ) );
+    for i to UPB smarandache do
+        if smarandache[ i ] then
+            count +:= 1;
+            s_last := i;
+            p_last := count;
+            if count <= 25 then
+                print( ( " ", whole( i, 0 ) ) )
+            elif count = 100 then
+                s100  := i
+            elif count = 1000 then
+                s1000 := i
+            fi
+        fi
+    od;
+    print( ( newline ) );
+    print( ( "  100th Smarandache prime: ", whole( s100,  0 ), newline ) );
+    print( ( " 1000th Smarandache prime: ", whole( s1000, 0 ), newline ) );
+    print( ( "Largest Smarandache prime under ", whole( prime_max, 0 ) ) );
+    print( ( ": ", whole( s_last, 0 ), " (Smarandache prime ", whole( p_last, 0 ), ")", newline ) )
+end
+)

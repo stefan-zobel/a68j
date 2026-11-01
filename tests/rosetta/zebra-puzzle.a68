@@ -1,0 +1,150 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Zebra puzzle", ALGOL 68 solution zebra-puzzle.alg.
+  https://rosettacode.org/wiki/Zebra_puzzle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/zebra-puzzle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+    { attempt to solve Einstein's Riddle - the Zebra puzzle                     }
+    int unknown   = 0, same    = -1;
+    int english   = 1, swede   = 2, dane  = 3, norwegian   = 4, german = 5;
+    int dog       = 1, birds   = 2, cats  = 3, horse       = 4, zebra  = 5;
+    int red       = 1, green   = 2, white = 3, yellow      = 4, blue   = 5;
+    int tea       = 1, coffee  = 2, milk  = 3, beer        = 4, water  = 5;
+    int pall_mall = 1, dunhill = 2, blend = 3, blue_master = 4, prince = 5;
+    []string nationality = ( "unknown", "english",   "swede",   "dane",   "norwegian",   "german" );
+    []string animal      = ( "unknown", "dog",       "birds",   "cats",   "horse",       "ZEBRA"  );
+    []string colour      = ( "unknown", "red",       "green",   "white",  "yellow",      "blue"   );
+    []string drink       = ( "unknown", "tea",       "coffee",  "milk",   "beer",        "water"  );
+    []string smoke       = ( "unknown", "pall mall", "dunhill", "blend",  "blue master", "prince" );
+    mode House = struct( int nationality, animal, colour, drink, smoke );
+    { returns TRUE if a field in a house could be set to value, FALSE otherwise }
+    proc can_set = ( int field, int value )bool: field = unknown OR value = same;
+    { returns TRUE if the fields of house h could be set to those of            }
+    {              suggestion s, FALSE otherwise                                }
+    op   XOR     = ( House h, House s )bool:
+         (   can_set( nationality of h, nationality of s ) AND can_set( animal of h, animal of s )
+         AND can_set( colour      of h, colour      of s ) AND can_set( drink  of h, drink  of s )
+         AND can_set( smoke       of h, smoke       of s )
+         ) { XOR } ;
+    { sets a field in a house to value if it is unknown                         }
+    proc setf    = ( ref int field, int value )void:
+         if field = unknown AND value /= same then field := value fi;
+    { sets the unknown fields in house h to the non-same fields of suggestion s }
+    op   +:=     = ( ref House h, House s )void:
+         ( setf( nationality of h, nationality of s ); setf( animal of h, animal of s )
+         ; setf( colour      of h, colour      of s ); setf( drink  of h, drink  of s )
+         ; setf( smoke       of h, smoke       of s )
+         ) { +:= } ;
+    { sets a field in a house to unknown if the value is not same               }
+    proc resetf  = ( ref int field, int value )void: if value /= same then field := unknown fi;
+    { sets fields in house h to unknown if the suggestion s is not same         }
+    op   -:=     = ( ref House h, House s )void:
+         ( resetf( nationality of h, nationality of s ); resetf( animal of h, animal of s )
+         ; resetf( colour      of h, colour      of s ); resetf( drink  of h, drink  of s )
+         ; resetf( smoke       of h, smoke       of s )
+         ) { -:= } ;
+    { attempts a partial solution for the house at pos                          }
+    proc try = ( int pos, House suggestion, proc void continue )void:
+         if pos >= LWB house AND pos <= UPB house then
+             if house[ pos ] XOR suggestion then
+                house[ pos ] +:= suggestion; continue; house[ pos ] -:= suggestion
+             fi
+         fi { try } ;
+    { attempts a partial solution for the neighbours of a house                 }
+    proc left_or_right = ( int pos, bool left, bool right, House neighbour_suggestion
+                         , proc void continue )void:
+         ( if left  then try( pos - 1, neighbour_suggestion, continue ) fi
+         ; if right then try( pos + 1, neighbour_suggestion, continue ) fi
+         ) { left or right } ;
+    { attempts a partial solution for all houses and possibly their neighbours  }
+    proc any2 = ( ref int number, House suggestion
+                , bool left, bool right, House neighbour_suggestion
+                , proc void continue )void:
+         for pos to UPB house do
+             if house[ pos ] XOR suggestion then
+                 number    := pos;
+                 house[ number ] +:= suggestion;
+                 if NOT left AND NOT right then { neighbours not involved       }
+                     continue
+                 else                           { try one or both neighbours    }
+                     left_or_right( pos, left, right, neighbour_suggestion, continue )
+                 fi;
+                 house[ number ] -:= suggestion
+             fi
+         od { any2 } ;
+    { attempts a partial solution for all houses                                }
+    proc any = ( House suggestion, proc void continue )void:
+         any2( loc int, suggestion, false, false, skip, continue );
+    { find solution(s)                                                          }
+    int blend_pos;
+    int solutions := 0;
+    { There are five houses.                                                    }
+    [ 1 : 5 ]House house;
+    for h to UPB house do house[ h ] := ( unknown, unknown, unknown, unknown, unknown ) od;
+    { In the middle house they drink milk.                                      }
+    drink       of house[ 3 ] := milk;
+    { The Norwegian lives in the first house.                                   }
+    nationality of house[ 1 ] := norwegian;
+    { The Norwegian lives next to the blue house.                               }
+    colour      of house[ 2 ] := blue;
+    { They drink coffee in the green house.                                     }
+    { The green house is immediately to the left of the white house.            }
+    any2( loc int,     ( same, same, green, coffee, same )
+       ,  false, true, ( same, same, white, same,   same ), void:
+      { In a house next to the house where they have a horse,                   }
+      { they smoke Dunhill.                                                     }
+      { In the yellow house they smoke Dunhill.                                 }
+      any2( loc int,    ( same, horse, same,   same, same    )
+          , true, true, ( same, same,  yellow, same, dunhill ), void:
+        { The English man lives in the red house.                               }
+        any( ( english, same, red, same, same ), void:
+          { The man who smokes Blend lives in the house next to the             }
+          { house with cats.                                                    }
+          any2( blend_pos,  ( same, same, same, same, blend )
+              , true, true, ( same, cats, same, same, same  ), void:
+            { They drink water in a house next to the house where               }
+            { they smoke Blend.                                                 }
+            left_or_right( blend_pos, true, true, ( same, same, same, water, same ), void:
+              { The Dane drinks tea.                                            }
+              any( ( dane, same, same, tea, same ), void:
+                { The man who smokes Blue Master drinks beer.                   }
+                any( ( same, same, same, beer, blue_master ), void:
+                  { The Swede has a dog.                                        }
+                  any( ( swede, dog, same, same, same ), void:
+                    { The German smokes Prince.                                 }
+                    any( ( german, same, same, same, prince ), void:
+                      { The man who smokes Pall Mall has birds.                 }
+                      any( ( same, birds, same, same, pall_mall ), void:
+                        { if we can place the zebra, we have a solution         }
+                        any( ( same, zebra, same, same, same ), void:
+                             ( solutions +:= 1;
+                               for h to UPB house do
+                                 print( ( whole( h, 0 )
+                                        , " ",  nationality[ 1 + nationality of house[ h ] ]
+                                        , ", ", animal     [ 1 + animal      of house[ h ] ]
+                                        , ", ", colour     [ 1 + colour      of house[ h ] ]
+                                        , ", ", drink      [ 1 + drink       of house[ h ] ]
+                                        , ", ", smoke      [ 1 + smoke       of house[ h ] ]
+                                        , newline
+                                        )
+                                      )
+                               od;
+                               print( ( newline ) )
+                             )
+                           ) { zebra     }
+                         ) { pall mall  }
+                       ) { german      }
+                     ) { swede        }
+                   ) { beer          }
+                 ) { dane           }
+               ) { blend L/R       }
+             ) { blend            }
+           ) { red               }
+         ) { horse              }
+       ) { green               } ;
+    print( ( "solutions: ", whole( solutions, 0 ), newline ) )
+end
+)

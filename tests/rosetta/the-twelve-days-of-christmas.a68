@@ -1,0 +1,35 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "The Twelve Days of Christmas", ALGOL 68 solution the-twelve-days-of-christmas.alg.
+  https://rosettacode.org/wiki/The_Twelve_Days_of_Christmas#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/the-twelve-days-of-christmas.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+  []string labels = ("first", "second", "third",    "fourth",
+                     "fifth", "sixth",  "seventh",  "eighth",
+                     "ninth", "tenth",  "eleventh", "twelfth");
+
+  []string gifts = ("A partridge in a pear tree.",
+                    "Two turtle doves, and",
+                    "Three French hens,",
+                    "Four calling birds,",
+                    "Five gold rings,",
+                    "Six geese a-laying,",
+                    "Seven swans a-swimming,",
+                    "Eight maids a-milking,",
+                    "Nine ladies dancing,",
+                    "Ten lords a-leaping,",
+                    "Eleven pipers piping,",
+                    "Twelve drummers drumming,");
+  for day to 12 do
+    print(("On the ", labels[day],
+           " day of Christmas, my true love sent to me:", newline));
+    for gift from day by -1 to 1 do
+      print((gifts[gift], newline))
+    od;
+    print(newline)
+  od
+end
+)

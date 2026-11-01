@@ -1,0 +1,21 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Gray code", ALGOL 68 solution gray-code.alg.
+  https://rosettacode.org/wiki/Gray_code#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/gray-code.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin
+   op GRAY = (bits b) bits : b XOR (b SHR 1);	{ Convert to Gray code }
+   op YARG = (bits g) bits :			{ Convert from Gray code }
+   begin
+      bits b := g, mask := g SHR 1;
+      while mask /= 2r0 do b := b XOR mask; mask := mask SHR 1 od;
+      b
+   end;
+   for i from 0 to 31 do
+      printf (($zd, ": ", 2(2r5d, " >= "), 2r5dl$, i, BIN i, GRAY BIN i, YARG GRAY BIN i))
+   od
+end
+)

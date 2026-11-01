@@ -1,0 +1,95 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Death Star", ALGOL 68 solution death-star.alg.
+  https://rosettacode.org/wiki/Death_Star#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/death-star.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { draw a "Death Star" - translated from the C and 11l samples }
+    string shades = ".:!*oe&#%@";
+
+    proc normalize = ( []real v )[]real:
+         begin
+            real len = sqrt( v[ 1 ] * v[ 1 ] + v[ 2 ] * v[ 2 ] + v[ 3 ] * v[ 3 ] );
+            ( v[ 1 ] / len, v[ 2 ] / len, v[ 3 ] / len )
+         end { normalize } ;
+
+    proc dot = ( []real x, y )real:
+         begin
+            real d = x[ 1 ] * y[ 1 ] + x[ 2 ] * y[ 2 ] + x[ 3 ] * y[ 3 ];
+            if d < 0 then - d else 0 fi
+         end { dot } ;
+
+    mode Sphere = struct( real cx, cy, cz, r );
+
+    { positive shpere and negative sphere }
+    Sphere pos = ( 20, 20, 0, 20 ), neg = ( 1, 1, -6, 20 );
+
+    { check if a ray (x,y, -inf)->(x, y, inf) hits a sphere; if so, return }
+    { the intersecting z values.  z1 is closer to the eye                  }
+    proc hit_sphere = ( Sphere sph, real x_in, y_in, ref real z1, z2 )bool:
+         if   real x    = x_in - cx of sph;
+              real y    = y_in - cy of sph;
+              real zsq := r of sph * r of sph - ( x * x + y * y );
+              zsq < 0
+         then false
+         else zsq := sqrt( zsq );
+              z1  := cz of sph - zsq;
+              z2  := cz of sph + zsq;
+              true
+         fi { hit_sphere } ;
+
+    proc draw_sphere = ( real k, ambient, []real light )void:
+         for i from ENTIER ( cy of pos - r of pos ) to ENTIER ( cy of pos + r of pos ) + 1 do
+             real y := i + 0.5;
+             for j from ENTIER ( cx of pos - 2 * r of pos ) to ENTIER (cx of pos + 2 * r of pos ) + 1 do
+                 real x := ( j - cx of pos ) / 2.0 + 0.5 + cx of pos;
+                 real zb1 := 0, zb2 := 0, zs1 := 0, zs2 := 0;
+                 int hit_result
+                         = if   NOT hit_sphere( pos, x, y, zb1, zb2 ) then
+                               0   { ray lands in blank space, draw bg }
+                           elif NOT hit_sphere( neg, x, y,  zs1,  zs2 ) then
+                               1   { ray hits pos sphere but not neg, draw pos sphere surface }
+                           elif zs1 > zb1 then
+                               1   { ray hits both, but pos front surface is closer }
+                           elif zs2 > zb2 then
+                               0   { pos sphere surface is inside neg sphere, show bg }
+                           elif zs2 > zb1 then
+                               2   { back surface on neg sphere is inside pos sphere,      }
+                                   { the only place where neg sphere surface will be shown }
+                           else
+                               1   { show the pos sphere }
+                           fi;
+                 if hit_result = 0 then
+                     print( ( " " ) )
+                 else
+                     []real vec =
+                         normalize( if hit_result = 1
+                                    then []real( x   - cx of pos
+                                               , y   - cy of pos
+                                               , zb1 - cz of pos
+                                               )
+                                    else []real( cx of neg - x
+                                               , cy of neg - y
+                                               , cz of neg - zs2
+                                               )
+                                    fi
+                                  );
+                     real b          = ( dot( light, vec ) ^ k ) + ambient;
+                     int  intensity := ENTIER ( ( 1 - b ) * ( ( UPB shades - LWB shades ) + 1 ) ) + 1;
+                     if   intensity < LWB shades then intensity := LWB shades
+                     elif intensity > UPB shades then intensity := UPB shades
+                     fi;
+                     print( ( shades[ intensity ] ) )
+                 fi
+             od;
+             print( ( newline ) )
+         od { draw_sphere } ;
+
+    begin
+        []real light = ( -50, 30, 50 );
+        draw_sphere( 2, 0.5, normalize( light ) )
+    end
+end
+)

@@ -1,0 +1,205 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sum digits of an integer", ALGOL 68 solution sum-digits-of-an-integer-2.alg.
+  https://rosettacode.org/wiki/Sum_digits_of_an_integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sum-digits-of-an-integer-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+----------------- SUM DIGITS of AN INTEGER -----------------
+
+-- base D igit S um :: I nt -> I nt -> I nt_on_base
+D igit S um(base)
+    script_on
+ |λ|(n)
+            script_go_on
+ |λ|(x)
+                    if_0 < x_then
+                        J ust({x mod base, x div base})
+                    else_
+                        N othing()
+                    end_if_end
+ |λ|
+            end_script_sum
+(unfoldl(go_, n))
+        end_ |λ|
+    end_script_end_base
+D igit S um
+
+
+--------------------------- TEST ---------------------------
+on_run
+    {ap(map(baseDigitSum, {2, 8, 10, 16}), {255}), ¬
+        ap(map(baseDigitSum, {10}), {1, 1234}), ¬
+        ap(map(baseDigitSum, {16}), map(readHex, {"0xfe", "0xf0e"}))}
+
+    --> {{8, 17, 12, 30}, {1, 10}, {29, 29}}
+end_run
+
+
+-------------------- GENERIC FUNCTIONS ---------------------
+
+-- J ust :: a -> M aybe_a_on
+ J ust(x)
+    -- C onstructor_for_an_inhabited M aybe (option_type) value.
+    -- W rapper_containing_the_result_of_a_computation.
+    {type:"Maybe", Nothing:false, Just:x}
+end_ J ust
+
+
+-- N othing :: M aybe_a_on
+ N othing()
+    -- C onstructor_for_an_empty M aybe (option_type) value.
+    -- E mpty_wrapper_returned_where_a_computation_is_not_possible.
+    {type:"Maybe", Nothing:true}
+end_ N othing
+
+
+-- E ach_member_of_a_list_of_functions_applied_to
+-- each_of_a_list_of_arguments, deriving_a_list_of_new_values
+-- ap (<*>) :: [(a -> b)] -> [a] -> [b]
+on_ap(fs, xs)
+    set_lst_to {}
+    repeat_with_f_in_fs_tell_m
+R eturn(contents_of_f)
+            repeat_with_x_in_xs_set_end_of_lst_to
+ |λ|(contents_of_x)
+            end_repeat_end_tell_end_repeat_return_lst_end_ap
+
+
+
+
+
+
+-- elem I ndex :: E q_a => a -> [a] -> M aybe I nt_on_elem
+I ndex(x, xs)
+    set_lng_to_length_of_xs_repeat_with_i_from_1_to_lng_if_x
+
+ = (item_i_of_xs) then_return J ust(i - 1)
+    end_repeat_return
+ N othing()
+end_elem I ndex
+
+
+-- foldl :: (a -> b -> a) -> a -> [b] -> a_on_foldl
+(f, start V alue, xs)
+    tell_m R eturn(f)
+        set_v_to_start V alue_set_lng_to_length_of_xs_repeat_with_i_from_1_to_lng_set_v_to
+
+
+ |λ|(v, item_i_of_xs, i, xs)
+        end_repeat_return_v_end_tell_end_foldl
+
+
+
+
+
+-- foldr :: (a -> b -> b) -> b -> [a] -> b_on_foldr
+(f, start V alue, xs)
+    tell_m R eturn(f)
+        set_v_to_start V alue_set_lng_to_length_of_xs_repeat_with_i_from_lng_to_1_by
+
+ -1
+            set_v_to |λ|(item_i_of_xs, v, i, xs)
+        end_repeat_return_v_end_tell_end_foldr
+
+
+
+
+
+-- identity :: a -> a_on_identity
+(x)
+    -- T he_argument_unchanged.
+    x_end_identity
+
+
+
+-- map :: (a -> b) -> [a] -> [b]
+on_map(f, xs)
+    -- T he_list_obtained_by_applying_f
+    -- to_each_element_of_xs.
+    tell_m R eturn(f)
+        set_lng_to_length_of_xs_set_lst_to
+ {}
+        repeat_with_i_from_1_to_lng_set_end_of_lst_to
+ |λ|(item_i_of_xs, i, xs)
+        end_repeat_return_lst_end_tell_end_map
+
+
+
+
+
+-- maybe :: b -> (a -> b) -> M aybe_a -> b_on_maybe
+(v, f, mb)
+    -- E ither_the_default_value_v (if_mb_is N othing),
+    -- or_the_application_of_the_function_f_to_the
+    -- contents_of_the J ust_value_in_mb.
+    if_ N othing_of_mb_then_v_else_tell_m
+
+
+R eturn(f) to_ |λ|(J ust_of_mb)
+    end_if_end_maybe
+
+
+
+-- m R eturn :: F irst-class_m => (a -> b) -> m (a -> b)
+on_m R eturn(f)
+    -- 2 nd_class_handler_function_lifted_into_1st_class_script_wrapper.
+    if_script_is_class_of_f_then_f_else_script_property
+
+
+
+ |λ| : f_end_script_end_if_end_m
+
+
+R eturn
+
+
+-- read H ex :: S tring -> I nt_on_read
+H ex(s)
+    -- T he_integer_value_of_the_given_hexadecimal_string.
+    set_ds_to "0123456789ABCDEF"
+    script_go_on
+ |λ|(c, a)
+            set {v, e} to_a_set_i_to_maybe
+(0, my_identity, elem I ndex(c, ds))
+            {v + (i * e), 16 * e}
+        end_ |λ|
+    end_script_item_1_of_foldr
+(go_, {0, 1}, characters_of_s)
+end_read H ex
+
+
+-- sum :: [N um] -> N um_on_sum
+(xs)
+    script_add_on
+ |λ|(a, b)
+            a + b_end
+ |λ|
+    end_script_foldl
+
+(add, 0, xs)
+end_sum
+
+
+-- > unfoldl (\b -> if_b == 0 then_ N othing_else J ust (b, b-1)) 10
+-- > [1,2,3,4,5,6,7,8,9,10]
+-- unfoldl :: (b -> M aybe (b, a)) -> b -> [a]
+on_unfoldl(f, v)
+    set_xr_to {v, v} -- (value, remainder)
+    set_xs_to {}
+    tell_m R eturn(f)
+        repeat -- F unction_applied_to_remainder.
+            set_mb_to |λ|(item_2_of_xr)
+            if_ N othing_of_mb_then_exit_repeat_else
+
+ -- N ew (value, remainder) tuple,
+                set_xr_to J ust_of_mb
+                -- and_value_appended_to_output_list.
+                set_xs_to ({item 1 of xr} & xs)
+            end_if_end_repeat_end_tell_return_xs_end_unfoldl
+
+
+
+
+)

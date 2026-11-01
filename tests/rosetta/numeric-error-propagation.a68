@@ -1,0 +1,89 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Numeric error propagation", ALGOL 68 solution numeric-error-propagation.alg.
+  https://rosettacode.org/wiki/Numeric_error_propagation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/numeric-error-propagation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ MODE representing a uncertain number }
+mode Uncertain = struct( real v, uncertainty );
+
+{ add a costant and an uncertain value }
+op + = ( int  c, Uncertain u )Uncertain: Uncertain( v of u + c, uncertainty of u );
+op + = ( Uncertain u, int  c )Uncertain: c + u;
+op + = ( real c, Uncertain u )Uncertain: Uncertain( v of u + c, uncertainty of u );
+op + = ( Uncertain u, real c )Uncertain: c + u;
+{ add two uncertain values }
+op + = ( Uncertain a, b )Uncertain: Uncertain( v of a + v of b
+                                             , sqrt( ( uncertainty of a * uncertainty of a )
+                                                   + ( uncertainty of b * uncertainty of b )
+                                                   )
+                                             );
+
+{ negate an uncertain value }
+op - = ( Uncertain a )Uncertain: ( - v of a, uncertainty of a );
+
+{ subtract an uncertain value from a constant }
+op - = ( int  c, Uncertain u )Uncertain: c + - u;
+op - = ( real c, Uncertain u )Uncertain: c + - u;
+{ subtract a constant from an uncertain value }
+op - = ( Uncertain u, int  c )Uncertain: u + - c;
+op - = ( Uncertain u, real c )Uncertain: u + - c;
+{ subtract two uncertain values }
+op - = ( Uncertain a, b )Uncertain: a + - b;
+
+{ multiply a constant by an uncertain value }
+op * = ( int  c, Uncertain u )Uncertain: Uncertain( v of u + c, ABS( c * uncertainty of u ) );
+op * = ( Uncertain u, int  c )Uncertain: c * u;
+op * = ( real c, Uncertain u )Uncertain: Uncertain( v of u + c, ABS( c * uncertainty of u ) );
+op * = ( Uncertain u, real c )Uncertain: c * u;
+{ multiply two uncertain values }
+op * = ( Uncertain a, b )Uncertain:
+   begin
+       real av = v of a;
+       real bv = v of b;
+       real f  = av * bv;
+       Uncertain( f, f * sqrt( ( uncertainty of a / av ) + ( uncertainty of b / bv ) ) )
+   end { * } ;
+
+{ construct the reciprocol of an uncertain value }
+op ONEOVER = ( Uncertain u )Uncertain: ( 1 / v of u, uncertainty of u );
+{ divide a constant by an uncertain value }
+op / = ( int  c, Uncertain u )Uncertain: c * ONEOVER u;
+op / = ( real c, Uncertain u )Uncertain: c * ONEOVER u;
+{ divide an uncertain value by a constant }
+op / = ( Uncertain u, int  c )Uncertain: u * ( 1 / c );
+op / = ( Uncertain u, real c )Uncertain: u * ( 1 / c );
+{ divide two uncertain values }
+op / = ( Uncertain a, b )Uncertain: a * ONEOVER b;
+
+{ exponentiation }
+op ^ = ( Uncertain u, int c )Uncertain:
+   begin
+       real f = v of u ^ c;
+       Uncertain( f, ABS ( ( f * c * uncertainty of u ) / v of u ) )
+   end { ^ } ;
+op ^ = ( Uncertain u, real c )Uncertain:
+   begin
+       real f = v of u ^ c;
+       Uncertain( f, ABS ( ( f * c * uncertainty of u ) / v of u ) )
+   end { ^ } ;
+
+{ test the above operatrs by using them to find the pythagorean distance between the two sample points }
+Uncertain x1 = Uncertain( 100, 1.1 );
+Uncertain y1 = Uncertain(  50, 1.2 );
+Uncertain x2 = Uncertain( 200, 2.2 );
+Uncertain y2 = Uncertain( 100, 2.3 );
+
+Uncertain d  = ( ( ( x1 - x2 ) ^ 2 ) + ( y1 - y2 ) ^ 2 ) ^ 0.5;
+
+print( ( "distance: ", fixed( v of d, 0, 2 ), " +/- ", fixed( uncertainty of d, 0, 2 ), newline ) );
+
+{ force the additional operators to be used, to suppress warnings from ALGOL 68 Genie }
+Uncertain e  = ( ( ( x1 / x2 ) / 2 ) + ( y1 - y2 ) * 2 ) + ( x1 / 2 ) + ( 2 / y1 ) + ( 2.0 / y1 )
+             + ( ( ( x1 / x2 ) / 2.0 ) + ( y1 / y2 ) * 2.0 ) + ( x1 / 2.0 ) + ( 2 - x1 )
+             + ( 2.0 - d ) - 3 - 4.0
+             ;
+print( ( "test    : ", fixed( v of e, 0, 2 ), " +/- ", fixed( uncertainty of e, 0, 2 ), newline ) )
+)

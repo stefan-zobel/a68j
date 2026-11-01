@@ -1,0 +1,1 @@
+begin int a := 7, b := 0; puts ("before'n"); int c = a %* b; puts (whole (c, 0)) end

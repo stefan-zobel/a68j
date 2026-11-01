@@ -1,0 +1,30 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "User defined pipe and redirection operators", ALGOL 68 solution user-defined-pipe-and-redirection-operators-1.alg.
+  https://rosettacode.org/wiki/User_defined_pipe_and_redirection_operators#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/user-defined-pipe-and-redirection-operators-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode
+  Pagein =         PAGE,
+  Pageappend = ref PAGE,
+  Pageout =    ref PAGE;
+
+mode
+  Moid = void,
+  Yieldline = proc(LINE)void,
+  Genline = proc(Yieldline)void,
+  Filter = proc(Genline)Genline, { the classic shell filter }
+  Manytoone = proc([]Genline)Genline; { eg cat, as in con[cat]enate }
+
+prio =: = 5, << = 5, >> = 5;
+
+op <  = (Filter filter, Pagein page)Genline: filter(READ page),
+   <  = (Manytoone cmd, Pagein page)Genline: cmd(READ page),
+   << = (Filter filter, Pagein page)Genline: filter(READ page),
+   >  = (Genline gen, Pageout page)void: gen(WRITE page),
+   >> = (Genline gen, Pageappend page)void: gen(APPEND page),
+   =: = (Genline gen, Filter filter)Genline: filter(gen),
+   =: = (Genline gen, Manytoone cmd)Genline: cmd(gen);
+)

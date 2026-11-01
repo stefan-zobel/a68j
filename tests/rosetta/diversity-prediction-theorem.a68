@@ -1,0 +1,74 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Diversity prediction theorem", ALGOL 68 solution diversity-prediction-theorem.alg.
+  https://rosettacode.org/wiki/Diversity_prediction_theorem#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/diversity-prediction-theorem.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { Diversity Prediction Theorem                                         }
+
+    { utility operators                                                      }
+    op   LENGTH = ( []real a )int: ( UPB a - LWB a ) + 1;
+    op   LENGTH = ( string a )int: ( UPB a - LWB a ) + 1;
+    op   SUM    = ( []real a )real:
+         begin
+            real result := 0;
+            for i from LWB a to UPB a do result +:= a[ i ] od;
+            result
+         end { SUM } ;
+    prio PAD    = 9;
+    op   PAD    = ( int width, string v )string: { left blank pad v to width }
+         if LENGTH v >= width then v else ( " " * ( width - LENGTH v ) ) + v fi;
+    op   - = ( []real a, real v )[]real:        { return a with elements - v }
+         begin
+            [ LWB a : UPB a ]real result;
+            for i from LWB a to UPB a do result[ i ] := v - a[ i ] od;
+            result
+         end { - } ;
+    op   ^ = ( []real a, int p )[]real: { return a with elements raised to p }
+         begin
+            [ LWB a : UPB a ]real result;
+            for i from LWB a to UPB a do result[ i ] := a[ i ] ^ p od;
+            result
+         end { |^ } ;
+    prio FMT = 1;
+    op   FMT = ( real v, int d )string:   { formats v with up to d decimals  }
+         begin
+            string result := fixed( v, -0, d );
+            if result[ LWB result ] = "." then "0" +=: result fi;
+            while result[ UPB result ] = "0" do result := result[ : UPB result - 1 ] od;
+            if result[ UPB result ] = "." then result := result[ : UPB result - 1 ] fi;
+            " " + result
+         end { FMT } ;
+
+    { task                                                                   }
+
+    mode Namedvalue = struct( string name, real value );
+
+    proc mean = ( []real s )real: SUM s / LENGTH s;
+
+    proc variance = ( []real s, real d )real: mean( ( s - d ) ^ 2 );
+
+    proc diversity_theorem = ( real reference, []real observations )[]Namedvalue:
+         begin
+            real average = mean( observations );
+            ( ( "average_error", variance( observations, reference ) )
+            , ( "crowd_error",   ( reference - average ) ^ 2         )
+            , ( "diversity",     variance( observations, average   ) )
+            )
+         end { diversity theorem } ;
+
+    proc test = ( real reference, []real observations )void:
+         begin
+            []Namedvalue res = diversity_theorem( reference, observations );
+            for i from LWB res to UPB res do
+                print( ( 14 PAD name of res[ i ], " : ", value of res[ i ] FMT 6, newline ) )
+            od
+         end { test } ;
+
+    test( 49, ( 48, 47, 51     ) );
+    test( 49, ( 48, 47, 51, 42 ) )
+
+end
+)

@@ -1,0 +1,46 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Function prototype", ALGOL 68 solution function-prototype.alg.
+  https://rosettacode.org/wiki/Function_prototype#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/function-prototype.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{!/usr/bin/a68g --script }
+{ -*- coding: utf-8 -*- }
+
+{ An explanation of any placement restrictions for prototype declarations }
+proc void no_args; { Declare a function with no argument that returns an INTeger }
+proc (int {a},int {b})void two_args; { Declare a function with two arguments that returns an INTeger }
+mode Varargs = union(int,real,compl);
+proc ([]Varargs)void var_args; { An empty parameter list can be used to declare a function that accepts varargs }
+proc (int, []Varargs)void at_least_one_args; { One mandatory INTeger argument followed by varargs }
+
+mode Optint = union(void,int), Optstring=union(void,string); { a function that utilizes optional arguments }
+proc (Optint, Optstring)void optional_arguments;
+
+{ A prototype declaration for a function that utilizes named parameters }
+mode Kwname = struct(string name),
+     Kwspecies = struct(string species),
+     Kwbreed = struct(string breed),
+     Owner=struct(string first_name, middle_name, last_name);
+
+{ due to the "Yoneda ambiguity" simple arguments must have an unique operator defined }
+op NAME = (string name)Kwname: (Kwname opt; name of opt := name; opt),
+   SPECIES = (string species)Kwspecies: (Kwspecies opt; species of opt := species; opt),
+   BREED = (string breed)Kwbreed: (Kwbreed opt; breed of opt := breed; opt);
+
+proc ([]union(Kwname,Kwspecies,Kwbreed,Owner) {options})void print_pet;
+
+{ subroutines, and fuctions are procedures, so have the same prototype declarations }
+
+{ An explanation and example of any special forms of prototyping not covered by the above:  }
+{
+  If a function has no arguments, eg f,
+  then it is not requied to pass it a "vacuum()" to call it, eg "f()" not correct!
+  Rather is can be called without the () vacuum. eg "f"
+  A GOTO "label" is equivalent to "PROC VOID label".
+END }
+
+skip
+)

@@ -1,0 +1,1 @@
+begin long int a := long 7, b := long 0; puts ("before'n"); long int c = a % b; puts (whole (c, 0)) end

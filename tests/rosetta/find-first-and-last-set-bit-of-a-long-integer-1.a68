@@ -1,0 +1,88 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Find first and last set bit of a long integer", ALGOL 68 solution find-first-and-last-set-bit-of-a-long-integer-1.alg.
+  https://rosettacode.org/wiki/Find_first_and_last_set_bit_of_a_long_integer#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/find-first-and-last-set-bit-of-a-long-integer-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int lbits_width = UPB []bool(LBITS(2r0));
+
+op LWB = (bits in_x)int: bits_width - RUPB in_x;
+
+op RUPB = (bits in_x)int:
+  {}{ 32 bit LWB Find Lower Set Bit using an unrolled loop }{}
+{ Note: BITS ELEM 1 is actually numerically the Most Significant Bit!! }
+  if in_x = 2r0 then
+    -1 { EXIT }
+  else
+    bits x := in_x, out_ := 2r0;
+    if(x AND NOT 2r1111111111111111)/=2r0 then x := x SHR 16; out_ := out_ OR 2r10000 fi;
+    if(x AND NOT 2r11111111)        /=2r0 then x := x SHR  8; out_ := out_ OR 2r1000 fi;
+    if(x AND NOT 2r1111)            /=2r0 then x := x SHR  4; out_ := out_ OR 2r100 fi;
+    if(x AND NOT 2r11)              /=2r0 then x := x SHR  2; out_ := out_ OR 2r10 fi;
+    if(x AND NOT 2r1)               /=2r0 then                out_ := out_ OR 2r1 fi;
+    ABS out_ { EXIT }
+  fi;
+
+op LWB = (LBITS in_x)int: lbits_width - RUPB in_x;
+
+op RUPB = (LBITS in_x)int:
+  {}{ Generalised Find Lower Set Bit using a loop }{}
+{ Note: BITS ELEM 32 is actually numerically the Least Significant Bit!! }
+  if in_x = 2r0 then
+    -1 { EXIT }
+  else
+    LBITS x := in_x;
+    bits
+      out_bit := BIN 1 SHL (bits_width - LWB BIN lbits_width),
+      out_ := BIN 0;
+    while
+      LBITS mask := NOT BIN (ABS (long 2r1 SHL ABS out_bit) - 1);
+      if(x AND mask) /= 2r0 then
+        x := x SHR ABS out_bit;
+        out_ := out_ OR out_bit fi;
+      out_bit := out_bit SHR 1;
+  { WHILE } out_bit /= 2r0 do skip od;
+    ABS out_ { EXIT }
+  fi;
+
+op UPB = (bits in_x)int: bits_width - RLWB in_x;
+
+op RLWB = (bits in_x)int:
+  {}{ 32 bit Find Upper Set Bit using an unrolled loop }{}
+{ Note: BITS ELEM 1 is actually numerically the Most Significant Bit!! }
+  if in_x = 2r0 then
+    0 { EXIT }
+  else
+    bits x := in_x, out_ := 2r0;
+    if(x AND 2r1111111111111111)=2r0 then x := x SHR 16; out_ := out_ OR 2r10000 fi;
+    if(x AND 2r11111111)        =2r0 then x := x SHR  8; out_ := out_ OR 2r1000 fi;
+    if(x AND 2r1111)            =2r0 then x := x SHR  4; out_ := out_ OR 2r100 fi;
+    if(x AND 2r11)              =2r0 then x := x SHR  2; out_ := out_ OR 2r10 fi;
+    if(x AND 2r1)               =2r0 then                out_ := out_ OR 2r1 fi;
+    ABS out_ { EXIT }
+  fi;
+
+op UPB = (LBITS in_x)int: lbits_width - RLWB in_x;
+
+op RLWB = (LBITS in_x)int:
+  {}{ Generalised Find Upper Set Bit using a loop }{}
+{ Note: BITS ELEM 1 is actually numerically the Most Significant Bit!! }
+  if in_x = 2r0 then
+    0 { EXIT }
+  else
+    LBITS x := in_x;
+    bits
+      out_bit := BIN 1 SHL (bits_width - LWB BIN lbits_width),
+      out_ := BIN 0;
+    while
+      LBITS mask := BIN (ABS (long 2r1 SHL ABS out_bit) - 1);
+      if(x AND mask) = 2r0 then
+        x := x SHR ABS out_bit;
+        out_ := out_ OR out_bit fi;
+      out_bit := out_bit SHR 1;
+  { WHILE } out_bit /= 2r0 do skip od;
+    ABS out_ { EXIT }
+  fi;
+)

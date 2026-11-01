@@ -1,0 +1,104 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Text processing/1", ALGOL 68 solution text-processing-1.alg.
+  https://rosettacode.org/wiki/Text_processing/1#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/text-processing-1.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+int no_data := 0;               { Current run of consecutive flags<0 in lines of file }
+int no_data_max := -1;          { Max consecutive flags<0 in lines of file }
+flex[0]string no_data_max_line; { ... and line number(s) where it occurs }
+
+real tot_file := 0;             { Sum of file data }
+int num_file := 0;              { Number of file data items with flag>0 }
+
+{ CHAR fs = " "; }
+int nf = 24;
+
+int upb_list := nf;
+FORMAT list_repr = $n(upb list-1)(g", ")g$;
+
+proc exception = ([]string args)void:(
+  putf(stand_error, ($"Exception"$, $", "g$, args, $l$));
+  stop
+);
+
+proc raise_io_error = (string message)void:exception(("io error", message));
+
+op +:= = (ref flex []string rhs, string append)ref flex[]string: (
+  heap [UPB rhs+1]string out_rhs;
+  out_rhs[:UPB rhs] := rhs;
+  out_rhs[UPB rhs+1] := append;
+  rhs := out_rhs;
+  out_rhs
+);
+
+int upb_opts = 3; { these are "a68g" "./Data_Munging.a68" & "-" }
+[argc - upb_opts]string in_files;
+for arg to UPB in_files do in_files[arg] := argv(upb_opts + arg) od;
+
+mode Field = struct(real data, int flag);
+FORMAT field_repr = $2(g)$;
+
+for index_file to UPB in_files do
+  string file_name = in_files[index_file], file file_;
+  if open(file_, file_name, stand_in_channel) NE 0 then
+    raise_io_error("Cannot open """+file_name+"""") fi;
+  on_logical_file_end(file_, (ref file f)bool: logical_file_end_done);
+  real tot_line, int num_line;
+  { make term(file, ", ") for CSV data }
+  string date;
+  do
+    tot_line := 0;             { sum of line data }
+    num_line := 0;             { number of line data items with flag>0 }
+    { extract field info }
+    [nf]Field data;
+    getf(file_, ($10a$, date, field_repr, data, $l$));
+
+    for key to UPB data do
+      Field field = data[key];
+      if flag of field<1 then
+        no_data +:= 1
+      else
+        { check run of data-absent data }
+        if no_data_max = no_data AND no_data>0 then
+          no_data_max_line +:= date fi;
+        if no_data_max<no_data AND no_data>0 then
+          no_data_max := no_data;
+          no_data_max_line := date fi;
+        { re-initialise run of no data counter }
+        no_data := 0;
+        { gather values for averaging }
+        tot_line +:= data of field;
+        num_line +:= 1
+      fi
+    od;
+
+    { totals for the file so far }
+    tot_file +:= tot_line;
+    num_file +:= num_line;
+
+    printf(($"Line: "g"  Reject: "g(-2)"  Accept: "g(-2)"  Line tot: "g(-14, 3)"  Line avg: "g(-14, 3)l$,
+          date,
+          UPB(data) -num_line,
+          num_line, tot_line,
+          if num_line>0 then tot_line/num_line else 0 fi))
+  od;
+  logical_file_end_done:
+    close(file_)
+od;
+
+FORMAT plural = $b(" ", "s")$,
+       p = $b("", "s")$;
+
+upb_list := UPB in_files;
+printf(($l"File"f(plural)"    = "$, upb_list = 1, list_repr, in_files, $l$,
+        $"Total    = "g(-0, 3)l$, tot_file,
+        $"Readings = "g(-0)l$, num_file,
+        $"Average  = "g(-0, 3)l$, tot_file / num_file));
+
+upb_list := UPB no_data_max_line;
+printf(($l"Maximum run"f(p)" of "g(-0)" consecutive false reading"f(p)" ends at line starting with date"f(p)": "$,
+    upb_list = 1, no_data_max, no_data_max = 0, upb_list = 1, list_repr, no_data_max_line, $l$))
+)

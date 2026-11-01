@@ -1,0 +1,27 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Sieve of Eratosthenes", ALGOL 68 solution sieve-of-eratosthenes.alg.
+  https://rosettacode.org/wiki/Sieve_of_Eratosthenes#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/sieve-of-eratosthenes.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+bool prime = true, non_prime = false;
+proc eratosthenes = (int n)[]bool:
+(
+  [n]bool sieve;
+  for i to UPB sieve do sieve[i] := prime od;
+  int m = ENTIER sqrt(n);
+  sieve[1] := non_prime;
+  for i from 2 to m do
+    if sieve[i] = prime then
+      for j from i*i by i to n do
+        sieve[j] := non_prime
+      od
+    fi
+  od;
+  sieve
+);
+
+ print((eratosthenes(80),new_line))
+)

@@ -1,0 +1,103 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Prime triangle", ALGOL 68 solution prime-triangle.alg.
+  https://rosettacode.org/wiki/Prime_triangle#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/prime-triangle.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { find solutions to the "Prime Triangle" - a triangle of numbers that sum to primes }
+    int max_number = 18; { largest number we will consider }
+    { construct a primesieve and from that a table of pairs of numbers whose sum is prime }
+    [ 0 : 2 * max_number ]bool prime;
+    prime[ 0 ] := prime[ 1 ] := false;
+    prime[ 2 ] := true;
+    for i from 3 by 2 to UPB prime do prime[ i ] := true  od;
+    for i from 4 by 2 to UPB prime do prime[ i ] := false od;
+    for i from 3 by 2 to ENTIER sqrt( UPB prime ) do
+        if prime[ i ] then
+            for s from i * i by i + i to UPB prime do prime[ s ] := false od
+        fi
+    od;
+    { returns the number of possible arrangements of the integers for a row in the prime triangle }
+    proc count_arrangements = ( int n )int:
+         if   n < 2 then { no solutions for n < 2 } 0
+         elif n < 4 then
+             { for 2 and 3. there is only 1 solution: 1, 2 and 1, 2, 3 }
+             for i to n do print( ( whole( i, -3 ) ) ) od; print( ( newline ) );
+             1
+         else
+             { 4 or more - must find the solutions }
+             bool print_solution := true;
+             [ 0 : n ]bool used;
+             [ 0 : n ]int  number;
+             { the triangle row must have 1 in the leftmost and n in the rightmost elements }
+             { the numbers must alternate between even and odd in order for the sum to be prime }
+             for i from 0 to n do
+                 used[   i ] := false;
+                 number[ i ] := i MOD 2
+             od;
+             used[   1 ] := true;
+             number[ n ] := n;
+             used[   n ] := true;
+             { find the intervening numbers and count the solutions }
+             int count := 0;
+             int p     := 2;
+             while p > 0 do
+                 int p1      = number[ p - 1 ];
+                 int current = number[ p     ];
+                 int next   := current + 2;
+                 while if next >= n then false else NOT prime[ p1 + next ] OR used[ next ] fi do
+                     next +:= 2
+                 od;
+                 if next >= n then next := 0 fi;
+                 if p = n - 1 then
+                     { we are at the final number before n }
+                     { it must be the final even/odd number preceded by the final odd/even number }
+                     if next /= 0 then
+                         { possible solution }
+                         if prime[ next + n ] then
+                             { found a solution }
+                             count +:= 1;
+                             if print_solution then
+                                 for i to n - 2 do
+                                     print( ( whole( number[ i ], -3 ) ) )
+                                 od;
+                                 print( ( whole( next, -3 ), whole( n, - 3 ), newline ) );
+                                 print_solution := false
+                             fi
+                         fi;
+                         next := 0
+                     fi;
+                     { backtrack for more solutions }
+                     p -:= 1
+                     { here will be a further backtrack as next is 0 ( there could only be one possible number at p - 1 ) }
+                 fi;
+                 if next /= 0 then
+                     { have a/another number that can appear at p }
+                     used[ current ] := false;
+                     used[    next ] := true;
+                     number[     p ] := next;
+                     p +:= 1
+                 elif p <= 2 then
+                     { no more solutions }
+                     p := 0
+                 else
+                     { can't find a number for this position, backtrack }
+                     used[ number[ p ] ] := false;
+                     number[       p   ] := p MOD 2;
+                     p -:= 1
+                 fi
+             od;
+             count
+         fi { count arrangements } ;
+    [ 2 : max_number ]int arrangements;
+    for n from LWB arrangements to UPB arrangements do
+        arrangements[ n ] := count_arrangements( n )
+    od;
+    for n from LWB arrangements to UPB arrangements do
+        print( ( " ", whole( arrangements[ n ], 0 ) ) )
+    od;
+    print( ( newline ) )
+end
+)

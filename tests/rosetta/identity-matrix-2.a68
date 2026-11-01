@@ -1,0 +1,61 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Identity matrix", ALGOL 68 solution identity-matrix-2.alg.
+  https://rosettacode.org/wiki/Identity_matrix#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/identity-matrix-2.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+{ -*- coding: utf-8 -*- }
+
+{ Define some generic matrix initialisation and printing operations }
+
+{ REQUIRES:
+  MODE SCAL = ~ # a scalar, eg REAL #;
+  MODE VEC = []SCAL;
+  FORMAT scal fmt := ~;
+  et al.
+END }
+
+int mat_lwb := 1, mat_upb := 0;
+mode Matnew = [mat_lwb:mat_upb, vec_lwb: vec_upb]SCAL; mode Mat = ref Matnew;
+FORMAT mat_fmt = $"("n(vec upb-vec lwb)(f(vec fmt)","lx)f(vec fmt)")"l$;
+
+prio DIAGINIT = 1;
+
+op INIT = (Mat self, SCAL scal)Mat: (
+  for row from LWB self to UPB self do self[row,] INIT scal od;
+  self
+);
+
+{ ZEROINIT: defines the additive identity }
+op ZEROINIT = (Mat self)Mat:
+  self INIT SCAL(0);
+
+op REPR = (Matnew self)string: (
+  file f; string s; associate(f,s);
+  vec_lwb := 2 LWB self; vec_upb := 2 UPB self;
+  mat_lwb :=   LWB self; mat_upb :=   UPB self;
+  putf(f, (mat_fmt, self)); close(f);
+  s
+);
+
+op DIAGINIT = (Mat self, VEC diag)Mat: (
+  ZEROINIT self;
+  for d from LWB diag to UPB diag do self[d,d]:= diag[d] od;
+{ or alternatively using TORRIX ...
+  DIAG self := diag;
+}
+  self
+);
+
+{ ONEINIT: defines the multiplicative identity }
+op ONEINIT = (Mat self)Mat: (
+  ZEROINIT self DIAGINIT (loc[LWB self:UPB self]SCAL INIT SCAL(1))
+{ or alternatively using TORRIX ...
+  (DIAG out) VECINIT SCAL(1)
+}
+);
+
+skip
+)

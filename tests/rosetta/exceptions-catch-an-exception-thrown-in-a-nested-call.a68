@@ -1,0 +1,65 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Exceptions/Catch an exception thrown in a nested call", ALGOL 68 solution exceptions-catch-an-exception-thrown-in-a-nested-call.alg.
+  https://rosettacode.org/wiki/Exceptions/Catch_an_exception_thrown_in_a_nested_call#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/exceptions-catch-an-exception-thrown-in-a-nested-call.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Obj = struct(
+  int value,
+  struct(
+    string message,
+    flex[0]string args,
+    proc(ref Obj)bool u0, u1
+  ) exception
+);
+
+proc on_u0 = (ref Obj self, proc (ref Obj) bool mended)void:
+  u0 of exception of self := mended;
+
+proc on_u1 = (ref Obj self, proc (ref Obj) bool mended)void:
+  u1 of exception of self := mended;
+
+prio INIT = 1, RAISE = 1;
+
+op INIT = (ref Obj self, int value)ref Obj: (
+  value of self := value;
+  u0 of exception of self := u1 of exception of self := (ref Obj skip_)bool: false;
+  args of exception of self := message of exception of self := "OBJ Exception";
+  self
+);
+
+op RAISE = (ref Obj self, proc (ref Obj) bool mended)void:
+  if NOT mended(self) then
+    put(stand_error, (message of exception of self+" not caught - stop", new_line));
+    stop
+  fi;
+
+proc (ref Obj)void bar, baz; { early declaration is required by the ALGOL 68RS subset language }
+
+proc foo := void:(
+    for value from 0 to 1 do
+        ref Obj i = loc Obj INIT value;
+        on_u0(i, (ref Obj skip_)bool: (go to except_u0; skip ));
+            bar(i);
+        go to end_on_u0;
+        except_u0:
+            print(("Function foo caught exception u0", new_line));
+        end_on_u0: skip
+    od
+);
+
+{ PROC } bar := (ref Obj i)void:(
+    baz(i) { Nest those calls }
+);
+
+{ PROC } baz := (ref Obj i)void:
+    if value of i = 0 then
+        i RAISE u0 of exception of i
+    else
+        i RAISE u1 of exception of i
+    fi;
+
+foo
+)

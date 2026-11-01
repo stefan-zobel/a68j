@@ -1,0 +1,11 @@
+{ 1 000 000 appends to an Intlist (a FLEX row would copy itself every time). }
+access Lists (
+   Intlist l = new_intlist;
+   int n = 1000000;
+   for i to n do l +:= i od;
+   int sum := 0;
+   for i to UPB l do sum +:= i ELEM l MOD 7 od;
+   Stringlist s = new_stringlist;
+   for i to 100000 do s +:= whole (i, 0) od;
+   puts (whole (UPB l, 0) + " " + whole (sum, 0) + " " + whole (UPB s, 0) + " " + 77777 ELEM s + "'n")
+)

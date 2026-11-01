@@ -1,0 +1,57 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Display a linear combination", ALGOL 68 solution display-a-linear-combination.alg.
+  https://rosettacode.org/wiki/Display_a_linear_combination#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/display-a-linear-combination.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+begin { display a string representation of some linear combinations              }
+    { returns a string representing the sum of the terms of a linear combination }
+    {         whose coefficients are the elements of coeffs                      }
+    proc linear_combination = ( []int coeffs )string:
+         begin
+            []int  cf          = coeffs[ at 1 ]; { ensure the lower bound is 1   }
+            string result     := "";
+            bool   first_term := true;
+            for i from LWB cf to UPB cf do
+                if int c = cf[ i ];
+                   c /= 0
+                then                                          { non-null element }
+                    if first_term then
+                        { first term - only add the operator if it is "-"        }
+                        if c < 0 then result +:= "-" fi;
+                        first_term := false
+                    else
+                        { second or subsequent term - separate from the previous }
+                        {                            and always add the operator }
+                        result +:= " " + if c < 0 then "-" else "+" fi + " "
+                    fi;
+                    { add the coefficient, unless it is one                      }
+                    if ABS c /= 1 then
+                        result +:= whole( ABS c, 0 )
+                    fi;
+                    { add the vector                                             }
+                    result +:= "e(" + whole( i, 0 ) + ")"
+                fi
+            od;
+            if result = "" then "0" else result fi
+         end { linear combination } ;
+
+    { test cases }
+    [][]int tests = ( (  1,  2,  3  )
+                    , (  0,  1,  2,  3  )
+                    , (  1,  0,  3,  4  )
+                    , (  1,  2,  0  )
+                    , (  0,  0,  0  )
+                    , (  0  )
+                    , (  1,  1,  1  )
+                    , ( -1, -1, -1  )
+                    , ( -1, -2,  0, -3  )
+                    , ( -1  )
+                    );
+    for i from LWB tests to UPB tests do
+        print( ( linear_combination( tests[ i ] ), newline ) )
+    od
+end
+)

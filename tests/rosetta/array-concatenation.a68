@@ -1,0 +1,39 @@
+{ dg-modules "rcprelude" }
+{ Rosetta Code, task "Array concatenation", ALGOL 68 solution array-concatenation.alg.
+  https://rosettacode.org/wiki/Array_concatenation#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/array-concatenation.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Rc_Prelude (
+mode Argtype = int;
+mode Arglist = flex[0]Argtype;
+
+op + = (Arglist a, b)Arglist: (
+  [LWB a:UPB a - LWB a + 1 + UPB b - LWB b + 1 ]Argtype out_;
+  (
+    out_[LWB a:UPB a]:=a,
+    out_[UPB a+1:]:=b
+  );
+  out_
+);
+
+{ Append }
+op +:=    = (ref Arglist lhs, Arglist rhs)Arglist: lhs := lhs + rhs;
+op PLUSAB = (ref Arglist lhs, Arglist rhs)Arglist: lhs := lhs + rhs;
+
+{ Prefix }
+op +=:    = (Arglist lhs, ref Arglist rhs)Arglist: rhs := lhs + rhs;
+op PLUSTO = (Arglist lhs, ref Arglist rhs)Arglist: rhs := lhs + rhs;
+
+Arglist a := (1,2),
+        b := (3,4,5);
+
+print(("a + b",a + b, new_line));
+
+void(a +:= b);
+print(("a +:= b", a, new_line));
+
+void(a +=: b);
+print(("a +=: b", b, new_line))
+)

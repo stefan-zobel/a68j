@@ -1,0 +1,17 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ Leaving an Algol 68 procedure called from Java with a jump, through the
+  Java method (java.util.Arrays.sort), and a runtime error in such a
+  procedure: the position is that of the Algol 68 source. }
+begin
+   proc (ref [] string, proc (string, string) int) void sort = nest Java "java.util.Arrays.sort";
+   proc (int, proc (int) void) void each = nest Java "demo.Fns.each";
+   [4] string names := ("delta", "alpha", "stop", "beta");
+   int compared := 0;
+   [2] int z := (10, 20);
+   sort (names, (string a, b) int:
+      (compared +:= 1; (a = "stop" OR b = "stop" | goto stopped); (a < b | -1 |: a > b | 1 | 0)));
+   puts ("not reached'n");
+stopped:
+   puts ("left the sort after " + whole (compared, 0) + " comparison(s)'n");
+   each (5, (int i) void: puts (whole (z[i], 0) + "'n"))
+end
