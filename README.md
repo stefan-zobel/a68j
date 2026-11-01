@@ -58,7 +58,9 @@ Hello, world!
 | Java interop and bundled modules (`tests/java`) | 44 of 44, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 
-Not supported, as in ga68: formatted transput (`$…$` formats). 80-bit
+Not supported, as in ga68: the transput of the Revised Report (`print`,
+`newline`, `put`, `$…$` formats); output goes through the POSIX
+prelude (`puts`, `putchar`, `fputs` ...). 80-bit
 `long long real` is out of scope.
 
 ## Requirements

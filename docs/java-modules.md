@@ -174,7 +174,7 @@ proc (proc (long real) long real, long real, long real, int) long real integrate
    = nest Java "demo.Fns.integrate";
 proc (ref [] string, proc (string, string) int) void sort = nest Java "java.util.Arrays.sort";
 
-print (integrate (long_sin, long 0, long_pi, 100));
+puts (fixed (integrate (long_sin, long 0, long_pi, 100), 0, 6) + "'n");
 [5] string names := ("Wirth", "van Wijngaarden", "Lindsey", "Koster", "Mailloux");
 sort (names, (string a, b) int: UPB a - UPB b)
 ```
@@ -185,7 +185,7 @@ sort (names, (string a, b) int: UPB a - UPB b)
 ```
 proc (int) proc (int) int adder = nest Java "demo.Fns.adder";   { returns an IntUnaryOperator }
 proc (int) int add10 = adder (10);
-print (add10 (5))                                                { 15 }
+puts (whole (add10 (5), 0) + "'n")                               { 15 }
 ```
 
 Both nest: a procedure from Java can be passed back to Java, and the
