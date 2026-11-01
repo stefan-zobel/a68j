@@ -1,0 +1,14 @@
+{ Sieve of Eratosthenes; runs with ga68 and with the JVM back end:
+    java -jar backend/a68j-backend.jar -run examples/primes-jvm.a68 }
+begin int n = 60;
+      [2:n] bool prime;
+      for i from 2 to n do prime[i] := true od;
+      for i from 2 to n
+      do if prime[i]
+         then for j from 2 * i by i to n do prime[j] := false od
+         fi
+      od;
+      string line := "Primes up to " + whole (n, 0) + ":";
+      for i from 2 to n do (prime[i] | line +:= " " + whole (i, 0)) od;
+      puts (line + REPR 10)
+end

@@ -1,0 +1,13 @@
+CO Area of a shape, UPPER stropping CO
+MODE CIRCLE = STRUCT (REAL r),
+     RECT   = STRUCT (REAL w, h),
+     SHAPE  = UNION (CIRCLE, RECT);
+
+PROC area = (SHAPE s) REAL:
+   CASE s IN
+      (CIRCLE c): pi * r OF c ** 2,
+      (RECT q):   w OF q * h OF q
+   ESAC;
+
+SHAPE found zero := RECT (2.5, 4e1);
+puts ("Area: " + fixed (area (found zero), 0, 2) + REPR 10)

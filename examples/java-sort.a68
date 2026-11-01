@@ -1,0 +1,6 @@
+begin
+   proc (ref [] string, proc (string, string) int) void sort = nest Java "java.util.Arrays.sort";
+   [4] string names := ("Wirth", "van Wijngaarden", "Lindsey", "Koster");
+   sort (names, (string a, b) int: UPB a - UPB b);
+   for i to UPB names do puts (names[i] + " ") od
+end

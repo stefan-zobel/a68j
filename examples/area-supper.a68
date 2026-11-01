@@ -1,0 +1,14 @@
+{ Area of a shape, SUPPER stropping }
+mode Circle = struct (real r),
+     Rect   = struct (real w, h),
+     Shape  = union (Circle, Rect);
+
+proc area = (Shape s) real:
+   case s in
+      (Circle c): pi * r of c ** 2,
+      (Rect q):   w of q * h of q
+   esac;
+
+Shape found_zero := Rect (2.5, 4e1);
+bits mask = 16rff;
+puts ("Area: " + fixed (area (found_zero), 0, 2) + REPR 10)

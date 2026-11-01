@@ -1,0 +1,9 @@
+access Hashmaps (
+   String_int_map count = new_string_int_map;
+   []string words = ("to", "be", "or", "not", "to", "be");
+   for i to UPB words do words[i] AT count +:= 1 od;
+   []string keys = KEYS count;
+   for i to UPB keys do
+      puts (keys[i] + ": " + whole (keys[i] ELEM count, 0) + "'n")
+   od
+)
