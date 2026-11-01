@@ -1,0 +1,42 @@
+{
+  "name": "algol68-supper",
+  "displayName": "Algol 68 (GNU, SUPPER stropping)",
+  "description": "Syntax highlighting for GNU Algol 68 (ga68, a68j) in SUPPER stropping",
+  "version": "0.2.1",
+  "publisher": "a68j",
+  "license": "ISC",
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "algol",
+    "algol68",
+    "ga68",
+    "supper"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "algol68",
+        "aliases": [
+          "Algol 68",
+          "algol68"
+        ],
+        "extensions": [
+          ".a68"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "algol68",
+        "scopeName": "source.algol68",
+        "path": "./syntaxes/algol68.tmLanguage.json"
+      }
+    ]
+  }
+}

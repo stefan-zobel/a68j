@@ -1,0 +1,18 @@
+{
+  "name": "a68html",
+  "version": "1.0.0",
+  "description": "Renders Algol 68 source (GNU, SUPPER stropping) as colored HTML or SVG with the TextMate grammar of a68j",
+  "main": "a68html.js",
+  "bin": {
+    "a68html": "a68html.js"
+  },
+  "scripts": {
+    "check": "node check_grammar.js"
+  },
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.2.0"
+  }
+}

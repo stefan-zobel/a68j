@@ -17,10 +17,7 @@ with **ga68**:
 - more than 500 Rosetta Code programs,
 - the project's own tests.
 
-<a href="examples/hello.a68"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/hello-dark.svg">
-  <img alt="hello.a68" src="images/hello-light.svg">
-</picture></a>
+[![hello.a68](images/hello.svg)](examples/hello.a68)
 
 ```
 $ java -jar a68j-backend.jar -run hello.a68
@@ -125,10 +122,7 @@ java -jar a68j-backend.jar -I lib -run program.a68
 
 ### Java methods and the bundled modules
 
-<a href="examples/java-methods.a68"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/java-methods-dark.svg">
-  <img alt="java-methods.a68" src="images/java-methods-light.svg">
-</picture></a>
+[![java-methods.a68](images/java-methods.svg)](examples/java-methods.a68)
 
 ```sh
 java -jar a68j-backend.jar -fnest-java -run java.a68
@@ -141,10 +135,7 @@ argument arrays.
 Procedures go to Java as objects of functional interfaces, and names of
 rows as arrays that are copied back after the call:
 
-<a href="examples/java-sort.a68"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/java-sort-dark.svg">
-  <img alt="java-sort.a68" src="images/java-sort-light.svg">
-</picture></a>
+[![java-sort.a68](images/java-sort.svg)](examples/java-sort.a68)
 
 ```sh
 java -jar a68j-backend.jar -fnest-java -run sort.a68
@@ -155,10 +146,7 @@ Wirth Koster Lindsey van Wijngaarden
 `int`, `long int` and `string` keys (`String_int_map`, …). They need no
 option:
 
-<a href="examples/hashmaps.a68"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/hashmaps-dark.svg">
-  <img alt="hashmaps.a68" src="images/hashmaps-light.svg">
-</picture></a>
+[![hashmaps.a68](images/hashmaps.svg)](examples/hashmaps.a68)
 
 ## Performance
 
