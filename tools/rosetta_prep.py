@@ -125,7 +125,9 @@ def main():
         for fn in sorted(os.listdir(sdir)):
             if not fn.endswith(".alg"):
                 continue
-            name = fn[:-4]
+            # No characters that are invalid in Windows file names
+            # ("Sequence:-nth-..." becomes "sequence-nth-...").
+            name = re.sub(r'[<>:"|?*\\]', "", fn[:-4])
             raw = open(os.path.join(sdir, fn), "rb").read()
             open(os.path.join(odir, name + ".a68"), "wb").write(raw)
             text = raw.decode("latin-1")

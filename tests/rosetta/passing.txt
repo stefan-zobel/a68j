@@ -415,9 +415,9 @@ send-+-more-=-money
 separate-the-house-number-from-the-street-name
 sequence-of-non-squares
 sequence-of-primes-by-trial-division
-sequence:-nth-number-with-exactly-n-divisors
-sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors
-sequence:-smallest-number-with-exactly-n-divisors
+sequence-nth-number-with-exactly-n-divisors
+sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors
+sequence-smallest-number-with-exactly-n-divisors
 seven-sided-dice-from-five-sided-dice
 shoelace-formula-for-polygonal-area
 short-circuit-evaluation-1

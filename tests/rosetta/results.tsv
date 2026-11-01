@@ -913,7 +913,7 @@ primes-whose-first-and-last-number-is-3	Primes-whose-first-and-last-number-is-3	
 primes-whose-sum-of-digits-is-25-1	Primes-whose-sum-of-digits-is-25	missing include primes.incl.a68	-	
 primes-whose-sum-of-digits-is-25-2	Primes-whose-sum-of-digits-is-25	compile error: error: 'int' cannot be coerced to 'long long int' in a strong-unit	-	
 primes-with-digits-in-nondecreasing-order	Primes-with-digits-in-nondecreasing-order	missing include primes.incl.a68	-	
-primes:-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68	-	
+primes-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68	-	
 print-itself-1	Print-itself	compile error: error: tag 'open' has not been declared properly	-	
 print-itself-2	Print-itself	compile error: error: tag 'system' has not been declared properly	-	
 print-itself-3	Print-itself	missing include files.incl.a68	-	
@@ -1031,9 +1031,9 @@ sequence-of-non-squares	Sequence-of-non-squares	exit 0	pass
 sequence-of-primes-by-trial-division	Sequence-of-primes-by-trial-division	exit 0	pass	
 sequence-of-primorial-primes-1	Sequence-of-primorial-primes	missing include primes.incl.a68	-	
 sequence-of-primorial-primes-2	Sequence-of-primorial-primes	compile error: error: dyadic operator long int <= int has not been declared	-	
-sequence:-nth-number-with-exactly-n-divisors	Sequence:-nth-number-with-exactly-n-divisors	exit 0	pass	
-sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	Sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	exit 0	pass	
-sequence:-smallest-number-with-exactly-n-divisors	Sequence:-smallest-number-with-exactly-n-divisors	exit 0	pass	
+sequence-nth-number-with-exactly-n-divisors	Sequence:-nth-number-with-exactly-n-divisors	exit 0	pass	
+sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors	Sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	exit 0	pass	
+sequence-smallest-number-with-exactly-n-divisors	Sequence:-smallest-number-with-exactly-n-divisors	exit 0	pass	
 set	Set	missing include aArray.a68	-	
 seven-sided-dice-from-five-sided-dice	Seven-sided-dice-from-five-sided-dice	exit 0	pass	
 shape-machine-1	Shape-Machine	compile error: error: tag 'read' has not been declared properly	-	

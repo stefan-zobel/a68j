@@ -913,7 +913,7 @@ primes-whose-first-and-last-number-is-3	Primes-whose-first-and-last-number-is-3	
 primes-whose-sum-of-digits-is-25-1	Primes-whose-sum-of-digits-is-25	missing include primes.incl.a68
 primes-whose-sum-of-digits-is-25-2	Primes-whose-sum-of-digits-is-25	prepared
 primes-with-digits-in-nondecreasing-order	Primes-with-digits-in-nondecreasing-order	missing include primes.incl.a68
-primes:-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68
+primes-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68
 print-itself-1	Print-itself	prepared
 print-itself-2	Print-itself	prepared
 print-itself-3	Print-itself	missing include files.incl.a68
@@ -1031,9 +1031,9 @@ sequence-of-non-squares	Sequence-of-non-squares	prepared
 sequence-of-primes-by-trial-division	Sequence-of-primes-by-trial-division	prepared
 sequence-of-primorial-primes-1	Sequence-of-primorial-primes	missing include primes.incl.a68
 sequence-of-primorial-primes-2	Sequence-of-primorial-primes	prepared
-sequence:-nth-number-with-exactly-n-divisors	Sequence:-nth-number-with-exactly-n-divisors	prepared
-sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	Sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	prepared
-sequence:-smallest-number-with-exactly-n-divisors	Sequence:-smallest-number-with-exactly-n-divisors	prepared
+sequence-nth-number-with-exactly-n-divisors	Sequence:-nth-number-with-exactly-n-divisors	prepared
+sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors	Sequence:-smallest-number-greater-than-previous-term-with-exactly-n-divisors	prepared
+sequence-smallest-number-with-exactly-n-divisors	Sequence:-smallest-number-with-exactly-n-divisors	prepared
 set	Set	missing include aArray.a68
 seven-sided-dice-from-five-sided-dice	Seven-sided-dice-from-five-sided-dice	prepared
 shape-machine-1	Shape-Machine	prepared
