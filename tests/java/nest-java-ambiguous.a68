@@ -1,0 +1,12 @@
+{ a68j-options: -fnest-java }
+{ A Java object fits every parameter of a reference type equally well, so
+  join(CharSequence, CharSequence...) and join(CharSequence, Iterable) of
+  String fit the mode equally well: the formal hole is ambiguous, a
+  compile-time error that names both. }
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc List new_list = nest Java "java.util.ArrayList::new";
+   proc (string, List) string join = nest Java "java.lang.String.join";
+   puts (join (", ", new_list) + "'n")
+end

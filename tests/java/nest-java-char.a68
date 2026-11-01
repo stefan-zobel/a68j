@@ -1,0 +1,17 @@
+{ a68j-options: -fnest-java }
+{ A char is a code point, passed as an int: of the methods of Character
+  that exist for int and for char the one for int is taken, so that a
+  character beyond U+FFFF is not cut to 16 bits. U+1D7CE is a digit,
+  U+D7CE (what is left of it as a char) is not; U+10428 is a small letter
+  whose capital is U+10400, U+0428 is a capital letter already. }
+begin
+   proc (char) bool is_digit = nest Java "java.lang.Character.isDigit";
+   proc (char) char to_upper = nest Java "java.lang.Character.toUpperCase";
+   proc (char) int digit_value = nest Java "java.lang.Character.getNumericValue";
+   char bold_zero = REPR 120782, deseret_small = REPR 66600;
+   puts ((is_digit (bold_zero) | "digit" | "no digit") + "'n");
+   puts ((is_digit ("7") | "digit" | "no digit") + "'n");
+   puts (whole (digit_value (bold_zero), 0) + "'n");
+   puts (whole (ABS to_upper (deseret_small), 0) + "'n");
+   puts (to_upper ("a") + "'n")
+end

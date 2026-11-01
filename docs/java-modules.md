@@ -33,8 +33,9 @@ java -jar backend/a68j-backend.jar -fnest-java -run prog.a68
 ```
 
 - **Procedure mode:** the static method whose parameters and result fit
-  the mode is looked up; with overloading, the cheapest fitting one
-  (section 1a, "Which method"). Constructors, instance methods and fields
+  the mode is looked up; with overloading, the cheapest fitting one, and
+  a compile-time error if several are equally cheap (section 1a, "Which
+  method"). Constructors, instance methods and fields
   of objects are written as method references, `"java.util.ArrayList::new"`,
   `"java.util.ArrayList::add"` and `"java.awt.Point::x"` (section 1b).
 - **Other mode:** the static field is read, such as `Math.PI`, once, where
@@ -65,7 +66,7 @@ java -cp backend/a68j-backend.jar:classes:out Prog
 | `real` (32 bits in ga68) | `float` or `double` |
 | `long real` | `double` |
 | `bool` | `boolean` |
-| `char` | `int` (code point) or `char` |
+| `char` | `int` (code point) or `char` (as a parameter `int` is preferred, see "Which method") |
 | `bits` | `int` |
 | `string` | `java.lang.String` (converted) **or** `a68j.rt.Row` (unchanged) |
 | `[] int`, `[] long int`, `[] real`, `[] long real`, `[] bool` | `int[]`, `long[]`, `float[]`, `double[]`, `boolean[]` (copied) |
@@ -226,10 +227,36 @@ A `null` or an object of the wrong class where a plain value is expected is
 a runtime error.
 
 **Which method.** If several overloads fit, the one with the lowest cost is
-taken: the same representation costs nothing, widening (`int` → `long`)
-and copying (rows, names of rows, procedures) a little, Java objects more.
-So `Arrays.sort(int[])` is preferred to `Arrays.sort(Object[])` for a
-`ref [] int`.
+taken: the same representation costs nothing, widening (`int` → `long`),
+copying (rows, names of rows, procedures) and a `char` as a Java `char`
+(a code point cut to UTF-16) a little, Java objects more. So
+`Arrays.sort(int[])` is preferred to `Arrays.sort(Object[])` for a
+`ref [] int`, and `Character.isDigit(int)` to `isDigit(char)` for a
+`char`, so that a character beyond U+FFFF stays whole.
+
+If several overloads fit at the same lowest cost, the formal hole is
+**ambiguous**, a compile-time error that names them. This happens with
+a Java object (section 1b), which fits every parameter of a reference type
+at the same cost, since its class is not known before the program runs:
+
+```
+proc (string, List) string join = nest Java "java.lang.String.join"
+```
+
+```
+prog.a68:4:38: fatal error: Java formal hole 'java.lang.String.join' is
+ambiguous for the mode proc (string, ref struct (int listjavaobject))
+string: java.lang.String.join(CharSequence, CharSequence...) and
+java.lang.String.join(CharSequence, Iterable) fit equally well
+```
+
+Taking one of them would be a guess, and the wrong one fails only when it
+is called. To make the formal hole unique, give it a mode that fits only
+one overload (`proc (string, [] string) string` fits only the varargs
+`join`), or call a small Java method of your own that takes the type you
+mean (with `-fjava-classpath`). Two candidates with the same parameters
+count as one, such as a method of an interface and the same method of
+`Object`.
 
 **Control flow.** A jump out of the procedure (`goto` to a label outside)
 and runtime errors pass through the Java method as they would through an
@@ -297,8 +324,9 @@ What `"Class::name"` means, as in Java:
   **first parameter**, the others are its parameters; or a public static
   method `name` with all the parameters. The methods of `Object`
   (`toString`, `equals` …) also count for an interface.
-- As for `"Class.member"` the cheapest fitting one is taken (section 1a,
-  "Which method"); a procedure mode is required. Nested classes are
+- As for `"Class.member"` the cheapest fitting one is taken, and several
+  equally cheap ones are a compile-time error (section 1a, "Which
+  method"); a procedure mode is required. Nested classes are
   written with dots as in Java, e.g. `"java.util.Map.Entry::getKey"` for
   the class `java.util.Map$Entry`, and so also with `"Class.member"`.
 - The object may be of other modes too, as far as they fit the class:
@@ -769,6 +797,8 @@ that access them (`-I tests/java/lib`).
 | `nest-java-generics-callback` | the same `Integer` passed by `forEach` to a `proc (string) void`: runtime error at the call of `forEach` |
 | `nest-java-generics-mode` | an `int` added to an `ArrayList<String>`: compile-time error |
 | `nest-java-generics-subclass` | the field of `T` of `StringBox extends Box<String>` read as `int`: compile-time error |
+| `nest-java-ambiguous` | `String.join` with a Java object as the second parameter: `join(CharSequence, CharSequence...)` and `join(CharSequence, Iterable)` fit equally well, compile-time error |
+| `nest-java-char` | `Character.isDigit`, `getNumericValue` and `toUpperCase` with characters beyond U+FFFF: the overloads for `int` (code points) are taken |
 | `nest-java-module` | public formal holes of a module (`tests/java/modules/jholes.a68`), called through their typed entries: numbers, strings, `char`, a name of a row, a procedure as an `IntUnaryOperator`, a discarded `long` result, a constructor, fields and an instance method, operators, procedure values of the holes; the program has no `-fnest-java` |
 | `nest-java-module-exception` | a Java exception in a public formal hole of a module: the position of the call in the program |
 | `nest-java-module-nil` | a field of `nil` through a public formal hole of a module |
@@ -784,18 +814,16 @@ that access them (`-I tests/java/lib`).
 | `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 42 of 42 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 44 of 44 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
-- A Java object (a name of a mode such as `Stringlist`) fits every
-  parameter of a reference type equally well, since a68j does not know its
-  class when the program is compiled. Of two overloads that differ only
-  there the first is taken: `proc (string, List) string join = nest Java
-  "java.lang.String.join"` takes `join(CharSequence, CharSequence...)`, not
-  `join(CharSequence, Iterable)`, and the call is a runtime error.
-- Done on 1 Nov 2026: procedures as parameters (functional interfaces),
-  see section 1a; constructors and instance methods, section 1b; positions
+- See [java-open-points.md](java-open-points.md).
+- Done on 1 Nov 2026: overloads that fit equally well are a compile-time
+  error (they were taken in the order of `getMethods()`, so that
+  `String.join` with a Java object took the varargs overload and failed
+  when it was called), section 1a, "Which method"; procedures as
+  parameters (functional interfaces), see section 1a; constructors and instance methods, section 1b; positions
   for the errors of `JavaObject.error`, section 1; fields of objects and
   static fields through `"Class::field"`, section 1b; typed entries for
   public formal holes of a module, section 5; type arguments in formal

@@ -1,0 +1,3 @@
+tests/java/nest-java-ambiguous.a68:10:38: fatal error: Java formal hole 'java.lang.String.join' is ambiguous for the mode proc (string, ref struct (int listjavaobject)) string: java.lang.String.join(CharSequence, CharSequence...) and java.lang.String.join(CharSequence, Iterable) fit equally well
+compilation terminated.
+exit 1

@@ -176,10 +176,10 @@ final class GenJava {
             bind(type, env, 0);
         }
         Moid m = JType.base(p.type);
-        String mode = a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT);
+        String mode = modeString(g, p);
         Target target;
         if (parts[2] == null) {
-            target = findMethod(g, c, parts[1], m);
+            target = findMethod(g, p, c, parts[1], m);
             if (target == null) {
                 throw new Gen.Fatal(p, "no public static Java method '" + denotation(p) + "' fits the mode " + mode);
             }
@@ -187,7 +187,7 @@ final class GenJava {
             if (!Modifier.isPublic(c.getModifiers())) {
                 throw new Gen.Fatal(p, "Java class '" + parts[0] + "' is not public");
             }
-            target = findReference(g, c, parts[1], m, denotation(p), env);
+            target = findReference(g, p, c, parts[1], m, denotation(p), env);
             if (target == null) {
                 target = findField(g, c, parts[1], m, denotation(p), env);
             }
@@ -268,23 +268,123 @@ final class GenJava {
 
     /**
      * The public static method NAME of C whose parameters and result fit the
-     * procedure mode M; of several the one with the lowest cost (see
-     * {@link #toJava}), of those the first.
+     * procedure mode M of the formal hole P; of several the one with the
+     * lowest cost (see {@link #best}).
      */
-    private static Target findMethod(Gen g, Class<?> c, String name, Moid m) {
-        Target best = null;
-        int bestCost = Integer.MAX_VALUE;
+    private static Target findMethod(Gen g, Node p, Class<?> c, String name, Moid m) {
+        List<Target> candidates = new ArrayList<>();
         for (Method x : c.getMethods()) {
             if (x.getName().equals(name) && Modifier.isStatic(x.getModifiers())) {
-                Target t = Target.ofStatic(x, null);
-                int cost = cost(g, t, m);
-                if (cost >= 0 && cost < bestCost) {
-                    best = t;
-                    bestCost = cost;
-                }
+                candidates.add(Target.ofStatic(x, null));
             }
         }
-        return best;
+        return best(g, p, candidates, m);
+    }
+
+    /**
+     * Of the CANDIDATES for the formal hole P of the procedure mode M the one
+     * that fits with the lowest cost (see {@link #toJava}), or null if none
+     * fits. If several fit with the lowest cost, the formal hole is
+     * ambiguous, a compile-time error that names them: a Java object (a name
+     * such as a Stringlist) fits every parameter of a reference type at the
+     * same cost, since its class is not known before the program runs, so of
+     * join(CharSequence, CharSequence...) and join(CharSequence, Iterable) of
+     * String neither is better for a name as the second parameter, and to
+     * take one of them would be a guess (the wrong one fails when it is
+     * called). Candidates with the same parameters are one: a method of an
+     * interface and the same method of Object or of a superinterface, of
+     * which the one with the narrowest result is taken.
+     */
+    private static Target best(Gen g, Node p, List<Target> candidates, Moid m) {
+        List<Target> best = new ArrayList<>();
+        int bestCost = Integer.MAX_VALUE;
+        for (Target t : candidates) {
+            int cost = cost(g, t, m);
+            if (cost < 0 || cost > bestCost) {
+                continue;
+            }
+            if (cost < bestCost) {
+                best.clear();
+                bestCost = cost;
+            }
+            addDistinct(best, t);
+        }
+        if (best.size() > 1) {
+            List<String> names = new ArrayList<>();
+            for (Target t : best) {
+                names.add(signature(t));
+            }
+            java.util.Collections.sort(names);
+            throw new Gen.Fatal(p, "Java formal hole '" + denotation(p) + "' is ambiguous for the mode "
+                    + modeString(g, p) + ": " + String.join(" and ", names) + " fit equally well");
+        }
+        return best.isEmpty() ? null : best.get(0);
+    }
+
+    /**
+     * Adds T to the targets BEST that fit equally well, unless one of them
+     * has the same kind and parameters (the same call for the Algol 68
+     * program); of two such the one with the narrower result stays.
+     */
+    private static void addDistinct(List<Target> best, Target t) {
+        for (int i = 0; i < best.size(); i++) {
+            Target u = best.get(i);
+            if (u.kind() == t.kind() && java.util.Arrays.equals(u.params(), t.params())) {
+                if (u.ret() != t.ret() && u.ret().isAssignableFrom(t.ret())) {
+                    best.set(i, t);
+                }
+                return;
+            }
+        }
+        best.add(t);
+    }
+
+    /**
+     * The member of T as Java declares it, for a message:
+     * "java.lang.String.join(CharSequence, Iterable)", "new
+     * java.util.ArrayList(int)", "java.awt.Point.x" for a field. The object
+     * of an instance method is not among the parameters.
+     */
+    private static String signature(Target t) {
+        if (t.kind() == Target.Kind.GET || t.kind() == Target.Kind.PUT) {
+            return t.x().getDeclaringClass().getTypeName() + "." + t.x().getName();
+        }
+        java.lang.reflect.Executable x = (java.lang.reflect.Executable) t.x();
+        StringBuilder s = new StringBuilder();
+        if (t.kind() == Target.Kind.NEW) {
+            s.append("new ").append(t.owner().getTypeName());
+        } else {
+            s.append(x.getDeclaringClass().getTypeName()).append('.').append(x.getName());
+        }
+        s.append('(');
+        Class<?>[] ps = x.getParameterTypes();
+        for (int i = 0; i < ps.length; i++) {
+            if (i > 0) {
+                s.append(", ");
+            }
+            if (i == ps.length - 1 && x.isVarArgs()) {
+                s.append(simpleName(ps[i].getComponentType())).append("...");
+            } else {
+                s.append(simpleName(ps[i]));
+            }
+        }
+        return s.append(')').toString();
+    }
+
+    /** The name of C without its package (Map.Entry for a nested class, int[] for an array). */
+    private static String simpleName(Class<?> c) {
+        String n = c.getTypeName();
+        Class<?> e = c;
+        while (e.isArray()) {
+            e = e.getComponentType();
+        }
+        Package k = e.getPackage();
+        return k == null || k.getName().isEmpty() ? n : n.substring(k.getName().length() + 1);
+    }
+
+    /** The mode of the formal hole P in lower case, for a message. */
+    private static String modeString(Gen g, Node p) {
+        return a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT);
     }
 
     /**
@@ -293,11 +393,12 @@ final class GenJava {
      * public static method NAME of C with the parameters of M, or a public
      * instance method NAME of C whose object is the first parameter of M (for
      * an interface also the public methods of Object). Of several that fit
-     * the one with the lowest cost, of those the first; null if none fits.
-     * ENV binds the type variables of C to the type arguments of the formal
-     * hole (empty without them, see {@link Target#bound}).
+     * the one with the lowest cost ({@link #best}, which reports the formal
+     * hole P as ambiguous if that is not one); null if none fits. ENV binds
+     * the type variables of C to the type arguments of the formal hole
+     * (empty without them, see {@link Target#bound}).
      */
-    private static Target findReference(Gen g, Class<?> c, String name, Moid m, String spec,
+    private static Target findReference(Gen g, Node p, Class<?> c, String name, Moid m, String spec,
             Map<TypeVariable<?>, Type> env) {
         List<Target> candidates = new ArrayList<>();
         if (name.equals("new")) {
@@ -319,19 +420,10 @@ final class GenJava {
                         : Target.ofInstance(x, c, spec));
             }
         }
-        Target best = null;
-        int bestCost = Integer.MAX_VALUE;
-        for (Target t : candidates) {
-            if (!env.isEmpty()) {
-                t = t.bound(env);
-            }
-            int cost = cost(g, t, m);
-            if (cost >= 0 && cost < bestCost) {
-                best = t;
-                bestCost = cost;
-            }
+        if (!env.isEmpty()) {
+            candidates.replaceAll(t -> t.bound(env));
         }
-        return best;
+        return best(g, p, candidates, m);
     }
 
     /**
@@ -606,8 +698,14 @@ final class GenJava {
     /** Does not fit (a cost). */
     static final int NO = -1;
 
-    /** Costs: same representation, widening, a copy, a Java object (Integer ...). */
-    private static final int EXACT = 0, WIDEN = 1, COPY = 1, OBJECT = 3;
+    /**
+     * Costs: same representation, widening, a copy, a CHAR (a code point) as
+     * a Java char (UTF-16, a character beyond U+FFFF does not fit), a Java
+     * object (Integer ...). So of Character.isDigit(int) and isDigit(char)
+     * the one with the code point is taken, as for all methods that exist
+     * with both.
+     */
+    private static final int EXACT = 0, WIDEN = 1, COPY = 1, NARROW = 1, OBJECT = 3;
 
     private static int add(int a, int b) {
         return a < 0 || b < 0 ? NO : a + b;
@@ -666,7 +764,7 @@ final class GenJava {
             return objectFits(g, j, m) ? OBJECT : NO;
         }
         if (m == g.a68.modes.CHAR) {
-            return j == int.class || j == char.class ? EXACT : NO;
+            return j == int.class ? EXACT : j == char.class ? NARROW : NO;
         }
         return switch (JType.of(g.a68, m)) {
             case INT -> j == int.class ? EXACT : j == long.class || j == double.class ? WIDEN : NO;

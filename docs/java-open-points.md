@@ -5,33 +5,37 @@ holes, the modules `Lists` and `Hashmaps`) is described in
 [java-modules.md](java-modules.md). This file has two parts: what is still
 open in the integration itself (part A), and ideas for further modules
 backed by Java APIs (part B). None of the open points blocks the use of
-the integration.
+the integration; A1 is done and kept here as a record.
 
 ## Part A. Open points
 
-### A1. Overloads that differ only in a reference parameter
+### A1. Overloads that differ only in a reference parameter (done)
 
-A Java object (a name of a mode such as `Stringlist`) fits every parameter
-of a reference type equally well, since a68j does not know its class when
-the program is compiled. Of two overloads that differ only there, the
-first one is taken silently:
+Done on 1 Nov 2026. A Java object (a name of a mode such as `Stringlist`)
+fits every parameter of a reference type equally well, since a68j does not
+know its class when the program is compiled. Of two overloads that differ
+only there, the first one in the order of `getMethods()` used to be taken
+silently, so that
 
 ```
 proc (string, List) string join = nest Java "java.lang.String.join"
 ```
 
-takes `join(CharSequence, CharSequence...)`, not
-`join(CharSequence, Iterable)`, and the call ends in a runtime error.
+took `join(CharSequence, CharSequence...)`, not
+`join(CharSequence, Iterable)`, and the call ended in a runtime error.
 
-This is the only open point that can give a wrong result rather than a
-worse message. It is also listed in section 7 of java-modules.md.
+Now several overloads that fit at the same lowest cost are a compile-time
+error that names them (`GenJava.best`, java-modules.md section 1a, "Which
+method", test `nest-java-ambiguous`). The author of the hole makes it
+unique with a mode that fits only one overload or with a small Java
+wrapper method.
 
-**Possible fix.** When more than one overload fits equally well, report
-the formal hole as ambiguous at compile time, naming the candidates,
-instead of taking the first. The author of the hole can then make it
-unique, for instance with a mode that fits only one overload or with a
-small Java wrapper method. This is a small change in the overload
-resolution of `GenJava`.
+Checking all tests for such ties found a second one, not caused by Java
+objects: a `char` fitted a Java `int` and a Java `char` at the same cost,
+so of `Character.isDigit(int)` and `isDigit(char)` one was taken by
+chance. A `char` is a code point, so the `int` is now preferred, and a
+character beyond U+FFFF is no longer cut to 16 bits (test
+`nest-java-char`).
 
 ### A2. Optional Java stack trace
 
@@ -100,7 +104,9 @@ methods of `String` (`split`, `replace`, `replaceAll`, `strip`,
   the functional interfaces of section 1a: `proc (Match) string`.
 
 **Prerequisite.** Several of these methods are overloaded with
-`CharSequence` and `Iterable` parameters, so A1 should be fixed first.
+`CharSequence` and `Iterable` parameters. Since A1 is done, a hole that
+does not choose one of them is a compile-time error, so the module needs
+modes that fit one overload, or a small Java helper class.
 
 ### B2. `Files`: files and directories
 
