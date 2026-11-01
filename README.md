@@ -41,7 +41,7 @@ Hello, world!
   `nest Java "java.lang.Math.cbrt"` binds a Java method like ga68's
   `nest C` binds a C function. Algol 68 procedures can be passed as Java
   functional interfaces (a comparator for `Arrays.sort`, say) and come
-  back as procedures. Constructors and instance methods are bound as
+  back as procedures. Constructors, instance methods and fields are bound as
   method references (`nest Java "java.util.ArrayList::new"`), so objects of
   the JDK can be used directly. Two bundled modules, `Lists` and
   `Hashmaps`, provide growable lists and hash maps built on it.
@@ -55,7 +55,7 @@ Hello, world!
 | a68j's own differential tests (`tests/extra`) | 26 of 26 |
 | Rosetta Code programs that ga68 runs | 534 identical, 2 equal up to floating-point rounding, 7 open, of 543 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 31 of 31, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 34 of 34, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 
 Not supported, as in ga68: formatted transput (`$…$` formats). 80-bit
@@ -146,7 +146,8 @@ Wirth Koster Lindsey van Wijngaarden
 
 Objects of any Java class are used through method references:
 `Class::new` is a constructor, `Class::name` an instance method called on
-the first parameter. In Algol 68 such an object is a name, and Java's
+the first parameter, or a public field if no method fits. In Algol 68
+such an object is a name, and Java's
 `null` is `nil`:
 
 [![java-objects.a68](images/java-objects.svg)](examples/java-objects.a68)

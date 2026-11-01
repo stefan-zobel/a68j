@@ -1,0 +1,3 @@
+before
+tests/java/nest-java-fields-nil.a68:9: runtime error: Java field java.awt.Point::x of NIL
+exit 134

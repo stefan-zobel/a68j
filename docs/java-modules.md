@@ -34,10 +34,12 @@ java -jar backend/a68j-backend.jar -fnest-java -run prog.a68
 
 - **Procedure mode:** the static method whose parameters and result fit
   the mode is looked up; with overloading, the cheapest fitting one
-  (section 1a, "Which method"). Constructors and instance methods are
-  written as method references, `"java.util.ArrayList::new"` and
-  `"java.util.ArrayList::add"` (section 1b).
-- **Other mode:** the static field is read, such as `Math.PI`.
+  (section 1a, "Which method"). Constructors, instance methods and fields
+  of objects are written as method references, `"java.util.ArrayList::new"`,
+  `"java.util.ArrayList::add"` and `"java.awt.Point::x"` (section 1b).
+- **Other mode:** the static field is read, such as `Math.PI`, once, where
+  the formal hole is elaborated. `"Class::field"` with a procedure mode
+  reads it at every call and can also write it (section 1b).
 - **Errors:** a wrong class name or modes that do not fit are a
   **compile-time error**, e.g.
   `fatal error: no public static Java method 'java.lang.Math.nosuch' fits the mode proc (real) real`.
@@ -261,7 +263,7 @@ Tests: `tests/java/nest-java-fn.a68` (all of the above with
 out of a comparator through `Arrays.sort`, a runtime error in a callback),
 `nest-java-fn-error.a68` (a procedure that does not fit `Predicate<String>`).
 
-## 1b. Objects of any Java class: constructors and instance methods
+## 1b. Objects of any Java class: constructors, instance methods and fields
 
 A formal hole written as a **method reference** of Java names a
 constructor or an instance method. Classes of the JDK and of libraries can
@@ -295,6 +297,39 @@ What `"Class::name"` means, as in Java:
   the class `java.util.Map$Entry`, and so also with `"Class.member"`.
 - The object may be of other modes too, as far as they fit the class:
   `proc (string) int length = nest Java "java.lang.String::length"`.
+
+**Fields.** If no method or constructor fits, `"Class::name"` is the
+public field `name` of the class (also an inherited one). This goes beyond
+Java, which has no field references. A procedure with the object as its
+only parameter and the type of the field as its result reads the field; a
+procedure with the object and a new value as parameters and no result
+writes it, unless the field is `final`. For a static field the object is
+left out:
+
+```
+mode Point = ref Point_object;
+mode Point_object = struct (int point_java_object);
+proc (int, int) Point new_point = nest Java "java.awt.Point::new";
+proc (Point) int x = nest Java "java.awt.Point::x";
+proc (Point, int) void set_x = nest Java "java.awt.Point::x";
+proc int max_int = nest Java "java.lang.Integer::MAX_VALUE";
+
+Point p = new_point (3, 4);
+set_x (p, x (p) + 1);                                 { p.x = p.x + 1 }
+```
+
+- A method of the same name wins: a class with a field `size` and a method
+  `size()` gives the method for `proc (C) int` and the field only for
+  `proc (C, int) void`.
+- The modes fit the type of the field as they fit a parameter or result
+  (section 1), also for a field of a type variable (the `T value` of a
+  `Box<T>` is an `Object`). A name of a row is no new value for a field of
+  an array type: the field would keep the copy, and later assignments to
+  the row would not reach it.
+- Writing a `final` field is a compile-time error:
+  `fatal error: no public Java method or field 'java.lang.Integer::MAX_VALUE' fits the mode proc (int) void`.
+- A field of `nil` is a runtime error at the call:
+  `runtime error: Java field java.awt.Point::x of NIL`.
 
 **The objects.** A Java object whose class does not extend
 `a68j.rt.Ref` is an `a68j.rt.JavaHandle` in Algol 68 (a subclass of
@@ -330,7 +365,10 @@ named in the formal hole. Before the call the object is checked and taken
 out of its handle (`JavaConv.receiver`); other parameters of a class type
 with `JavaConv.javaObject`, `Object` parameters with `JavaConv.unwrap`.
 For a constructor the converted arguments go into locals first, then
-`new`, `dup`, the arguments and `invokespecial`. A result whose class
+`new`, `dup`, the arguments and `invokespecial`. A field is read with
+`getfield` or `getstatic` and written with `putfield` or `putstatic`, on
+the class named in the formal hole; the object is checked by
+`JavaConv.fieldReceiver`. A result whose class
 does not extend `Ref` goes through `JavaConv.objRef`, which makes the
 handle (`backend/.../jvm/GenJava.java`, `Target`).
 
@@ -339,7 +377,8 @@ of `int` elements (boxed as `Integer`): 0.36 to 0.54 s with the start of
 the JVM; the same with the `Intlist` of section 3 (unboxed), 0.21 to
 0.25 s.
 
-Tests: `tests/java/nest-java-objects.a68` and `nest-java-objects-*.a68`.
+Tests: `tests/java/nest-java-objects.a68`, `nest-java-objects-*.a68`,
+`nest-java-fields.a68` and `nest-java-fields-*.a68`.
 
 ## 2. Java objects in Algol 68
 
@@ -650,6 +689,9 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `nest-java-objects-new` | a Java exception in a constructor |
 | `nest-java-objects-deref` | dereferencing a Java object of the JDK |
 | `nest-java-objects-error` | the constructor of an abstract class: compile-time error |
+| `nest-java-fields` | fields through `"Class::field"` (`tests/java/demo/Counter.java`, `Box.java`, `java.awt.Point`): instance and static fields read and written, a `final` field read, `long`, `double` and object fields, `nil` both ways, a field of a type variable, an inherited field, a method that wins over a field of the same name, procedure values |
+| `nest-java-fields-nil` | a field of `nil` |
+| `nest-java-fields-error` | writing a `final` field: compile-time error |
 | `lists-basic` | all operations on `Intlist`, `is`, `nil`, `AT` |
 | `lists-kinds` | the other five modes, copies in a `Stringlist` |
 | `lists-speed` | 1 000 000 elements |
@@ -662,18 +704,17 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 31 of 31 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 34 of 34 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
 - Typed entries also for public formal holes of a module
   (`pub proc (int) int f = nest Java "…"`); today they go through the
   boxed procedure value.
-- Fields of objects (`"Class::field"` is not a field), and static fields
-  through `::`.
 - Generic element types are not checked: the `String`s of a
   `List<String>` are converted when they are read as `string`, another
   object there is a runtime error only then.
 - Done on 1 Nov 2026: procedures as parameters (functional interfaces),
   see section 1a; constructors and instance methods, section 1b; positions
-  for the errors of `JavaObject.error`, section 1.
+  for the errors of `JavaObject.error`, section 1; fields of objects and
+  static fields through `"Class::field"`, section 1b.

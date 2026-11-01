@@ -1,0 +1,70 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ Public fields through "Class::field": instance and static fields read
+  and written, a final field, a field of a type variable, an inherited
+  field, an object as the value of a field, and a method that wins over a
+  field of the same name (tests/java/demo/Counter.java, Box.java). }
+begin
+   mode Point = ref Point_object;
+   mode Point_object = struct (int point_java_object);
+   proc (int, int) Point new_point = nest Java "java.awt.Point::new";
+   proc (Point) int x = nest Java "java.awt.Point::x";
+   proc (Point, int) void set_x = nest Java "java.awt.Point::x";
+   proc (Point) int y = nest Java "java.awt.Point::y";
+   proc (Point) string point_string = nest Java "java.awt.Point::toString";
+
+   Point p = new_point (3, 4);
+   set_x (p, x (p) + y (p));
+   puts (whole (x (p), 0) + " " + point_string (p) + "'n");
+
+   mode Counter = ref Counter_object;
+   mode Counter_object = struct (int counter_java_object);
+   proc (string) Counter new_counter = nest Java "demo.Counter::new";
+   proc (Counter, int) void add = nest Java "demo.Counter::add";
+   proc int created = nest Java "demo.Counter::created";
+   proc (int) void set_created = nest Java "demo.Counter::created";
+   proc string kind = nest Java "demo.Counter::KIND";
+   string kind2 = nest Java "demo.Counter.KIND";
+   proc long real scale = nest Java "demo.Counter::scale";
+   proc (long real) void set_scale = nest Java "demo.Counter::scale";
+   proc (Counter) string name = nest Java "demo.Counter::name";
+   proc (Counter) int count = nest Java "demo.Counter::count";
+   proc (Counter, int) void set_count = nest Java "demo.Counter::count";
+   proc (Counter) long int total = nest Java "demo.Counter::total";
+   proc (Counter) Counter next = nest Java "demo.Counter::next";
+   proc (Counter, Counter) void set_next = nest Java "demo.Counter::next";
+   proc (Counter) int size = nest Java "demo.Counter::size";
+   proc (Counter, int) void set_size = nest Java "demo.Counter::size";
+
+   Counter a = new_counter ("a"), b = new_counter ("b");
+   puts (kind + " " + kind2 + " " + whole (created, 0) + "'n");
+   set_created (10);
+   puts (whole (created, 0) + "'n");
+   set_scale (scale * long 2);
+   puts (fixed (scale, 0, 1) + "'n");
+   add (a, 5); add (a, 6);
+   puts (name (a) + " " + whole (count (a), 0) + " " + whole (total (a), 0) + "'n");
+   set_count (a, 0);
+   puts (whole (count (a), 0) + "'n");
+   puts ((next (a) is nil | "nil" | "not nil") + "'n");
+   set_next (a, b);
+   puts ((next (a) is b | name (next (a)) | "?") + "'n");
+   set_next (a, nil);
+   puts ((next (a) is nil | "nil again" | "?") + "'n");
+   set_size (a, 1);
+   puts (whole (size (a), 0) + "'n");
+
+   { Through a procedure variable: the bridge method. }
+   proc (Counter) long int f := total;
+   proc (Counter, int) void g := set_count;
+   g (b, 3);
+   puts (whole (f (a), 0) + " " + whole (count (b), 0) + "'n");
+
+   mode Stringbox = ref Stringbox_object;
+   mode Stringbox_object = struct (int stringbox_java_object);
+   proc Stringbox new_box = nest Java "demo.Box.StringBox::new";
+   proc (Stringbox) string value = nest Java "demo.Box.StringBox::value";
+   proc (Stringbox, string) void set_value = nest Java "demo.Box.StringBox::value";
+   Stringbox s = new_box;
+   set_value (s, "Algol 68");
+   puts (value (s) + "'n")
+end

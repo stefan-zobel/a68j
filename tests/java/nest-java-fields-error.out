@@ -1,0 +1,3 @@
+tests/java/nest-java-fields-error.a68:4:30: fatal error: no public Java method or field 'java.lang.Integer::MAX_VALUE' fits the mode proc (int) void
+compilation terminated.
+exit 1

@@ -1,0 +1,10 @@
+{ a68j-options: -fnest-java }
+{ A field of NIL is a runtime error at the call. }
+begin
+   mode Point = ref Point_object;
+   mode Point_object = struct (int point_java_object);
+   proc (Point, int) void set_x = nest Java "java.awt.Point::x";
+   Point p = nil;
+   puts ("before'n");
+   set_x (p, 1)
+end

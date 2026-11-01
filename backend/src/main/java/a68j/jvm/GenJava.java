@@ -48,8 +48,11 @@ import java.util.List;
  * {@code nest Java "pkg.Class::member"} and {@code "pkg.Class::new"} are
  * read as method references in Java (procedure modes only): a public static
  * method, a public instance method whose object is the first parameter, or a
- * public constructor ({@link Target}). An object of a class that does not
- * extend a68j.rt.Ref is an a68j.rt.JavaHandle in Algol 68.
+ * public constructor ({@link Target}). If no method fits, a public field
+ * {@code member}: read by a procedure with the object as parameter (none for
+ * a static field), or written by one with the object and the new value
+ * ({@link #findField}). An object of a class that does not extend
+ * a68j.rt.Ref is an a68j.rt.JavaHandle in Algol 68.
  *
  * The class is looked up when the program is compiled ({@link #loader}), so
  * a wrong name or a mismatch of the modes is a compile-time error.
@@ -89,7 +92,7 @@ final class GenJava {
         } else {
             String[] parts = spec(p);
             if (parts[2] != null) {
-                throw new Gen.Fatal(p, "the Java method reference '" + denotation(p) + "' needs a procedure mode");
+                throw new Gen.Fatal(p, "the Java reference '" + denotation(p) + "' needs a procedure mode");
             }
             Class<?> c = javaClass(p, parts[0]);
             Field f;
@@ -171,8 +174,12 @@ final class GenJava {
             }
             target = findReference(g, c, parts[1], m, denotation(p));
             if (target == null) {
-                throw new Gen.Fatal(p, (parts[1].equals("new") ? "no public Java constructor '" : "no public Java method '")
-                        + denotation(p) + "' fits the mode " + mode);
+                target = findField(g, c, parts[1], m, denotation(p));
+            }
+            if (target == null) {
+                String what = parts[1].equals("new") ? "constructor"
+                        : publicField(c, parts[1]) != null ? "method or field" : "method";
+                throw new Gen.Fatal(p, "no public Java " + what + " '" + denotation(p) + "' fits the mode " + mode);
             }
         }
         g.javaMethods.put(p, target);
@@ -306,15 +313,52 @@ final class GenJava {
         return best;
     }
 
+    /**
+     * The field reference C::NAME (SPEC) for the procedure mode M, taken when
+     * no method or constructor fits (see {@link #findReference}): the public
+     * field NAME of C (also inherited) read by a procedure with the object as
+     * its only parameter (no parameter for a static field) and the field as
+     * its result, or, if the field is not final, written by a procedure with
+     * the object (not for a static field) and the new value as parameters and
+     * no result. Null if there is no such field or it does not fit.
+     */
+    private static Target findField(Gen g, Class<?> c, String name, Moid m, String spec) {
+        Field f = publicField(c, name);
+        if (f == null) {
+            return null;
+        }
+        Target get = Target.ofField(f, c, spec, false);
+        if (cost(g, get, m) >= 0) {
+            return get;
+        }
+        if (Modifier.isFinal(f.getModifiers())) {
+            return null;
+        }
+        Target put = Target.ofField(f, c, spec, true);
+        return cost(g, put, m) >= 0 ? put : null;
+    }
+
+    /** The public field NAME of C (also inherited), or null. */
+    private static Field publicField(Class<?> c, String name) {
+        try {
+            return c.getField(name);
+        } catch (NoSuchFieldException e) {
+            return null;
+        }
+    }
+
     /** The cost of calling T for the procedure mode M (see {@link #toJava}), or NO. */
     private static int cost(Gen g, Target t, Moid m) {
         if (t.params().length != count(m)) {
             return NO;
         }
         int cost = fromJava(g, t.ret(), t.gret(), JType.base(m.sub));
+        // A field keeps the array it is given, so a name of a row (an array
+        // whose elements are stored back after a call) is no new value.
+        boolean param = t.kind() != Target.Kind.PUT;
         int i = 0;
         for (Pack z = m.pack; cost >= 0 && z != null; z = z.next, i++) {
-            cost = add(cost, toJava(g, JType.base(z.type), t.params()[i], t.gparams()[i], true));
+            cost = add(cost, toJava(g, JType.base(z.type), t.params()[i], t.gparams()[i], param));
         }
         return cost;
     }
@@ -322,15 +366,23 @@ final class GenJava {
     /**
      * What the formal hole of a procedure mode calls: a static method, an
      * instance method (its object is the first parameter of the procedure)
-     * or a constructor of OWNER. PARAMS and GPARAMS are the Java types (and
-     * generic types) of the parameters of the procedure, the object first
-     * for an instance method; RET and GRET those of the result (OWNER for a
-     * constructor). SPEC is the formal hole as written, for the messages
-     * (null for "Class.member").
+     * or a constructor of OWNER, or it reads (GET) or writes (PUT) a field
+     * (of the object given as the first parameter unless the field is
+     * static). PARAMS and GPARAMS are the Java types (and generic types) of
+     * the parameters of the procedure, the object first for an instance
+     * method or field; RET and GRET those of the result (OWNER for a
+     * constructor, void for PUT). SPEC is the formal hole as written, for
+     * the messages (null for "Class.member").
      */
-    record Target(java.lang.reflect.Executable x, Kind kind, Class<?> owner, String spec, Class<?>[] params,
+    record Target(java.lang.reflect.Member x, Kind kind, Class<?> owner, String spec, Class<?>[] params,
             Type[] gparams, Class<?> ret, Type gret) {
-        enum Kind { STATIC, INSTANCE, NEW }
+        enum Kind { STATIC, INSTANCE, NEW, GET, PUT }
+
+        /** Whether the first parameter is the object of an instance method or field. */
+        boolean hasReceiver() {
+            return kind == Kind.INSTANCE
+                    || (kind == Kind.GET || kind == Kind.PUT) && !Modifier.isStatic(x.getModifiers());
+        }
 
         static Target ofStatic(Method x, String spec) {
             return new Target(x, Kind.STATIC, x.getDeclaringClass(), spec, x.getParameterTypes(),
@@ -350,6 +402,25 @@ final class GenJava {
 
         static Target ofConstructor(java.lang.reflect.Constructor<?> k, Class<?> c, String spec) {
             return new Target(k, Kind.NEW, c, spec, k.getParameterTypes(), k.getGenericParameterTypes(), c, c);
+        }
+
+        /**
+         * Reading (PUT false) or writing the field F, named through C (C may
+         * be a subclass of the class of F, as javac names it).
+         */
+        static Target ofField(Field f, Class<?> c, String spec, boolean put) {
+            List<Class<?>> ps = new ArrayList<>();
+            List<Type> gps = new ArrayList<>();
+            if (!Modifier.isStatic(f.getModifiers())) {
+                ps.add(c);
+                gps.add(c);
+            }
+            if (put) {
+                ps.add(f.getType());
+                gps.add(f.getGenericType());
+            }
+            return new Target(f, put ? Kind.PUT : Kind.GET, c, spec, ps.toArray(new Class<?>[0]),
+                    gps.toArray(new Type[0]), put ? void.class : f.getType(), put ? void.class : f.getGenericType());
         }
 
         /**
@@ -384,21 +455,37 @@ final class GenJava {
                     }
                     code.invokespecial(desc(owner), "<init>", MethodTypeDesc.of(CD_void, ds));
                 }
+                case GET, PUT -> {
+                    ClassDesc type = desc(((Field) x).getType());
+                    boolean isStatic = Modifier.isStatic(x.getModifiers());
+                    if (kind == Kind.GET) {
+                        if (isStatic) {
+                            code.getstatic(desc(owner), x.getName(), type);
+                        } else {
+                            code.getfield(desc(owner), x.getName(), type);
+                        }
+                    } else if (isStatic) {
+                        code.putstatic(desc(owner), x.getName(), type);
+                    } else {
+                        code.putfield(desc(owner), x.getName(), type);
+                    }
+                }
             }
         }
     }
 
     /**
      * Convert the argument I of mode M on the stack for the call of T (see
-     * {@link #convertToJava}). The object of an instance method given by a
-     * name is checked: NIL and an object of another class are runtime errors
-     * (JavaConv#receiver).
+     * {@link #convertToJava}). The object of an instance method or field
+     * given by a name is checked: NIL and an object of another class are
+     * runtime errors (JavaConv#receiver, JavaConv#fieldReceiver).
      */
     private static Runnable convertArgument(Gen g, CodeBuilder code, Target t, int i, Moid m) {
-        if (t.kind() == Target.Kind.INSTANCE && i == 0 && m.attribute == Attribute.REF_SYMBOL) {
+        if (t.hasReceiver() && i == 0 && m.attribute == Attribute.REF_SYMBOL) {
             code.ldc(desc(t.owner()));
             code.ldc(t.spec());
-            code.invokestatic(CD_CONV, "receiver", MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class, CD_String));
+            code.invokestatic(CD_CONV, t.kind() == Target.Kind.INSTANCE ? "receiver" : "fieldReceiver",
+                    MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class, CD_String));
             code.checkcast(desc(t.owner()));
             return null;
         }

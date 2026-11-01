@@ -215,6 +215,17 @@ public final class JavaConv {
         return javaObject(r, c);
     }
 
+    /**
+     * The object whose Java field WHAT (Class::field) is read or written:
+     * {@link #javaObject}, but NIL is a runtime error.
+     */
+    public static Object fieldReceiver(Ref r, Class<?> c, String what) {
+        if (r == null) {
+            throw JavaObject.error("Java field " + what + " of NIL");
+        }
+        return javaObject(r, c);
+    }
+
     private static RuntimeException nullValue(String mode) {
         return JavaObject.error("Java value null where a value of mode " + mode + " is expected");
     }

@@ -353,7 +353,8 @@ the compiler's class path) and finds the public static method whose
 parameters and result fit the procedure mode, or the static field; a
 method reference `"pkg.Class::name"` or `"pkg.Class::new"` names an
 instance method (the object is the first parameter), a static method or a
-constructor (`GenJava.Target`). Objects of classes that do not extend
+constructor, or, if no method fits, a public field that is read or written
+(`GenJava.Target`, `GenJava.findField`). Objects of classes that do not extend
 `Ref` are wrapped in an `a68j.rt.JavaHandle`. For a
 method it emits a bridge `(Frame, Object[]) -> Object` (unbox, convert with
 `a68j.rt.JavaConv`, invokestatic, convert back, box), emitted after the

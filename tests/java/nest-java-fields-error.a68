@@ -1,0 +1,6 @@
+{ a68j-options: -fnest-java }
+{ A final field cannot be written: a compile-time error. }
+begin
+   proc (int) void set_max = nest Java "java.lang.Integer::MAX_VALUE";
+   set_max (0)
+end
