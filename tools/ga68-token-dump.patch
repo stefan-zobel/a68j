@@ -1,0 +1,273 @@
+diff --git a/gcc/algol68/a68-parser.cc b/gcc/algol68/a68-parser.cc
+index 4c9b17b5..a90413d3 100644
+--- a/gcc/algol68/a68-parser.cc
++++ b/gcc/algol68/a68-parser.cc
+@@ -509,6 +509,225 @@ renumber_nodes (NODE_T *p, int *n)
+     }
+ }
+ 
++/* a68j: dump the token stream produced by the scanner, so that it can be
++   compared with the Java port.  Enabled by the environment variable
++   A68J_DUMP_TOKENS.  */
++
++static const char *const a68j_attr_names[] = {
++  "STOP",
++#define A68_ATTR(ATTR,DESCR) #ATTR,
++#include "a68-parser-attrs.def"
++#undef A68_ATTR
++};
++
++static void
++a68j_dump_escaped (FILE *f, const char *s)
++{
++  fputc ('"', f);
++  for (; *s; s++)
++    {
++      unsigned char c = (unsigned char) *s;
++      if (c == '\n')
++	fputs ("\\n", f);
++      else if (c == '\t')
++	fputs ("\\t", f);
++      else if (c == '\\')
++	fputs ("\\\\", f);
++      else if (c == '"')
++	fputs ("\\\"", f);
++      else if (c < 32 || c >= 127)
++	fprintf (f, "\\x%02x", c);
++      else
++	fputc (c, f);
++    }
++  fputc ('"', f);
++}
++
++static void
++a68j_dump_tokens (NODE_T *p)
++{
++  FILE *f = stdout;
++  for (; p != NO_NODE; FORWARD (p))
++    {
++      LINE_T *l = LINE (INFO (p));
++      fprintf (f, "%s:%u:%ld %s ", FILENAME (l), LINE_NO (l),
++	       (long) (CHAR_IN_LINE (INFO (p)) - STRING (l)) + 1,
++	       a68j_attr_names[ATTRIBUTE (p)]);
++      if (NSYMBOL (p) == NO_TEXT)
++	fputs ("(null)", f);
++      else
++	a68j_dump_escaped (f, NSYMBOL (p));
++      if (NPRAGMAT (p) != NO_TEXT)
++	{
++	  fprintf (f, " pragmat=%s:", a68j_attr_names[NPRAGMAT_TYPE (p)]);
++	  a68j_dump_escaped (f, NPRAGMAT (p));
++	}
++      if (NCOMMENT (p) != NO_TEXT)
++	{
++	  fprintf (f, " comment=%s:", a68j_attr_names[NCOMMENT_TYPE (p)]);
++	  a68j_dump_escaped (f, NCOMMENT (p));
++	}
++      fputc ('\n', f);
++    }
++  fflush (f);
++}
++
++/* a68j: dump the syntax tree after the bottom-up parser and the victal
++   checker (end of syntax analysis), so that it can be compared with the
++   Java port.  Enabled by the environment variable A68J_DUMP_SYNTAX.  */
++
++static void
++a68j_dump_tree (FILE *f, NODE_T *p, int depth)
++{
++  for (; p != NO_NODE; FORWARD (p))
++    {
++      for (int i = 0; i < depth; i++)
++	fputs ("  ", f);
++      fputs (a68j_attr_names[ATTRIBUTE (p)], f);
++      if (INFO (p) != NO_NINFO)
++	{
++	  fputc (' ', f);
++	  if (NSYMBOL (p) == NO_TEXT)
++	    fputs ("(null)", f);
++	  else
++	    a68j_dump_escaped (f, NSYMBOL (p));
++	  LINE_T *l = LINE (INFO (p));
++	  if (l != NO_LINE && CHAR_IN_LINE (INFO (p)) != NO_TEXT)
++	    fprintf (f, " %s:%u:%ld", FILENAME (l), LINE_NO (l),
++		     (long) (CHAR_IN_LINE (INFO (p)) - STRING (l)) + 1);
++	  if (PRIO (INFO (p)) != 0)
++	    fprintf (f, " prio=%d", PRIO (INFO (p)));
++	}
++      if (ANNOTATION (p) != STOP)
++	fprintf (f, " annotation=%s", a68j_attr_names[ANNOTATION (p)]);
++      fputc ('\n', f);
++      a68j_dump_tree (f, SUB (p), depth + 1);
++    }
++}
++
++/* a68j: dump the tree after semantic analysis, with modes and tags.  */
++
++static void
++a68j_dump_moid_ref (FILE *f, const char *what, MOID_T *m)
++{
++  if (m != NO_MOID)
++    fprintf (f, " %s=#%d", what, NUMBER (m));
++}
++
++static void
++a68j_dump_semantic_tree (FILE *f, NODE_T *p, int depth, auto_vec<TAG_T *> *tags)
++{
++  for (; p != NO_NODE; FORWARD (p))
++    {
++      for (int i = 0; i < depth; i++)
++	fputs ("  ", f);
++      fputs (a68j_attr_names[ATTRIBUTE (p)], f);
++      if (INFO (p) != NO_NINFO)
++	{
++	  fputc (' ', f);
++	  if (NSYMBOL (p) == NO_TEXT)
++	    fputs ("(null)", f);
++	  else
++	    a68j_dump_escaped (f, NSYMBOL (p));
++	  LINE_T *l = LINE (INFO (p));
++	  if (l != NO_LINE && CHAR_IN_LINE (INFO (p)) != NO_TEXT)
++	    fprintf (f, " %s:%u:%ld", FILENAME (l), LINE_NO (l),
++		     (long) (CHAR_IN_LINE (INFO (p)) - STRING (l)) + 1);
++	  if (PRIO (INFO (p)) != 0)
++	    fprintf (f, " prio=%d", PRIO (INFO (p)));
++	  fprintf (f, " plev=%d", PROCEDURE_LEVEL (INFO (p)));
++	}
++      if (ANNOTATION (p) != STOP)
++	fprintf (f, " annotation=%s", a68j_attr_names[ANNOTATION (p)]);
++      a68j_dump_moid_ref (f, "moid", MOID (p));
++      if (TAX (p) != NO_TAG)
++	{
++	  fprintf (f, " tax=#%d", NUMBER (TAX (p)));
++	  if (!tags->contains (TAX (p)))
++	    tags->safe_push (TAX (p));
++	}
++      if (TABLE (p) != NO_TABLE)
++	fprintf (f, " table=%d/%d", NUM (TABLE (p)), LEVEL (TABLE (p)));
++      if (p->non_local != NO_TABLE)
++	fprintf (f, " nonlocal=%d", NUM (p->non_local));
++      if (STATUS (p) != 0)
++	fprintf (f, " status=0x%x", (unsigned) STATUS (p));
++      if (p->dynamic_stack_allocs)
++	fputs (" dsa", f);
++      if (p->publicized)
++	fputs (" public", f);
++      fputc ('\n', f);
++      a68j_dump_semantic_tree (f, SUB (p), depth + 1, tags);
++    }
++}
++
++static void
++a68j_dump_semantic (FILE *f)
++{
++  auto_vec<TAG_T *> tags;
++  a68j_dump_semantic_tree (f, TOP_NODE (&A68_JOB), 0, &tags);
++  fputs ("MODES\n", f);
++  for (MOID_T *m = TOP_MOID (&A68_JOB); m != NO_MOID; FORWARD (m))
++    {
++      fprintf (f, "#%d %s dim=%d", NUMBER (m), a68j_attr_names[ATTRIBUTE (m)], DIM (m));
++      a68j_dump_moid_ref (f, "sub", SUB (m));
++      a68j_dump_moid_ref (f, "eq", m->equivalent_mode);
++      a68j_dump_moid_ref (f, "slice", m->slice);
++      a68j_dump_moid_ref (f, "deflexed", m->deflexed_mode);
++      a68j_dump_moid_ref (f, "name", m->name);
++      a68j_dump_moid_ref (f, "multiple", m->multiple_mode);
++      a68j_dump_moid_ref (f, "rowed", m->rowed);
++      a68j_dump_moid_ref (f, "trim", m->trim);
++      fprintf (f, " flags=%d%d%d%d%d", m->has_rows, m->has_refs, m->use,
++	       m->portable, m->derivate);
++      fputs (" pack=(", f);
++      for (PACK_T *z = PACK (m); z != NO_PACK; FORWARD (z))
++	{
++	  fprintf (f, "%s#%d", z == PACK (m) ? "" : " ", MOID (z) ? NUMBER (MOID (z)) : -1);
++	  /* Only field names: names of procedure parameters imported from
++	     modules point to freed memory in ga68.  */
++	  if (TEXT (z) != NO_TEXT && ATTRIBUTE (m) == STRUCT_SYMBOL)
++	    {
++	      fputc (':', f);
++	      a68j_dump_escaped (f, TEXT (z));
++	    }
++	}
++      fputs (") ", f);
++      a68j_dump_escaped (f, a68_moid_to_string (m, 1000, NO_NODE));
++      fputc ('\n', f);
++    }
++  fputs ("TAGS\n", f);
++  for (TAG_T *t : tags)
++    {
++      fprintf (f, "#%d", NUMBER (t));
++      a68j_dump_moid_ref (f, "moid", MOID (t));
++      fprintf (f, " prio=%d heap=%s scope=%d youngest=%d status=0x%x",
++	       PRIO (t), a68j_attr_names[HEAP (t)], SCOPE (t),
++	       t->youngest_environ, (unsigned) STATUS (t));
++      fprintf (f, " flags=%d%d%d%d%d%d%d%d%d%d", t->scope_assigned, t->use,
++	       t->in_proc, t->nest_proc, t->loc_assigned, t->portable,
++	       t->variable, t->ascribed_routine_text, t->is_recursive,
++	       t->publicized);
++      if (NODE (t) != NO_NODE)
++	fprintf (f, " node=%d", NUMBER (NODE (t)));
++      if (t->unit != NO_NODE)
++	fprintf (f, " unit=%d", NUMBER (t->unit));
++      if (t->symbol_table != NO_TABLE)
++	fprintf (f, " table=%d", NUM (t->symbol_table));
++      if (t->value != NO_TEXT)
++	{
++	  fputs (" value=", f);
++	  a68j_dump_escaped (f, t->value);
++	}
++      if (t->extern_symbol != NO_TEXT)
++	{
++	  fputs (" extern=", f);
++	  a68j_dump_escaped (f, t->extern_symbol);
++	}
++      fputc ('\n', f);
++    }
++}
++
+ /* Parse an ALGOL 68 source file.  */
+ 
+ void
+@@ -537,6 +756,12 @@ a68_parser (const char *filename)
+       if (!ok)
+ 	return;
+ 
++      if (getenv ("A68J_DUMP_TOKENS") != NULL)
++	{
++	  a68j_dump_tokens (TOP_NODE (&A68_JOB));
++	  exit (0);
++	}
++
+       if (empty_program)
+ 	a68_error (NO_NODE,
+ 		   "particular program or prelude packet not found in source file");
+@@ -610,6 +835,13 @@ a68_parser (const char *filename)
+     {
+       a68_bottom_up_error_check (TOP_NODE (&A68_JOB));
+       a68_victal_checker (TOP_NODE (&A68_JOB));
++      if (getenv ("A68J_DUMP_SYNTAX") != NULL)
++	{
++	  fflush (stderr);
++	  a68j_dump_tree (stdout, TOP_NODE (&A68_JOB), 0);
++	  fflush (stdout);
++	  exit (ERROR_COUNT (&A68_JOB) == 0 ? 0 : 1);
++	}
+       if (ERROR_COUNT (&A68_JOB) == 0)
+ 	{
+ 	  a68_finalise_symbol_table_setup (TOP_NODE (&A68_JOB), 1);
+@@ -691,6 +923,15 @@ a68_parser (const char *filename)
+       NEST (TABLE (TOP_NODE (&A68_JOB))) = A68 (symbol_table_count) = 3;
+       a68_reset_symbol_table_nest_count (TOP_NODE (&A68_JOB));
+     }
++
++  if (getenv ("A68J_DUMP_SEMANTIC") != NULL)
++    {
++      fflush (stderr);
++      if (ERROR_COUNT (&A68_JOB) == 0)
++	a68j_dump_semantic (stdout);
++      fflush (stdout);
++      exit (ERROR_COUNT (&A68_JOB) == 0 ? 0 : 1);
++    }
+ }
+ 
+ /* New_node_info.  */

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="259" height="85" viewBox="0 0 259 85" role="img" aria-label="hello.a68">
-<title>hello.a68</title>
-<style>text{font-family:Consolas,"DejaVu Sans Mono",Menlo,"Liberation Mono",monospace;font-size:14px;white-space:pre}.c{font-style:italic}.ln{text-anchor:end}.bg{fill:#1e1e1e}text{fill:#d4d4d4}.ln{fill:#858585}.c{fill:#6a9955}.todo{fill:#6a9955;font-weight:bold}.p{fill:#9b9b9b}.pk{fill:#c586c0}.s{fill:#ce9178}.f{fill:#ce9178}.fi{fill:#d16969;font-weight:bold}.se{fill:#d7ba7d}.err{fill:#f44747}.n{fill:#b5cea8}.cl{fill:#569cd6}.kb{fill:#c586c0}.kc{fill:#c586c0}.km{fill:#c586c0}.t{fill:#569cd6}.kd{fill:#569cd6}.o{fill:#d4d4d4}.ty{fill:#4ec9b0}.ns{fill:#4ec9b0}.sop{fill:#dcdcaa}.op{fill:#dcdcaa}.fn{fill:#dcdcaa}.sf{fill:#dcdcaa}.sc{fill:#4fc1ff}.lb{fill:#d16969}</style>
-<rect class="bg" width="259" height="85" rx="6"/>
-<text x="16" y="26.7" textLength="42" lengthAdjust="spacing" xml:space="preserve"><tspan class="kc">begin</tspan></text>
-<text x="16" y="47" textLength="226.8" lengthAdjust="spacing" xml:space="preserve">   <tspan class="sf">puts</tspan> (<tspan class="s">"</tspan><tspan class="s">Hello, world!</tspan><tspan class="se">'n</tspan><tspan class="s">"</tspan>)</text>
-<text x="16" y="67.3" textLength="25.2" lengthAdjust="spacing" xml:space="preserve"><tspan class="kc">end</tspan></text>
-</svg>
