@@ -125,7 +125,7 @@ java -jar a68j-backend.jar -I lib -run program.a68
 [![java-methods.a68](images/java-methods.svg)](examples/java-methods.a68)
 
 ```sh
-java -jar a68j-backend.jar -fnest-java -run java.a68
+java -jar a68j-backend.jar -fnest-java -run java-methods.a68
 3.000 101010
 ```
 
@@ -138,7 +138,7 @@ rows as arrays that are copied back after the call:
 [![java-sort.a68](images/java-sort.svg)](examples/java-sort.a68)
 
 ```sh
-java -jar a68j-backend.jar -fnest-java -run sort.a68
+java -jar a68j-backend.jar -fnest-java -run java-sort.a68
 Wirth Koster Lindsey van Wijngaarden
 ```
  The bundled module `Lists` offers growable lists
@@ -147,6 +147,14 @@ Wirth Koster Lindsey van Wijngaarden
 option:
 
 [![hashmaps.a68](images/hashmaps.svg)](examples/hashmaps.a68)
+
+```sh
+java -jar a68j-backend.jar -run hashmaps.a68
+to: 2
+be: 2
+or: 1
+not: 1
+```
 
 ## Performance
 
