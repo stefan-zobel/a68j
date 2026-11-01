@@ -1,7 +1,9 @@
 # a68j: Optimizations of the JVM backend
 
 This document explains how a68j generates fast code and why the code looks
-the way it does. The reference with the class names is `docs/BACKEND.md`.
+the way it does. The reference with the class names is `docs/BACKEND.md`; the
+results of the measurements are in `README.md` (stages 3e and 3f and
+later).
 
 One rule holds for everything: optimizations do not change the behavior.
 The order of evaluation, the bound checks, the checks for NIL and the
@@ -65,14 +67,22 @@ typed entry method `pub$i(int) int`. The `i` is the position in
 yet, and calls the typed method of the routine with the frame of the
 module.
 
+Since 1 Nov 2026 a public identifier or operator declared with a Java
+formal hole of a procedure mode (`pub proc (int) int j_abs = nest Java
+"java.lang.Math.abs"`) gets such an entry too. After the module is
+elaborated, it converts the arguments and calls the Java method as a
+direct call does (`GenJava.emitPubEntry`). Before, a program called such
+a hole through the bridge method, with boxed arguments in an `Object[]`.
+
 A program calls such procedures with `invokedynamic`, with the arguments
 unboxed. The bootstrap `Modules.bsmCall` links the call site the first
 time it runs:
 - to `pub$i` if the module has an entry method of exactly this type;
 - otherwise to the boxed procedure value, for which the arguments are
   packed into an `Object[]`. This concerns module classes of an older
-  a68j and tags that are not declared with a routine text (such as
-  `pub proc (int) int f = …` as an identity declaration).
+  a68j and tags declared neither in a procedure declaration with a routine
+  text nor with a Java formal hole, such as the identity declaration
+  `pub proc (int) int f = (int n) int: …`.
 
 After that a call costs only two `invokestatic`. `A68J_DEBUG_LINK=1`
 shows how each call site was linked.
@@ -90,9 +100,15 @@ without boxes. The run time without the start of the JVM:
 For comparison, the same programs in Java, with the start of the JVM:
 `ArrayList` 0.13 s, `HashMap` 0.45 s.
 
+A public formal hole called 20 million times from a program (`s +:=
+j_abs (i - 10 000 000) MOD 7` with `j_abs` from the module of
+`tests/java/modules/jholes.a68`), with compilation and the start of the
+JVM: 0.81 to 0.96 s through the bridge method, 0.35 to 0.42 s through
+`pub$i`. The same loop with the `ABS` of Algol 68 takes 0.39 to 0.43 s.
+
 ## 3. Code that is fast without a profile
 
-This is the most important insight of stage 3.
+This is the most important insight of stage 3f.
 
 An Algol 68 program becomes **one** large method `program()`. The JVM
 normally compiles a method with the optimizing JIT (C2) only after it has

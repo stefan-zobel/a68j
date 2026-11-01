@@ -55,7 +55,7 @@ Hello, world!
 | a68j's own differential tests (`tests/extra`) | 26 of 26 |
 | Rosetta Code programs that ga68 runs | 534 identical, 2 equal up to floating-point rounding, 7 open, of 543 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 34 of 34, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 37 of 37, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 
 Not supported, as in ga68: formatted transput (`$…$` formats). 80-bit

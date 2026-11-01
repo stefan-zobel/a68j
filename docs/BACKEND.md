@@ -170,7 +170,10 @@ not make the name of the element or field at all (§1).
   part a `public static pub$i(parameters unboxed) -> result unboxed`
   (`Gen.emitTypedPubEntries`; i is the index in `pubKeys()`), which
   elaborates the module if needed (as `pub()`) and calls the typed method
-  of the routine with the module's frame. Calls of module tags
+  of the routine with the module's frame. A public identifier or operator
+  declared with a Java formal hole of a procedure mode gets one too; it
+  converts the arguments and calls the Java method as a direct call does
+  (`GenJava.emitPubEntry`). Calls of module tags
   (`Intrinsics.callModuleTag`) are an invokedynamic with the arguments
   unboxed; the bootstrap `Modules.bsmCall` links it to `pub$i` if the
   module has one of exactly that type, otherwise to the boxed procedure

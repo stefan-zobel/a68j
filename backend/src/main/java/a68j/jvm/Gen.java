@@ -545,9 +545,28 @@ public final class Gen {
      * value. The entry elaborates the module if that has not happened yet
      * (as pub() does) and calls the routine's typed method with the module's
      * frame, the frame the routine text captured.
+     *
+     * <p>A public identifier or operator declared with a Java formal hole of
+     * a procedure mode ({@code pub proc (int) int f = nest Java "..."},
+     * Gen#javaProcs) gets such an entry too: after the module is elaborated
+     * it converts the arguments and calls the Java method directly
+     * (GenJava#emitPubEntry), without the closure and the argument array of
+     * the bridge method.
      */
     private void emitTypedPubEntries(ClassBuilder clb, Routine program) {
         for (int i = 0; i < pubTags.size(); i++) {
+            Node hole = javaProcs.get(pubTags.get(i));
+            if (hole != null && program.hasFrame()) {
+                Moid proc = JType.base(pubTags.get(i).type);
+                java.util.List<ClassDesc> ps = new java.util.ArrayList<>();
+                for (a68j.front.Pack z = proc.pack; z != null; z = z.next) {
+                    ps.add(JType.of(a68, z.type).desc);
+                }
+                // The type of the call sites (Intrinsics#callModuleTag).
+                MethodTypeDesc entry = MethodTypeDesc.of(JType.of(a68, proc.sub).desc, ps);
+                GenJava.emitPubEntry(this, clb, "pub$" + i, entry, hole, this::elaborateModule);
+                continue;
+            }
             Node text = staticProcs.get(pubTags.get(i));
             Routine r = text == null ? null : routineOf.get(text);
             if (r == null || r.parent != program || !program.hasFrame()) {
@@ -560,12 +579,7 @@ public final class Gen {
             }
             MethodTypeDesc entry = typed.dropParameterTypes(0, 1);
             clb.withMethodBody("pub$" + i, entry, ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
-                java.lang.classfile.Label ready = code.newLabel();
-                code.getstatic(thisClass, "frame", CD_FRAME);
-                code.ifnonnull(ready);
-                code.invokestatic(thisClass, "pub", MethodTypeDesc.of(CD_OBJECTS));
-                code.pop();
-                code.labelBinding(ready);
+                elaborateModule(code);
                 code.getstatic(thisClass, "frame", CD_FRAME);
                 int slot = 0;
                 for (int k = 0; k < entry.parameterCount(); k++) {
@@ -577,6 +591,19 @@ public final class Gen {
                 code.return_(TypeKind.from(entry.returnType()));
             });
         }
+    }
+
+    /**
+     * Elaborate the module if that has not happened yet, as pub() does (its
+     * frame is set at the end of the elaboration); used by the typed entries.
+     */
+    private void elaborateModule(CodeBuilder code) {
+        java.lang.classfile.Label ready = code.newLabel();
+        code.getstatic(thisClass, "frame", CD_FRAME);
+        code.ifnonnull(ready);
+        code.invokestatic(thisClass, "pub", MethodTypeDesc.of(CD_OBJECTS));
+        code.pop();
+        code.labelBinding(ready);
     }
 
     /** Register a routine text for compilation and return it. */

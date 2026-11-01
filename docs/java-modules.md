@@ -88,7 +88,10 @@ this method, that is, an ordinary procedure value: it can be passed on,
 stored in variables and so on (`backend/.../jvm/GenJava.java`, runtime
 helpers in `a68j.rt.JavaConv`). A call of the identifier itself does not
 go through the closure but calls the Java method directly
-(`docs/optimizations.md`, section 2).
+(`docs/optimizations.md`, section 2). So does a program that calls a
+public formal hole of a module (`pub proc (int) int j_abs = nest Java
+"…"`): the module class has a typed entry for it, which converts the
+arguments and calls the Java method in the same way.
 
 ### Java exceptions
 
@@ -117,7 +120,9 @@ prog.a68:6: runtime error: Java exception java.lang.IllegalStateException: canno
   that of the formal hole, or none for a functional object.
 
 So for a public formal hole of a module (`pub proc (string) int parse =
-nest Java "…"`), the position is in the program that calls `parse`. For a
+nest Java "…"`), the position is in the program that calls `parse`: the
+typed entry of the module that the call goes to (section 5) finds it on
+the stack in the same way. For a
 hole that the module calls itself inside a public procedure, the position
 is the call in the module, as for any runtime error in a procedure of a
 module.
@@ -661,11 +666,21 @@ be unboxed, or need more than one call of Java. The recipe after which
    ```
    This example has been tried: `NEXT c` yields 3 the third time.
 
+The formal holes can also be public themselves, for example `pub proc
+(Counter) int next = nest Java "my.Counter.next"`. The module class then
+has a typed entry for each of them (`pub$i`, `docs/optimizations.md`,
+section 2). A program calls it without boxing, as it calls a public
+procedure with a routine text. The procedure value of the hole is still
+the closure over the bridge method. `tests/java/modules/jholes.a68` is
+such a module.
+
 ## 6. Tests
 
 `tests/java/`, run by `tools/java_tests.sh [JAVA]`. Options are in the
 first line as `{ a68j-options: … }`, the expected output and status in
-`X.out`.
+`X.out`. The script first compiles the modules `tests/java/modules/X.a68`
+into `tests/java/lib/libX.jar` (with `-fnest-java`), for the programs
+that access them (`-I tests/java/lib`).
 
 | Test | checks |
 |---|---|
@@ -692,6 +707,9 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `nest-java-fields` | fields through `"Class::field"` (`tests/java/demo/Counter.java`, `Box.java`, `java.awt.Point`): instance and static fields read and written, a `final` field read, `long`, `double` and object fields, `nil` both ways, a field of a type variable, an inherited field, a method that wins over a field of the same name, procedure values |
 | `nest-java-fields-nil` | a field of `nil` |
 | `nest-java-fields-error` | writing a `final` field: compile-time error |
+| `nest-java-module` | public formal holes of a module (`tests/java/modules/jholes.a68`), called through their typed entries: numbers, strings, `char`, a name of a row, a procedure as an `IntUnaryOperator`, a discarded `long` result, a constructor, fields and an instance method, operators, procedure values of the holes; the program has no `-fnest-java` |
+| `nest-java-module-exception` | a Java exception in a public formal hole of a module: the position of the call in the program |
+| `nest-java-module-nil` | a field of `nil` through a public formal hole of a module |
 | `lists-basic` | all operations on `Intlist`, `is`, `nil`, `AT` |
 | `lists-kinds` | the other five modes, copies in a `Stringlist` |
 | `lists-speed` | 1 000 000 elements |
@@ -704,17 +722,15 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 34 of 34 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 37 of 37 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
-- Typed entries also for public formal holes of a module
-  (`pub proc (int) int f = nest Java "…"`); today they go through the
-  boxed procedure value.
 - Generic element types are not checked: the `String`s of a
   `List<String>` are converted when they are read as `string`, another
   object there is a runtime error only then.
 - Done on 1 Nov 2026: procedures as parameters (functional interfaces),
   see section 1a; constructors and instance methods, section 1b; positions
   for the errors of `JavaObject.error`, section 1; fields of objects and
-  static fields through `"Class::field"`, section 1b.
+  static fields through `"Class::field"`, section 1b; typed entries for
+  public formal holes of a module, section 5.

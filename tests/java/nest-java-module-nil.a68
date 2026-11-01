@@ -1,0 +1,8 @@
+{ a68j-options: -I tests/java/lib -fjava-classpath=tests/java/classes }
+{ A field of NIL through a public formal hole of a module: a runtime
+  error at the call in the program. }
+access Jholes (
+   Point p = nil;
+   puts ("before'n");
+   puts (whole (x_of (p), 0) + "'n")
+)

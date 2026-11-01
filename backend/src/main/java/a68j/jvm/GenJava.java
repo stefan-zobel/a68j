@@ -914,6 +914,63 @@ final class GenJava {
     }
 
     /**
+     * The typed entry NAME (ENTRY: the parameters and the result unboxed) of
+     * a public identifier or operator of a module declared with the Java
+     * formal hole HOLE of a procedure mode (Gen#emitTypedPubEntries). Code
+     * using the module links its calls to it (Modules#bsmCall). The entry
+     * elaborates the module first (ELABORATE), as the procedure value does,
+     * then converts the arguments, calls the Java method and converts the
+     * result as the bridge method does ({@link #emitBridge}), so the result
+     * is the same. The entry has no line numbers, so a Java exception of the
+     * method, and an error of a conversion, is a runtime error at the call
+     * in the code that called the entry (Rt#javaExceptionOfCaller,
+     * Rt#abortAtCaller), or at HOLE if there is none.
+     */
+    static void emitPubEntry(Gen g, java.lang.classfile.ClassBuilder clb, String name, MethodTypeDesc entry,
+            Node hole, java.util.function.Consumer<CodeBuilder> elaborate) {
+        Target target = method(g, hole);
+        Moid m = JType.base(hole.type);
+        clb.withMethodBody(name, entry, ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
+            CodeBuilder save = g.cb;
+            g.cb = code;
+            elaborate.accept(code);
+            Class<?>[] ps = target.params();
+            int i = 0;
+            int slot = 0;
+            List<Runnable> after = new ArrayList<>();
+            for (Pack z = m.pack; z != null; z = z.next, i++) {
+                TypeKind kind = TypeKind.from(entry.parameterType(i));
+                code.loadLocal(kind, slot);
+                slot += kind.slotSize();
+                if (ps[i] == a68j.rt.Row.class) {
+                    // As in the bridge: the caller may pass a row shared by
+                    // identities without a copy (GenUnits#ownedValue).
+                    GenUnits.copyIfValue(g, z.type);
+                }
+                Runnable r = convertArgument(g, code, target, i, JType.base(z.type));
+                if (r != null) {
+                    after.add(r);
+                }
+            }
+            guarded(code, target::invoke, file(hole), line(hole), true);
+            after.forEach(Runnable::run);
+            Moid r = JType.base(m.sub);
+            if (r == g.a68.modes.VOID) {
+                Class<?> rt = target.ret();
+                if (rt == long.class || rt == double.class) {
+                    code.pop2();
+                } else if (rt != void.class) {
+                    code.pop();
+                }
+            } else {
+                convertFromJava(g, code, target.ret(), target.gret(), r);
+            }
+            code.return_(TypeKind.from(entry.returnType()));
+            g.cb = save;
+        });
+    }
+
+    /**
      * Convert the Algol 68 value of mode M on the stack to the Java J (a
      * fit, see {@link #toJava}). The result is null or, for a name of a row
      * passed as an array, the code to run after the call: it stores the

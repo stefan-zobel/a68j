@@ -1,0 +1,13 @@
+{ a68j-options: -I tests/java/lib -fjava-classpath=tests/java/classes }
+{ A Java exception in a public formal hole of a module, called through
+  its typed entry from a procedure of the program: the position is the
+  call in the program. }
+access Jholes (
+   proc load = (string path) void:
+      begin
+         puts ("loading " + path + "'n");
+         j_fail (path)
+      end;
+   load ("data.txt");
+   puts ("not reached'n")
+)

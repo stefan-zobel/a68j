@@ -148,9 +148,10 @@ final class Intrinsics {
      * Call of a module procedure or operator T with the units ARGS. The
      * arguments are passed unboxed to an invokedynamic call site whose
      * bootstrap ({@code Modules.bsmCall}) links it to the typed entry
-     * {@code pub$i} of the module class (Gen#emitModuleAccess), or, if the
-     * module has none for T (not declared with a routine text, or compiled
-     * by an older a68j), to the boxed procedure value. Either way the
+     * {@code pub$i} of the module class (Gen#emitTypedPubEntries), or, if
+     * the module has none for T (declared neither with a routine text nor
+     * with a Java formal hole, or compiled by an older a68j), to the boxed
+     * procedure value. Either way the
      * module is elaborated before the first call, as with the value.
      */
     static void callModuleTag(Gen g, Tag t, List<Node> args, Node p) {

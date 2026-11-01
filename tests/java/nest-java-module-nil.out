@@ -1,0 +1,4 @@
+Jholes elaborated
+before
+tests/java/nest-java-module-nil.a68:7: runtime error: Java field java.awt.Point::x of NIL
+exit 134

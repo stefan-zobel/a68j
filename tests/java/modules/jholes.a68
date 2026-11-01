@@ -1,0 +1,40 @@
+{ A module whose public procedures and operators are Java formal holes,
+  for the tests nest-java-module*: code using the module calls them
+  through their typed entries (pub$i), without the procedure value. }
+module Jholes =
+def
+    pub mode Point = ref Point_object;
+    pub mode Point_object = struct (int point_java_object);
+
+    { Static methods of the JDK. }
+    pub proc (int) int j_abs = nest Java "java.lang.Math.abs";
+    pub proc (long int, long int) long int j_max = nest Java "java.lang.Math.max";
+    pub proc (string) int j_parse = nest Java "java.lang.Integer.parseInt";
+    pub proc (int) string j_hex = nest Java "java.lang.Integer.toHexString";
+    pub proc (real) real j_sqrt = nest Java "java.lang.Math.sqrt";
+    pub proc (char) bool j_digit = nest Java "java.lang.Character.isDigit";
+    { A name of a row: an array whose elements are stored back. }
+    pub proc (ref [] int) void j_sort = nest Java "java.util.Arrays.sort";
+    { A procedure as an IntUnaryOperator. }
+    pub proc (ref [] int, proc (int) int) void j_set_all = nest Java "java.util.Arrays.setAll";
+    { The long result of Long.valueOf discarded. }
+    pub proc (long int) void j_discard = nest Java "java.lang.Long.valueOf";
+    { The tests/java/demo/Fail.java of nest-java-exception-cause. }
+    pub proc (string) void j_fail = nest Java "demo.Fail.wrapped";
+
+    { Constructor, fields and an instance method of java.awt.Point. }
+    pub proc (int, int) Point new_point = nest Java "java.awt.Point::new";
+    pub proc (Point) int x_of = nest Java "java.awt.Point::x";
+    pub proc (Point, int) void set_x = nest Java "java.awt.Point::x";
+    pub proc (Point) string point_string = nest Java "java.awt.Point::toString";
+
+    { An operator from a formal hole, and one with a routine text calling
+      a private formal hole (that path had a typed entry before). }
+    pub op (int) int ABSJ = nest Java "java.lang.Math.abs";
+    proc (int, int) int j_floor_mod = nest Java "java.lang.Math.floorMod";
+    pub op MODJ = (int a, b) int: j_floor_mod (a, b);
+    pub prio MODJ = 7;
+
+    puts ("Jholes elaborated'n");
+    skip
+fed

@@ -1,0 +1,4 @@
+Jholes elaborated
+loading data.txt
+tests/java/nest-java-module-exception.a68:9: runtime error: Java exception java.lang.IllegalStateException: cannot load data.txt, caused by java.io.FileNotFoundException: data.txt
+exit 134
