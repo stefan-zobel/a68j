@@ -336,8 +336,16 @@ public final class Gen {
             }
             // main runs the program (run0) in a thread with a large stack, as
             // deep recursion is common in Algol 68 programs (see Rt.start).
+            // The command-line arguments become argv (2), argv (3), ... of
+            // the POSIX module; argv (1) is the name of the class.
+            String mainName = thisClass.packageName().isEmpty() ? thisClass.displayName()
+                    : thisClass.packageName() + "." + thisClass.displayName();
             clb.withMethodBody("main", MethodTypeDesc.of(CD_void, CD_String.arrayType()),
                     ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
+                        code.ldc(mainName);
+                        code.aload(0);
+                        code.invokestatic(CD_RT, "setProgramArgs",
+                                MethodTypeDesc.of(CD_void, CD_String, CD_String.arrayType()));
                         code.ldc(java.lang.constant.MethodHandleDesc.ofMethod(
                                 java.lang.constant.DirectMethodHandleDesc.Kind.STATIC, thisClass, "run0",
                                 MethodTypeDesc.of(CD_void)));

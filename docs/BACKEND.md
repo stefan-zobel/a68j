@@ -272,7 +272,16 @@ directory; all 25 pass.
 
 POSIX is not compiled: `a68j.rt.Posix` implements it in Java on
 file descriptors (0, 1, 2 standard streams, 3... files) with libga68's errno
-behaviour.
+behaviour. A file is a `FileChannel`, whose open options correspond to the
+flags of open(2): `fopen` never creates a file (the default mode tries
+read-write, read-only and write-only, as libga68), a descriptor of
+`fcreate` is write-only, and a descriptor refuses the direction it was not
+opened for (EBADF). errno is copied from a modelled C errno by `fopen`,
+`fcreate`, `fclose`, `fputs`/`puts` and `lseek`, also when they succeed,
+as libga68 does; every failing operation, including the read of `fgetc`
+and the write of `fputc`, sets that C errno, and nothing clears it. Not
+modelled: `fsize` and `lseek` on descriptors 0 to 2 (0 and EBADF, where
+ga68 asks the system), and the permission bits of `fcreate`.
 
 ## 5. Code generator structure
 
@@ -468,7 +477,8 @@ files in a temporary directory). `tests/extra/` holds additional programs for
 cases the testsuite does not cover (division by zero, rowed names, PAR,
 direct variables, unions across modules and stropping regimes, UTF-8
 strings, copying of united rows, MODAB, deep recursion, unboxed rows and
-names, initial values of generators, the bundled module `Genie_Transput`); their native
+names, initial values of generators, the bundled module `Genie_Transput`,
+the file procedures of the POSIX module and errno); their native
 results are recorded the same way (`--native /home/me/native-extra`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for

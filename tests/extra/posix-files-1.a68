@@ -1,0 +1,92 @@
+{ The file procedures of the POSIX module and errno, as in libga68.
+  fopen never creates a file (also not in the default mode, which tries
+  read-write, then read-only, then write-only); a descriptor of fcreate
+  is write-only; O_RDONLY with O_TRUNC truncates (Linux); a directory
+  opens read-only in the default mode.  errno is read right after each
+  call: fopen, fcreate, fclose, fputs and lseek copy the C errno, which
+  every failing system call sets and nothing clears, so a successful call
+  keeps the last error and the failing read of fgetc shows only at the
+  next copying call.  The files are in $TMPDIR (or /tmp); the procedures
+  of the POSIX module cannot remove them, fcreate truncates them again. }
+begin
+    { The value of file_o_default: libga68's version script (ga68.map)
+      names POSIX_fileodeault, so libga68.so does not export
+      POSIX_fileodefault, and a program that uses file_o_default links only
+      with the static libga68. }
+    bits file_o_default = 16r99999999;
+    string tmp = (getenv ("TMPDIR") = "" | "/tmp" | getenv ("TMPDIR"));
+    string data = tmp + "/a68j-posix-files-1.txt",
+           missing = tmp + "/a68j-posix-files-1.missing";
+    string log := "";
+    proc rec = (string l, int v) void:
+        begin int e = errno; log +:= l + " " + whole (v, 0) + " errno " + whole (e, 0) + "'n" end;
+    proc recl = (string l, long long int v) void:
+        begin int e = errno; log +:= l + " " + whole (v, 0) + " errno " + whole (e, 0) + "'n" end;
+    proc ok = (int fd) int: (fd >= 3 | 1 | fd);
+
+    rec ("start", 0);
+    puts ("");
+    rec ("after empty puts", 0);
+
+    rec ("default missing", ok (fopen (missing, file_o_default)));
+    rec ("missing still absent", ok (fopen (missing, file_o_rdonly)));
+    rec ("wronly missing", ok (fopen (missing, file_o_wronly)));
+    rec ("rdwr missing", ok (fopen (missing, file_o_rdwr)));
+
+    int w = fcreate (data, 8r644);
+    rec ("fcreate", ok (w));
+    rec ("fputs", fputs (w, "abc"));
+    rec ("fgetc on fcreate fd", ABS fgetc (w));
+    rec ("fputs after fgetc", fputs (w, "d"));
+    recl ("fsize", fsize (w));
+    recl ("lseek set 1", lseek (w, long long 1, seekset));
+    rec ("fputc", ABS fputc (w, "B"));
+    recl ("lseek end", lseek (w, long long 0, seekend));
+    recl ("lseek negative", lseek (w, - long long 9, seekcur));
+    recl ("lseek bad whence", lseek (w, long long 0, 7));
+    rec ("fclose", fclose (w));
+    rec ("fclose again", fclose (w));
+    rec ("fgetc closed", ABS fgetc (w));
+    rec ("fputc closed", ABS fputc (w, "x"));
+    recl ("fsize closed", fsize (w));
+
+    int d = fopen (data, file_o_default);
+    rec ("default existing", ok (d));
+    string s := "";
+    for i to 4 do char c = fgetc (d); if ABS c >= 0 then s +:= c fi od;
+    rec ("read " + s, ABS fgetc (d));
+    rec ("fputs at end", fputs (d, "e"));
+    recl ("fsize", fsize (d));
+    rec ("fclose", fclose (d));
+
+    int r = fopen (data, file_o_rdonly);
+    rec ("rdonly", ok (r));
+    rec ("fgetc", ABS fgetc (r));
+    rec ("fputs on rdonly", fputs (r, "q"));
+    rec ("fputc on rdonly", ABS fputc (r, "q"));
+    rec ("fclose", fclose (r));
+
+    int t = fopen (data, file_o_rdonly OR file_o_trunc);
+    rec ("rdonly trunc", ok (t));
+    recl ("fsize", fsize (t));
+    rec ("fclose", fclose (t));
+
+    int wo = fopen (data, file_o_wronly);
+    rec ("wronly", ok (wo));
+    rec ("fputs on wronly", fputs (wo, "xyz"));
+    rec ("fgetc on wronly", ABS fgetc (wo));
+    rec ("fclose", fclose (wo));
+    int wt = fopen (data, file_o_wronly OR file_o_trunc);
+    rec ("wronly trunc", ok (wt));
+    recl ("fsize", fsize (wt));
+    rec ("fclose", fclose (wt));
+
+    int dir = fopen (tmp, file_o_default);
+    rec ("default dir", ok (dir));
+    rec ("fgetc dir", ABS fgetc (dir));
+    rec ("fclose dir", fclose (dir));
+    rec ("rdwr dir", ok (fopen (tmp, file_o_rdwr)));
+    rec ("fcreate dir", ok (fcreate (tmp, 8r644)));
+
+    puts (log)
+end

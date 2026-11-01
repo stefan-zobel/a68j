@@ -533,6 +533,11 @@ public final class Rt {
         programArgs = java.util.List.copyOf(args);
     }
 
+    /** Called by the main method of a compiled program with its command-line arguments. */
+    public static void setProgramArgs(String name, String[] args) {
+        setProgramName(name, java.util.Arrays.asList(args));
+    }
+
     /** Stack size of the thread that runs the program. */
     static final long STACK_SIZE = 128L << 20;
 

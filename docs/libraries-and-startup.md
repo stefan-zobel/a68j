@@ -74,6 +74,11 @@ directories, because a module can itself use modules whose interface the
 program never reads (ga68 would simply link all libraries). A separately
 compiled program needs the jars given with `-cp`.
 
+The program arguments follow the file (`-run file.a68 a b`) or the class
+(`java -cp ... Prog a b`); in both cases they are `argv (2)`, `argv (3)`,
+... of the POSIX module, and `argv (1)` is the name of the class (for ga68
+the path of the executable).
+
 Both `-I DIR` and `-IDIR` (likewise `-L`) are allowed, as in GCC.
 
 ### Several modules in one library

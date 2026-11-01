@@ -350,7 +350,6 @@ public final class Compile {
             }
         };
         Class<?> c = loader.loadClass(name);
-        a68j.rt.Rt.setProgramName(name, progArgs);
         try {
             c.getMethod("main", String[].class).invoke(null, (Object) progArgs.toArray(new String[0]));
         } catch (java.lang.reflect.InvocationTargetException e) {
