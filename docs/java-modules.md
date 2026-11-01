@@ -199,7 +199,8 @@ and its superinterfaces, and a wildcard stands for its bound. What the
 signature does not say becomes the bound of the type variable, usually
 `Object`: the `T` of `<T> T twice (UnaryOperator<T> f, T x)` is `Object`.
 The code itself uses the erased signature (as javac does), with casts and
-boxing.
+boxing. The type variables of a class are bound by type arguments in the
+formal hole (section 1b, "Type arguments").
 
 **Names of rows as arrays.** A name of a one-dimensional row (`ref [] int`,
 `ref [] string` …) fits a Java array parameter. The method gets a new array
@@ -336,6 +337,57 @@ set_x (p, x (p) + 1);                                 { p.x = p.x + 1 }
 - A field of `nil` is a runtime error at the call:
   `runtime error: Java field java.awt.Point::x of NIL`.
 
+**Type arguments.** Without them a generic class is a raw type, as in
+Java: the `E` of `ArrayList<E>` is `Object`, so `add` takes any value and
+`get` as a `string` makes `"5"` of an `Integer` 5 with `toString()`. Type
+arguments in the formal hole, written as in Java, say what the type
+variables stand for:
+
+```
+mode Stringlist = ref Stringlist_object;
+mode Stringlist_object = struct (int stringlist_java_object);
+proc Stringlist new_list = nest Java "java.util.ArrayList<String>::new";
+proc (Stringlist, string) bool add = nest Java "java.util.ArrayList<String>::add";
+proc (Stringlist, int) string get = nest Java "java.util.ArrayList<String>::get";
+proc (Stringlist, proc (string) void) void for_each = nest Java "java.util.ArrayList<String>::forEach";
+proc (Map, string) Stringlist find = nest Java "java.util.Map<String, java.util.List<String>>::get";
+```
+
+- **When the program is compiled** the type variables of the class, and
+  those of its superclasses and superinterfaces, stand for the type
+  arguments in the parameters and the result of the member, also inside
+  other types: the `Consumer<? super E>` of `forEach` is a
+  `Consumer<? super String>`, so `proc (string) void` fits it exactly.
+  The modes must fit these types: `proc (Stringlist, int) bool add = nest
+  Java "java.util.ArrayList<String>::add"` is a compile-time error, as
+  `list.add(5)` is in Java for a `List<String>`. Of several overloads the
+  cheapest is taken with these types.
+- **When the program runs** a result whose type is a type variable is
+  checked, as javac does with a `checkcast`: an `Integer` that came into
+  an `ArrayList<String>` without type arguments is a runtime error at the
+  call of `get`, not `"5"`:
+  `runtime error: Java value of java.lang.Integer where a java.lang.String is expected`.
+  This holds also for what Java passes to a procedure (the `forEach`
+  above), and for what a functional interface yields (section 1a).
+- **Which types:** a class of `java.lang` by its simple name (`String`,
+  `Integer`), any other class by its full name, a nested class with dots
+  (`java.util.Map.Entry<String, Integer>`); type arguments of type
+  arguments; arrays, also of a primitive type (`java.util.ArrayList<int[]>`,
+  whose elements are `[] int`), but not a primitive type alone (`Integer`
+  for `int`); wildcards (`?`, `? extends T`, `? super T`) only inside
+  another type argument (`java.util.HashMap<String, java.util.List<? extends
+  Number>>`), since the class of the formal hole stands for an object.
+  The number of type arguments and their bounds are checked:
+  `fatal error: the Java class java.util.ArrayList has 1 type parameter, not 2 (in the Java formal hole 'java.util.ArrayList<String, String>')`.
+- A **class without type parameters** binds those of its supertypes
+  itself, as in Java: the field `value` of `T` is a `String` for a
+  `class StringBox extends Box<String>`, also without type arguments.
+- **Not covered:** the type variables of a generic method
+  (`<T> List<T> nCopies (int n, T o)`, `Collections.<String>nCopies` in
+  Java) stay their bounds; an array of a type variable (`E[]`) is not
+  checked, since in fact it is often an `Object[]`. Type arguments need a
+  method reference (`"Class<...>::member"`).
+
 **The objects.** A Java object whose class does not extend
 `a68j.rt.Ref` is an `a68j.rt.JavaHandle` in Algol 68 (a subclass of
 `a68j.rt.JavaObject`), a name as in section 2. It wraps the object on the
@@ -375,7 +427,11 @@ For a constructor the converted arguments go into locals first, then
 the class named in the formal hole; the object is checked by
 `JavaConv.fieldReceiver`. A result whose class
 does not extend `Ref` goes through `JavaConv.objRef`, which makes the
-handle (`backend/.../jvm/GenJava.java`, `Target`).
+handle (`backend/.../jvm/GenJava.java`, `Target`). Type arguments are
+parsed by `backend/.../jvm/JavaGenerics.java`; `Target.bound` puts what the
+type variables stand for into the types of the parameters and the result,
+while the call itself keeps the erased descriptor. A result narrower than
+its erased type is checked by `JavaConv.checked` before it is converted.
 
 **Speed.** `java.util.ArrayList` with 1 000 000 `add` and 5 000 000 `get`
 of `int` elements (boxed as `Integer`): 0.36 to 0.54 s with the start of
@@ -383,7 +439,8 @@ the JVM; the same with the `Intlist` of section 3 (unboxed), 0.21 to
 0.25 s.
 
 Tests: `tests/java/nest-java-objects.a68`, `nest-java-objects-*.a68`,
-`nest-java-fields.a68` and `nest-java-fields-*.a68`.
+`nest-java-fields.a68`, `nest-java-fields-*.a68`, `nest-java-generics.a68`
+and `nest-java-generics-*.a68`.
 
 ## 2. Java objects in Algol 68
 
@@ -707,6 +764,11 @@ that access them (`-I tests/java/lib`).
 | `nest-java-fields` | fields through `"Class::field"` (`tests/java/demo/Counter.java`, `Box.java`, `java.awt.Point`): instance and static fields read and written, a `final` field read, `long`, `double` and object fields, `nil` both ways, a field of a type variable, an inherited field, a method that wins over a field of the same name, procedure values |
 | `nest-java-fields-nil` | a field of `nil` |
 | `nest-java-fields-error` | writing a `final` field: compile-time error |
+| `nest-java-generics` | type arguments in formal holes: `ArrayList<String>` with `forEach`, `removeIf` and `sort` (callbacks of `String`s), a `TreeMap` whose values are lists with `computeIfAbsent` and `forEach`, `AbstractMap.SimpleEntry<String, Integer>::new` (parameters `K` and `V`), `ArrayList<int[]>` with rows as elements |
+| `nest-java-generics-error` | an `Integer` in an `ArrayList<String>`, read by `get`: runtime error at the call |
+| `nest-java-generics-callback` | the same `Integer` passed by `forEach` to a `proc (string) void`: runtime error at the call of `forEach` |
+| `nest-java-generics-mode` | an `int` added to an `ArrayList<String>`: compile-time error |
+| `nest-java-generics-subclass` | the field of `T` of `StringBox extends Box<String>` read as `int`: compile-time error |
 | `nest-java-module` | public formal holes of a module (`tests/java/modules/jholes.a68`), called through their typed entries: numbers, strings, `char`, a name of a row, a procedure as an `IntUnaryOperator`, a discarded `long` result, a constructor, fields and an instance method, operators, procedure values of the holes; the program has no `-fnest-java` |
 | `nest-java-module-exception` | a Java exception in a public formal hole of a module: the position of the call in the program |
 | `nest-java-module-nil` | a field of `nil` through a public formal hole of a module |
@@ -722,15 +784,19 @@ that access them (`-I tests/java/lib`).
 | `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 37 of 37 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 42 of 42 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
-- Generic element types are not checked: the `String`s of a
-  `List<String>` are converted when they are read as `string`, another
-  object there is a runtime error only then.
+- A Java object (a name of a mode such as `Stringlist`) fits every
+  parameter of a reference type equally well, since a68j does not know its
+  class when the program is compiled. Of two overloads that differ only
+  there the first is taken: `proc (string, List) string join = nest Java
+  "java.lang.String.join"` takes `join(CharSequence, CharSequence...)`, not
+  `join(CharSequence, Iterable)`, and the call is a runtime error.
 - Done on 1 Nov 2026: procedures as parameters (functional interfaces),
   see section 1a; constructors and instance methods, section 1b; positions
   for the errors of `JavaObject.error`, section 1; fields of objects and
   static fields through `"Class::field"`, section 1b; typed entries for
-  public formal holes of a module, section 5.
+  public formal holes of a module, section 5; type arguments in formal
+  holes (generic element types), section 1b.

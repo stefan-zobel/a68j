@@ -1,0 +1,70 @@
+{ a68j-options: -fnest-java }
+{ Type arguments in Java formal holes (section 1b of docs/java-modules.md):
+  an ArrayList<String> with callbacks, a TreeMap whose values are lists, a
+  Map.Entry made by a constructor whose parameters are type variables, and
+  an ArrayList<int[]> with rows as its elements. }
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   mode Map = ref Map_object;
+   mode Map_object = struct (int map_java_object);
+   mode Entry = ref Entry_object;
+   mode Entry_object = struct (int entry_java_object);
+
+   { ArrayList<String>: E is String, also in Consumer<? super E> ... }
+   proc List new_list = nest Java "java.util.ArrayList<String>::new";
+   proc (List, string) bool add = nest Java "java.util.ArrayList<String>::add";
+   proc (List, int) string get = nest Java "java.util.ArrayList<String>::get";
+   proc (List, int, string) string set = nest Java "java.util.ArrayList<String>::set";
+   proc (List, proc (string) void) void for_each = nest Java "java.util.ArrayList<String>::forEach";
+   proc (List, proc (string) bool) bool remove_if = nest Java "java.util.ArrayList<String>::removeIf";
+   proc (List, proc (string, string) int) void sort = nest Java "java.util.List<String>::sort";
+   proc (List) int size = nest Java "java.util.List<String>::size";
+
+   { TreeMap<String, List<String>>: V is a list. }
+   proc Map new_map = nest Java "java.util.TreeMap<String, java.util.List<String>>::new";
+   proc (Map, string, List) List put = nest Java "java.util.TreeMap<String, java.util.List<String>>::put";
+   proc (Map, string) List find = nest Java "java.util.Map<String, java.util.List<String>>::get";
+   proc (Map, string, proc (string) List) List compute =
+      nest Java "java.util.Map<String, java.util.List<String>>::computeIfAbsent";
+   proc (Map, proc (string, List) void) void each =
+      nest Java "java.util.Map<String, java.util.List<String>>::forEach";
+
+   { SimpleEntry<String, Integer>: a constructor with the parameters K and V. }
+   proc (string, int) Entry entry = nest Java "java.util.AbstractMap.SimpleEntry<String, Integer>::new";
+   proc (Entry) string key = nest Java "java.util.Map.Entry<String, Integer>::getKey";
+   proc (Entry) int value = nest Java "java.util.Map.Entry<String, Integer>::getValue";
+   proc (Entry, int) int set_value = nest Java "java.util.Map.Entry<String, Integer>::setValue";
+
+   { ArrayList<int[]>: rows as elements. }
+   proc List new_rows = nest Java "java.util.ArrayList<int[]>::new";
+   proc (List, [] int) bool add_row = nest Java "java.util.ArrayList<int[]>::add";
+   proc (List, int) [] int get_row = nest Java "java.util.ArrayList<int[]>::get";
+
+   List l = new_list;
+   add (l, "pear"); add (l, "apple"); add (l, "fig");
+   sort (l, (string a, b) int: (a < b | -1 |: a = b | 0 | 1));
+   for_each (l, (string s) void: puts (s + " "));
+   puts (whole (size (l), 0) + "'n");
+   string old = set (l, 0, "kiwi");
+   puts (old + " " + get (l, 0) + "'n");
+   remove_if (l, (string s) bool: UPB s = 3);
+   puts (get (l, size (l) - 1) + "'n");
+
+   Map m = new_map;
+   put (m, "fruit", l);
+   List nuts = compute (m, "nut", (string k) List: (List x = new_list; add (x, k + "meg"); x));
+   List again = compute (m, "nut", (string k) List: nil);
+   puts (get (again, 0) + "'n");
+   each (m, (string k, List x) void: puts (k + ":" + whole (size (x), 0) + " "));
+   puts (get (find (m, "fruit"), 1) + "'n");
+
+   Entry e = entry ("x", 41);
+   int was = set_value (e, 42);
+   puts (whole (was, 0) + " " + key (e) + " " + whole (value (e), 0) + "'n");
+
+   List r = new_rows;
+   add_row (r, (1, 2, 3)); add_row (r, (4, 5));
+   [] int second = get_row (r, 1);
+   puts (whole (UPB second, 0) + " " + whole (second[2], 0) + " " + whole (get_row (r, 0)[3], 0) + "'n")
+end

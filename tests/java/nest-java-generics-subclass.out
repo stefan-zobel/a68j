@@ -1,0 +1,3 @@
+tests/java/nest-java-generics-subclass.a68:7:33: fatal error: no public Java method or field 'demo.Box.StringBox::value' fits the mode proc (ref struct (int stringboxjavaobject)) int
+compilation terminated.
+exit 1

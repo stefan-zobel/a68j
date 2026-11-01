@@ -1,0 +1,8 @@
+{ a68j-options: -fnest-java }
+{ An int is no element of an ArrayList<String>: a compile-time error. }
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc (List, int) bool add = nest Java "java.util.ArrayList<String>::add";
+   skip
+end

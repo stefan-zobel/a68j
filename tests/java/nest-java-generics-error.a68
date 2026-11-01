@@ -1,0 +1,14 @@
+{ a68j-options: -fnest-java }
+{ An Integer in an ArrayList<String>, added without type arguments: get
+  checks the String, a runtime error at the call. }
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc List new_list = nest Java "java.util.ArrayList<String>::new";
+   proc (List, int) string get = nest Java "java.util.ArrayList<String>::get";
+   proc (List, int) bool add_raw = nest Java "java.util.ArrayList::add";
+   List l = new_list;
+   add_raw (l, 5);
+   puts ("added'n");
+   puts (get (l, 0) + "'n")
+end

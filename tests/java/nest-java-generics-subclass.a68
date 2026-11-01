@@ -1,0 +1,9 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ StringBox extends Box<String> (tests/java/demo/Box.java): its field value
+  of type T is a String, so it is no int, a compile-time error. }
+begin
+   mode Stringbox = ref Stringbox_object;
+   mode Stringbox_object = struct (int stringbox_java_object);
+   proc (Stringbox) int value = nest Java "demo.Box.StringBox::value";
+   skip
+end

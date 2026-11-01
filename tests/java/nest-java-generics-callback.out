@@ -1,0 +1,3 @@
+one
+tests/java/nest-java-generics-callback.a68:14: runtime error: Java value of java.lang.Integer where a java.lang.String is expected
+exit 134

@@ -121,6 +121,10 @@ final class GenJava {
                 && spec.indexOf('.', colons + 2) < 0) {
             return new String[] {spec.substring(0, colons), spec.substring(colons + 2), "::"};
         }
+        if (colons < 0 && spec.indexOf('<') >= 0) {
+            throw new Gen.Fatal(p, "type arguments in the Java formal hole '" + spec
+                    + "' need a method reference, 'package.Class<...>::member'");
+        }
         int dot = spec.lastIndexOf('.');
         if (colons >= 0 || dot <= 0 || dot == spec.length() - 1) {
             throw new Gen.Fatal(p, "invalid Java formal hole '" + spec
@@ -133,7 +137,7 @@ final class GenJava {
      * The class NAME of the formal hole P. A nested class may be written
      * with dots as in Java ("java.util.Map.Entry" for java.util.Map$Entry).
      */
-    private static Class<?> javaClass(Node p, String name) {
+    static Class<?> javaClass(Node p, String name) {
         String n = name;
         while (true) {
             try {
@@ -159,7 +163,18 @@ final class GenJava {
             return cached;
         }
         String[] parts = spec(p);
-        Class<?> c = javaClass(p, parts[0]);
+        // With type arguments ("java.util.ArrayList<String>::get") the type
+        // variables of the class stand for them (JavaGenerics), and those of
+        // its superclasses and superinterfaces for what it says of them, as
+        // also for a class without type parameters (the T of Box<T> is String
+        // for a class StringBox extends Box<String>). A generic class without
+        // type arguments is a raw type, as in Java: its members are erased.
+        Type type = parts[2] == null ? javaClass(p, parts[0]) : JavaGenerics.classType(p, parts[0]);
+        Class<?> c = JavaGenerics.raw(type);
+        Map<TypeVariable<?>, Type> env = new HashMap<>();
+        if (type instanceof ParameterizedType || c.getTypeParameters().length == 0) {
+            bind(type, env, 0);
+        }
         Moid m = JType.base(p.type);
         String mode = a68j.front.MoidsToString.moidToString(g.a68, p.type, 80, null).toLowerCase(java.util.Locale.ROOT);
         Target target;
@@ -172,9 +187,9 @@ final class GenJava {
             if (!Modifier.isPublic(c.getModifiers())) {
                 throw new Gen.Fatal(p, "Java class '" + parts[0] + "' is not public");
             }
-            target = findReference(g, c, parts[1], m, denotation(p));
+            target = findReference(g, c, parts[1], m, denotation(p), env);
             if (target == null) {
-                target = findField(g, c, parts[1], m, denotation(p));
+                target = findField(g, c, parts[1], m, denotation(p), env);
             }
             if (target == null) {
                 String what = parts[1].equals("new") ? "constructor"
@@ -234,7 +249,7 @@ final class GenJava {
                 g.cb.pop();
             }
         } else {
-            convertFromJava(g, g.cb, target.ret(), target.gret(), r);
+            convertResult(g, g.cb, target, r);
         }
         g.adjust(m.sub, ret, hole);
     }
@@ -279,8 +294,11 @@ final class GenJava {
      * instance method NAME of C whose object is the first parameter of M (for
      * an interface also the public methods of Object). Of several that fit
      * the one with the lowest cost, of those the first; null if none fits.
+     * ENV binds the type variables of C to the type arguments of the formal
+     * hole (empty without them, see {@link Target#bound}).
      */
-    private static Target findReference(Gen g, Class<?> c, String name, Moid m, String spec) {
+    private static Target findReference(Gen g, Class<?> c, String name, Moid m, String spec,
+            Map<TypeVariable<?>, Type> env) {
         List<Target> candidates = new ArrayList<>();
         if (name.equals("new")) {
             if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
@@ -304,6 +322,9 @@ final class GenJava {
         Target best = null;
         int bestCost = Integer.MAX_VALUE;
         for (Target t : candidates) {
+            if (!env.isEmpty()) {
+                t = t.bound(env);
+            }
             int cost = cost(g, t, m);
             if (cost >= 0 && cost < bestCost) {
                 best = t;
@@ -320,21 +341,23 @@ final class GenJava {
      * its only parameter (no parameter for a static field) and the field as
      * its result, or, if the field is not final, written by a procedure with
      * the object (not for a static field) and the new value as parameters and
-     * no result. Null if there is no such field or it does not fit.
+     * no result. Null if there is no such field or it does not fit. ENV as
+     * for {@link #findReference}.
      */
-    private static Target findField(Gen g, Class<?> c, String name, Moid m, String spec) {
+    private static Target findField(Gen g, Class<?> c, String name, Moid m, String spec,
+            Map<TypeVariable<?>, Type> env) {
         Field f = publicField(c, name);
         if (f == null) {
             return null;
         }
-        Target get = Target.ofField(f, c, spec, false);
+        Target get = Target.ofField(f, c, spec, false).bound(env);
         if (cost(g, get, m) >= 0) {
             return get;
         }
         if (Modifier.isFinal(f.getModifiers())) {
             return null;
         }
-        Target put = Target.ofField(f, c, spec, true);
+        Target put = Target.ofField(f, c, spec, true).bound(env);
         return cost(g, put, m) >= 0 ? put : null;
     }
 
@@ -372,7 +395,9 @@ final class GenJava {
      * the parameters of the procedure, the object first for an instance
      * method or field; RET and GRET those of the result (OWNER for a
      * constructor, void for PUT). SPEC is the formal hole as written, for
-     * the messages (null for "Class.member").
+     * the messages (null for "Class.member"). With type arguments in the
+     * formal hole PARAMS and RET may be narrower than the erased types of
+     * the member ({@link #bound}).
      */
     record Target(java.lang.reflect.Member x, Kind kind, Class<?> owner, String spec, Class<?>[] params,
             Type[] gparams, Class<?> ret, Type gret) {
@@ -382,6 +407,61 @@ final class GenJava {
         boolean hasReceiver() {
             return kind == Kind.INSTANCE
                     || (kind == Kind.GET || kind == Kind.PUT) && !Modifier.isStatic(x.getModifiers());
+        }
+
+        /**
+         * This target with the type variables that ENV binds (those of the
+         * class and its supertypes, bound to the type arguments of the formal
+         * hole) replaced in the generic types of the parameters and the
+         * result (JavaGenerics#subst), and PARAMS and RET narrowed to the
+         * classes these stand for, as {@link #sam} does for the type
+         * arguments of a functional interface: E of the get of
+         * ArrayList&lt;String&gt; is String. Unlike there, a type variable
+         * also stands for an array (int[] for E of ArrayList&lt;int[]&gt;),
+         * but an array of a type variable (E[]) is not narrowed: such an
+         * array is often an Object[] in fact. The object of an instance
+         * method or field stays as it is. The call itself uses the erased
+         * types ({@link #invoke}); a result narrower than its erased type is
+         * checked ({@link #erasedRet}, GenJava#convertResult).
+         */
+        Target bound(Map<TypeVariable<?>, Type> env) {
+            if (env.isEmpty()) {
+                return this;
+            }
+            Class<?>[] ps = params.clone();
+            Type[] gps = gparams.clone();
+            for (int i = hasReceiver() ? 1 : 0; i < ps.length; i++) {
+                gps[i] = JavaGenerics.subst(gparams[i], env);
+                ps[i] = narrowBound(params[i], gparams[i], gps[i]);
+            }
+            if (kind == Kind.NEW) {
+                return new Target(x, kind, owner, spec, ps, gps, ret, gret);
+            }
+            Type gr = JavaGenerics.subst(gret, env);
+            return new Target(x, kind, owner, spec, ps, gps, narrowBound(ret, gret, gr), gr);
+        }
+
+        /**
+         * The class that the generic type BOUND (GENERIC with the type
+         * variables bound) stands for, if it is a subtype of the erased type
+         * ERASED, else ERASED; an array only if GENERIC is no generic array.
+         */
+        private static Class<?> narrowBound(Class<?> erased, Type generic, Type bound) {
+            Type t = resolve(bound, Map.of(), 0);
+            if (t instanceof Class<?> c && c.isArray() && !(generic instanceof java.lang.reflect.GenericArrayType)) {
+                return erased.isAssignableFrom(c) ? c : erased;
+            }
+            return narrow(erased, t);
+        }
+
+        /** The erased type of the result of the member (OWNER for a constructor, void for PUT). */
+        Class<?> erasedRet() {
+            return switch (kind) {
+                case STATIC, INSTANCE -> ((Method) x).getReturnType();
+                case NEW -> owner;
+                case GET -> ((Field) x).getType();
+                case PUT -> void.class;
+            };
         }
 
         static Target ofStatic(Method x, String spec) {
@@ -440,17 +520,19 @@ final class GenJava {
                     }
                 }
                 case NEW -> {
-                    int[] slots = new int[params.length];
-                    for (int i = params.length - 1; i >= 0; i--) {
-                        TypeKind k = TypeKind.from(desc(params[i]));
+                    // The erased types (PARAMS may be narrower, see bound).
+                    Class<?>[] erased = ((java.lang.reflect.Constructor<?>) x).getParameterTypes();
+                    int[] slots = new int[erased.length];
+                    for (int i = erased.length - 1; i >= 0; i--) {
+                        TypeKind k = TypeKind.from(desc(erased[i]));
                         slots[i] = code.allocateLocal(k);
                         code.storeLocal(k, slots[i]);
                     }
                     code.new_(desc(owner));
                     code.dup();
-                    ClassDesc[] ds = new ClassDesc[params.length];
-                    for (int i = 0; i < params.length; i++) {
-                        ds[i] = desc(params[i]);
+                    ClassDesc[] ds = new ClassDesc[erased.length];
+                    for (int i = 0; i < erased.length; i++) {
+                        ds[i] = desc(erased[i]);
                         code.loadLocal(TypeKind.from(ds[i]), slots[i]);
                     }
                     code.invokespecial(desc(owner), "<init>", MethodTypeDesc.of(CD_void, ds));
@@ -765,7 +847,10 @@ final class GenJava {
         return new Sam(s, j, eff, gs, narrow(s.getReturnType(), gr), gr);
     }
 
-    /** Bind the type variables of the generic type T and of its superinterfaces to their arguments. */
+    /**
+     * Bind the type variables of the generic type T and of its superclasses
+     * and superinterfaces to their arguments.
+     */
     private static void bind(Type t, Map<TypeVariable<?>, Type> env, int depth) {
         Class<?> raw;
         if (depth > 20) {
@@ -781,6 +866,9 @@ final class GenJava {
             raw = c;
         } else {
             return;
+        }
+        if (raw.getGenericSuperclass() != null) {
+            bind(raw.getGenericSuperclass(), env, depth + 1);
         }
         for (Type s : raw.getGenericInterfaces()) {
             bind(s, env, depth + 1);
@@ -905,7 +993,7 @@ final class GenJava {
                 }
                 code.aconst_null();
             } else {
-                convertFromJava(g, code, target.ret(), target.gret(), r);
+                convertResult(g, code, target, r);
                 g.box(r);
             }
             code.areturn();
@@ -963,7 +1051,7 @@ final class GenJava {
                     code.pop();
                 }
             } else {
-                convertFromJava(g, code, target.ret(), target.gret(), r);
+                convertResult(g, code, target, r);
             }
             code.return_(TypeKind.from(entry.returnType()));
             g.cb = save;
@@ -1096,6 +1184,31 @@ final class GenJava {
         if (j != Object[].class) {
             code.checkcast(desc(j));
         }
+    }
+
+    /**
+     * Convert the result of TARGET on the stack to an Algol 68 value of mode
+     * M ({@link #convertFromJava}). A result narrower than its erased type
+     * (a type variable bound by type arguments in the formal hole, see
+     * Target#bound) is checked first.
+     */
+    private static void convertResult(Gen g, CodeBuilder code, Target target, Moid m) {
+        if (target.ret() != target.erasedRet()) {
+            checked(code, target.ret());
+        }
+        convertFromJava(g, code, target.ret(), target.gret(), m);
+    }
+
+    /**
+     * Check that the Java object on the stack, of an erased type, is a C (or
+     * null), as javac does with a checkcast where a type variable stands for
+     * C: a runtime error if not (JavaConv#checked), not a
+     * ClassCastException.
+     */
+    private static void checked(CodeBuilder code, Class<?> c) {
+        code.ldc(desc(c));
+        code.invokestatic(CD_CONV, "checked", MethodTypeDesc.of(CD_Object, CD_Object, CD_Class));
+        code.checkcast(desc(c));
     }
 
     /**
@@ -1278,7 +1391,7 @@ final class GenJava {
                 code.loadLocal(k, slot);
                 slot += k.slotSize();
                 if (s.params[i] != ps[i]) {
-                    code.checkcast(desc(s.params[i]));
+                    checked(code, s.params[i]);
                 }
                 convertFromJava(g, code, s.params[i], s.gparams[i], JType.base(z.type));
             }
@@ -1322,7 +1435,7 @@ final class GenJava {
                 code.loadLocal(k, slot);
                 slot += k.slotSize();
                 if (s.params[i] != ps[i]) {
-                    code.checkcast(desc(s.params[i]));
+                    checked(code, s.params[i]);
                 }
                 convertFromJava(g, code, s.params[i], s.gparams[i], JType.base(z.type));
                 g.box(z.type);
@@ -1394,7 +1507,7 @@ final class GenJava {
                 code.aconst_null();
             } else {
                 if (s.ret != rt) {
-                    code.checkcast(desc(s.ret));
+                    checked(code, s.ret);
                 }
                 convertFromJava(g, code, s.ret, s.gret, r);
                 g.box(r);

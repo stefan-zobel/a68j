@@ -1,0 +1,15 @@
+{ a68j-options: -fnest-java }
+{ An Integer in an ArrayList<String>, added without type arguments:
+  forEach passes it to a procedure (string) void, a runtime error at the
+  call of forEach. }
+begin
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc List new_list = nest Java "java.util.ArrayList<String>::new";
+   proc (List, string) bool add = nest Java "java.util.ArrayList<String>::add";
+   proc (List, proc (string) void) void for_each = nest Java "java.util.ArrayList<String>::forEach";
+   proc (List, int) bool add_raw = nest Java "java.util.ArrayList::add";
+   List l = new_list;
+   add (l, "one"); add_raw (l, 2);
+   for_each (l, (string s) void: puts (s + "'n"))
+end

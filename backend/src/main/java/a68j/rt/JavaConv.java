@@ -226,6 +226,21 @@ public final class JavaConv {
         return javaObject(r, c);
     }
 
+    /**
+     * The Java object O if it is null or a C, else a runtime error: a result
+     * (or a parameter of a callback) whose type is a type variable bound to
+     * C by type arguments, checked as javac does with a checkcast
+     * (a68j.jvm.GenJava#checked).
+     */
+    public static Object checked(Object o, Class<?> c) {
+        if (o == null || c.isInstance(o)) {
+            return o;
+        }
+        String n = c.getTypeName();
+        throw JavaObject.error("Java value of " + o.getClass().getTypeName() + " where a"
+                + ("aeiou".indexOf(n.charAt(0)) >= 0 ? "n " : " ") + n + " is expected");
+    }
+
     private static RuntimeException nullValue(String mode) {
         return JavaObject.error("Java value null where a value of mode " + mode + " is expected");
     }
