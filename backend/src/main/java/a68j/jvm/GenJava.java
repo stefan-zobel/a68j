@@ -86,7 +86,7 @@ final class GenJava {
         if (m.attribute == Attribute.PROC_SYMBOL) {
             Method target = method(g, p);
             String bridge = "j" + g.javaBridges.size();
-            g.javaBridges.add(clb -> emitBridge(g, clb, bridge, target, m));
+            g.javaBridges.add(clb -> emitBridge(g, clb, bridge, target, m, p));
             g.cb.new_(Gen.CD_CLOSURE);
             g.cb.dup();
             g.cb.ldc(java.lang.constant.MethodHandleDesc.ofMethod(
@@ -145,8 +145,10 @@ final class GenJava {
      * unboxed, converted and passed to the Java method with invokestatic;
      * no closure, no argument array, no boxing. The conversions are those of
      * the bridge method ({@link #emitBridge}), so the result is the same.
+     * A Java exception of the method is a runtime error at AT, the call
+     * ({@link #guarded}).
      */
-    static void directCall(Gen g, Node hole, List<Node> args, Moid ret) {
+    static void directCall(Gen g, Node hole, List<Node> args, Moid ret, Node at) {
         Method target = method(g, hole);
         Moid m = JType.base(hole.type);
         Class<?>[] ps = target.getParameterTypes();
@@ -170,7 +172,8 @@ final class GenJava {
             }
         }
         Class<?> owner = target.getDeclaringClass();
-        g.cb.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface());
+        guarded(g.cb, c -> c.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface()),
+                file(at), line(at), false);
         after.forEach(Runnable::run);
         Moid r = JType.base(m.sub);
         if (r == g.a68.modes.VOID) {
@@ -579,8 +582,15 @@ final class GenJava {
     // Code.
     // ------------------------------------------------------------------
 
-    /** The bridge method NAME (Frame, Object[]) -> Object calling TARGET for the procedure mode M. */
-    private static void emitBridge(Gen g, java.lang.classfile.ClassBuilder clb, String name, Method target, Moid m) {
+    /**
+     * The bridge method NAME (Frame, Object[]) -> Object calling TARGET for
+     * the procedure mode M of the formal hole HOLE. A Java exception of the
+     * method is a runtime error at the code that called the procedure (found
+     * on the stack when it happens, see Rt#javaExceptionOfCaller), or at
+     * HOLE if there is none.
+     */
+    private static void emitBridge(Gen g, java.lang.classfile.ClassBuilder clb, String name, Method target, Moid m,
+            Node hole) {
         clb.withMethodBody(name, Gen.MT_ROUTINE, ClassFile.ACC_PRIVATE | ClassFile.ACC_STATIC, code -> {
             CodeBuilder save = g.cb;
             g.cb = code;
@@ -605,7 +615,8 @@ final class GenJava {
                 }
             }
             Class<?> owner = target.getDeclaringClass();
-            code.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface());
+            guarded(code, c -> c.invokestatic(desc(owner), target.getName(), methodDesc(target), owner.isInterface()),
+                    file(hole), line(hole), true);
             after.forEach(Runnable::run);
             Moid r = JType.base(m.sub);
             if (r == g.a68.modes.VOID) {
@@ -997,6 +1008,9 @@ final class GenJava {
      * stack as an Algol 68 procedure of mode M: an a68j.rt.JavaFn whose
      * adapter {@code jN(Object target, Object[] args) -> Object} converts the
      * arguments, calls the method of the interface and converts its result.
+     * A Java exception of the method is a runtime error at the code that
+     * called the procedure (Rt#javaExceptionOfCaller; no position if there
+     * is none).
      */
     private static void fromInterface(Gen g, CodeBuilder code, Class<?> j, Type gt, Moid m) {
         Sam s = sam(j, gt);
@@ -1025,7 +1039,7 @@ final class GenJava {
                     code.checkcast(desc(ps[i]));
                 }
             }
-            code.invokeinterface(desc(s.iface), s.m.getName(), methodDesc(s.m));
+            guarded(code, c -> c.invokeinterface(desc(s.iface), s.m.getName(), methodDesc(s.m)), null, 0, true);
             Moid r = JType.base(m.sub);
             Class<?> rt = s.m.getReturnType();
             if (r == g.a68.modes.VOID) {
@@ -1049,6 +1063,52 @@ final class GenJava {
 
     static ClassDesc desc(Class<?> c) {
         return c.describeConstable().orElseThrow();
+    }
+
+    private static final MethodTypeDesc MT_JAVA_EXCEPTION = MethodTypeDesc.of(CD_Throwable, CD_Throwable, CD_String,
+            CD_int);
+
+    /**
+     * The call of a Java method emitted by INVOKE, in an exception handler
+     * (catch all, for the call instruction only): a Java exception thrown by
+     * the method is a runtime error, Rt#javaException at FILE:LINE, or, if
+     * OF_CALLER, Rt#javaExceptionOfCaller with FILE:LINE (FILE may be null)
+     * if there is no caller. The handler throws what these return (the
+     * exceptions of the runtime that only pass through Java code). The
+     * operand stack below the arguments of the call is not touched: the
+     * handler ends with athrow, the normal path jumps over it.
+     */
+    private static void guarded(CodeBuilder code, java.util.function.Consumer<CodeBuilder> invoke, String file,
+            int line, boolean ofCaller) {
+        java.lang.classfile.Label start = code.newLabel();
+        java.lang.classfile.Label end = code.newLabel();
+        java.lang.classfile.Label handler = code.newLabel();
+        java.lang.classfile.Label done = code.newLabel();
+        code.labelBinding(start);
+        invoke.accept(code);
+        code.labelBinding(end);
+        code.goto_(done);
+        code.labelBinding(handler);
+        if (file == null) {
+            code.aconst_null();
+        } else {
+            code.ldc(file);
+        }
+        code.ldc(line);
+        code.invokestatic(Gen.CD_RT, ofCaller ? "javaExceptionOfCaller" : "javaException", MT_JAVA_EXCEPTION);
+        code.athrow();
+        code.labelBinding(done);
+        code.exceptionCatchAll(start, end, handler);
+    }
+
+    /** The file of the position of P (as in the runtime errors, Gen#pushWhere). */
+    private static String file(Node p) {
+        return p != null && p.info != null && p.info.line != null ? p.info.line.filename : "";
+    }
+
+    /** The line of the position of P. */
+    private static int line(Node p) {
+        return p != null && p.info != null && p.info.line != null ? p.info.line.number : 0;
     }
 
     private static MethodTypeDesc methodDesc(Method x) {

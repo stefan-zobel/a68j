@@ -58,9 +58,23 @@ public final class Par {
     /** The number of units running in threads. */
     private static final java.util.concurrent.atomic.AtomicInteger ACTIVE = new java.util.concurrent.atomic.AtomicInteger();
 
+    /**
+     * Whether the current thread is that of a unit (set by {@link #unit}):
+     * such a thread is interrupted only to cancel the unit, so an
+     * interruption seen by a Java method that the unit called ends the unit
+     * (Rt#javaException).
+     */
+    private static final ThreadLocal<Boolean> IN_UNIT = new ThreadLocal<>();
+
+    /** Whether the current thread is that of a unit of a parallel clause. */
+    static boolean inUnit() {
+        return IN_UNIT.get() != null;
+    }
+
     /** The body of the thread of a unit. */
     static void unit(Proc u) {
         ACTIVE.incrementAndGet();
+        IN_UNIT.set(Boolean.TRUE);
         try {
             u.call(NO_ARGS);
         } catch (StackOverflowError e) {
@@ -68,6 +82,7 @@ public final class Par {
             Rt.OUT.flush();
             Runtime.getRuntime().halt(139);
         } finally {
+            IN_UNIT.remove();
             ACTIVE.decrementAndGet();
         }
     }

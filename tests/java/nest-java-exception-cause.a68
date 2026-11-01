@@ -1,0 +1,8 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ The causes of a Java exception follow its message. }
+begin
+   proc (string) int load = nest Java "demo.Fail.wrapped";
+   puts ("loading'n");
+   int n = load ("data.txt");
+   puts ("not reached'n")
+end

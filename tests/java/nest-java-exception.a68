@@ -1,0 +1,9 @@
+{ a68j-options: -fnest-java }
+{ A Java exception thrown by a Java method called directly is a runtime
+  error at the call: the message names the exception, the status is 134. }
+begin
+   proc (string) int parse = nest Java "java.lang.Integer.parseInt";
+   puts (whole (parse ("12"), 0) + "'n");
+   puts (whole (parse ("12x"), 0) + "'n");
+   puts ("not reached'n")
+end

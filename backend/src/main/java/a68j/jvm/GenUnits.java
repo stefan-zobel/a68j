@@ -127,12 +127,13 @@ final class GenUnits {
      * a procedure or brief operator declared with a routine text in this
      * compilation (Gen#staticProcs): its method is invoked directly with the
      * frame the routine text would have captured. False (nothing emitted)
-     * otherwise.
+     * otherwise. AT is the call, the position of a Java exception of a
+     * Java method called directly (GenJava#directCall).
      */
-    static boolean directCall(Gen g, Tag t, List<Node> args, Moid ret) {
+    static boolean directCall(Gen g, Tag t, List<Node> args, Moid ret, Node at) {
         Node hole = t == null ? null : g.javaProcs.get(t);
         if (hole != null) {
-            GenJava.directCall(g, hole, args, ret);
+            GenJava.directCall(g, hole, args, ret, at);
             return true;
         }
         Node text = t == null ? null : g.staticProcs.get(t);
@@ -328,7 +329,7 @@ final class GenUnits {
         Node rhs = op.next;
         if (g.isIntrinsic(op.tag)) {
             Intrinsics.dyadic(g, op, lhs, rhs, p);
-        } else if (directCall(g, op.tag, List.of(lhs, rhs), op.tag.type.sub)) {
+        } else if (directCall(g, op.tag, List.of(lhs, rhs), op.tag.type.sub, p)) {
             // done
         } else {
             g.load(op.tag, op);
@@ -344,7 +345,7 @@ final class GenUnits {
         Node arg = op.next;
         if (g.isIntrinsic(op.tag)) {
             Intrinsics.monadic(g, op, arg, p);
-        } else if (directCall(g, op.tag, List.of(arg), op.tag.type.sub)) {
+        } else if (directCall(g, op.tag, List.of(arg), op.tag.type.sub, p)) {
             // done
         } else {
             g.load(op.tag, op);
@@ -456,7 +457,7 @@ final class GenUnits {
         g.line(p);
         if (id.attribute == Attribute.IDENTIFIER && g.isIntrinsic(id.tag)) {
             Intrinsics.call(g, id, args, p);
-        } else if (id.attribute == Attribute.IDENTIFIER && directCall(g, id.tag, args, procMode.sub)) {
+        } else if (id.attribute == Attribute.IDENTIFIER && directCall(g, id.tag, args, procMode.sub, p)) {
             // done
         } else {
             g.unit(prim);

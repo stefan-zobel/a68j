@@ -1,0 +1,15 @@
+{ a68j-options: -fnest-java -fpar-threads -fjava-classpath=tests/java/classes }
+{ A unit of a parallel clause that waits in a Java method when another
+  unit jumps out of the clause: the clause is cancelled, the waiting unit
+  is interrupted, and its InterruptedException is not a runtime error but
+  ends the unit, so that the jump goes on. }
+begin
+   proc int wait = nest Java "demo.Fail.waitForInterrupt";
+   par (
+      puts (whole (wait, 0) + "'n"),
+      goto left
+   );
+   puts ("not reached'n");
+left:
+   puts ("left the parallel clause'n")
+end

@@ -1,0 +1,3 @@
+12
+tests/java/nest-java-exception.a68:7: runtime error: Java exception java.lang.NumberFormatException: For input string: "12x"
+exit 134

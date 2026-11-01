@@ -89,7 +89,7 @@ final class GenCoercions {
             g.adjust(JType.base(id.tag.type).sub, p.type, p);
             return;
         }
-        if (id.attribute == Attribute.IDENTIFIER && GenUnits.directCall(g, id.tag, java.util.List.of(), p.type)) {
+        if (id.attribute == Attribute.IDENTIFIER && GenUnits.directCall(g, id.tag, java.util.List.of(), p.type, p)) {
             return;
         }
         g.unit(p.sub);

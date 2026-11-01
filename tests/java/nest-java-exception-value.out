@@ -1,0 +1,3 @@
+17
+tests/java/nest-java-exception-value.a68:8: runtime error: Java exception java.lang.NumberFormatException: For input string: "x19"
+exit 134

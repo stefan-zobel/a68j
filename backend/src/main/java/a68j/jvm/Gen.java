@@ -325,6 +325,12 @@ public final class Gen {
         return ClassFile.of(ClassFile.ClassHierarchyResolverOption.of(resolver)).build(thisClass, clb -> {
             clb.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL);
             clb.with(java.lang.classfile.attribute.SourceFileAttribute.of(new java.io.File(sourceFile).getName()));
+            // The source file as it appears in the runtime errors; it also
+            // marks the class as compiled from Algol 68, for the position of
+            // a Java exception found on the stack (Rt#javaExceptionOfCaller).
+            clb.withField("A68_SOURCE", CD_String, fb -> fb
+                    .withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC | ClassFile.ACC_FINAL)
+                    .with(java.lang.classfile.attribute.ConstantValueAttribute.of(sourceFile)));
             if (moduleDef != null) {
                 emitModuleAccess(clb);
             }

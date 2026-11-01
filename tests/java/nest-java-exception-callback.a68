@@ -1,0 +1,10 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ A Java exception thrown by a Java method that an Algol 68 procedure
+  calls, which Java calls back: the position is that of that inner call. }
+begin
+   proc (int, proc (int) void) void each = nest Java "demo.Fail.each";
+   proc (string) int parse = nest Java "java.lang.Integer.parseInt";
+   each (3, (int i) void:
+      puts (whole (parse (whole (i, 0) + (i = 3 | "x" | "")), 0) + "'n"));
+   puts ("not reached'n")
+end

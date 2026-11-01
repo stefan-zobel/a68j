@@ -1,0 +1,11 @@
+{ a68j-options: -fnest-java -fjava-classpath=tests/java/classes }
+{ A Java exception thrown by a Java functional object called as an
+  Algol 68 procedure (its adapter method): the position is that of the
+  call. }
+begin
+   proc (string) proc int later = nest Java "demo.Fail.later";
+   proc int f = later ("not yet");
+   puts ("made f'n");
+   int n = f;
+   puts ("not reached'n")
+end

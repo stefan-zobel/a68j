@@ -1,0 +1,4 @@
+1
+2
+tests/java/nest-java-exception-callback.a68:8: runtime error: Java exception java.lang.NumberFormatException: For input string: "3x"
+exit 134

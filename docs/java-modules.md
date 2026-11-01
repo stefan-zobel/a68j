@@ -5,6 +5,8 @@ As of 31 Oct 2026. An extension of a68j over ga68. Without the option
 `Hashmaps` can be used without the option, because they come with the
 jar.
 
+Concept and further ideas: `docs/konzept-java-apis-und-par.md`.
+
 ## 1. Formal holes: `nest Java "Class.member"`
 
 For foreign code ga68 knows the *formal holes* of the Revised Report, but
@@ -84,6 +86,65 @@ stored in variables and so on (`backend/.../jvm/GenJava.java`, runtime
 helpers in `a68j.rt.JavaConv`). A call of the identifier itself does not
 go through the closure but calls the Java method directly
 (`docs/optimizations.md`, section 2).
+
+### Java exceptions
+
+An exception that a Java method throws ends the program with a runtime
+error, exit status 134, as for the runtime errors of Algol 68 itself. The
+message gives the position in the Algol 68 source, the exception and its
+causes:
+
+```
+prog.a68:7: runtime error: Java exception java.lang.NumberFormatException: For input string: "12x"
+prog.a68:6: runtime error: Java exception java.lang.IllegalStateException: cannot load data.txt, caused by java.io.FileNotFoundException: data.txt
+```
+
+**Which position.**
+
+- **A direct call** of the identifier or operator (see above): the
+  position of the call, known when the program is compiled.
+- **A call through the procedure value** (the bridge method), and a call
+  of a Java functional object as an Algol 68 procedure (section 1a): the
+  position of the Algol 68 code that called the procedure. The bridge does
+  not know it, so the runtime looks it up on the stack when the exception
+  happens. It looks for the innermost frame of a class compiled from
+  Algol 68: every such class has the constant `A68_SOURCE`, its source
+  file. The line is the last line number entry before the call, the
+  line of the unit or call. If there is no such frame, the position is
+  that of the formal hole, or none for a functional object.
+
+So for a public formal hole of a module (`pub proc (string) int parse =
+nest Java "…"`), the position is in the program that calls `parse`. For a
+hole that the module calls itself inside a public procedure, the position
+is the call in the module, as for any runtime error in a procedure of a
+module.
+
+**What passes through.** These are not Java exceptions, and they go on
+through the Java method:
+
+- a jump out of an Algol 68 procedure that Java calls back
+  (`a68j.rt.Jump`, section 1a);
+- the errors of the virtual machine (`VirtualMachineError`): a stack
+  overflow ends the program with status 139 as elsewhere;
+- the cancellation of a unit of a parallel clause (`-fpar-threads`,
+  `docs/par-and-sema.md`). Its thread is interrupted. A unit that waits in
+  a Java method then gets an `InterruptedException`, or a
+  `ClosedByInterruptException` from a channel. In a unit thread this ends
+  the unit and is not a runtime error, so the jump that cancelled the
+  clause goes on. A Java method that catches the interruption and throws
+  something else instead gives a runtime error.
+
+**How it is compiled.** The call instruction alone is in an exception
+handler (catch all). The handler calls `Rt.javaException` (direct calls)
+or `Rt.javaExceptionOfCaller` (bridge and adapter methods) and throws
+what they return. They return the exceptions that pass through; for any
+other exception they print the message and halt. Nothing else changes on
+the normal path, and an exception handler costs nothing as long as no
+exception is thrown.
+
+A Java method can also report an error itself with
+`throw JavaObject.error("…")` (section 5). That message has no position
+yet (section 7).
 
 ## 1a. Procedures and functional interfaces, names of rows, Java objects
 
@@ -485,6 +546,12 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `nest-java-fn-error` | a procedure that does not fit the interface: compile-time error |
 | `nest-java-off` | without `-fnest-java`: the message of ga68 |
 | `nest-java-classpath` | a class of your own, `tests/java/demo/Util.java`, through `-fjava-classpath` |
+| `nest-java-exception` | a Java exception in a direct call: runtime error at the call, status 134 |
+| `nest-java-exception-value` | the same through the procedure value: the position of the call in the procedure that called it |
+| `nest-java-exception-cause` | the causes of the exception in the message (`tests/java/demo/Fail.java`) |
+| `nest-java-exception-fn` | a Java functional object that throws when it is called as an Algol 68 procedure |
+| `nest-java-exception-callback` | a Java exception in a Java method called by a callback: the position of that inner call |
+| `nest-java-exception-par` | a unit waiting in `Thread.sleep` when another unit jumps out of the parallel clause: the interruption ends the unit, the jump goes on |
 | `lists-basic` | all operations on `Intlist`, `is`, `nil`, `AT` |
 | `lists-kinds` | the other five modes, copies in a `Stringlist` |
 | `lists-speed` | 1 000 000 elements |
@@ -497,14 +564,16 @@ first line as `{ a68j-options: … }`, the expected output and status in
 | `hashmaps-error` | a missing key with `ELEM` |
 | `hashmaps-speed` | 1 000 000 keys |
 
-Result on 1 Nov 2026: 19 of 19 with JDK 25 and JDK 28 ea+21.
+Result on 1 Nov 2026: 25 of 25 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
 - Typed entries also for public formal holes of a module
   (`pub proc (int) int f = nest Java "…"`); today they go through the
   boxed procedure value.
-- Line numbers in error messages from Java methods.
+- Positions in the error messages that Java methods report themselves
+  (`JavaObject.error`). The lookup on the stack that Java exceptions use
+  would also work there.
 - Instance methods and constructors (today only static methods and
   fields), so that JDK objects can be used without a wrapper class of
   their own.

@@ -1,0 +1,3 @@
+made f
+tests/java/nest-java-exception-fn.a68:9: runtime error: Java exception java.lang.UnsupportedOperationException: not yet
+exit 134

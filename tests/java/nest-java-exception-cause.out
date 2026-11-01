@@ -1,0 +1,3 @@
+loading
+tests/java/nest-java-exception-cause.a68:6: runtime error: Java exception java.lang.IllegalStateException: cannot load data.txt, caused by java.io.FileNotFoundException: data.txt
+exit 134

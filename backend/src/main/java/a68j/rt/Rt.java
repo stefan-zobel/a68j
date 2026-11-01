@@ -43,6 +43,122 @@ public final class Rt {
         return new IllegalStateException();
     }
 
+    // ------------------------------------------------------------------
+    // Java exceptions (nest Java, docs/java-modules.md).
+    // ------------------------------------------------------------------
+
+    /**
+     * A Java exception T thrown by a Java method that the program called at
+     * FILE:LINE: a runtime error with that position and status 134, as for
+     * the runtime errors of Algol 68 itself, for example
+     * {@code x.a68:4: runtime error: Java exception
+     * java.lang.NumberFormatException: For input string: "12x"}. The causes
+     * of T follow (", caused by ..."). The generated code calls this in the
+     * exception handler around the call and throws the result: T itself for
+     * the exceptions that only pass through the Java method ({@link
+     * #passesThrough}), a Par.Cancelled for an interruption of a cancelled
+     * unit of a parallel clause; otherwise this does not return.
+     */
+    public static Throwable javaException(Throwable t, String file, int line) {
+        Throwable pass = passesThrough(t);
+        if (pass != null) {
+            return pass;
+        }
+        throw abort(file, line, javaMessage(t));
+    }
+
+    /**
+     * As {@link #javaException}, for a Java method called by a bridge or
+     * adapter method, which is called through a procedure value and does not
+     * know where from: the position is that of the innermost activation of
+     * Algol 68 code below the method that calls this ({@link #callerOf});
+     * FILE:LINE (the formal hole) if there is none, no position if FILE is
+     * null.
+     */
+    public static Throwable javaExceptionOfCaller(Throwable t, String file, int line) {
+        Throwable pass = passesThrough(t);
+        if (pass != null) {
+            return pass;
+        }
+        StackWalker.StackFrame f = callerOf(StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+        if (f != null) {
+            throw abort(SOURCE.get(f.getDeclaringClass()), f.getLineNumber(), javaMessage(t));
+        }
+        if (file == null) {
+            OUT.flush();
+            System.err.print(programName + ": runtime error: " + javaMessage(t) + "\n");
+            System.err.flush();
+            Runtime.getRuntime().halt(134);
+        }
+        throw abort(file, line, javaMessage(t));
+    }
+
+    /**
+     * What a Java method lets pass instead of a runtime error: a jump out of
+     * an Algol 68 procedure that the method called back (Jump), the
+     * cancellation of a unit of a parallel clause (Par.Cancelled; also an
+     * InterruptedException or ClosedByInterruptException in a unit thread,
+     * as its threads are interrupted only to cancel it, see Par), and the
+     * errors of the virtual machine (a stack overflow ends the program with
+     * status 139 as in Rt#start). Null for any other exception.
+     */
+    private static Throwable passesThrough(Throwable t) {
+        if (t instanceof Jump || t instanceof Par.Cancelled || t instanceof VirtualMachineError) {
+            return t;
+        }
+        if ((t instanceof InterruptedException || t instanceof java.nio.channels.ClosedByInterruptException)
+                && Par.inUnit()) {
+            return new Par.Cancelled();
+        }
+        return null;
+    }
+
+    /** The text of the runtime error for the Java exception T and its causes. */
+    static String javaMessage(Throwable t) {
+        StringBuilder b = new StringBuilder("Java exception ").append(t);
+        java.util.Set<Throwable> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        seen.add(t);
+        for (Throwable c = t.getCause(); c != null && seen.add(c); c = c.getCause()) {
+            b.append(", caused by ").append(c);
+        }
+        return b.toString();
+    }
+
+    /**
+     * The source file of a class compiled from Algol 68 (the constant
+     * A68_SOURCE that Gen gives every such class, as the file name appears
+     * in the runtime errors); null for any other class.
+     */
+    private static final ClassValue<String> SOURCE = new ClassValue<>() {
+        @Override
+        protected String computeValue(Class<?> c) {
+            try {
+                java.lang.reflect.Field f = c.getField("A68_SOURCE");
+                if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) && f.getType() == String.class
+                        && f.getDeclaringClass() == c) {
+                    return (String) f.get(null);
+                }
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                // not a class compiled from Algol 68
+            }
+            return null;
+        }
+    };
+
+    /**
+     * The innermost frame of Algol 68 code (a class with A68_SOURCE, a line
+     * number) below the method that called the method of Rt that calls
+     * this, that is, the code that called that method through a procedure
+     * value; the frames of the runtime and of other Java code in between are
+     * skipped. Null if there is none.
+     */
+    private static StackWalker.StackFrame callerOf(StackWalker w) {
+        return w.walk(s -> s.dropWhile(f -> f.getDeclaringClass() == Rt.class)
+                .skip(1)
+                .filter(f -> f.getLineNumber() > 0 && SOURCE.get(f.getDeclaringClass()) != null)
+                .findFirst().orElse(null));
+    }
+
     public static RuntimeException assertFailure(String file, int line) {
         return abort(file, line, "ASSERT failure");
     }

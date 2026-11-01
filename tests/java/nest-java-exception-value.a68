@@ -1,0 +1,13 @@
+{ a68j-options: -fnest-java }
+{ A Java exception thrown by a Java method called through a procedure
+  value (its bridge method): the position is that of the Algol 68 code that
+  called the procedure, here the call in apply. }
+begin
+   proc (string) int parse = nest Java "java.lang.Integer.parseInt";
+   proc apply = (proc (string) int f, string s) int:
+      f (s);
+   puts (whole (apply (parse, "17"), 0) + "'n");
+   puts (whole (apply (parse,
+                       "x19"), 0) + "'n");
+   puts ("not reached'n")
+end
