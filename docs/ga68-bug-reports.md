@@ -14,7 +14,9 @@ glibc. The programs use SUPPER stropping and are compiled with
 Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
 has an obvious expected result. Line numbers refer to the commit above.
 
-As of 2 November 2026 none of these entries has been filed. Entries 10
+As of 2 November 2026 entries 1 and 2 have been filed in the GCC
+Bugzilla (PR 128378 and PR 128380, linked at the entries); the others
+have not. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet.
 
@@ -39,6 +41,8 @@ where ga68 crashes or reads uninitialized memory.
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
+
+Filed as [PR 128378](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128378).
 
 The version script `libga68/ga68.map` (line 45) lists `POSIX_fileodeault`.
 The variable in `ga68-posix.c` is `_libga68_file_o_default`, and the
@@ -68,6 +72,8 @@ collect2: error: ld returned 1 exit status
 Fix: spell the entry `POSIX_fileodefault` in `ga68.map`.
 
 ## 2. `string_to_real` ignores the exponent part
+
+Filed as [PR 128380](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128380).
 
 `string_to_real` (and the `long` and `long long` variants generated from
 the same template) in `libga68/standard.a68.in`, line 392:

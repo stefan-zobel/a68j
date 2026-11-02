@@ -1,0 +1,5 @@
+# { dg-options "-fstropping=upper -Iinclude" } #
+# The include pragmat in UPPER stropping. #
+BEGIN PR include "upper.a68" PR
+      puts (whole (twice (21), 0) + "'n")
+END

@@ -393,6 +393,18 @@ final class Outline {
                 return false;
             }
         }
+        if (q.attribute == Attribute.INDICANT && t != null && t.node != null && t.type != null && t.type.hasRows
+                && seen.add(t)) {
+            // A mode indicant stands for its actual declarer, whose bounds
+            // are evaluated where the indicant is used (MODE M = [p:q] INT;
+            // ... M a): they may use identifiers declared outside P, so its
+            // declaration is scanned too, once (as GenRows#collectDeclarerBounds
+            // follows it).
+            Node declarer = t.node.next == null ? null : t.node.next.next;
+            if (declarer != null && !usesOne(g, declarer, defined, seen, used, assigned)) {
+                return false;
+            }
+        }
         if (q.attribute == Attribute.DEREFERENCING && dereferencedIdentifier(q) != null) {
             // The value of a variable: for a direct one, a read of its local.
             Node id = dereferencedIdentifier(q);

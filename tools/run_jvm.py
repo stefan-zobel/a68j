@@ -43,7 +43,8 @@ DEFAULT_OPTS = []
 
 
 def opts_for(path):
-    """Options from a { dg-options } line, or --default-opts without one."""
+    """Options from a { dg-options } line (stropping, -std, -fbrackets, -I),
+    or --default-opts without one."""
     text = open(path, encoding="latin-1").read()
     m = re.search(r'dg-options "([^"]*)"', text)
     if not m:
@@ -52,7 +53,8 @@ def opts_for(path):
     for o in (m.group(1).split() if m else []):
         if o in ("-fstropping=upper", "-fstropping=supper", "-std=algol68", "-std=gnu68", "-fbrackets"):
             keep.append(o)
-    return keep
+    # -I: the directories of the include pragmat, absolute (modtest).
+    return keep + modtest.include_opts(path)
 
 
 # A number as written by the transput: optional sign, digits, optional

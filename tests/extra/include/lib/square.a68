@@ -1,0 +1,2 @@
+{ Included by include/lib/sum.a68 (a nested include). }
+proc square = (int x) int: x * x;

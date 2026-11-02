@@ -1,0 +1,11 @@
+{ dg-options "-Iinclude" }
+{ The include pragmat: the files are found in the directory of the -I
+  option (include, relative to the program), also in a subdirectory of it
+  (lib/sum.a68), an included file includes another one, and a file is
+  included twice, the second time in an inner range. }
+begin [[include "greet.a68"]]
+      [[include "lib/sum.a68"]]
+      puts (greet ("Algol 68") + " " + whole (sum_squares (4), 0));
+      { The same file again, in an inner range. }
+      ([[include "greet.a68"]] puts (" " + greet ("again") + "'n"))
+end

@@ -8,7 +8,9 @@ import a68j.front.Node;
 import a68j.front.Tag;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Finds the routine texts, the routine that owns each symbol table, and the
@@ -58,6 +60,9 @@ final class Capture {
             }
             if (p.tag != null) {
                 uses.add(new Use(p.tag, in));
+            }
+            if (p.attribute == Attribute.INDICANT) {
+                declarerUses(p.tag, in, uses, new HashSet<>());
             }
             if (p.attribute == Attribute.PROCEDURE_DECLARATION || p.attribute == Attribute.BRIEF_OPERATOR_DECLARATION) {
                 List<Node> defs = new ArrayList<>();
@@ -122,6 +127,37 @@ final class Capture {
             } else {
                 walk(g, p.sub, in, uses, in != cur || keepsTop(p, top));
             }
+        }
+    }
+
+    /**
+     * The uses in IN through the mode indicant T: the bounds of the actual
+     * declarer of its mode declaration (MODE M = [p:q] INT) are evaluated
+     * where M is used (GenRows#collectDeclarerBounds), so a routine using M
+     * uses p and q, declared perhaps in another routine.  The declarers of
+     * the indicants in that declarer count too; each indicant once
+     * (VISITING).  Routine texts in the declarer are not followed: their
+     * uses are recorded where they are.
+     */
+    private static void declarerUses(Tag t, Gen.Routine in, List<Use> uses, Set<Tag> visiting) {
+        if (t == null || t.node == null || t.type == null || !t.type.hasRows || !visiting.add(t)
+                || t.node.next == null || t.node.next.next == null) {
+            return;
+        }
+        tagsIn(t.node.next.next, in, uses, visiting);
+    }
+
+    private static void tagsIn(Node p, Gen.Routine in, List<Use> uses, Set<Tag> visiting) {
+        if (p.attribute == Attribute.ROUTINE_TEXT) {
+            return;
+        }
+        if (p.attribute == Attribute.INDICANT) {
+            declarerUses(p.tag, in, uses, visiting);
+        } else if (p.tag != null) {
+            uses.add(new Use(p.tag, in));
+        }
+        for (Node q = p.sub; q != null; q = q.next) {
+            tagsIn(q, in, uses, visiting);
         }
     }
 

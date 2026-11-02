@@ -720,9 +720,9 @@ final class Intrinsics {
                     case "=", "EQ" -> compare(cb, t, "eq", bits);
                     case "/=", "NE" -> compare(cb, t, "ne", bits);
                     case "<", "LT" -> compare(cb, t, "lt", bits);
-                    case "<=", "LE" -> compare(cb, t, "le", bits);
+                    case "<=", "LE" -> { if (bits) { subset(cb, t, false); } else { compare(cb, t, "le", false); } }
                     case ">", "GT" -> compare(cb, t, "gt", bits);
-                    case ">=", "GE" -> compare(cb, t, "ge", bits);
+                    case ">=", "GE" -> { if (bits) { subset(cb, t, true); } else { compare(cb, t, "ge", false); } }
                     default -> { return false; }
                 }
                 narrow(g, result);
@@ -741,9 +741,9 @@ final class Intrinsics {
                     case "=", "EQ" -> compare(cb, t, "eq", bits);
                     case "/=", "NE" -> compare(cb, t, "ne", bits);
                     case "<", "LT" -> compare(cb, t, "lt", bits);
-                    case "<=", "LE" -> compare(cb, t, "le", bits);
+                    case "<=", "LE" -> { if (bits) { subset(cb, t, false); } else { compare(cb, t, "le", false); } }
                     case ">", "GT" -> compare(cb, t, "gt", bits);
-                    case ">=", "GE" -> compare(cb, t, "ge", bits);
+                    case ">=", "GE" -> { if (bits) { subset(cb, t, true); } else { compare(cb, t, "ge", false); } }
                     default -> { return false; }
                 }
                 return true;
@@ -878,6 +878,33 @@ final class Intrinsics {
             case ">", "GT" -> "gt";
             default -> "ge";
         };
+    }
+
+    /**
+     * The relations <= and >= on BITS (and its SHORT and LONG forms) with the
+     * operands A and B on the stack: whether every bit set in A is also set
+     * in B (A <= B), or every bit set in B is also set in A (A >= B,
+     * REVERSED), computed as A OR B = B as in the Revised Report
+     * and ga68 (a68_bits_subset); a boolean is left.  These are not the
+     * numeric order: 2r100 >= 2r011 is FALSE.
+     */
+    private static void subset(CodeBuilder cb, JType t, boolean reversed) {
+        if (t == JType.INT) {
+            if (reversed) {
+                cb.swap();                // B A
+            }
+            cb.dup_x1();                  // B A B (or A B A)
+            cb.ior();                     // B (A OR B)
+            compare(cb, t, "eq", false);
+        } else {
+            if (reversed) {
+                cb.dup2_x2();             // B A B
+                cb.pop2();                // B A
+            }
+            cb.dup2_x2();                 // B A B (or A B A)
+            cb.lor();                     // B (A OR B)
+            compare(cb, t, "eq", false);
+        }
     }
 
     /** Compare the two operands on the stack, leaving a boolean. */

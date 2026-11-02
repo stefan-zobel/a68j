@@ -1,0 +1,26 @@
+{ Mode declarations whose actual declarers have bounds from identifiers:
+  the bounds are evaluated at every use of the mode, also in loops (methods
+  of their own), in procedures and in a mode declared in a loop. }
+begin int p := 2, q := 10;
+      mode M = [p:q] int;
+      mode N = [1:2] M;
+      int s := 0;
+      for i to 3 do M a; s +:= UPB a - LWB a; q -:= 1 od;
+      puts (whole (s, 0));
+      proc f = int: (M a; UPB a);
+      puts (" " + whole (f, 0));
+      q := 5;
+      puts (" " + whole (f, 0));
+      int t := 0;
+      for i to 4 do N n; t +:= UPB n[1] + UPB n; p := i od;
+      puts (" " + whole (t, 0));
+      for i to 2 do
+          int k = i * 3;
+          mode K = [k] real;
+          K r; t +:= UPB r
+      od;
+      puts (" " + whole (t, 0));
+      int w := 0;
+      while w < 3 do heap M h; w +:= 1; s +:= LWB h od;
+      puts (" " + whole (s, 0) + "'n")
+end

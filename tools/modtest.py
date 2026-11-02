@@ -1,5 +1,6 @@
-"""Helpers for the multi-packet tests (tests/ga68/execute/modules):
-which module packets a program needs and which extra options it has."""
+"""Helpers for the multi-packet tests (tests/ga68/execute/modules) and the
+options of the { dg-options } mark: which module packets a program needs
+and which extra options (module maps, include directories) it has."""
 import os, re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,22 +30,39 @@ def modules_for(path):
     return (m.group(1) or m.group(2) or m.group(3)).split()
 
 
-def module_map_opts(path):
-    """-fmodules-map / -fmodules-map-file options of the program, with
-    $srcdir/algol68/execute expanded to the directory "execute" the program
-    is in (gcc/testsuite/algol68/execute in GCC, tests/ga68/execute in
-    a68j)."""
+def dg_options(path):
+    """The options of the { dg-options "..." } mark of the program, or []."""
     text = open(path, encoding="latin-1").read()
     m = re.search(r'dg-options\s+(?:"([^"]*)"|\{([^}]*)\})', text)
-    if not m:
-        return []
+    return (m.group(1) or m.group(2)).split() if m else []
+
+
+def expand_srcdir(o, path):
+    """The option o with $srcdir/algol68/execute expanded to the directory
+    "execute" the program path is in (gcc/testsuite/algol68/execute in GCC,
+    tests/ga68/execute in a68j)."""
     execute = os.path.dirname(os.path.abspath(path))
     while os.path.basename(execute) != "execute" and os.path.dirname(execute) != execute:
         execute = os.path.dirname(execute)
+    return o.replace("$srcdir/algol68/execute", execute)
+
+
+def module_map_opts(path):
+    """-fmodules-map / -fmodules-map-file options of the program, with
+    $srcdir expanded (expand_srcdir)."""
+    return [expand_srcdir(o, path) for o in dg_options(path) if o.startswith("-fmodules-map")]
+
+
+def include_opts(path):
+    """The -I options of the program (directories searched by the include
+    pragmat, PR include "file" PR): $srcdir expanded (expand_srcdir), and a
+    relative directory made absolute from the directory of the program, as
+    the runners do not run the compilers there."""
     out = []
-    for o in (m.group(1) or m.group(2)).split():
-        if o.startswith("-fmodules-map"):
-            out.append(o.replace("$srcdir/algol68/execute", execute))
+    for o in dg_options(path):
+        if o.startswith("-I") and len(o) > 2:
+            d = expand_srcdir(o[2:], path)
+            out.append("-I" + os.path.join(os.path.dirname(os.path.abspath(path)), d))
     return out
 
 

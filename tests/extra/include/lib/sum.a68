@@ -1,0 +1,4 @@
+{ Included by include-1.a68; includes lib/square.a68 in turn, found in the
+  same -I directory. }
+[[include "lib/square.a68"]]
+proc sum_squares = (int n) int: (int s := 0; for i to n do s +:= square (i) od; s);

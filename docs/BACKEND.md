@@ -22,7 +22,7 @@ Every mode has a JVM representation (`JType.of(a68, moid)`):
 | CHAR | `int` (I) | UCS-4 code point, as ga68 (`uint32`) |
 | SHORT SHORT INT, SHORT INT, INT | `int` (I) | results narrowed with `i2b`/`i2s` for the short modes |
 | LONG INT, LONG LONG INT | `long` (J) | ga68 on x86_64: both 64 bit |
-| SHORT SHORT BITS … BITS | `int` (I) | unsigned semantics in comparisons, shifts, conversions |
+| SHORT SHORT BITS … BITS | `int` (I) | unsigned semantics in shifts and conversions; `<=` and `>=` are the inclusion of the bits set (`a OR b = b`), as in ga68 |
 | LONG BITS, LONG LONG BITS | `long` (J) | |
 | REAL | `float` (F) | ga68: C `float` |
 | LONG REAL, LONG LONG REAL | `double` (D) | LONG LONG REAL is `long double` in ga68: known deviation |
@@ -513,7 +513,9 @@ strings, copying of united rows, MODAB, deep recursion, unboxed rows and
 names, initial values of generators, the bundled module `Genie_Transput`
 with its output, its reading and files and `associate`, the file
 procedures of the POSIX module and errno, `fsize` and `lseek` on the
-standard descriptors); their native
+standard descriptors, `<=` and `>=` on BITS, mode declarations with
+bounds from variables, the include pragmat with the directories of `-I`
+in `dg-options`); their native
 results are recorded the same way (`tests/extra/expected`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for

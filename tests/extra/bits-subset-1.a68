@@ -1,0 +1,31 @@
+{ The relations <= and >= (LE, GE) on BITS of every size: A <= B when
+  every bit set in A is also set in B, not the numeric order; = and /=
+  for comparison.  Operands from variables and from denotations. }
+begin proc show = (bool b) void: puts ((b | "T" | "F"));
+      bits a := 2r1010, b := 2r1110, c := 2r100, d := 2r011;
+      show (a <= b); show (b <= a); show (a >= b); show (b >= a);
+      show (c >= d); show (d >= c); show (c <= d); show (d <= c);
+      show (a LE b); show (b GE a); show (a LE a); show (a GE a);
+      show (4r331 >= 8r74); show (2r1010 <= 2r1110);
+      show (16rffffffff >= a); show (a <= 16rffffffff);
+      show (16r80000000 <= 16r7fffffff); show (16r7fffffff <= 16r80000000);
+      show (a = b); show (a /= b);
+      puts ("'n");
+      short bits sa := short 2r1010, sb := short 2r1110;
+      show (sa <= sb); show (sa >= sb);
+      short short bits ssa := short short 2r100, ssb := short short 2r011;
+      show (ssa <= ssb); show (ssa >= ssb); show (ssa >= ssa);
+      puts ("'n");
+      long bits la := long 2r1010, lb := long 2r1110;
+      show (la <= lb); show (la >= lb); show (lb GE la);
+      long bits lh := long 16r8000000000000000, ll := long 16r7fffffffffffffff;
+      show (lh <= ll); show (ll <= lh); show (lh >= long 2r0);
+      long long bits lla := long long 2r100, llb := long long 2r101;
+      show (lla <= llb); show (lla >= llb);
+      puts ("'n");
+      { In a condition and in a loop }
+      if c >= d then puts ("wrong") else puts ("right") fi;
+      int n := 0;
+      for i from 0 to 15 do if BIN i <= 2r1010 then n +:= 1 fi od;
+      puts (" " + whole (n, 0) + "'n")
+end

@@ -1,0 +1,2 @@
+{ Included by include-1.a68: a procedure. }
+proc greet = (string name) string: "Hello, " + name + "!";
