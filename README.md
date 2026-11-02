@@ -87,7 +87,9 @@ This builds the front end (`a68j.jar`) and then `backend/a68j-backend.jar`,
 which contains everything: front end, code generator, runtime, the
 standard prelude and the bundled modules. Next to the jar it writes
 `a68j-backend.aot`, an AOT cache that shortens the start of the compiler
-(JEP 483). The cache is optional.
+(JEP 483). The cache is optional. It also writes `a68j-runtime.jar`,
+which holds only the runtime, the standard prelude and the bundled
+modules: what a compiled program needs to run, without the compiler.
 
 ## Usage
 
@@ -103,6 +105,18 @@ Compile to class files, then run them:
 java -jar a68j-backend.jar program.a68 -d out
 java -cp a68j-backend.jar:out Program      # class named after the file
 ```
+
+To ship a compiled program, `a68j-runtime.jar` is enough in place of
+`a68j-backend.jar`. Library jars of modules (`-d libX.jar`) and the Java
+classes that `nest Java` code uses go on the class path as well, in the
+same way:
+
+```sh
+java -cp a68j-runtime.jar:lib/libmymod.jar:out Program
+```
+
+The runtime jar must come from the same version of a68j as the compiler
+that compiled the program.
 
 Common options (as in ga68 where ga68 has them):
 

@@ -37,6 +37,22 @@ else
   "$JAVA_HOME/bin/jar" --create --file a68j-backend.jar --main-class a68j.jvm.Compile -C out .
   echo "built backend/a68j-backend.jar (without the JDK 28 classes: no \$JDK28)"
 fi
+# The runtime jar: only what a compiled program needs at run time (a68j.rt,
+# a68j.jlib and the classes of a68j.lib: the standard prelude and the
+# bundled modules), without the compiler and without the export data
+# (*.m68), which only the compiler reads. A program compiled with -d runs
+# with java -cp a68j-runtime.jar:<outdir> <Name>.
+set --
+for f in $(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class'); do
+  set -- "$@" -C out "$f"
+done
+rm -f a68j-runtime.jar
+if [ -d out28 ]; then
+  "$JDK28/bin/jar" --create --file a68j-runtime.jar "$@" --release 28 -C out28 .
+else
+  "$JAVA_HOME/bin/jar" --create --file a68j-runtime.jar "$@"
+fi
+echo "built backend/a68j-runtime.jar"
 # AOT cache (JDK 25, JEP 483/514/515): the classes of the compiler and of the
 # runtime, loaded, linked and with method profiles from a training run of
 # lib/aot-training.a68. Used with java -XX:AOTCache=backend/a68j-backend.aot;
