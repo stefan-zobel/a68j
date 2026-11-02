@@ -7,17 +7,28 @@ if [ -z "$JDK25" ]; then
   v=$("${JAVA_HOME:-/nonexistent}/bin/java" -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.specification.version = //p')
   if [ -n "$v" ] && [ "$v" -ge 25 ] 2>/dev/null; then JDK25=$JAVA_HOME; else JDK25=/usr/lib/jvm/java-25-openjdk-amd64; fi
 fi
+v=$("$JDK25/bin/java" -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.specification.version = //p')
+if ! [ "$v" -ge 25 ] 2>/dev/null; then
+  echo "build.sh: JDK25=$JDK25 is not a JDK 25 or newer (java.specification.version: ${v:-none})" >&2
+  exit 1
+fi
 JAVA_HOME=$JDK25
-../build.sh
+# The class path separator of the JVM: ';' on Windows (Git Bash, MSYS, Cygwin).
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) S=';' ;;
+  *) S=':' ;;
+esac
+# The front end, with javac and jar of the same JDK.
+JAVAC="$JAVA_HOME/bin/javac" JAR="$JAVA_HOME/bin/jar" ../build.sh
 rm -rf out && mkdir -p out
 "$JAVA_HOME/bin/javac" --release 25 -Xlint:all -cp ../a68j.jar -d out $(find src/main/java -name '*.java')
 mkdir -p out/a68j/lib && cp lib/ga68.m68 out/a68j/lib/
 # The Algol 68 part of the standard prelude (libga68's standard.a68), compiled by the backend itself.
-"$JAVA_HOME/bin/java" -cp out:../a68j.jar a68j.jvm.Compile -fbuilding-libga68 -fclass=a68j.lib.Standard lib/standard.a68 -d out
+"$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fbuilding-libga68 -fclass=a68j.lib.Standard lib/standard.a68 -d out
 # The bundled Algol 68 modules (Intrinsics.BUNDLED_MODULES): classes a68j.lib.X, export data a68j/lib/x.m68.
 for m in lists hashmaps genietransput; do
   M=$(echo $m | cut -c1 | tr a-z A-Z)$(echo $m | cut -c2-)
-  "$JAVA_HOME/bin/java" -cp out:../a68j.jar a68j.jvm.Compile -fstropping=supper -fnest-java -fclass=a68j.lib.$M lib/$m.a68 -d out
+  "$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fstropping=supper -fnest-java -fclass=a68j.lib.$M lib/$m.a68 -d out
   mv out/$m.m68 out/a68j/lib/$m.m68
 done
 cd out && "$JAVA_HOME/bin/jar" xf ../../a68j.jar a68j && cd ..

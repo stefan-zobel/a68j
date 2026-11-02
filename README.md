@@ -80,9 +80,11 @@ ga68 alike
 
 ```sh
 cd backend
-JDK25=/path/to/jdk-25 sh build.sh
+JDK25=/path/to/jdk-25 JDK28=/path/to/jdk-28 sh build.sh
 ```
 
+`JDK25` and `JDK28` name the JDK directories (not their `bin`
+directories); `JDK28` is optional, and `JDK25` may also be a newer JDK.
 This builds the front end (`a68j.jar`) and then `backend/a68j-backend.jar`,
 which contains everything: front end, code generator, runtime, the
 standard prelude and the bundled modules. Next to the jar it writes
