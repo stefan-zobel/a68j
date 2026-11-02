@@ -873,7 +873,7 @@ final class Intrinsics {
         }
         Moid sema = JType.base(g.a68.modes.SEMA);
         if (JType.base(am) == sema || JType.base(proc.sub) == sema) {
-            // LEVEL, UP and DOWN (only with -fpar-threads, see Gen#checkImplemented).
+            // LEVEL, UP and DOWN (only with -fpar-threads, see Gen#checkLowering).
             ClassDesc rt = JType.of(g.a68, proc.sub).desc;
             if (JType.base(am) == sema) {
                 g.pushWhere(p);

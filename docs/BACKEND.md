@@ -283,8 +283,12 @@ and the write of `fputc`, sets that C errno, and nothing clears it. A
 string with a character that has no UTF-8 encoding (a surrogate, or the
 EOF character) is not written: `fputs` and `puts` return 0 and set errno
 to EILSEQ (84), `fopen` and `fcreate` fail with EFAULT (14), as libga68
-passes a null pointer then. Not modelled: `fsize` and `lseek` on descriptors 0 to 2 (0 and EBADF, where
-ga68 asks the system), and the permission bits of `fcreate`.
+passes a null pointer then. `fsize` and `lseek` also work on descriptors 0
+to 2 (a redirected file has its size and position, a pipe or a terminal
+size 0 and ESPIPE), and `fcreate` gives a new file the permission bits of
+its mode less the umask, as creat (the bits 07000 by the "unix" attribute
+view of the JDK); `lseek` on a device that ignores the position, such as
+`/dev/null`, yields 0 for any offset, as in Linux.
 
 ## 5. Code generator structure
 
@@ -335,7 +339,16 @@ routine (`LOWERER_UNIMPL` in a68-parser-prelude.cc: the SEMA operators
 routine installed for construct.  jemarch has been lazy`, then
 `compilation terminated.`, status 1 (`Gen.Fatal`, checked in tree order
 before code generation). The 12 Rosetta solutions ga68 rejects this way
-are rejected by a68j at the same line and column. A PARALLEL_CLAUSE is
+are rejected by a68j at the same line and column. In the same walk
+(`Gen.checkLowering`), a68j rejects the declarations and clauses for which
+ga68 cannot build a SKIP value (`a68_get_skip_tree`): ga68 has none for
+`file`, `channel`, `bytes` and `long bytes`, nor for a structure with such
+a field or a union whose first alternative is one, and needs one for an
+identity declaration, a LOC variable declaration without rows, a SKIP and
+the result of a closed, conditional, case or conformity clause. The
+message is ga68's, `fatal error: get skip tree: cannot compute SKIP for
+mode file`; `tools/skip_modes_test.sh` holds 19 cases measured against
+ga68. A PARALLEL_CLAUSE is
 elaborated like a VOID collateral clause, one unit after the other, as
 `a68_lower_parallel_clause` ("for now treat like a VOID collateral clause").
 
@@ -486,8 +499,9 @@ cases the testsuite does not cover (division by zero, rowed names, PAR,
 direct variables, unions across modules and stropping regimes, UTF-8
 strings, copying of united rows, MODAB, deep recursion, unboxed rows and
 names, initial values of generators, the bundled module `Genie_Transput`
-with its output and its reading and files, the file procedures of the
-POSIX module and errno); their native
+with its output, its reading and files and `associate`, the file
+procedures of the POSIX module and errno, `fsize` and `lseek` on the
+standard descriptors); their native
 results are recorded the same way (`--native /home/me/native-extra`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for

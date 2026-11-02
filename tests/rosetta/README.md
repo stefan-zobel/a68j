@@ -100,20 +100,21 @@ a format for which ga68 reports the errors in a different order).
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 507 |
-| ga68 compiles them, but the output is not reproducible (random numbers) | 1 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 501 |
+| ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes | 3 |
-| ga68 compiles and runs them | 612 |
-| **of these identical to ga68 on the JVM** | **602** |
+| ga68 compiles and runs them | 618 |
+| **of these identical to ga68 on the JVM** | **608** |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 560 |
 | of these the same up to rounding (`approx`) | 2 |
 
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol
 68 Genie, constructs that ga68 does not lower yet, and Genie procedures
-that `Genie_Transput` does not provide (`associate`, `system`, `on line
-end` ...). The list is in `results.tsv`. Since `Genie_Transput` provides
+that `Genie_Transput` does not provide (`system`, `on line end` ...). The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give
-the same result on the JVM.
+the same result on the JVM. With `associate` (transput to a string), 6
+more compile, and all 6 give the same result.
 
 The remaining differences (details in `notes.tsv`):
 
@@ -134,6 +135,12 @@ The remaining differences (details in `notes.tsv`):
   killed).
 - **Both fail** (`yin-and-yang`: partial parametrization;
   `self-numbers`: a row with 2·10⁹ elements).
+- **Not reproducible natively** (`amb`): the solution yields routines that
+  use the parameters of an operator after the operator has returned. The
+  source marks this as a scope violation, and Algol 68 Genie stops with
+  a scope error. Compiled with ga68, the program reads dead stack frames
+  and fails with a different bound in every run; on the JVM it prints the
+  answer, `that thing grows slowly`.
 
 `ruth-aaron-numbers` used to need too much memory on the JVM (rows of
 `INT` as `Object[]` of `Integer`); with the unboxed rows it runs as
@@ -155,6 +162,9 @@ fast as natively (14.5 s, ga68 13.1 s).
   crashes.
 - `NIL` accesses and procedures used outside their scope crash without a
   message; large local rows live on the stack.
+
+The defects in libga68 and in ga68 found while porting, each with a small
+program that shows it, are in [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md).
 
 ## Running
 

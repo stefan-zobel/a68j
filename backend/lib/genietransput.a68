@@ -37,6 +37,7 @@
                                written
       open, establish, close, reset
                                opening and closing files
+      associate                transput to and from a string
       int_width, real_width, exp_width ...     the environment enquiries of
                                the transput (RR 10.3.1.1)
       newline, space, newpage, backspace       layout procedures, for output
@@ -65,7 +66,7 @@
   Reading follows Algol 68 Genie as well (see "Reading" below).  It reads
   with fgetc, one character at a time, so it is simple rather than fast.
 
-  Not provided: formats ($...$, printf), create, associate, the events
+  Not provided: formats ($...$, printf), create, the events
   other than logical file end and value error, reading rows, binary
   transput, the channels other than the three above, and values of mode
   long long real (80-bit long long real is out of scope for a68j).
@@ -106,14 +107,24 @@ def
               the event handlers;
       term    the string terminator set by make_term;
       new_file
-              true after establish: the file must not exist yet. }
+              true after establish: the file must not exist yet;
+      text    the string of a file made by associate (state associated),
+              else nil;
+      pos     the position in text of the next character to read;
+      at_end  true once eof has found the end of the file, or eoln has
+              caused the logical file end event there;
+      nul_read
+              true once a char has been read at the end of the file (the
+              first such read gives REPR 0, the next ones cause the event,
+              as in Algol 68 Genie). }
 
     pub mode File = struct (int fd, int line, int col, int peek, int state,
                             int mood, string name, Channel chan,
                             proc (ref File) bool logical_file_end, value_error,
-                            string term, bool new_file);
+                            string term, bool new_file,
+                            ref string text, int pos, bool at_end, nul_read);
 
-    int no_file = 0, named = 1, opened = 2, standard = 3;
+    int no_file = 0, named = 1, opened = 2, standard = 3, associated = 4;
     int no_mood = 0, get_mood = 1, put_mood = 2;
     int no_peek = -2, end_of_file = -1;
 
@@ -122,13 +133,13 @@ def
 
     pub ref File stand_in = heap File := (stdin, 0, 0, no_peek, standard,
                      get_mood, "stand in", stand_in_channel, no_handler,
-                     no_handler, "", false),
+                     no_handler, "", false, nil, 1, false, false),
                  stand_out = heap File := (stdout, 0, 0, no_peek, standard,
                      put_mood, "stand out", stand_out_channel, no_handler,
-                     no_handler, "", false),
+                     no_handler, "", false, nil, 1, false, false),
                  stand_error = heap File := (stderr, 0, 0, no_peek, standard,
                      put_mood, "stand error", stand_out_channel, no_handler,
-                     no_handler, "", false);
+                     no_handler, "", false, nil, 1, false, false);
 
     { A transput error ends the program, as in Algol 68 Genie. }
     proc transput_error = (string message) void:
@@ -166,7 +177,7 @@ def
     pub proc open = (ref File f, string name, Channel ch) int:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
-                   no_handler, no_handler, "", false);
+                   no_handler, no_handler, "", false, nil, 1, false, false);
              (can_open (name) | 0 | 1)
        end;
 
@@ -175,8 +186,20 @@ def
     pub proc establish = (ref File f, string name, Channel ch) int:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
-                   no_handler, no_handler, "", true);
+                   no_handler, no_handler, "", true, nil, 1, false, false);
              0
+       end;
+
+    { associate (Algol 68 Genie): F reads from and writes to the string
+      S instead of a file.  get reads the characters of S from the start;
+      the first put empties S, and put appends to it (to the string S
+      holds then: S may be changed between two puts).  As with a file,
+      F is either read or written until it is reset.  newline and newpage
+      write the characters "'n" and "'f". }
+    pub proc associate = (ref File f, ref string s) void:
+       begin close_fd (f);
+             f := (-1, 0, 0, no_peek, associated, no_mood, "", stand_back_channel,
+                   no_handler, no_handler, "", false, s, 1, false, false)
        end;
 
     pub proc close = (ref File f) void:
@@ -185,20 +208,25 @@ def
             fd of f := -1;
             state of f := no_file;
             mood of f := no_mood;
-            peek of f := no_peek
+            peek of f := no_peek;
+            text of f := nil
        fi;
 
     { reset: the file is closed and opened again by the next get or put,
-      so it is read from the start, or written anew. }
+      so it is read from the start, or written anew; an associated string
+      is read from its start, or emptied by the next put. }
     pub proc reset = (ref File f) void:
-       if state of f = opened OR state of f = named
+       if state of f = opened OR state of f = named OR state of f = associated
        then close_fd (f);
             fd of f := -1;
-            state of f := named;
+            (state of f /= associated | state of f := named);
             mood of f := no_mood;
             peek of f := no_peek;
             line of f := 0;
-            col of f := 0
+            col of f := 0;
+            pos of f := 1;
+            at_end of f := false;
+            nul_read of f := false
        fi;
 
     { F is opened for reading if it is not open yet. }
@@ -218,6 +246,8 @@ def
             fd of f := fd;
             state of f := opened;
             mood of f := get_mood
+       elif state of f = associated
+       then mood of f := get_mood
        fi;
 
     { F is opened for writing if it is not open yet: the file is created,
@@ -242,7 +272,14 @@ def
             state of f := opened;
             mood of f := put_mood;
             new_file of f := false
+       elif state of f = associated AND mood of f = no_mood
+       then ref string (text of f) := "";
+            mood of f := put_mood
        fi;
+
+    { Writes S to F: to its descriptor, or at the end of its string. }
+    proc emit = (ref File f, string s) void:
+       if state of f = associated then text of f +:= s else fputs (fd of f, s) fi;
 
     { Environment enquiries of the transput (RR 10.3.1.1). }
 
@@ -264,7 +301,15 @@ def
     { The code of the next character of F, or end_of_file (fgetc gives a
       character with ABS -1 at the end of the file and on an error). }
     proc peek_char = (ref File f) int:
-       begin if peek of f = no_peek then peek of f := ABS fgetc (fd of f) fi;
+       begin if peek of f /= no_peek
+             then skip
+             elif state of f /= associated
+             then peek of f := ABS fgetc (fd of f)
+             elif pos of f > UPB text of f - LWB text of f + 1
+             then peek of f := end_of_file
+             else peek of f := ABS (text of f)[LWB text of f + pos of f - 1];
+                  pos of f +:= 1
+             fi;
              peek of f
        end;
 
@@ -293,8 +338,9 @@ def
        while space_code (peek_char (f)) do skip_char (f) od;
 
     { Events (RR 10.3.1.3).  A handler that returns true has handled the
-      event: the item being read is left unchanged and reading goes on
-      with the next item.  Otherwise the program ends with an error. }
+      event: the item being read is left unchanged (a char or a string at
+      the end of the file becomes REPR 0 or "") and reading goes on with
+      the next item.  Otherwise the program ends with an error. }
 
     pub proc on_logical_file_end = (ref File f, proc (ref File) bool p) void:
        logical_file_end of f := p;
@@ -327,24 +373,24 @@ def
     pub proc newline = (ref File f) void:
        if mood of f = get_mood
        then skip_line (f)
-       else ensure_put (f); fputs (fd of f, "'n"); line of f +:= 1
+       else ensure_put (f); emit (f, "'n"); line of f +:= 1
        fi;
 
     pub proc space = (ref File f) void:
        if mood of f = get_mood then skip_char (f)
-       else ensure_put (f); fputs (fd of f, " ")
+       else ensure_put (f); emit (f, " ")
        fi;
 
     pub proc newpage = (ref File f) void:
        if mood of f = get_mood
        then int c := next_char (f);
             while c /= end_of_file AND c /= ABS "'f" do c := next_char (f) od
-       else ensure_put (f); fputs (fd of f, "'f")
+       else ensure_put (f); emit (f, "'f")
        fi;
 
     { In input, backspace does nothing. }
     pub proc backspace = (ref File f) void:
-       if mood of f /= get_mood then ensure_put (f); fputs (fd of f, REPR 8) fi;
+       if mood of f /= get_mood then ensure_put (f); emit (f, REPR 8) fi;
 
     { The values print and put accept. }
 
@@ -380,48 +426,48 @@ def
     pub proc put = (ref File f, [] Outitem items) void:
        begin ensure_put (f);
        for k from LWB items to UPB items
-       do int fd = fd of f;
+       do
           case items[k]
-          in (int i): fputs (fd, whole (i, int_width + 1)),
-             (long int i): fputs (fd, whole (i, long_int_width + 1)),
-             (long long int i): fputs (fd, whole (i, long_long_int_width + 1)),
-             (real r): fputs (fd, real_repr (r)),
-             (long real r): fputs (fd, long_real_repr (r)),
-             (bool b): fputs (fd, bool_repr (b)),
-             (char c): fputs (fd, c),
-             (string s): fputs (fd, s),
-             (bits b): fputs (fd, bits_repr (b)),
-             (long bits b): fputs (fd, long_bits_repr (b)),
+          in (int i): emit (f, whole (i, int_width + 1)),
+             (long int i): emit (f, whole (i, long_int_width + 1)),
+             (long long int i): emit (f, whole (i, long_long_int_width + 1)),
+             (real r): emit (f, real_repr (r)),
+             (long real r): emit (f, long_real_repr (r)),
+             (bool b): emit (f, bool_repr (b)),
+             (char c): emit (f, c),
+             (string s): emit (f, s),
+             (bits b): emit (f, bits_repr (b)),
+             (long bits b): emit (f, long_bits_repr (b)),
              ([] int r):
                 for i from LWB r to UPB r
-                do fputs (fd, whole (r[i], int_width + 1)) od,
+                do emit (f, whole (r[i], int_width + 1)) od,
              ([] long int r):
                 for i from LWB r to UPB r
-                do fputs (fd, whole (r[i], long_int_width + 1)) od,
+                do emit (f, whole (r[i], long_int_width + 1)) od,
              ([] real r):
-                for i from LWB r to UPB r do fputs (fd, real_repr (r[i])) od,
+                for i from LWB r to UPB r do emit (f, real_repr (r[i])) od,
              ([] long real r):
-                for i from LWB r to UPB r do fputs (fd, long_real_repr (r[i])) od,
+                for i from LWB r to UPB r do emit (f, long_real_repr (r[i])) od,
              ([] bool r):
-                for i from LWB r to UPB r do fputs (fd, bool_repr (r[i])) od,
+                for i from LWB r to UPB r do emit (f, bool_repr (r[i])) od,
              ([] string r):
-                for i from LWB r to UPB r do fputs (fd, r[i]) od,
+                for i from LWB r to UPB r do emit (f, r[i]) od,
              ([] bits r):
-                for i from LWB r to UPB r do fputs (fd, bits_repr (r[i])) od,
+                for i from LWB r to UPB r do emit (f, bits_repr (r[i])) od,
              ([,] int r):
                 for i from 1 LWB r to 1 UPB r
                 do for j from 2 LWB r to 2 UPB r
-                   do fputs (fd, whole (r[i,j], int_width + 1)) od
+                   do emit (f, whole (r[i,j], int_width + 1)) od
                 od,
              ([,] real r):
                 for i from 1 LWB r to 1 UPB r
                 do for j from 2 LWB r to 2 UPB r
-                   do fputs (fd, real_repr (r[i,j])) od
+                   do emit (f, real_repr (r[i,j])) od
                 od,
              ([,] bool r):
                 for i from 1 LWB r to 1 UPB r
                 do for j from 2 LWB r to 2 UPB r
-                   do fputs (fd, bool_repr (r[i,j])) od
+                   do emit (f, bool_repr (r[i,j])) od
                 od,
              (proc (ref File) void p): p (f)
           esac
@@ -442,8 +488,10 @@ def
         fraction and an optional exponent: "5.", ".5e-1" and "1E5" are
         reals.
       - A char is the next character; at the end of a line it is the
-        first character of the next line that is not empty.  A bool is
-        read as a char, which must be T or F (a blank is a value error).
+        first character of the next line that is not empty.  At the end
+        of the file the first char read is REPR 0, without an event; the
+        next ones cause the logical file end event.  A bool is read as a
+        char, which must be T or F (a blank is a value error).
       - A string is the rest of the line, up to (not including) the
         newline or a character of the terminator string (make_term); on
         an empty line it is "".
@@ -452,7 +500,13 @@ def
         the input does not fit the mode (or the number is out of range),
         the value error event happens.  The characters that may belong to
         the value are consumed even then ("1.5e+x" consumes "1.5e+"), and
-        the item is left unchanged.
+        the item is left unchanged, except that a char or a string read
+        at the end of the file becomes REPR 0 or "" when the handler
+        returns true.
+      - After the end of the file, Algol 68 Genie calls the handler of
+        the logical file end several times for one item (twice for a char
+        or newline, three times for the other modes); here it is called
+        once.
 
       Reals: the first 18 significant digits are accumulated exactly in a
       long long int and then scaled by a power of ten in double-double
@@ -717,14 +771,15 @@ def
              (ref char ch):
                 begin while peek_char (f) = ABS "'n" do skip_char (f) od;
                       int c = peek_char (f);
-                      if c = end_of_file then file_end_event (f)
-                      else skip_char (f); ch := REPR c
+                      if c /= end_of_file then skip_char (f); ch := REPR c
+                      elif NOT nul_read of f then nul_read of f := true; ch := REPR 0
+                      else file_end_event (f); ch := REPR 0
                       fi
                 end,
              (ref string s):
                 begin int c := peek_char (f);
                       if c = end_of_file
-                      then file_end_event (f)
+                      then file_end_event (f); s := ""
                       else string t;
                            while c /= end_of_file AND c /= ABS "'n"
                                  andth NOT char_in_string (REPR c, nil, term of f)
@@ -753,15 +808,37 @@ def
     { The rest of the line; the newline is consumed. }
     pub proc read_line = string: (string s; read ((s, newline)); s);
 
+    { eof and eoln need a file in read mood, as in Algol 68 Genie: a file
+      that is open but neither read nor written yet (after open,
+      establish, associate or reset) is in undetermined mood. }
+    proc ensure_read_mood = (ref File f) void:
+       if state of f /= no_file AND mood of f = no_mood
+       then transput_error ("file is in undetermined mood")
+       else ensure_get (f)
+       fi;
+
     { Whether the end of the file is reached; the next character is read
       ahead. }
-    pub proc eof = (ref File f) bool: (ensure_get (f); peek_char (f) = end_of_file);
+    pub proc eof = (ref File f) bool:
+       begin ensure_read_mood (f);
+             bool e = peek_char (f) = end_of_file;
+             (e | at_end of f := true);
+             e
+       end;
 
-    { Whether the end of the line (or of the file) is reached. }
+    { Whether the next character is a newline.  At the end of the file the
+      result is false, and the first eoln there causes the logical file
+      end event, unless eof has already found the end (as in Algol 68
+      Genie; its further peculiarities after the end of the file, such as
+      a value error for the next number, are not reproduced). }
     pub proc eoln = (ref File f) bool:
-       begin ensure_get (f);
+       begin ensure_read_mood (f);
              int c = peek_char (f);
-             c = ABS "'n" OR c = end_of_file
+             if c = end_of_file AND NOT at_end of f
+             then at_end of f := true;
+                  file_end_event (f)
+             fi;
+             c = ABS "'n"
        end;
 
     { The characters of T end a string that is read from F. }

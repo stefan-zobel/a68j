@@ -1,0 +1,24 @@
+{ fsize and lseek on the descriptors 0 to 2, as fstat and lseek: the
+  test runners start the program with standard input from /dev/null and
+  standard output and error to pipes. /dev/null has size 0 and accepts
+  seeking to an offset of 0 or more (the position stays 0); a pipe has
+  size 0 and every lseek fails with ESPIPE (29), whatever the arguments,
+  also a negative offset. fsize leaves errno alone when it succeeds. }
+begin
+    string log := "";
+    proc rec = (string l, long long int v) void:
+        begin int e = errno; log +:= l + " " + whole (v, 0) + " errno " + whole (e, 0) + "'n" end;
+    rec ("fsize stdin", fsize (stdin));
+    rec ("lseek stdin cur", lseek (stdin, long long 0, seekcur));
+    rec ("lseek stdin set 3", lseek (stdin, long long 3, seekset));
+    rec ("fgetc stdin", LENG LENG ABS fgetc (stdin));
+    rec ("fsize stdout", fsize (stdout));
+    rec ("lseek stdout cur", lseek (stdout, long long 0, seekcur));
+    rec ("lseek stdout set -5", lseek (stdout, -long long 5, seekset));
+    rec ("fsize stderr", fsize (stderr));
+    rec ("lseek stderr end", lseek (stderr, long long 0, seekend));
+    rec ("lseek stdin set -5", lseek (stdin, -long long 5, seekset));
+    rec ("fsize 99", fsize (99));
+    rec ("lseek 99", lseek (99, long long 0, seekcur));
+    puts (log)
+end

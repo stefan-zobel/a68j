@@ -6,7 +6,7 @@ run on the JVM gives the same result: the same output and the same exit
 status (*identical*) or the same output up to the rounding of floating-point
 numbers (*same up to rounding*, see README).
 
-558 solutions, 556 of them identical and 2 the same up to rounding.
+562 solutions, 560 of them identical and 2 the same up to rounding.
 
 | No. | Program | Rosetta Code task | Result |
 |---:|---|---|---|
@@ -234,337 +234,341 @@ numbers (*same up to rounding*, see README).
 | 222 | [idoneal-numbers](idoneal-numbers.a68) | [Idoneal numbers](https://rosettacode.org/wiki/Idoneal_numbers) | identical |
 | 223 | [inconsummate-numbers-in-base-10](inconsummate-numbers-in-base-10.a68) | [Inconsummate numbers in base 10](https://rosettacode.org/wiki/Inconsummate_numbers_in_base_10) | identical |
 | 224 | [increasing-gaps-between-consecutive-niven-numbers](increasing-gaps-between-consecutive-niven-numbers.a68) | [Increasing gaps between consecutive Niven numbers](https://rosettacode.org/wiki/Increasing_gaps_between_consecutive_Niven_numbers) | identical |
-| 225 | [input-loop-1](input-loop-1.a68) | [Input loop](https://rosettacode.org/wiki/Input_loop) | identical |
-| 226 | [integer-overflow-1](integer-overflow-1.a68) | [Integer overflow](https://rosettacode.org/wiki/Integer_overflow) | identical |
-| 227 | [intersecting-number-wheels](intersecting-number-wheels.a68) | [Intersecting number wheels](https://rosettacode.org/wiki/Intersecting_number_wheels) | identical |
-| 228 | [introspection-1](introspection-1.a68) | [Introspection](https://rosettacode.org/wiki/Introspection) | identical |
-| 229 | [introspection-4](introspection-4.a68) | [Introspection](https://rosettacode.org/wiki/Introspection) | identical |
-| 230 | [inventory-sequence](inventory-sequence.a68) | [Inventory sequence](https://rosettacode.org/wiki/Inventory_sequence) | identical |
-| 231 | [inverted-syntax](inverted-syntax.a68) | [Inverted syntax](https://rosettacode.org/wiki/Inverted_syntax) | identical |
-| 232 | [isbn13-check-digit](isbn13-check-digit.a68) | [ISBN13 check digit](https://rosettacode.org/wiki/ISBN13_check_digit) | identical |
-| 233 | [iterated-digits-squaring](iterated-digits-squaring.a68) | [Iterated digits squaring](https://rosettacode.org/wiki/Iterated_digits_squaring) | identical |
-| 234 | [jaccard-index](jaccard-index.a68) | [Jaccard index](https://rosettacode.org/wiki/Jaccard_index) | identical |
-| 235 | [jacobi-symbol](jacobi-symbol.a68) | [Jacobi symbol](https://rosettacode.org/wiki/Jacobi_symbol) | identical |
-| 236 | [jaro-similarity](jaro-similarity.a68) | [Jaro similarity](https://rosettacode.org/wiki/Jaro_similarity) | identical |
-| 237 | [jensens-device](jensens-device.a68) | [Jensen's Device](https://rosettacode.org/wiki/Jensen's_Device) | identical |
-| 238 | [jewels-and-stones](jewels-and-stones.a68) | [Jewels and stones](https://rosettacode.org/wiki/Jewels_and_stones) | identical |
-| 239 | [jordan-p-lya-numbers](jordan-p-lya-numbers.a68) | [Jordan-Pólya numbers](https://rosettacode.org/wiki/Jordan-Pólya_numbers) | identical |
-| 240 | [julia-set-2](julia-set-2.a68) | [Julia set](https://rosettacode.org/wiki/Julia_set) | identical |
-| 241 | [kahan-summation](kahan-summation.a68) | [Kahan summation](https://rosettacode.org/wiki/Kahan_summation) | identical |
-| 242 | [klarner-rado-sequence](klarner-rado-sequence.a68) | [Klarner-Rado sequence](https://rosettacode.org/wiki/Klarner-Rado_sequence) | identical |
-| 243 | [knapsack-problem-continuous](knapsack-problem-continuous.a68) | [Continuous](https://rosettacode.org/wiki/Knapsack_problem/Continuous) | identical |
-| 244 | [knuth-shuffle](knuth-shuffle.a68) | [Knuth shuffle](https://rosettacode.org/wiki/Knuth_shuffle) | identical |
-| 245 | [kronecker-product-based-fractals](kronecker-product-based-fractals.a68) | [Kronecker product based fractals](https://rosettacode.org/wiki/Kronecker_product_based_fractals) | identical |
-| 246 | [langtons-ant](langtons-ant.a68) | [Langton's ant](https://rosettacode.org/wiki/Langton's_ant) | identical |
-| 247 | [largest-int-from-concatenated-ints](largest-int-from-concatenated-ints.a68) | [Largest int from concatenated ints](https://rosettacode.org/wiki/Largest_int_from_concatenated_ints) | identical |
-| 248 | [largest-number-divisible-by-its-digits](largest-number-divisible-by-its-digits.a68) | [Largest number divisible by its digits](https://rosettacode.org/wiki/Largest_number_divisible_by_its_digits) | identical |
-| 249 | [largest-product-in-a-grid](largest-product-in-a-grid.a68) | [Largest product in a grid](https://rosettacode.org/wiki/Largest_product_in_a_grid) | identical |
-| 250 | [largest-proper-divisor-of-n](largest-proper-divisor-of-n.a68) | [Largest proper divisor of n](https://rosettacode.org/wiki/Largest_proper_divisor_of_n) | identical |
-| 251 | [last-friday-of-each-month](last-friday-of-each-month.a68) | [Last Friday of each month](https://rosettacode.org/wiki/Last_Friday_of_each_month) | identical |
-| 252 | [last-list-item-2](last-list-item-2.a68) | [Last list item](https://rosettacode.org/wiki/Last_list_item) | identical |
-| 253 | [law-of-cosines---triples](law-of-cosines---triples.a68) | [Law of cosines - triples](https://rosettacode.org/wiki/Law_of_cosines_-_triples) | identical |
-| 254 | [lempel-ziv-complexity](lempel-ziv-complexity.a68) | [Lempel–Ziv complexity](https://rosettacode.org/wiki/Lempel–Ziv_complexity) | identical |
-| 255 | [length-of-an-arc-between-two-angles](length-of-an-arc-between-two-angles.a68) | [Length of an arc between two angles](https://rosettacode.org/wiki/Length_of_an_arc_between_two_angles) | identical |
-| 256 | [leonardo-numbers](leonardo-numbers.a68) | [Leonardo numbers](https://rosettacode.org/wiki/Leonardo_numbers) | identical |
-| 257 | [levenshtein-distance](levenshtein-distance.a68) | [Levenshtein distance](https://rosettacode.org/wiki/Levenshtein_distance) | identical |
-| 258 | [literals-floating-point](literals-floating-point.a68) | [Floating point](https://rosettacode.org/wiki/Literals/Floating_point) | identical |
-| 259 | [logistic-curve-fitting-in-epidemiology](logistic-curve-fitting-in-epidemiology.a68) | [Logistic curve fitting in epidemiology](https://rosettacode.org/wiki/Logistic_curve_fitting_in_epidemiology) | identical |
-| 260 | [long-primes](long-primes.a68) | [Long primes](https://rosettacode.org/wiki/Long_primes) | identical |
-| 261 | [long-year](long-year.a68) | [Long year](https://rosettacode.org/wiki/Long_year) | identical |
-| 262 | [longest-common-prefix](longest-common-prefix.a68) | [Longest common prefix](https://rosettacode.org/wiki/Longest_common_prefix) | identical |
-| 263 | [longest-common-subsequence](longest-common-subsequence.a68) | [Longest common subsequence](https://rosettacode.org/wiki/Longest_common_subsequence) | identical |
-| 264 | [longest-common-substring](longest-common-substring.a68) | [Longest common substring](https://rosettacode.org/wiki/Longest_common_substring) | identical |
-| 265 | [longest-common-suffix](longest-common-suffix.a68) | [Longest common suffix](https://rosettacode.org/wiki/Longest_common_suffix) | identical |
-| 266 | [longest-palindromic-substrings](longest-palindromic-substrings.a68) | [Longest palindromic substrings](https://rosettacode.org/wiki/Longest_palindromic_substrings) | identical |
-| 267 | [longest-string-challenge-2](longest-string-challenge-2.a68) | [Longest string challenge](https://rosettacode.org/wiki/Longest_string_challenge) | identical |
-| 268 | [look-and-say-sequence](look-and-say-sequence.a68) | [Look-and-say sequence](https://rosettacode.org/wiki/Look-and-say_sequence) | identical |
-| 269 | [loops-break](loops-break.a68) | [Break](https://rosettacode.org/wiki/Loops/Break) | identical |
-| 270 | [loops-continue](loops-continue.a68) | [Continue](https://rosettacode.org/wiki/Loops/Continue) | identical |
-| 271 | [loops-do-while](loops-do-while.a68) | [Do-while](https://rosettacode.org/wiki/Loops/Do-while) | identical |
-| 272 | [loops-downward-for-1](loops-downward-for-1.a68) | [Downward for](https://rosettacode.org/wiki/Loops/Downward_for) | identical |
-| 273 | [loops-for](loops-for.a68) | [For](https://rosettacode.org/wiki/Loops/For) | identical |
-| 274 | [loops-foreach-1](loops-foreach-1.a68) | [Foreach](https://rosettacode.org/wiki/Loops/Foreach) | identical |
-| 275 | [loops-n-plus-one-half-1](loops-n-plus-one-half-1.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
-| 276 | [loops-n-plus-one-half-2](loops-n-plus-one-half-2.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
-| 277 | [loops-n-plus-one-half-3](loops-n-plus-one-half-3.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
-| 278 | [loops-nested](loops-nested.a68) | [Nested](https://rosettacode.org/wiki/Loops/Nested) | identical |
-| 279 | [loops-while](loops-while.a68) | [While](https://rosettacode.org/wiki/Loops/While) | identical |
-| 280 | [loops-with-multiple-ranges](loops-with-multiple-ranges.a68) | [With multiple ranges](https://rosettacode.org/wiki/Loops/With_multiple_ranges) | identical |
-| 281 | [loops-wrong-ranges](loops-wrong-ranges.a68) | [Wrong ranges](https://rosettacode.org/wiki/Loops/Wrong_ranges) | identical |
-| 282 | [lu-decomposition](lu-decomposition.a68) | [LU decomposition](https://rosettacode.org/wiki/LU_decomposition) | identical |
-| 283 | [ludic-numbers](ludic-numbers.a68) | [Ludic numbers](https://rosettacode.org/wiki/Ludic_numbers) | identical |
-| 284 | [luhn-test-of-credit-card-numbers](luhn-test-of-credit-card-numbers.a68) | [Luhn test of credit card numbers](https://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers) | identical |
-| 285 | [m-bius-function](m-bius-function.a68) | [Möbius function](https://rosettacode.org/wiki/Möbius_function) | identical |
-| 286 | [magic-squares-of-doubly-even-order](magic-squares-of-doubly-even-order.a68) | [Magic squares of doubly even order](https://rosettacode.org/wiki/Magic_squares_of_doubly_even_order) | identical |
-| 287 | [magic-squares-of-odd-order](magic-squares-of-odd-order.a68) | [Magic squares of odd order](https://rosettacode.org/wiki/Magic_squares_of_odd_order) | identical |
-| 288 | [magic-squares-of-singly-even-order](magic-squares-of-singly-even-order.a68) | [Magic squares of singly even order](https://rosettacode.org/wiki/Magic_squares_of_singly_even_order) | identical |
-| 289 | [map-range](map-range.a68) | [Map range](https://rosettacode.org/wiki/Map_range) | identical |
-| 290 | [matrix-with-two-diagonals](matrix-with-two-diagonals.a68) | [Matrix with two diagonals](https://rosettacode.org/wiki/Matrix_with_two_diagonals) | identical |
-| 291 | [maximum-difference-between-adjacent-elements-of-list](maximum-difference-between-adjacent-elements-of-list.a68) | [Maximum difference between adjacent elements of list](https://rosettacode.org/wiki/Maximum_difference_between_adjacent_elements_of_list) | identical |
-| 292 | [maximum-triangle-path-sum](maximum-triangle-path-sum.a68) | [Maximum triangle path sum](https://rosettacode.org/wiki/Maximum_triangle_path_sum) | identical |
-| 293 | [mayan-numerals](mayan-numerals.a68) | [Mayan numerals](https://rosettacode.org/wiki/Mayan_numerals) | identical |
-| 294 | [mcnuggets-problem](mcnuggets-problem.a68) | [McNuggets problem](https://rosettacode.org/wiki/McNuggets_problem) | identical |
-| 295 | [memory-layout-of-a-data-structure](memory-layout-of-a-data-structure.a68) | [Memory layout of a data structure](https://rosettacode.org/wiki/Memory_layout_of_a_data_structure) | identical |
-| 296 | [mertens-function](mertens-function.a68) | [Mertens function](https://rosettacode.org/wiki/Mertens_function) | identical |
-| 297 | [metaprogramming](metaprogramming.a68) | [Metaprogramming](https://rosettacode.org/wiki/Metaprogramming) | identical |
-| 298 | [mian-chowla-sequence](mian-chowla-sequence.a68) | [Mian-Chowla sequence](https://rosettacode.org/wiki/Mian-Chowla_sequence) | identical |
-| 299 | [minimum-multiple-of-m-where-digital-sum-equals-m](minimum-multiple-of-m-where-digital-sum-equals-m.a68) | [Minimum multiple of m where digital sum equals m](https://rosettacode.org/wiki/Minimum_multiple_of_m_where_digital_sum_equals_m) | identical |
-| 300 | [minimum-number-of-cells-after-before-above-and-below-nxn-squares](minimum-number-of-cells-after-before-above-and-below-nxn-squares.a68) | [Minimum number of cells after, before, above and below NxN squares](https://rosettacode.org/wiki/Minimum_number_of_cells_after,_before,_above_and_below_NxN_squares) | identical |
-| 301 | [monads-maybe-monad](monads-maybe-monad.a68) | [Maybe monad](https://rosettacode.org/wiki/Monads/Maybe_monad) | identical |
-| 302 | [monte-carlo-methods](monte-carlo-methods.a68) | [Monte Carlo methods](https://rosettacode.org/wiki/Monte_Carlo_methods) | identical |
-| 303 | [monty-hall-problem](monty-hall-problem.a68) | [Monty Hall problem](https://rosettacode.org/wiki/Monty_Hall_problem) | identical |
-| 304 | [mosaic-matrix](mosaic-matrix.a68) | [Mosaic matrix](https://rosettacode.org/wiki/Mosaic_matrix) | identical |
-| 305 | [mosers-circle-problem](mosers-circle-problem.a68) | [Moser's circle problem](https://rosettacode.org/wiki/Moser's_circle_problem) | identical |
-| 306 | [most-frequent-k-chars-distance](most-frequent-k-chars-distance.a68) | [Most frequent k chars distance](https://rosettacode.org/wiki/Most_frequent_k_chars_distance) | identical |
-| 307 | [move-to-front-algorithm](move-to-front-algorithm.a68) | [Move-to-front algorithm](https://rosettacode.org/wiki/Move-to-front_algorithm) | identical |
-| 308 | [multi-dimensional-array-8](multi-dimensional-array-8.a68) | [Multi-dimensional array](https://rosettacode.org/wiki/Multi-dimensional_array) | identical |
-| 309 | [multisplit](multisplit.a68) | [Multisplit](https://rosettacode.org/wiki/Multisplit) | identical |
-| 310 | [munchausen-numbers-1](munchausen-numbers-1.a68) | [Munchausen numbers](https://rosettacode.org/wiki/Munchausen_numbers) | identical |
-| 311 | [mutual-recursion](mutual-recursion.a68) | [Mutual recursion](https://rosettacode.org/wiki/Mutual_recursion) | identical |
-| 312 | [n-body-problem](n-body-problem.a68) | [N-body problem](https://rosettacode.org/wiki/N-body_problem) | identical |
-| 313 | [n-grams](n-grams.a68) | [N-grams](https://rosettacode.org/wiki/N-grams) | identical |
-| 314 | [n-queens-problem](n-queens-problem.a68) | [N-queens problem](https://rosettacode.org/wiki/N-queens_problem) | identical |
-| 315 | [narcissistic-decimal-number](narcissistic-decimal-number.a68) | [Narcissistic decimal number](https://rosettacode.org/wiki/Narcissistic_decimal_number) | identical |
-| 316 | [native-shebang](native-shebang.a68) | [Native shebang](https://rosettacode.org/wiki/Native_shebang) | identical |
-| 317 | [nested-function](nested-function.a68) | [Nested function](https://rosettacode.org/wiki/Nested_function) | identical |
-| 318 | [non-continuous-subsequences-1](non-continuous-subsequences-1.a68) | [Non-continuous subsequences](https://rosettacode.org/wiki/Non-continuous_subsequences) | identical |
-| 319 | [non-continuous-subsequences-2](non-continuous-subsequences-2.a68) | [Non-continuous subsequences](https://rosettacode.org/wiki/Non-continuous_subsequences) | identical |
-| 320 | [non-decimal-radices-convert-2](non-decimal-radices-convert-2.a68) | [Convert](https://rosettacode.org/wiki/Non-decimal_radices/Convert) | identical |
-| 321 | [non-transitive-dice](non-transitive-dice.a68) | [Non-transitive dice](https://rosettacode.org/wiki/Non-transitive_dice) | identical |
-| 322 | [nth](nth.a68) | [N'th](https://rosettacode.org/wiki/N'th) | identical |
-| 323 | [null-object](null-object.a68) | [Null object](https://rosettacode.org/wiki/Null_object) | identical |
-| 324 | [number-names-1](number-names-1.a68) | [Number names](https://rosettacode.org/wiki/Number_names) | identical |
-| 325 | [numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits](numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits.a68) | [Numbers divisible by their individual digits, but not by the product of their digits](https://rosettacode.org/wiki/Numbers_divisible_by_their_individual_digits,_but_not_by_the_product_of_their_digits) | identical |
-| 326 | [numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16](numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16.a68) | [Numbers in base 10 that are palindromic in bases 2, 4, and 16](https://rosettacode.org/wiki/Numbers_in_base_10_that_are_palindromic_in_bases_2,_4,_and_16) | identical |
-| 327 | [numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits](numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits.a68) | [Numbers in base-16 representation that cannot be written with decimal digits](https://rosettacode.org/wiki/Numbers_in_base-16_representation_that_cannot_be_written_with_decimal_digits) | identical |
-| 328 | [numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1](numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.a68) | [Numbers k such that the last letter of k is the same as the first letter of k+1](https://rosettacode.org/wiki/Numbers_k_such_that_the_last_letter_of_k_is_the_same_as_the_first_letter_of_k+1) | identical |
-| 329 | [numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1](numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1.a68) | [Numbers k whose divisor sum is equal to the divisor sum of k + 1](https://rosettacode.org/wiki/Numbers_k_whose_divisor_sum_is_equal_to_the_divisor_sum_of_k_+_1) | identical |
-| 330 | [numbers-which-are-not-the-sum-of-distinct-squares](numbers-which-are-not-the-sum-of-distinct-squares.a68) | [Numbers which are not the sum of distinct squares](https://rosettacode.org/wiki/Numbers_which_are_not_the_sum_of_distinct_squares) | identical |
-| 331 | [numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors](numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.a68) | [Numbers which are the cube roots of the product of their proper divisors](https://rosettacode.org/wiki/Numbers_which_are_the_cube_roots_of_the_product_of_their_proper_divisors) | identical |
-| 332 | [numbers-whose-count-of-divisors-is-prime](numbers-whose-count-of-divisors-is-prime.a68) | [Numbers whose count of divisors is prime](https://rosettacode.org/wiki/Numbers_whose_count_of_divisors_is_prime) | identical |
-| 333 | [numbers-with-equal-rises-and-falls](numbers-with-equal-rises-and-falls.a68) | [Numbers with equal rises and falls](https://rosettacode.org/wiki/Numbers_with_equal_rises_and_falls) | identical |
-| 334 | [numbers-with-prime-digits-whose-sum-is-13](numbers-with-prime-digits-whose-sum-is-13.a68) | [Numbers with prime digits whose sum is 13](https://rosettacode.org/wiki/Numbers_with_prime_digits_whose_sum_is_13) | identical |
-| 335 | [numbers-with-same-digit-set-in-base-10-and-base-16-1](numbers-with-same-digit-set-in-base-10-and-base-16-1.a68) | [Numbers with same digit set in base 10 and base 16](https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16) | identical |
-| 336 | [numbers-with-same-digit-set-in-base-10-and-base-16-2](numbers-with-same-digit-set-in-base-10-and-base-16-2.a68) | [Numbers with same digit set in base 10 and base 16](https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16) | identical |
-| 337 | [numeric-error-propagation](numeric-error-propagation.a68) | [Numeric error propagation](https://rosettacode.org/wiki/Numeric_error_propagation) | identical |
-| 338 | [numeric-separator-syntax](numeric-separator-syntax.a68) | [Numeric separator syntax](https://rosettacode.org/wiki/Numeric_separator_syntax) | identical |
-| 339 | [nysiis](nysiis.a68) | [NYSIIS](https://rosettacode.org/wiki/NYSIIS) | identical |
-| 340 | [odd-and-square-numbers](odd-and-square-numbers.a68) | [Odd and square numbers](https://rosettacode.org/wiki/Odd_and_square_numbers) | identical |
-| 341 | [odd-squarefree-semiprimes](odd-squarefree-semiprimes.a68) | [Odd squarefree semiprimes](https://rosettacode.org/wiki/Odd_squarefree_semiprimes) | identical |
-| 342 | [ohalloran-numbers](ohalloran-numbers.a68) | [O'Halloran numbers](https://rosettacode.org/wiki/O'Halloran_numbers) | identical |
-| 343 | [old-lady-swallowed-a-fly-2](old-lady-swallowed-a-fly-2.a68) | [Old lady swallowed a fly](https://rosettacode.org/wiki/Old_lady_swallowed_a_fly) | identical |
-| 344 | [optional-parameters](optional-parameters.a68) | [Optional parameters](https://rosettacode.org/wiki/Optional_parameters) | identical |
-| 345 | [orbital-elements](orbital-elements.a68) | [Orbital elements](https://rosettacode.org/wiki/Orbital_elements) | identical |
-| 346 | [order-two-numerical-lists](order-two-numerical-lists.a68) | [Order two numerical lists](https://rosettacode.org/wiki/Order_two_numerical_lists) | identical |
-| 347 | [ordered-words-1](ordered-words-1.a68) | [Ordered words](https://rosettacode.org/wiki/Ordered_words) | identical |
-| 348 | [overloaded-operators](overloaded-operators.a68) | [Overloaded operators](https://rosettacode.org/wiki/Overloaded_operators) | identical |
-| 349 | [padovan-n-step-number-sequences](padovan-n-step-number-sequences.a68) | [Padovan n-step number sequences](https://rosettacode.org/wiki/Padovan_n-step_number_sequences) | identical |
-| 350 | [pandigital-prime-1](pandigital-prime-1.a68) | [Pandigital prime](https://rosettacode.org/wiki/Pandigital_prime) | identical |
-| 351 | [pandigital-prime-2](pandigital-prime-2.a68) | [Pandigital prime](https://rosettacode.org/wiki/Pandigital_prime) | identical |
-| 352 | [pangram-checker](pangram-checker.a68) | [Pangram checker](https://rosettacode.org/wiki/Pangram_checker) | identical |
-| 353 | [parsing-rpn-to-infix-conversion](parsing-rpn-to-infix-conversion.a68) | [RPN to infix conversion](https://rosettacode.org/wiki/Parsing/RPN_to_infix_conversion) | identical |
-| 354 | [parsing-shunting-yard-algorithm](parsing-shunting-yard-algorithm.a68) | [Shunting-yard algorithm](https://rosettacode.org/wiki/Parsing/Shunting-yard_algorithm) | identical |
-| 355 | [particle-swarm-optimization](particle-swarm-optimization.a68) | [Particle swarm optimization](https://rosettacode.org/wiki/Particle_swarm_optimization) | same up to rounding |
-| 356 | [partition-an-integer-x-into-n-primes](partition-an-integer-x-into-n-primes.a68) | [Partition an integer x into n primes](https://rosettacode.org/wiki/Partition_an_integer_x_into_n_primes) | identical |
-| 357 | [pascal-matrix-generation](pascal-matrix-generation.a68) | [Pascal matrix generation](https://rosettacode.org/wiki/Pascal_matrix_generation) | identical |
-| 358 | [pentagram](pentagram.a68) | [Pentagram](https://rosettacode.org/wiki/Pentagram) | identical |
-| 359 | [percolation-mean-run-density](percolation-mean-run-density.a68) | [Mean run density](https://rosettacode.org/wiki/Percolation/Mean_run_density) | identical |
-| 360 | [perfect-shuffle](perfect-shuffle.a68) | [Perfect shuffle](https://rosettacode.org/wiki/Perfect_shuffle) | identical |
-| 361 | [perfect-totient-numbers](perfect-totient-numbers.a68) | [Perfect totient numbers](https://rosettacode.org/wiki/Perfect_totient_numbers) | identical |
-| 362 | [periodic-table](periodic-table.a68) | [Periodic table](https://rosettacode.org/wiki/Periodic_table) | identical |
-| 363 | [perlin-noise](perlin-noise.a68) | [Perlin noise](https://rosettacode.org/wiki/Perlin_noise) | identical |
-| 364 | [permutation-test](permutation-test.a68) | [Permutation test](https://rosettacode.org/wiki/Permutation_test) | identical |
-| 365 | [permutations-by-swapping](permutations-by-swapping.a68) | [Permutations by swapping](https://rosettacode.org/wiki/Permutations_by_swapping) | identical |
-| 366 | [pernicious-numbers](pernicious-numbers.a68) | [Pernicious numbers](https://rosettacode.org/wiki/Pernicious_numbers) | identical |
-| 367 | [pfaffian-and-hfaffian](pfaffian-and-hfaffian.a68) | [Pfaffian and hfaffian](https://rosettacode.org/wiki/Pfaffian_and_hfaffian) | identical |
-| 368 | [phrase-reversals](phrase-reversals.a68) | [Phrase reversals](https://rosettacode.org/wiki/Phrase_reversals) | identical |
-| 369 | [pig-latin](pig-latin.a68) | [Pig Latin](https://rosettacode.org/wiki/Pig_Latin) | identical |
-| 370 | [pisano-period](pisano-period.a68) | [Pisano period](https://rosettacode.org/wiki/Pisano_period) | identical |
-| 371 | [pointers-and-references-10](pointers-and-references-10.a68) | [Pointers and references](https://rosettacode.org/wiki/Pointers_and_references) | identical |
-| 372 | [pointers-and-references-11](pointers-and-references-11.a68) | [Pointers and references](https://rosettacode.org/wiki/Pointers_and_references) | identical |
-| 373 | [polymorphic-copy](polymorphic-copy.a68) | [Polymorphic copy](https://rosettacode.org/wiki/Polymorphic_copy) | identical |
-| 374 | [polymorphism](polymorphism.a68) | [Polymorphism](https://rosettacode.org/wiki/Polymorphism) | identical |
-| 375 | [polynomial-derivative](polynomial-derivative.a68) | [Polynomial derivative](https://rosettacode.org/wiki/Polynomial_derivative) | identical |
-| 376 | [polynomial-long-division](polynomial-long-division.a68) | [Polynomial long division](https://rosettacode.org/wiki/Polynomial_long_division) | identical |
-| 377 | [polynomial-synthetic-division](polynomial-synthetic-division.a68) | [Polynomial synthetic division](https://rosettacode.org/wiki/Polynomial_synthetic_division) | identical |
-| 378 | [positive-decimal-integers-with-the-digit-1-occurring-exactly-twice](positive-decimal-integers-with-the-digit-1-occurring-exactly-twice.a68) | [Positive decimal integers with the digit 1 occurring exactly twice](https://rosettacode.org/wiki/Positive_decimal_integers_with_the_digit_1_occurring_exactly_twice) | identical |
-| 379 | [practical-numbers](practical-numbers.a68) | [Practical numbers](https://rosettacode.org/wiki/Practical_numbers) | identical |
-| 380 | [primality-by-trial-division](primality-by-trial-division.a68) | [Primality by trial division](https://rosettacode.org/wiki/Primality_by_trial_division) | identical |
-| 381 | [primality-by-wilsons-theorem](primality-by-wilsons-theorem.a68) | [Primality by Wilson's theorem](https://rosettacode.org/wiki/Primality_by_Wilson's_theorem) | identical |
-| 382 | [prime-numbers-of-measurement](prime-numbers-of-measurement.a68) | [Prime numbers of measurement](https://rosettacode.org/wiki/Prime_numbers_of_measurement) | identical |
-| 383 | [prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime](prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime.a68) | [Prime numbers p for which the sum of primes less than or equal to p is prime](https://rosettacode.org/wiki/Prime_numbers_p_for_which_the_sum_of_primes_less_than_or_equal_to_p_is_prime) | identical |
-| 384 | [prime-triangle](prime-triangle.a68) | [Prime triangle](https://rosettacode.org/wiki/Prime_triangle) | identical |
-| 385 | [prime-triplets](prime-triplets.a68) | [Prime triplets](https://rosettacode.org/wiki/Prime_triplets) | identical |
-| 386 | [print-itself-1](print-itself-1.a68) | [Print itself](https://rosettacode.org/wiki/Print_itself) | identical |
-| 387 | [problem-of-apollonius](problem-of-apollonius.a68) | [Problem of Apollonius](https://rosettacode.org/wiki/Problem_of_Apollonius) | identical |
-| 388 | [product-of-divisors-1](product-of-divisors-1.a68) | [Product of divisors](https://rosettacode.org/wiki/Product_of_divisors) | identical |
-| 389 | [product-of-min-and-max-prime-factors](product-of-min-and-max-prime-factors.a68) | [Product of min and max prime factors](https://rosettacode.org/wiki/Product_of_min_and_max_prime_factors) | identical |
-| 390 | [proper-divisors-1](proper-divisors-1.a68) | [Proper divisors](https://rosettacode.org/wiki/Proper_divisors) | identical |
-| 391 | [proper-divisors-2](proper-divisors-2.a68) | [Proper divisors](https://rosettacode.org/wiki/Proper_divisors) | identical |
-| 392 | [punched-cards](punched-cards.a68) | [Punched cards](https://rosettacode.org/wiki/Punched_cards) | identical |
-| 393 | [pythagoras-tree](pythagoras-tree.a68) | [Pythagoras tree](https://rosettacode.org/wiki/Pythagoras_tree) | identical |
-| 394 | [pythagorean-quadruples](pythagorean-quadruples.a68) | [Pythagorean quadruples](https://rosettacode.org/wiki/Pythagorean_quadruples) | identical |
-| 395 | [pythagorean-triples](pythagorean-triples.a68) | [Pythagorean triples](https://rosettacode.org/wiki/Pythagorean_triples) | identical |
-| 396 | [quickselect-algorithm](quickselect-algorithm.a68) | [Quickselect algorithm](https://rosettacode.org/wiki/Quickselect_algorithm) | identical |
-| 397 | [quine-1](quine-1.a68) | [Quine](https://rosettacode.org/wiki/Quine) | identical |
-| 398 | [quine-2](quine-2.a68) | [Quine](https://rosettacode.org/wiki/Quine) | identical |
-| 399 | [quoting-constructs](quoting-constructs.a68) | [Quoting constructs](https://rosettacode.org/wiki/Quoting_constructs) | identical |
-| 400 | [radical-of-an-integer](radical-of-an-integer.a68) | [Radical of an integer](https://rosettacode.org/wiki/Radical_of_an_integer) | identical |
-| 401 | [rainbow](rainbow.a68) | [Rainbow](https://rosettacode.org/wiki/Rainbow) | identical |
-| 402 | [ramer-douglas-peucker-line-simplification](ramer-douglas-peucker-line-simplification.a68) | [Ramer-Douglas-Peucker line simplification](https://rosettacode.org/wiki/Ramer-Douglas-Peucker_line_simplification) | identical |
-| 403 | [range-consolidation](range-consolidation.a68) | [Range consolidation](https://rosettacode.org/wiki/Range_consolidation) | identical |
-| 404 | [range-expansion](range-expansion.a68) | [Range expansion](https://rosettacode.org/wiki/Range_expansion) | identical |
-| 405 | [ranking-methods](ranking-methods.a68) | [Ranking methods](https://rosettacode.org/wiki/Ranking_methods) | identical |
-| 406 | [ray-casting-algorithm](ray-casting-algorithm.a68) | [Ray-casting algorithm](https://rosettacode.org/wiki/Ray-casting_algorithm) | identical |
-| 407 | [read-a-specific-line-from-a-file](read-a-specific-line-from-a-file.a68) | [Read a specific line from a file](https://rosettacode.org/wiki/Read_a_specific_line_from_a_file) | identical |
-| 408 | [remove-vowels-from-a-string](remove-vowels-from-a-string.a68) | [Remove vowels from a string](https://rosettacode.org/wiki/Remove_vowels_from_a_string) | identical |
-| 409 | [rep-string](rep-string.a68) | [Rep-string](https://rosettacode.org/wiki/Rep-string) | identical |
-| 410 | [repeat](repeat.a68) | [Repeat](https://rosettacode.org/wiki/Repeat) | identical |
-| 411 | [repeat-a-string](repeat-a-string.a68) | [Repeat a string](https://rosettacode.org/wiki/Repeat_a_string) | identical |
-| 412 | [reverse-a-string](reverse-a-string.a68) | [Reverse a string](https://rosettacode.org/wiki/Reverse_a_string) | identical |
-| 413 | [reverse-words-in-a-string](reverse-words-in-a-string.a68) | [Reverse words in a string](https://rosettacode.org/wiki/Reverse_words_in_a_string) | identical |
-| 414 | [rhonda-numbers](rhonda-numbers.a68) | [Rhonda numbers](https://rosettacode.org/wiki/Rhonda_numbers) | identical |
-| 415 | [rice-coding](rice-coding.a68) | [Rice coding](https://rosettacode.org/wiki/Rice_coding) | identical |
-| 416 | [roman-numerals-encode](roman-numerals-encode.a68) | [Encode](https://rosettacode.org/wiki/Roman_numerals/Encode) | identical |
-| 417 | [round-robin-tournament-schedule](round-robin-tournament-schedule.a68) | [Round-robin tournament schedule](https://rosettacode.org/wiki/Round-robin_tournament_schedule) | identical |
-| 418 | [run-length-encoding](run-length-encoding.a68) | [Run-length encoding](https://rosettacode.org/wiki/Run-length_encoding) | identical |
-| 419 | [ruth-aaron-numbers](ruth-aaron-numbers.a68) | [Ruth-Aaron numbers](https://rosettacode.org/wiki/Ruth-Aaron_numbers) | identical |
-| 420 | [s-expressions](s-expressions.a68) | [S-expressions](https://rosettacode.org/wiki/S-expressions) | identical |
-| 421 | [safe-primes-and-unsafe-primes](safe-primes-and-unsafe-primes.a68) | [Safe primes and unsafe primes](https://rosettacode.org/wiki/Safe_primes_and_unsafe_primes) | identical |
-| 422 | [sailors-coconuts-and-a-monkey-problem](sailors-coconuts-and-a-monkey-problem.a68) | [Sailors, coconuts and a monkey problem](https://rosettacode.org/wiki/Sailors,_coconuts_and_a_monkey_problem) | identical |
-| 423 | [search-a-list-of-records](search-a-list-of-records.a68) | [Search a list of records](https://rosettacode.org/wiki/Search_a_list_of_records) | identical |
-| 424 | [selectively-replace-multiple-instances-of-a-character-within-a-string](selectively-replace-multiple-instances-of-a-character-within-a-string.a68) | [Selectively replace multiple instances of a character within a string](https://rosettacode.org/wiki/Selectively_replace_multiple_instances_of_a_character_within_a_string) | identical |
-| 425 | [self-describing-numbers](self-describing-numbers.a68) | [Self-describing numbers](https://rosettacode.org/wiki/Self-describing_numbers) | identical |
-| 426 | [semiprime](semiprime.a68) | [Semiprime](https://rosettacode.org/wiki/Semiprime) | identical |
-| 427 | [send-+-more-=-money](send-+-more-=-money.a68) | [SEND + MORE = MONEY](https://rosettacode.org/wiki/SEND_+_MORE_=_MONEY) | identical |
-| 428 | [separate-the-house-number-from-the-street-name](separate-the-house-number-from-the-street-name.a68) | [Separate the house number from the street name](https://rosettacode.org/wiki/Separate_the_house_number_from_the_street_name) | identical |
-| 429 | [sequence-nth-number-with-exactly-n-divisors](sequence-nth-number-with-exactly-n-divisors.a68) | [Sequence: nth number with exactly n divisors](https://rosettacode.org/wiki/Sequence:_nth_number_with_exactly_n_divisors) | identical |
-| 430 | [sequence-of-non-squares](sequence-of-non-squares.a68) | [Sequence of non-squares](https://rosettacode.org/wiki/Sequence_of_non-squares) | identical |
-| 431 | [sequence-of-primes-by-trial-division](sequence-of-primes-by-trial-division.a68) | [Sequence of primes by trial division](https://rosettacode.org/wiki/Sequence_of_primes_by_trial_division) | identical |
-| 432 | [sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors](sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors.a68) | [Sequence: smallest number greater than previous term with exactly n divisors](https://rosettacode.org/wiki/Sequence:_smallest_number_greater_than_previous_term_with_exactly_n_divisors) | identical |
-| 433 | [sequence-smallest-number-with-exactly-n-divisors](sequence-smallest-number-with-exactly-n-divisors.a68) | [Sequence: smallest number with exactly n divisors](https://rosettacode.org/wiki/Sequence:_smallest_number_with_exactly_n_divisors) | identical |
-| 434 | [seven-sided-dice-from-five-sided-dice](seven-sided-dice-from-five-sided-dice.a68) | [Seven-sided dice from five-sided dice](https://rosettacode.org/wiki/Seven-sided_dice_from_five-sided_dice) | identical |
-| 435 | [shoelace-formula-for-polygonal-area](shoelace-formula-for-polygonal-area.a68) | [Shoelace formula for polygonal area](https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area) | identical |
-| 436 | [short-circuit-evaluation-1](short-circuit-evaluation-1.a68) | [Short-circuit evaluation](https://rosettacode.org/wiki/Short-circuit_evaluation) | identical |
-| 437 | [short-circuit-evaluation-2](short-circuit-evaluation-2.a68) | [Short-circuit evaluation](https://rosettacode.org/wiki/Short-circuit_evaluation) | identical |
-| 438 | [shortest-common-supersequence](shortest-common-supersequence.a68) | [Shortest common supersequence](https://rosettacode.org/wiki/Shortest_common_supersequence) | identical |
-| 439 | [show-ascii-table](show-ascii-table.a68) | [Show ASCII table](https://rosettacode.org/wiki/Show_ASCII_table) | identical |
-| 440 | [sierpinski-carpet](sierpinski-carpet.a68) | [Sierpinski carpet](https://rosettacode.org/wiki/Sierpinski_carpet) | identical |
-| 441 | [sieve-of-eratosthenes](sieve-of-eratosthenes.a68) | [Sieve of Eratosthenes](https://rosettacode.org/wiki/Sieve_of_Eratosthenes) | identical |
-| 442 | [sign-of-an-integer-signum-](sign-of-an-integer-signum-.a68) | [Sign of an integer (signum)](https://rosettacode.org/wiki/Sign_of_an_integer_(signum)) | identical |
-| 443 | [singly-linked-list-element-insertion](singly-linked-list-element-insertion.a68) | [Element insertion](https://rosettacode.org/wiki/Singly-linked_list/Element_insertion) | identical |
-| 444 | [singly-linked-list-element-removal](singly-linked-list-element-removal.a68) | [Element removal](https://rosettacode.org/wiki/Singly-linked_list/Element_removal) | identical |
-| 445 | [singly-linked-list-reversal](singly-linked-list-reversal.a68) | [Reversal](https://rosettacode.org/wiki/Singly-linked_list/Reversal) | identical |
-| 446 | [singly-linked-list-traversal](singly-linked-list-traversal.a68) | [Traversal](https://rosettacode.org/wiki/Singly-linked_list/Traversal) | identical |
-| 447 | [smallest-square-that-begins-with-n](smallest-square-that-begins-with-n.a68) | [Smallest square that begins with n](https://rosettacode.org/wiki/Smallest_square_that_begins_with_n) | identical |
-| 448 | [smarandache-prime-digital-sequence](smarandache-prime-digital-sequence.a68) | [Smarandache prime-digital sequence](https://rosettacode.org/wiki/Smarandache_prime-digital_sequence) | identical |
-| 449 | [smith-numbers](smith-numbers.a68) | [Smith numbers](https://rosettacode.org/wiki/Smith_numbers) | identical |
-| 450 | [solve-a-holy-knights-tour](solve-a-holy-knights-tour.a68) | [Solve a Holy Knight's tour](https://rosettacode.org/wiki/Solve_a_Holy_Knight's_tour) | identical |
-| 451 | [solve-equations-with-substitution-method](solve-equations-with-substitution-method.a68) | [Solve equations with substitution method](https://rosettacode.org/wiki/Solve_equations_with_substitution_method) | identical |
-| 452 | [solve-the-no-connection-puzzle](solve-the-no-connection-puzzle.a68) | [Solve the no connection puzzle](https://rosettacode.org/wiki/Solve_the_no_connection_puzzle) | identical |
-| 453 | [solve-triangle-solitaire-puzzle](solve-triangle-solitaire-puzzle.a68) | [Solve triangle solitaire puzzle](https://rosettacode.org/wiki/Solve_triangle_solitaire_puzzle) | identical |
-| 454 | [sort-an-integer-array](sort-an-integer-array.a68) | [Sort an integer array](https://rosettacode.org/wiki/Sort_an_integer_array) | identical |
-| 455 | [sort-numbers-lexicographically](sort-numbers-lexicographically.a68) | [Sort numbers lexicographically](https://rosettacode.org/wiki/Sort_numbers_lexicographically) | identical |
-| 456 | [sort-primes-from-list-to-a-list-2](sort-primes-from-list-to-a-list-2.a68) | [Sort primes from list to a list](https://rosettacode.org/wiki/Sort_primes_from_list_to_a_list) | identical |
-| 457 | [sort-the-letters-of-string-in-alphabetical-order](sort-the-letters-of-string-in-alphabetical-order.a68) | [Sort the letters of string in alphabetical order](https://rosettacode.org/wiki/Sort_the_letters_of_string_in_alphabetical_order) | identical |
-| 458 | [sort-three-variables](sort-three-variables.a68) | [Sort three variables](https://rosettacode.org/wiki/Sort_three_variables) | identical |
-| 459 | [sort-using-a-custom-comparator](sort-using-a-custom-comparator.a68) | [Sort using a custom comparator](https://rosettacode.org/wiki/Sort_using_a_custom_comparator) | identical |
-| 460 | [sorting-algorithms-bead-sort](sorting-algorithms-bead-sort.a68) | [Bead sort](https://rosettacode.org/wiki/Sorting_algorithms/Bead_sort) | identical |
-| 461 | [sorting-algorithms-bogosort](sorting-algorithms-bogosort.a68) | [Bogosort](https://rosettacode.org/wiki/Sorting_algorithms/Bogosort) | identical |
-| 462 | [sorting-algorithms-circle-sort](sorting-algorithms-circle-sort.a68) | [Circle sort](https://rosettacode.org/wiki/Sorting_algorithms/Circle_sort) | identical |
-| 463 | [sorting-algorithms-cocktail-sort-1](sorting-algorithms-cocktail-sort-1.a68) | [Cocktail sort](https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort) | identical |
-| 464 | [sorting-algorithms-cocktail-sort-with-shifting-bounds](sorting-algorithms-cocktail-sort-with-shifting-bounds.a68) | [Cocktail sort with shifting bounds](https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort_with_shifting_bounds) | identical |
-| 465 | [sorting-algorithms-counting-sort](sorting-algorithms-counting-sort.a68) | [Counting sort](https://rosettacode.org/wiki/Sorting_algorithms/Counting_sort) | identical |
-| 466 | [sorting-algorithms-cycle-sort](sorting-algorithms-cycle-sort.a68) | [Cycle sort](https://rosettacode.org/wiki/Sorting_algorithms/Cycle_sort) | identical |
-| 467 | [sorting-algorithms-gnome-sort](sorting-algorithms-gnome-sort.a68) | [Gnome sort](https://rosettacode.org/wiki/Sorting_algorithms/Gnome_sort) | identical |
-| 468 | [sorting-algorithms-heapsort](sorting-algorithms-heapsort.a68) | [Heapsort](https://rosettacode.org/wiki/Sorting_algorithms/Heapsort) | identical |
-| 469 | [sorting-algorithms-insertion-sort](sorting-algorithms-insertion-sort.a68) | [Insertion sort](https://rosettacode.org/wiki/Sorting_algorithms/Insertion_sort) | identical |
-| 470 | [sorting-algorithms-merge-sort-1](sorting-algorithms-merge-sort-1.a68) | [Merge sort](https://rosettacode.org/wiki/Sorting_algorithms/Merge_sort) | identical |
-| 471 | [sorting-algorithms-permutation-sort](sorting-algorithms-permutation-sort.a68) | [Permutation sort](https://rosettacode.org/wiki/Sorting_algorithms/Permutation_sort) | identical |
-| 472 | [sorting-algorithms-quicksort](sorting-algorithms-quicksort.a68) | [Quicksort](https://rosettacode.org/wiki/Sorting_algorithms/Quicksort) | identical |
-| 473 | [sorting-algorithms-radix-sort](sorting-algorithms-radix-sort.a68) | [Radix sort](https://rosettacode.org/wiki/Sorting_algorithms/Radix_sort) | identical |
-| 474 | [sorting-algorithms-selection-sort](sorting-algorithms-selection-sort.a68) | [Selection sort](https://rosettacode.org/wiki/Sorting_algorithms/Selection_sort) | identical |
-| 475 | [sorting-algorithms-stooge-sort](sorting-algorithms-stooge-sort.a68) | [Stooge sort](https://rosettacode.org/wiki/Sorting_algorithms/Stooge_sort) | identical |
-| 476 | [special-characters-2](special-characters-2.a68) | [Special characters](https://rosettacode.org/wiki/Special_characters) | identical |
-| 477 | [special-divisors](special-divisors.a68) | [Special divisors](https://rosettacode.org/wiki/Special_divisors) | identical |
-| 478 | [special-pythagorean-triplet](special-pythagorean-triplet.a68) | [Special pythagorean triplet](https://rosettacode.org/wiki/Special_pythagorean_triplet) | identical |
-| 479 | [specific-characters](specific-characters.a68) | [Specific characters](https://rosettacode.org/wiki/Specific_characters) | identical |
-| 480 | [spinning-rod-animation-text](spinning-rod-animation-text.a68) | [Text](https://rosettacode.org/wiki/Spinning_rod_animation/Text) | identical |
-| 481 | [spiral-matrix](spiral-matrix.a68) | [Spiral matrix](https://rosettacode.org/wiki/Spiral_matrix) | identical |
-| 482 | [split-a-character-string-based-on-change-of-character](split-a-character-string-based-on-change-of-character.a68) | [Split a character string based on change of character](https://rosettacode.org/wiki/Split_a_character_string_based_on_change_of_character) | identical |
-| 483 | [square-but-not-cube](square-but-not-cube.a68) | [Square but not cube](https://rosettacode.org/wiki/Square_but_not_cube) | identical |
-| 484 | [stair-climbing-puzzle-2](stair-climbing-puzzle-2.a68) | [Stair-climbing puzzle](https://rosettacode.org/wiki/Stair-climbing_puzzle) | identical |
-| 485 | [start-from-a-main-routine](start-from-a-main-routine.a68) | [Start from a main routine](https://rosettacode.org/wiki/Start_from_a_main_routine) | identical |
-| 486 | [steady-squares](steady-squares.a68) | [Steady squares](https://rosettacode.org/wiki/Steady_squares) | identical |
-| 487 | [steffensens-method](steffensens-method.a68) | [Steffensen's method](https://rosettacode.org/wiki/Steffensen's_method) | identical |
-| 488 | [stem-and-leaf-plot-2](stem-and-leaf-plot-2.a68) | [Stem-and-leaf plot](https://rosettacode.org/wiki/Stem-and-leaf_plot) | identical |
-| 489 | [stern-brocot-sequence](stern-brocot-sequence.a68) | [Stern-Brocot sequence](https://rosettacode.org/wiki/Stern-Brocot_sequence) | identical |
-| 490 | [strange-numbers](strange-numbers.a68) | [Strange numbers](https://rosettacode.org/wiki/Strange_numbers) | identical |
-| 491 | [strange-plus-numbers](strange-plus-numbers.a68) | [Strange plus numbers](https://rosettacode.org/wiki/Strange_plus_numbers) | identical |
-| 492 | [stream-merge](stream-merge.a68) | [Stream merge](https://rosettacode.org/wiki/Stream_merge) | identical |
-| 493 | [string-append](string-append.a68) | [String append](https://rosettacode.org/wiki/String_append) | identical |
-| 494 | [string-comparison](string-comparison.a68) | [String comparison](https://rosettacode.org/wiki/String_comparison) | identical |
-| 495 | [string-concatenation](string-concatenation.a68) | [String concatenation](https://rosettacode.org/wiki/String_concatenation) | identical |
-| 496 | [string-matching](string-matching.a68) | [String matching](https://rosettacode.org/wiki/String_matching) | identical |
-| 497 | [string-prepend](string-prepend.a68) | [String prepend](https://rosettacode.org/wiki/String_prepend) | identical |
-| 498 | [strip-comments-from-a-string](strip-comments-from-a-string.a68) | [Strip comments from a string](https://rosettacode.org/wiki/Strip_comments_from_a_string) | identical |
-| 499 | [strip-control-codes-and-extended-characters-from-a-string](strip-control-codes-and-extended-characters-from-a-string.a68) | [Strip control codes and extended characters from a string](https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string) | identical |
-| 500 | [strip-whitespace-from-a-string-top-and-tail-1](strip-whitespace-from-a-string-top-and-tail-1.a68) | [Top and tail](https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail) | identical |
-| 501 | [strip-whitespace-from-a-string-top-and-tail-2](strip-whitespace-from-a-string-top-and-tail-2.a68) | [Top and tail](https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail) | identical |
-| 502 | [strong-and-weak-primes](strong-and-weak-primes.a68) | [Strong and weak primes](https://rosettacode.org/wiki/Strong_and_weak_primes) | identical |
-| 503 | [sturmian-word](sturmian-word.a68) | [Sturmian word](https://rosettacode.org/wiki/Sturmian_word) | identical |
-| 504 | [subleq](subleq.a68) | [Subleq](https://rosettacode.org/wiki/Subleq) | identical |
-| 505 | [substitution-cipher](substitution-cipher.a68) | [Substitution cipher](https://rosettacode.org/wiki/Substitution_cipher) | identical |
-| 506 | [sudan-function](sudan-function.a68) | [Sudan function](https://rosettacode.org/wiki/Sudan_function) | identical |
-| 507 | [sum-and-product-puzzle](sum-and-product-puzzle.a68) | [Sum and product puzzle](https://rosettacode.org/wiki/Sum_and_product_puzzle) | identical |
-| 508 | [sum-digits-of-an-integer-1](sum-digits-of-an-integer-1.a68) | [Sum digits of an integer](https://rosettacode.org/wiki/Sum_digits_of_an_integer) | identical |
-| 509 | [sum-of-a-series](sum-of-a-series.a68) | [Sum of a series](https://rosettacode.org/wiki/Sum_of_a_series) | identical |
-| 510 | [sum-of-divisors](sum-of-divisors.a68) | [Sum of divisors](https://rosettacode.org/wiki/Sum_of_divisors) | identical |
-| 511 | [sum-of-elements-below-main-diagonal-of-matrix](sum-of-elements-below-main-diagonal-of-matrix.a68) | [Sum of elements below main diagonal of matrix](https://rosettacode.org/wiki/Sum_of_elements_below_main_diagonal_of_matrix) | identical |
-| 512 | [sum-of-first-n-cubes](sum-of-first-n-cubes.a68) | [Sum of first n cubes](https://rosettacode.org/wiki/Sum_of_first_n_cubes) | identical |
-| 513 | [sum-of-the-digits-of-n-is-substring-of-n](sum-of-the-digits-of-n-is-substring-of-n.a68) | [Sum of the digits of n is substring of n](https://rosettacode.org/wiki/Sum_of_the_digits_of_n_is_substring_of_n) | identical |
-| 514 | [tau-function](tau-function.a68) | [Tau function](https://rosettacode.org/wiki/Tau_function) | identical |
-| 515 | [tau-number](tau-number.a68) | [Tau number](https://rosettacode.org/wiki/Tau_number) | identical |
-| 516 | [text-between](text-between.a68) | [Text between](https://rosettacode.org/wiki/Text_between) | identical |
-| 517 | [the-name-game](the-name-game.a68) | [The Name Game](https://rosettacode.org/wiki/The_Name_Game) | identical |
-| 518 | [the-sieve-of-sundaram](the-sieve-of-sundaram.a68) | [The sieve of Sundaram](https://rosettacode.org/wiki/The_sieve_of_Sundaram) | identical |
-| 519 | [the-twelve-days-of-christmas](the-twelve-days-of-christmas.a68) | [The Twelve Days of Christmas](https://rosettacode.org/wiki/The_Twelve_Days_of_Christmas) | identical |
-| 520 | [thue-morse](thue-morse.a68) | [Thue-Morse](https://rosettacode.org/wiki/Thue-Morse) | identical |
-| 521 | [tokenize-a-string-with-escaping](tokenize-a-string-with-escaping.a68) | [Tokenize a string with escaping](https://rosettacode.org/wiki/Tokenize_a_string_with_escaping) | identical |
-| 522 | [top-rank-per-group](top-rank-per-group.a68) | [Top rank per group](https://rosettacode.org/wiki/Top_rank_per_group) | identical |
-| 523 | [total-circles-area](total-circles-area.a68) | [Total circles area](https://rosettacode.org/wiki/Total_circles_area) | identical |
-| 524 | [totient-function](totient-function.a68) | [Totient function](https://rosettacode.org/wiki/Totient_function) | identical |
-| 525 | [trigonometric-functions](trigonometric-functions.a68) | [Trigonometric functions](https://rosettacode.org/wiki/Trigonometric_functions) | identical |
-| 526 | [tropical-algebra-overloading](tropical-algebra-overloading.a68) | [Tropical algebra overloading](https://rosettacode.org/wiki/Tropical_algebra_overloading) | identical |
-| 527 | [twin-primes-whose-sum-is-square-number-1](twin-primes-whose-sum-is-square-number-1.a68) | [Twin primes whose sum is square number](https://rosettacode.org/wiki/Twin_primes_whose_sum_is_square_number) | identical |
-| 528 | [two-identical-strings](two-identical-strings.a68) | [Two identical strings](https://rosettacode.org/wiki/Two_identical_strings) | identical |
-| 529 | [two-sum](two-sum.a68) | [Two sum](https://rosettacode.org/wiki/Two_sum) | identical |
-| 530 | [twos-complement](twos-complement.a68) | [Two's complement](https://rosettacode.org/wiki/Two's_complement) | identical |
-| 531 | [undefined-values](undefined-values.a68) | [Undefined values](https://rosettacode.org/wiki/Undefined_values) | identical |
-| 532 | [unescape-a-string](unescape-a-string.a68) | [Unescape a string](https://rosettacode.org/wiki/Unescape_a_string) | identical |
-| 533 | [unique-characters-1](unique-characters-1.a68) | [Unique characters](https://rosettacode.org/wiki/Unique_characters) | identical |
-| 534 | [unique-characters-2](unique-characters-2.a68) | [Unique characters](https://rosettacode.org/wiki/Unique_characters) | identical |
-| 535 | [unique-characters-in-each-string](unique-characters-in-each-string.a68) | [Unique characters in each string](https://rosettacode.org/wiki/Unique_characters_in_each_string) | identical |
-| 536 | [upc](upc.a68) | [UPC](https://rosettacode.org/wiki/UPC) | identical |
-| 537 | [url-decoding](url-decoding.a68) | [URL decoding](https://rosettacode.org/wiki/URL_decoding) | identical |
-| 538 | [url-encoding](url-encoding.a68) | [URL encoding](https://rosettacode.org/wiki/URL_encoding) | identical |
-| 539 | [van-der-corput-sequence](van-der-corput-sequence.a68) | [Van der Corput sequence](https://rosettacode.org/wiki/Van_der_Corput_sequence) | identical |
-| 540 | [van-eck-sequence](van-eck-sequence.a68) | [Van Eck sequence](https://rosettacode.org/wiki/Van_Eck_sequence) | identical |
-| 541 | [variable-declaration-reset](variable-declaration-reset.a68) | [Variable declaration reset](https://rosettacode.org/wiki/Variable_declaration_reset) | identical |
-| 542 | [variadic-function](variadic-function.a68) | [Variadic function](https://rosettacode.org/wiki/Variadic_function) | identical |
-| 543 | [verhoeff-algorithm](verhoeff-algorithm.a68) | [Verhoeff algorithm](https://rosettacode.org/wiki/Verhoeff_algorithm) | identical |
-| 544 | [vigen-re-cipher](vigen-re-cipher.a68) | [Vigenère cipher](https://rosettacode.org/wiki/Vigenère_cipher) | identical |
-| 545 | [visualize-a-tree](visualize-a-tree.a68) | [Visualize a tree](https://rosettacode.org/wiki/Visualize_a_tree) | identical |
-| 546 | [wasteful-equidigital-and-frugal-numbers](wasteful-equidigital-and-frugal-numbers.a68) | [Wasteful, equidigital and frugal numbers](https://rosettacode.org/wiki/Wasteful,_equidigital_and_frugal_numbers) | identical |
-| 547 | [weird-numbers](weird-numbers.a68) | [Weird numbers](https://rosettacode.org/wiki/Weird_numbers) | identical |
-| 548 | [welchs-t-test](welchs-t-test.a68) | [Welch's t-test](https://rosettacode.org/wiki/Welch's_t-test) | identical |
-| 549 | [wordle-comparison](wordle-comparison.a68) | [Wordle comparison](https://rosettacode.org/wiki/Wordle_comparison) | identical |
-| 550 | [worthwhile-task-shaving](worthwhile-task-shaving.a68) | [Worthwhile task shaving](https://rosettacode.org/wiki/Worthwhile_task_shaving) | identical |
-| 551 | [write-entire-file](write-entire-file.a68) | [Write entire file](https://rosettacode.org/wiki/Write_entire_file) | identical |
-| 552 | [write-float-arrays-to-a-text-file](write-float-arrays-to-a-text-file.a68) | [Write float arrays to a text file](https://rosettacode.org/wiki/Write_float_arrays_to_a_text_file) | identical |
-| 553 | [xml-output-1](xml-output-1.a68) | [Output](https://rosettacode.org/wiki/XML/Output) | identical |
-| 554 | [yellowstone-sequence](yellowstone-sequence.a68) | [Yellowstone sequence](https://rosettacode.org/wiki/Yellowstone_sequence) | identical |
-| 555 | [zebra-puzzle](zebra-puzzle.a68) | [Zebra puzzle](https://rosettacode.org/wiki/Zebra_puzzle) | identical |
-| 556 | [zeckendorf-number-representation](zeckendorf-number-representation.a68) | [Zeckendorf number representation](https://rosettacode.org/wiki/Zeckendorf_number_representation) | identical |
-| 557 | [zero-to-the-zero-power](zero-to-the-zero-power.a68) | [Zero to the zero power](https://rosettacode.org/wiki/Zero_to_the_zero_power) | identical |
-| 558 | [zig-zag-matrix](zig-zag-matrix.a68) | [Zig-zag matrix](https://rosettacode.org/wiki/Zig-zag_matrix) | identical |
+| 225 | [increment-a-numerical-string](increment-a-numerical-string.a68) | [Increment a numerical string](https://rosettacode.org/wiki/Increment_a_numerical_string) | identical |
+| 226 | [input-loop-1](input-loop-1.a68) | [Input loop](https://rosettacode.org/wiki/Input_loop) | identical |
+| 227 | [integer-overflow-1](integer-overflow-1.a68) | [Integer overflow](https://rosettacode.org/wiki/Integer_overflow) | identical |
+| 228 | [intersecting-number-wheels](intersecting-number-wheels.a68) | [Intersecting number wheels](https://rosettacode.org/wiki/Intersecting_number_wheels) | identical |
+| 229 | [introspection-1](introspection-1.a68) | [Introspection](https://rosettacode.org/wiki/Introspection) | identical |
+| 230 | [introspection-4](introspection-4.a68) | [Introspection](https://rosettacode.org/wiki/Introspection) | identical |
+| 231 | [inventory-sequence](inventory-sequence.a68) | [Inventory sequence](https://rosettacode.org/wiki/Inventory_sequence) | identical |
+| 232 | [inverted-syntax](inverted-syntax.a68) | [Inverted syntax](https://rosettacode.org/wiki/Inverted_syntax) | identical |
+| 233 | [isbn13-check-digit](isbn13-check-digit.a68) | [ISBN13 check digit](https://rosettacode.org/wiki/ISBN13_check_digit) | identical |
+| 234 | [iterated-digits-squaring](iterated-digits-squaring.a68) | [Iterated digits squaring](https://rosettacode.org/wiki/Iterated_digits_squaring) | identical |
+| 235 | [jaccard-index](jaccard-index.a68) | [Jaccard index](https://rosettacode.org/wiki/Jaccard_index) | identical |
+| 236 | [jacobi-symbol](jacobi-symbol.a68) | [Jacobi symbol](https://rosettacode.org/wiki/Jacobi_symbol) | identical |
+| 237 | [jaro-similarity](jaro-similarity.a68) | [Jaro similarity](https://rosettacode.org/wiki/Jaro_similarity) | identical |
+| 238 | [jensens-device](jensens-device.a68) | [Jensen's Device](https://rosettacode.org/wiki/Jensen's_Device) | identical |
+| 239 | [jewels-and-stones](jewels-and-stones.a68) | [Jewels and stones](https://rosettacode.org/wiki/Jewels_and_stones) | identical |
+| 240 | [jordan-p-lya-numbers](jordan-p-lya-numbers.a68) | [Jordan-Pólya numbers](https://rosettacode.org/wiki/Jordan-Pólya_numbers) | identical |
+| 241 | [julia-set-1](julia-set-1.a68) | [Julia set](https://rosettacode.org/wiki/Julia_set) | identical |
+| 242 | [julia-set-2](julia-set-2.a68) | [Julia set](https://rosettacode.org/wiki/Julia_set) | identical |
+| 243 | [kahan-summation](kahan-summation.a68) | [Kahan summation](https://rosettacode.org/wiki/Kahan_summation) | identical |
+| 244 | [klarner-rado-sequence](klarner-rado-sequence.a68) | [Klarner-Rado sequence](https://rosettacode.org/wiki/Klarner-Rado_sequence) | identical |
+| 245 | [knapsack-problem-continuous](knapsack-problem-continuous.a68) | [Continuous](https://rosettacode.org/wiki/Knapsack_problem/Continuous) | identical |
+| 246 | [knuth-shuffle](knuth-shuffle.a68) | [Knuth shuffle](https://rosettacode.org/wiki/Knuth_shuffle) | identical |
+| 247 | [kronecker-product-based-fractals](kronecker-product-based-fractals.a68) | [Kronecker product based fractals](https://rosettacode.org/wiki/Kronecker_product_based_fractals) | identical |
+| 248 | [langtons-ant](langtons-ant.a68) | [Langton's ant](https://rosettacode.org/wiki/Langton's_ant) | identical |
+| 249 | [largest-int-from-concatenated-ints](largest-int-from-concatenated-ints.a68) | [Largest int from concatenated ints](https://rosettacode.org/wiki/Largest_int_from_concatenated_ints) | identical |
+| 250 | [largest-number-divisible-by-its-digits](largest-number-divisible-by-its-digits.a68) | [Largest number divisible by its digits](https://rosettacode.org/wiki/Largest_number_divisible_by_its_digits) | identical |
+| 251 | [largest-product-in-a-grid](largest-product-in-a-grid.a68) | [Largest product in a grid](https://rosettacode.org/wiki/Largest_product_in_a_grid) | identical |
+| 252 | [largest-proper-divisor-of-n](largest-proper-divisor-of-n.a68) | [Largest proper divisor of n](https://rosettacode.org/wiki/Largest_proper_divisor_of_n) | identical |
+| 253 | [last-friday-of-each-month](last-friday-of-each-month.a68) | [Last Friday of each month](https://rosettacode.org/wiki/Last_Friday_of_each_month) | identical |
+| 254 | [last-list-item-2](last-list-item-2.a68) | [Last list item](https://rosettacode.org/wiki/Last_list_item) | identical |
+| 255 | [law-of-cosines---triples](law-of-cosines---triples.a68) | [Law of cosines - triples](https://rosettacode.org/wiki/Law_of_cosines_-_triples) | identical |
+| 256 | [lempel-ziv-complexity](lempel-ziv-complexity.a68) | [Lempel–Ziv complexity](https://rosettacode.org/wiki/Lempel–Ziv_complexity) | identical |
+| 257 | [length-of-an-arc-between-two-angles](length-of-an-arc-between-two-angles.a68) | [Length of an arc between two angles](https://rosettacode.org/wiki/Length_of_an_arc_between_two_angles) | identical |
+| 258 | [leonardo-numbers](leonardo-numbers.a68) | [Leonardo numbers](https://rosettacode.org/wiki/Leonardo_numbers) | identical |
+| 259 | [levenshtein-distance](levenshtein-distance.a68) | [Levenshtein distance](https://rosettacode.org/wiki/Levenshtein_distance) | identical |
+| 260 | [literals-floating-point](literals-floating-point.a68) | [Floating point](https://rosettacode.org/wiki/Literals/Floating_point) | identical |
+| 261 | [literals-string-8](literals-string-8.a68) | [String](https://rosettacode.org/wiki/Literals/String) | identical |
+| 262 | [logistic-curve-fitting-in-epidemiology](logistic-curve-fitting-in-epidemiology.a68) | [Logistic curve fitting in epidemiology](https://rosettacode.org/wiki/Logistic_curve_fitting_in_epidemiology) | identical |
+| 263 | [long-primes](long-primes.a68) | [Long primes](https://rosettacode.org/wiki/Long_primes) | identical |
+| 264 | [long-year](long-year.a68) | [Long year](https://rosettacode.org/wiki/Long_year) | identical |
+| 265 | [longest-common-prefix](longest-common-prefix.a68) | [Longest common prefix](https://rosettacode.org/wiki/Longest_common_prefix) | identical |
+| 266 | [longest-common-subsequence](longest-common-subsequence.a68) | [Longest common subsequence](https://rosettacode.org/wiki/Longest_common_subsequence) | identical |
+| 267 | [longest-common-substring](longest-common-substring.a68) | [Longest common substring](https://rosettacode.org/wiki/Longest_common_substring) | identical |
+| 268 | [longest-common-suffix](longest-common-suffix.a68) | [Longest common suffix](https://rosettacode.org/wiki/Longest_common_suffix) | identical |
+| 269 | [longest-palindromic-substrings](longest-palindromic-substrings.a68) | [Longest palindromic substrings](https://rosettacode.org/wiki/Longest_palindromic_substrings) | identical |
+| 270 | [longest-string-challenge-2](longest-string-challenge-2.a68) | [Longest string challenge](https://rosettacode.org/wiki/Longest_string_challenge) | identical |
+| 271 | [look-and-say-sequence](look-and-say-sequence.a68) | [Look-and-say sequence](https://rosettacode.org/wiki/Look-and-say_sequence) | identical |
+| 272 | [loops-break](loops-break.a68) | [Break](https://rosettacode.org/wiki/Loops/Break) | identical |
+| 273 | [loops-continue](loops-continue.a68) | [Continue](https://rosettacode.org/wiki/Loops/Continue) | identical |
+| 274 | [loops-do-while](loops-do-while.a68) | [Do-while](https://rosettacode.org/wiki/Loops/Do-while) | identical |
+| 275 | [loops-downward-for-1](loops-downward-for-1.a68) | [Downward for](https://rosettacode.org/wiki/Loops/Downward_for) | identical |
+| 276 | [loops-for](loops-for.a68) | [For](https://rosettacode.org/wiki/Loops/For) | identical |
+| 277 | [loops-foreach-1](loops-foreach-1.a68) | [Foreach](https://rosettacode.org/wiki/Loops/Foreach) | identical |
+| 278 | [loops-n-plus-one-half-1](loops-n-plus-one-half-1.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
+| 279 | [loops-n-plus-one-half-2](loops-n-plus-one-half-2.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
+| 280 | [loops-n-plus-one-half-3](loops-n-plus-one-half-3.a68) | [N plus one half](https://rosettacode.org/wiki/Loops/N_plus_one_half) | identical |
+| 281 | [loops-nested](loops-nested.a68) | [Nested](https://rosettacode.org/wiki/Loops/Nested) | identical |
+| 282 | [loops-while](loops-while.a68) | [While](https://rosettacode.org/wiki/Loops/While) | identical |
+| 283 | [loops-with-multiple-ranges](loops-with-multiple-ranges.a68) | [With multiple ranges](https://rosettacode.org/wiki/Loops/With_multiple_ranges) | identical |
+| 284 | [loops-wrong-ranges](loops-wrong-ranges.a68) | [Wrong ranges](https://rosettacode.org/wiki/Loops/Wrong_ranges) | identical |
+| 285 | [lu-decomposition](lu-decomposition.a68) | [LU decomposition](https://rosettacode.org/wiki/LU_decomposition) | identical |
+| 286 | [ludic-numbers](ludic-numbers.a68) | [Ludic numbers](https://rosettacode.org/wiki/Ludic_numbers) | identical |
+| 287 | [luhn-test-of-credit-card-numbers](luhn-test-of-credit-card-numbers.a68) | [Luhn test of credit card numbers](https://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers) | identical |
+| 288 | [m-bius-function](m-bius-function.a68) | [Möbius function](https://rosettacode.org/wiki/Möbius_function) | identical |
+| 289 | [magic-squares-of-doubly-even-order](magic-squares-of-doubly-even-order.a68) | [Magic squares of doubly even order](https://rosettacode.org/wiki/Magic_squares_of_doubly_even_order) | identical |
+| 290 | [magic-squares-of-odd-order](magic-squares-of-odd-order.a68) | [Magic squares of odd order](https://rosettacode.org/wiki/Magic_squares_of_odd_order) | identical |
+| 291 | [magic-squares-of-singly-even-order](magic-squares-of-singly-even-order.a68) | [Magic squares of singly even order](https://rosettacode.org/wiki/Magic_squares_of_singly_even_order) | identical |
+| 292 | [map-range](map-range.a68) | [Map range](https://rosettacode.org/wiki/Map_range) | identical |
+| 293 | [matrix-with-two-diagonals](matrix-with-two-diagonals.a68) | [Matrix with two diagonals](https://rosettacode.org/wiki/Matrix_with_two_diagonals) | identical |
+| 294 | [maximum-difference-between-adjacent-elements-of-list](maximum-difference-between-adjacent-elements-of-list.a68) | [Maximum difference between adjacent elements of list](https://rosettacode.org/wiki/Maximum_difference_between_adjacent_elements_of_list) | identical |
+| 295 | [maximum-triangle-path-sum](maximum-triangle-path-sum.a68) | [Maximum triangle path sum](https://rosettacode.org/wiki/Maximum_triangle_path_sum) | identical |
+| 296 | [mayan-numerals](mayan-numerals.a68) | [Mayan numerals](https://rosettacode.org/wiki/Mayan_numerals) | identical |
+| 297 | [mcnuggets-problem](mcnuggets-problem.a68) | [McNuggets problem](https://rosettacode.org/wiki/McNuggets_problem) | identical |
+| 298 | [memory-layout-of-a-data-structure](memory-layout-of-a-data-structure.a68) | [Memory layout of a data structure](https://rosettacode.org/wiki/Memory_layout_of_a_data_structure) | identical |
+| 299 | [mertens-function](mertens-function.a68) | [Mertens function](https://rosettacode.org/wiki/Mertens_function) | identical |
+| 300 | [metaprogramming](metaprogramming.a68) | [Metaprogramming](https://rosettacode.org/wiki/Metaprogramming) | identical |
+| 301 | [mian-chowla-sequence](mian-chowla-sequence.a68) | [Mian-Chowla sequence](https://rosettacode.org/wiki/Mian-Chowla_sequence) | identical |
+| 302 | [minimum-multiple-of-m-where-digital-sum-equals-m](minimum-multiple-of-m-where-digital-sum-equals-m.a68) | [Minimum multiple of m where digital sum equals m](https://rosettacode.org/wiki/Minimum_multiple_of_m_where_digital_sum_equals_m) | identical |
+| 303 | [minimum-number-of-cells-after-before-above-and-below-nxn-squares](minimum-number-of-cells-after-before-above-and-below-nxn-squares.a68) | [Minimum number of cells after, before, above and below NxN squares](https://rosettacode.org/wiki/Minimum_number_of_cells_after,_before,_above_and_below_NxN_squares) | identical |
+| 304 | [monads-maybe-monad](monads-maybe-monad.a68) | [Maybe monad](https://rosettacode.org/wiki/Monads/Maybe_monad) | identical |
+| 305 | [monte-carlo-methods](monte-carlo-methods.a68) | [Monte Carlo methods](https://rosettacode.org/wiki/Monte_Carlo_methods) | identical |
+| 306 | [monty-hall-problem](monty-hall-problem.a68) | [Monty Hall problem](https://rosettacode.org/wiki/Monty_Hall_problem) | identical |
+| 307 | [mosaic-matrix](mosaic-matrix.a68) | [Mosaic matrix](https://rosettacode.org/wiki/Mosaic_matrix) | identical |
+| 308 | [mosers-circle-problem](mosers-circle-problem.a68) | [Moser's circle problem](https://rosettacode.org/wiki/Moser's_circle_problem) | identical |
+| 309 | [most-frequent-k-chars-distance](most-frequent-k-chars-distance.a68) | [Most frequent k chars distance](https://rosettacode.org/wiki/Most_frequent_k_chars_distance) | identical |
+| 310 | [move-to-front-algorithm](move-to-front-algorithm.a68) | [Move-to-front algorithm](https://rosettacode.org/wiki/Move-to-front_algorithm) | identical |
+| 311 | [multi-dimensional-array-8](multi-dimensional-array-8.a68) | [Multi-dimensional array](https://rosettacode.org/wiki/Multi-dimensional_array) | identical |
+| 312 | [multisplit](multisplit.a68) | [Multisplit](https://rosettacode.org/wiki/Multisplit) | identical |
+| 313 | [munchausen-numbers-1](munchausen-numbers-1.a68) | [Munchausen numbers](https://rosettacode.org/wiki/Munchausen_numbers) | identical |
+| 314 | [mutual-recursion](mutual-recursion.a68) | [Mutual recursion](https://rosettacode.org/wiki/Mutual_recursion) | identical |
+| 315 | [n-body-problem](n-body-problem.a68) | [N-body problem](https://rosettacode.org/wiki/N-body_problem) | identical |
+| 316 | [n-grams](n-grams.a68) | [N-grams](https://rosettacode.org/wiki/N-grams) | identical |
+| 317 | [n-queens-problem](n-queens-problem.a68) | [N-queens problem](https://rosettacode.org/wiki/N-queens_problem) | identical |
+| 318 | [narcissistic-decimal-number](narcissistic-decimal-number.a68) | [Narcissistic decimal number](https://rosettacode.org/wiki/Narcissistic_decimal_number) | identical |
+| 319 | [native-shebang](native-shebang.a68) | [Native shebang](https://rosettacode.org/wiki/Native_shebang) | identical |
+| 320 | [nested-function](nested-function.a68) | [Nested function](https://rosettacode.org/wiki/Nested_function) | identical |
+| 321 | [non-continuous-subsequences-1](non-continuous-subsequences-1.a68) | [Non-continuous subsequences](https://rosettacode.org/wiki/Non-continuous_subsequences) | identical |
+| 322 | [non-continuous-subsequences-2](non-continuous-subsequences-2.a68) | [Non-continuous subsequences](https://rosettacode.org/wiki/Non-continuous_subsequences) | identical |
+| 323 | [non-decimal-radices-convert-2](non-decimal-radices-convert-2.a68) | [Convert](https://rosettacode.org/wiki/Non-decimal_radices/Convert) | identical |
+| 324 | [non-transitive-dice](non-transitive-dice.a68) | [Non-transitive dice](https://rosettacode.org/wiki/Non-transitive_dice) | identical |
+| 325 | [nth](nth.a68) | [N'th](https://rosettacode.org/wiki/N'th) | identical |
+| 326 | [null-object](null-object.a68) | [Null object](https://rosettacode.org/wiki/Null_object) | identical |
+| 327 | [number-names-1](number-names-1.a68) | [Number names](https://rosettacode.org/wiki/Number_names) | identical |
+| 328 | [numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits](numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits.a68) | [Numbers divisible by their individual digits, but not by the product of their digits](https://rosettacode.org/wiki/Numbers_divisible_by_their_individual_digits,_but_not_by_the_product_of_their_digits) | identical |
+| 329 | [numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16](numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16.a68) | [Numbers in base 10 that are palindromic in bases 2, 4, and 16](https://rosettacode.org/wiki/Numbers_in_base_10_that_are_palindromic_in_bases_2,_4,_and_16) | identical |
+| 330 | [numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits](numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits.a68) | [Numbers in base-16 representation that cannot be written with decimal digits](https://rosettacode.org/wiki/Numbers_in_base-16_representation_that_cannot_be_written_with_decimal_digits) | identical |
+| 331 | [numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1](numbers-k-such-that-the-last-letter-of-k-is-the-same-as-the-first-letter-of-k+1.a68) | [Numbers k such that the last letter of k is the same as the first letter of k+1](https://rosettacode.org/wiki/Numbers_k_such_that_the_last_letter_of_k_is_the_same_as_the_first_letter_of_k+1) | identical |
+| 332 | [numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1](numbers-k-whose-divisor-sum-is-equal-to-the-divisor-sum-of-k-+-1.a68) | [Numbers k whose divisor sum is equal to the divisor sum of k + 1](https://rosettacode.org/wiki/Numbers_k_whose_divisor_sum_is_equal_to_the_divisor_sum_of_k_+_1) | identical |
+| 333 | [numbers-which-are-not-the-sum-of-distinct-squares](numbers-which-are-not-the-sum-of-distinct-squares.a68) | [Numbers which are not the sum of distinct squares](https://rosettacode.org/wiki/Numbers_which_are_not_the_sum_of_distinct_squares) | identical |
+| 334 | [numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors](numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors.a68) | [Numbers which are the cube roots of the product of their proper divisors](https://rosettacode.org/wiki/Numbers_which_are_the_cube_roots_of_the_product_of_their_proper_divisors) | identical |
+| 335 | [numbers-whose-count-of-divisors-is-prime](numbers-whose-count-of-divisors-is-prime.a68) | [Numbers whose count of divisors is prime](https://rosettacode.org/wiki/Numbers_whose_count_of_divisors_is_prime) | identical |
+| 336 | [numbers-with-equal-rises-and-falls](numbers-with-equal-rises-and-falls.a68) | [Numbers with equal rises and falls](https://rosettacode.org/wiki/Numbers_with_equal_rises_and_falls) | identical |
+| 337 | [numbers-with-prime-digits-whose-sum-is-13](numbers-with-prime-digits-whose-sum-is-13.a68) | [Numbers with prime digits whose sum is 13](https://rosettacode.org/wiki/Numbers_with_prime_digits_whose_sum_is_13) | identical |
+| 338 | [numbers-with-same-digit-set-in-base-10-and-base-16-1](numbers-with-same-digit-set-in-base-10-and-base-16-1.a68) | [Numbers with same digit set in base 10 and base 16](https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16) | identical |
+| 339 | [numbers-with-same-digit-set-in-base-10-and-base-16-2](numbers-with-same-digit-set-in-base-10-and-base-16-2.a68) | [Numbers with same digit set in base 10 and base 16](https://rosettacode.org/wiki/Numbers_with_same_digit_set_in_base_10_and_base_16) | identical |
+| 340 | [numeric-error-propagation](numeric-error-propagation.a68) | [Numeric error propagation](https://rosettacode.org/wiki/Numeric_error_propagation) | identical |
+| 341 | [numeric-separator-syntax](numeric-separator-syntax.a68) | [Numeric separator syntax](https://rosettacode.org/wiki/Numeric_separator_syntax) | identical |
+| 342 | [nysiis](nysiis.a68) | [NYSIIS](https://rosettacode.org/wiki/NYSIIS) | identical |
+| 343 | [odd-and-square-numbers](odd-and-square-numbers.a68) | [Odd and square numbers](https://rosettacode.org/wiki/Odd_and_square_numbers) | identical |
+| 344 | [odd-squarefree-semiprimes](odd-squarefree-semiprimes.a68) | [Odd squarefree semiprimes](https://rosettacode.org/wiki/Odd_squarefree_semiprimes) | identical |
+| 345 | [ohalloran-numbers](ohalloran-numbers.a68) | [O'Halloran numbers](https://rosettacode.org/wiki/O'Halloran_numbers) | identical |
+| 346 | [old-lady-swallowed-a-fly-2](old-lady-swallowed-a-fly-2.a68) | [Old lady swallowed a fly](https://rosettacode.org/wiki/Old_lady_swallowed_a_fly) | identical |
+| 347 | [optional-parameters](optional-parameters.a68) | [Optional parameters](https://rosettacode.org/wiki/Optional_parameters) | identical |
+| 348 | [orbital-elements](orbital-elements.a68) | [Orbital elements](https://rosettacode.org/wiki/Orbital_elements) | identical |
+| 349 | [order-two-numerical-lists](order-two-numerical-lists.a68) | [Order two numerical lists](https://rosettacode.org/wiki/Order_two_numerical_lists) | identical |
+| 350 | [ordered-words-1](ordered-words-1.a68) | [Ordered words](https://rosettacode.org/wiki/Ordered_words) | identical |
+| 351 | [overloaded-operators](overloaded-operators.a68) | [Overloaded operators](https://rosettacode.org/wiki/Overloaded_operators) | identical |
+| 352 | [padovan-n-step-number-sequences](padovan-n-step-number-sequences.a68) | [Padovan n-step number sequences](https://rosettacode.org/wiki/Padovan_n-step_number_sequences) | identical |
+| 353 | [pandigital-prime-1](pandigital-prime-1.a68) | [Pandigital prime](https://rosettacode.org/wiki/Pandigital_prime) | identical |
+| 354 | [pandigital-prime-2](pandigital-prime-2.a68) | [Pandigital prime](https://rosettacode.org/wiki/Pandigital_prime) | identical |
+| 355 | [pangram-checker](pangram-checker.a68) | [Pangram checker](https://rosettacode.org/wiki/Pangram_checker) | identical |
+| 356 | [parsing-rpn-to-infix-conversion](parsing-rpn-to-infix-conversion.a68) | [RPN to infix conversion](https://rosettacode.org/wiki/Parsing/RPN_to_infix_conversion) | identical |
+| 357 | [parsing-shunting-yard-algorithm](parsing-shunting-yard-algorithm.a68) | [Shunting-yard algorithm](https://rosettacode.org/wiki/Parsing/Shunting-yard_algorithm) | identical |
+| 358 | [particle-swarm-optimization](particle-swarm-optimization.a68) | [Particle swarm optimization](https://rosettacode.org/wiki/Particle_swarm_optimization) | same up to rounding |
+| 359 | [partition-an-integer-x-into-n-primes](partition-an-integer-x-into-n-primes.a68) | [Partition an integer x into n primes](https://rosettacode.org/wiki/Partition_an_integer_x_into_n_primes) | identical |
+| 360 | [pascal-matrix-generation](pascal-matrix-generation.a68) | [Pascal matrix generation](https://rosettacode.org/wiki/Pascal_matrix_generation) | identical |
+| 361 | [pentagram](pentagram.a68) | [Pentagram](https://rosettacode.org/wiki/Pentagram) | identical |
+| 362 | [percolation-mean-run-density](percolation-mean-run-density.a68) | [Mean run density](https://rosettacode.org/wiki/Percolation/Mean_run_density) | identical |
+| 363 | [perfect-shuffle](perfect-shuffle.a68) | [Perfect shuffle](https://rosettacode.org/wiki/Perfect_shuffle) | identical |
+| 364 | [perfect-totient-numbers](perfect-totient-numbers.a68) | [Perfect totient numbers](https://rosettacode.org/wiki/Perfect_totient_numbers) | identical |
+| 365 | [periodic-table](periodic-table.a68) | [Periodic table](https://rosettacode.org/wiki/Periodic_table) | identical |
+| 366 | [perlin-noise](perlin-noise.a68) | [Perlin noise](https://rosettacode.org/wiki/Perlin_noise) | identical |
+| 367 | [permutation-test](permutation-test.a68) | [Permutation test](https://rosettacode.org/wiki/Permutation_test) | identical |
+| 368 | [permutations-by-swapping](permutations-by-swapping.a68) | [Permutations by swapping](https://rosettacode.org/wiki/Permutations_by_swapping) | identical |
+| 369 | [pernicious-numbers](pernicious-numbers.a68) | [Pernicious numbers](https://rosettacode.org/wiki/Pernicious_numbers) | identical |
+| 370 | [pfaffian-and-hfaffian](pfaffian-and-hfaffian.a68) | [Pfaffian and hfaffian](https://rosettacode.org/wiki/Pfaffian_and_hfaffian) | identical |
+| 371 | [phrase-reversals](phrase-reversals.a68) | [Phrase reversals](https://rosettacode.org/wiki/Phrase_reversals) | identical |
+| 372 | [pig-latin](pig-latin.a68) | [Pig Latin](https://rosettacode.org/wiki/Pig_Latin) | identical |
+| 373 | [pisano-period](pisano-period.a68) | [Pisano period](https://rosettacode.org/wiki/Pisano_period) | identical |
+| 374 | [pointers-and-references-10](pointers-and-references-10.a68) | [Pointers and references](https://rosettacode.org/wiki/Pointers_and_references) | identical |
+| 375 | [pointers-and-references-11](pointers-and-references-11.a68) | [Pointers and references](https://rosettacode.org/wiki/Pointers_and_references) | identical |
+| 376 | [polymorphic-copy](polymorphic-copy.a68) | [Polymorphic copy](https://rosettacode.org/wiki/Polymorphic_copy) | identical |
+| 377 | [polymorphism](polymorphism.a68) | [Polymorphism](https://rosettacode.org/wiki/Polymorphism) | identical |
+| 378 | [polynomial-derivative](polynomial-derivative.a68) | [Polynomial derivative](https://rosettacode.org/wiki/Polynomial_derivative) | identical |
+| 379 | [polynomial-long-division](polynomial-long-division.a68) | [Polynomial long division](https://rosettacode.org/wiki/Polynomial_long_division) | identical |
+| 380 | [polynomial-synthetic-division](polynomial-synthetic-division.a68) | [Polynomial synthetic division](https://rosettacode.org/wiki/Polynomial_synthetic_division) | identical |
+| 381 | [positive-decimal-integers-with-the-digit-1-occurring-exactly-twice](positive-decimal-integers-with-the-digit-1-occurring-exactly-twice.a68) | [Positive decimal integers with the digit 1 occurring exactly twice](https://rosettacode.org/wiki/Positive_decimal_integers_with_the_digit_1_occurring_exactly_twice) | identical |
+| 382 | [practical-numbers](practical-numbers.a68) | [Practical numbers](https://rosettacode.org/wiki/Practical_numbers) | identical |
+| 383 | [primality-by-trial-division](primality-by-trial-division.a68) | [Primality by trial division](https://rosettacode.org/wiki/Primality_by_trial_division) | identical |
+| 384 | [primality-by-wilsons-theorem](primality-by-wilsons-theorem.a68) | [Primality by Wilson's theorem](https://rosettacode.org/wiki/Primality_by_Wilson's_theorem) | identical |
+| 385 | [prime-numbers-of-measurement](prime-numbers-of-measurement.a68) | [Prime numbers of measurement](https://rosettacode.org/wiki/Prime_numbers_of_measurement) | identical |
+| 386 | [prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime](prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime.a68) | [Prime numbers p for which the sum of primes less than or equal to p is prime](https://rosettacode.org/wiki/Prime_numbers_p_for_which_the_sum_of_primes_less_than_or_equal_to_p_is_prime) | identical |
+| 387 | [prime-triangle](prime-triangle.a68) | [Prime triangle](https://rosettacode.org/wiki/Prime_triangle) | identical |
+| 388 | [prime-triplets](prime-triplets.a68) | [Prime triplets](https://rosettacode.org/wiki/Prime_triplets) | identical |
+| 389 | [print-itself-1](print-itself-1.a68) | [Print itself](https://rosettacode.org/wiki/Print_itself) | identical |
+| 390 | [problem-of-apollonius](problem-of-apollonius.a68) | [Problem of Apollonius](https://rosettacode.org/wiki/Problem_of_Apollonius) | identical |
+| 391 | [product-of-divisors-1](product-of-divisors-1.a68) | [Product of divisors](https://rosettacode.org/wiki/Product_of_divisors) | identical |
+| 392 | [product-of-min-and-max-prime-factors](product-of-min-and-max-prime-factors.a68) | [Product of min and max prime factors](https://rosettacode.org/wiki/Product_of_min_and_max_prime_factors) | identical |
+| 393 | [proper-divisors-1](proper-divisors-1.a68) | [Proper divisors](https://rosettacode.org/wiki/Proper_divisors) | identical |
+| 394 | [proper-divisors-2](proper-divisors-2.a68) | [Proper divisors](https://rosettacode.org/wiki/Proper_divisors) | identical |
+| 395 | [punched-cards](punched-cards.a68) | [Punched cards](https://rosettacode.org/wiki/Punched_cards) | identical |
+| 396 | [pythagoras-tree](pythagoras-tree.a68) | [Pythagoras tree](https://rosettacode.org/wiki/Pythagoras_tree) | identical |
+| 397 | [pythagorean-quadruples](pythagorean-quadruples.a68) | [Pythagorean quadruples](https://rosettacode.org/wiki/Pythagorean_quadruples) | identical |
+| 398 | [pythagorean-triples](pythagorean-triples.a68) | [Pythagorean triples](https://rosettacode.org/wiki/Pythagorean_triples) | identical |
+| 399 | [quickselect-algorithm](quickselect-algorithm.a68) | [Quickselect algorithm](https://rosettacode.org/wiki/Quickselect_algorithm) | identical |
+| 400 | [quine-1](quine-1.a68) | [Quine](https://rosettacode.org/wiki/Quine) | identical |
+| 401 | [quine-2](quine-2.a68) | [Quine](https://rosettacode.org/wiki/Quine) | identical |
+| 402 | [quoting-constructs](quoting-constructs.a68) | [Quoting constructs](https://rosettacode.org/wiki/Quoting_constructs) | identical |
+| 403 | [radical-of-an-integer](radical-of-an-integer.a68) | [Radical of an integer](https://rosettacode.org/wiki/Radical_of_an_integer) | identical |
+| 404 | [rainbow](rainbow.a68) | [Rainbow](https://rosettacode.org/wiki/Rainbow) | identical |
+| 405 | [ramer-douglas-peucker-line-simplification](ramer-douglas-peucker-line-simplification.a68) | [Ramer-Douglas-Peucker line simplification](https://rosettacode.org/wiki/Ramer-Douglas-Peucker_line_simplification) | identical |
+| 406 | [range-consolidation](range-consolidation.a68) | [Range consolidation](https://rosettacode.org/wiki/Range_consolidation) | identical |
+| 407 | [range-expansion](range-expansion.a68) | [Range expansion](https://rosettacode.org/wiki/Range_expansion) | identical |
+| 408 | [range-modifications](range-modifications.a68) | [Range modifications](https://rosettacode.org/wiki/Range_modifications) | identical |
+| 409 | [ranking-methods](ranking-methods.a68) | [Ranking methods](https://rosettacode.org/wiki/Ranking_methods) | identical |
+| 410 | [ray-casting-algorithm](ray-casting-algorithm.a68) | [Ray-casting algorithm](https://rosettacode.org/wiki/Ray-casting_algorithm) | identical |
+| 411 | [read-a-specific-line-from-a-file](read-a-specific-line-from-a-file.a68) | [Read a specific line from a file](https://rosettacode.org/wiki/Read_a_specific_line_from_a_file) | identical |
+| 412 | [remove-vowels-from-a-string](remove-vowels-from-a-string.a68) | [Remove vowels from a string](https://rosettacode.org/wiki/Remove_vowels_from_a_string) | identical |
+| 413 | [rep-string](rep-string.a68) | [Rep-string](https://rosettacode.org/wiki/Rep-string) | identical |
+| 414 | [repeat](repeat.a68) | [Repeat](https://rosettacode.org/wiki/Repeat) | identical |
+| 415 | [repeat-a-string](repeat-a-string.a68) | [Repeat a string](https://rosettacode.org/wiki/Repeat_a_string) | identical |
+| 416 | [reverse-a-string](reverse-a-string.a68) | [Reverse a string](https://rosettacode.org/wiki/Reverse_a_string) | identical |
+| 417 | [reverse-words-in-a-string](reverse-words-in-a-string.a68) | [Reverse words in a string](https://rosettacode.org/wiki/Reverse_words_in_a_string) | identical |
+| 418 | [rhonda-numbers](rhonda-numbers.a68) | [Rhonda numbers](https://rosettacode.org/wiki/Rhonda_numbers) | identical |
+| 419 | [rice-coding](rice-coding.a68) | [Rice coding](https://rosettacode.org/wiki/Rice_coding) | identical |
+| 420 | [roman-numerals-encode](roman-numerals-encode.a68) | [Encode](https://rosettacode.org/wiki/Roman_numerals/Encode) | identical |
+| 421 | [round-robin-tournament-schedule](round-robin-tournament-schedule.a68) | [Round-robin tournament schedule](https://rosettacode.org/wiki/Round-robin_tournament_schedule) | identical |
+| 422 | [run-length-encoding](run-length-encoding.a68) | [Run-length encoding](https://rosettacode.org/wiki/Run-length_encoding) | identical |
+| 423 | [ruth-aaron-numbers](ruth-aaron-numbers.a68) | [Ruth-Aaron numbers](https://rosettacode.org/wiki/Ruth-Aaron_numbers) | identical |
+| 424 | [s-expressions](s-expressions.a68) | [S-expressions](https://rosettacode.org/wiki/S-expressions) | identical |
+| 425 | [safe-primes-and-unsafe-primes](safe-primes-and-unsafe-primes.a68) | [Safe primes and unsafe primes](https://rosettacode.org/wiki/Safe_primes_and_unsafe_primes) | identical |
+| 426 | [sailors-coconuts-and-a-monkey-problem](sailors-coconuts-and-a-monkey-problem.a68) | [Sailors, coconuts and a monkey problem](https://rosettacode.org/wiki/Sailors,_coconuts_and_a_monkey_problem) | identical |
+| 427 | [search-a-list-of-records](search-a-list-of-records.a68) | [Search a list of records](https://rosettacode.org/wiki/Search_a_list_of_records) | identical |
+| 428 | [selectively-replace-multiple-instances-of-a-character-within-a-string](selectively-replace-multiple-instances-of-a-character-within-a-string.a68) | [Selectively replace multiple instances of a character within a string](https://rosettacode.org/wiki/Selectively_replace_multiple_instances_of_a_character_within_a_string) | identical |
+| 429 | [self-describing-numbers](self-describing-numbers.a68) | [Self-describing numbers](https://rosettacode.org/wiki/Self-describing_numbers) | identical |
+| 430 | [semiprime](semiprime.a68) | [Semiprime](https://rosettacode.org/wiki/Semiprime) | identical |
+| 431 | [send-+-more-=-money](send-+-more-=-money.a68) | [SEND + MORE = MONEY](https://rosettacode.org/wiki/SEND_+_MORE_=_MONEY) | identical |
+| 432 | [separate-the-house-number-from-the-street-name](separate-the-house-number-from-the-street-name.a68) | [Separate the house number from the street name](https://rosettacode.org/wiki/Separate_the_house_number_from_the_street_name) | identical |
+| 433 | [sequence-nth-number-with-exactly-n-divisors](sequence-nth-number-with-exactly-n-divisors.a68) | [Sequence: nth number with exactly n divisors](https://rosettacode.org/wiki/Sequence:_nth_number_with_exactly_n_divisors) | identical |
+| 434 | [sequence-of-non-squares](sequence-of-non-squares.a68) | [Sequence of non-squares](https://rosettacode.org/wiki/Sequence_of_non-squares) | identical |
+| 435 | [sequence-of-primes-by-trial-division](sequence-of-primes-by-trial-division.a68) | [Sequence of primes by trial division](https://rosettacode.org/wiki/Sequence_of_primes_by_trial_division) | identical |
+| 436 | [sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors](sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors.a68) | [Sequence: smallest number greater than previous term with exactly n divisors](https://rosettacode.org/wiki/Sequence:_smallest_number_greater_than_previous_term_with_exactly_n_divisors) | identical |
+| 437 | [sequence-smallest-number-with-exactly-n-divisors](sequence-smallest-number-with-exactly-n-divisors.a68) | [Sequence: smallest number with exactly n divisors](https://rosettacode.org/wiki/Sequence:_smallest_number_with_exactly_n_divisors) | identical |
+| 438 | [seven-sided-dice-from-five-sided-dice](seven-sided-dice-from-five-sided-dice.a68) | [Seven-sided dice from five-sided dice](https://rosettacode.org/wiki/Seven-sided_dice_from_five-sided_dice) | identical |
+| 439 | [shoelace-formula-for-polygonal-area](shoelace-formula-for-polygonal-area.a68) | [Shoelace formula for polygonal area](https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area) | identical |
+| 440 | [short-circuit-evaluation-1](short-circuit-evaluation-1.a68) | [Short-circuit evaluation](https://rosettacode.org/wiki/Short-circuit_evaluation) | identical |
+| 441 | [short-circuit-evaluation-2](short-circuit-evaluation-2.a68) | [Short-circuit evaluation](https://rosettacode.org/wiki/Short-circuit_evaluation) | identical |
+| 442 | [shortest-common-supersequence](shortest-common-supersequence.a68) | [Shortest common supersequence](https://rosettacode.org/wiki/Shortest_common_supersequence) | identical |
+| 443 | [show-ascii-table](show-ascii-table.a68) | [Show ASCII table](https://rosettacode.org/wiki/Show_ASCII_table) | identical |
+| 444 | [sierpinski-carpet](sierpinski-carpet.a68) | [Sierpinski carpet](https://rosettacode.org/wiki/Sierpinski_carpet) | identical |
+| 445 | [sieve-of-eratosthenes](sieve-of-eratosthenes.a68) | [Sieve of Eratosthenes](https://rosettacode.org/wiki/Sieve_of_Eratosthenes) | identical |
+| 446 | [sign-of-an-integer-signum-](sign-of-an-integer-signum-.a68) | [Sign of an integer (signum)](https://rosettacode.org/wiki/Sign_of_an_integer_(signum)) | identical |
+| 447 | [singly-linked-list-element-insertion](singly-linked-list-element-insertion.a68) | [Element insertion](https://rosettacode.org/wiki/Singly-linked_list/Element_insertion) | identical |
+| 448 | [singly-linked-list-element-removal](singly-linked-list-element-removal.a68) | [Element removal](https://rosettacode.org/wiki/Singly-linked_list/Element_removal) | identical |
+| 449 | [singly-linked-list-reversal](singly-linked-list-reversal.a68) | [Reversal](https://rosettacode.org/wiki/Singly-linked_list/Reversal) | identical |
+| 450 | [singly-linked-list-traversal](singly-linked-list-traversal.a68) | [Traversal](https://rosettacode.org/wiki/Singly-linked_list/Traversal) | identical |
+| 451 | [smallest-square-that-begins-with-n](smallest-square-that-begins-with-n.a68) | [Smallest square that begins with n](https://rosettacode.org/wiki/Smallest_square_that_begins_with_n) | identical |
+| 452 | [smarandache-prime-digital-sequence](smarandache-prime-digital-sequence.a68) | [Smarandache prime-digital sequence](https://rosettacode.org/wiki/Smarandache_prime-digital_sequence) | identical |
+| 453 | [smith-numbers](smith-numbers.a68) | [Smith numbers](https://rosettacode.org/wiki/Smith_numbers) | identical |
+| 454 | [solve-a-holy-knights-tour](solve-a-holy-knights-tour.a68) | [Solve a Holy Knight's tour](https://rosettacode.org/wiki/Solve_a_Holy_Knight's_tour) | identical |
+| 455 | [solve-equations-with-substitution-method](solve-equations-with-substitution-method.a68) | [Solve equations with substitution method](https://rosettacode.org/wiki/Solve_equations_with_substitution_method) | identical |
+| 456 | [solve-the-no-connection-puzzle](solve-the-no-connection-puzzle.a68) | [Solve the no connection puzzle](https://rosettacode.org/wiki/Solve_the_no_connection_puzzle) | identical |
+| 457 | [solve-triangle-solitaire-puzzle](solve-triangle-solitaire-puzzle.a68) | [Solve triangle solitaire puzzle](https://rosettacode.org/wiki/Solve_triangle_solitaire_puzzle) | identical |
+| 458 | [sort-an-integer-array](sort-an-integer-array.a68) | [Sort an integer array](https://rosettacode.org/wiki/Sort_an_integer_array) | identical |
+| 459 | [sort-numbers-lexicographically](sort-numbers-lexicographically.a68) | [Sort numbers lexicographically](https://rosettacode.org/wiki/Sort_numbers_lexicographically) | identical |
+| 460 | [sort-primes-from-list-to-a-list-2](sort-primes-from-list-to-a-list-2.a68) | [Sort primes from list to a list](https://rosettacode.org/wiki/Sort_primes_from_list_to_a_list) | identical |
+| 461 | [sort-the-letters-of-string-in-alphabetical-order](sort-the-letters-of-string-in-alphabetical-order.a68) | [Sort the letters of string in alphabetical order](https://rosettacode.org/wiki/Sort_the_letters_of_string_in_alphabetical_order) | identical |
+| 462 | [sort-three-variables](sort-three-variables.a68) | [Sort three variables](https://rosettacode.org/wiki/Sort_three_variables) | identical |
+| 463 | [sort-using-a-custom-comparator](sort-using-a-custom-comparator.a68) | [Sort using a custom comparator](https://rosettacode.org/wiki/Sort_using_a_custom_comparator) | identical |
+| 464 | [sorting-algorithms-bead-sort](sorting-algorithms-bead-sort.a68) | [Bead sort](https://rosettacode.org/wiki/Sorting_algorithms/Bead_sort) | identical |
+| 465 | [sorting-algorithms-bogosort](sorting-algorithms-bogosort.a68) | [Bogosort](https://rosettacode.org/wiki/Sorting_algorithms/Bogosort) | identical |
+| 466 | [sorting-algorithms-circle-sort](sorting-algorithms-circle-sort.a68) | [Circle sort](https://rosettacode.org/wiki/Sorting_algorithms/Circle_sort) | identical |
+| 467 | [sorting-algorithms-cocktail-sort-1](sorting-algorithms-cocktail-sort-1.a68) | [Cocktail sort](https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort) | identical |
+| 468 | [sorting-algorithms-cocktail-sort-with-shifting-bounds](sorting-algorithms-cocktail-sort-with-shifting-bounds.a68) | [Cocktail sort with shifting bounds](https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort_with_shifting_bounds) | identical |
+| 469 | [sorting-algorithms-counting-sort](sorting-algorithms-counting-sort.a68) | [Counting sort](https://rosettacode.org/wiki/Sorting_algorithms/Counting_sort) | identical |
+| 470 | [sorting-algorithms-cycle-sort](sorting-algorithms-cycle-sort.a68) | [Cycle sort](https://rosettacode.org/wiki/Sorting_algorithms/Cycle_sort) | identical |
+| 471 | [sorting-algorithms-gnome-sort](sorting-algorithms-gnome-sort.a68) | [Gnome sort](https://rosettacode.org/wiki/Sorting_algorithms/Gnome_sort) | identical |
+| 472 | [sorting-algorithms-heapsort](sorting-algorithms-heapsort.a68) | [Heapsort](https://rosettacode.org/wiki/Sorting_algorithms/Heapsort) | identical |
+| 473 | [sorting-algorithms-insertion-sort](sorting-algorithms-insertion-sort.a68) | [Insertion sort](https://rosettacode.org/wiki/Sorting_algorithms/Insertion_sort) | identical |
+| 474 | [sorting-algorithms-merge-sort-1](sorting-algorithms-merge-sort-1.a68) | [Merge sort](https://rosettacode.org/wiki/Sorting_algorithms/Merge_sort) | identical |
+| 475 | [sorting-algorithms-permutation-sort](sorting-algorithms-permutation-sort.a68) | [Permutation sort](https://rosettacode.org/wiki/Sorting_algorithms/Permutation_sort) | identical |
+| 476 | [sorting-algorithms-quicksort](sorting-algorithms-quicksort.a68) | [Quicksort](https://rosettacode.org/wiki/Sorting_algorithms/Quicksort) | identical |
+| 477 | [sorting-algorithms-radix-sort](sorting-algorithms-radix-sort.a68) | [Radix sort](https://rosettacode.org/wiki/Sorting_algorithms/Radix_sort) | identical |
+| 478 | [sorting-algorithms-selection-sort](sorting-algorithms-selection-sort.a68) | [Selection sort](https://rosettacode.org/wiki/Sorting_algorithms/Selection_sort) | identical |
+| 479 | [sorting-algorithms-stooge-sort](sorting-algorithms-stooge-sort.a68) | [Stooge sort](https://rosettacode.org/wiki/Sorting_algorithms/Stooge_sort) | identical |
+| 480 | [special-characters-2](special-characters-2.a68) | [Special characters](https://rosettacode.org/wiki/Special_characters) | identical |
+| 481 | [special-divisors](special-divisors.a68) | [Special divisors](https://rosettacode.org/wiki/Special_divisors) | identical |
+| 482 | [special-pythagorean-triplet](special-pythagorean-triplet.a68) | [Special pythagorean triplet](https://rosettacode.org/wiki/Special_pythagorean_triplet) | identical |
+| 483 | [specific-characters](specific-characters.a68) | [Specific characters](https://rosettacode.org/wiki/Specific_characters) | identical |
+| 484 | [spinning-rod-animation-text](spinning-rod-animation-text.a68) | [Text](https://rosettacode.org/wiki/Spinning_rod_animation/Text) | identical |
+| 485 | [spiral-matrix](spiral-matrix.a68) | [Spiral matrix](https://rosettacode.org/wiki/Spiral_matrix) | identical |
+| 486 | [split-a-character-string-based-on-change-of-character](split-a-character-string-based-on-change-of-character.a68) | [Split a character string based on change of character](https://rosettacode.org/wiki/Split_a_character_string_based_on_change_of_character) | identical |
+| 487 | [square-but-not-cube](square-but-not-cube.a68) | [Square but not cube](https://rosettacode.org/wiki/Square_but_not_cube) | identical |
+| 488 | [stair-climbing-puzzle-2](stair-climbing-puzzle-2.a68) | [Stair-climbing puzzle](https://rosettacode.org/wiki/Stair-climbing_puzzle) | identical |
+| 489 | [start-from-a-main-routine](start-from-a-main-routine.a68) | [Start from a main routine](https://rosettacode.org/wiki/Start_from_a_main_routine) | identical |
+| 490 | [steady-squares](steady-squares.a68) | [Steady squares](https://rosettacode.org/wiki/Steady_squares) | identical |
+| 491 | [steffensens-method](steffensens-method.a68) | [Steffensen's method](https://rosettacode.org/wiki/Steffensen's_method) | identical |
+| 492 | [stem-and-leaf-plot-2](stem-and-leaf-plot-2.a68) | [Stem-and-leaf plot](https://rosettacode.org/wiki/Stem-and-leaf_plot) | identical |
+| 493 | [stern-brocot-sequence](stern-brocot-sequence.a68) | [Stern-Brocot sequence](https://rosettacode.org/wiki/Stern-Brocot_sequence) | identical |
+| 494 | [strange-numbers](strange-numbers.a68) | [Strange numbers](https://rosettacode.org/wiki/Strange_numbers) | identical |
+| 495 | [strange-plus-numbers](strange-plus-numbers.a68) | [Strange plus numbers](https://rosettacode.org/wiki/Strange_plus_numbers) | identical |
+| 496 | [stream-merge](stream-merge.a68) | [Stream merge](https://rosettacode.org/wiki/Stream_merge) | identical |
+| 497 | [string-append](string-append.a68) | [String append](https://rosettacode.org/wiki/String_append) | identical |
+| 498 | [string-comparison](string-comparison.a68) | [String comparison](https://rosettacode.org/wiki/String_comparison) | identical |
+| 499 | [string-concatenation](string-concatenation.a68) | [String concatenation](https://rosettacode.org/wiki/String_concatenation) | identical |
+| 500 | [string-matching](string-matching.a68) | [String matching](https://rosettacode.org/wiki/String_matching) | identical |
+| 501 | [string-prepend](string-prepend.a68) | [String prepend](https://rosettacode.org/wiki/String_prepend) | identical |
+| 502 | [strip-comments-from-a-string](strip-comments-from-a-string.a68) | [Strip comments from a string](https://rosettacode.org/wiki/Strip_comments_from_a_string) | identical |
+| 503 | [strip-control-codes-and-extended-characters-from-a-string](strip-control-codes-and-extended-characters-from-a-string.a68) | [Strip control codes and extended characters from a string](https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string) | identical |
+| 504 | [strip-whitespace-from-a-string-top-and-tail-1](strip-whitespace-from-a-string-top-and-tail-1.a68) | [Top and tail](https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail) | identical |
+| 505 | [strip-whitespace-from-a-string-top-and-tail-2](strip-whitespace-from-a-string-top-and-tail-2.a68) | [Top and tail](https://rosettacode.org/wiki/Strip_whitespace_from_a_string/Top_and_tail) | identical |
+| 506 | [strong-and-weak-primes](strong-and-weak-primes.a68) | [Strong and weak primes](https://rosettacode.org/wiki/Strong_and_weak_primes) | identical |
+| 507 | [sturmian-word](sturmian-word.a68) | [Sturmian word](https://rosettacode.org/wiki/Sturmian_word) | identical |
+| 508 | [subleq](subleq.a68) | [Subleq](https://rosettacode.org/wiki/Subleq) | identical |
+| 509 | [substitution-cipher](substitution-cipher.a68) | [Substitution cipher](https://rosettacode.org/wiki/Substitution_cipher) | identical |
+| 510 | [sudan-function](sudan-function.a68) | [Sudan function](https://rosettacode.org/wiki/Sudan_function) | identical |
+| 511 | [sum-and-product-puzzle](sum-and-product-puzzle.a68) | [Sum and product puzzle](https://rosettacode.org/wiki/Sum_and_product_puzzle) | identical |
+| 512 | [sum-digits-of-an-integer-1](sum-digits-of-an-integer-1.a68) | [Sum digits of an integer](https://rosettacode.org/wiki/Sum_digits_of_an_integer) | identical |
+| 513 | [sum-of-a-series](sum-of-a-series.a68) | [Sum of a series](https://rosettacode.org/wiki/Sum_of_a_series) | identical |
+| 514 | [sum-of-divisors](sum-of-divisors.a68) | [Sum of divisors](https://rosettacode.org/wiki/Sum_of_divisors) | identical |
+| 515 | [sum-of-elements-below-main-diagonal-of-matrix](sum-of-elements-below-main-diagonal-of-matrix.a68) | [Sum of elements below main diagonal of matrix](https://rosettacode.org/wiki/Sum_of_elements_below_main_diagonal_of_matrix) | identical |
+| 516 | [sum-of-first-n-cubes](sum-of-first-n-cubes.a68) | [Sum of first n cubes](https://rosettacode.org/wiki/Sum_of_first_n_cubes) | identical |
+| 517 | [sum-of-the-digits-of-n-is-substring-of-n](sum-of-the-digits-of-n-is-substring-of-n.a68) | [Sum of the digits of n is substring of n](https://rosettacode.org/wiki/Sum_of_the_digits_of_n_is_substring_of_n) | identical |
+| 518 | [tau-function](tau-function.a68) | [Tau function](https://rosettacode.org/wiki/Tau_function) | identical |
+| 519 | [tau-number](tau-number.a68) | [Tau number](https://rosettacode.org/wiki/Tau_number) | identical |
+| 520 | [text-between](text-between.a68) | [Text between](https://rosettacode.org/wiki/Text_between) | identical |
+| 521 | [the-name-game](the-name-game.a68) | [The Name Game](https://rosettacode.org/wiki/The_Name_Game) | identical |
+| 522 | [the-sieve-of-sundaram](the-sieve-of-sundaram.a68) | [The sieve of Sundaram](https://rosettacode.org/wiki/The_sieve_of_Sundaram) | identical |
+| 523 | [the-twelve-days-of-christmas](the-twelve-days-of-christmas.a68) | [The Twelve Days of Christmas](https://rosettacode.org/wiki/The_Twelve_Days_of_Christmas) | identical |
+| 524 | [thue-morse](thue-morse.a68) | [Thue-Morse](https://rosettacode.org/wiki/Thue-Morse) | identical |
+| 525 | [tokenize-a-string-with-escaping](tokenize-a-string-with-escaping.a68) | [Tokenize a string with escaping](https://rosettacode.org/wiki/Tokenize_a_string_with_escaping) | identical |
+| 526 | [top-rank-per-group](top-rank-per-group.a68) | [Top rank per group](https://rosettacode.org/wiki/Top_rank_per_group) | identical |
+| 527 | [total-circles-area](total-circles-area.a68) | [Total circles area](https://rosettacode.org/wiki/Total_circles_area) | identical |
+| 528 | [totient-function](totient-function.a68) | [Totient function](https://rosettacode.org/wiki/Totient_function) | identical |
+| 529 | [trigonometric-functions](trigonometric-functions.a68) | [Trigonometric functions](https://rosettacode.org/wiki/Trigonometric_functions) | identical |
+| 530 | [tropical-algebra-overloading](tropical-algebra-overloading.a68) | [Tropical algebra overloading](https://rosettacode.org/wiki/Tropical_algebra_overloading) | identical |
+| 531 | [twin-primes-whose-sum-is-square-number-1](twin-primes-whose-sum-is-square-number-1.a68) | [Twin primes whose sum is square number](https://rosettacode.org/wiki/Twin_primes_whose_sum_is_square_number) | identical |
+| 532 | [two-identical-strings](two-identical-strings.a68) | [Two identical strings](https://rosettacode.org/wiki/Two_identical_strings) | identical |
+| 533 | [two-sum](two-sum.a68) | [Two sum](https://rosettacode.org/wiki/Two_sum) | identical |
+| 534 | [twos-complement](twos-complement.a68) | [Two's complement](https://rosettacode.org/wiki/Two's_complement) | identical |
+| 535 | [undefined-values](undefined-values.a68) | [Undefined values](https://rosettacode.org/wiki/Undefined_values) | identical |
+| 536 | [unescape-a-string](unescape-a-string.a68) | [Unescape a string](https://rosettacode.org/wiki/Unescape_a_string) | identical |
+| 537 | [unique-characters-1](unique-characters-1.a68) | [Unique characters](https://rosettacode.org/wiki/Unique_characters) | identical |
+| 538 | [unique-characters-2](unique-characters-2.a68) | [Unique characters](https://rosettacode.org/wiki/Unique_characters) | identical |
+| 539 | [unique-characters-in-each-string](unique-characters-in-each-string.a68) | [Unique characters in each string](https://rosettacode.org/wiki/Unique_characters_in_each_string) | identical |
+| 540 | [upc](upc.a68) | [UPC](https://rosettacode.org/wiki/UPC) | identical |
+| 541 | [url-decoding](url-decoding.a68) | [URL decoding](https://rosettacode.org/wiki/URL_decoding) | identical |
+| 542 | [url-encoding](url-encoding.a68) | [URL encoding](https://rosettacode.org/wiki/URL_encoding) | identical |
+| 543 | [van-der-corput-sequence](van-der-corput-sequence.a68) | [Van der Corput sequence](https://rosettacode.org/wiki/Van_der_Corput_sequence) | identical |
+| 544 | [van-eck-sequence](van-eck-sequence.a68) | [Van Eck sequence](https://rosettacode.org/wiki/Van_Eck_sequence) | identical |
+| 545 | [variable-declaration-reset](variable-declaration-reset.a68) | [Variable declaration reset](https://rosettacode.org/wiki/Variable_declaration_reset) | identical |
+| 546 | [variadic-function](variadic-function.a68) | [Variadic function](https://rosettacode.org/wiki/Variadic_function) | identical |
+| 547 | [verhoeff-algorithm](verhoeff-algorithm.a68) | [Verhoeff algorithm](https://rosettacode.org/wiki/Verhoeff_algorithm) | identical |
+| 548 | [vigen-re-cipher](vigen-re-cipher.a68) | [Vigenère cipher](https://rosettacode.org/wiki/Vigenère_cipher) | identical |
+| 549 | [visualize-a-tree](visualize-a-tree.a68) | [Visualize a tree](https://rosettacode.org/wiki/Visualize_a_tree) | identical |
+| 550 | [wasteful-equidigital-and-frugal-numbers](wasteful-equidigital-and-frugal-numbers.a68) | [Wasteful, equidigital and frugal numbers](https://rosettacode.org/wiki/Wasteful,_equidigital_and_frugal_numbers) | identical |
+| 551 | [weird-numbers](weird-numbers.a68) | [Weird numbers](https://rosettacode.org/wiki/Weird_numbers) | identical |
+| 552 | [welchs-t-test](welchs-t-test.a68) | [Welch's t-test](https://rosettacode.org/wiki/Welch's_t-test) | identical |
+| 553 | [wordle-comparison](wordle-comparison.a68) | [Wordle comparison](https://rosettacode.org/wiki/Wordle_comparison) | identical |
+| 554 | [worthwhile-task-shaving](worthwhile-task-shaving.a68) | [Worthwhile task shaving](https://rosettacode.org/wiki/Worthwhile_task_shaving) | identical |
+| 555 | [write-entire-file](write-entire-file.a68) | [Write entire file](https://rosettacode.org/wiki/Write_entire_file) | identical |
+| 556 | [write-float-arrays-to-a-text-file](write-float-arrays-to-a-text-file.a68) | [Write float arrays to a text file](https://rosettacode.org/wiki/Write_float_arrays_to_a_text_file) | identical |
+| 557 | [xml-output-1](xml-output-1.a68) | [Output](https://rosettacode.org/wiki/XML/Output) | identical |
+| 558 | [yellowstone-sequence](yellowstone-sequence.a68) | [Yellowstone sequence](https://rosettacode.org/wiki/Yellowstone_sequence) | identical |
+| 559 | [zebra-puzzle](zebra-puzzle.a68) | [Zebra puzzle](https://rosettacode.org/wiki/Zebra_puzzle) | identical |
+| 560 | [zeckendorf-number-representation](zeckendorf-number-representation.a68) | [Zeckendorf number representation](https://rosettacode.org/wiki/Zeckendorf_number_representation) | identical |
+| 561 | [zero-to-the-zero-power](zero-to-the-zero-power.a68) | [Zero to the zero power](https://rosettacode.org/wiki/Zero_to_the_zero_power) | identical |
+| 562 | [zig-zag-matrix](zig-zag-matrix.a68) | [Zig-zag matrix](https://rosettacode.org/wiki/Zig-zag_matrix) | identical |

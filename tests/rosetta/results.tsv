@@ -425,7 +425,7 @@ fizzbuzz-1	FizzBuzz	compile error: error: construct beginning with '(' in line 1
 fizzbuzz-2	FizzBuzz	exit 0	pass	
 fizzbuzz-3	FizzBuzz	exit 0	pass	
 flatten-a-list-1	Flatten-a-list	compile error: error: '([] [] [] int, proc (ref FILE) void)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
-flatten-a-list-2	Flatten-a-list	compile error: error: tag 'associate' has not been declared properly	-	
+flatten-a-list-2	Flatten-a-list	compile error: error: '([] [] [] [] [] [] [] [] [] int)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
 flow-control-structures-1	Flow-control-structures	compile error: error: construct beginning with '(' in line 13 followed by '$' and then 'exited when: i=' and a specification and ', j='	-	
 flow-control-structures-2	Flow-control-structures	exit 0	pass	
 flow-control-structures-3	Flow-control-structures	exit 0	pass	
@@ -536,12 +536,12 @@ idoneal-numbers	Idoneal-numbers	exit 0	pass
 implicit-type-conversion	Implicit-type-conversion	compile error: error: indicant FORMAT has not been declared properly	-	
 inconsummate-numbers-in-base-10	Inconsummate-numbers-in-base-10	exit 0	pass	
 increasing-gaps-between-consecutive-niven-numbers	Increasing-gaps-between-consecutive-Niven-numbers	exit 0	pass	
-increment-a-numerical-string	Increment-a-numerical-string	compile error: error: tag 'associate' has not been declared properly	-	
+increment-a-numerical-string	Increment-a-numerical-string	exit 0	pass	
 infinity	Infinity	compile error: error: construct beginning with '(' in line 9 followed by '$' and then 'max int: ' and 'gl' and '$' and ',' and 'maxint'	-	
 inner-classes	Inner-classes	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): a routine text stored in a heap structure uses a parameter of a procedure that has already returned (no scope check in ga68); a68j keeps the frame alive
 input-output-for-lines-of-text	Input-Output-for-lines-of-text	exit 1	pass	
 input-output-for-pairs-of-numbers-1	Input-Output-for-pairs-of-numbers	exit 1	pass	
-input-output-for-pairs-of-numbers-2	Input-Output-for-pairs-of-numbers	compile error: error: tag 'associate' has not been declared properly	-	
+input-output-for-pairs-of-numbers-2	Input-Output-for-pairs-of-numbers	exit 1	pass	
 input-loop-1	Input-loop	exit 0	pass	
 input-loop-2	Input-loop	compile error: error: tag 'onpageend' has not been declared properly	-	
 integer-comparison	Integer-comparison	exit 1	pass	
@@ -568,7 +568,7 @@ jewels-and-stones	Jewels-and-stones	exit 0	pass
 jordan-p-lya-numbers	Jordan-P-lya-numbers	exit 0	pass	
 josephus-problem	Josephus-problem	compile error: error: construct beginning with '(' in line 18 followed by '$' and then 'n = ' and ',' and a specification and ',' and '	-	
 juggler-sequence	Juggler-sequence	compile error: error: int cannot be coerced to long int in a strong-unit	-	
-julia-set-1	Julia-set	compile error: error: tag 'associate' has not been declared properly	-	
+julia-set-1	Julia-set	exit 0	pass	
 julia-set-2	Julia-set	exit 0	pass	
 kahan-summation	Kahan-summation	exit 0	pass	
 kaprekar-numbers	Kaprekar-numbers	compile error: error: dyadic operator long int * int has not been declared	-	
@@ -624,7 +624,7 @@ literals-string-4	Literals-String	compile error: error: attempt to redefine keyw
 literals-string-5	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-6	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-7	Literals-String	compile error: error: clause does not yield a value	-	
-literals-string-8	Literals-String	compile error: error: tag 'associate' has not been declared properly	-	
+literals-string-8	Literals-String	exit 0	pass	
 literals-string-9	Literals-String	compile error: error: indicant FORMAT has not been declared properly	-	
 logical-operations	Logical-operations	compile error: error: *unworthy character	-	
 logistic-curve-fitting-in-epidemiology	Logistic-curve-fitting-in-epidemiology	exit 0	pass	
@@ -830,7 +830,7 @@ pan-base-non-primes	Pan-base-non-primes	missing include primes.incl.a68	-
 pandigital-prime-1	Pandigital-prime	exit 0	pass	
 pandigital-prime-2	Pandigital-prime	exit 0	pass	
 pangram-checker	Pangram-checker	exit 0	pass	
-parsing-rpn-calculator-algorithm	Parsing-RPN-calculator-algorithm	compile error: error: tag 'associate' has not been declared properly	-	
+parsing-rpn-calculator-algorithm	Parsing-RPN-calculator-algorithm	exit 1	pass	
 parsing-rpn-to-infix-conversion	Parsing-RPN-to-infix-conversion	exit 0	pass	
 parsing-shunting-yard-algorithm	Parsing-Shunting-yard-algorithm	exit 0	pass	
 partial-function-application	Partial-function-application	compile error: error: indicant FORMAT has not been declared properly	-	
@@ -965,14 +965,14 @@ range-extraction-1	Range-extraction	compile error: error: indicant SCALAR has no
 range-extraction-2	Range-extraction	missing include Template_Range_extraction_Base.a68	-	
 range-extraction-3	Range-extraction	missing include Template_Range_extraction_Iterative.a68	-	
 range-extraction-4	Range-extraction	missing include Template_Range_extraction_Base.a68	-	
-range-modifications	Range-modifications	compile error: error: tag 'associate' has not been declared properly	-	
+range-modifications	Range-modifications	exit 0	pass	
 ranking-methods	Ranking-methods	exit 0	pass	
 rare-numbers	Rare-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 ray-casting-algorithm	Ray-casting-algorithm	exit 0	pass	
 read-a-file-line-by-line	Read-a-file-line-by-line	compile error: error: indicant FORMAT has not been declared properly	-	
 read-a-specific-line-from-a-file	Read-a-specific-line-from-a-file	exit 0	pass	
 read-entire-file-1	Read-entire-file	compile error: error: *unworthy character Â	-	
-read-entire-file-2	Read-entire-file	compile error: error: tag 'associate' has not been declared properly	-	
+read-entire-file-2	Read-entire-file	compile error: error: tag 'book' has not been declared properly	-	
 real-constants-and-functions	Real-constants-and-functions	compile error: error: construct beginning with '(' in line 10 followed by '$' and then a specification and '; ' and '$' and ',' and a s	-	
 reduced-row-echelon-form	Reduced-row-echelon-form	compile error: error: indicant FORMAT has not been declared properly	-	
 regular-expressions-1	Regular-expressions	compile error: error: construct beginning with '(' in line 17 followed by '$' and then 'ends with "' and 'g' and '"' and 'l' and '$' an	-	

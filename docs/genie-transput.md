@@ -49,13 +49,14 @@ ga68 -I. prog.a68 genietransput.o
 | `File`, `stand_in`, `stand_out`, `stand_error` | files and the three standard files; a `File` is a structure of the module, not the `file` of the Revised Report (ga68 does not provide that yet) |
 | `Channel`, `stand_in_channel`, `stand_out_channel`, `stand_back_channel` | channels: a file opened on them may be read, written, or both |
 | `open (f, name, channel)`, `establish (f, name, channel)`, `close (f)`, `reset (f)` | opening and closing files (below) |
+| `associate (f, s)` | `get` and `put` on the string variable `s` instead of a file (below) |
 | `newline`, `space`, `newpage`, `backspace` | layout procedures, `proc (ref File) void`, for output and for input |
 | `Outitem` | the modes `print` and `put` accept (below) |
 | `put (f, items)`, `print (items)`, `write (items)` | output to `f`, or to `stand_out` |
 | `Initem` | the modes `read` and `get` accept: names of `int`, `long int`, `long long int`, `real`, `long real`, `bool`, `char` and `string`, and the layout procedures |
 | `get (f, items)`, `read (items)` | input from `f`, or from `stand_in` |
 | `read_int`, `read_long_int`, `read_real`, `read_long_real`, `read_bool`, `read_char`, `read_string`, `read_line` | read one value from `stand_in`; `read_string` reads the rest of the line, `read_line` also consumes the newline |
-| `eof (f)`, `eoln (f)`, `make_term (f, s)` | end of file, end of line; the characters of `s` end a string that is read |
+| `eof (f)`, `eoln (f)`, `make_term (f, s)` | end of file; whether the next character is a newline; the characters of `s` end a string that is read |
 | `on_logical_file_end (f, p)`, `on_value_error (f, p)` | event handlers, `proc (ref File) bool` (below) |
 | `int_width`, `long_int_width`, `long_long_int_width`, `real_width`, `long_real_width`, `long_long_real_width`, `exp_width`, `long_exp_width`, `long_long_exp_width` | the environment enquiries of the transput (RR 10.3.1.1) |
 | `char_in_string`, `last_char_in_string`, `string_in_string` | string searching (RR 10.3.2.4, Algol 68 Genie); `pos` may be `nil` |
@@ -92,13 +93,21 @@ Reading follows Algol 68 Genie (measured with Algol 68 Genie 3.1.2):
   as `int` gives 7. A real is digits with an optional point and fraction
   and an optional exponent: `5.`, `.5e-1` and `1E5` are reals.
 - A `char` is the next character; at the end of a line it is the first
-  character of the next line that is not empty. A `bool` is read as a
-  `char` and must be `T` or `F` (a blank is a value error).
+  character of the next line that is not empty. At the end of the file
+  the first `char` read is `REPR 0`, without an event; the next ones
+  are the logical file end event. A `bool` is read as a `char` and must
+  be `T` or `F` (a blank is a value error).
 - A `string` is the rest of the line, up to the newline (which is not
   consumed) or a character of the terminator set by `make_term`; on an
   empty line it is `""`.
 - `newline` skips the rest of the line, including the newline; `space`
   skips one character.
+- `eof (f)` and `eoln (f)` need a file in read mood: before the first
+  `get` (after `open`, `establish`, `associate` or `reset`) they are the
+  error "file is in undetermined mood". `eoln` is true if the next
+  character is a newline; at the end of the file it is false, and the
+  first `eoln` there is the logical file end event, unless `eof` has
+  already found the end.
 
 A `long real` is correctly rounded: the first 18 significant digits are
 scaled by a power of ten in double-double arithmetic, with `+ - * /`
@@ -131,6 +140,29 @@ until it is closed or reset.
 | `reset (f)` | closes the file; the next `get` reads it from the start, the next `put` writes it anew |
 
 `open (stand_out, name, stand_out_channel)` redirects `print` to a file.
+
+## Strings
+
+`associate (f, s)` makes `f` read from and write to the string variable
+`s` (a `ref string`), as in Algol 68 Genie:
+
+```
+string s := "12 34"; int a, b;
+File f; associate (f, s);
+get (f, (a, b));                    { a = 12, b = 34 }
+reset (f); put (f, (whole (a + b, 0), newline));
+print (s)                           { "46" and a newline }
+```
+
+- `get` reads the characters of `s` from the start, with the same rules
+  as for a file; the end of the string is the end of the file. The
+  position is kept when `s` is changed in between.
+- The first `put` empties `s`; every `put` appends to the string that
+  `s` holds then (so `s` may be changed between two calls). `newline` and
+  `newpage` write the characters `"'n"` and `"'f"`.
+- As with a file, `f` is either read or written until it is reset;
+  `reset (f)` reads `s` from the start again, or lets the next `put`
+  empty it. `close (f)` ends the association.
 A transput error ends the program with a message on stderr and exit
 status 1, as in Algol 68 Genie, for example `runtime error: cannot open
 "x.txt" for getting, no such file or directory`, `runtime error: file is in
@@ -143,25 +175,28 @@ the end of the file and of input that does not fit the mode (or a number
 out of range). If the handler returns `true`, the event is handled: the
 item being read is left unchanged and reading goes on with the next item.
 If it returns `false`, or no handler is set, the program ends with an
-error. A handler may also jump out with `goto`. `open` and `establish`
-reset the handlers.
+error. A handler may also jump out with `goto`. `open`, `establish` and
+`associate` reset the handlers. Exceptions to "unchanged": a `char` or a
+`string` read at the end of the file becomes `REPR 0` or `""`, as in
+Algol 68 Genie.
 
-The end of the file is an event when a number, `char`, `bool` or `string`
-is read there, and for `newline` only if the last line is not empty (a
-last line without a newline still reads as a string).
+The end of the file is an event when a number, `bool` or `string` is read
+there, for a `char` from the second one on (see Reading), for `newline`
+only if the last line is not empty (a last line without a newline still
+reads as a string), and for the first `eoln` there.
 
 ## Differences from Algol 68 Genie
 
 - `int` has 32 bits (as in ga68): `2147483648` read as `int` is a value
   error.
-- A handler is called once per item; Algol 68 Genie calls it up to three
-  times for one item.
-- After a handled event the item is unchanged; Algol 68 Genie assigns
-  what it has read so far (`""`, `0`, `1.5` for `1.5e+x`).
+- A handler is called once per item. Once the end of the file has been
+  reached, Algol 68 Genie calls it several times for one item (twice for
+  a `char` or `newline`, three times for the other modes), and after an
+  event of `eoln` it treats the next number as a value error.
+- After a handled value error the item is unchanged; Algol 68 Genie
+  assigns what it has read so far (`1.5` for `1.5e+x`).
 - An exponent without digits before it (`e5`) is not part of a real; Algol
   68 Genie consumes it.
-- At the end of the file a `char` is an event; Algol 68 Genie sometimes
-  delivers `REPR 0` instead.
 - `reset` is allowed on every opened file; Algol 68 Genie refuses it for
   `stand_out_channel` ("cannot reset file").
 - Reading with `getchar` or `fgetc` on the same file loses the character
@@ -169,8 +204,9 @@ last line without a newline still reads as a string).
 
 ## Not provided
 
-- formats (`$...$`, `printf`);
-- `create`, `associate` (transput to a string), the events other than
+- formats (`$...$`, `printf`): ga68 does not compile format texts, see
+  [`TODO-formats.md`](TODO-formats.md);
+- `create`, the events other than
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above
   (`stand_draw_channel` ...);
@@ -191,8 +227,12 @@ A module named `Transput` compiles, but `access Transput` then fails with
 - `tests/extra/genie-transput-1.a68` prints every mode that `print`
   accepts and uses all output procedures of the module;
   `tests/extra/genie-transput-read-1.a68` writes a file and reads it back
-  with all the reading procedures, events and opening procedures; ga68 and
-  a68j give the same output.
+  with all the reading procedures, events and opening procedures;
+  `tests/extra/genie-transput-associate-1.a68` reads from and writes to
+  strings; ga68 and a68j give the same output. The associate test gives the
+  same output with Algol 68 Genie too (converted to UPPER stropping),
+  except for the widths of the numbers and the position in the last error
+  message.
 - All Rosetta Code programs (`tests/rosetta`) run inside
   `access Genie_Transput ( ... )`; `tools/a68supper.py` converts their
   `FILE` and `CHANNEL` to `File` and `Channel`.

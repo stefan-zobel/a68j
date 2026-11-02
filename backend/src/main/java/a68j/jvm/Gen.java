@@ -73,18 +73,89 @@ public final class Gen {
     }
 
     /**
-     * As a68_lower_unimplemented: a use of a standard identifier or operator
-     * that ga68 declares without a lowering routine (Tag#unimplemented) is
-     * a fatal error. Checked in tree order before the code is generated.
+     * As a68_get_skip_tree: ga68 has no SKIP value for the modes FILE,
+     * CHANNEL, BYTES and LONG BYTES (nor for a structure with a field of
+     * such a mode, or a union whose first alternative is one), and stops
+     * with a fatal error where its lowering needs one. That is the case
+     * for an identity declaration, a LOC variable declaration without rows
+     * (a HEAP variable or one with rows is a pointer, whose SKIP value is
+     * NIL), a SKIP unit, and the result of a closed, conditional, case or
+     * conformity clause. a68j has representations for these modes, so without
+     * this check it would accept the programs. The call sites of ga68 that
+     * are not mirrored here (such as formal holes) are rare.
+     *
+     * <p>As a68_lower_unimplemented: a use of a standard identifier or
+     * operator that ga68 declares without a lowering routine
+     * (Tag#unimplemented) is a fatal error too.
+     *
+     * <p>Both are checked in one walk in tree order before the code is
+     * generated, a declaration before the units inside it, so that the
+     * first error is the one ga68 reports.
      */
-    private void checkImplemented(Node p) {
+    private void checkLowering(Node p) {
         for (; p != null; p = p.next) {
             if ((p.attribute == Attribute.IDENTIFIER || p.attribute == Attribute.OPERATOR) && p.tag != null
                     && p.tag.unimplemented && !(a68.options().parThreads && isSemaOperator(p.tag))) {
                 throw new Fatal(p, "no lowering routine installed for construct.  jemarch has been lazy");
             }
-            checkImplemented(p.sub);
+            switch (p.attribute) {
+                case IDENTITY_DECLARATION -> {
+                    List<Node> defs = new ArrayList<>();
+                    GenDecls.definitions(p, defs);
+                    for (Node q : defs) {
+                        if (q.tag != null) {
+                            needSkip(q, q.tag.type);
+                        }
+                    }
+                }
+                case VARIABLE_DECLARATION -> {
+                    List<Node> defs = new ArrayList<>();
+                    GenDecls.definitions(p, defs);
+                    for (Node q : defs) {
+                        Tag t = q.tag;
+                        Moid m = t == null ? null : JType.base(t.type);
+                        if (m != null && m.sub != null && t.heap != Attribute.HEAP_SYMBOL
+                                && !JType.base(m.sub).hasRows) {
+                            needSkip(q, m.sub);
+                        }
+                    }
+                }
+                case SKIP, CLOSED_CLAUSE, CONDITIONAL_CLAUSE, CASE_CLAUSE, CONFORMITY_CLAUSE -> needSkip(p, p.type);
+                default -> { }
+            }
+            checkLowering(p.sub);
         }
+    }
+
+    private void needSkip(Node p, Moid m) {
+        Moid bad = withoutSkip(m, 0);
+        if (bad != null) {
+            throw new Fatal(p, "get skip tree: cannot compute SKIP for mode "
+                    + a68j.front.MoidsToString.moidToString(a68, bad, a68j.front.Parser.MOID_ERROR_WIDTH, null));
+        }
+    }
+
+    /** The mode within M for which a68_get_skip_tree fails, or null. */
+    private Moid withoutSkip(Moid m, int depth) {
+        m = JType.base(m);
+        if (m == null || depth > 50) {
+            return null;
+        }
+        a68j.front.Modes md = a68.modes;
+        if (m == md.FILE || m == md.CHANNEL || m == md.BYTES || m == md.LONG_BYTES) {
+            return m;
+        }
+        if (m.attribute == Attribute.STRUCT_SYMBOL) {
+            for (a68j.front.Pack z = m.pack; z != null; z = z.next) {
+                Moid bad = withoutSkip(z.type, depth + 1);
+                if (bad != null) {
+                    return bad;
+                }
+            }
+        } else if (m.attribute == Attribute.UNION_SYMBOL && m.pack != null) {
+            return withoutSkip(m.pack.type, depth + 1);
+        }
+        return null;
     }
 
     /** Whether T is one of the SEMA operators LEVEL, UP and DOWN (available with -fpar-threads). */
@@ -290,7 +361,7 @@ public final class Gen {
     /** Compile the program (or module); returns the class file. */
     public byte[] compile() {
         Node top = a68.job.topNode;
-        checkImplemented(top);
+        checkLowering(top);
         Routine program = new Routine(0, top, null, "program");
         routines.add(program);
         routineOf.put(top, program);
@@ -475,7 +546,16 @@ public final class Gen {
         }
         String k = keys.toString();
         clb.withMethodBody("pubKeys", MethodTypeDesc.of(CD_String), ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
-            code.ldc(k);
+            // A string constant holds at most 65535 bytes of modified UTF-8
+            // (the keys of a module with many procedures on a large
+            // structure can be longer): constants of at most 16384
+            // characters (3 bytes each at most), concatenated.
+            int chunk = 16384;
+            code.ldc(k.substring(0, Math.min(chunk, k.length())));
+            for (int from = chunk; from < k.length(); from += chunk) {
+                code.ldc(k.substring(from, Math.min(from + chunk, k.length())));
+                code.invokevirtual(CD_String, "concat", MethodTypeDesc.of(CD_String, CD_String));
+            }
             code.areturn();
         });
         Routine program = routines.get(0);

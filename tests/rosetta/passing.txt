@@ -222,6 +222,7 @@ humble-numbers
 idoneal-numbers
 inconsummate-numbers-in-base-10
 increasing-gaps-between-consecutive-niven-numbers
+increment-a-numerical-string
 input-loop-1
 integer-overflow-1
 intersecting-number-wheels
@@ -237,6 +238,7 @@ jaro-similarity
 jensens-device
 jewels-and-stones
 jordan-p-lya-numbers
+julia-set-1
 julia-set-2
 kahan-summation
 klarner-rado-sequence
@@ -256,6 +258,7 @@ length-of-an-arc-between-two-angles
 leonardo-numbers
 levenshtein-distance
 literals-floating-point
+literals-string-8
 logistic-curve-fitting-in-epidemiology
 long-primes
 long-year
@@ -402,6 +405,7 @@ rainbow
 ramer-douglas-peucker-line-simplification
 range-consolidation
 range-expansion
+range-modifications
 ranking-methods
 ray-casting-algorithm
 read-a-specific-line-from-a-file

@@ -52,8 +52,8 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 471 of 472 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 29 of 29 |
-| Rosetta Code programs that ga68 runs | 602 identical, 2 equal up to floating-point rounding, 8 open, of 612 |
+| a68j's own differential tests (`tests/extra`) | 31 of 31 |
+| Rosetta Code programs that ga68 runs | 608 identical (560 of them end normally), 2 equal up to floating-point rounding, 8 open, of 618 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 44 of 44, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
@@ -61,8 +61,8 @@ Hello, world!
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
 prelude (`puts`, `putchar`, `fputs` ...). The bundled module
-`Genie_Transput` provides `print`, `newline`, `put`, `read`, `get`, `open`
-and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
+`Genie_Transput` provides `print`, `newline`, `put`, `read`, `get`, `open`,
+`associate` and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
 ga68 alike
 ([docs/genie-transput.md](docs/genie-transput.md)). 80-bit
 `long long real` is out of scope.
@@ -257,6 +257,8 @@ The detailed documentation is in `docs/`:
 - `docs/optimizations.md`: optimizations.
 - `docs/java-modules.md`: Java interop and the bundled modules.
 - `docs/genie-transput.md`: the bundled module `Genie_Transput` (`print`, `newline`, ...).
+- `docs/TODO-formats.md`: formats (`printf`), not implemented yet.
+- `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
 - `docs/par-and-sema.md`: parallel clauses.
 - `docs/editor.md`: grammar and HTML renderer.
 

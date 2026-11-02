@@ -2,7 +2,9 @@
 package a68j.rt;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.NonReadableChannelException;
@@ -11,11 +13,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +53,12 @@ import java.util.Map;
  * surrogate, or the EOF character) cannot be converted: fopen and fcreate
  * then fail with EFAULT, fputs and puts write nothing, return 0 and set
  * errno to EILSEQ, and getenv returns the empty string.
+ *
+ * <p>fsize and lseek also work on descriptors 0 to 2, as fstat and lseek
+ * do: a redirected file has its size and position, a pipe or a terminal
+ * size 0 and no position (ESPIPE). Standard input is buffered here, and
+ * lseek on it accounts for the bytes read ahead. fcreate gives a new file
+ * the permission bits of its mode less the umask, as creat.
  */
 public final class Posix {
     private Posix() {}
@@ -86,7 +100,15 @@ public final class Posix {
     private static int sysErrno;
     private static final Map<Integer, FileChannel> FILES = new HashMap<>();
     private static int nextFd = 3;
-    private static final InputStream IN = System.in;
+    /**
+     * Standard input, read through a buffer of our own (not System.in), so
+     * that lseek on descriptor 0 knows how many bytes were read ahead.
+     */
+    private static final FileInputStream STDIN = new FileInputStream(FileDescriptor.in);
+    private static final byte[] INBUF = new byte[8192];
+    private static int inPos, inLim;
+    /** Channels of descriptors 0 to 2 for fsize and lseek (fstat and lseek of the descriptor). */
+    private static final FileChannel[] STD = new FileChannel[3];
     private static final ByteBuffer ONE = ByteBuffer.allocate(1);
 
     public static int stdin() { return 0; }
@@ -182,8 +204,30 @@ public final class Posix {
 
     /** open(2) with the given options; errno is copied afterwards, as in libga68. */
     private static synchronized int open(String path, OpenOption... options) {
+        return open(path, null, options);
+    }
+
+    /**
+     * open(2) with the given options and, if PERMS is not null, with these
+     * permission bits for a file that is created (the kernel applies the
+     * umask, as for creat). On a file system without POSIX permissions the
+     * file is created without them.
+     */
+    private static synchronized int open(String path, Set<PosixFilePermission> perms, OpenOption... options) {
         try {
-            FileChannel ch = FileChannel.open(Path.of(path), options);
+            Path p = Path.of(path);
+            Set<OpenOption> opts = Set.of(options);
+            FileChannel ch;
+            if (perms == null) {
+                ch = FileChannel.open(p, opts);
+            } else {
+                FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
+                try {
+                    ch = FileChannel.open(p, opts, attr);
+                } catch (UnsupportedOperationException e) {
+                    ch = FileChannel.open(p, opts);
+                }
+            }
             FILES.put(nextFd, ch);
             return nextFd++;
         } catch (IOException | InvalidPathException | SecurityException e) {
@@ -254,15 +298,51 @@ public final class Posix {
     }
 
     /**
-     * creat(2): create or truncate the file, write-only. The permission bits
-     * MODE are not applied: the file gets the default permissions.
+     * creat(2): create or truncate the file, write-only. A new file gets the
+     * permission bits 0777 of MODE less the umask (the kernel applies it
+     * when the file is created), and then the bits 07000 of MODE
+     * (set-user-ID, set-group-ID, sticky), which creat applies as well, by
+     * the "unix" attribute view where the platform has it. An existing file
+     * keeps its permissions.
      */
     public static synchronized int fcreate(Row path, int mode) {
         String p = utf8String(path);
         if (p == null) {
             return badPath();
         }
-        return open(p, WRITE, StandardOpenOption.CREATE, TRUNC);
+        boolean existed;
+        try {
+            existed = Files.exists(Path.of(p));
+        } catch (InvalidPathException | SecurityException e) {
+            existed = true;
+        }
+        int fd = open(p, permissions(mode), WRITE, StandardOpenOption.CREATE, TRUNC);
+        if (fd >= 0 && !existed && (mode & 07000) != 0) {
+            try {
+                Path q = Path.of(p);
+                int now = (Integer) Files.getAttribute(q, "unix:mode") & 0777;
+                Files.setAttribute(q, "unix:mode", now | (mode & 07000));
+            } catch (IOException | RuntimeException e) {
+                // No "unix" view, or not permitted: the file keeps the bits 0777.
+            }
+        }
+        return fd;
+    }
+
+    /** The permissions of the bits 0777 of MODE. */
+    private static Set<PosixFilePermission> permissions(int mode) {
+        Set<PosixFilePermission> s = EnumSet.noneOf(PosixFilePermission.class);
+        PosixFilePermission[] bits = {
+            PosixFilePermission.OTHERS_EXECUTE, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_READ,
+            PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.GROUP_WRITE, PosixFilePermission.GROUP_READ,
+            PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_READ,
+        };
+        for (int i = 0; i < bits.length; i++) {
+            if ((mode & (1 << i)) != 0) {
+                s.add(bits[i]);
+            }
+        }
+        return s;
     }
 
     public static int fconnect(Row host, int port) {
@@ -291,13 +371,36 @@ public final class Posix {
         }
     }
 
-    /** fsize: the size of the file; errno is set only when the size is not known. */
+    /**
+     * The channel of descriptor FD, or null. For 0 to 2 it is a channel of
+     * the standard stream (its size is that of fstat, 0 for a pipe or a
+     * terminal; its position that of lseek, which fails for them); written
+     * output is flushed first.
+     */
+    private static FileChannel channel(int fd) {
+        if (fd < 0 || fd > 2) {
+            return FILES.get(fd);
+        }
+        if (fd == 1) {
+            Rt.OUT.flush();
+        } else if (fd == 2) {
+            Rt.OUT.flush();
+            System.err.flush();
+        }
+        if (STD[fd] == null) {
+            STD[fd] = switch (fd) {
+                case 0 -> STDIN.getChannel();
+                case 1 -> new FileOutputStream(FileDescriptor.out).getChannel();
+                default -> new FileOutputStream(FileDescriptor.err).getChannel();
+            };
+        }
+        return STD[fd];
+    }
+
+    /** fsize (fstat): the size of the file; errno is set only when the size is not known. */
     public static synchronized long fsize(int fd) {
-        FileChannel f = FILES.get(fd);
+        FileChannel f = channel(fd);
         if (f == null) {
-            if (fd >= 0 && fd <= 2) {
-                return 0;
-            }
             sysErrno = EBADF;
             errno = EBADF;
             return -1;
@@ -311,25 +414,46 @@ public final class Posix {
         }
     }
 
+    /**
+     * lseek: WHENCE is seek_cur (0), seek_end (1) or seek_set (2) of the
+     * POSIX module. As in Linux, a pipe or a terminal fails with ESPIPE
+     * whatever the arguments, and a negative position with EINVAL. For
+     * descriptor 0 the position is that of the next byte the program
+     * reads, so the bytes read ahead into the buffer are subtracted, and
+     * a successful seek drops them. A device that ignores the position,
+     * such as /dev/null, accepts any offset and yields 0, as in Linux.
+     */
     public static synchronized long lseek(int fd, long offset, int whence) {
-        FileChannel f = FILES.get(fd);
+        FileChannel f = channel(fd);
         try {
             if (f == null) {
                 sysErrno = EBADF;
                 return -1;
             }
+            long raw = f.position();
+            long cur = fd == 0 ? raw - (inLim - inPos) : raw;
             long pos = switch (whence) {
-                case 0 -> f.position() + offset;
+                case 0 -> cur + offset;
                 case 1 -> f.size() + offset;
                 case 2 -> offset;
                 default -> -1;
             };
             if (pos < 0) {
-                sysErrno = EINVAL;
-                return -1;
+                // A device that ignores the position (/dev/null, /dev/zero)
+                // accepts any offset and yields 0; a file fails with EINVAL.
+                f.position(raw + 1);
+                if (f.position() != raw) {
+                    f.position(raw);
+                    sysErrno = EINVAL;
+                    return -1;
+                }
+                pos = 0;
+            }
+            if (fd == 0) {
+                inPos = inLim = 0;
             }
             f.position(pos);
-            return pos;
+            return f.position();
         } catch (IOException e) {
             sysErrno = errnoOf(e);
             return -1;
@@ -347,7 +471,15 @@ public final class Posix {
         try {
             if (fd == 0) {
                 Rt.OUT.flush();
-                return IN.read();
+                if (inPos == inLim) {
+                    int n = STDIN.read(INBUF);
+                    if (n <= 0) {
+                        return -1;
+                    }
+                    inPos = 0;
+                    inLim = n;
+                }
+                return INBUF[inPos++] & 0xff;
             }
             FileChannel f = FILES.get(fd);
             if (f == null) {
