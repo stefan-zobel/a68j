@@ -210,6 +210,10 @@ reads as a string), and for the first `eoln` there.
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above
   (`stand_draw_channel` ...);
+- rows of rows (`[] [] int` ...) as items of `print` or `put`: the
+  union `OUTITEM` has rows of the plain modes only, and a union cannot
+  cover rows of any depth; a68g straightens them (Rosetta
+  `flatten-a-list-2` fails to compile for this reason);
 - values of mode `long long real` (80-bit `long long real` is out of scope
   for a68j);
 - `[,] char`: a union with both `string` and `[,] char` makes ga68 crash

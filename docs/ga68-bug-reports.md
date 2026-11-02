@@ -14,6 +14,10 @@ glibc. The programs use SUPPER stropping and are compiled with
 Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
 has an obvious expected result. Line numbers refer to the commit above.
 
+As of 2 November 2026 none of these entries has been filed. Entries 10
+to 13 have reproducers and the measured behavior, but their causes in the
+sources have not been examined yet.
+
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
 where ga68 crashes or reads uninitialized memory.
@@ -29,6 +33,10 @@ where ga68 crashes or reads uninitialized memory.
 | 7 | libga68 `ga68-posix.c` | `argv (0)` reads `argv[-1]` and crashes | returns "" |
 | 8 | ga68 `a68-low-strings.cc` | `a68_string_from_char` allocates 1 byte for a 4-byte character | not affected |
 | 9 | ga68 | a routine text that is called after the procedure that yielded it has returned jumps into a dead stack frame | correct |
+| 10 | ga68 | `flex [1 : n] char x` gets the bounds `[1 : 0]` | reproduces |
+| 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | reproduces |
+| 12 | ga68 | a conformity clause on a union of `string` and `[,] char`: internal compiler error in `verify_gimple` | correct |
+| 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
 
@@ -373,6 +381,62 @@ called later (see `tests/rosetta/notes.tsv`).
 Possible fix: lift a routine text that uses no names of the enclosing
 procedure out of it (give it the static chain of the range it really
 depends on), or at least diagnose the case.
+
+## 10. `flex [1 : n] char x` gets the bounds `[1 : 0]`
+
+```
+begin int n = 5; flex [1 : n] char x;
+      puts (whole (LWB x, 0) + " " + whole (UPB x, 0) + "'n")
+end
+```
+
+ga68 prints `1 0`; a68g gives the bounds 1 and 5, as the declarer says.
+The cause has not been examined.
+
+## 11. `%*:=` computes the C remainder
+
+```
+begin int a := -7; a %*:= 3;
+      puts (whole (a, 0) + " " + whole (-7 MOD 3, 0) + "'n")
+end
+```
+
+ga68 prints `-1 2`: `MOD` is correct (the result is never negative), but
+`a %*:= b`, which is `a := a MOD b`, gives the remainder of the C `%`
+operator. a68g prints 2 for both. The cause has not been examined.
+
+## 12. Internal compiler error for a union of `string` and `[,] char`
+
+```
+begin union (string, [,] char) u := "abc";
+      case u in (string s): puts (s + "'n"), ([,] char m): puts ("m'n") esac
+end
+```
+
+ga68 stops with `error: non-trivial conversion in 'component_ref'` and
+`internal compiler error: 'verify_gimple' failed`. The cause has not
+been examined.
+
+## 13. Internal compiler errors for clauses with statements in a subscript or a selection
+
+```
+begin [3] int v := (1, 2, 3); int i := 2;
+      puts (whole (v[(puts ("x"); i)], 0) + "'n")
+end
+```
+
+ga68: `internal compiler error: in a68_lower_slice, at
+algol68/a68-low-units.cc:792`. The expected output is `x2`.
+
+```
+begin mode P = struct (int a, b); P p := (1, 2);
+      a of (puts ("x"); p) := 5;
+      puts (whole (a of p, 0) + "'n")
+end
+```
+
+ga68: `internal compiler error: gimplification failed`. The expected
+output is `x5`. The causes have not been examined.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

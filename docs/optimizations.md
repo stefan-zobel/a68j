@@ -389,7 +389,8 @@ the whole method, with no profile for the code after the hot loop.
   first attempt to estimate the size from the number of nodes in the tree
   was useless: the bytes per node of the 2270 methods of the Rosetta
   programs ranged from 0.4 to 6.7.) A method that is too large and has
-  no loop stays as it is.
+  no loop stays as it is (measurements and a plan for that case:
+  [`TODO-method-size.md`](TODO-method-size.md)).
 - **What the loop method gets:** the frame of the enclosing method and
   the value of every JVM local the loop uses. Identities and the names of
   variables never change, so a copy is enough. An own variable is passed
