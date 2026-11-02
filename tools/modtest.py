@@ -1,4 +1,4 @@
-"""Helpers for the multi-packet tests (testsuite/algol68/execute/modules):
+"""Helpers for the multi-packet tests (tests/ga68/execute/modules):
 which module packets a program needs and which extra options it has."""
 import os, re
 
@@ -31,16 +31,20 @@ def modules_for(path):
 
 def module_map_opts(path):
     """-fmodules-map / -fmodules-map-file options of the program, with
-    $srcdir expanded to the testsuite directory."""
+    $srcdir/algol68/execute expanded to the directory "execute" the program
+    is in (gcc/testsuite/algol68/execute in GCC, tests/ga68/execute in
+    a68j)."""
     text = open(path, encoding="latin-1").read()
     m = re.search(r'dg-options\s+(?:"([^"]*)"|\{([^}]*)\})', text)
     if not m:
         return []
-    srcdir = os.path.abspath(os.path.join(os.path.dirname(path), "..", "..", ".."))
+    execute = os.path.dirname(os.path.abspath(path))
+    while os.path.basename(execute) != "execute" and os.path.dirname(execute) != execute:
+        execute = os.path.dirname(execute)
     out = []
     for o in (m.group(1) or m.group(2)).split():
         if o.startswith("-fmodules-map"):
-            out.append(o.replace("$srcdir", srcdir))
+            out.append(o.replace("$srcdir/algol68/execute", execute))
     return out
 
 

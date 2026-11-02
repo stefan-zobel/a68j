@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": -6,
+ "file": "dim-error-1.a68",
+ "stderr": "dim-error-1.a68:2: runtime error: invalid dimension 3; shall be > 0 and <= 2\n",
+ "stdout": "29\n"
+}

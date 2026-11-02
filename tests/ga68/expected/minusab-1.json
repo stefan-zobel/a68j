@@ -1,0 +1,8 @@
+{
+ "cerr": "minusab-1.a68:37:10: warning: skipped superfluous semi-symbol\n   37 |       END;\n      |          ^\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "minusab-1.a68",
+ "stderr": "",
+ "stdout": ""
+}

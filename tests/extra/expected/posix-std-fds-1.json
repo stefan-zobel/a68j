@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "posix-std-fds-1.a68",
+ "stderr": "",
+ "stdout": "fsize stdin 0 errno 0\nlseek stdin cur 0 errno 0\nlseek stdin set 3 0 errno 0\nfgetc stdin -1 errno 0\nfsize stdout 0 errno 0\nlseek stdout cur -1 errno 29\nlseek stdout set -5 -1 errno 29\nfsize stderr 0 errno 29\nlseek stderr end -1 errno 29\nlseek stdin set -5 0 errno 29\nfsize 99 -1 errno 9\nlseek 99 -1 errno 9\n"
+}

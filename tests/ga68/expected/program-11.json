@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: program-11.mod/module3.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "program-11.a68",
+ "stderr": "",
+ "stdout": "Hello from module\n"
+}

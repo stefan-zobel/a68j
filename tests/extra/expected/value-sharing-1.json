@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "value-sharing-1.a68",
+ "stderr": "",
+ "stdout": "1 1 2\ntri13\n1 42 tri 0 7\n6 5 0 5\n36\nseen 0\nafter jump 0\ninner 0\ninner 2\n"
+}

@@ -1,0 +1,5 @@
+{
+ "cerr": "/usr/bin/ld: cc.o: in function `__algol68_main':\nconj-1.a68:(.text+0x7b): undefined reference to `STANDARD_CONJ15'\n/usr/bin/ld: conj-1.a68:(.text+0xad): undefined reference to `STANDARD_CONJ35'\n/usr/bin/ld: conj-1.a68:(.text+0xf6): undefined reference to `STANDARD_CONJ55'\ncollect2: error: ld returned 1 exit status\n",
+ "compile": 1,
+ "file": "conj-1.a68"
+}

@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": -6,
+ "file": "loop-methods-1.a68",
+ "stderr": "loop-methods-1.a68:54: runtime error: bound 20 out of range [1:10]\n",
+ "stdout": "385 5.00\n42 125\n60\n30\ntrue\n1048576\n+13+10+11\n2 17\n500 3500\n28\n485\n5050\n6\n"
+}

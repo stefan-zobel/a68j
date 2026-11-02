@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": -6,
+ "file": "bits-elem-error-1.a68",
+ "stderr": "bits-elem-error-1.a68:2: runtime error: bound 40 out of range in ELEM\n",
+ "stdout": "n2\n"
+}

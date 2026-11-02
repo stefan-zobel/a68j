@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "proc-25.a68",
+ "stderr": "",
+ "stdout": ""
+}

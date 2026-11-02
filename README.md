@@ -268,6 +268,9 @@ The differential runners compile every program with ga68 and with a68j
 and compare output and exit status:
 
 ```sh
+S=tests/ga68/execute              # the ga68 test suite (tests/ga68/README.md)
+python3 tools/run_jvm.py --native tests/ga68/expected $S/*.a68 $S/mcgt/*.a68 $S/modules/*.a68
+python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 sh tools/java_tests.sh            # nest Java, Lists, Hashmaps

@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": -6,
+ "file": "hoist-rows-2.a68",
+ "stderr": "hoist-rows-2.a68:9: runtime error: bound 6 out of range [1:5]\n",
+ "stdout": "1\n3\n6\n10\n15\n"
+}

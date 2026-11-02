@@ -1,0 +1,5 @@
+{
+ "cerr": "/usr/bin/ld: cc.o: in function `__algol68_main':\nposix-perror-1.a68:(.text+0x22): undefined reference to `POSIX_fileodefault'\ncollect2: error: ld returned 1 exit status\n",
+ "compile": 1,
+ "file": "posix-perror-1.a68"
+}

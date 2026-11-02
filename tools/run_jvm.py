@@ -89,8 +89,11 @@ def approx_equal(a, b):
     return wtxt
 
 
-def classify(nat, rc, out, err):
-    """Return (status, reason)."""
+def classify(nat, rc, out, err, src_dir=""):
+    """Return (status, reason).  src_dir is the directory of the program:
+    it is left out before the file name in the runtime error lines, as the
+    results kept in the repository (run_native.py --reference) have the
+    file name without a directory."""
     if rc == "timeout":
         return "timeout", ""
     m = re.search(r"a68j backend: (.*) not supported yet", err)
@@ -118,6 +121,9 @@ def classify(nat, rc, out, err):
     if nexit == -6:
         nl = (nat.get("stderr", "").splitlines() or [""])[0]
         jl = (err.splitlines() or [""])[0]
+        if src_dir:
+            nl = nl.replace(src_dir + os.sep, "")
+            jl = jl.replace(src_dir + os.sep, "")
         if nl != jl:
             reasons.append(f"runtime error {jl!r} (native {nl!r})")
     if reasons:
@@ -161,7 +167,8 @@ def main():
     aot_opts = ["-XX:AOTCache=" + os.path.abspath(aot)] if aot and os.path.exists(aot) else []
     if a.out:
         os.makedirs(a.out, exist_ok=True)
-    env = dict(os.environ, LC_ALL="C")
+    # HOME as for run_native.py: programs may print it (getenv).
+    env = dict(os.environ, LC_ALL="C", HOME="/home/test")
     env.pop("JAVA_TOOL_OPTIONS", None)
 
     def one(f):
@@ -213,7 +220,7 @@ def main():
             shutil.rmtree(wd, ignore_errors=True)
         if mdir:
             shutil.rmtree(mdir, ignore_errors=True)
-        status, reason = classify(nat, rc, out, err)
+        status, reason = classify(nat, rc, out, err, os.path.dirname(f))
         r = {"file": f, "status": status, "reason": reason, "exit": rc, "stdout": out, "stderr": err,
              "time": round(time.monotonic() - t0, 3)}
         if a.out:

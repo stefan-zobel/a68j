@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "quine.a68",
+ "stderr": "",
+ "stdout": "(STRING a=\";puts(2*(STRING a=\";puts(2**a[:19]+2*a[19:]);0)*a[:19]+2*a[19:]);0)"
+}

@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 1,
+ "file": "genie-transput-associate-1.a68",
+ "stderr": "runtime error: file is in read mood\n",
+ "stdout": "1 12345 678\n1 [12346 xTc]\n1 [12346 xTc\\nafter\\fend]\n2 [X]\n2 [QZ]\n2 [Y]\n2 [Y]\n3 abc\n3 [a]\n3 [bc]\n3 eoln T eof F\n3 [d]\n3 eof T eoln F\n4 [12]\n4 ,\n4 [34]\n5 12 77\n6 -72.50 T\n7 5\n7 value error\n7 5\n7 [x]\n7 file end\n7 5\n7 char 0\n7 file end\n7 []\n8 a\n"
+}

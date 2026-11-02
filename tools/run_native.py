@@ -4,11 +4,14 @@
 
 Usage: run_native.py --ga68 xgcc --libdir LIBGA68 --out DIR [-j N]
                      [--timeout SEC] [--runs N] [--stack KIB|unlimited]
-                     [--default-opts OPTS] FILES...
+                     [--default-opts OPTS] [--reference] FILES...
 Writes DIR/<name>.json with compile status, exit code, stdout, stderr and
 run time.  Programs read an empty standard input.  --runs N runs each
 program N times and marks it "nondeterministic" if the results differ;
 --default-opts applies to files without a { dg-options } line.
+--reference writes results to be kept in the repository (tests/ga68/expected,
+tests/extra/expected): without the run time, and without the directories of
+this machine in the file name and in the messages (see portable()).
 """
 import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
 import modtest
@@ -29,6 +32,30 @@ def opts_for(path):
             keep.append(o)
     return keep
 
+
+def portable(r, dirs):
+    """The result r without the directories of this machine: "file" becomes
+    the file name, and in the messages and the output each directory of dirs
+    (the directory of the program, the output directory, the a68j directory)
+    is left out before the file names in it, so that a source file
+    /x/y/z.a68 is z.a68 and the executable /out/z.exe is z.exe.  The
+    temporary object files of the linker (/tmp/ccXXXXXX.o) become cc.o.
+    The run time is left out: it differs from run to run."""
+    r = dict(r, file=os.path.basename(r["file"]))
+    r.pop("time", None)
+    for k in ("cerr", "stdout", "stderr"):
+        v = r.get(k)
+        if not isinstance(v, str):
+            continue
+        for d in sorted(dirs, key=len, reverse=True):
+            v = v.replace(d.rstrip(os.sep) + os.sep, "")
+        r[k] = re.sub(r"/tmp/cc\w+\.o\b", "cc.o", v)
+    home = os.path.expanduser("~")
+    if home not in ("", "/") and home + os.sep in json.dumps(r):
+        print(f"warning: {r['file']}: the result still contains {home}", file=sys.stderr)
+    return r
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ga68", required=True)
@@ -48,6 +75,8 @@ def main():
                     help="extra options for ga68, e.g. -O2 (for time comparisons, with --sequential-runs)")
     ap.add_argument("--default-opts", default="",
                     help="options for programs without a dg-options line, e.g. -fstropping=upper")
+    ap.add_argument("--reference", action="store_true",
+                    help="results to be kept in the repository: no run time, no directories of this machine")
     a = ap.parse_args()
     preexec = None
     if a.stack:
@@ -57,7 +86,9 @@ def main():
     DEFAULT_OPTS[:] = a.default_opts.split()
     os.makedirs(a.out, exist_ok=True)
     bdir = os.path.dirname(os.path.abspath(a.ga68))
-    env = dict(os.environ, LC_ALL="C", LD_LIBRARY_PATH=a.libdir)
+    # HOME is the same for every machine (as in run_jvm.py): programs may
+    # print it (getenv), and the results are kept in the repository.
+    env = dict(os.environ, LC_ALL="C", LD_LIBRARY_PATH=a.libdir, HOME="/home/test")
 
     def one(f):
         f = os.path.abspath(f)
@@ -107,7 +138,16 @@ def main():
             if any(x != seen[0] for x in seen[1:]):
                 r["nondeterministic"] = True
             os.remove(exe)
-        json.dump(r, open(os.path.join(a.out, name + ".json"), "w"))
+        if a.reference:
+            src = os.path.dirname(os.path.abspath(r["file"]))
+            r = portable(r, [src, os.path.abspath(a.out), modtest.ROOT])
+        with open(os.path.join(a.out, name + ".json"), "w") as out:
+            if a.reference:
+                # One key per line, sorted: readable differences in git.
+                json.dump(r, out, indent=1, sort_keys=True)
+                out.write("\n")
+            else:
+                json.dump(r, out)
         return r
 
     # Module packets are compiled for the programs that use them, not run.

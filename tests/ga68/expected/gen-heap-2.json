@@ -1,0 +1,8 @@
+{
+ "cerr": "gen-heap-2.a68:3:22: warning: possibly unintended REF INT generator in REF INT variable declaration\n    3 |       REF INT var := HEAP INT;\n      |                      ^~~~\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "gen-heap-2.a68",
+ "stderr": "",
+ "stdout": ""
+}

@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "unboxed-1.a68",
+ "stderr": "",
+ "stdout": "34 84 50\n101 27 18 same other\n3.0 TFF [\u0000x\u0000] 9223372036854775 240\n34 -1 3 34\n1023 1023 34\n43 3.0 T 2 20\n10 55.0\n6765 2432902008176640000 6 11 21\njumped at 30\n55 55\n"
+}

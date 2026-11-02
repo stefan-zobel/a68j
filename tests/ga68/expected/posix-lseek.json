@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": -6,
+ "file": "posix-lseek.a68",
+ "stderr": "posix-lseek.a68:2: runtime error: ASSERT failure\n",
+ "stdout": ""
+}

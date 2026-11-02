@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "hoist-rows-1.a68",
+ "stderr": "",
+ "stdout": "385\n123\n501\n91\nabcdef 495\n2\n216.00\n215\n-1 -9 16\n357 272\n18\n12\n"
+}

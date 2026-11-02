@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "posix-stride-1.a68",
+ "stderr": "3690: Success\n",
+ "stdout": "HOMEM9\\n147\\n/home/test"
+}

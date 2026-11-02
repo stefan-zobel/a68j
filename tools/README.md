@@ -24,17 +24,20 @@ and first runtime error line on the JVM as the native ga68 executable.
 
 | Tool | Purpose |
 |---|---|
-| `run_native.py` | compiles and runs programs with ga68 and records the results, one `DIR/<name>.json` per program |
+| `run_native.py` | compiles and runs programs with ga68 and records the results, one `DIR/<name>.json` per program; `--reference` for the results kept in the repository (no run time, no directories of the machine) |
 | `run_jvm.py` | compiles and runs the same programs with `backend/a68j-backend.jar` and compares them with the results of `run_native.py` (`--native DIR` is required) |
+| `update_ga68_suite.sh GCC [XGCC LIBGA68]` | copies the ga68 test suite of a GCC checkout to `tests/ga68/execute` and, with a ga68 build, records `tests/ga68/expected` and `tests/extra/expected` again (`tests/ga68/README.md`) |
 | `modtest.py` | helper module of both runners: module packets (`dg-modules`, including the bundled module `genietransput` from `backend/lib`) and module map options of the multi-packet tests |
 | `compare.py` | compares the token stream, the syntax tree or the tree after semantic analysis of the front end with ga68, for every `.a68` file below a directory |
 | `ga68-token-dump.patch` | patch for ga68 that writes the dumps `compare.py` compares (enabled by environment variables); the a68j side is `a68j.tools.TokenDump` and `a68j.tools.SyntaxDump` |
 | `mutate.py` | writes mutated copies of programs (random byte insertions, deletions, case flips, truncations) to test the error paths of the scanner against ga68 |
 | `mutate_tokens.py` | the same at the token level (words and symbols deleted, duplicated, swapped or replaced), so that the mutants scan but no longer parse; tests the error paths of the parser |
 
-Example, the extra tests:
+Example, the extra tests, with the results of ga68 kept in the repository
+or recorded again:
 
 ```sh
+python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 ```
@@ -57,9 +60,9 @@ See `tests/rosetta/README.md` for the whole procedure.
 | `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`) |
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
-| `loop_methods_test.sh NATIVE_EXTRA NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
-| `compact_access_test.sh NATIVE_EXTRA NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |
-| `cut_test.sh NATIVE_SUITE NATIVE_EXTRA NATIVE_ROSETTA [JAR]` | the ga68 test suite (in `$GA68_SUITE`), the extra, Java and PAR tests and the Rosetta programs with every serial clause cut into parts that are methods of their own (`A68J_CUT=every`), the code a68j makes for methods too large for the JIT |
+| `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
+| `compact_access_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |
+| `cut_test.sh NATIVE_ROSETTA [JAR]` | the ga68 test suite (`tests/ga68`), the extra, Java and PAR tests and the Rosetta programs with every serial clause cut into parts that are methods of their own (`A68J_CUT=every`), the code a68j makes for methods too large for the JIT |
 | `method_size_test.py [--jar JAR]` | generated programs near and above the 65 535 bytes of code a method may have, and interpreter-like procedures above 8 000 bytes: the right results and no method above 8 000 bytes where a68j can divide the code, the compile-time error where not (`docs/TODO-method-size.md`); needs no ga68 |
 
 ## Performance

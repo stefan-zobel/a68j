@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "genie-transput-1.a68",
+ "stderr": "to stand_error\n",
+ "stdout": "int:        +42         -7         +0\nlong int:      +1234567890123\nlong long int:                  +5\nreal:+3.250000e +0-5.000000e -1+1.000000e+10\nlong real:+2.50000000000000e  +0\nbool:TF char:x string:abc\nbits:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFTFT\nlong bits:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFTT\n[] int:         +1         +2         +3\n[] long int:                  +7                  +8\n[] real:+1.500000e +0+2.500000e +0\n[] long real:+2.50000000000000e  -1\n[] bool:TFT\n[] string:abcd\n[] bits:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFTF\n[,] int:         +1         +2         +3         +4\n[,] real:+5.000000e -1+1.500000e +0+2.500000e +0+3.500000e +0\n[,] bool:TFFT\nspace |\nwrite\nput\nlines so far:        +21\nwidths:        +10        +19        +19         +7        +15         +2\nT         +3\nT         +4\nT         +4\nF         +4\nT\nFTTFTFT Aa\nTFTFTFF Zz\nFFFTTFT 55\nFFFFFTF   \nFFFFFTF \t\t\nFTTFTFT Ff\nFFFFFFF ??\n"
+}

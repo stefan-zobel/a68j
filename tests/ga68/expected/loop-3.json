@@ -1,0 +1,8 @@
+{
+ "cerr": "loop-3.a68:11:17: warning: skipped superfluous semi-symbol\n   11 |          i -:= 1;\n      |                 ^\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "loop-3.a68",
+ "stderr": "",
+ "stdout": ""
+}

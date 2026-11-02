@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 1,
+ "file": "genie-transput-read-1.a68",
+ "stderr": "runtime error: file is in undetermined mood\n",
+ "stdout": "open for writing: T\nopen existing:          +0\n"
+}

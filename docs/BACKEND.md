@@ -498,8 +498,9 @@ jump used as a `PROC VOID` (proceduring) is a `Proc` throwing the `Jump`.
 ## 9. Testing
 
 `tools/run_native.py` records, for every program in
-`gcc/testsuite/algol68/execute`, the exit status and output of the binary
-that ga68 produces (`/home/me/native/*.json`). `tools/run_jvm.py`
+`gcc/testsuite/algol68/execute` (copied to `tests/ga68/execute`), the exit
+status and output of the binary that ga68 produces (kept in
+`tests/ga68/expected`, `tests/ga68/README.md`). `tools/run_jvm.py`
 compiles the same programs with a68j, runs them on the JVM and compares
 stdout, exit status and the first stderr line; both runners start every
 run of a program in a new empty directory. For the multi-packet tests
@@ -513,7 +514,7 @@ names, initial values of generators, the bundled module `Genie_Transput`
 with its output, its reading and files and `associate`, the file
 procedures of the POSIX module and errno, `fsize` and `lseek` on the
 standard descriptors); their native
-results are recorded the same way (`--native /home/me/native-extra`).
+results are recorded the same way (`tests/extra/expected`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for
 ga68 by `tools/rosetta_prep.py` and converted to SUPPER stropping by

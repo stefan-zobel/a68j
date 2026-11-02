@@ -96,7 +96,8 @@ java -jar backend/a68j-backend.jar -I lib $MAP module18c.a68 -d lib/libm18.jar
 java -jar backend/a68j-backend.jar -I lib $MAP -run program-18.a68
 ```
 
-(`module18a.a68` etc. come from `gcc/testsuite/algol68/execute/modules`.)
+(`module18a.a68` etc. come from `tests/ga68/execute/modules`, a copy of
+`gcc/testsuite/algol68/execute/modules`.)
 The map can also be given in a file (`-fmodules-map-file=...`), in the
 same format as in ga68: `base=Module,Module:base2=Module`.
 

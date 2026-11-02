@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "posix-files-1.a68",
+ "stderr": "",
+ "stdout": "start 0 errno 0\nafter empty puts 0 errno 0\ndefault missing -1 errno 2\nmissing still absent -1 errno 2\nwronly missing -1 errno 2\nrdwr missing -1 errno 2\nfcreate 1 errno 2\nfputs 3 errno 2\nfgetc on fcreate fd -1 errno 2\nfputs after fgetc 1 errno 9\nfsize 4 errno 9\nlseek set 1 1 errno 9\nfputc 66 errno 9\nlseek end 4 errno 9\nlseek negative -1 errno 22\nlseek bad whence -1 errno 22\nfclose 0 errno 22\nfclose again -1 errno 9\nfgetc closed -1 errno 9\nfputc closed -1 errno 9\nfsize closed -1 errno 9\ndefault existing 1 errno 9\nread aBcd -1 errno 9\nfputs at end 1 errno 9\nfsize 5 errno 9\nfclose 0 errno 9\nrdonly 1 errno 9\nfgetc 97 errno 9\nfputs on rdonly 0 errno 9\nfputc on rdonly -1 errno 9\nfclose 0 errno 9\nrdonly trunc 1 errno 9\nfsize 0 errno 9\nfclose 0 errno 9\nwronly 1 errno 9\nfputs on wronly 3 errno 9\nfgetc on wronly -1 errno 9\nfclose 0 errno 9\nwronly trunc 1 errno 9\nfsize 0 errno 9\nfclose 0 errno 9\ndefault dir 1 errno 21\nfgetc dir -1 errno 21\nfclose dir 0 errno 21\nrdwr dir -1 errno 21\nfcreate dir -1 errno 21\n"
+}
