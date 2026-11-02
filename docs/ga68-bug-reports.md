@@ -14,8 +14,8 @@ glibc. The programs use SUPPER stropping and are compiled with
 Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
 has an obvious expected result. Line numbers refer to the commit above.
 
-As of 2 November 2026 entries 1 and 2 have been filed in the GCC
-Bugzilla (PR 128378 and PR 128380, linked at the entries); the others
+As of 2 November 2026 entries 1, 2 and 3 have been filed in the GCC
+Bugzilla (PR 128378, PR 128380 and PR 128382, linked at the entries); the others
 have not. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet.
@@ -114,6 +114,8 @@ Expected: 150, i.e. `+15.0000e +1` and `+15.000000e +1`.
 Fix: `expart := {S} tmp;`.
 
 ## 3. `fixed` with width 0 loops forever for large values
+
+Filed as [PR 128382](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128382).
 
 `fixed` in `libga68/standard.a68.in`, line 217:
 
