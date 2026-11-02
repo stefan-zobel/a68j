@@ -264,25 +264,39 @@ public final class MoidsMisc {
         }
     }
 
-    /** Add SOID data structure to soid list (a68_add_to_soid_list). */
+    /**
+     * Add SOID data structure to soid list (a68_add_to_soid_list).
+     * <p>
+     * ga68 recurses down the list to its end; this walks there in a loop,
+     * which appends at the same place and takes the new element from the
+     * free chain at the same moment, but needs no stack frame and no
+     * {@code Ref} per element.
+     */
     public static void addToSoidList(A68 a68, Ref<Soid> root, Node where, Soid soid) {
-        if (root.get() != null) {
-            Soid r = root.get();
-            addToSoidList(a68, Ref.of(() -> r.next, v -> r.next = v), where, soid);
-        } else {
-            Soid newOne;
+        Soid last = root.get();
 
-            if (a68.topSoidList == null) {
-                newOne = new Soid();
-            } else {
-                newOne = a68.topSoidList;
-                a68.topSoidList = a68.topSoidList.next;
+        if (last != null) {
+            while (last.next != null) {
+                last = last.next;
             }
+        }
 
-            makeSoid(a68, newOne, soid.sort, soid.type, STOP);
-            newOne.node = where;
-            newOne.next = null;
+        Soid newOne;
+
+        if (a68.topSoidList == null) {
+            newOne = new Soid();
+        } else {
+            newOne = a68.topSoidList;
+            a68.topSoidList = a68.topSoidList.next;
+        }
+
+        makeSoid(a68, newOne, soid.sort, soid.type, STOP);
+        newOne.node = where;
+        newOne.next = null;
+        if (last == null) {
             root.set(newOne);
+        } else {
+            last.next = newOne;
         }
     }
 
