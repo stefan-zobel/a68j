@@ -39,6 +39,8 @@ where ga68 crashes or reads uninitialized memory.
 | 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | reproduces |
 | 12 | ga68 | a conformity clause on a union of `string` and `[,] char`: internal compiler error in `verify_gimple` | correct |
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
+| 14 | ga68 `a68-low-clauses.cc` | a row display whose rows differ in bounds is not checked, and a longer later row is written past the allocated elements | run-time error |
+| 15 | ga68 `a68-low-clauses.cc` | a row display copies a row with a stride (`m[, 1]`) as if it were contiguous | correct |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
 
@@ -447,6 +449,58 @@ end
 
 ga68: `internal compiler error: gimplification failed`. The expected
 output is `x5`. The causes have not been examined.
+
+## 14. A row display whose rows differ in bounds is not checked
+
+```
+begin [,] int a = ((1, 2), (3, 4, 5));
+      puts (whole (1 UPB a, 0) + " " + whole (2 UPB a, 0) + ":");
+      for i to 1 UPB a do for j to 2 UPB a do puts (" " + whole (a[i, j], 0)) od od;
+      puts ("'n")
+end
+```
+
+ga68 prints `2 3: 1 2 3 4 5 0`; with the rows `(1, 2, 3), (4, 5)` it
+prints `2 2: 1 2 3 4`. a68g stops with the run-time error "rows have
+different bounds", and the comment in the source says that a run-time
+error is intended.
+
+The cause is in `a68_lower_collateral_clause` (`a68-low-clauses.cc`). The
+branch that should check the bounds of the second and later rows (line
+1283) is empty, with the comment `XXX use sub_multiple_lb, ...`; the code
+that would take the bounds of the first row is under `#if 0`. The
+elements are allocated for the size of the first row (lines 1254 to
+1263), but each row is copied with its own size (line 1304), so a longer
+later row is written past the end of the allocated memory, as in the
+program above (4 elements allocated, 5 copied). The bounds of the
+dimensions after the first are expressions of the variable
+`sub_multiple` (line 1277), which at the end holds the last row: the
+result gets the bounds of the last row.
+
+Suggested fix: keep the bounds of the first row in temporaries (the code
+under `#if 0`), compare the bounds of every later row with them, call a
+run-time error in libga68 when they differ, and build the descriptor of
+the result from the temporaries.
+
+## 15. A row display copies a row with a stride as if it were contiguous
+
+```
+begin [,] int m = ((1, 2), (3, 4));
+      [,] int b = (m[, 1], m[, 2]);
+      for i to 1 UPB b do for j to 2 UPB b do puts (" " + whole (b[i, j], 0)) od od;
+      puts ("'n")
+end
+```
+
+ga68 prints ` 1 2 2 3`; the expected output, which a68g gives, is
+` 1 3 2 4`. The columns `m[, 1]` and `m[, 2]` have a stride of two
+elements, but `a68_lower_collateral_clause` copies each row of the
+display with one `memcpy` of its number of elements from its first
+element (line 1304), which ignores the stride. The comment above it (line
+1294) already notes that strides need an iteration.
+
+Suggested fix: copy the elements one by one along the strides of the
+row, or use `memcpy` only when the row is contiguous.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 
