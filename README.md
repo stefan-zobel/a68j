@@ -281,6 +281,16 @@ sh tools/par_tests.sh java 3      # -fpar-threads
 
 a68j is a derived work of ga68 (GCC) and of Algol 68 Genie and is licensed
 under the **GNU General Public License, version 3 or later** (`COPYING`).
+- The runtime, that is the code a compiled program needs at run time
+  is licensed under the GPL version 3 or later with the **GCC Runtime Library
+  Exception 3.1** (`COPYING.RUNTIME`), as libga68 is, and with an
+  additional permission under section 7 of the GPL: a compilation with
+  a68j counts as an Eligible Compilation Process in the sense of that
+  exception. This is meant to let programs compiled with a68j be
+  distributed together with the runtime under terms of their authors'
+  choice; the exact terms are in the header of each file and in
+  `COPYING.RUNTIME`. The compiler itself (front end and code generator)
+  remains under the GPL without this exception.
 - `backend/lib/standard.a68` is libga68's standard prelude, unchanged
   (GPL 3 with the GCC Runtime Library Exception 3.1).
 - The VS Code extension in `editors/vscode-algol68` is under the ISC
