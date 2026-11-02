@@ -1,8 +1,7 @@
 out/
-a68j.jar
+*.jar
 __pycache__/
 node_modules/
 out28/
-backend/a68j-backend.jar
-backend/a68j-backend.aot
-backend/a68j-runtime.jar
+backend/*.jar
+backend/*.aot
