@@ -273,7 +273,21 @@ public final class MoidsMisc {
      * {@code Ref} per element.
      */
     public static void addToSoidList(A68 a68, Ref<Soid> root, Node where, Soid soid) {
-        Soid last = root.get();
+        addToSoidList(a68, root, null, where, soid);
+    }
+
+    /**
+     * As {@link #addToSoidList(A68, Ref, Node, Soid)}, but the walk to the
+     * end of the list starts at {@code from}, an element of the list, or at
+     * its start if {@code from} is null. Returns the new element. A caller
+     * that appends many elements one after the other passes the element
+     * returned last, so that appending stays linear in the length of the
+     * list instead of quadratic (a68j; ga68 always walks from the start).
+     * The list, the place of the new element and the use of the free chain
+     * are the same as without {@code from}.
+     */
+    public static Soid addToSoidList(A68 a68, Ref<Soid> root, Soid from, Node where, Soid soid) {
+        Soid last = from != null ? from : root.get();
 
         if (last != null) {
             while (last.next != null) {
@@ -298,6 +312,7 @@ public final class MoidsMisc {
         } else {
             last.next = newOne;
         }
+        return newOne;
     }
 
     /**

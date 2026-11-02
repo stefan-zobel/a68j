@@ -403,30 +403,51 @@ public final class MoidsCheck {
 
     /** Mode check unit list (mode_check_unit_list). */
     private static void modeCheckUnitList(A68 a68, Ref<Soid> r, Node p, Soid x) {
+        modeCheckUnitList(a68, r, p, x, null);
+    }
+
+    /**
+     * Mode check unit list (mode_check_unit_list), appending to the list R
+     * from LAST on, the element of R appended last or null (see
+     * MoidsMisc#addToSoidList(A68, Ref, Soid, Node, Soid)); returns the
+     * element appended last. ga68 passes no LAST and walks R from its start
+     * for every unit, which is quadratic in the number of units.
+     */
+    private static Soid modeCheckUnitList(A68 a68, Ref<Soid> r, Node p, Soid x, Soid last) {
         if (p == null) {
-            return;
+            return last;
         } else if (p.is(UNIT_LIST)) {
-            modeCheckUnitList(a68, r, p.sub, x);
-            modeCheckUnitList(a68, r, p.next, x);
+            last = modeCheckUnitList(a68, r, p.sub, x, last);
+            return modeCheckUnitList(a68, r, p.next, x, last);
         } else if (p.is(COMMA_SYMBOL)) {
-            modeCheckUnitList(a68, r, p.next, x);
+            return modeCheckUnitList(a68, r, p.next, x, last);
         } else if (p.is(UNIT)) {
             Soid y = new Soid();
             modeCheckUnit(a68, p, x, y);
-            MoidsMisc.addToSoidList(a68, r, p, y);
-            modeCheckUnitList(a68, r, p.next, x);
+            last = MoidsMisc.addToSoidList(a68, r, last, p, y);
+            return modeCheckUnitList(a68, r, p.next, x, last);
         }
+        return last;
     }
 
     /** Mode check struct display (mode_check_struct_display). */
     private static void modeCheckStructDisplay(A68 a68, Ref<Soid> r, Node p, Ref<Pack> fields) {
+        modeCheckStructDisplay(a68, r, p, fields, null);
+    }
+
+    /**
+     * Mode check struct display (mode_check_struct_display), appending to
+     * the list R from LAST on and returning the element appended last, as
+     * modeCheckUnitList does.
+     */
+    private static Soid modeCheckStructDisplay(A68 a68, Ref<Soid> r, Node p, Ref<Pack> fields, Soid last) {
         if (p == null) {
-            return;
+            return last;
         } else if (p.is(UNIT_LIST)) {
-            modeCheckStructDisplay(a68, r, p.sub, fields);
-            modeCheckStructDisplay(a68, r, p.next, fields);
+            last = modeCheckStructDisplay(a68, r, p.sub, fields, last);
+            return modeCheckStructDisplay(a68, r, p.next, fields, last);
         } else if (p.is(COMMA_SYMBOL)) {
-            modeCheckStructDisplay(a68, r, p.next, fields);
+            return modeCheckStructDisplay(a68, r, p.next, fields, last);
         } else if (p.is(UNIT)) {
             Soid x = new Soid(), y = new Soid();
 
@@ -437,9 +458,10 @@ public final class MoidsCheck {
                 MoidsMisc.makeSoid(a68, x, STRONG, null, STOP);
             }
             modeCheckUnit(a68, p, x, y);
-            MoidsMisc.addToSoidList(a68, r, p, y);
-            modeCheckStructDisplay(a68, r, p.next, fields);
+            last = MoidsMisc.addToSoidList(a68, r, last, p, y);
+            return modeCheckStructDisplay(a68, r, p.next, fields, last);
         }
+        return last;
     }
 
     /** Mode check get specified moids (mode_check_get_specified_moids). */
