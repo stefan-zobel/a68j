@@ -14,8 +14,8 @@ glibc. The programs use SUPPER stropping and are compiled with
 Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
 has an obvious expected result. Line numbers refer to the commit above.
 
-As of 2 November 2026 entries 1, 2 and 3 have been filed in the GCC
-Bugzilla (PR 128378, PR 128380 and PR 128382, linked at the entries); the others
+As of 2 November 2026 entries 1 to 4 have been filed in the GCC
+Bugzilla (PR 128378, PR 128380, PR 128382 and PR 128383, linked at the entries); the others
 have not. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet.
@@ -156,6 +156,8 @@ Fix: compare with a real power, `{L} 10.0 ** length`, as the other powers
 of ten in `fixed`, `subfixed` and `standardize` already do.
 
 ## 4. `fixed` on `real` gives wrong digits
+
+Filed as [PR 128383](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128383).
 
 ```
 begin
