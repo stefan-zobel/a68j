@@ -58,7 +58,7 @@ final class GenUnits {
 
     /** copyIfValue for a value of mode M given by the unit P bound to an identity or parameter. */
     static void copyIfValue(Gen g, Node p, Moid m) {
-        if (!ownedValue(g, p) && !unitedPlainValue(g, p)) {
+        if (!ownedValue(g, p) && !unitedPlainValue(g, p) && !freshValue(p)) {
             copyIfValue(g, m);
         }
     }
@@ -66,12 +66,42 @@ final class GenUnits {
     /**
      * copyIfValue for a value of mode M given by the unit P, wherever it
      * goes: no copy for {@link #unitedPlainValue}, as the copy would be
-     * the same object.
+     * the same object, and none for a {@link #freshValue}.
      */
     static void copyValueOf(Gen g, Node p, Moid m) {
-        if (!unitedPlainValue(g, p)) {
+        if (!unitedPlainValue(g, p) && !freshValue(p)) {
             copyIfValue(g, m);
         }
+    }
+
+    /**
+     * Whether the unit P yields a new value that nothing else refers to: a
+     * display (GenRows#collateral makes a new row or structure of copies
+     * of the values of its units, or of new values) or a string denotation
+     * (Row#ofString). Wherever such a value goes it needs no copy:
+     * Rt.copyValue would make a second new value and drop the first. This
+     * saves 6 bytes of code for each string or row in a display
+     * (docs/optimizations.md, section 12) and the time of the copy.
+     */
+    static boolean freshValue(Node p) {
+        Node s = p;
+        while (s != null && s.sub != null && s.sub.next == null
+                && (s.attribute == Attribute.UNIT || s.attribute == Attribute.TERTIARY
+                    || s.attribute == Attribute.SECONDARY || s.attribute == Attribute.PRIMARY
+                    || s.attribute == Attribute.ENCLOSED_CLAUSE)) {
+            s = s.sub;
+        }
+        if (s == null) {
+            return false;
+        }
+        if (s.attribute == Attribute.DENOTATION) {
+            Node d = s.sub;
+            while (d != null && d.next != null) {
+                d = d.next;
+            }
+            s = d;
+        }
+        return s != null && (s.attribute == Attribute.COLLATERAL_CLAUSE || s.attribute == Attribute.ROW_CHAR_DENOTATION);
     }
 
     /**
@@ -216,6 +246,32 @@ final class GenUnits {
      * mode (the plain denotation below a LONGETY has the unlengthened mode).
      */
     static void denotation(Gen g, Node p) {
+        switch (denotationValue(g, p)) {
+            case null -> { }
+            case Boolean b -> {
+                if (b) {
+                    g.cb.iconst_1();
+                } else {
+                    g.cb.iconst_0();
+                }
+            }
+            case String s -> {
+                Gen.constant(g.cb, s);
+                g.cb.invokestatic(Gen.CD_ROW, "ofString", MethodTypeDesc.of(Gen.CD_ROW, CD_String));
+            }
+            case java.lang.constant.ConstantDesc c -> Gen.constant(g.cb, c);
+            default -> throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * The value of the denotation P (see {@link #denotation}) in the
+     * representation of its mode: an Integer (INT, CHAR, BITS and the
+     * shorter modes), Long, Float, Double or Boolean, a String for a
+     * STRING or [] CHAR (Row#ofString makes the row of it), or null for
+     * EMPTY. Also used for the constants of a display (Tables).
+     */
+    static Object denotationValue(Gen g, Node p) {
         Node d = p;
         if (p.attribute == Attribute.DENOTATION) {
             d = p.sub;
@@ -227,18 +283,24 @@ final class GenUnits {
         String s = d.info.symbol;
         JType t = JType.of(g.a68, m);
         switch (d.attribute) {
-            case TRUE_SYMBOL -> g.cb.iconst_1();
-            case FALSE_SYMBOL -> g.cb.iconst_0();
-            case EMPTY_SYMBOL -> { }
+            case TRUE_SYMBOL -> {
+                return Boolean.TRUE;
+            }
+            case FALSE_SYMBOL -> {
+                return Boolean.FALSE;
+            }
+            case EMPTY_SYMBOL -> {
+                return null;
+            }
             case INT_DENOTATION -> {
                 long v = Long.parseUnsignedLong(s.replace(" ", ""));
-                pushIntegral(g, t, v);
+                return integral(t, v);
             }
             case BITS_DENOTATION -> {
                 String x = s.replace(" ", "");
                 int r = x.toLowerCase().indexOf('r');
                 long v = Long.parseUnsignedLong(x.substring(r + 1), Integer.parseInt(x.substring(0, r)));
-                pushIntegral(g, t, v);
+                return integral(t, v);
             }
             case REAL_DENOTATION -> {
                 String x = s.replace(" ", "").replace('\\', 'e').replace('E', 'e');
@@ -247,22 +309,27 @@ final class GenUnits {
                 }
                 if (t == JType.FLOAT) {
                     // As C: the denotation is converted to float directly.
-                    Gen.constant(g.cb, Float.parseFloat(x));
-                } else {
-                    Gen.constant(g.cb, Double.parseDouble(x));
+                    return Float.parseFloat(x);
                 }
+                return Double.parseDouble(x);
             }
             case ROW_CHAR_DENOTATION -> {
                 s = processBreaks(s);
                 if (t == JType.INT) {
-                    Gen.constant(g.cb, s.isEmpty() ? 0 : s.codePointAt(0));
-                } else {
-                    Gen.constant(g.cb, s);
-                    g.cb.invokestatic(Gen.CD_ROW, "ofString", MethodTypeDesc.of(Gen.CD_ROW, CD_String));
+                    return s.isEmpty() ? 0 : s.codePointAt(0);
                 }
+                return s;
             }
             default -> throw new Gen.Unsupported(p, "denotation " + d.attribute);
         }
+    }
+
+    /** The value V of an integral mode in the representation T (as {@link #pushIntegral} pushes it). */
+    private static Object integral(JType t, long v) {
+        if (t == JType.LONG) {
+            return v;
+        }
+        return (int) v;
     }
 
     /**

@@ -63,7 +63,8 @@ See `tests/rosetta/README.md` for the whole procedure.
 | `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
 | `compact_access_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |
 | `cut_test.sh NATIVE_ROSETTA [JAR]` | the ga68 test suite (`tests/ga68`), the extra, Java and PAR tests and the Rosetta programs with every serial clause cut into parts that are methods of their own (`A68J_CUT=every`), the code a68j makes for methods too large for the JIT |
-| `method_size_test.py [--jar JAR]` | generated programs near and above the 65 535 bytes of code a method may have, and interpreter-like procedures above 8 000 bytes: the right results and no method above 8 000 bytes where a68j can divide the code, the compile-time error where not (`docs/TODO-method-size.md`); needs no ga68 |
+| `table_test.sh NATIVE_ROSETTA [JAR]` | the ga68 test suite, the extra, Java and PAR tests and the Rosetta programs with every row display that can be a table made one (`A68J_TABLE_MIN=1`, `docs/optimizations.md` section 12), and the run-time error of a display of two dimensions whose rows differ in length |
+| `method_size_test.py [--jar JAR]` | generated programs near and above the 65 535 bytes of code a method may have, and interpreter-like procedures above 8 000 bytes: the right results and no method above 8 000 bytes where a68j can divide the code, the compile-time error where not (`docs/TODO-method-size.md`), and row displays of 20 000 constants as tables; needs no ga68 |
 
 ## Performance
 

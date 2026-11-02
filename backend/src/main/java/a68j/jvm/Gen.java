@@ -710,6 +710,7 @@ public final class Gen {
             for (int i = 0; i < javaBridges.size(); i++) {
                 javaBridges.get(i).accept(clb);
             }
+            Tables.emit(this, clb);
         });
     }
 
@@ -758,6 +759,13 @@ public final class Gen {
 
     /** Whether the current serial clause has no labels (set by GenClauses#serial for GenDecls#prologue). */
     boolean rangeWithoutLabels;
+
+    /**
+     * The tables of the row displays of constants (Tables): the name of the
+     * static field of each, by the text of the table, in the order of the
+     * fields.
+     */
+    final Map<String, String> tables = new java.util.LinkedHashMap<>();
 
     /** The bridge methods of Java formal holes (GenJava), emitted after the routines. */
     final List<java.util.function.Consumer<ClassBuilder>> javaBridges = new ArrayList<>();

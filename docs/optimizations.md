@@ -1042,8 +1042,9 @@ methods of their own (class `Cut`).
   At most sixteen rounds instead of eight.
 
 What remains a compile-time error above 65 535 bytes: a single unit that
-is too large (a row display of 20 000 elements), and code whose parts
-would each need more than 200 parameters. The note of the error says so.
+is too large (a row display of 20 000 elements; since section 12 only if
+they are not constants), and code whose parts would each need more than
+200 parameters. The note of the error says so.
 
 `A68J_CUT=every` cuts every serial clause before every phrase where it
 may and makes every serial clause a method of its own, a test of the
@@ -1101,3 +1102,148 @@ to 0.16 s after, five runs each).
   bytes; two new cases keep the compile-time error (a row display of
   20 000 elements, and parts that would need the values of 250
   variables). 10 of 10.
+
+## 12. Row displays of constants as tables (2 Nov 2026)
+
+### The problem
+
+`GenRows#collateral` stores each element of a row display with code of
+its own. A display is a single unit, so neither loops as methods nor
+`Cut` (sections 7 and 11) can divide it. Measured in the class files
+(`tools/MethodSizes.java`) before this section, for displays in the main
+program:
+
+| display | bytes of code per element | above 8000 bytes from | above 65 535 bytes from |
+|---|---|---|---|
+| `[] int`, `[] real` of denotations | about 8 | about 1000 elements | about 8200 elements |
+| `[] int` with negative values | about 8.5 | about 920 | about 7700 |
+| `[] string` | about 17 | about 470 | about 3850 |
+| `[,] int`, square | about 6.8 per value | about 34 × 34 | about 95 × 95 (100 × 100 failed) |
+| `[,] int`, two columns | about 16.5 per value | about 240 rows | about 2000 rows |
+
+Above 65 535 bytes the display was a compile-time error (20 000 INTs:
+after 7 to 8 s, as `Gen#compileClass` first tried all its remedies; ga68
+compiles it in 0.8 s). Above 8000 bytes it ran in the interpreter, which
+matters where it is elaborated often, in a procedure (table below). A
+display of 1000 to 1100 INTs is at that edge. In the programs of the
+repository the largest displays are all of denotations: 901 INTs
+(`decreasing-contiguous-subsequences`), a grid of 20 × 20
+(`largest-product-in-a-grid`) and 256 (`perlin-noise`). `javac` has the
+same limit for an array initializer ("code too large").
+
+Also, the value of a display was copied once more where it went
+(`Rt.copyValue`, `[] int t = (...)`), and each STRING and each row in a
+display was copied before it was stored: 6 bytes of code each and the
+time of the copy, for a value nothing else refers to.
+
+### What a68j does now
+
+- **No copy of a new value** (`GenUnits#freshValue`): a display and a
+  string denotation make a new value that nothing else refers to, so
+  wherever it goes it is not copied. A STRING in a display takes 11
+  instead of 17 bytes, a row of `[,] int` with two columns 26 instead of
+  33.
+- **Tables** (class `Tables`, runtime class `a68j.rt.Table`): a display
+  of INT, CHAR, BITS, BOOL, REAL (and their lengths) or STRING elements,
+  of one dimension or nested displays of the same length at each depth,
+  with at least 128 constant elements (denotations, their widenings, and
+  the standard monadic `-` and `+` of them) is a table. Its values are
+  written as text into a string constant of the class (in pieces of at
+  most 16 384 chars, as a constant holds at most 65 535 bytes); the class
+  initializer decodes the text once into a static field; each elaboration
+  of the display makes a new row of copies of the values
+  (`getstatic`, `Table.row()`: 6 bytes whatever the size). The elements
+  that are not constants are elaborated in their order and stored into
+  the copy before the row is made (`Table.store()`, `Table.row(Object)`);
+  constants have no effects, so that they are not elaborated in their
+  place cannot be observed. Equal displays share one table. A display of
+  two dimensions whose rows differ in length is no table and remains the
+  run-time error of `Row#ofRows`.
+- **The minimum of 128** was measured (below): with fewer elements the
+  code of the display is small and was faster than the table.
+  `A68J_TABLE_MIN=N` sets another minimum, `A68J_TABLE_MIN=1` makes a
+  table of every display that can be one (`tools/table_test.sh`).
+
+What remains a compile-time error: a display of thousands of elements
+that are not constants (`tools/method_size_test.py`, 20 000 copies of a
+variable), which only generated code has.
+
+### Measurements
+
+A procedure with a local `[] int t = (...)` of N denotations, called
+200 000 times, and the same display in the main program followed by a
+hot loop over it (100 000 000 steps); the time of the whole run (JVM
+start included), five runs each, alternating, before and after this
+section; ga68 `-O2` the best of five runs:
+
+| program | before | after | ga68 `-O2` |
+|---|---|---|---|
+| procedure, N = 1000 | 7592 bytes, 0.57 to 0.63 s | 169 bytes, 0.33 to 0.38 s | 0.38 s |
+| procedure, N = 1100 | 8197 bytes, 1.97 to 2.18 s | 169 bytes, 0.32 to 0.38 s | 0.41 s |
+| procedure, N = 2000 | 15 219 bytes, 3.46 to 3.78 s | 169 bytes, 0.45 to 0.52 s | 0.76 s |
+| procedure, N = 6000 | 46 147 bytes, 9.33 to 10.41 s | 169 bytes, 1.00 to 1.06 s | 3.02 s |
+| main program, N = 6000, then the loop | 45 683 bytes, 0.62 to 0.68 s | 218 bytes, 0.62 to 0.69 s | |
+
+In the main program the display runs once and the loop is a method of
+its own (section 7), so the time does not change. With the copy of the
+display gone (first item above) but without tables, the procedure took
+0.31, 1.63, 2.82 and 8.22 s (best of five).
+
+The minimum: the same procedure with N denotations, about 40 000 000
+elements in all (10 000 000 calls for N = 4), with and without a table
+(`A68J_TABLE_MIN`), the best of five runs:
+
+| N | without a table | table |
+|---|---|---|
+| 4 | 0.19 s | 0.42 s |
+| 8 | 0.16 s | 0.28 s |
+| 16 | 0.13 s | 0.22 s |
+| 32 | 0.13 s | 0.18 s |
+| 64 | 0.125 s | 0.140 s |
+| 96 | 0.129 s | 0.136 s |
+| 128 | 0.129 s | 0.125 s |
+| 256 | 0.140 s | 0.141 s |
+
+Compiling (one run each, alternating): 8000 INTs 2.6 s before, 2.0 s
+after (class file 141 461 bytes before, 49 207 after); 20 000 INTs a
+compile-time error after 7.3 s before, 6.6 s after (119 762 bytes);
+20 000 STRINGs an error after 8.4 s, 6.4 s after; a matrix of 300 × 300
+INTs an error after 5.8 s, 4.2 s after. Most of the time is now the
+front end: `MoidsMisc.addToSoidList` appends each of the 20 000 elements
+to the end of a list, as `a68_add_to_soid_list` of ga68 does, but by a
+recursion with a new `Ref` at each step (JFR: 384 of 475 samples
+show it in the frames printed); ga68 compiles 20 000 INTs in 0.8 s.
+
+### Tests
+
+- The class files of the 1662 programs of `tests/rosetta`, the ga68 test
+  suite (with `mcgt`) and `tests/extra`, compiled by the version before
+  and after this section: 955 identical byte for byte; 702 differ only
+  in the calls of `Rt.copyValue` left out (5263 calls with their 4713
+  `checkcast Row` and 550 `checkcast Struct`; with it some constants
+  are loaded by `ldc` instead of `ldc_w`, and 6 bytes less dead code in
+  `value-sharing-1`); 5 have tables: `bin-given-limits`,
+  `decreasing-contiguous-subsequences`, `largest-product-in-a-grid`,
+  `perlin-noise` and the new test below. The ga68 test suite (521 of
+  522, the other one `posix-argc-argv-1` as before) and the Rosetta
+  programs (537 the same as ga68, 2 the same except for rounding, the
+  same 9 others and 1 unsupported as before) give the same results
+  program by program before and after; the extra tests 39 of 39, the
+  Java tests 46 of 46, the PAR tests 14 of 14.
+- With `A68J_TABLE_MIN=1` (`tools/table_test.sh`): the same results,
+  program by program, for the ga68 test suite and the Rosetta programs,
+  and all extra, Java and PAR tests pass; a display of two dimensions
+  whose rows differ in length is still the run-time error.
+- `tests/extra/row-display-tables-1.a68`: tables of INT (with the
+  largest and negative values), REAL (widened INTs, small and large
+  exponents), LONG REAL, LONG INT, CHAR, BOOL, STRING (empty, quotes,
+  breaks, a rowed character that is not a constant) and BITS, of two
+  and three dimensions, constants mixed with calls that count (their
+  order), a new row at each elaboration (a flexible variable, a
+  generator and an identity of the same display, and a loop), as a field
+  and as an argument; the same output as ga68 with the default minimum,
+  with `A68J_TABLE_MIN=1` and without tables.
+- `tools/method_size_test.py`: new cases with 20 000 INTs, 20 000
+  STRINGs and a matrix of 300 × 300 INTs give the right results with no
+  method above 8000 bytes; the case of the compile-time error is now a
+  display of 20 000 copies of a variable. 13 of 13.

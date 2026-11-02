@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "row-display-tables-1.a68",
+ "stderr": "",
+ "stdout": "1 130 793354 -15110 2147483647 -2147483647\n19080 0 T T T T\n2715611 T\n505280787264 123456789 -197530\nabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz 130\n5633 F T\n433 [alpha][][\"q\"][tab\tx][x][two words][s129]\n170715 T\n112 112 84084 T 37\ncube T 4\n-54 T T\nr1c1r12c12r3c5 12\n1000 1 2000 3000 3\nvar m1 var! m130\n999 1 5 2\n2 1 2 1 2 1 \nchanged n1+ n0 n1 n1\nrec 130 8515 8515\n"
+}

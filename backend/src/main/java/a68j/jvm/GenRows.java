@@ -327,6 +327,8 @@ final class GenRows {
                 Moid r = m.attribute == Attribute.FLEX_SYMBOL ? JType.base(m.sub) : m;
                 if (units.isEmpty()) {
                     pushSkipValue(g, m);
+                } else if (Tables.display(g, p, r)) {
+                    // A display of constants: a table (Tables).
                 } else if (r.dim == 1 && JType.of(g.a68, JType.base(r.sub)).isPrimitive()) {
                     // A display of INT, REAL, CHAR, ...: unboxed storage (Row#store).
                     JType et = JType.of(g.a68, JType.base(r.sub));

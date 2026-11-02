@@ -12,11 +12,15 @@ expected values are computed here):
 - too large for one method in the main program, in a procedure and in a
   loop: the serial clause is cut into parts that are methods of their own
   (Cut), each at most 8000 bytes, the right result;
-- too large and not divisible: a row display of 20 000 elements, and a
-  main program whose parts would each need the values of 250 variables
-  (more than the 200 parameters a part may have): a68j stops with status 1
-  and the error that names the kind of code, its lines and its size, and
-  no Java stack trace.
+- too large and not divisible: a row display of 20 000 elements that are
+  not constants, and a main program whose parts would each need the
+  values of 250 variables (more than the 200 parameters a part may have):
+  a68j stops with status 1 and the error that names the kind of code, its
+  lines and its size, and no Java stack trace.
+
+And row displays of constants, which become tables (Tables) whatever
+their size: 20 000 INTs, 20 000 STRINGs and a matrix of 300 x 300 INTs,
+the right result.
 
 And programs like the step of an interpreter: a procedure that is one case
 clause with N branches of six element accesses each, called in a loop
@@ -83,6 +87,14 @@ def values(n, copies):
             + "".join(f"  s := (s * 7 + v{k % n}) MOD 1000003;\n" for k in range(copies)) + END)
 
 
+def table_expected(values):
+    """The value of s := (s * 31 + v MOD 1000003) MOD 1000003 over VALUES."""
+    s = 0
+    for v in values:
+        s = (s * 31 + v % 1000003) % 1000003
+    return s
+
+
 CASES = [
     # name, source, expected stdout or None, expected error pattern or None
     ("main-2500", "begin int s := 0;\n" + stmts(2500, "  ") + END, expected((2500, 1)), None),
@@ -93,10 +105,20 @@ CASES = [
      expected((4000, 1)), None),
     ("loop-4000", "begin int s := 0;\n  to 2 do\n" + stmts(4000, "    ") + "    skip\n  od;\n" + END,
      expected((4000, 2)), None),
-    ("display-too-large", "begin [] int a = (" + ", ".join(str(k) for k in range(20000)) + ");\n"
+    ("display-too-large", "begin int k := 1;\n  [] int a = (" + ", ".join("k" for _ in range(20000)) + ");\n"
      "  puts (whole (a[20000], 0) + \"'n\")\nend\n", None,
-     r"^m\.a68:1: error: the particular program \(lines 1 to 3\) needs \d+ bytes of JVM code, "
+     r"^m\.a68:2:3: error: the part of a serial clause \(lines 2 to 3\) needs \d+ bytes of JVM code, "
      r"more than the 65535 that a method may have$"),
+    ("table-ints", "begin [] int a = (" + ", ".join(str(k * 7 - 70000) for k in range(20000)) + ");\n"
+     "  int s := 0; for i to UPB a do s := (s * 31 + a[i] MOD 1000003) MOD 1000003 od;\n" + END,
+     table_expected([k * 7 - 70000 for k in range(20000)]), None),
+    ("table-strings", "begin [] string a = (" + ", ".join(f'"s{k}"' for k in range(20000)) + ");\n"
+     "  int s := 0; for i to UPB a do s +:= UPB a[i] od;\n" + END,
+     sum(len(f"s{k}") for k in range(20000)), None),
+    ("table-matrix", "begin [,] int a = (" + ",\n".join("(" + ", ".join(str(i * 300 + j) for j in range(300)) + ")"
+                                                         for i in range(300)) + ");\n"
+     "  int s := 0; for i to 1 UPB a do for j to 2 UPB a do s := (s * 31 + a[i, j]) MOD 1000003 od od;\n" + END,
+     table_expected(list(range(300 * 300))), None),
     ("values-too-many", values(250, 3500), None,
      r"^m\.a68:1: error: the particular program \(lines 1 to 3753\) needs \d+ bytes of JVM code"),
     ("interp-20", interp(20, 20000), interp_expected(20, 20000), None),

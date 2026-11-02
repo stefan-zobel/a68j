@@ -86,7 +86,9 @@ Value semantics: storing a STRUCT or ROW value into a name, a field or an
 element copies it (`Rt.copyValue(Object)`, deep for nested structs/rows), as
 in ga68 (`a68_lower_memcpy` of the value). This includes a united value whose
 value is a row or a structure (`union (void, string)` assigned a slice of a
-buffer keeps its own characters). Names (`Ref`) are never copied.
+buffer keeps its own characters). Names (`Ref`) are never copied. A new
+value that nothing else refers to, a row display or a string denotation,
+is not copied (`GenUnits.freshValue`).
 
 String and character denotations: the front end reads the source byte by byte
 (ISO 8859-1, like ga68), so a non-ASCII character is a sequence of UTF-8
@@ -420,6 +422,10 @@ compactly, and to cut its serial clauses into parts that are methods of
 their own (`Cut`); what remains is a single unit too large for one method
 and a part that would need more than 200 parameters
 (docs/optimizations.md, sections 7, 9, 10 and 11; docs/TODO-method-size.md).
+A row display with at least 128 constant elements is a table whose code
+does not grow with its size (`Tables`, `a68j.rt.Table`, section 12), so
+only a display of thousands of elements that are not constants is such
+a unit.
 
 ## 7. Values of generators and SKIP
 

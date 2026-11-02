@@ -29,9 +29,11 @@ step 2, "Compact access by size" below); if it is still too large, its
 serial clauses are cut into parts that are methods of their own, where
 the sizes of its phrases measured in the round before say (since step 3,
 `Cut`); at most sixteen rounds. Only a single unit too large for one
-method (a row display of thousands of elements) and a part that would
-need more than 200 parameters are not divided; above 65 535 bytes that is
-a compile-time error (step 1). The code is smaller since step 2.
+method (a row display of thousands of elements that are not constants;
+a display of constants is a table since section 12 of `optimizations.md`)
+and a part that would need more than 200 parameters are not divided;
+above 65 535 bytes that is a compile-time error (step 1). The code is
+smaller since step 2.
 
 ## Measurements (2 Nov 2026)
 
