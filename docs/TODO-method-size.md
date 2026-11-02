@@ -1,8 +1,7 @@
 # TODO: methods too large for the JVM and for its JIT
 
-Status, 2 Nov 2026: steps 1 and 2 of the plan are done (sections 9 and
-10 of [`optimizations.md`](optimizations.md), results below); step 3 is
-open.
+Status, 2 Nov 2026: steps 1, 2 and 3 of the plan are done (sections 9,
+10 and 11 of [`optimizations.md`](optimizations.md), results below).
 Section 7 of `optimizations.md` describes the loop methods. The
 measurements in the following sections are those before steps 1 and 2.
 
@@ -26,10 +25,13 @@ particular program a method of its own. `Gen#compileClass` measures the
 generated methods; a method above 8000 bytes, or above 65 535 bytes
 (since step 1), is generated again with its outermost loops as methods;
 if it is still too large, its element accesses become compact (since
-step 2, "Compact access by size" below); at most eight rounds. **A
-method is not divided further,** however large it is, and neither is a
-loop body without an inner loop; above 65 535 bytes that is a
-compile-time error (step 1). The code is smaller since step 2.
+step 2, "Compact access by size" below); if it is still too large, its
+serial clauses are cut into parts that are methods of their own, where
+the sizes of its phrases measured in the round before say (since step 3,
+`Cut`); at most sixteen rounds. Only a single unit too large for one
+method (a row display of thousands of elements) and a part that would
+need more than 200 parameters are not divided; above 65 535 bytes that is
+a compile-time error (step 1). The code is smaller since step 2.
 
 ## Measurements (2 Nov 2026)
 
@@ -170,7 +172,10 @@ last resort after steps 2 and 3.
   path) in all hot code, which would need the time measurements of
   section 3 of `optimizations.md` (C2 compiling code without a profile).
 
-### Step 3: more than loops as methods of their own
+### Step 3: more than loops as methods of their own (done)
+
+Done as planned, with the changes named in "Results of step 3" below.
+The plan:
 
 The general solution for both limits. In a method that is still above
 8000 bytes after its loops are methods (or that has no loop):
@@ -300,11 +305,60 @@ methods are unchanged (section 10 of `optimizations.md`).
   `s := (s * 7 + k) MOD 1000003` above) gains nothing; only step 3
   divides it.
 
+## Results of step 3 (2 Nov 2026)
+
+What was done: section 11 of `optimizations.md`, class `Cut`. Changes
+against the plan above:
+
+- **One mechanism for both cases:** a branch, a closed clause or any
+  other serial clause as a whole is the rest from phrase 0 on. Only rests
+  are cut, never a piece in the middle: what a rest declares, only later
+  phrases can see.
+- **Measuring:** `CodeAttribute#labelToBci` exists only for parsed code;
+  the `CodeBuilder` gives no positions. So each phrase of a method being
+  remedied is marked by a `CharacterRange` entry, whose labels the parsed
+  class file resolves (tested: exact positions). These entries are debug
+  information; the last round is generated once more without them. A
+  method above 65 535 bytes cannot be written and so not measured: it is
+  first divided roughly in proportion to the number of nodes of its
+  phrases, into parts of about 30 000 bytes, which the next round measures.
+- **Where a clause may be cut** (`Cut#admissible`): only a
+  `SERIAL_CLAUSE` (the declarations of an enquiry clause are visible in
+  THEN and DO); no identifier declared in the rest may occur before it or
+  outside the clause, so the rest can give its declarations their initial
+  values itself; with labels, the whole clause or a rest after the last
+  label (which has no declarations: none may follow a labeled unit).
+- **More than 200 parameters:** no cut there (as before for loops), so
+  such code stays a compile-time error above 65 535 bytes, as decided.
+- **Rounds:** at most sixteen instead of eight; a part made in one round
+  inherits the remedies of its method (loops, compact access, code that
+  runs once) and is cut again if needed.
+- **Test mode:** `A68J_CUT=every` cuts every serial clause before every
+  phrase where it may and makes every serial clause a method of its own
+  (`tools/cut_test.sh`).
+
+Results (details in section 11 of `optimizations.md`):
+
+- The class files of 1715 of the 1716 programs of the repository and the
+  ga68 test suite are identical byte for byte to those before; the
+  exception is `whole-1.a68` of the ga68 test suite, whose main program
+  (917 lines, no loops, 29 225 bytes) is now four methods of at most
+  7081 bytes, with the same result as ga68.
+- The generated programs of "Generated programs" above: A (6000 copies in
+  the main program) compiles, in 7 rounds and 10.1 s, into the main
+  program and 18 parts of at most 7101 bytes, and runs in 0.10 to 0.14 s;
+  B runs in 0.89 to 1.09 s instead of 2.39 to 2.95 s (the procedure and
+  two parts); C needs no cut since step 2 (7353 bytes).
+- The interpreter step: with 60 branches below 8000 bytes, 0.40 to
+  0.50 s instead of 1.17 to 1.36 s; with 200 branches it compiles (before:
+  an error), 1.15 to 1.31 s.
+- Still a compile-time error: a row display of 20 000 elements, and a
+  main program whose parts would each need the values of 250 variables.
+
 ## Order
 
 Step 1 (small), then step 2 (`MOD`/`OVER` first, then the code that runs
-once, then the compact access by size), then step 3. Steps 1 and 2 are
-done; the limit of about 1000 lines rose by a factor of about 1.2 for
-typical code; procedures dominated by element accesses that are too
-large are about 3.6 times smaller (results above). Only step 3 removes
-the limit.
+once, then the compact access by size), then step 3. All three are done.
+Step 2 made the code smaller (results above); step 3 removes the limit
+except for a single unit that is too large and a part that would need
+more than 200 parameters.

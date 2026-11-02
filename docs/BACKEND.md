@@ -415,8 +415,11 @@ ga68 has no counterpart for, is a compile-time error of a68j
 (`Gen.TooLarge`): `FILE:LINE:COL: error: the routine text (lines 2 to
 4003) needs 163740 bytes of JVM code, more than the 65535 that a method
 may have`, a note, status 1. Before that a68j tries to make the loops of
-the method methods of their own (docs/optimizations.md, sections 7 and
-9; docs/TODO-method-size.md).
+the method methods of their own, to access the elements of rows in it
+compactly, and to cut its serial clauses into parts that are methods of
+their own (`Cut`); what remains is a single unit too large for one method
+and a part that would need more than 200 parameters
+(docs/optimizations.md, sections 7, 9, 10 and 11; docs/TODO-method-size.md).
 
 ## 7. Values of generators and SKIP
 

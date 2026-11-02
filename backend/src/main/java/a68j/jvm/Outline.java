@@ -90,7 +90,7 @@ final class Outline {
     record Job(Gen.Routine routine, Node loop, String method, MethodTypeDesc type, List<Tag> values, List<Tag> holders) {}
 
     /** At most this many parameter slots (the JVM allows 255). */
-    private static final int MAX_SLOTS = 200;
+    static final int MAX_SLOTS = 200;
 
     static final String MODE = mode();
 
@@ -172,18 +172,18 @@ final class Outline {
      * on; with Ref the loop method paid a type check and a reload of the
      * location in every access (docs/optimizations.md, section 7).
      */
-    private static ClassDesc paramDesc(Gen g, Tag t) {
+    static ClassDesc paramDesc(Gen g, Tag t) {
         ClassDesc c = g.ownCell(t);
         return c != null ? c : localType(g, t).desc;
     }
 
     /** The type of the JVM local of TAG (for a direct variable: the value, not the name). */
-    private static JType localType(Gen g, Tag t) {
+    static JType localType(Gen g, Tag t) {
         return g.direct.contains(t) ? JType.of(g.a68, JType.base(t.type).sub) : JType.of(g.a68, t.type);
     }
 
     /** The call: holder filled, the method invoked, the values copied back (also on an exception). */
-    private static void call(Gen g, String name, MethodTypeDesc type, List<Tag> values, List<Tag> holders) {
+    static void call(Gen g, String name, MethodTypeDesc type, List<Tag> values, List<Tag> holders) {
         CodeBuilder cb = g.cb;
         int holder = -1;
         if (!holders.isEmpty()) {
@@ -226,7 +226,7 @@ final class Outline {
     }
 
     /** Copy the elements of the holder in local HOLDER into the locals of HOLDERS. */
-    private static void load(Gen g, List<Tag> holders, int holder) {
+    static void load(Gen g, List<Tag> holders, int holder) {
         CodeBuilder cb = g.cb;
         for (int i = 0; i < holders.size(); i++) {
             Tag t = holders.get(i);
@@ -240,7 +240,7 @@ final class Outline {
     }
 
     /** Copy the locals of HOLDERS into the holder in local HOLDER. */
-    private static void store(Gen g, List<Tag> holders, int holder) {
+    static void store(Gen g, List<Tag> holders, int holder) {
         CodeBuilder cb = g.cb;
         for (int i = 0; i < holders.size(); i++) {
             Tag t = holders.get(i);
@@ -317,9 +317,12 @@ final class Outline {
             g.methodRoot = job.loop;
             g.methodLoopBase = 1;
             g.methodRoots.put(job.method, job.loop);
+            String saveName = g.methodName;
+            g.methodName = job.method;
             GenClauses.loopInline(g, job.loop);
             g.methodRoot = saveRoot;
             g.methodLoopBase = saveBase;
+            g.methodName = saveName;
             code.labelBinding(end);
             if (holder >= 0) {
                 store(g, job.holders, holder);
@@ -362,45 +365,50 @@ final class Outline {
      * be outlined: it uses a direct variable that has no local yet (one
      * declared after the loop, used before its declaration).
      */
-    private static boolean uses(Gen g, Node p, Set<Tag> defined, Set<Tag> seen, List<Tag> used, Set<Tag> assigned) {
+    static boolean uses(Gen g, Node p, Set<Tag> defined, Set<Tag> seen, List<Tag> used, Set<Tag> assigned) {
         for (Node q = p.sub; q != null; q = q.next) {
-            if (g.routineOf.containsKey(q)) {
-                continue;
-            }
-            Tag t = q.tag;
-            if (t != null && !defined.contains(t)) {
-                if (g.localSlot.containsKey(t)) {
-                    if (seen.add(t)) {
-                        used.add(t);
-                    }
-                    if (g.direct.contains(t) && q.attribute == Attribute.IDENTIFIER) {
-                        // Not below a DEREFERENCING (see below): an assignment.
-                        assigned.add(t);
-                    }
-                } else if (g.direct.contains(t)) {
-                    return false;
-                }
-            }
-            if (q.attribute == Attribute.DEREFERENCING && dereferencedIdentifier(q) != null) {
-                // The value of a variable: for a direct one, a read of its local.
-                Node id = dereferencedIdentifier(q);
-                Tag x = id.tag;
-                if (x != null && !defined.contains(x)) {
-                    if (g.localSlot.containsKey(x)) {
-                        if (seen.add(x)) {
-                            used.add(x);
-                        }
-                    } else if (g.direct.contains(x)) {
-                        return false;
-                    }
-                }
-                continue;
-            }
-            if (!uses(g, q, defined, seen, used, assigned)) {
+            if (!usesOne(g, q, defined, seen, used, assigned)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /** {@link #uses} for the node Q and its sub-tree. */
+    static boolean usesOne(Gen g, Node q, Set<Tag> defined, Set<Tag> seen, List<Tag> used, Set<Tag> assigned) {
+        if (g.routineOf.containsKey(q)) {
+            return true;
+        }
+        Tag t = q.tag;
+        if (t != null && !defined.contains(t)) {
+            if (g.localSlot.containsKey(t)) {
+                if (seen.add(t)) {
+                    used.add(t);
+                }
+                if (g.direct.contains(t) && q.attribute == Attribute.IDENTIFIER) {
+                    // Not below a DEREFERENCING (see below): an assignment.
+                    assigned.add(t);
+                }
+            } else if (g.direct.contains(t)) {
+                return false;
+            }
+        }
+        if (q.attribute == Attribute.DEREFERENCING && dereferencedIdentifier(q) != null) {
+            // The value of a variable: for a direct one, a read of its local.
+            Node id = dereferencedIdentifier(q);
+            Tag x = id.tag;
+            if (x != null && !defined.contains(x)) {
+                if (g.localSlot.containsKey(x)) {
+                    if (seen.add(x)) {
+                        used.add(x);
+                    }
+                } else if (g.direct.contains(x)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return uses(g, q, defined, seen, used, assigned);
     }
 
     /** The identifier that the DEREFERENCING P dereferences directly, or null. */

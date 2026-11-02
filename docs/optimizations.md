@@ -387,14 +387,14 @@ the whole method, with no profile for the code after the hot loop.
   8000 bytes, generates the class again with the outermost loops of that
   method as methods of their own. A loop method that is still too large
   gets the same treatment for its inner loops. A method still too large
-  after that gets the compact element access (section 10); at most eight
-  rounds in all. Nothing is estimated: the sizes are those of the generated code. (A
+  after that gets the compact element access (section 10), and after
+  that its serial clauses are cut into parts that are methods of their
+  own (section 11); at most sixteen rounds in all. Nothing is estimated:
+  the sizes are those of the generated code. (A
   first attempt to estimate the size from the number of nodes in the tree
   was useless: the bytes per node of the 2270 methods of the Rosetta
-  programs ranged from 0.4 to 6.7.) A method that is too large and has
-  no loop is not divided (measurements and a plan for that case:
-  [`TODO-method-size.md`](TODO-method-size.md)); only its element
-  accesses become smaller (section 10).
+  programs ranged from 0.4 to 6.7.) Measurements and the plan for methods
+  without loops: [`TODO-method-size.md`](TODO-method-size.md).
 - **What the loop method gets:** the frame of the enclosing method and
   the value of every JVM local the loop uses. Identities and the names of
   variables never change, so a copy is enough. An own variable is passed
@@ -791,6 +791,9 @@ and the messages stay as before.
   p.a68:2:12: note: a68j compiles each routine text and each loop as a method of its own; code outside of them is not divided yet, so a long sequence of statements can be split into procedures
   ```
 
+  (Since section 11 such code is divided; the error remains for what
+  cannot be, and its note says what that is.)
+
 - **Division by a constant** (`Intrinsics#constantDivision`): `OVER`,
   `MOD`, `%`, `%*` and the assigning forms `%:=`, `%*:=`, `OVERAB`,
   `MODAB` on INT and LONG INT, when the divisor is an integral denotation
@@ -977,3 +980,124 @@ Only one-dimensional rows of the primitive modes have a compact access
   with 20, 60 and 200 branches: the right results, and the method sizes
   below 8000 and 65 535 bytes, or the compile-time error. The version
   before this section fails the first two.
+
+## 11. Serial clauses cut into methods of their own (2 Nov 2026)
+
+### The problem
+
+After sections 7, 9 and 10 a method could still be too large: a long
+main program or procedure without loops, a loop body without an inner
+loop, or a procedure that is one large case clause. Above 8000 bytes it
+ran in the interpreter; above 65 535 bytes it was a compile-time error
+(section 9). The measurements and the plan are in
+[`TODO-method-size.md`](TODO-method-size.md) (step 3).
+
+### What a68j does now
+
+A third remedy in `Gen.compileClass` (`Gen#remedy`), for a method that is
+still too large after its loops became methods of their own and its
+element accesses compact: its serial clauses are cut into parts that are
+methods of their own (class `Cut`).
+
+- **A part is the rest of a serial clause:** the clause is cut before
+  phrase k, and the phrases from k on become a method `partN` that the
+  clause calls in their place; its result is the value of the clause. A
+  rest that is still too large is cut again, so a long sequence of
+  statements becomes a chain of methods. With k = 0 the whole clause is a
+  part: for a branch of a conditional or case clause, or a closed clause,
+  inside a phrase that is too large itself. Only rests, never a piece in
+  the middle: what a rest declares, only later phrases can see.
+- **As for a loop method** (section 7): the part is compiled exactly as
+  before in the same routine, so frames, labels and jumps work as in the
+  enclosing method. The method gets the frame and the values of the JVM
+  locals it uses; the direct variables it assigns travel in the one
+  `long[]` holder and are copied back when it ends, normally or by an
+  exception. At most 200 parameter slots; where a part would need more,
+  the clause is not cut there.
+- **Where a clause may be cut** (`Cut#admissible`): only a serial clause
+  (the declarations of an enquiry clause are visible in its THEN and DO
+  parts); no identifier declared in the rest occurs before the rest or
+  outside the clause, so the rest gives its declarations their initial
+  values itself at its start (`GenClauses#prologue`), which is the same
+  as at the start of the clause; with labels, the whole clause or a rest
+  after the last label. A jump from such a rest back to a label leaves the
+  method by an exception and the clause starts again at the label, as for
+  a jump out of a loop method; a rest after a label has no declarations
+  (none may follow a labeled unit).
+- **Where the clauses are cut is measured:** in the rounds after the
+  first, each phrase of a method that is being remedied gets a
+  `CharacterRange` entry (debug information the JVM ignores); in the
+  class file its labels give the exact size of the phrase
+  (`CodeAttribute#labelToBci`; the `CodeBuilder` itself gives no
+  positions). `Cut#plan` then cuts, bottom up, each serial clause whose
+  phrases take more than 7000 bytes into rests of at most 7000 bytes, and
+  if the method is still larger, makes the largest clauses inside it
+  whole parts until it fits. The next round measures again; the last
+  round is generated once more without the entries. A method above
+  65 535 bytes cannot be written and so not measured: it is first divided
+  roughly, in proportion to the number of nodes of its phrases, into parts
+  of about 30 000 bytes that the next round measures.
+- **A part inherits** what its method is: code that runs once (compact,
+  section 9), compact access by size (section 10), loops as methods.
+  At most sixteen rounds instead of eight.
+
+What remains a compile-time error above 65 535 bytes: a single unit that
+is too large (a row display of 20 000 elements), and code whose parts
+would each need more than 200 parameters. The note of the error says so.
+
+`A68J_CUT=every` cuts every serial clause before every phrase where it
+may and makes every serial clause a method of its own, a test of the
+mechanism; `A68J_DEBUG_LOOPS=1` reports the remedies.
+
+### Measurements
+
+Generated programs (copies of `s := (s * 7 + k) MOD 1000003`, and the
+interpreter step of section 10 with 2 000 000 calls); the time of the
+whole run (JVM start included), five runs each, alternating, before and
+after this section:
+
+| program | before | after |
+|---|---|---|
+| 400 copies in a procedure without loops, 200 000 calls | 16 144 bytes, 2.39 to 2.95 s | the procedure and 2 parts (6999, 6985, 2174 bytes), 0.89 to 1.09 s |
+| interpreter step, 60 branches | 17 578 bytes, 1.17 to 1.36 s | below 8000 bytes, 0.40 to 0.50 s |
+| interpreter step, 200 branches | 68 304 bytes, a compile-time error | below 8000 bytes, 1.15 to 1.31 s |
+| 6000 copies in the main program | 125 771 bytes, a compile-time error | the main program and 18 parts, at most 7101 bytes, 0.10 to 0.14 s |
+
+Compiling the program with 6000 copies takes seven rounds and 10.1 s (one
+run). The 400 copies in the body of a loop need no cut since section 9
+(7353 bytes). For comparison, before section 9 the procedure ran 2.44 s,
+ga68 `-O0` 0.62 s (TODO-method-size.md).
+
+`whole-1.a68` of the ga68 test suite, whose main program of 917 lines had
+29 225 bytes (it has no loops), is now four methods of at most 7081 bytes;
+it runs once, so its time hardly changes (0.13 to 0.16 s before, 0.14
+to 0.16 s after, five runs each).
+
+### Tests
+
+- The class files of 1715 of the 1716 programs of the repository and of
+  the ga68 test suite, compiled by the version before and after this
+  section, are identical byte for byte, and so are the compiler's status
+  and messages; the one that differs is `whole-1.a68` above, which gives
+  the same result as with ga68.
+- With `A68J_CUT=every` (`tools/cut_test.sh`): the ga68 test suite, the
+  extra tests, the PAR tests and the Rosetta programs give the same
+  results as without it, program by program; four Rosetta programs that
+  run long (colorful-numbers, distribution-of-0-digits-in-factorial-series,
+  increasing-gaps-between-consecutive-niven-numbers, rhonda-numbers) need
+  more than the 30 s of the test there, as every loop body is cut too, and
+  give the same results with 600 s. Of the Java tests, `nest-java-trace`
+  differs only in its Java stack trace, which shows the part methods
+  (`part4` instead of `program`).
+- `tests/extra/serial-cuts-1.a68`: declarations before and after a cut, a
+  procedure called before its declaration, the values of serial clauses
+  of several modes, variables in JVM locals assigned in a part, jumps from
+  a part back to a label and out of nested clauses, and a runtime error in
+  a part, with its line; the same results as ga68, with and without
+  `A68J_CUT=every`.
+- `tools/method_size_test.py`: the main program, procedure and loop that
+  were too large and the interpreter step with 200 branches now give the
+  right results, and no method of a case that compiles has more than 8000
+  bytes; two new cases keep the compile-time error (a row display of
+  20 000 elements, and parts that would need the values of 250
+  variables). 10 of 10.

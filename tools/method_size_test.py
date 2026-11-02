@@ -6,13 +6,17 @@ Generates programs with thousands of copies of the statement
 s := (s * 7 + k) MOD 1000003 (k = 0, 1, ...) and checks, without ga68 (the
 expected values are computed here):
 
-- in the main program without a loop, at a size that fits since the code
-  that runs once is compact: the right result;
+- in the main program without a loop: the right result;
 - in the main program and in a loop of it: the loop is made a method of
   its own after the first attempt (Gen#compileClass), the right result;
-- too large in the main program, in a procedure and in a loop: a68j stops
-  with status 1 and the error that names the kind of code, its lines and
-  its size, and no Java stack trace.
+- too large for one method in the main program, in a procedure and in a
+  loop: the serial clause is cut into parts that are methods of their own
+  (Cut), each at most 8000 bytes, the right result;
+- too large and not divisible: a row display of 20 000 elements, and a
+  main program whose parts would each need the values of 250 variables
+  (more than the 200 parameters a part may have): a68j stops with status 1
+  and the error that names the kind of code, its lines and its size, and
+  no Java stack trace.
 
 And programs like the step of an interpreter: a procedure that is one case
 clause with N branches of six element accesses each, called in a loop
@@ -21,8 +25,12 @@ clause with N branches of six element accesses each, called in a loop
 - 20 branches: above 8000 bytes with the inline element access, below
   with compact access, which a68j chooses after the loops (there are none)
   did not help;
-- 60 branches: above the JVM limit inline, valid compact;
-- 200 branches: too large even compact, the error for the routine text.
+- 60 branches: above the JVM limit inline, valid compact but still above
+  8000 bytes; the branches become methods of their own (Cut);
+- 200 branches: too large even compact; the branches become methods of
+  their own (Cut, whole clauses), the right result.
+
+No method of a case that compiles may have more than 8000 bytes of code.
 """
 import argparse, os, re, subprocess, sys, tempfile
 
@@ -69,27 +77,36 @@ def interp_expected(n, calls):
     return sum(r)
 
 
+def values(n, copies):
+    """A main program with N variables and COPIES statements that use them in turn."""
+    return ("begin int s := 0;\n" + "".join(f"  int v{k} := {k};\n" for k in range(n))
+            + "".join(f"  s := (s * 7 + v{k % n}) MOD 1000003;\n" for k in range(copies)) + END)
+
+
 CASES = [
     # name, source, expected stdout or None, expected error pattern or None
     ("main-2500", "begin int s := 0;\n" + stmts(2500, "  ") + END, expected((2500, 1)), None),
     ("main-and-loop", "begin int s := 0;\n" + stmts(2500, "  ") + "  to 2 do\n" + stmts(2499, "    ")
      + "    skip\n  od;\n" + END, expected((2500, 1), (2499, 2)), None),
-    ("main-too-large", "begin int s := 0;\n" + stmts(4000, "  ") + END, None,
-     r"^m\.a68:1: error: the particular program \(lines 1 to 4003\) needs \d+ bytes of JVM code, "
+    ("main-6000", "begin int s := 0;\n" + stmts(6000, "  ") + END, expected((6000, 1)), None),
+    ("proc-4000", "begin int s := 0;\n  proc p = void: (\n" + stmts(4000, "    ") + "    skip);\n  p;\n" + END,
+     expected((4000, 1)), None),
+    ("loop-4000", "begin int s := 0;\n  to 2 do\n" + stmts(4000, "    ") + "    skip\n  od;\n" + END,
+     expected((4000, 2)), None),
+    ("display-too-large", "begin [] int a = (" + ", ".join(str(k) for k in range(20000)) + ");\n"
+     "  puts (whole (a[20000], 0) + \"'n\")\nend\n", None,
+     r"^m\.a68:1: error: the particular program \(lines 1 to 3\) needs \d+ bytes of JVM code, "
      r"more than the 65535 that a method may have$"),
-    ("proc-too-large", "begin int s := 0;\n  proc p = void: (\n" + stmts(4000, "    ") + "    skip);\n  p;\n" + END,
-     None, r"^m\.a68:2:\d+: error: the routine text \(lines 2 to 4003\) needs \d+ bytes of JVM code"),
-    ("loop-too-large", "begin int s := 0;\n  to 2 do\n" + stmts(4000, "    ") + "    skip\n  od;\n" + END,
-     None, r"^m\.a68:2:\d+: error: the loop clause \(lines 2 to 4004\) needs \d+ bytes of JVM code"),
+    ("values-too-many", values(250, 3500), None,
+     r"^m\.a68:1: error: the particular program \(lines 1 to 3753\) needs \d+ bytes of JVM code"),
     ("interp-20", interp(20, 20000), interp_expected(20, 20000), None),
     ("interp-60", interp(60, 20000), interp_expected(60, 20000), None),
-    ("interp-200", interp(200, 20000), None,
-     r"^m\.a68:2:\d+: error: the routine text \(lines 2 to 204\) needs \d+ bytes of JVM code"),
+    ("interp-200", interp(200, 20000), interp_expected(200, 20000), None),
 ]
 
-# Methods that must be at most this large (bytes of code) in the class file
-# of a case that compiles; the others are not checked.
-MAX_SIZE = {"interp-20": 8000, "interp-60": 65535}
+# No method of a case that compiles may be larger than this (bytes of code
+# in the class file): above it HotSpot does not compile the method.
+MAX_SIZE = 8000
 
 
 def main():
@@ -109,9 +126,9 @@ def main():
             r = subprocess.run([a.java, "-jar", os.path.abspath(a.jar), "m.a68"], cwd=d, env=env,
                                capture_output=True, text=True, timeout=600)
             big = ""
-            if r.returncode == 0 and name in MAX_SIZE:
+            if r.returncode == 0:
                 big = subprocess.run([a.java, os.path.join(ROOT, "tools", "MethodSizes.java"),
-                                      "-min", str(MAX_SIZE[name] + 1), "M.class"], cwd=d, env=env,
+                                      "-min", str(MAX_SIZE + 1), "M.class"], cwd=d, env=env,
                                      capture_output=True, text=True, timeout=600).stdout
             if r.returncode == 0:
                 r = subprocess.run([a.java, "-cp", os.path.abspath(a.jar) + os.pathsep + ".", "M"], cwd=d, env=env,
@@ -119,7 +136,7 @@ def main():
         if out is not None:
             ok = r.returncode == 0 and r.stdout == f"{out}\n" and big == ""
             if big:
-                print(f"{name}: methods above {MAX_SIZE[name]} bytes: {big.strip()}")
+                print(f"{name}: methods above {MAX_SIZE} bytes: {big.strip()}")
         else:
             lines = r.stderr.splitlines()
             ok = (r.returncode == 1 and bool(lines) and re.search(err, lines[0]) is not None

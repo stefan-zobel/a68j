@@ -63,6 +63,11 @@ final class GenClauses {
             g.unbox(want);
             return;
         }
+        if (g.inWhole == p) {
+            g.inWhole = null;  // in the method of this clause (Cut#emit)
+        } else if (Cut.whole(g, p, want)) {
+            return;
+        }
         List<Node> ph = new ArrayList<>();
         phrases(p, ph);
         int first = -1;
@@ -72,17 +77,10 @@ final class GenClauses {
                 break;
             }
         }
-        g.rangeWithoutLabels = first < 0;
-        for (Node q : ph) {
-            if (isDeclaration(q)) {
-                GenDecls.prologue(g, q);
-            }
-        }
-        g.rangeWithoutLabels = false;
+        java.util.NavigableSet<Integer> points = Cut.points(g, p, ph);
+        prologue(g, ph, 0, points, first < 0);
         if (first < 0) {
-            for (int i = 0; i < ph.size(); i++) {
-                phrase(g, ph, i, want);
-            }
+            phrasesFrom(g, p, ph, 0, want, points);
             return;
         }
         var cb = g.cb;
@@ -120,6 +118,18 @@ final class GenClauses {
         int k = 1;
         for (int i = 0; i < ph.size(); i++) {
             Node q = ph.get(i);
+            if (i > 0 && points.contains(i)) {
+                // The rest after the last label as a method of its own
+                // (Cut#admissible): it yields the value of the clause.
+                if (Cut.rest(g, p, ph, i, want)) {
+                    if (result >= 0) {
+                        cb.storeLocal(jt.kind, result);
+                    }
+                    cb.goto_(end);
+                    break;
+                }
+                prologue(g, ph, i, points, false);
+            }
             if (q.attribute == Attribute.LABELED_UNIT) {
                 cb.labelBinding(unitLabels.get(k++));
                 if (i == first) {
@@ -135,15 +145,19 @@ final class GenClauses {
             if (q.attribute == Attribute.LABELED_UNIT) {
                 q = Gen.son(q, Attribute.UNIT);
             }
+            Cut.Rec rec = Cut.begin(g, p, i);
             g.line(q);
             g.unit(q);
             if (isDeclaration(q)) {
+                Cut.end(g, rec);
                 continue;
             }
             if (!last) {
                 g.discard(Gen.mode(q));
+                Cut.end(g, rec);
             } else {
                 g.adjust(Gen.mode(q), want, q);
+                Cut.end(g, rec);
                 if (result >= 0) {
                     cb.storeLocal(jt.kind, result);
                 }
@@ -188,9 +202,50 @@ final class GenClauses {
         }
     }
 
-    /** Evaluate phrase I of a serial clause without labels (EXIT is not possible there). */
-    private static void phrase(Gen g, List<Node> ph, int i, Moid want) {
+    /**
+     * Evaluate the phrases of the serial clause P without labels (or after
+     * its last label) from phrase FROM on, the last one yielding a value of
+     * mode WANT. At each point of POINTS after FROM the rest becomes a
+     * method of its own (Cut#rest) if it can; if not, the declarations of
+     * the next part get their initial values there (see #prologue).
+     */
+    static void phrasesFrom(Gen g, Node p, List<Node> ph, int from, Moid want, java.util.NavigableSet<Integer> points) {
+        for (int i = from; i < ph.size(); i++) {
+            if (i > from && points.contains(i)) {
+                if (Cut.rest(g, p, ph, i, want)) {
+                    return;
+                }
+                prologue(g, ph, i, points, true);
+            }
+            phrase(g, p, ph, i, want);
+        }
+    }
+
+    /**
+     * The initial values of the identifiers declared in the phrases of PH
+     * from FROM up to the next point of POINTS (GenDecls#prologue). Without
+     * points that is the whole clause, as before; with them each part
+     * gives the initial values of its own declarations at its start, which
+     * is the same, as no identifier declared in a part occurs before it
+     * (Cut#admissible). WITHOUT_LABELS: the clause has no labels.
+     */
+    static void prologue(Gen g, List<Node> ph, int from, java.util.NavigableSet<Integer> points, boolean withoutLabels) {
+        Integer next = points.higher(from);
+        int to = next == null ? ph.size() : next;
+        g.rangeWithoutLabels = withoutLabels;
+        for (int i = from; i < to; i++) {
+            Node q = ph.get(i);
+            if (isDeclaration(q)) {
+                GenDecls.prologue(g, q);
+            }
+        }
+        g.rangeWithoutLabels = false;
+    }
+
+    /** Evaluate phrase I of the serial clause P without labels (EXIT is not possible there). */
+    private static void phrase(Gen g, Node p, List<Node> ph, int i, Moid want) {
         Node q = ph.get(i);
+        Cut.Rec rec = Cut.begin(g, p, i);
         g.line(q);
         g.unit(q);
         if (i < ph.size() - 1) {
@@ -200,6 +255,7 @@ final class GenClauses {
         } else {
             g.adjust(isDeclaration(q) ? null : Gen.mode(q), want, q);
         }
+        Cut.end(g, rec);
     }
 
     /** The tags of the labels in a LABEL subtree (a unit can have several labels). */

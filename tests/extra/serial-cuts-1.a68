@@ -1,0 +1,52 @@
+{ Serial clauses cut into parts that are methods of their own
+  (backend/src/main/java/a68j/jvm/Cut.java), mainly for A68J_CUT=every,
+  which cuts every serial clause before every phrase (tools/cut_test.sh):
+  declarations before and after a cut, a procedure called before its
+  declaration, the values of serial clauses of several modes, variables
+  kept in JVM locals that a part assigns, a jump from a part back to a
+  label of its clause, a jump out of nested clauses, and a runtime error
+  in a part (its line). }
+begin
+  mode Pair = struct (int x, real y);
+  mode Num = union (int, real);
+  int n := 0;
+  real r := 1.5;
+  int c = (int u := 3; u +:= later (u); proc later = (int v) int: v * 10; u);
+  puts (whole (c, 0) + "'n");
+  int i = (n +:= 1; n +:= 2; n);
+  real x = (r *:= 2.0; r + 0.25);
+  Pair p = (int a := 4; Pair q := (a, r); x of q +:= 1; q);
+  [] int row = (int m := 3; [m] int b; for j to m do b[j] := j * j od; b);
+  Num u = (int t := n; t +:= 1; t);
+  string s = (string t := "a"; t +:= "b"; t + "c");
+  bool b = (n := n; n = 3);
+  (n +:= 10; skip);
+  puts (whole (i, 0) + " " + fixed (x, 0, 2) + " " + whole (x of p, 0) + " " + fixed (y of p, 0, 1)
+        + " " + whole (row[3], 0) + " " + (u | (int v): whole (v, 0), (real w): fixed (w, 0, 1))
+        + " " + s + " " + (b | "T" | "F") + " " + whole (n, 0) + "'n");
+  int k := 0, sum := 0;
+  begin
+  again:
+    k +:= 1;
+    sum +:= k;
+    if k < 5 then goto again fi;
+    sum +:= 100
+  end;
+  puts (whole (k, 0) + " " + whole (sum, 0) + "'n");
+  int depth := 0;
+  begin
+    (depth +:= 1; (depth +:= 1; if depth = 2 then goto done fi; depth +:= 100); depth +:= 1000);
+    depth +:= 10000;
+  done:
+    puts (whole (depth, 0) + "'n")
+  end;
+  int t := 0;
+  real z := 0.0;
+  for j to 4 do int w := j; t +:= w; z +:= 0.5; t +:= 1 od;
+  puts (whole (t, 0) + " " + fixed (z, 0, 1) + "'n");
+  [3] int e;
+  int idx := 2;
+  idx +:= 2;
+  e[idx] := 1;
+  puts ("not reached'n")
+end
