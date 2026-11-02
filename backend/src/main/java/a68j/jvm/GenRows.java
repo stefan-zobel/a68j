@@ -510,8 +510,8 @@ final class GenRows {
         var cb = g.cb;
         List<Node> subs = new ArrayList<>();
         subscripts(p.sub.next, subs);
-        if (subs.size() == 1 && g.runsOnce()) {
-            // Code that runs once (Gen#runsOnce): Row#index1 called, 10 bytes
+        if (subs.size() == 1 && g.compactAccess()) {
+            // Compact access (Gen#compactAccess): Row#index1 called, 10 bytes
             // instead of about 50.
             cb.dup();
             g.unit(subs.get(0));
@@ -612,8 +612,8 @@ final class GenRows {
             case BOOL -> "elemZ";
             default -> null;
         };
-        if (n != null && g.runsOnce()) {
-            // Code that runs once (Gen#runsOnce): only the call.
+        if (n != null && g.compactAccess()) {
+            // Compact access (Gen#compactAccess): only the call.
             g.cb.invokestatic(Gen.CD_RT, n, MethodTypeDesc.of(t.desc, Gen.CD_ROW, CD_int));
         } else if (n != null) {
             // Inlined fast path for compact storage (see storeElem), else Rt.elemI ...
@@ -666,8 +666,8 @@ final class GenRows {
         if (n == null) {
             return false;
         }
-        if (g.runsOnce()) {
-            // Code that runs once (Gen#runsOnce): only the call.
+        if (g.compactAccess()) {
+            // Compact access (Gen#compactAccess): only the call.
             g.cb.invokestatic(Gen.CD_RT, n, MethodTypeDesc.of(CD_void, Gen.CD_ROW, CD_int, t.desc));
             return true;
         }

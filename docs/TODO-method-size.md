@@ -1,7 +1,8 @@
 # TODO: methods too large for the JVM and for its JIT
 
-Status, 2 Nov 2026: steps 1 and 2 of the plan are done (section 9 of
-[`optimizations.md`](optimizations.md), results below); step 3 is open.
+Status, 2 Nov 2026: steps 1 and 2 of the plan are done (sections 9 and
+10 of [`optimizations.md`](optimizations.md), results below); step 3 is
+open.
 Section 7 of `optimizations.md` describes the loop methods. The
 measurements in the following sections are those before steps 1 and 2.
 
@@ -23,11 +24,12 @@ measurements in the following sections are those before steps 1 and 2.
 `Outline` (section 7 of `optimizations.md`) makes every loop of the
 particular program a method of its own. `Gen#compileClass` measures the
 generated methods; a method above 8000 bytes, or above 65 535 bytes
-(since step 1), is generated again with its outermost loops as methods,
-for at most four rounds. **A method without a loop stays as it is,**
-however large it is, and so does a loop body without an inner loop;
-above 65 535 bytes that is a compile-time error (step 1). The code is
-smaller since step 2.
+(since step 1), is generated again with its outermost loops as methods;
+if it is still too large, its element accesses become compact (since
+step 2, "Compact access by size" below); at most eight rounds. **A
+method is not divided further,** however large it is, and neither is a
+loop body without an inner loop; above 65 535 bytes that is a
+compile-time error (step 1). The code is smaller since step 2.
 
 ## Measurements (2 Nov 2026)
 
@@ -146,7 +148,7 @@ other compile errors: which method (the main program, a procedure, a
 loop), its source lines, its size, the limit. Small; remains useful as the
 last resort after steps 2 and 3.
 
-### Step 2: smaller code (done, except the last point)
+### Step 2: smaller code (done)
 
 - **`MOD`, `OVER`, `%*` and their assigning forms with a constant
   divisor:** for a divisor greater than 0 the checks for 0 and -1 are not
@@ -160,9 +162,13 @@ last resort after steps 2 and 3.
   of 140 to 240. This does not change the behavior and costs no time: that
   code runs once. Not for serial clauses with labels, not in procedures
   (they may be called often), not in loop methods.
-- **To examine:** keeping only the fast path of the element access inline
-  and making the slow path one shared call. That concerns hot code, so it
-  needs the time measurements, not only the sizes.
+- **Hot code (done in a narrower form):** the compact element access also
+  in a method that is still above 8000 bytes after its loops became
+  methods of their own, chosen per method by its measured size; all
+  other methods keep the inline fast paths. Results below ("Compact
+  access by size"). Not done: the compact access (or only a shared slow
+  path) in all hot code, which would need the time measurements of
+  section 3 of `optimizations.md` (C2 compiling code without a profile).
 
 ### Step 3: more than loops as methods of their own
 
@@ -238,8 +244,9 @@ contain no loop, so that gives the values of the table above:
 | `print (i)` | 41 | 27 |
 | `print ((i, j, x, newline))` | 120 | 71 |
 
-The element access is compact only in code that runs once; in procedures
-and loops it stays inline (152 to 235 bytes). `MOD` and `OVER` with a
+The element access is compact only in code that runs once (and, since
+"Compact access by size" below, in methods too large for the JIT); in
+procedures and loops it stays inline (152 to 235 bytes). `MOD` and `OVER` with a
 constant divisor are short everywhere.
 
 The 669 programs of the repository (the same as above):
@@ -272,9 +279,32 @@ is too large and contains a loop is now often compiled: the loop becomes
 a method of its own after the first attempt. Only step 3 removes the
 limit.
 
+## Compact access by size (2 Nov 2026)
+
+The last point of step 2, in the form chosen after measuring: a method
+that is still above 8000 bytes (or 65 535) after its loops became methods
+of their own gets the compact element access in the next round; all other
+methods are unchanged (section 10 of `optimizations.md`).
+
+- The programs of the repository and the ga68 test suite (1716) compile
+  to the same class files as before, byte for byte: none of their methods
+  needs it.
+- The step of an interpreter, a procedure that is one case clause with
+  six element accesses per branch, called 2 000 000 times: with 20
+  branches 5 852 bytes instead of 20 937, compiled by the JIT, 0.34 to
+  0.46 s instead of 1.93 to 2.37 s; with 60 branches 17 578 bytes, which
+  compiles now (before: 76 243 bytes, an error) but stays above 8000;
+  with 200 branches still an error (68 304 bytes).
+- So such code is about 3.6 times smaller in those methods. A large
+  procedure without element accesses (like the copies of
+  `s := (s * 7 + k) MOD 1000003` above) gains nothing; only step 3
+  divides it.
+
 ## Order
 
 Step 1 (small), then step 2 (`MOD`/`OVER` first, then the code that runs
-once), then step 3. Steps 1 and 2 are done; the limit of about 1000
-lines rose by a factor of about 1.2 for typical code (results above).
-Only step 3 removes it.
+once, then the compact access by size), then step 3. Steps 1 and 2 are
+done; the limit of about 1000 lines rose by a factor of about 1.2 for
+typical code; procedures dominated by element accesses that are too
+large are about 3.6 times smaller (results above). Only step 3 removes
+the limit.

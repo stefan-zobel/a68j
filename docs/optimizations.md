@@ -386,13 +386,15 @@ the whole method, with no profile for the code after the hot loop.
   measures the bytecode of every method, and if a method has more than
   8000 bytes, generates the class again with the outermost loops of that
   method as methods of their own. A loop method that is still too large
-  gets the same treatment for its inner loops, at most four rounds.
-  Nothing is estimated: the sizes are those of the generated code. (A
+  gets the same treatment for its inner loops. A method still too large
+  after that gets the compact element access (section 10); at most eight
+  rounds in all. Nothing is estimated: the sizes are those of the generated code. (A
   first attempt to estimate the size from the number of nodes in the tree
   was useless: the bytes per node of the 2270 methods of the Rosetta
   programs ranged from 0.4 to 6.7.) A method that is too large and has
-  no loop stays as it is (measurements and a plan for that case:
-  [`TODO-method-size.md`](TODO-method-size.md)).
+  no loop is not divided (measurements and a plan for that case:
+  [`TODO-method-size.md`](TODO-method-size.md)); only its element
+  accesses become smaller (section 10).
 - **What the loop method gets:** the frame of the enclosing method and
   the value of every JVM local the loop uses. Identities and the names of
   variables never change, so a copy is enough. An own variable is passed
@@ -403,7 +405,8 @@ the whole method, with no profile for the code after the hot loop.
   is left by a jump or a runtime error. The loop is compiled exactly as
   before, in the same routine, so frames, jumps and labels work as in the
   enclosing method.
-- **Switches:** `-fno-loop-methods` turns it all off. For experiments
+- **Switches:** `-fno-loop-methods` turns all loop methods off (the
+  compact element access of section 10 remains). For experiments
   the environment variable `A68J_LOOP_METHODS` selects `none`, `outer` (only
   the outermost loops of the particular program) or `all` (the default);
   `A68J_DEBUG_LOOPS=1` reports the methods found too large.
@@ -889,3 +892,88 @@ test suite (471 of 472), `tests/extra` (33 of 33), the module tests as
 library jars (25 of 25), the Java, PAR and SKIP mode tests and the
 Rosetta programs give the same results as before; `tests/extra` and the
 Rosetta programs also with `A68J_LOOP_METHODS=every`.
+
+## 10. Compact element access in methods too large for the JIT (2 Nov 2026)
+
+### The problem
+
+A method above 8000 bytes runs in the interpreter (section 7). The loop
+methods help only where the size is in loops. A procedure without a loop
+can be large too, and the element access is most of it, as it is inline
+in procedures (152 to 235 bytes per access, section 9). An example is
+the step of an interpreter, a case clause over the opcodes:
+
+```
+proc step = (int code) void:
+  case code + 1 in
+    (r[0] := (r[3] * 2 + r[7]) MOD 65521; if r[0] > r[3] then r[7] +:= 1 fi),
+    ...
+  esac;
+for t to 2000000 do step (t MOD n) od
+```
+
+Each branch made about 1050 bytes: with 20 branches `step` had 20 937
+bytes and ran in the interpreter, and with about 50 or more it could not
+be compiled at all (60 branches: 76 243 bytes).
+
+### What a68j does now
+
+`Gen.compileClass` has a second remedy for a method that is too large
+(`Gen#remedy`): if the method is still above 8000 bytes (or above
+65 535) after its outermost loops became methods of their own, or if it
+has no loops, the next round generates it with the compact element access
+of code that runs once (`Gen#compactAccess`: `Row#index1`, `Rt.elemI`,
+`Rt.setElemI`, ... with the same checks and messages). The choice is per
+method and by its measured size; every other method keeps the inline fast
+paths. So a program none of whose methods is too large is compiled
+exactly as before.
+
+The reason for the inline fast paths (section 3) does not apply to such a
+method: without the remedy it is not compiled by the JIT at all. A method
+that is still above 8000 bytes when compact runs in the interpreter as
+before, with less code.
+
+`A68J_COMPACT_ACCESS=every` makes every element access compact, for the
+tests; `A68J_DEBUG_LOOPS=1` reports the remedies.
+
+### Measurements
+
+The interpreter step above, `step` called 2 000 000 times, the time of
+the whole run (JVM start included), five runs each, alternating:
+
+| branches | before | after |
+|---|---|---|
+| 20: size of `step` | 20 937 bytes | 5 852 bytes |
+| 20: time | 1.93 to 2.37 s | 0.34 to 0.46 s |
+| 60: size of `step` | 76 243 bytes, a compile-time error | 17 578 bytes |
+| 60: time (three runs) | | 1.21 to 1.49 s |
+| 200: size of `step` | 258 267 bytes | 68 304 bytes, still a compile-time error |
+
+About 290 bytes per branch instead of about 1050 (from 20 and 60
+branches; 341 per branch at 200, so the limit of 65 535 bytes is now a
+little below 200 branches instead of about 50, and the limit of 8000
+bytes about 27 branches instead of 7). For comparison: the 20 branches made procedures of their own by hand
+(about 820 bytes each, all compiled) took 0.21 to 0.26 s, ga68 `-O0`
+0.06 to 0.08 s. With 60 branches `step` is still above 8000 bytes and
+runs in the interpreter; only dividing it (step 3 of
+[`TODO-method-size.md`](TODO-method-size.md)) helps there.
+
+Only one-dimensional rows of the primitive modes have a compact access
+(as in section 9); an access with several subscripts stays inline.
+
+### Tests
+
+- The class files of all 1214 programs of `tests/extra`, `tests/perf`,
+  `tests/par`, `tests/java` and `tests/rosetta` and of the 502 programs
+  of the ga68 test suite, compiled by the version before and after this
+  section, are identical byte for byte, and so are the compiler's status
+  and messages. None of these programs has a method that gets the remedy,
+  so none can run differently.
+- With `A68J_COMPACT_ACCESS=every` (`tools/compact_access_test.sh`): the
+  ga68 test suite, `tests/extra` (also together with
+  `A68J_LOOP_METHODS=every`), the Rosetta programs and the Java and PAR
+  tests give the same results as without it, program by program.
+- `tools/method_size_test.py` has three more cases, the interpreter step
+  with 20, 60 and 200 branches: the right results, and the method sizes
+  below 8000 and 65 535 bytes, or the compile-time error. The version
+  before this section fails the first two.
