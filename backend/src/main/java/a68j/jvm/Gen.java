@@ -19,6 +19,7 @@ import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.Label;
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDesc;
 import java.lang.constant.DirectMethodHandleDesc;
 import java.lang.constant.MethodHandleDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -273,6 +274,35 @@ public final class Gen {
     /** Number of loop clauses around the code being generated, in the current method. */
     int loopDepth;
     /**
+     * Number of serial clauses around the code being generated, in the
+     * current method, in which that code comes at or after the first label
+     * (GenClauses#serial): a jump to a label can run the code again. The
+     * phrases before the first label run once; the particular program is
+     * such a clause, as the standard prelude puts the label of
+     * {@code stop} after it.
+     */
+    int labelDepth;
+
+    /**
+     * Whether the code being generated runs at most once in a run of the
+     * program: it is in the method of the particular program (or of the
+     * module), outside of every loop clause, and before the first label of
+     * every serial clause around it (labelDepth). Procedures and loop methods (Outline) can run many times, and
+     * so can a unit of a parallel clause (a method of its own as well).
+     *
+     * <p>Such code does not need to be fast, so it is generated compactly:
+     * an element of a row is read and written by calls of Row#index1 and
+     * Rt.elemI, Rt.setElemI, ... instead of the inline fast paths of
+     * GenRows#offsets, #loadElem and #storeElem, which take about 120 bytes
+     * more per access. A long straight-line program is then far less likely
+     * to exceed the 65535 bytes of code that a method may have
+     * (docs/TODO-method-size.md).
+     */
+    boolean runsOnce() {
+        Node top = a68.job.topNode;
+        return cur != null && cur.node == top && methodRoot == top && loopDepth == 0 && labelDepth == 0;
+    }
+    /**
      * The node the current method was made from: the routine's node, or
      * for a loop method (Outline) its loop clause, whose own loopDepth is
      * then methodLoopBase = 1.
@@ -335,7 +365,26 @@ public final class Gen {
             Gen g = new Gen(a68, className, sourceFile);
             g.loopMethods = loopMethods;
             g.splitRoots.addAll(split);
-            byte[] bytes = g.compile();
+            byte[] bytes;
+            try {
+                bytes = g.compile();
+            } catch (IllegalArgumentException e) {
+                // A method over the limit of the JVM: like a method too large
+                // for the JIT, its outermost loops are tried as methods of
+                // their own; when that cannot help, a compile-time error.
+                TooLarge t = TooLarge.of(e, g);
+                if (t == null) {
+                    throw e;
+                }
+                if (loopMethods && round < 4 && t.root != null && split.add(t.root)) {
+                    if (Outline.DEBUG) {
+                        System.err.println("a68j: method " + t.method + " has " + t.size
+                                + " bytes, more than the JVM allows; compiling its loops as methods of their own");
+                    }
+                    continue;
+                }
+                throw t;
+            }
             if (!loopMethods || round == 4) {
                 return bytes;
             }
@@ -354,6 +403,88 @@ public final class Gen {
             }
             if (!more) {
                 return bytes;
+            }
+        }
+    }
+
+    /** The JVM allows at most this many bytes of code in a method (JVMS 4.7.3). */
+    static final int MAX_CODE = 65535;
+
+    /**
+     * A method whose code is larger than the JVM allows (MAX_CODE), as a
+     * compile-time error that names the method's source: the program, a
+     * routine text or a loop clause (methodRoots), with its lines.
+     *
+     * <p>The class file library reports the size only when it writes the
+     * class, after all methods are generated, by an
+     * IllegalArgumentException whose message names the method ("Code length
+     * 70000 is outside the allowed range in program(Frame,Object[])Object"
+     * in JDK 25). {@link #of} takes the name and the size from that message;
+     * for any other IllegalArgumentException it returns null.
+     */
+    public static final class TooLarge extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        private static final java.util.regex.Pattern MESSAGE =
+                java.util.regex.Pattern.compile("Code length (\\d+) is outside the allowed range in ([^(]+)\\(");
+
+        /** The node the method was made from, or null if not known. */
+        final transient Node root;
+        final String method;
+        final int size;
+
+        private TooLarge(String message, Node root, String method, int size) {
+            super(message);
+            this.root = root;
+            this.method = method;
+            this.size = size;
+        }
+
+        static TooLarge of(IllegalArgumentException e, Gen g) {
+            java.util.regex.Matcher m = e.getMessage() == null ? null : MESSAGE.matcher(e.getMessage());
+            if (m == null || !m.find()) {
+                return null;
+            }
+            int size = Integer.parseInt(m.group(1));
+            String method = m.group(2);
+            Node root = g.methodRoots.get(method);
+            String what;
+            if (root == null) {
+                what = "the generated method " + method;
+            } else if (root == g.a68.job.topNode) {
+                what = g.moduleDef != null ? "the module" : "the particular program";
+            } else if (root.attribute == Attribute.ROUTINE_TEXT) {
+                what = "the routine text";
+            } else if (root.attribute == Attribute.LOOP_CLAUSE) {
+                what = "the loop clause";
+            } else {
+                what = "the clause";
+            }
+            int[] lines = {Integer.MAX_VALUE, 0};
+            if (root != null) {
+                lineRange(root, g.sourceFile, lines);
+            }
+            // The program's node is in the standard prelude: its first line in the source file.
+            a68j.front.Location loc = root == null ? null : a68j.front.Location.of(root);
+            String at = loc != null && loc.file().equals(g.sourceFile) ? loc.toString()
+                    : lines[1] == 0 ? g.sourceFile : g.sourceFile + ":" + lines[0];
+            String span = lines[1] == 0 ? "" : lines[0] == lines[1] ? " (line " + lines[0] + ")"
+                    : " (lines " + lines[0] + " to " + lines[1] + ")";
+            String msg = at + ": error: " + what + span + " needs " + size
+                    + " bytes of JVM code, more than the " + MAX_CODE + " that a method may have\n"
+                    + at + ": note: a68j compiles each routine text and each loop as a method of its own;"
+                    + " code outside of them is not divided yet, so a long sequence of statements"
+                    + " can be split into procedures";
+            return new TooLarge(msg, root, method, size);
+        }
+
+        /** The first and last line of P's subtree in FILE, into LINES[0] and LINES[1]. */
+        private static void lineRange(Node p, String file, int[] lines) {
+            if (p.info != null && p.info.line != null && p.info.line.filename.equals(file)) {
+                lines[0] = Math.min(lines[0], p.info.line.number);
+                lines[1] = Math.max(lines[1], p.info.line.number);
+            }
+            for (Node q = p.sub; q != null; q = q.next) {
+                lineRange(q, file, lines);
             }
         }
     }
@@ -413,11 +544,11 @@ public final class Gen {
                     : thisClass.packageName() + "." + thisClass.displayName();
             clb.withMethodBody("main", MethodTypeDesc.of(CD_void, CD_String.arrayType()),
                     ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
-                        code.ldc(mainName);
+                        Gen.constant(code, mainName);
                         code.aload(0);
                         code.invokestatic(CD_RT, "setProgramArgs",
                                 MethodTypeDesc.of(CD_void, CD_String, CD_String.arrayType()));
-                        code.ldc(java.lang.constant.MethodHandleDesc.ofMethod(
+                        Gen.constant(code, java.lang.constant.MethodHandleDesc.ofMethod(
                                 java.lang.constant.DirectMethodHandleDesc.Kind.STATIC, thisClass, "run0",
                                 MethodTypeDesc.of(CD_void)));
                         code.invokestatic(CD_RT, "start", MethodTypeDesc.of(CD_void, CD_MethodHandle));
@@ -551,9 +682,9 @@ public final class Gen {
             // structure can be longer): constants of at most 16384
             // characters (3 bytes each at most), concatenated.
             int chunk = 16384;
-            code.ldc(k.substring(0, Math.min(chunk, k.length())));
+            Gen.constant(code, k.substring(0, Math.min(chunk, k.length())));
             for (int from = chunk; from < k.length(); from += chunk) {
-                code.ldc(k.substring(from, Math.min(from + chunk, k.length())));
+                Gen.constant(code, k.substring(from, Math.min(from + chunk, k.length())));
                 code.invokevirtual(CD_String, "concat", MethodTypeDesc.of(CD_String, CD_String));
             }
             code.areturn();
@@ -608,14 +739,14 @@ public final class Gen {
                     code.ifnonnull(done);
                     code.invokestatic(thisClass, "prelude", MethodTypeDesc.of(CD_void));
                     code.labelBinding(done);
-                    code.ldc(pubTags.size());
+                    Gen.constant(code, pubTags.size());
                     code.anewarray(CD_Object);
                     for (int i = 0; i < pubTags.size(); i++) {
                         code.dup();
-                        code.ldc(i);
+                        Gen.constant(code, i);
                         code.getstatic(thisClass, "frame", CD_FRAME);
                         code.getfield(CD_FRAME, "s", CD_OBJECTS);
-                        code.ldc(program.frameSlots.get(pubTags.get(i)));
+                        Gen.constant(code, program.frameSlots.get(pubTags.get(i)));
                         code.aaload();
                         code.aastore();
                     }
@@ -735,7 +866,7 @@ public final class Gen {
                 int i = 0;
                 for (Tag t : GenUnits.parameters(r.node)) {
                     code.aload(1);
-                    code.ldc(i++);
+                    Gen.constant(code, i++);
                     code.aaload();
                     CodeBuilder save = cb;
                     cb = code;
@@ -773,7 +904,7 @@ public final class Gen {
                 code.new_(CD_FRAME);
                 code.dup();
                 code.aload(0);
-                code.ldc(r.frameSlots.size());
+                Gen.constant(code, r.frameSlots.size());
                 code.invokespecial(CD_FRAME, "<init>", MethodTypeDesc.of(CD_void, CD_FRAME, CD_int));
                 frameLocal = code.allocateLocal(TypeKind.REFERENCE);
                 code.astore(frameLocal);
@@ -999,7 +1130,7 @@ public final class Gen {
             cb.astore(tmp);
             loadFrame(owner);
             cb.getfield(CD_FRAME, "s", CD_OBJECTS);
-            cb.ldc(fs);
+            Gen.constant(cb, fs);
             cb.aload(tmp);
             cb.aastore();
             return;
@@ -1023,7 +1154,7 @@ public final class Gen {
         if (fs != null) {
             loadFrame(owner);
             cb.getfield(CD_FRAME, "s", CD_OBJECTS);
-            cb.ldc(fs);
+            Gen.constant(cb, fs);
             cb.aaload();
             unbox(t.type);
             return;
@@ -1069,9 +1200,32 @@ public final class Gen {
      * Push the location of the own variable X cast to its class C (see
      * {@link #ownCell}). Before its declaration is elaborated the variable
      * is NIL (GenDecls#prologue): Rt.deref reports that as usual.
+     *
+     * <p>A LOC variable without rows (GenDecls#cellAtEntry) gets its
+     * location in the prologue of its serial clause, which runs before
+     * any phrase of the clause and runs no code of the program (it makes
+     * procedure values, SKIP values and locations only). Every use of the
+     * variable is in a phrase of that clause or in a procedure called from
+     * one, so it is never NIL there and the check is left out: it would
+     * cost 12 bytes of code at each use (docs/TODO-method-size.md).
      */
     void loadOwnCell(Tag x, ClassDesc c, Node at) {
+        Routine owner = tableOwner.get(x.symbolTable);
+        Integer fs = owner == null ? null : owner.frameSlots.get(x);
+        if (fs != null && GenDecls.cellAtEntry(x)) {
+            // As load, without the cast to Ref that the cast to C makes redundant.
+            loadFrame(owner);
+            cb.getfield(CD_FRAME, "s", CD_OBJECTS);
+            Gen.constant(cb, fs);
+            cb.aaload();
+            cb.checkcast(c);
+            return;
+        }
         load(x, at);
+        if (GenDecls.cellAtEntry(x)) {
+            cb.checkcast(c);
+            return;
+        }
         Label ok = cb.newLabel();
         cb.dup();
         cb.ifnonnull(ok);
@@ -1115,6 +1269,22 @@ public final class Gen {
     // Helpers.
     // ------------------------------------------------------------------
 
+    /**
+     * Push the constant V with the shortest instruction (all generated code
+     * uses this instead of CodeBuilder#ldc, which always emits ldc): an int
+     * from -128 to 127 by iconst or bipush and the long 0 or 1 by lconst
+     * (CodeBuilder#loadConstant), anything else by ldc. ldc takes 2 bytes, or
+     * 3 as ldc_w or ldc2_w, never more than sipush; an int constant that is
+     * used in many places costs only one constant pool entry.
+     */
+    public static void constant(CodeBuilder cb, ConstantDesc v) {
+        if ((v instanceof Integer i && i >= -128 && i <= 127) || (v instanceof Long l && (l == 0 || l == 1))) {
+            cb.loadConstant(v);
+        } else {
+            cb.ldc(v);
+        }
+    }
+
     /** Source position for messages. */
     public static String where(Node p) {
         if (p == null || p.info == null || p.info.line == null) {
@@ -1134,8 +1304,8 @@ public final class Gen {
     public void pushWhere(Node p) {
         String file = p.info != null && p.info.line != null ? p.info.line.filename : "";
         int line = p.info != null && p.info.line != null ? p.info.line.number : 0;
-        cb.ldc(file);
-        cb.ldc(line);
+        Gen.constant(cb, file);
+        Gen.constant(cb, line);
     }
 
     /**

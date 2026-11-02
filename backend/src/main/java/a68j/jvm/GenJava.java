@@ -85,7 +85,7 @@ final class GenJava {
             g.javaBridges.add(clb -> emitBridge(g, clb, bridge, target, m, p));
             g.cb.new_(Gen.CD_CLOSURE);
             g.cb.dup();
-            g.cb.ldc(java.lang.constant.MethodHandleDesc.ofMethod(
+            Gen.constant(g.cb, java.lang.constant.MethodHandleDesc.ofMethod(
                     java.lang.constant.DirectMethodHandleDesc.Kind.STATIC, g.thisClass, bridge, Gen.MT_ROUTINE));
             g.cb.aconst_null();
             g.cb.invokespecial(Gen.CD_CLOSURE, "<init>", MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
@@ -664,8 +664,8 @@ final class GenJava {
      */
     private static Runnable convertArgument(Gen g, CodeBuilder code, Target t, int i, Moid m) {
         if (t.hasReceiver() && i == 0 && m.attribute == Attribute.REF_SYMBOL) {
-            code.ldc(desc(t.owner()));
-            code.ldc(t.spec());
+            Gen.constant(code, desc(t.owner()));
+            Gen.constant(code, t.spec());
             code.invokestatic(CD_CONV, t.kind() == Target.Kind.INSTANCE ? "receiver" : "fieldReceiver",
                     MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class, CD_String));
             code.checkcast(desc(t.owner()));
@@ -1073,7 +1073,7 @@ final class GenJava {
             List<Runnable> after = new ArrayList<>();
             for (Pack z = m.pack; z != null; z = z.next, i++) {
                 code.aload(1);
-                code.ldc(i);
+                Gen.constant(code, i);
                 code.aaload();
                 g.unbox(z.type);
                 if (ps[i] == a68j.rt.Row.class) {
@@ -1206,7 +1206,7 @@ final class GenJava {
                     if (j.getComponentType().isPrimitive()) {
                         code.invokestatic(CD_CONV, "back", MethodTypeDesc.of(CD_void, Gen.CD_REF, desc(j)));
                     } else {
-                        code.ldc((int) kind(g, re));
+                        Gen.constant(code, (int) kind(g, re));
                         code.invokestatic(CD_CONV, "back",
                                 MethodTypeDesc.of(CD_void, Gen.CD_REF, CD_Object.arrayType(), CD_char));
                     }
@@ -1220,7 +1220,7 @@ final class GenJava {
                 // The object of a JavaHandle, any other name as it is.
                 code.invokestatic(CD_CONV, "unwrap", MethodTypeDesc.of(CD_Object, Gen.CD_REF));
             } else {
-                code.ldc(desc(j));
+                Gen.constant(code, desc(j));
                 code.invokestatic(CD_CONV, "javaObject", MethodTypeDesc.of(CD_Object, Gen.CD_REF, CD_Class));
                 code.checkcast(desc(j));
             }
@@ -1284,8 +1284,8 @@ final class GenJava {
     }
 
     private static void objectsToJava(Gen g, CodeBuilder code, Moid e, Class<?> j, ClassDesc from) {
-        code.ldc(desc(j.getComponentType()));
-        code.ldc((int) kind(g, e));
+        Gen.constant(code, desc(j.getComponentType()));
+        Gen.constant(code, (int) kind(g, e));
         code.invokestatic(CD_CONV, "objects", MethodTypeDesc.of(CD_Object.arrayType(), from, CD_Class, CD_char));
         if (j != Object[].class) {
             code.checkcast(desc(j));
@@ -1312,7 +1312,7 @@ final class GenJava {
      * ClassCastException.
      */
     private static void checked(CodeBuilder code, Class<?> c) {
-        code.ldc(desc(c));
+        Gen.constant(code, desc(c));
         code.invokestatic(CD_CONV, "checked", MethodTypeDesc.of(CD_Object, CD_Object, CD_Class));
         code.checkcast(desc(c));
     }
@@ -1341,7 +1341,7 @@ final class GenJava {
         if (e != null) {
             Class<?> comp = j.getComponentType();
             if (comp != elementClass(g, e)) {
-                code.ldc((int) kind(g, e));
+                Gen.constant(code, (int) kind(g, e));
                 code.invokestatic(CD_CONV, "row", MethodTypeDesc.of(Gen.CD_ROW, CD_Object.arrayType(), CD_char));
             } else if (j == String[].class) {
                 code.invokestatic(CD_CONV, "row", MethodTypeDesc.of(Gen.CD_ROW, CD_String.arrayType()));
@@ -1530,14 +1530,14 @@ final class GenJava {
             g.cb = code;
             Class<?>[] ps = s.m.getParameterTypes();
             code.aload(0);
-            code.ldc(ps.length);
+            Gen.constant(code, ps.length);
             code.anewarray(CD_Object);
             int slot = 1;
             int i = 0;
             for (Pack z = m.pack; z != null; z = z.next, i++) {
                 TypeKind k = TypeKind.from(desc(ps[i]));
                 code.dup();
-                code.ldc(i);
+                Gen.constant(code, i);
                 code.loadLocal(k, slot);
                 slot += k.slotSize();
                 if (s.params[i] != ps[i]) {
@@ -1578,7 +1578,7 @@ final class GenJava {
         Sam s = sam(j, gt);
         String name = "j" + g.javaBridges.size();
         g.javaBridges.add(clb -> emitFromInterface(g, clb, name, s, m));
-        code.ldc(MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, g.thisClass, name, MT_FROM_JAVA));
+        Gen.constant(code, MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, g.thisClass, name, MT_FROM_JAVA));
         code.invokestatic(CD_CONV, "proc", MethodTypeDesc.of(Gen.CD_PROC, CD_Object, CD_MethodHandle));
     }
 
@@ -1593,7 +1593,7 @@ final class GenJava {
             int i = 0;
             for (Pack z = m.pack; z != null; z = z.next, i++) {
                 code.aload(1);
-                code.ldc(i);
+                Gen.constant(code, i);
                 code.aaload();
                 g.unbox(z.type);
                 convertToJava(g, code, JType.base(z.type), s.params[i], s.gparams[i]);
@@ -1654,9 +1654,9 @@ final class GenJava {
         if (file == null) {
             code.aconst_null();
         } else {
-            code.ldc(file);
+            Gen.constant(code, file);
         }
-        code.ldc(line);
+        Gen.constant(code, line);
         code.invokestatic(Gen.CD_RT, ofCaller ? "javaExceptionOfCaller" : "javaException", MT_JAVA_EXCEPTION);
         code.athrow();
         code.labelBinding(done);

@@ -48,7 +48,7 @@ final class GenCoercions {
                 // x OF p for a name p: the field itself, without making its name.
                 GenRows.nameFieldStruct(g, sl);
                 g.cb.getfield(Gen.CD_STRUCT, "f", Gen.CD_OBJECTS);
-                g.cb.ldc(idx);
+                Gen.constant(g.cb, idx);
                 g.cb.aaload();
                 g.unbox(p.type);
                 return;
@@ -109,7 +109,7 @@ final class GenCoercions {
         }
         a68j.front.Tag t = Gen.son(j, Attribute.IDENTIFIER).tag;
         g.loadFrame(g.tableOwner.get(t.symbolTable));
-        g.cb.ldc(g.labelNumber(t));
+        Gen.constant(g.cb, g.labelNumber(t));
         g.cb.invokestatic(Gen.CD_RT, "jumper", MethodTypeDesc.of(Gen.CD_PROC, Gen.CD_FRAME, CD_int));
     }
 
@@ -120,8 +120,15 @@ final class GenCoercions {
         if (JType.of(g.a68, s.type) == JType.UNION) {
             return;
         }
+        JType t = JType.of(g.a68, s.type);
+        if (t.isPrimitive()) {
+            // Rt.unite (int, int) ...: boxes the value itself, 3 bytes less.
+            Gen.constant(g.cb, JType.unionTag(g, s.type));
+            g.cb.invokestatic(Gen.CD_RT, "unite", MethodTypeDesc.of(Gen.CD_UNION, t.desc, CD_int));
+            return;
+        }
         g.box(s.type);
-        g.cb.ldc(JType.unionTag(g, s.type));
+        Gen.constant(g.cb, JType.unionTag(g, s.type));
         g.cb.invokestatic(Gen.CD_RT, "unite", MethodTypeDesc.of(Gen.CD_UNION, CD_Object, CD_int));
     }
 
@@ -140,7 +147,7 @@ final class GenCoercions {
             if (tm.attribute == Attribute.FLEX_SYMBOL) {
                 tm = JType.base(tm.sub);
             }
-            g.cb.ldc(tm.dim >= 2 ? 1 : 0);
+            Gen.constant(g.cb, tm.dim >= 2 ? 1 : 0);
             g.cb.invokestatic(Gen.CD_RT, "rowName", MethodTypeDesc.of(Gen.CD_REF, Gen.CD_REF, CD_boolean));
             return;
         }
@@ -169,7 +176,7 @@ final class GenCoercions {
             if (f == JType.INT) {
                 g.cb.i2l();
             }
-            g.cb.ldc(width);
+            Gen.constant(g.cb, width);
             g.cb.invokestatic(Gen.CD_RT, "bitsToRow", MethodTypeDesc.of(Gen.CD_ROW, CD_long, CD_int));
         } else if (t == JType.STRUCT) {
             // A complex number with imaginary part zero.
@@ -254,11 +261,11 @@ final class GenCoercions {
                     && JType.of(g.a68, em) != JType.ROW) {
                 g.line(d);
                 GenRows.nameFieldStruct(g, dst);
-                g.cb.ldc(GenRows.nameFieldIndex(g, dst));
+                Gen.constant(g.cb, GenRows.nameFieldIndex(g, dst));
                 Node src = d.sub.next.next;
                 g.unit(src);
                 Moid sm = Gen.mode(src);
-                GenUnits.copyIfValue(g, sm);
+                GenUnits.copyValueOf(g, src, sm);
                 g.box(sm);
                 g.cb.invokestatic(Gen.CD_RT, "assignField", MethodTypeDesc.of(CD_void, Gen.CD_STRUCT, CD_int, CD_Object));
                 return;

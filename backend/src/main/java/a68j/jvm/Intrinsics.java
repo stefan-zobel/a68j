@@ -140,7 +140,7 @@ final class Intrinsics {
     /** Push the (boxed) value of the module tag T. */
     static void loadModuleTag(Gen g, Tag t) {
         var bsm = java.lang.constant.ConstantDescs.ofConstantBootstrap(CD_MODULES, "bsm", CD_Object, CD_String, CD_String);
-        g.cb.ldc(java.lang.constant.DynamicConstantDesc.ofNamed(bsm, "m", CD_Object,
+        Gen.constant(g.cb, java.lang.constant.DynamicConstantDesc.ofNamed(bsm, "m", CD_Object,
                 moduleClass(t.moif.name), moduleKey(g, t)));
     }
 
@@ -192,7 +192,7 @@ final class Intrinsics {
         if (jt == JType.PROC) {
             // A standard procedure used as a value: a Proc calling its method.
             Moid proc = JType.base(t.type);
-            g.cb.ldc(owner(t) == Gen.CD_POSIX ? mangle(name(t)) : method(g, "", name(t), proc));
+            Gen.constant(g.cb, owner(t) == Gen.CD_POSIX ? mangle(name(t)) : method(g, "", name(t), proc));
             g.cb.invokestatic(owner(t), "procValue", MethodTypeDesc.of(Gen.CD_PROC, CD_String));
             return;
         }
@@ -360,6 +360,21 @@ final class Intrinsics {
         }
         g.unit(lhs);
         g.adjust(lhs.type, lm, lhs);
+        if (lt == rt && JType.base(lm) == JType.base(rm) && (lt == JType.INT || lt == JType.LONG) && !isBits(g, lm)) {
+            Division d = switch (n) {
+                case "%", "OVER" -> Division.OVER;
+                case "%*", "MOD" -> Division.MOD;
+                default -> null;
+            };
+            long c = d == null ? 0 : positiveDenotation(g, rhs, rm);
+            if (c > 0) {
+                constantDivision(g, d, lt, c);
+                if (lt == JType.INT) {
+                    narrow(g, proc.sub);
+                }
+                return;
+            }
+        }
         g.unit(rhs);
         g.adjust(rhs.type, rm, rhs);
         if (lt == rt && JType.base(lm) == JType.base(rm) && (JType.base(lm) != g.a68.modes.CHAR || isComparison(n))
@@ -407,9 +422,7 @@ final class Intrinsics {
         Moid m = JType.base(proc.pack.type).sub;
         Moid rm = proc.pack.next.type;
         g.load(x, lhs);
-        g.unit(rhs);
-        g.adjust(rhs.type, rm, rhs);
-        applyAssigning(g, assigningName(name(op.tag)), m, rm);
+        applyAssigning(g, assigningName(name(op.tag)), m, rhs, rm);
         g.store(x);
     }
 
@@ -456,9 +469,7 @@ final class Intrinsics {
         cb.aload(row);
         cb.iload(off);
         GenRows.loadElem(g, m, h);
-        g.unit(rhs);
-        g.adjust(rhs.type, rm, rhs);
-        applyAssigning(g, assigningName(name(op.tag)), m, rm);
+        applyAssigning(g, assigningName(name(op.tag)), m, rhs, rm);
         if (keep) {
             TypeKind k = JType.of(g.a68, m).kind;
             int v = cb.allocateLocal(k);
@@ -469,6 +480,29 @@ final class Intrinsics {
             return;
         }
         GenRows.storeElem(g, m, h);
+    }
+
+    /**
+     * Stack: value of mode M; push RHS (of mode RM) and apply the operator N
+     * of an assigning operator. OVERAB and MODAB with a positive integral
+     * denotation as divisor are compiled by {@link #constantDivision}.
+     */
+    private static void applyAssigning(Gen g, String n, Moid m, Node rhs, Moid rm) {
+        JType mt = JType.of(g.a68, m);
+        if ((n.equals("%") || n.equals("%*")) && mt == JType.of(g.a68, rm) && JType.base(m) == JType.base(rm)
+                && (mt == JType.INT || mt == JType.LONG) && !isBits(g, m)) {
+            long c = positiveDenotation(g, rhs, rm);
+            if (c > 0) {
+                constantDivision(g, n.equals("%") ? Division.OVER : Division.REM, mt, c);
+                if (mt == JType.INT) {
+                    narrow(g, m);
+                }
+                return;
+            }
+        }
+        g.unit(rhs);
+        g.adjust(rhs.type, rm, rhs);
+        applyAssigning(g, n, m, rm);
     }
 
     /** Stack: value of mode M, value of mode RM; apply the operator N (of an assigning operator). */
@@ -512,9 +546,7 @@ final class Intrinsics {
             cb.dup();
             cb.dup();
             cb.getfield(c, "v", mt.desc);
-            g.unit(rhs);
-            g.adjust(rhs.type, rm, rhs);
-            applyAssigning(g, n, m, rm);
+            applyAssigning(g, n, m, rhs, rm);
             cb.putfield(c, "v", mt.desc);
             return;
         }
@@ -526,9 +558,7 @@ final class Intrinsics {
             // Unboxed for the typed locations (Rt.derefI, Rt.assignI, ...).
             String x = GenRows.typeLetter(mt);
             cb.invokestatic(Gen.CD_RT, "deref" + x, MethodTypeDesc.of(mt.desc, Gen.CD_REF, CD_String, CD_int));
-            g.unit(rhs);
-            g.adjust(rhs.type, rm, rhs);
-            applyAssigning(g, n, m, rm);
+            applyAssigning(g, n, m, rhs, rm);
             g.pushWhere(p);
             cb.invokestatic(Gen.CD_RT, "assign" + x, MethodTypeDesc.of(CD_void, Gen.CD_REF, mt.desc, CD_String, CD_int));
             return;
@@ -536,11 +566,95 @@ final class Intrinsics {
         cb.invokestatic(Gen.CD_RT, "deref", MethodTypeDesc.of(Gen.CD_REF, Gen.CD_REF, CD_String, CD_int));
         cb.invokevirtual(Gen.CD_REF, "get", MethodTypeDesc.of(CD_Object));
         g.unbox(m);
-        g.unit(rhs);
-        g.adjust(rhs.type, rm, rhs);
-        applyAssigning(g, n, m, rm);
+        applyAssigning(g, n, m, rhs, rm);
         g.box(m);
         GenUnits.assignBoxed(g, refMode, p);
+    }
+
+    /** The integral divisions: OVER (%), MOD (%*) and the C remainder of MODAB (%*:=). */
+    enum Division { OVER, MOD, REM }
+
+    /**
+     * The value of the unit P if it is an integral denotation (of mode M,
+     * without coercion) whose value is greater than 0 and fits the JVM type
+     * of M; otherwise 0.
+     */
+    static long positiveDenotation(Gen g, Node p, Moid m) {
+        Node u = GenUnits.strip(p);
+        if (u == null) {
+            return 0;
+        }
+        Node d = u;
+        if (u.attribute == Attribute.DENOTATION) {
+            d = u.sub;
+            while (d != null && d.next != null) {
+                d = d.next;
+            }
+        }
+        Moid dm = u.type != null ? u.type : d == null ? null : d.type;
+        if (d == null || d.attribute != Attribute.INT_DENOTATION || d.info == null || dm == null
+                || JType.base(dm) != JType.base(m)) {
+            return 0;
+        }
+        long v;
+        try {
+            v = Long.parseUnsignedLong(d.info.symbol.replace(" ", ""));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+        JType t = JType.of(g.a68, m);
+        if (v <= 0 || (t == JType.INT && v > Integer.MAX_VALUE) || (t != JType.INT && t != JType.LONG)) {
+            return 0;
+        }
+        return v;
+    }
+
+    /**
+     * Stack: a (int or long, T) -> a OVER c, a MOD c or the remainder of
+     * MODAB, for a constant c greater than 0. The divisor is neither 0 nor
+     * -1, so none of the checks of {@link #intDivision} (and Rt.over,
+     * Rt.mod, Rt.rem) is needed, and the code is a third of the size: about
+     * 12 bytes instead of 50 to 70 for MOD on INT (see
+     * docs/TODO-method-size.md). The results are those of Rt.over, Rt.mod
+     * and Rt.rem with b = c: the JVM's idiv/ldiv truncate and irem/lrem have
+     * the sign of a, as in C; MOD adds c to a negative remainder.
+     */
+    static void constantDivision(Gen g, Division d, JType t, long c) {
+        CodeBuilder cb = g.cb;
+        boolean l = t == JType.LONG;
+        GenUnits.pushIntegral(g, t, c);
+        if (d == Division.OVER) {
+            if (l) {
+                cb.ldiv();
+            } else {
+                cb.idiv();
+            }
+            return;
+        }
+        if (l) {
+            cb.lrem();
+        } else {
+            cb.irem();
+        }
+        if (d == Division.REM) {
+            return;
+        }
+        Label end = cb.newLabel();
+        if (l) {
+            cb.dup2();
+            cb.lconst_0();
+            cb.lcmp();
+        } else {
+            cb.dup();
+        }
+        cb.ifge(end);
+        GenUnits.pushIntegral(g, t, c);
+        if (l) {
+            cb.ladd();
+        } else {
+            cb.iadd();
+        }
+        cb.labelBinding(end);
     }
 
     /**
@@ -691,10 +805,10 @@ final class Intrinsics {
         } else if (m == md.SHORT_INT) {
             g.cb.i2s();
         } else if (m == md.SHORT_SHORT_BITS) {
-            g.cb.ldc(0xff);
+            Gen.constant(g.cb, 0xff);
             g.cb.iand();
         } else if (m == md.SHORT_BITS) {
-            g.cb.ldc(0xffff);
+            Gen.constant(g.cb, 0xffff);
             g.cb.iand();
         }
     }

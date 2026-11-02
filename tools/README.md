@@ -58,6 +58,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
 | `loop_methods_test.sh NATIVE_EXTRA NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
+| `method_size_test.py [--jar JAR]` | generated programs near and above the 65 535 bytes of code a method may have: the right results where they fit, the compile-time error where not (`docs/TODO-method-size.md`); needs no ga68 |
 
 ## Performance
 

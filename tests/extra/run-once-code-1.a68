@@ -1,0 +1,29 @@
+{ Code of the main program that runs once (Gen#runsOnce): element accesses
+  there are calls of the runtime instead of inline code. Rows of every
+  primitive mode, two dimensions, assigning operators on elements, a
+  serial clause with a label (the code after the label is inline again),
+  and a variable used by a procedure before its declaration (a LOC
+  variable without rows has its location from the start of its range, so
+  a68j leaves out the check for NIL, Gen#loadOwnCell). The last access is
+  out of bounds: the same runtime error, at the same line, as with ga68. }
+begin
+  proc show = void: puts (whole (s, 0) + " ");
+  show; s := 7; show;
+  int s := 5;
+  show;
+  [1:3] int a := (1, 2, 3);
+  [2:3, 1:2] real m; m[2, 1] := 1.5; m[3, 2] := 2.5;
+  [1:2] bool z; z[1] := true; z[2] := false;
+  [0:1] long int l; l[0] := long 5; l[1] := l[0] * long 2;
+  a[2] +:= 40; a[3] := a[1] + a[2]; a[1] *:= a[3];
+  [1:2] string t; t[1] := "x"; t[2] := t[1] + "y";
+  puts (whole (a[1], 0) + " " + whole (a[3], 0) + " " + fixed (m[2, 1] + m[3, 2], 0, 1) + " "
+        + (z[1] | "T" | "F") + (z[2] | "T" | "F") + " " + whole (l[1], 0) + " " + t[2] + "'n");
+  int n := 0;
+again:
+  a[1 + n MOD 3] +:= 1;
+  n +:= 1;
+  if n < 5 then goto again fi;
+  puts (whole (a[1], 0) + " " + whole (a[2], 0) + " " + whole (a[3], 0) + "'n");
+  a[n] := 1
+end

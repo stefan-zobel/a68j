@@ -410,6 +410,14 @@ Not supported (`Gen.Unsupported`, the compiler stops): partial
 parametrisation (`f (3, )`, an Algol 68 Genie extension), which ga68 compiles
 into calls with missing arguments.
 
+A method with more than the 65 535 bytes of code that the JVM allows, which
+ga68 has no counterpart for, is a compile-time error of a68j
+(`Gen.TooLarge`): `FILE:LINE:COL: error: the routine text (lines 2 to
+4003) needs 163740 bytes of JVM code, more than the 65535 that a method
+may have`, a note, status 1. Before that a68j tries to make the loops of
+the method methods of their own (docs/optimizations.md, sections 7 and
+9; docs/TODO-method-size.md).
+
 ## 7. Values of generators and SKIP
 
 `a68j.rt.Gen` builds fresh values from a compact description of the mode

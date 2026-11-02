@@ -58,9 +58,37 @@ final class GenUnits {
 
     /** copyIfValue for a value of mode M given by the unit P bound to an identity or parameter. */
     static void copyIfValue(Gen g, Node p, Moid m) {
-        if (!ownedValue(g, p)) {
+        if (!ownedValue(g, p) && !unitedPlainValue(g, p)) {
             copyIfValue(g, m);
         }
+    }
+
+    /**
+     * copyIfValue for a value of mode M given by the unit P, wherever it
+     * goes: no copy for {@link #unitedPlainValue}, as the copy would be
+     * the same object.
+     */
+    static void copyValueOf(Gen g, Node p, Moid m) {
+        if (!unitedPlainValue(g, p)) {
+            copyIfValue(g, m);
+        }
+    }
+
+    /**
+     * Whether the unit P unites a value whose mode is not a row, structure
+     * or union mode, such as an INT item of print: Rt.unite makes a new
+     * Union of it, and Rt.copyValue returns such a Union unchanged (it
+     * copies only a Union whose value is a Struct or a Row). The call of
+     * copyValue and its cast can be left out, 6 bytes per item
+     * (docs/TODO-method-size.md).
+     */
+    static boolean unitedPlainValue(Gen g, Node p) {
+        Node s = strip(p);
+        if (s == null || s.attribute != Attribute.UNITING || s.sub == null || s.sub.type == null) {
+            return false;
+        }
+        JType t = JType.of(g.a68, s.sub.type);
+        return t != JType.ROW && t != JType.STRUCT && t != JType.UNION;
     }
 
     /** Stack: ref, boxed value. Stores the value into the name (NIL check included). */
@@ -73,7 +101,7 @@ final class GenUnits {
     /** Push the default (SKIP) value of mode M (a68_get_skip_tree). */
     static void pushSkip(Gen g, Moid m) {
         if (JType.base(m) == g.a68.modes.CHAR) {
-            g.cb.ldc((int) ' ');
+            Gen.constant(g.cb, (int) ' ');
             return;
         }
         switch (JType.of(g.a68, m)) {
@@ -109,12 +137,12 @@ final class GenUnits {
 
     /** Push an Object[] with the boxed (and copied) values of ARGS. */
     static void pushArgArray(Gen g, List<Node> args) {
-        g.cb.ldc(args.size());
+        Gen.constant(g.cb, args.size());
         g.cb.anewarray(CD_Object);
         for (int i = 0; i < args.size(); i++) {
             Node a = args.get(i);
             g.cb.dup();
-            g.cb.ldc(i);
+            Gen.constant(g.cb, i);
             g.unit(a);
             copyIfValue(g, a, a.type);
             g.box(a.type);
@@ -219,17 +247,17 @@ final class GenUnits {
                 }
                 if (t == JType.FLOAT) {
                     // As C: the denotation is converted to float directly.
-                    g.cb.ldc(Float.parseFloat(x));
+                    Gen.constant(g.cb, Float.parseFloat(x));
                 } else {
-                    g.cb.ldc(Double.parseDouble(x));
+                    Gen.constant(g.cb, Double.parseDouble(x));
                 }
             }
             case ROW_CHAR_DENOTATION -> {
                 s = processBreaks(s);
                 if (t == JType.INT) {
-                    g.cb.ldc(s.isEmpty() ? 0 : s.codePointAt(0));
+                    Gen.constant(g.cb, s.isEmpty() ? 0 : s.codePointAt(0));
                 } else {
-                    g.cb.ldc(s);
+                    Gen.constant(g.cb, s);
                     g.cb.invokestatic(Gen.CD_ROW, "ofString", MethodTypeDesc.of(Gen.CD_ROW, CD_String));
                 }
             }
@@ -287,11 +315,11 @@ final class GenUnits {
         return new String(sb.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
-    private static void pushIntegral(Gen g, JType t, long v) {
+    static void pushIntegral(Gen g, JType t, long v) {
         if (t == JType.LONG) {
-            g.cb.ldc(v);
+            Gen.constant(g.cb, v);
         } else {
-            g.cb.ldc((int) v);
+            Gen.constant(g.cb, (int) v);
         }
     }
 
@@ -373,11 +401,11 @@ final class GenUnits {
     static void assignTo(Gen g, Moid refMode, Node src, Node at) {
         g.unit(src);
         Moid sm = Gen.mode(src);
-        copyIfValue(g, sm);
+        copyValueOf(g, src, sm);
         if (JType.of(g.a68, sm) == JType.ROW) {
             Moid x = JType.base(JType.base(refMode).sub);
             boolean flex = x == g.a68.modes.STRING || (x != null && x.attribute == Attribute.FLEX_SYMBOL);
-            g.cb.ldc(flex ? 1 : 0);
+            Gen.constant(g.cb, flex ? 1 : 0);
             g.pushWhere(at);
             g.cb.invokestatic(Gen.CD_RT, "assignRow",
                     MethodTypeDesc.of(CD_void, Gen.CD_REF, Gen.CD_ROW, CD_boolean, CD_String, CD_int));
@@ -478,7 +506,7 @@ final class GenUnits {
         Gen.Routine r = g.routineFor(p);
         g.cb.new_(Gen.CD_CLOSURE);
         g.cb.dup();
-        g.cb.ldc(g.handle(r));
+        Gen.constant(g.cb, g.handle(r));
         g.cb.aload(g.frameLocal);
         g.cb.invokespecial(Gen.CD_CLOSURE, "<init>",
                 MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
@@ -516,7 +544,7 @@ final class GenUnits {
                 slot += jt.kind.slotSize();
             } else {
                 g.cb.aload(1);
-                g.cb.ldc(i);
+                Gen.constant(g.cb, i);
                 g.cb.aaload();
                 g.unbox(t.type);
             }

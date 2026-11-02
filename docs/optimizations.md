@@ -136,9 +136,11 @@ nothing to inline:
 - **Variables:** a variable declared in the program itself is certainly
   the `Cell` or `IntCell` that its generator made. Reading, assigning,
   `+:=` and slicing therefore use its field directly. The check for NIL
-  remains, since a variable is NIL before its declaration.
+  remains where a variable is NIL before its declaration (HEAP variables
+  and variables with rows; section 9).
 - **Division:** `OVER` and `MOD` on INT are `idiv` and `irem`. Only a
-  divisor 0 or -1 calls the runtime (SIGFPE as in ga68).
+  divisor 0 or -1 calls the runtime (SIGFPE as in ga68); for a constant
+  divisor greater than 0 there is no check at all (section 9).
 
 Effect: `ruth-aaron-numbers` takes 7–8 s instead of 14.9 s (ga68 9.0 s).
 
@@ -751,3 +753,139 @@ of fields, names of elements, nested loops, loops in procedures) and
 suite, `tests/extra`, the Java and PAR tests and the Rosetta programs give
 the same results as before, also with `A68J_LOOP_METHODS=none` and
 `every`.
+
+## 9. Smaller code (2 Nov 2026)
+
+### The problem
+
+The JVM allows at most 65 535 bytes of code in a method, and HotSpot
+compiles no method above 8000 bytes (the limits and the measurements
+before this section: [`TODO-method-size.md`](TODO-method-size.md)). The
+generated code had about 64 bytes per source line, so a main program of
+about 1000 lines without loops could not be compiled at all, and a68j
+stopped with a Java stack trace. Most of the size came from code that is
+inline on purpose (section 3): the element access with its fast and its
+slow path (150 to 240 bytes), `MOD` and `OVER` with their checks (50 to
+70 bytes), and the check for NIL at every use of a variable that lives in
+a frame (12 bytes).
+
+### What a68j does now
+
+None of this changes the behavior: the order of evaluation, the checks
+and the messages stay as before.
+
+- **A compile-time error instead of the stack trace** (`Gen.TooLarge`).
+  The class file library reports a method that is too large only when it
+  writes the class, by an `IllegalArgumentException` whose message names
+  the method; `Gen.compileClass` takes the method from it. It first tries
+  the same as for a method too large for the JIT: the outermost loops of
+  the method become methods of their own, and the class is generated
+  again. If that cannot help, a68j reports the method like other errors,
+  with the kind of code, its lines and its size, and exits with status 1:
+
+  ```
+  p.a68:2:12: error: the routine text (lines 2 to 4003) needs 163740 bytes of JVM code, more than the 65535 that a method may have
+  p.a68:2:12: note: a68j compiles each routine text and each loop as a method of its own; code outside of them is not divided yet, so a long sequence of statements can be split into procedures
+  ```
+
+- **Division by a constant** (`Intrinsics#constantDivision`): `OVER`,
+  `MOD`, `%`, `%*` and the assigning forms `%:=`, `%*:=`, `OVERAB`,
+  `MODAB` on INT and LONG INT, when the divisor is an integral denotation
+  greater than 0. Such a divisor is neither 0 nor -1, so none of the checks
+  of the general case is needed: `idiv`, or `irem` and for `MOD` the
+  correction of a negative remainder (`dup`, `ifge`, add the divisor).
+  About 12 bytes instead of 50 to 70, and fewer instructions in hot loops.
+  The results are those of `Rt.over`, `Rt.mod` and `Rt.rem`; the test
+  compares them with ga68 for negative operands, the most negative INT, a
+  divisor of `max int`, LONG INT and SHORT INT.
+- **No check for NIL where a variable cannot be NIL** (`Gen#loadOwnCell`).
+  A LOC variable without rows (`GenDecls#cellAtEntry`) gets its location
+  in the prologue of its serial clause, which runs before every phrase of
+  the clause and runs no code of the program (it makes procedure values,
+  SKIP values and locations only). Every use of the variable is in a phrase
+  of that clause or in a procedure called from one, so the location is
+  never NIL there, also when a procedure uses the variable before its
+  declaration (then it has its SKIP value, as in ga68). HEAP variables and
+  variables with rows get their location at the declaration and keep the
+  check. 12 bytes less per use of a variable in a frame (one used by a
+  procedure or a loop method), and one cast less.
+- **The shortest instruction for a constant** (`Gen#constant`, used
+  instead of `CodeBuilder#ldc` everywhere): `iconst` or `bipush` for an
+  int from -128 to 127, `lconst` for the long 0 and 1, `ldc` otherwise
+  (never longer than `sipush`).
+- **Code that runs once** (`Gen#runsOnce`): the code of the method of the
+  particular program (or module) outside of every loop and before the
+  first label of every serial clause around it runs at most once. There an
+  element access of a one-dimensional row is a call of `Row#index1` and
+  `Rt.elemI`, `Rt.setElemI`, ... instead of the inline fast and slow
+  paths, with the same checks and messages. The particular program itself
+  is a serial clause with a label, as the standard prelude puts the label
+  of `stop` after it; from a label on, a jump can run the code again, so
+  that code stays inline. Procedures, loop methods and the units of a
+  parallel clause are methods of their own and are never code that runs
+  once. Speed does not matter for such code, and section 3 does not apply
+  to it: it is not in a loop whose code C2 compiles without a profile.
+- **Uniting a plain value** (`GenUnits#unitedPlainValue`,
+  `GenCoercions#uniting`): an item of `print` or the argument of `whole`
+  is a value of a primitive mode united to a union. The copy of a value
+  (`Rt.copyValue`, for value semantics) returns such a Union unchanged, as
+  it only copies a Union of a structure or a row, so it is left out; and
+  `Rt.unite (int, int)` and its siblings box the value themselves, one
+  call instead of two. 9 bytes less per item.
+
+### Measurements
+
+Sizes, the 669 programs of the repository and the generated programs:
+[`TODO-method-size.md`](TODO-method-size.md), "Results of steps 1 and 2".
+In short: 9.4 % less code over all methods, 14 % less in `program()`, no
+method above 8000 bytes left (there were two), and a main program of
+copies of `s := (s * 7 + k) MOD 1000003` fits about 3100 copies into one
+method instead of 800.
+
+Time: the 12 Rosetta programs of section 7, five runs each, alternating,
+median (`tools/perf_ab.py`); A the version before (commit `ebc7769`), B
+with all of this section:
+
+| program | A | B |
+|---|---|---|
+| proper-divisors-2 | 11.40 | 11.37 |
+| composite-numbers-k-… | 10.31 | 10.79 |
+| distribution-of-0-digits-in-factorial-series | 5.79 | 5.87 |
+| fermat-pseudoprimes | 8.52 | 8.25 |
+| self-describing-numbers | 7.51 | 7.77 |
+| ruth-aaron-numbers | 4.97 | 4.88 |
+| rhonda-numbers | 5.87 | 5.91 |
+| colorful-numbers | 3.16 | 4.04 |
+| increasing-gaps-between-consecutive-niven-numbers | 3.69 | 3.54 |
+| percolation-mean-run-density | 3.63 | 3.86 |
+| long-primes | 2.14 | 2.17 |
+| iterated-digits-squaring | 1.62 | 1.53 |
+| **sum** | **68.61** | **69.99** |
+
+- The runs of A and B overlap for every program. The three largest
+  differences, measured again with eleven runs each: colorful-numbers
+  3.09 against 3.11 (bimodal in both, two and one runs in the slow state
+  of about 4 s), percolation-mean-run-density 3.58 against 3.58,
+  composite-numbers 11.30 against 11.14. So no difference is measurable;
+  fermat-pseudoprimes, the only program whose five runs barely overlap
+  (8.31–8.56 against 8.06–8.46), is perhaps 3 % faster.
+- big-program-1 1.61 against 1.61 s, big-program-2 1.58 against 1.54 s
+  (five runs), big-program-1-long 33.98 against 34.03 s (three runs);
+  the same output.
+- In hot code only the division by a constant and the missing checks
+  for NIL are new; the other changes concern code that runs once. Why
+  these two change the time so little was not examined (the machine code
+  of C2 before and after was not compared).
+
+### Tests
+
+`tests/extra/division-constant-1.a68` (the divisions by a constant,
+compared with ga68), `tests/extra/run-once-code-1.a68` (element accesses
+of all primitive modes in code that runs once, a label after which the
+code is inline again, a variable used by a procedure before its
+declaration, a bound error with its line) and `tools/method_size_test.py`
+(results where the code fits, the error where it does not). The ga68
+test suite (471 of 472), `tests/extra` (33 of 33), the module tests as
+library jars (25 of 25), the Java, PAR and SKIP mode tests and the
+Rosetta programs give the same results as before; `tests/extra` and the
+Rosetta programs also with `A68J_LOOP_METHODS=every`.

@@ -122,6 +122,11 @@ final class GenClauses {
             Node q = ph.get(i);
             if (q.attribute == Attribute.LABELED_UNIT) {
                 cb.labelBinding(unitLabels.get(k++));
+                if (i == first) {
+                    // From the first label on, a jump can run the phrases
+                    // again (Gen#runsOnce); those before it run once.
+                    g.labelDepth++;
+                }
             }
             if (q.attribute == Attribute.EXIT_SYMBOL) {
                 continue;
@@ -145,6 +150,7 @@ final class GenClauses {
                 cb.goto_(end);
             }
         }
+        g.labelDepth--;
         cb.labelBinding(tryEnd);
         cb.exceptionCatch(tryStart, tryEnd, handler, ClassDesc.of("a68j.rt.Jump"));
         // Handler: stack [Jump].
@@ -170,7 +176,7 @@ final class GenClauses {
         for (k = 0; k < labeled.size(); k++) {
             cb.labelBinding(setters.get(k));
             cb.pop();
-            cb.ldc(k + 1);
+            Gen.constant(cb, k + 1);
             cb.istore(state);
             cb.goto_(restart);
         }
@@ -360,7 +366,7 @@ final class GenClauses {
             for (int n : numbers) {
                 cb.aload(u);
                 cb.getfield(Gen.CD_UNION, "mode", CD_int);
-                cb.ldc(n);
+                Gen.constant(cb, n);
                 cb.if_icmpeq(take);
             }
             cb.goto_(next);
@@ -607,15 +613,15 @@ final class GenClauses {
         List<Node> units = new ArrayList<>();
         GenUnits.collectArguments(c.sub, units);
         var cb = g.cb;
-        cb.ldc(units.size());
+        Gen.constant(cb, units.size());
         cb.anewarray(Gen.CD_PROC);
         for (int i = 0; i < units.size(); i++) {
             Gen.Routine r = g.routineFor(units.get(i));
             cb.dup();
-            cb.ldc(i);
+            Gen.constant(cb, i);
             cb.new_(Gen.CD_CLOSURE);
             cb.dup();
-            cb.ldc(g.handle(r));
+            Gen.constant(cb, g.handle(r));
             cb.aload(g.frameLocal);
             cb.invokespecial(Gen.CD_CLOSURE, "<init>",
                     MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
@@ -666,7 +672,7 @@ final class GenClauses {
         g.cb.new_(cdJump);
         g.cb.dup();
         g.loadFrame(owner);
-        g.cb.ldc(g.labelNumber(t));
+        Gen.constant(g.cb, g.labelNumber(t));
         g.cb.invokespecial(cdJump, "<init>", MethodTypeDesc.of(CD_void, Gen.CD_FRAME, CD_int));
         g.cb.athrow();
         // Unreachable; keep the stack shape of the jump's mode for the verifier.

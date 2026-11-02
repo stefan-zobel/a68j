@@ -275,6 +275,9 @@ public final class Compile {
         } catch (Gen.Unsupported e) {
             System.err.println(e.getMessage());
             System.exit(3);
+        } catch (Gen.TooLarge e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         } catch (Gen.Fatal e) {
             System.err.println(e.getMessage());
             System.err.println("compilation terminated.");

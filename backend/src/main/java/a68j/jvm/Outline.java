@@ -187,7 +187,7 @@ final class Outline {
         CodeBuilder cb = g.cb;
         int holder = -1;
         if (!holders.isEmpty()) {
-            cb.ldc(holders.size());
+            Gen.constant(cb, holders.size());
             cb.newarray(TypeKind.LONG);
             holder = cb.allocateLocal(TypeKind.REFERENCE);
             cb.astore(holder);
@@ -232,7 +232,7 @@ final class Outline {
             Tag t = holders.get(i);
             TypeKind k = localType(g, t).kind;
             cb.aload(holder);
-            cb.ldc(i);
+            Gen.constant(cb, i);
             cb.laload();
             fromLong(cb, k);
             cb.storeLocal(k, g.localSlot.get(t));
@@ -246,7 +246,7 @@ final class Outline {
             Tag t = holders.get(i);
             TypeKind k = localType(g, t).kind;
             cb.aload(holder);
-            cb.ldc(i);
+            Gen.constant(cb, i);
             cb.loadLocal(k, g.localSlot.get(t));
             toLong(cb, k);
             cb.lastore();

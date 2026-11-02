@@ -93,7 +93,7 @@ final class GenRows {
         JType t = JType.of(g.a68, m);
         switch (t) {
             case ROW, STRUCT, UNION -> {
-                g.cb.ldc(desc(g, m));
+                Gen.constant(g.cb, desc(g, m));
                 g.cb.invokestatic(CD_GEN, "skip", MethodTypeDesc.of(CD_Object, CD_String));
                 g.cb.checkcast(t.desc);
             }
@@ -122,7 +122,7 @@ final class GenRows {
         if (t == JType.ROW && generateRow1(g, declarer, desc(g, m))) {
             // Done: a one-dimensional row of a primitive mode.
         } else if (t == JType.ROW || t == JType.STRUCT || t == JType.UNION) {
-            g.cb.ldc(desc(g, m));
+            Gen.constant(g.cb, desc(g, m));
             pushBounds(g, declarer);
             g.cb.invokestatic(CD_GEN, "gen", MethodTypeDesc.of(CD_Object, CD_String, CD_long.arrayType()));
         } else {
@@ -217,7 +217,7 @@ final class GenRows {
         g.cb.lload(slots[0]);
         g.cb.lload(slots[1]);
         char kind = desc.charAt(3);
-        g.cb.ldc((int) (kind == 'c' ? 'i' : kind));
+        Gen.constant(g.cb, (int) (kind == 'c' ? 'i' : kind));
         g.cb.invokestatic(Gen.CD_ROW, "make1", MethodTypeDesc.of(Gen.CD_ROW, CD_long, CD_long, CD_char));
         return true;
     }
@@ -241,13 +241,13 @@ final class GenRows {
         }
         List<Node[]> bounds = new ArrayList<>();
         collectDeclarerBounds(declarer == null ? null : declarer.sub, bounds, 0);
-        g.cb.ldc(2 * bounds.size());
+        Gen.constant(g.cb, 2 * bounds.size());
         g.cb.newarray(TypeKind.LONG);
         int i = 0;
         for (Node[] b : bounds) {
             for (int j = 0; j < 2; j++) {
                 g.cb.dup();
-                g.cb.ldc(i++);
+                Gen.constant(g.cb, i++);
                 if (b[j] == null) {
                     g.cb.lconst_1();
                 } else {
@@ -331,13 +331,13 @@ final class GenRows {
                     // A display of INT, REAL, CHAR, ...: unboxed storage (Row#store).
                     JType et = JType.of(g.a68, JType.base(r.sub));
                     cb.lconst_1();
-                    cb.ldc((long) units.size());
-                    cb.ldc(units.size());
+                    Gen.constant(cb, (long) units.size());
+                    Gen.constant(cb, units.size());
                     cb.newarray(et.kind);
                     for (int i = 0; i < units.size(); i++) {
                         Node u = units.get(i);
                         cb.dup();
-                        cb.ldc(i);
+                        Gen.constant(cb, i);
                         g.unit(u);
                         g.adjust(Gen.mode(u), r.sub, u);
                         cb.arrayStore(et.kind);
@@ -345,7 +345,7 @@ final class GenRows {
                     cb.invokestatic(Gen.CD_ROW, "ofStore", MethodTypeDesc.of(Gen.CD_ROW, CD_long, CD_long, CD_Object));
                 } else if (r.dim == 1) {
                     cb.lconst_1();
-                    cb.ldc((long) units.size());
+                    Gen.constant(cb, (long) units.size());
                     pushElements(g, units);
                     cb.invokestatic(Gen.CD_ROW, "of1", MethodTypeDesc.of(Gen.CD_ROW, CD_long, CD_long, Gen.CD_OBJECTS));
                 } else {
@@ -360,15 +360,15 @@ final class GenRows {
 
     /** Push an Object[] with the boxed copies of the values of UNITS. */
     private static void pushElements(Gen g, List<Node> units) {
-        g.cb.ldc(units.size());
+        Gen.constant(g.cb, units.size());
         g.cb.anewarray(CD_Object);
         for (int i = 0; i < units.size(); i++) {
             Node u = units.get(i);
             g.cb.dup();
-            g.cb.ldc(i);
+            Gen.constant(g.cb, i);
             g.unit(u);
             Moid um = Gen.mode(u);
-            GenUnits.copyIfValue(g, um);
+            GenUnits.copyValueOf(g, u, um);
             g.box(um);
             g.cb.aastore();
         }
@@ -418,7 +418,7 @@ final class GenRows {
             cb.new_(CD_TRIM);
             cb.dup();
             cb.aload(row);
-            cb.ldc(newDims);
+            Gen.constant(cb, newDims);
             cb.invokespecial(CD_TRIM, "<init>", MethodTypeDesc.of(CD_void, Gen.CD_ROW, CD_int));
             for (Node q : items) {
                 if (q.attribute == Attribute.UNIT) {
@@ -510,6 +510,15 @@ final class GenRows {
         var cb = g.cb;
         List<Node> subs = new ArrayList<>();
         subscripts(p.sub.next, subs);
+        if (subs.size() == 1 && g.runsOnce()) {
+            // Code that runs once (Gen#runsOnce): Row#index1 called, 10 bytes
+            // instead of about 50.
+            cb.dup();
+            g.unit(subs.get(0));
+            g.pushWhere(p);
+            cb.invokevirtual(Gen.CD_ROW, "index1", MethodTypeDesc.of(CD_int, CD_int, CD_String, CD_int));
+            return;
+        }
         int row = cb.allocateLocal(TypeKind.REFERENCE);
         cb.astore(row);
         if (subs.size() == 1) {
@@ -547,7 +556,7 @@ final class GenRows {
         } else {
             for (int k = 0; k < subs.size(); k++) {
                 cb.aload(row);
-                cb.ldc(k);
+                Gen.constant(cb, k);
                 g.unit(subs.get(k));
                 g.pushWhere(p);
                 cb.invokevirtual(Gen.CD_ROW, "indexOf", MethodTypeDesc.of(CD_int, CD_int, CD_int, CD_String, CD_int));
@@ -603,7 +612,10 @@ final class GenRows {
             case BOOL -> "elemZ";
             default -> null;
         };
-        if (n != null) {
+        if (n != null && g.runsOnce()) {
+            // Code that runs once (Gen#runsOnce): only the call.
+            g.cb.invokestatic(Gen.CD_RT, n, MethodTypeDesc.of(t.desc, Gen.CD_ROW, CD_int));
+        } else if (n != null) {
             // Inlined fast path for compact storage (see storeElem), else Rt.elemI ...
             var cb = g.cb;
             int idx = cb.allocateLocal(TypeKind.INT);
@@ -653,6 +665,11 @@ final class GenRows {
         };
         if (n == null) {
             return false;
+        }
+        if (g.runsOnce()) {
+            // Code that runs once (Gen#runsOnce): only the call.
+            g.cb.invokestatic(Gen.CD_RT, n, MethodTypeDesc.of(CD_void, Gen.CD_ROW, CD_int, t.desc));
+            return true;
         }
         // Inlined: a store into the compact storage (Row#store an int[] ...
         // of the element type) without a call, which the JIT may not inline
@@ -726,7 +743,7 @@ final class GenRows {
             }
         }
         int flags = (p.sub != null ? 8 : 0) | (lo != null ? 1 : 0) | (hi != null ? 2 : 0) | (at != null ? 4 : 0);
-        cb.ldc(flags);
+        Gen.constant(cb, flags);
         for (Node u : new Node[] {lo, hi, at}) {
             if (u == null) {
                 cb.lconst_0();
@@ -812,7 +829,7 @@ final class GenRows {
                 idx++;
             }
             g.unit(sec);
-            g.cb.ldc(idx);
+            Gen.constant(g.cb, idx);
             if (name) {
                 g.pushWhere(p);
                 g.cb.invokestatic(Gen.CD_RT, "selectRowRef", MethodTypeDesc.of(Gen.CD_REF, Gen.CD_REF, CD_int, CD_String, CD_int));
@@ -832,12 +849,12 @@ final class GenRows {
         }
         g.unit(sec);
         if (name) {
-            g.cb.ldc(idx);
+            Gen.constant(g.cb, idx);
             g.pushWhere(p);
             g.cb.invokestatic(Gen.CD_RT, "fieldRef", MethodTypeDesc.of(Gen.CD_REF, Gen.CD_REF, CD_int, CD_String, CD_int));
         } else {
             g.cb.getfield(Gen.CD_STRUCT, "f", Gen.CD_OBJECTS);
-            g.cb.ldc(idx);
+            Gen.constant(g.cb, idx);
             g.cb.aaload();
             g.unbox(p.type);
         }

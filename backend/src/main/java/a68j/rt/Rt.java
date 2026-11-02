@@ -397,6 +397,29 @@ public final class Rt {
         return new Union(mode, v);
     }
 
+    // Uniting a value of a primitive mode: the value boxed as Gen#box does
+    // (Integer.valueOf ...), in one call instead of two (smaller code).
+
+    public static Union unite(int v, int mode) {
+        return new Union(mode, Integer.valueOf(v));
+    }
+
+    public static Union unite(long v, int mode) {
+        return new Union(mode, Long.valueOf(v));
+    }
+
+    public static Union unite(float v, int mode) {
+        return new Union(mode, Float.valueOf(v));
+    }
+
+    public static Union unite(double v, int mode) {
+        return new Union(mode, Double.valueOf(v));
+    }
+
+    public static Union unite(boolean v, int mode) {
+        return new Union(mode, Boolean.valueOf(v));
+    }
+
     /** Rowing: a one-element row [1:1]. */
     public static Row rowOf1(Object v) {
         return Row.of1(1, 1, new Object[] {v});

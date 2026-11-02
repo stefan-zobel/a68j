@@ -1,13 +1,15 @@
 # TODO: methods too large for the JVM and for its JIT
 
-Status: plan, 2 Nov 2026. Nothing of it is implemented yet. Section 7 of
-[`optimizations.md`](optimizations.md) describes what a68j does today.
+Status, 2 Nov 2026: steps 1 and 2 of the plan are done (section 9 of
+[`optimizations.md`](optimizations.md), results below); step 3 is open.
+Section 7 of `optimizations.md` describes the loop methods. The
+measurements in the following sections are those before steps 1 and 2.
 
 ## The limits
 
 | Limit | Value | What happens above it |
 |---|---|---|
-| bytecode of one method (class file format, JVMS 4.7.3) | 65 535 bytes | the class cannot be written; a68j stops with a Java stack trace (see below) |
+| bytecode of one method (class file format, JVMS 4.7.3) | 65 535 bytes | the class cannot be written; a68j reports a compile-time error (before step 1: a Java stack trace) |
 | `-XX:HugeMethodLimit` with the default `-XX:+DontCompileHugeMethods` | 8000 bytes | the method is never compiled, neither by C1 nor by C2: it runs in the interpreter |
 | `-XX:FreqInlineSize` | 325 bytes | C2 does not inline a hot callee ("hot method too big") |
 | `-XX:MaxInlineSize` | 35 bytes | the same for a callee that is not hot |
@@ -20,10 +22,12 @@ Status: plan, 2 Nov 2026. Nothing of it is implemented yet. Section 7 of
 
 `Outline` (section 7 of `optimizations.md`) makes every loop of the
 particular program a method of its own. `Gen#compileClass` measures the
-generated methods; a method above 8000 bytes is generated again with its
-outermost loops as methods, for at most four rounds. **A method without
-a loop stays as it is,** however large it is, and so does a loop body
-without an inner loop.
+generated methods; a method above 8000 bytes, or above 65 535 bytes
+(since step 1), is generated again with its outermost loops as methods,
+for at most four rounds. **A method without a loop stays as it is,**
+however large it is, and so does a loop body without an inner loop;
+above 65 535 bytes that is a compile-time error (step 1). The code is
+smaller since step 2.
 
 ## Measurements (2 Nov 2026)
 
@@ -135,14 +139,14 @@ twelve long Rosetta programs and `big-program-1`/`-2` with
 `tools/perf_ab.py` (five runs, median, alternating), against the version
 before the step.
 
-### Step 1: a clear error instead of a Java stack trace
+### Step 1: a clear error instead of a Java stack trace (done)
 
 If a method is still above 65 535 bytes after all rounds, report it like
 other compile errors: which method (the main program, a procedure, a
 loop), its source lines, its size, the limit. Small; remains useful as the
 last resort after steps 2 and 3.
 
-### Step 2: smaller code
+### Step 2: smaller code (done, except the last point)
 
 - **`MOD`, `OVER`, `%*` and their assigning forms with a constant
   divisor:** for a divisor greater than 0 the checks for 0 and -1 are not
@@ -203,8 +207,74 @@ The general solution for both limits. In a method that is still above
   `optimizations.md`: 16.6 s and 3.5 s for the same program, against
   1.64 s with loop methods).
 
+## Results of steps 1 and 2 (2 Nov 2026)
+
+What was done: section 9 of `optimizations.md`. Besides the plan: no
+check for NIL at the uses of a LOC variable without rows, the shortest
+instruction for every constant, and no copy of a plain value united to a
+union (the items of `print`).
+
+The constructs of the table above, in the same programs (the copies are
+in the main program, so this is code that runs once). Both columns are
+the growth of all methods per copy with loop methods on; the copies
+contain no loop, so that gives the values of the table above:
+
+| Construct | before | after |
+|---|---|---|
+| `i := 7` | 21 | 10 |
+| `i := i + j` | 41 | 19 |
+| `i +:= 1` | 28 | 16 |
+| `i := j MOD 7` | 71 | 20 |
+| `i := j OVER 7` | 53 | 13 |
+| `i := j MOD i` | 88 | 66 |
+| `i := a[j]` | 163 | 42 |
+| `a[j] := i` | 175 | 42 |
+| `a[j] +:= 1` | 237 | 51 |
+| `i := u of p` | 40 | 28 |
+| `i := f (j)` | 25 | 14 |
+| `if i > j then i := 0 fi` | 48 | 25 |
+| `s := whole (i, 0)` | 59 | 37 |
+| `puts (whole (i, 0))` | 49 | 28 |
+| `print (i)` | 41 | 27 |
+| `print ((i, j, x, newline))` | 120 | 71 |
+
+The element access is compact only in code that runs once; in procedures
+and loops it stays inline (152 to 235 bytes). `MOD` and `OVER` with a
+constant divisor are short everywhere.
+
+The 669 programs of the repository (the same as above):
+
+| | before | after |
+|---|---|---|
+| bytes of code, all methods | 1 390 402 | 1 259 765 (-9.4 %) |
+| of which `program()` | 368 807 | 316 325 (-14 %) |
+| methods above 1000 / 2000 / 4000 / 8000 bytes | 246 / 56 / 8 / 2 | 213 / 47 / 5 / 0 |
+| bytes per source line, all / lines of `program()` / transput lines | 63.6 / 61.9 / 85.4 | 57.0 / 52.5 / 71.4 |
+
+The two methods above 8000 bytes are now 6881 (`genie-transput-read-1`)
+and 4153 bytes (`unboxed-1`).
+
+The generated programs of `tools/method_size_test.py`, copies of
+`s := (s * 7 + k) MOD 1000003`, bytes per copy and the most copies that
+fit into one method:
+
+| where | before | after |
+|---|---|---|
+| main program, no loop | 81 (about 800) | 21 (about 3100) |
+| body of a loop | 103 (about 630) | 19 (about 3400) |
+| procedure without a loop | 133 (about 490) | 41 (about 1600) |
+
+So the limit has moved by a factor of about 1.2 for typical main
+programs (52.5 instead of 61.9 bytes per line, so about 1250 lines
+instead of 1050; lines with transput dominate) and by
+three to five for code like the generated programs. A main program that
+is too large and contains a loop is now often compiled: the loop becomes
+a method of its own after the first attempt. Only step 3 removes the
+limit.
+
 ## Order
 
 Step 1 (small), then step 2 (`MOD`/`OVER` first, then the code that runs
-once), then step 3. After step 2 the limit of about 1000 lines rises by a
-factor that the measurement will show; only step 3 removes it.
+once), then step 3. Steps 1 and 2 are done; the limit of about 1000
+lines rose by a factor of about 1.2 for typical code (results above).
+Only step 3 removes it.
