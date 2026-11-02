@@ -1,0 +1,141 @@
+{ dg-modules "genietransput" }
+{ Reading and files in the bundled module Genie_Transput
+  (backend/lib/genietransput.a68): open, establish, close, reset, get,
+  read, the read_... procedures, eof, eoln, make_term and the events
+  logical file end and value error, following Algol 68 Genie.  The test
+  writes its input files in $TMPDIR (or /tmp) and reads them back; stand
+  in is empty (/dev/null) under the test runners.  The last statement ends
+  the program with a transput error, so the exit status is 1. }
+access Genie_Transput (
+    string tmp = (getenv ("TMPDIR") = "" | "/tmp" | getenv ("TMPDIR"));
+    string data = tmp + "/a68j-genie-transput-read-1.txt",
+           missing = tmp + "/a68j-genie-transput-read-1.missing";
+
+    { Writing a file: open gives 1 for a file that does not exist yet,
+      the first put creates it (or truncates it). }
+    File wf;
+    int r = open (wf, data, stand_out_channel);
+    print (("open for writing: ", r = 0 OR r = 1, newline));
+    put (wf, ("  12 -0034 +5", newline,
+               "2147483647 -2147483648 2147483648 9223372036854775807", newline,
+               "-9223372036854775808 99999999999999999999", newline,
+               "3.25 -1.5e2 .5e-1 5. 1E5 0.1 1e39 1e-50", newline,
+               "123456789012345678901234567890 1e308 1e309 2.5e-310", newline,
+               "T F x", newline,
+               "a string with spaces", newline,
+               newline,
+               "ab", newline,
+               newline,
+               "cd,ef;gh", newline,
+               "12abc 7e2 1.5e+x -x", newline,
+               "last line without newline"));
+    close (wf);
+
+    { Reading it back. }
+    File f;
+    print (("open existing: ", open (f, data, stand_in_channel), newline));
+    print (("eof: ", eof (f), " eoln: ", eoln (f), newline));
+    int i, j, k;
+    get (f, (i, j, k));
+    print (("ints:", i, j, k, " eoln: ", eoln (f), newline));
+    int bad_count := 0;
+    on_value_error (f, (ref File g) bool: (bad_count +:= 1; true));
+    int lo, hi, over := 77;
+    long long int big := long long 0;
+    get (f, (hi, lo, over));
+    print (("int range:", hi, lo, over, " value errors ", whole (bad_count, 0), newline));
+    get (f, (big, newline));
+    print (("long long int: ", whole (big, 0), newline));
+    get (f, big);
+    print (("long long int: ", whole (big, 0), newline));
+    big := long long 5;
+    get (f, (big, newline));
+    print (("overflow keeps ", whole (big, 0), ", value errors ", whole (bad_count, 0), newline));
+    [8] real x;
+    for n to 8 do x[n] := -1.0 od;
+    get (f, (x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], newline));
+    print (("reals:", newline));
+    for n to 8 do print ((x[n], newline)) od;
+    print (("value errors ", whole (bad_count, 0), newline));
+    [4] long real y;
+    for n to 4 do y[n] := -long 1.0 od;
+    get (f, (y[1], y[2], y[3], y[4], newline));
+    { Compared with denotations, which ga68 and a68j round correctly. }
+    print (("long reals: ", y[1] = long 123456789012345678901234567890.0,
+            y[2] = long 1e308, y[3] = -long 1.0, y[4] = long 2.5e-310, newline));
+    print (("value errors ", whole (bad_count, 0), newline));
+    bool b1, b2, b3 := false;
+    get (f, (b1, space, b2, space, b3, newline));
+    print (("bools: ", b1, b2, b3, " value errors ", whole (bad_count, 0), newline));
+    string s;
+    get (f, s);
+    print (("string <", s, "> eoln ", eoln (f), newline));
+    get (f, (newline, s));
+    print (("empty line <", s, ">", newline));
+    char c1, c2, c3;
+    get (f, (newline, c1, c2, c3));
+    print (("chars <", c1, c2, c3, "> line ", whole (line of f, 0), newline));
+    make_term (f, ",;");
+    string t1, t2, t3;
+    char sep1, sep2;
+    get (f, (t1, sep1, t2, sep2, t3, newline));
+    print (("terminated <", t1, "> <", sep1, "> <", t2, "> <", sep2, "> <", t3, ">", newline));
+    make_term (f, "");
+    int m := 0;
+    char after;
+    get (f, (m, after));
+    print (("12abc: ", m, " then <", after, ">", newline));
+    get (f, (s, newline));
+    print (("rest <", s, ">", newline));
+
+    { The end of the file: the last line has no newline. }
+    bool at_end := false;
+    on_logical_file_end (f, (ref File g) bool: at_end := true);
+    get (f, s);
+    print (("last <", s, "> eof ", eof (f), " eoln ", eoln (f), newline));
+    s := "unchanged";
+    get (f, s);
+    print (("at end <", s, "> ", at_end, newline));
+
+    { reset reads the file again from the start. }
+    reset (f);
+    get (f, (i, s, newline));
+    print (("after reset:", i, " <", s, ">", newline));
+
+    { A handler that jumps out of the reading loop. }
+    begin reset (f);
+          on_logical_file_end (f, (ref File g) bool: goto done);
+          int lines := 0;
+          do get (f, (s, newline)); lines +:= 1 od;
+    done: print (("lines: ", whole (lines, 0), newline))
+    end;
+    close (f);
+
+    { stand in is empty. }
+    print (("stand in eof: ", eof (stand_in), newline));
+    bool in_end := false;
+    on_logical_file_end (stand_in, (ref File g) bool: in_end := true);
+    int n := 42;
+    read (n);
+    print (("read at eof: ", n, " ", in_end, newline));
+    read (newline);
+    print (("read_line at eof <", read_line, ">", newline));
+
+    { open results. }
+    File g;
+    print (("open missing: ", open (g, missing, stand_in_channel), newline));
+    print (("open directory: ", open (g, tmp, stand_in_channel), newline));
+    print (("open back channel: ", open (g, data, stand_back_channel), newline));
+    get (g, (i, newline));
+    print (("back channel get:", i, newline));
+    reset (g);
+    put (g, ("rewritten", newline));
+    reset (g);
+    get (g, s);
+    print (("after rewrite <", s, ">", newline));
+    close (g);
+
+    { establish: the first put fails, since the file exists. }
+    print (("establish: ", establish (g, data, stand_out_channel), newline));
+    put (g, "never written")
+)

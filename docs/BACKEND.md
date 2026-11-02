@@ -279,8 +279,11 @@ read-write, read-only and write-only, as libga68), a descriptor of
 opened for (EBADF). errno is copied from a modelled C errno by `fopen`,
 `fcreate`, `fclose`, `fputs`/`puts` and `lseek`, also when they succeed,
 as libga68 does; every failing operation, including the read of `fgetc`
-and the write of `fputc`, sets that C errno, and nothing clears it. Not
-modelled: `fsize` and `lseek` on descriptors 0 to 2 (0 and EBADF, where
+and the write of `fputc`, sets that C errno, and nothing clears it. A
+string with a character that has no UTF-8 encoding (a surrogate, or the
+EOF character) is not written: `fputs` and `puts` return 0 and set errno
+to EILSEQ (84), `fopen` and `fcreate` fail with EFAULT (14), as libga68
+passes a null pointer then. Not modelled: `fsize` and `lseek` on descriptors 0 to 2 (0 and EBADF, where
 ga68 asks the system), and the permission bits of `fcreate`.
 
 ## 5. Code generator structure
@@ -384,7 +387,11 @@ so module keys (`Intrinsics.moduleKey`) include the field names of
 structures. The bundled Algol 68 modules (`Intrinsics.BUNDLED_MODULES`:
 `Lists`, `Hashmaps` and `Genie_Transput`, `backend/lib/*.a68`; the last one
 uses no Java, see `docs/genie-transput.md`) are compiled by `build.sh` to
-`a68j.lib.X` with their export data in the jar (`Compile.bundledLibDir`).
+`a68j.lib.X` with their export data in the jar (`Compile.bundledLibDir`;
+the compiler copies the export data to a cache directory
+`a68j-lib-<user>-<hash>` in java.io.tmpdir, one per user, since /tmp may be
+shared, or to a private temporary directory if that one cannot be
+written).
 
 Not supported (`Gen.Unsupported`, the compiler stops): partial
 parametrisation (`f (3, )`, an Algol 68 Genie extension), which ga68 compiles
@@ -470,22 +477,24 @@ jump used as a `PROC VOID` (proceduring) is a `Proc` throwing the `Jump`.
 `gcc/testsuite/algol68/execute`, the exit status and output of the binary
 that ga68 produces (`/home/me/native/*.json`). `tools/run_jvm.py`
 compiles the same programs with a68j, runs them on the JVM and compares
-stdout, exit status and the first stderr line. For the multi-packet tests
+stdout, exit status and the first stderr line; both runners start every
+run of a program in a new empty directory. For the multi-packet tests
 (`execute/modules`, `{ dg-modules "a b" }`) both runners compile the module
 packets first (natively to `.o` files, on the JVM to classes and `.m68`
 files in a temporary directory). `tests/extra/` holds additional programs for
 cases the testsuite does not cover (division by zero, rowed names, PAR,
 direct variables, unions across modules and stropping regimes, UTF-8
 strings, copying of united rows, MODAB, deep recursion, unboxed rows and
-names, initial values of generators, the bundled module `Genie_Transput`,
-the file procedures of the POSIX module and errno); their native
+names, initial values of generators, the bundled module `Genie_Transput`
+with its output and its reading and files, the file procedures of the
+POSIX module and errno); their native
 results are recorded the same way (`--native /home/me/native-extra`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for
 ga68 by `tools/rosetta_prep.py` and converted to SUPPER stropping by
 `tools/a68supper.py`: each runs inside `access Genie_Transput (...)`,
 the bundled module that provides the Algol 68 Genie transput (`print`,
-`newline`, ...) on top of ga68's POSIX prelude (for ga68 the runners compile
+`newline`, `read`, `open` ...) on top of ga68's POSIX prelude (for ga68 the runners compile
 it from `backend/lib`, `tools/modtest.py`). The runners take `--default-opts` (options
 for files without `dg-options`, e.g. `-fstropping=upper` for UPPER
 programs); `run_jvm.py` also `--jit tiered` (full JIT instead of C1 only)

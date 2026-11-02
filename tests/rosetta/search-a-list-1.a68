@@ -8,7 +8,7 @@
 access Genie_Transput (
  FORMAT hay_stack := $c("Zig","Zag","Wally","Ronald","Bush","Krusty","Charlie","Bush","Bozo")$;
 
- file needle_exception; string ref_needle;
+ File needle_exception; string ref_needle;
  associate(needle_exception, ref_needle);
 
  proc index = (FORMAT haystack, ref string needle)int:(
@@ -22,7 +22,7 @@ access Genie_Transput (
    []string needles = ("Washington","Bush");
    for i to UPB needles do
      string needle := needles[i];
-     on_value_error(needle_exception, (ref file f)bool: value_error);
+     on_value_error(needle_exception, (ref File f)bool: value_error);
        printf(($d" "gl$,index(hay_stack, needle), needle));
        end_on_value_error;
      value_error:

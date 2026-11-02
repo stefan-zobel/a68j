@@ -13,7 +13,7 @@ begin
   string buf := "";
   int col := 1;
   int line := 0;
-  on_logical_file_end (stand_in, (ref file f)bool: eof_flag := true);
+  on_logical_file_end (stand_in, (ref File f)bool: eof_flag := true);
   proc getchar = int:
     if   eof_flag      then eof
     elif col = UPB buf then col +:= 1; eoln

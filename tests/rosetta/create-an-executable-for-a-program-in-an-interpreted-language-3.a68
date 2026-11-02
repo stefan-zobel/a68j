@@ -8,7 +8,7 @@
 access Genie_Transput (
 {include <stdio.h>
 }include <errno.h>
-static_void_w( char_ * line, file * tf )
+static_void_w( char_ * line, File * tf )
 {fputs( line, tf );
  if( errno != 0 ){ perror( "temp" );exit( 2 ); }
 }

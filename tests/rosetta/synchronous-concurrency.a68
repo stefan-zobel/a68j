@@ -12,10 +12,10 @@ access Genie_Transput (
   bool input_complete := false;
   sema output_throttle = LEVEL 0, input_throttle = LEVEL 1;
 
-  file input_txt;
+  File input_txt;
   errno := open(input_txt, "input.txt", stand_in_channel);
 
-  proc call_back_done = (ref file f) bool: ( input_complete := true );
+  proc call_back_done = (ref File f) bool: ( input_complete := true );
   on_logical_file_end(input_txt, call_back_done);
 
   par (

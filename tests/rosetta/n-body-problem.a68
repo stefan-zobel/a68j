@@ -43,7 +43,7 @@ begin { N Body Problem - translated from the Python sample }
 
     prio INIT = 1;
     op   INIT = ( ref Nbody self, string filename )void:
-         if file data;
+         if File data;
             open( data, filename, stand_back_channel ) /= 0
          then
             print( ( "Unable to open ", filename, newline ) );

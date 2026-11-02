@@ -200,12 +200,17 @@ def main():
             else:
                 cmd = jvm + ["-cp", a.jar + os.pathsep + mdir, "a68j.jvm.Compile", "-I" + mdir] + modtest.module_map_opts(f) + opts_for(f) + ["-run", f]
         t0 = time.monotonic()
+        # In a new empty directory, as the native run (run_native.py):
+        # programs may create files.
+        wd = tempfile.mkdtemp(prefix="a68j-run-")
         try:
             p = subprocess.run(cmd, capture_output=True, env=env, timeout=a.timeout,
-                               stdin=subprocess.DEVNULL, cwd=os.path.dirname(os.path.abspath(f)))
+                               stdin=subprocess.DEVNULL, cwd=wd)
             rc, out, err = p.returncode, p.stdout.decode("latin-1"), p.stderr.decode("latin-1")
         except subprocess.TimeoutExpired:
             rc, out, err = "timeout", "", ""
+        finally:
+            shutil.rmtree(wd, ignore_errors=True)
         if mdir:
             shutil.rmtree(mdir, ignore_errors=True)
         status, reason = classify(nat, rc, out, err)

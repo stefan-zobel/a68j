@@ -12,6 +12,10 @@ The conversion follows the lexical rules of the ga68 scanner
   * mode indicants declared in the program and module indicants are
     capitalised: MODE NODE = ... -> mode Node = ...,
     ACCESS GENIE_TRANSPUT -> access Genie_Transput;
+  * FILE and CHANNEL become File and Channel, the modes of the module
+    Genie_Transput (backend/lib/genietransput.a68): the reserved words
+    file and channel of ga68 denote modes that ga68 does not provide yet
+    (a declaration file f; fails with "cannot compute SKIP for mode file");
   * all other bold words (operators and priorities) stay in upper case:
     ABS, UPB, ELEM, PLUSAB, a user-defined OP DIVISORSUM;
   * a tag whose taggles are separated by blanks gets underscores instead,
@@ -47,6 +51,8 @@ HEAP INT BYTES SEMA ELIF
 COMMENT_WORDS = {"CO": "CO", "COMMENT": "COMMENT", "NOTE": "ETON"}
 PRAGMAT_WORDS = {"PR", "PRAGMAT", "ORDER"}
 SUPPER_RESERVED = {k.lower() for k in KEYWORDS}
+# Bold words that become the modes of Genie_Transput instead.
+GENIE_MODES = {"FILE": "File", "CHANNEL": "Channel"}
 
 BOLD = re.compile(r"[A-Z]+(?:_[A-Z]+)*")
 # A tag: lower-case letters and digits; in UPPER stropping blanks (and one
@@ -225,7 +231,9 @@ def to_supper(text):
 
     for kind, txt in toks:
         if kind == "bold":
-            if txt in KEYWORDS:
+            if txt in GENIE_MODES:
+                emit(GENIE_MODES[txt])
+            elif txt in KEYWORDS:
                 emit(txt.lower())
             elif txt in modes:
                 emit("_".join(p.capitalize() for p in txt.split("_")))

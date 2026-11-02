@@ -10,7 +10,7 @@ begin
     bool at_eof := false;
     { set the EOF handler for stand in to a procedure that sets "at eof" to true }
     { and returns true so processing can continue                                }
-    on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+    on_logical_file_end( stand_in, ( ref File f )bool: at_eof := true );
     { copy stand in to stand out                                                 }
     while string line; read( ( line, newline ) ); NOT at_eof do write( ( line, newline ) ) od
 end

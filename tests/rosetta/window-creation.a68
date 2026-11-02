@@ -35,7 +35,7 @@ proc(ref Gtkwidget)void gtk_widget_show = ALIEN "GTK_WIDGET_SHOW"
 proc gtk_main = void: CODE "gtk_main();";
 
 int gtk_window_toplevel = 0;
-file argf;
+File argf;
 ref Gtkwidget window;
 
 open(argf,"",arg_channel);

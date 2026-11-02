@@ -7,7 +7,7 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 begin
-   file window;
+   File window;
    open (window, "Hello!", stand_draw_channel);
    draw_device (window, "X", "600x400");
    draw_erase (window);

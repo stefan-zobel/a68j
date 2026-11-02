@@ -67,7 +67,7 @@ begin
                 od;
 
                 { read the number from the expression }
-                file number_f;
+                File number_f;
                 associate( number_f
                          , loc string := rpn_expression[ number_start : rpn_pos - 1 ]
                          );

@@ -50,7 +50,7 @@ access Genie_Transput (
   'mode' 'SIMPLEOUT' = 'union'('string', ()'string', 'int');
 
   'proc' CPUTF = ('ref'()'char' out, 'FORMAT' FMT, 'SIMPLEOUT' ARGV)'void':'begin'
-    'file' F; 'string' S; ASSOCIATE(F,S);
+    'File' F; 'string' S; ASSOCIATE(F,S);
     PUTF(F, (FMT, ARGV));
     out(:'UPB' S):=S;
     CLOSE(F)

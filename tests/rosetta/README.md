@@ -40,9 +40,10 @@ turns them into programs for ga68 and changes only the following:
 - The program runs inside an access clause of the module `Genie_Transput`
   (`access Genie_Transput ( <solution> )`), which is bundled with a68j
   (`backend/lib/genietransput.a68`, see `docs/genie-transput.md`). ga68 has
-  only the simple POSIX output (`puts`, `fputs`); on top of it the module
-  emulates `print`, `put`,
-  `write`, `newline`, `space`, `stand out`/`stand error`, `char in string`,
+  only the simple POSIX input and output (`puts`, `fputs`, `fgetc`,
+  `fopen`); on top of it the module emulates `print`, `put`, `write`,
+  `read`, `get`, `newline`, `space`, `stand in`/`stand out`/`stand error`,
+  `open`, `establish`, `close`, `on logical file end`, `char in string`,
   `is digit` etc. of Algol 68 Genie. Numbers are printed as there
   (right-aligned with sign, `REAL` in floating-point form).
 - An apostrophe in a string denotation is written `''` (in ga68, `'`
@@ -77,6 +78,7 @@ style of the libga68 preludes (`standard.a68.in`, `posix.a68`):
 | operators `ABS`, `UPB`, `OP DIVISORSUM` | unchanged, upper case |
 | identifiers with spaces `max sequence length` | `max_sequence_length` |
 | identifiers that are reserved in SUPPER: `out`, `in`, `file`, `word` | `out_`, `in_`, `file_`, `word_` |
+| the modes `FILE` and `CHANNEL` | `File` and `Channel`, the modes of `Genie_Transput` (the reserved words `file` and `channel` of ga68 denote modes that ga68 does not provide yet) |
 | comments `# ... #`, `CO ... CO`, `COMMENT ... COMMENT` | `{ ... }` |
 | `a[b[i]]` | `a[b[i] ]` (in SUPPER, `]]` closes a pragmat) |
 
@@ -92,23 +94,26 @@ if ga68 rejects a program, it rejects both versions, almost always with
 the first error on the same line (exception: `flow-control-structures-4`,
 a format for which ga68 reports the errors in a different order).
 
-## Results (31 Oct 2026, programs in SUPPER)
+## Results (2 Nov 2026, programs in SUPPER)
 
 | | Solutions |
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 567 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 507 |
 | ga68 compiles them, but the output is not reproducible (random numbers) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes | 3 |
-| ga68 compiles and runs them | 552 |
-| **of these identical to ga68 on the JVM** | **543** |
+| ga68 compiles and runs them | 612 |
+| **of these identical to ga68 on the JVM** | **602** |
 | of these the same up to rounding (`approx`) | 2 |
 
 The most common reasons why ga68 does not compile a solution: formats
-(`FORMAT`, `printf`), input and files (`read`, `open`, `on logical file
-end`), the automatic widening `INT` → `LONG INT` of Algol 68 Genie and
-other Genie procedures. The list is in `results.tsv`.
+(`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol
+68 Genie, constructs that ga68 does not lower yet, and Genie procedures
+that `Genie_Transput` does not provide (`associate`, `system`, `on line
+end` ...). The list is in `results.tsv`. Since `Genie_Transput` provides
+reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give
+the same result on the JVM.
 
 The remaining differences (details in `notes.tsv`):
 
@@ -122,8 +127,9 @@ The remaining differences (details in `notes.tsv`):
   not specify whether the destination or the source of an assignation is
   elaborated first, nor the order of the operands of a formula. Here ga68
   follows the rules of GCC, which depend on the shape of the expression.
-- **ga68 crashes, a68j does not** (`inner-classes`, `y-combinator-1`:
-  procedures that outlive the procedure in which they were created;
+- **ga68 crashes, a68j does not** (`inner-classes`, `y-combinator-1`,
+  `compiler-simple-file-inclusion-pre-processor`: procedures that outlive
+  the procedure in which they were created;
   `successive-prime-differences`: ga68 needs more than 4.7 GB and is
   killed).
 - **Both fail** (`yin-and-yang`: partial parametrization;
@@ -166,8 +172,10 @@ python3 tools/rosetta_report.py --dir tests/rosetta --native /tmp/native-rc --jv
     --notes tests/rosetta/notes.tsv
 ```
 
-`--runs 2` runs every program twice and sorts out programs whose output
-changes; `--stack` lets ga68 use large local rows. `run_jvm.py` compares
+Every run of a program starts in a new empty directory, natively and on
+the JVM, since programs may create files. `--runs 2` runs every program
+twice and sorts out programs whose output changes; `--stack` lets ga68
+use large local rows. `run_jvm.py` compares
 floating-point numbers in the output with a tolerance (`--rel-eps`, default
 1e-4, `--abs-eps` 1e-6); programs that differ only in this way count as
 "the same up to rounding" (`approx`), not as identical.

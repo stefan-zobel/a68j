@@ -6,6 +6,6 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-file linef; string line;
+File linef; string line;
 associate(linef, line);
 )

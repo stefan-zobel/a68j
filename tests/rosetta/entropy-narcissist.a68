@@ -33,7 +33,7 @@ begin
         entropy / log( 2 )
     end; { shannon entropy }
 
-    if  file input_file;
+    if  File input_file;
         string file_name = "entropyNarcissist.a68";
         open( input_file, file_name, stand_in_channel ) /= 0
     then
@@ -44,7 +44,7 @@ begin
         bool at_eof := false;
         { set the EOF handler for the file }
         on_logical_file_end( input_file
-                           , ( ref file f )bool:
+                           , ( ref File f )bool:
                              begin
                                  { note that we reached EOF on the latest read }
                                  at_eof := true;

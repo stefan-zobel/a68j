@@ -8,8 +8,8 @@
 access Genie_Transput (
 begin
   char c;
-  on_logical_file_end(stand_in, (ref file f)bool: (stop; skip));
-  on_line_end(stand_in, (ref file f)bool: (print(new_line); false));
+  on_logical_file_end(stand_in, (ref File f)bool: (stop; skip));
+  on_line_end(stand_in, (ref File f)bool: (print(new_line); false));
   do
     read(c);
     if c >= "A" AND c <= "M" OR c >= "a" AND c <= "m" then

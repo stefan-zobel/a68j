@@ -16,7 +16,7 @@ mode Address = struct(
 FORMAT address_repr = $"Page: "gl"Street: "gl"City: "gl"State: "gl"Zip: "gll$;
 
 int errno;
-file sequence; errno := open(sequence, "sequence.txt", stand_back_channel);
+File sequence; errno := open(sequence, "sequence.txt", stand_back_channel);
 sema sequence_sema := LEVEL 1;
 
 op NEXTVAL = ([]char table_name)int: (
@@ -24,7 +24,7 @@ op NEXTVAL = ([]char table_name)int: (
   { INT table page = 0; } { only one sequence implemented }
   { DOWN sequence sema; } { NO interprocess concurrency protection }
     on_open_error(sequence,
-      (ref file f)bool: (
+      (ref File f)bool: (
         reset(sequence); {set(table page,1,1);}
         put(sequence, 0);
         try_again;
@@ -47,7 +47,7 @@ john_brown := (page of john_brown, "10 Downing Street","London","England","SW1A 
 
 printf((address_repr, john_brown));
 
-file address_table;
+File address_table;
 errno := open(address_table,"address.txt",stand_back_channel);
 { set(address table, page OF john brown,1,1);  - standard set page not available in a68g }
 put_bin(address_table, john_brown);

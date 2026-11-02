@@ -9,13 +9,13 @@ access Genie_Transput (
 begin
    [0:max_abs_char]int histogram;
    for i from 0 to max_abs_char do histogram[i] := 0 od;
-   file input_file;
+   File input_file;
    string input_file_name = "Letter_frequency.a68";
    if open (input_file, input_file_name, stand_in_channel) /= 0 then
       put (stand_error, ("Cannot open ", input_file_name, newline));
       stop
    else
-      on_file_end (input_file, (ref file f) bool: (close (f); goto finished))
+      on_file_end (input_file, (ref File f) bool: (close (f); goto finished))
    fi;
    do
       string s;

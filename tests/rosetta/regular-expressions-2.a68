@@ -7,9 +7,9 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 FORMAT pattern = $ddd" "c("cats","dogs")$;
-file file_; string book; associate(file_, book);
-on_value_error(file_, (ref file f)bool: stop);
-on_format_error(file_, (ref file f)bool: stop);
+File file_; string book; associate(file_, book);
+on_value_error(file_, (ref File f)bool: stop);
+on_format_error(file_, (ref File f)bool: stop);
 
 book := "100 dogs";
 struct(int count, type) dalmatians;

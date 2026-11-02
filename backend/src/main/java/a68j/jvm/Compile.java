@@ -48,6 +48,14 @@ public final class Compile {
      * {@code /a68j/lib/lists.m68} ...; they are copied once to a cache
      * directory in java.io.tmpdir, which is searched after all -I and -L
      * directories.
+     *
+     * <p>The cache directory is per user and per content
+     * ({@code a68j-lib-<user>-<hash>}): java.io.tmpdir may be shared by
+     * several users (/tmp on Linux), and a file created there by one user is
+     * not readable by another (Files.createTempFile gives mode 0600). A file
+     * whose content differs from the resource is replaced; if the directory
+     * cannot be written (it belongs to another user, say), the files go to a
+     * new private temporary directory instead.
      */
     private static String bundledLibDir() throws java.io.IOException {
         List<String> names = new ArrayList<>();
@@ -71,23 +79,43 @@ public final class Compile {
                 h = 31 * h + java.util.Arrays.hashCode(data);
             }
         }
-        // A cache directory per content, so that concurrent compilers can share it.
-        Path dir = Path.of(System.getProperty("java.io.tmpdir"), "a68j-lib-" + Integer.toHexString(h));
+        // A cache directory per user and content, so that concurrent compilers
+        // of one user can share it.
+        String user = System.getProperty("user.name", "").replaceAll("[^A-Za-z0-9._-]", "_");
+        Path tmpDir = Path.of(System.getProperty("java.io.tmpdir"));
+        Path dir = tmpDir.resolve("a68j-lib-" + user + "-" + Integer.toHexString(h));
+        try {
+            writeCache(dir, names, contents);
+        } catch (java.io.IOException | SecurityException e) {
+            dir = Files.createTempDirectory(tmpDir, "a68j-lib-");
+            writeCache(dir, names, contents);
+            dir.toFile().deleteOnExit();
+            for (String n : names) {
+                dir.resolve(n + ".m68").toFile().deleteOnExit();
+            }
+        }
+        return dir.toString();
+    }
+
+    /** Writes each resource whose cached copy in DIR is missing or different. */
+    private static void writeCache(Path dir, List<String> names, List<byte[]> contents)
+            throws java.io.IOException {
         for (int i = 0; i < names.size(); i++) {
             byte[] data = contents.get(i);
             if (data == null) {
                 continue;
             }
             Path f = dir.resolve(names.get(i) + ".m68");
-            if (!Files.isRegularFile(f) || Files.size(f) != data.length) {
-                Files.createDirectories(dir);
-                Path tmp = Files.createTempFile(dir, names.get(i), ".tmp");
-                Files.write(tmp, data);
-                Files.move(tmp, f, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
-                        java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            if (Files.isRegularFile(f) && Files.isReadable(f) && Files.size(f) == data.length
+                    && java.util.Arrays.equals(Files.readAllBytes(f), data)) {
+                continue;
             }
+            Files.createDirectories(dir);
+            Path tmp = Files.createTempFile(dir, names.get(i), ".tmp");
+            Files.write(tmp, data);
+            Files.move(tmp, f, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                    java.nio.file.StandardCopyOption.ATOMIC_MOVE);
         }
-        return dir.toString();
     }
 
     public static void main(String[] args) throws Throwable {

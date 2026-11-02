@@ -11,7 +11,7 @@ bits to_bits;
 
 FORMAT hex_repr = $n(base)r2d$;
 
-file f; string str;
+File f; string str;
 
 associate(f, str);
 putf(f, (hex_repr, BIN from_dec));

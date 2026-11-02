@@ -1,17 +1,19 @@
 { dg-options "-fstropping=supper" }
 
 { genietransput.a68 - the module Genie_Transput of a68j: the part of the
-  Algol 68 Genie transput that programs use most (print, newline, put,
-  stand out ...), written on top of the POSIX prelude of ga68.
+  Algol 68 Genie transput that programs use most (print, read, open, put,
+  get, stand in, stand out ...), written on top of the POSIX prelude of
+  ga68.
 
   ga68, and a68j with it, has no transput of the Revised Report: there is
-  no print, newline, put or format in the standard prelude, only the simple
-  string output of the POSIX prelude (puts, putchar, fputs ...).  This
-  module provides the familiar procedures for programs written for Algol 68
-  Genie:
+  no print, read, newline, open, put, get or format in the standard
+  prelude, only the simple input and output of the POSIX prelude (puts,
+  fputs, fgetc, fopen ...).  This module provides the familiar procedures
+  for programs written for Algol 68 Genie:
 
       access Genie_Transput (
-          print (("x = ", x, newline))
+          int n = read_int;
+          print (("n = ", n, newline))
       )
 
   It is bundled with a68j-backend.jar (like Lists and Hashmaps), so a68j
@@ -26,14 +28,29 @@
 
   What it provides:
 
-      File, stand_in, stand_out, stand_error   the three standard channels
-                               (a File is a struct (int fd, int line), not
-                               the file of the Revised Report)
+      File, stand_in, stand_out, stand_error   files and the three standard
+                               files (a File is a struct of this module,
+                               not the file of the Revised Report, which
+                               ga68 does not provide yet)
+      Channel, stand_in_channel, stand_out_channel, stand_back_channel
+                               channels: whether a file may be read or
+                               written
+      open, establish, close, reset
+                               opening and closing files
       int_width, real_width, exp_width ...     the environment enquiries of
                                the transput (RR 10.3.1.1)
-      newline, space, newpage, backspace       layout procedures
+      newline, space, newpage, backspace       layout procedures, for output
+                               and for input
       Outitem                  the modes print and put accept
       put (f, items), print (items), write (items)
+      Initem                   the modes read and get accept
+      get (f, items), read (items)
+      read_int, read_long_int, read_real, read_long_real, read_bool,
+      read_char, read_string, read_line
+                               read one value from stand in
+      eof, eoln, make_term     enquiries and the string terminator
+      on_logical_file_end, on_value_error
+                               event handlers
       char_in_string, last_char_in_string, string_in_string
                                string searching (RR 10.3.2.4, Algol 68 Genie)
       is_upper, is_lower, is_alpha, is_digit, is_alnum, is_space,
@@ -45,24 +62,187 @@
   right-aligned with a sign in a field of int width + 1 characters, reals
   are printed in floating-point style, booleans and bits as T and F.
 
-  Not provided: reading (read, get), opening files (open, establish),
-  formats ($...$, printf), and values of mode long long real (80-bit
-  long long real is out of scope for a68j).  [,] char is not among the printable modes: a union with both
-  string and [,] char makes ga68 crash in a conformity clause (internal
-  compiler error in verify_gimple).
+  Reading follows Algol 68 Genie as well (see "Reading" below).  It reads
+  with fgetc, one character at a time, so it is simple rather than fast.
+
+  Not provided: formats ($...$, printf), create, associate, the events
+  other than logical file end and value error, reading rows, binary
+  transput, the channels other than the three above, and values of mode
+  long long real (80-bit long long real is out of scope for a68j).
+  [,] char is not among the printable modes: a union with both string and
+  [,] char makes ga68 crash in a conformity clause (internal compiler
+  error in verify_gimple).
 
   The Rosetta Code tests (tests/rosetta) run every program inside an
   access clause of this module. }
 
 module Genie_Transput =
 def
-    { Files.  Only the three standard channels exist. }
+    { Channels (RR 10.3.1.2): whether a file opened on the channel may be
+      read (get) and written (put). }
 
-    pub mode File = struct (int fd, int line);
+    pub mode Channel = struct (bool get_possible, put_possible);
 
-    pub ref File stand_in = heap File := (stdin, 0),
-                 stand_out = heap File := (stdout, 0),
-                 stand_error = heap File := (stderr, 0);
+    pub Channel stand_in_channel = (true, false),
+                stand_out_channel = (false, true),
+                stand_back_channel = (true, true);
+
+    { Files.
+
+      fd      the POSIX file descriptor, or -1 while the file is not open;
+      line    the number of newlines written or read;
+      col     the number of characters read in the current line;
+      peek    the code of the character read ahead, no_peek, or
+              end_of_file (the character is read, but not yet consumed);
+      state   no_file, named (by open or establish: the file is opened
+              by the first get or put), opened, or standard (stand in,
+              stand out, stand error: the descriptors 0 to 2 are never
+              closed);
+      mood    no_mood, get_mood or put_mood: a file is either read or
+              written until it is closed or reset;
+      name    the file name given to open or establish;
+      chan    the channel given to open or establish;
+      logical_file_end, value_error
+              the event handlers;
+      term    the string terminator set by make_term;
+      new_file
+              true after establish: the file must not exist yet. }
+
+    pub mode File = struct (int fd, int line, int col, int peek, int state,
+                            int mood, string name, Channel chan,
+                            proc (ref File) bool logical_file_end, value_error,
+                            string term, bool new_file);
+
+    int no_file = 0, named = 1, opened = 2, standard = 3;
+    int no_mood = 0, get_mood = 1, put_mood = 2;
+    int no_peek = -2, end_of_file = -1;
+
+    { The default event handler: the event is not handled. }
+    proc no_handler = (ref File f) bool: false;
+
+    pub ref File stand_in = heap File := (stdin, 0, 0, no_peek, standard,
+                     get_mood, "stand in", stand_in_channel, no_handler,
+                     no_handler, "", false),
+                 stand_out = heap File := (stdout, 0, 0, no_peek, standard,
+                     put_mood, "stand out", stand_out_channel, no_handler,
+                     no_handler, "", false),
+                 stand_error = heap File := (stderr, 0, 0, no_peek, standard,
+                     put_mood, "stand error", stand_out_channel, no_handler,
+                     no_handler, "", false);
+
+    { A transput error ends the program, as in Algol 68 Genie. }
+    proc transput_error = (string message) void:
+       begin fputs (stderr, "runtime error: " + message + "'n");
+             posix_exit (1)
+       end;
+
+    { The message of errno, starting with a lower-case letter, as in the
+      messages of Algol 68 Genie. }
+    proc errno_text = string:
+       begin string t = strerror (errno);
+             (UPB t >= 1 | to_lower (t[1]) + t[2:] | t)
+       end;
+
+    { Whether the file NAME exists and can be opened: open (2) of a
+      directory for reading succeeds, so a directory is recognized by the
+      failure of opening it for reading and writing (EISDIR, 21). }
+    proc can_open = (string name) bool:
+       begin int fd := fopen (name, file_o_rdwr);
+             if fd < 0 AND errno /= 21 then fd := fopen (name, file_o_rdonly) fi;
+             if fd >= 0 then fclose (fd); true else false fi
+       end;
+
+    { Opening and closing files.  As in Algol 68 Genie, open and establish
+      only record the name and the channel; the file is opened by the
+      first get (for reading) or put (for writing, creating or truncating
+      the file). }
+
+    { The file descriptor of F is closed, unless it is 0, 1 or 2. }
+    proc close_fd = (ref File f) void:
+       if state of f = opened AND fd of f > stderr then fclose (fd of f) fi;
+
+    { open: 0 if the file exists and can be opened, else 1 (as in Algol 68
+      Genie; a file that does not exist yet can still be written). }
+    pub proc open = (ref File f, string name, Channel ch) int:
+       begin close_fd (f);
+             f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
+                   no_handler, no_handler, "", false);
+             (can_open (name) | 0 | 1)
+       end;
+
+    { establish: the file is created by the first put, which fails if
+      the file exists already.  The result is 0 (as in Algol 68 Genie). }
+    pub proc establish = (ref File f, string name, Channel ch) int:
+       begin close_fd (f);
+             f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
+                   no_handler, no_handler, "", true);
+             0
+       end;
+
+    pub proc close = (ref File f) void:
+       if state of f /= standard
+       then close_fd (f);
+            fd of f := -1;
+            state of f := no_file;
+            mood of f := no_mood;
+            peek of f := no_peek
+       fi;
+
+    { reset: the file is closed and opened again by the next get or put,
+      so it is read from the start, or written anew. }
+    pub proc reset = (ref File f) void:
+       if state of f = opened OR state of f = named
+       then close_fd (f);
+            fd of f := -1;
+            state of f := named;
+            mood of f := no_mood;
+            peek of f := no_peek;
+            line of f := 0;
+            col of f := 0
+       fi;
+
+    { F is opened for reading if it is not open yet. }
+    proc ensure_get = (ref File f) void:
+       if state of f = no_file
+       then transput_error ("file is not open")
+       elif mood of f = put_mood
+       then transput_error ("file is in write mood")
+       elif state of f = named
+       then if NOT get_possible of chan of f
+            then transput_error ("""" + name of f + """ cannot be read on this channel")
+            fi;
+            int fd = fopen (name of f, file_o_rdonly);
+            if fd < 0
+            then transput_error ("cannot open """ + name of f + """ for getting, " + errno_text)
+            fi;
+            fd of f := fd;
+            state of f := opened;
+            mood of f := get_mood
+       fi;
+
+    { F is opened for writing if it is not open yet: the file is created,
+      or truncated. }
+    proc ensure_put = (ref File f) void:
+       if state of f = no_file
+       then transput_error ("file is not open")
+       elif mood of f = get_mood
+       then transput_error ("file is in read mood")
+       elif state of f = named
+       then if NOT put_possible of chan of f
+            then transput_error ("""" + name of f + """ cannot be written on this channel")
+            fi;
+            if new_file of f andth can_open (name of f)
+            then transput_error ("cannot open """ + name of f + """ for putting, file exists")
+            fi;
+            int fd = fcreate (name of f, 8r666);
+            if fd < 0
+            then transput_error ("cannot open """ + name of f + """ for putting, " + errno_text)
+            fi;
+            fd of f := fd;
+            state of f := opened;
+            mood of f := put_mood;
+            new_file of f := false
+       fi;
 
     { Environment enquiries of the transput (RR 10.3.1.1). }
 
@@ -78,13 +258,93 @@ def
             long_exp_width = 3,
             long_long_exp_width = 4;
 
-    { Layout procedures. }
+    { Reading characters.  The character read ahead is kept in peek of
+      f; next_char consumes it. }
+
+    { The code of the next character of F, or end_of_file (fgetc gives a
+      character with ABS -1 at the end of the file and on an error). }
+    proc peek_char = (ref File f) int:
+       begin if peek of f = no_peek then peek of f := ABS fgetc (fd of f) fi;
+             peek of f
+       end;
+
+    { Consumes the next character of F and returns its code, or
+      end_of_file. }
+    proc next_char = (ref File f) int:
+       begin int c = peek_char (f);
+             if c /= end_of_file
+             then peek of f := no_peek;
+                  if c = ABS "'n" then line of f +:= 1; col of f := 0
+                  else col of f +:= 1
+                  fi
+             fi;
+             c
+       end;
+
+    proc skip_char = (ref File f) void: (int c = next_char (f); skip);
+
+    proc space_code = (int c) bool:
+       c = ABS " " OR c = ABS "'t" OR c = ABS "'n" OR c = ABS "'r" OR c = ABS "'f";
+
+    proc digit_code = (int c) bool: c >= ABS "0" AND c <= ABS "9";
+
+    { Skips white space, including newlines. }
+    proc skip_space = (ref File f) void:
+       while space_code (peek_char (f)) do skip_char (f) od;
+
+    { Events (RR 10.3.1.3).  A handler that returns true has handled the
+      event: the item being read is left unchanged and reading goes on
+      with the next item.  Otherwise the program ends with an error. }
+
+    pub proc on_logical_file_end = (ref File f, proc (ref File) bool p) void:
+       logical_file_end of f := p;
+
+    pub proc on_value_error = (ref File f, proc (ref File) bool p) void:
+       value_error of f := p;
+
+    proc file_end_event = (ref File f) void:
+       if NOT (logical_file_end of f) (f)
+       then transput_error ("end of file reached")
+       fi;
+
+    proc value_error_event = (ref File f, string mode_name) void:
+       if NOT (value_error of f) (f)
+       then transput_error ("error transputting " + mode_name + " value")
+       fi;
+
+    { The rest of the line is skipped, including the newline.  The end of
+      the file is an event only if the line is not empty. }
+    proc skip_line = (ref File f) void:
+       begin int c := next_char (f);
+             while c /= end_of_file AND c /= ABS "'n" do c := next_char (f) od;
+             if c = end_of_file AND col of f > 0 then file_end_event (f) fi
+       end;
+
+    { Layout procedures.  In output they write a character, in input
+      newline skips the rest of the line, space skips one character and
+      newpage skips the rest of the page. }
 
     pub proc newline = (ref File f) void:
-       (fputs (fd of f, "'n"); line of f +:= 1);
-    pub proc space = (ref File f) void: fputs (fd of f, " ");
-    pub proc newpage = (ref File f) void: fputs (fd of f, "'f");
-    pub proc backspace = (ref File f) void: fputs (fd of f, REPR 8);
+       if mood of f = get_mood
+       then skip_line (f)
+       else ensure_put (f); fputs (fd of f, "'n"); line of f +:= 1
+       fi;
+
+    pub proc space = (ref File f) void:
+       if mood of f = get_mood then skip_char (f)
+       else ensure_put (f); fputs (fd of f, " ")
+       fi;
+
+    pub proc newpage = (ref File f) void:
+       if mood of f = get_mood
+       then int c := next_char (f);
+            while c /= end_of_file AND c /= ABS "'f" do c := next_char (f) od
+       else ensure_put (f); fputs (fd of f, "'f")
+       fi;
+
+    { In input, backspace does nothing. }
+    pub proc backspace = (ref File f) void:
+       if mood of f /= get_mood then ensure_put (f); fputs (fd of f, REPR 8) fi;
 
     { The values print and put accept. }
 
@@ -118,6 +378,7 @@ def
               long_exp_width + 1);
 
     pub proc put = (ref File f, [] Outitem items) void:
+       begin ensure_put (f);
        for k from LWB items to UPB items
        do int fd = fd of f;
           case items[k]
@@ -164,10 +425,347 @@ def
                 od,
              (proc (ref File) void p): p (f)
           esac
-       od;
+       od
+       end;
 
     pub proc print = ([] Outitem items) void: put (stand_out, items);
     pub proc write = ([] Outitem items) void: put (stand_out, items);
+
+    { Reading.
+
+      The rules follow Algol 68 Genie:
+      - int, long int, long long int, real and long real skip white
+        space, including newlines; a number then has an optional sign
+        directly before its digits and ends at the first character that
+        does not belong to it ("12abc" gives 12, then "a"; "7e2" read as
+        int gives 7).  A real is digits with an optional point and
+        fraction and an optional exponent: "5.", ".5e-1" and "1E5" are
+        reals.
+      - A char is the next character; at the end of a line it is the
+        first character of the next line that is not empty.  A bool is
+        read as a char, which must be T or F (a blank is a value error).
+      - A string is the rest of the line, up to (not including) the
+        newline or a character of the terminator string (make_term); on
+        an empty line it is "".
+      - newline skips the rest of the line, including the newline.
+      - At the end of the file, the logical file end event happens; if
+        the input does not fit the mode (or the number is out of range),
+        the value error event happens.  The characters that may belong to
+        the value are consumed even then ("1.5e+x" consumes "1.5e+"), and
+        the item is left unchanged.
+
+      Reals: the first 18 significant digits are accumulated exactly in a
+      long long int and then scaled by a power of ten in double-double
+      arithmetic (see decimal_to_long_real), so a long real is correctly
+      rounded except in extremely rare cases near the middle between two
+      long reals; a real is the long real shortened (rounded twice). }
+
+    pub mode Initem = union (ref int, ref long int, ref long long int,
+                             ref real, ref long real, ref bool, ref char,
+                             ref string, proc (ref File) void);
+
+    { The results of get_integer and get_real. }
+    int got_value = 1, got_value_error = 2, got_file_end = 3;
+
+    { Reads an integer of the range -HI - 1 .. HI into V.  The digits are
+      accumulated as a negative number, so that -HI - 1 can be read. }
+    proc get_integer = (ref File f, long long int hi, ref long long int v) int:
+       begin skip_space (f);
+             bool negative := false;
+             int c := peek_char (f);
+             if c = ABS "+" OR c = ABS "-"
+             then negative := c = ABS "-";
+                  skip_char (f);
+                  c := peek_char (f)
+             fi;
+             if c = end_of_file then got_file_end
+             elif NOT digit_code (c) then got_value_error
+             else long long int lo = -hi - long long 1;
+                  long long int x := long long 0;
+                  bool overflow := false;
+                  while digit_code (c)
+                  do long long int d = LENG LENG (c - ABS "0");
+                     { x * 10 - d >= lo, with % truncating towards zero }
+                     if overflow OR x < (lo + d) % long long 10
+                     then overflow := true
+                     else x := x * long long 10 - d
+                     fi;
+                     skip_char (f);
+                     c := peek_char (f)
+                  od;
+                  if overflow then got_value_error
+                  elif negative then v := x; got_value
+                  elif x < -hi then got_value_error
+                  else v := -x; got_value
+                  fi
+             fi
+       end;
+
+    { Double-double arithmetic (T. J. Dekker, A floating-point technique
+      for extending the available precision, 1971): a pair (hi, lo) of
+      long reals with hi = hi + lo rounded stands for hi + lo, about 106
+      bits.  It scales the digits of a real by a power of ten, so that the
+      result is correctly rounded except when the exact value is within
+      about 2 ** -100 (relative) of the middle between two long reals.
+      Only + - * / are used: the results are the same in ga68 and a68j. }
+
+    mode Dd = struct (long real hi, lo);
+
+    { The exact sum of A and B. }
+    proc two_sum = (long real a, b) Dd:
+       begin long real s = a + b;
+             long real bb = s - a;
+             (s, (a - (s - bb)) + (b - bb))
+       end;
+
+    { A split into two halves of 26 bits (A must be far from overflow). }
+    proc split = (long real a) Dd:
+       begin long real t = long 134217729.0 * a;      { 2 ** 27 + 1 }
+             long real h = t - (t - a);
+             (h, a - h)
+       end;
+
+    { The exact product of A and B. }
+    proc two_prod = (long real a, b) Dd:
+       begin long real p = a * b;
+             Dd x = split (a), y = split (b);
+             (p, ((hi of x * hi of y - p) + hi of x * lo of y + lo of x * hi of y)
+                 + lo of x * lo of y)
+       end;
+
+    proc dd_mul = (Dd a, b) Dd:
+       begin Dd p = two_prod (hi of a, hi of b);
+             two_sum (hi of p, lo of p + (hi of a * lo of b + lo of a * hi of b))
+       end;
+
+    { 1/10 in double-double: lo = (1 - 10 hi) / 10, where 10 hi is
+      computed exactly. }
+    Dd dd_tenth = begin long real h = long 0.1;
+                        Dd t = two_prod (long 10.0, h);
+                        (h, ((long 1.0 - hi of t) - lo of t) / long 10.0)
+                  end;
+
+    { M * 10 ** E as a long real, M >= 0; it may be infinite. }
+    proc decimal_to_long_real = (long long int m, int e) long real:
+       begin long long int two32 = long long 4294967296;
+             { m as an exact double-double (m < 2 ** 63). }
+             long real a = SHORTEN (m % two32), b = SHORTEN (m %* two32);
+             Dd md = two_sum (a * long 4294967296.0, b);
+             if e >= 0 AND e <= 22 AND m < long long 9007199254740992
+             then { m and 10 ** e are exact: one rounding. }
+                  long real p := long 1.0;
+                  to e do p := p * long 10.0 od;
+                  hi of md * p
+             elif e < 0 AND e >= -22 AND m < long long 9007199254740992
+             then long real p := long 1.0;
+                  to -e do p := p * long 10.0 od;
+                  hi of md / p
+             else { 10 ** e = p * 2 ** k, with p kept between 1/1024 and
+                    1024 by exact scalings. }
+                  Dd p := (long 1.0, long 0.0);
+                  int k := 0;
+                  Dd f = (e >= 0 | (long 10.0, long 0.0) | dd_tenth);
+                  to ABS e
+                  do p := dd_mul (p, f);
+                     if hi of p >= long 1024.0
+                     then p := (hi of p / long 1024.0, lo of p / long 1024.0); k +:= 10
+                     elif hi of p < long 1.0 / long 1024.0
+                     then p := (hi of p * long 1024.0, lo of p * long 1024.0); k -:= 10
+                     fi
+                  od;
+                  long real r := hi of dd_mul (md, p);
+                  { Exact scaling by 2 ** k, except for a result below the
+                    smallest normal long real (one more rounding there). }
+                  while k >= 10 do r := r * long 1024.0; k -:= 10 od;
+                  while k > 0 do r := r * long 2.0; k -:= 1 od;
+                  while k <= -10 do r := r / long 1024.0; k +:= 10 od;
+                  while k < 0 do r := r / long 2.0; k +:= 1 od;
+                  r
+             fi
+       end;
+
+    { Reads a real into V. }
+    proc get_real = (ref File f, ref long real v) int:
+       begin skip_space (f);
+             bool negative := false;
+             int c := peek_char (f);
+             if c = ABS "+" OR c = ABS "-"
+             then negative := c = ABS "-";
+                  skip_char (f);
+                  c := peek_char (f)
+             fi;
+             { The significant digits in m, the decimal exponent in e. }
+             long long int m := long long 0;
+             { At most 18 significant digits: m < 10 ** 18 < 2 ** 63. }
+             long long int m_max = long long 99999999999999999;
+             int digits := 0, e := 0;
+             while digit_code (c)
+             do if m <= m_max
+                then m := m * long long 10 + LENG LENG (c - ABS "0")
+                else e +:= 1
+                fi;
+                digits +:= 1;
+                skip_char (f);
+                c := peek_char (f)
+             od;
+             if c = ABS "."
+             then skip_char (f);
+                  c := peek_char (f);
+                  while digit_code (c)
+                  do if m <= m_max
+                     then m := m * long long 10 + LENG LENG (c - ABS "0");
+                          e -:= 1
+                     fi;
+                     digits +:= 1;
+                     skip_char (f);
+                     c := peek_char (f)
+                  od
+             fi;
+             if digits = 0
+             then (c = end_of_file | got_file_end | got_value_error)
+             else int result := got_value;
+                  if c = ABS "e" OR c = ABS "E"
+                  then skip_char (f);
+                       c := peek_char (f);
+                       bool negative_exponent := false;
+                       if c = ABS "+" OR c = ABS "-"
+                       then negative_exponent := c = ABS "-";
+                            skip_char (f);
+                            c := peek_char (f)
+                       fi;
+                       if c = end_of_file then result := got_file_end
+                       elif NOT digit_code (c) then result := got_value_error
+                       else int x := 0;
+                            while digit_code (c)
+                            do (x < 100000 | x := x * 10 + c - ABS "0");
+                               skip_char (f);
+                               c := peek_char (f)
+                            od;
+                            e +:= (negative_exponent | -x | x)
+                       fi
+                  fi;
+                  if result = got_value AND m /= long long 0 AND e > 400
+                  then result := got_value_error
+                  fi;
+                  if result = got_value
+                  then long real r = (m = long long 0 OR e < -400 | long 0.0
+                                       | decimal_to_long_real (m, e));
+                       if r > long_max_real then result := got_value_error
+                       else v := (negative | -r | r)
+                       fi
+                  fi;
+                  result
+             fi
+       end;
+
+    pub proc get = (ref File f, [] Initem items) void:
+       begin ensure_get (f);
+       for k from LWB items to UPB items
+       do case items[k]
+          in (ref int i):
+                begin long long int v;
+                      case get_integer (f, LENG LENG max_int, v)
+                      in i := SHORTEN SHORTEN v,
+                         value_error_event (f, "int"),
+                         file_end_event (f)
+                      esac
+                end,
+             (ref long int i):
+                begin long long int v;
+                      case get_integer (f, LENG long_max_int, v)
+                      in i := SHORTEN v,
+                         value_error_event (f, "long int"),
+                         file_end_event (f)
+                      esac
+                end,
+             (ref long long int i):
+                begin long long int v;
+                      case get_integer (f, long_long_max_int, v)
+                      in i := v,
+                         value_error_event (f, "long long int"),
+                         file_end_event (f)
+                      esac
+                end,
+             (ref real x):
+                begin long real v;
+                      int r := get_real (f, v);
+                      if r = got_value AND ABS v > LENG max_real
+                      then r := got_value_error
+                      fi;
+                      case r
+                      in x := SHORTEN v,
+                         value_error_event (f, "real"),
+                         file_end_event (f)
+                      esac
+                end,
+             (ref long real x):
+                begin long real v;
+                      case get_real (f, v)
+                      in x := v,
+                         value_error_event (f, "long real"),
+                         file_end_event (f)
+                      esac
+                end,
+             (ref bool b):
+                begin while peek_char (f) = ABS "'n" do skip_char (f) od;
+                      int c = next_char (f);
+                      if c = end_of_file then file_end_event (f)
+                      elif c = ABS "T" OR c = ABS "F" then b := c = ABS "T"
+                      else value_error_event (f, "bool")
+                      fi
+                end,
+             (ref char ch):
+                begin while peek_char (f) = ABS "'n" do skip_char (f) od;
+                      int c = peek_char (f);
+                      if c = end_of_file then file_end_event (f)
+                      else skip_char (f); ch := REPR c
+                      fi
+                end,
+             (ref string s):
+                begin int c := peek_char (f);
+                      if c = end_of_file
+                      then file_end_event (f)
+                      else string t;
+                           while c /= end_of_file AND c /= ABS "'n"
+                                 andth NOT char_in_string (REPR c, nil, term of f)
+                           do t +:= REPR c;
+                              skip_char (f);
+                              c := peek_char (f)
+                           od;
+                           s := t
+                      fi
+                end,
+             (proc (ref File) void p): p (f)
+          esac
+       od
+       end;
+
+    pub proc read = ([] Initem items) void: get (stand_in, items);
+
+    pub proc read_int = int: (int i; read (i); i);
+    pub proc read_long_int = long int: (long int i; read (i); i);
+    pub proc read_real = real: (real x; read (x); x);
+    pub proc read_long_real = long real: (long real x; read (x); x);
+    pub proc read_bool = bool: (bool b; read (b); b);
+    pub proc read_char = char: (char c; read (c); c);
+    { The rest of the line, without the newline, which is not consumed. }
+    pub proc read_string = string: (string s; read (s); s);
+    { The rest of the line; the newline is consumed. }
+    pub proc read_line = string: (string s; read ((s, newline)); s);
+
+    { Whether the end of the file is reached; the next character is read
+      ahead. }
+    pub proc eof = (ref File f) bool: (ensure_get (f); peek_char (f) = end_of_file);
+
+    { Whether the end of the line (or of the file) is reached. }
+    pub proc eoln = (ref File f) bool:
+       begin ensure_get (f);
+             int c = peek_char (f);
+             c = ABS "'n" OR c = end_of_file
+       end;
+
+    { The characters of T end a string that is read from F. }
+    pub proc make_term = (ref File f, string t) void: term of f := t;
 
     { String searching (RR 10.3.2.4 and Algol 68 Genie).  As in Algol 68
       Genie, pos may be nil when only the result is of interest. }

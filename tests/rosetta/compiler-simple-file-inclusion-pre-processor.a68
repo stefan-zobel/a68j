@@ -31,13 +31,13 @@ begin
     bool rs_style_brief_comments = false;
 
     { input file information                                                  }
-    mode Infile = struct( ref file src         { actual source file           }
+    mode Infile = struct( ref File src         { actual source file           }
                         , string   line        { latest source line           }
                         , int      pos         { character position in line   }
                         );
     { initialises the INFILE f to be associated with the FILE src             }
     prio INIT = 9;
-    op   INIT = ( ref file src, ref Infile f )ref Infile:
+    op   INIT = ( ref File src, ref Infile f )ref Infile:
          begin
             line of f := "";
             pos  of f := 1 + UPB line of f;
@@ -67,7 +67,7 @@ begin
     { that allows us to detect EOF on a source file                           }
     proc set_eof_handler = ( ref Infile fl )void:
          on_logical_file_end( src of fl
-                            , ( ref file f )bool:
+                            , ( ref File f )bool:
                               begin
                                   { note that we reached EOF on the           }
                                   { latest read                               }
@@ -335,7 +335,7 @@ begin
                 { max include depth exceeded                                  }
                 out_string( pragment );
                 error( "Include files nested too deply: " + file_name )
-            elif ref file inc = heap file;
+            elif ref File inc = heap File;
                  open( inc, file_name, stand_in_channel ) /= 0
             then
                 { couldn't open the file                                      }

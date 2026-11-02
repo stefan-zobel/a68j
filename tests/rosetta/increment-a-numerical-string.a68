@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-string s := "12345"; file f; int i;
+string s := "12345"; File f; int i;
 associate(f, s); get(f,i);
 i+:=1;
 s:=""; reset(f); put(f,i);

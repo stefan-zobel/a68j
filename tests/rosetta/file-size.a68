@@ -6,5 +6,5 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-proc set = (ref file file_,  int page, line, character)void: ~
+proc set = (ref File file_,  int page, line, character)void: ~
 )

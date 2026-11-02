@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-[]union(string, int, proc(ref file)void) collection = ("Mary","Had",1,"little","lamb.",new_line);
+[]union(string, int, proc(ref File)void) collection = ("Mary","Had",1,"little","lamb.",new_line);
 
 for index from LWB collection to UPB collection do
   print((collection[index]," "))

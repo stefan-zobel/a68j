@@ -7,17 +7,17 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 { merge a number of input files to an output file                             }
-proc mergenf = ( []ref file inpf, ref file out_ )void:
+proc mergenf = ( []ref File inpf, ref File out_ )void:
      begin
         int        eof_count := 0;
         bool       at_eof    := false;
-        []ref file inputs     = inpf[ at 1 ];
+        []ref File inputs     = inpf[ at 1 ];
         int   number_of_files = UPB inputs;
         [ number_of_files ]bool reached_eof;
         [ number_of_files ]string line;
         for f to number_of_files do
             reached_eof[ f ] := false;
-            on_logical_file_end( inpf[ f ], ( ref file f )bool:
+            on_logical_file_end( inpf[ f ], ( ref File f )bool:
                                             begin
                                                 { note that we reached EOF on the latest read }
                                                 { and return TRUE so processing can continue }
@@ -73,10 +73,10 @@ proc mergen = ( []string input_list, string output_name )void:
      begin
         []string inputs       = input_list[ at 1 ];
         int number_of_files   = UPB inputs;
-        [ number_of_files ]ref file inpf;
+        [ number_of_files ]ref File inpf;
         { open the input files                                                  }
         for f to number_of_files do
-             inpf[ f ] := loc file;
+             inpf[ f ] := loc File;
              if  open( inpf[ f ], inputs[ f ], stand_in_channel ) /= 0
              then
                  { failed to open the input file }
@@ -85,7 +85,7 @@ proc mergen = ( []string input_list, string output_name )void:
              fi
         od;
         { open the output file (which must already exist & will be overwritten) }
-        if file output_file;
+        if File output_file;
            open( output_file, output_name, stand_out_channel ) /= 0
         then
             { failed to open the output file }

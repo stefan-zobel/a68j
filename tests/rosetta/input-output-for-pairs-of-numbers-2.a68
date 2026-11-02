@@ -10,7 +10,7 @@ access Genie_Transput (
 { and write the sum to stand out. If non integer data is supplied, a runtime error will occur }
 { This version does not allow the pairs of numbers to be spread over several lines            }
 string line;
-file   numbers;
+File   numbers;
 associate( numbers, line );
 to ( int n
    ; read( ( line, newline ) )

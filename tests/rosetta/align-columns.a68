@@ -29,14 +29,14 @@ proc flex_page = (Page in_page, int row, col)Page:(
   out_page
 );
 
-file text_in_file;
+File text_in_file;
 associate(text_in_file, text_in_list);
 make_term(text_in_file, "$");
 
-on_physical_file_end(text_in_file, (ref file skip_)bool: stop_iteration);
-on_logical_file_end(text_in_file, (ref file skip_)bool: stop_iteration);
+on_physical_file_end(text_in_file, (ref File skip_)bool: stop_iteration);
+on_logical_file_end(text_in_file, (ref File skip_)bool: stop_iteration);
 bool at_eol := false;
-on_line_end(text_in_file, (ref file skip_)bool: at_eol := true);
+on_line_end(text_in_file, (ref File skip_)bool: at_eol := true);
 for row do
   at_eol := false;
   for col while NOT at_eol do

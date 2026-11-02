@@ -120,7 +120,7 @@ proc in_tz = (Date d, string new_tz) Date:
 
 { canonical representation of a date (SQL-style with optional time zone) }
 op REPR = (Date d) string: (
-  string buf; file f; associate(f, buf);
+  string buf; File f; associate(f, buf);
   putf(f, ($4d,"-"2d,"-"2d," "2d,":"2d,":"2d$, d of d));
   if tz of d ~= "" then put(f, (" ", tz of d)) fi;
   close(f);

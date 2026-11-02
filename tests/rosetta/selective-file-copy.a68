@@ -12,13 +12,13 @@ mode Outputrecord    = struct( string field_a,                 int field_c,     
 FORMAT input_format  = $ 5a, 5a,   4d, 1a, 5a l $;
 FORMAT output_format = $ 5a,     3z-d,     5a l $;
 
-if  file input_file;
+if  File input_file;
     string file_name = "input.txt";
     open( input_file, file_name, stand_in_channel ) /= 0
 then
     { failed to open the file }
     print( (  "Unable to open """ + file_name + """", newline ) )
-elif file output_file;
+elif File output_file;
      string output_name = "output.txt";
      open( output_file, output_name, stand_out_channel ) /= 0
 then
@@ -29,7 +29,7 @@ else
     { files opened OK }
     bool at_eof := false;
     { set the EOF handler for the file }
-    on_logical_file_end( input_file, ( ref file f )bool:
+    on_logical_file_end( input_file, ( ref File f )bool:
                                      begin
                                          { note that we reached EOF on the }
                                          { latest read }

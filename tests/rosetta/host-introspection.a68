@@ -18,7 +18,7 @@ printf(($"chars per int: "z-dl$,bits_per_int OVER bits_per_char));
 printf(($"bits width: "z-dl$, bits_width));
 
 string abcds = "ABCD";
-file abcdf;
+File abcdf;
 int abcdi;
 
 int errno := open(abcdf, "abcd.dat",stand_back_channel);

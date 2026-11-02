@@ -8,7 +8,7 @@
 access Genie_Transput (
 begin
    string printer_name = "/dev/lp0";
-   file line_printer;
+   File line_printer;
    if open (line_printer, printer_name, stand_out_channel) = 0 then
       put (line_printer, ("Hello world", newline));
       close (line_printer)

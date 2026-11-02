@@ -56,7 +56,7 @@ op   LONGERTHAN      = ( string x, string y )bool: x ATLEASTASLONGAS y AND NOT (
 print( ( "abc" LONGERTHAN "bbcd", "ABC" LONGERTHAN "", "" LONGERTHAN "abc", "DEF" LONGERTHAN "DEF", "abcd" LONGERTHAN "a", newline ) );
 C-MMENT }
 
-proc read_a_line = ( ref file f )string:
+proc read_a_line = ( ref File f )string:
      begin
          string line;
          get( f, ( line, newline ) );
@@ -65,11 +65,11 @@ proc read_a_line = ( ref file f )string:
 
 { EOF handler for standard input                              }
 bool at_eof := false;
-on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+on_logical_file_end( stand_in, ( ref File f )bool: at_eof := true );
 
 { recursively find the longest line(s) in the specified file  }
 { and print them                                              }
-proc print_longest_lines = ( ref file f, string longest_so_far )string:
+proc print_longest_lines = ( ref File f, string longest_so_far )string:
      begin
         if at_eof then
             longest_so_far

@@ -6,6 +6,6 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-file cached_book_file;
+File cached_book_file;
 associate(cached_book_file, book)
 )

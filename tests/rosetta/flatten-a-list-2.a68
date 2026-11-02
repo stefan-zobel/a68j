@@ -7,7 +7,7 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 [][][][][][][][][]int list1 = ((1), 2, ((3,4), 5), ((())), (((6))), 7, 8, () );
-file   str_file;
+File   str_file;
 string str_list;
 
 { write the list to a string }
@@ -19,7 +19,7 @@ close( str_file );
 int element_count := 0;
 associate( str_file, str_list );
 bool at_end := false;
-on_logical_file_end( str_file, ( ref file f )bool: at_end := true );
+on_logical_file_end( str_file, ( ref File f )bool: at_end := true );
 while int value := 0;
       get( str_file, value );
       NOT at_end

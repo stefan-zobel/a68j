@@ -8,9 +8,9 @@
 access Genie_Transput (
 proc is_numeric = (ref string string_) bool: (
   bool out_ := true;
-  proc call_back_false = (ref file f)bool: (out_:= false; true);
+  proc call_back_false = (ref File f)bool: (out_:= false; true);
 
-  file memory;
+  File memory;
   associate(memory, string_);
   on_value_error(memory, call_back_false);
   on_logical_file_end(memory, call_back_false);

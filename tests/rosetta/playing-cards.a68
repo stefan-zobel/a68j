@@ -67,8 +67,8 @@ struct(
 );
 
 { associate a STRING with a FILE for easy text manipulation }
-op BOOK = (ref string string_)ref file:(
-  heap file book;
+op BOOK = (ref string string_)ref File:(
+  heap File book;
   associate(book, string_);
   book
 );

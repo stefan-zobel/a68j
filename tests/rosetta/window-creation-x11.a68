@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-file window;
+File window;
 draw_device (window, "X", "600x400");
 open (window, "Hello, World!", stand_draw_channel);
   draw_erase (window);

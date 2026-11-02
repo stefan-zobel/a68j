@@ -11,7 +11,7 @@ begin { read a sequence of integers, terminated by 99999 and output their averag
     int sum            := 0;
     int count          := 0;
     bool invalid_value := false;
-    on_value_error( stand_in, ( ref file f )bool: invalid_value := true );
+    on_value_error( stand_in, ( ref File f )bool: invalid_value := true );
     while
         int n := 0;
         while

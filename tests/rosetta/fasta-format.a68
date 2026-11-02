@@ -10,7 +10,7 @@ begin { read FASTA format data from standard input and write the results to  }
       { standard output - only the ">" line start is handled                 }
 
     bool at_eof := false;
-    on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+    on_logical_file_end( stand_in, ( ref File f )bool: at_eof := true );
 
     while string line;
           read( ( line, newline ) );

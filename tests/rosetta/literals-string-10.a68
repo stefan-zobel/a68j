@@ -7,7 +7,7 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 int pages=100, lines=25, characters=80;
-file bookf; flex[pages]flex[lines]flex[characters]char book;
+File bookf; flex[pages]flex[lines]flex[characters]char book;
 associate(bookf, book);
 
 { following putf inserts the string "    Line 4 indented 5" on page 3 }

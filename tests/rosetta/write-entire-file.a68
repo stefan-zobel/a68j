@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-if  file   output;
+if  File   output;
     string output_file_name = "output.txt";
     open( output, output_file_name, stand_out_channel ) = 0
 then

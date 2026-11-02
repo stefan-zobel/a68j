@@ -12,7 +12,7 @@ begin { Mad Libs style story generation                                      }
     { a blank line                                                           }
     { The user is then promoted for the replacements for the <word> markers  }
     { and the story is printed with the substitutions made                   }
-    proc story = ( ref file f )void:
+    proc story = ( ref File f )void:
     begin
 
         { a linked list of strings, used to hold the story template          }

@@ -11,6 +11,7 @@ ackermann-function
 address-of-a-variable-1
 air-mass
 amicable-pairs
+anadromes
 anaprimes
 angle-difference-between-two-bearings
 angles-geometric-normalization-and-conversion
@@ -86,6 +87,7 @@ convex-hull
 coprime-triplets
 coprimes
 copy-a-string
+copy-stdin-to-stdout
 cordic
 count-how-many-vowels-and-consonants-occur-in-a-string
 count-in-factors
@@ -94,6 +96,7 @@ count-the-coins-0-1
 count-the-coins-1
 crc-32
 create-an-executable-for-a-program-in-an-interpreted-language-2
+create-an-html-table
 curve-that-touches-three-points
 cusip
 damm-algorithm
@@ -140,6 +143,7 @@ empty-program-2
 empty-string
 enforced-immutability
 entropy
+entropy-narcissist
 enumerations-1
 environment-variables
 equilibrium-index
@@ -162,6 +166,7 @@ factorize-string-into-lyndon-words
 factors-of-an-integer
 fairshare-between-two-and-more
 farey-sequence
+fasta-format
 feigenbaum-constant-calculation
 fibonacci-n-step-number-sequences
 fibonacci-sequence-2
@@ -217,6 +222,7 @@ humble-numbers
 idoneal-numbers
 inconsummate-numbers-in-base-10
 increasing-gaps-between-consecutive-niven-numbers
+input-loop-1
 integer-overflow-1
 intersecting-number-wheels
 introspection-1
@@ -258,12 +264,14 @@ longest-common-subsequence
 longest-common-substring
 longest-common-suffix
 longest-palindromic-substrings
+longest-string-challenge-2
 look-and-say-sequence
 loops-break
 loops-continue
 loops-do-while
 loops-downward-for-1
 loops-for
+loops-foreach-1
 loops-n-plus-one-half-1
 loops-n-plus-one-half-2
 loops-n-plus-one-half-3
@@ -301,6 +309,7 @@ multi-dimensional-array-8
 multisplit
 munchausen-numbers-1
 mutual-recursion
+n-body-problem
 n-grams
 n-queens-problem
 narcissistic-decimal-number
@@ -312,6 +321,7 @@ non-decimal-radices-convert-2
 non-transitive-dice
 nth
 null-object
+number-names-1
 numbers-divisible-by-their-individual-digits-but-not-by-the-product-of-their-digits
 numbers-in-base-10-that-are-palindromic-in-bases-2-4-and-16
 numbers-in-base-16-representation-that-cannot-be-written-with-decimal-digits
@@ -334,6 +344,7 @@ old-lady-swallowed-a-fly-2
 optional-parameters
 orbital-elements
 order-two-numerical-lists
+ordered-words-1
 overloaded-operators
 padovan-n-step-number-sequences
 pandigital-prime-1
@@ -372,6 +383,7 @@ prime-numbers-of-measurement
 prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime
 prime-triangle
 prime-triplets
+print-itself-1
 problem-of-apollonius
 product-of-divisors-1
 product-of-min-and-max-prime-factors
@@ -392,6 +404,7 @@ range-consolidation
 range-expansion
 ranking-methods
 ray-casting-algorithm
+read-a-specific-line-from-a-file
 remove-vowels-from-a-string
 rep-string
 repeat
@@ -413,9 +426,9 @@ self-describing-numbers
 semiprime
 send-+-more-=-money
 separate-the-house-number-from-the-street-name
+sequence-nth-number-with-exactly-n-divisors
 sequence-of-non-squares
 sequence-of-primes-by-trial-division
-sequence-nth-number-with-exactly-n-divisors
 sequence-smallest-number-greater-than-previous-term-with-exactly-n-divisors
 sequence-smallest-number-with-exactly-n-divisors
 seven-sided-dice-from-five-sided-dice
@@ -476,6 +489,7 @@ stem-and-leaf-plot-2
 stern-brocot-sequence
 strange-numbers
 strange-plus-numbers
+stream-merge
 string-append
 string-comparison
 string-concatenation
@@ -487,6 +501,7 @@ strip-whitespace-from-a-string-top-and-tail-1
 strip-whitespace-from-a-string-top-and-tail-2
 strong-and-weak-primes
 sturmian-word
+subleq
 substitution-cipher
 sudan-function
 sum-and-product-puzzle
@@ -524,6 +539,7 @@ url-encoding
 van-der-corput-sequence
 van-eck-sequence
 variable-declaration-reset
+variadic-function
 verhoeff-algorithm
 vigen-re-cipher
 visualize-a-tree
@@ -532,6 +548,8 @@ weird-numbers
 welchs-t-test
 wordle-comparison
 worthwhile-task-shaving
+write-entire-file
+write-float-arrays-to-a-text-file
 xml-output-1
 yellowstone-sequence
 zebra-puzzle

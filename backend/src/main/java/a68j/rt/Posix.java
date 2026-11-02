@@ -40,6 +40,11 @@ import java.util.Map;
  * 0, and after a failing fgetc the error shows only at the next copying
  * call. {@link #sysErrno} plays the part of the C errno. The error numbers
  * and messages are those of Linux.
+ *
+ * <p>A string argument with a character that has no UTF-8 encoding (a
+ * surrogate, or the EOF character) cannot be converted: fopen and fcreate
+ * then fail with EFAULT, fputs and puts write nothing, return 0 and set
+ * errno to EILSEQ, and getenv returns the empty string.
  */
 public final class Posix {
     private Posix() {}
@@ -49,7 +54,7 @@ public final class Posix {
         return Std.reflectProc(Posix.class, method);
     }
 
-    private static final int EIO = 5, EBADF = 9, EINVAL = 22;
+    private static final int EIO = 5, EBADF = 9, EFAULT = 14, EINVAL = 22, EILSEQ = 84;
 
     /** The error numbers known here and their messages (strerror of glibc). */
     private static final Object[][] ERRORS = {
@@ -59,6 +64,7 @@ public final class Posix {
         {EIO, "Input/output error"},
         {EBADF, "Bad file descriptor"},
         {13, "Permission denied"},
+        {EFAULT, "Bad address"},
         {17, "File exists"},
         {20, "Not a directory"},
         {21, "Is a directory"},
@@ -71,6 +77,7 @@ public final class Posix {
         {32, "Broken pipe"},
         {36, "File name too long"},
         {40, "Too many levels of symbolic links"},
+        {EILSEQ, "Invalid or incomplete multibyte or wide character"},
     };
 
     /** errno as the program sees it (libga68's _libga68_errno). */
@@ -115,9 +122,31 @@ public final class Posix {
         return Row.ofString("Unknown error " + e);
     }
 
+    /**
+     * The Java string of S, or null if S holds a character that has no UTF-8
+     * encoding (a surrogate, or a value outside 0 .. 16r10ffff such as the
+     * EOF character): libga68 converts strings with _libga68_u32_to_u8, which
+     * fails with EILSEQ for these.
+     */
+    private static String utf8String(Row s) {
+        StringBuilder sb = new StringBuilder();
+        for (int c : s.codePoints()) {
+            if (c < 0 || c > 0x10ffff || (c >= 0xd800 && c < 0xe000)) {
+                return null;
+            }
+            sb.appendCodePoint(c);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * perror. A prefix that cannot be converted is left out (libga68 would
+     * write from a null pointer).
+     */
     public static void perror(Row s) {
         Rt.OUT.flush();
-        System.err.print(s.asString() + ": " + strerror(errno).asString() + "\n");
+        String prefix = utf8String(s);
+        System.err.print((prefix == null ? "" : prefix) + ": " + strerror(errno).asString() + "\n");
         System.err.flush();
     }
 
@@ -168,8 +197,21 @@ public final class Posix {
     private static final OpenOption READ = StandardOpenOption.READ, WRITE = StandardOpenOption.WRITE,
             TRUNC = StandardOpenOption.TRUNCATE_EXISTING;
 
+    /**
+     * open(2) or creat(2) with a path that cannot be converted: libga68
+     * passes a null pointer, and the call fails with EFAULT.
+     */
+    private static int badPath() {
+        sysErrno = EFAULT;
+        errno = sysErrno;
+        return -1;
+    }
+
     public static synchronized int fopen(Row path, int flags) {
-        String p = path.asString();
+        String p = utf8String(path);
+        if (p == null) {
+            return badPath();
+        }
         if (flags == fileodefault()) {
             int fd = open(p, READ, WRITE);
             if (fd < 0) {
@@ -216,7 +258,11 @@ public final class Posix {
      * MODE are not applied: the file gets the default permissions.
      */
     public static synchronized int fcreate(Row path, int mode) {
-        return open(path.asString(), WRITE, StandardOpenOption.CREATE, TRUNC);
+        String p = utf8String(path);
+        if (p == null) {
+            return badPath();
+        }
+        return open(p, WRITE, StandardOpenOption.CREATE, TRUNC);
     }
 
     public static int fconnect(Row host, int port) {
@@ -384,9 +430,21 @@ public final class Posix {
 
     public static int putchar(int c) { return fputc(1, c); }
 
-    /** fputs: the number of bytes written, or 0 on an error; errno is copied afterwards. */
+    /**
+     * fputs: the number of bytes written, or 0 on an error; errno is copied
+     * afterwards. A string with a character that has no UTF-8 encoding (such
+     * as the EOF character) writes nothing, returns 0 and sets errno to
+     * EILSEQ. (libga68 then calls write with a null pointer and an
+     * uninitialized length, so its result there is undefined.)
+     */
     public static synchronized int fputs(int fd, Row s) {
-        byte[] b = s.asString().getBytes(StandardCharsets.UTF_8);
+        String str = utf8String(s);
+        if (str == null) {
+            sysErrno = EILSEQ;
+            errno = sysErrno;
+            return 0;
+        }
+        byte[] b = str.getBytes(StandardCharsets.UTF_8);
         boolean ok = write(fd, b);
         errno = sysErrno;
         return ok ? b.length : 0;
@@ -430,8 +488,8 @@ public final class Posix {
     }
 
     public static Row getenv(Row name) {
-        String n = name.asString();
-        String v = n.isEmpty() ? null : System.getenv(n);
+        String n = utf8String(name);
+        String v = n == null || n.isEmpty() ? null : System.getenv(n);
         return Row.ofString(v == null ? "" : v);
     }
 }

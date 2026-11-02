@@ -34,14 +34,14 @@ mode Htmltable       = struct( flex[    0 ]string        headings
                              , int   border
                              );
 { write an html table to a file                                            }
-proc write_html_table = ( ref file f, Htmltable t )void:
+proc write_html_table = ( ref File f, Htmltable t )void:
 begin
     string align = "align="""
                  + case column_alignment of t in "left", "right" out "center" esac
                  + """";
-    proc th_element = ( ref file hf, string content )void:
+    proc th_element = ( ref File hf, string content )void:
         put( hf, ( "<th " + align + ">" + content + "</th>", newline ) );
-    proc td_element = ( ref file hf, Htmltabledata content )void:
+    proc td_element = ( ref File hf, Htmltabledata content )void:
         put( hf, ( "<td " + align + ">" + TOSTRING content + "</td>", newline ) );
 
     { table element }

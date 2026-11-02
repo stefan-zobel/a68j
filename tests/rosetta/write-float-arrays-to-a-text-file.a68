@@ -8,7 +8,7 @@
 access Genie_Transput (
 begin
   proc writedat = (string filename, []real x, y, int x_width, y_width)void: (
-    if   file f;
+    if   File f;
          int open_code = if open( f, filename, stand_out_channel ) = 0
                          then { opened OK - file already exists and     }
                               {             will be overwritten         }
@@ -37,11 +37,11 @@ begin
     writedat("sqrt.dat", x, y, 3+2, 5+2);
 
     print(("After:",newline));
-    file sqrt_dat;
+    File sqrt_dat;
     if   int open_code = open(sqrt_dat, "sqrt.dat", stand_in_channel);
          open_code NE 0
     then print( ( "unable to open sqrt.dat on stand in: ", open_code, newline ) ); stop
-    else on_logical_file_end(sqrt_dat, (ref file f)bool: stop);
+    else on_logical_file_end(sqrt_dat, (ref File f)bool: stop);
          to UPB x do
             string line;
             get(sqrt_dat, (line, new_line));

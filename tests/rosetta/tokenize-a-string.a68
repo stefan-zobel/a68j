@@ -32,11 +32,11 @@ main:(
   proc char_split = (ref string beetles, string chars)[]string: (
     """ Split beetles where character is found in chars """;
     flex[1:0]string out_;
-    file beetlef;
+    File beetlef;
     associate(beetlef, beetles); { associate a FILE handle with a STRING   }
     make_term(beetlef, chars);   { make term: assign CSV string terminator }
 
-    proc raise_logical_file_end = (ref file f)bool: except_logical_file_end;
+    proc raise_logical_file_end = (ref File f)bool: except_logical_file_end;
     on_logical_file_end(beetlef, raise_logical_file_end);
 
     string solo;

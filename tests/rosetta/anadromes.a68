@@ -53,7 +53,7 @@ begin { find some anadromes: words that when reversed are also words         }
          end { contains } ;
 
     { set the end of file handler for stand in                               }
-    on_logical_file_end( stand_in, ( ref file f )bool: at_eof := true );
+    on_logical_file_end( stand_in, ( ref File f )bool: at_eof := true );
 
     [ 1 : 500 000 ]string words;
     int   t_count    := 0;

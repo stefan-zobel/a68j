@@ -11,7 +11,7 @@ access Genie_Transput (
 { check a file exists by attempting to open it for input          }
 { returns TRUE if the file exists, FALSE otherwise                }
 proc file_exists = ( string file_name )bool:
-    if  file f;
+    if  File f;
         open( f, file_name, stand_in_channel ) = 0
     then
         { file opened OK so must exist                            }

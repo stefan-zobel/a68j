@@ -15,7 +15,7 @@ main:(
     { register an error handler so we can detect and recover from }
     { invalid input }
     on_value_error( stand_in
-                  , ( ref file f )bool:
+                  , ( ref File f )bool:
                     begin
                         valid_input := false;
                         true

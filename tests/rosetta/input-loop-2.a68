@@ -7,10 +7,10 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 main:(
-  proc raise_logical_file_end = (ref file f) bool: ( except_logical_file_end );
+  proc raise_logical_file_end = (ref File f) bool: ( except_logical_file_end );
   on_logical_file_end(stand_in, raise_logical_file_end);
   do
-    proc raise_page_end = (ref file f) bool: ( except_page_end );
+    proc raise_page_end = (ref File f) bool: ( except_page_end );
     on_page_end(stand_in, raise_page_end);
     do
       print(read_string);

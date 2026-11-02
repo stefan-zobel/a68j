@@ -50,7 +50,7 @@ proc print_calendar = (int year, page_width)void: (
   mode Simpleout = union(string, []string, int);
 
   proc cputf = (ref[]char out_, FORMAT fmt, Simpleout argv)void:(
-    file f; string s; associate(f,s);
+    File f; string s; associate(f,s);
     putf(f, (fmt, argv));
     out_[:UPB s]:=s;
     close(f)

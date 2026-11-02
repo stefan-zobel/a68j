@@ -13,14 +13,14 @@ proc ordered = (string s)bool:
     return_false: false
   end;
 
-if file input_file;
+if File input_file;
    string file_name = "unixdict.txt";
    open(input_file, file_name, stand_in_channel) /= 0
 then
   print(("Unable to open file """ + file_name + """", newline))
 else
   bool at_eof := false;
-  on_logical_file_end (input_file, (ref file f)bool: at_eof := true);
+  on_logical_file_end (input_file, (ref File f)bool: at_eof := true);
 
   flex [1:0] string words;
   int idx := 1;

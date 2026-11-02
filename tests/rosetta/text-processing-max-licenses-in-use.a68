@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-proc report = (ref file file_in)int: (
+proc report = (ref File file_in)int: (
 
   mode Time = [19]char;
   struct ([3]char inout, Time time, int jobnum) record;
@@ -16,7 +16,7 @@ proc report = (ref file file_in)int: (
 
   int lic_out := 0, max_out := LWB max_time-1, max_count := LWB max_time-1;
   bool file_in_ended := false;
-  on_logical_file_end(file_in, (ref file file_in)bool: file_in_ended := true);
+  on_logical_file_end(file_in, (ref File file_in)bool: file_in_ended := true);
   while
     getf(file_in, (record_fmt, record));
 { WHILE } NOT file_in_ended do
@@ -63,7 +63,7 @@ main:
   int argv1 := 4;
   if argc >= argv1 then
     for i from argv1 to argc do
-      file file_in;
+      File file_in;
       errno := open(file_in, argv(i), stand_in_channel);
       if errno /= 0 then
         putf(stand_error, ($"cannot read "gl$, argv(1)));

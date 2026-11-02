@@ -13,7 +13,7 @@ begin
    string buffer := "";			 { All characters read from stand in }
    string mask := bound * "0";		 { High water mark of string length seen so far }
 { Standard boiler plate }
-   on_file_end (stand_in, (ref file f) bool: (close (f); goto finished));
+   on_file_end (stand_in, (ref File f) bool: (close (f); goto finished));
    do
       string line;
       read ((line, newline));

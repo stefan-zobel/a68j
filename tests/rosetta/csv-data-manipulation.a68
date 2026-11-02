@@ -47,7 +47,7 @@ proc join = ([]string words, string sep) string:
    fi;
 
 { read a line from file }
-proc readline = (ref file f) string:
+proc readline = (ref File f) string:
    begin
       string line;
       get (f, line); new_line (f);
@@ -79,7 +79,7 @@ op TOINT = (string str) int:
 op STR = (int i) string: whole (i,0);
 
 { The main program }
-file foo;
+File foo;
 open (foo, "CSV_data_manipulation.data", stand_in_channel);
 flex[0]string header := char_split (readline (foo), ",");
 header +:= "SUM";

@@ -53,7 +53,7 @@ proc html = void: print(("<HTML>", new_line)),
        ydob = void: print(("</BODY>", new_line)),
      lmth = void: print(("</HTML>", new_line));
 
-file row_input; string row; char ifs = ",";
+File row_input; string row; char ifs = ",";
 associate(row_input, row); make_term(row_input, ifs);
 
 html;
@@ -63,7 +63,7 @@ html;
       for nr to UPB rows do
         row := rows[nr];
         table_row;
-          on_logical_file_end(row_input, (ref file row_input)bool: row_end);
+          on_logical_file_end(row_input, (ref File row_input)bool: row_end);
           for nf do
             string field; get(row_input,field);
             (nr=1|th|td)(ENCODE field);

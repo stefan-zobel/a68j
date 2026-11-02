@@ -12,7 +12,7 @@ main: (
 
   FORMAT real_ = $g(0,4)$; { preferred real format }
 
-  file fbuf; string sbuf; associate(fbuf,sbuf);
+  File fbuf; string sbuf; associate(fbuf,sbuf);
 
   bool opts := true;
 

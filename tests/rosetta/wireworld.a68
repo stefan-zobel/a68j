@@ -41,7 +41,7 @@ op +:= = (ref flex[]flex[]Cell lines, flex[]Cell line)void:(
       lines[UPB lines]:=line
 );
 
-proc read_file = (ref file in_file)World: (
+proc read_file = (ref File in_file)World: (
     { file > initial world configuration' }
     flex[0]Cell line;
     flex[0]flex[0]Cell lines;
@@ -117,7 +117,7 @@ proc world2string = (World world) string:(
     out_
 );
 
-file in_file;
+File in_file;
 associate(in_file, in_string);
 
 World ww := read_file(in_file);

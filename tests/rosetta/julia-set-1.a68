@@ -13,7 +13,7 @@ begin
                                + if argc < 4 then "0.156" else argv( 4 ) fi
                                + " "
                                ;
-    file numbers;
+    File numbers;
     associate( numbers, real_and_imaginary );
     get( numbers, ( c_real, c_imaginary ) );
     print( ( fixed( c_real, -8, 4 ), fixed( c_imaginary, -8, 4 ), newline ) );

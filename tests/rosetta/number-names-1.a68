@@ -34,8 +34,8 @@ proc number_words = (int n)string:(
     (u /= 0 OR n = 0|three_digits(u)|"")
   );
 
-on_logical_file_end(stand_in, (ref file f)bool: goto stop_iteration);
-on_value_error(stand_in, (ref file f)bool: goto stop_iteration);
+on_logical_file_end(stand_in, (ref File f)bool: goto stop_iteration);
+on_value_error(stand_in, (ref File f)bool: goto stop_iteration);
 do { until user hits EOF }
   int n;
   print("n? ");

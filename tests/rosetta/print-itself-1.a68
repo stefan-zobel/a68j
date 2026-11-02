@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-if  file input_file;
+if  File input_file;
     string file_name = "printItself.a68";
     open( input_file, file_name, stand_in_channel ) /= 0
 then
@@ -16,7 +16,7 @@ else
     { file opened OK                                                       }
     bool at_eof := false;
     on_logical_file_end( input_file     { set the EOF handler for the file }
-                       , ( ref file f )bool:
+                       , ( ref File f )bool:
                          begin
                              { note that we reached EOF on the latest read }
                              { and return TRUE so processing can continue  }

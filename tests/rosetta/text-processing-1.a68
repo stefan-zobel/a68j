@@ -42,10 +42,10 @@ mode Field = struct(real data, int flag);
 FORMAT field_repr = $2(g)$;
 
 for index_file to UPB in_files do
-  string file_name = in_files[index_file], file file_;
+  string file_name = in_files[index_file], File file_;
   if open(file_, file_name, stand_in_channel) NE 0 then
     raise_io_error("Cannot open """+file_name+"""") fi;
-  on_logical_file_end(file_, (ref file f)bool: logical_file_end_done);
+  on_logical_file_end(file_, (ref File f)bool: logical_file_end_done);
   real tot_line, int num_line;
   { make term(file, ", ") for CSV data }
   string date;

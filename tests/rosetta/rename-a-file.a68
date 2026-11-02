@@ -9,7 +9,7 @@ access Genie_Transput (
 main:(
   proc rename = (string source_name, dest_name)int:
   begin
-    file actual_file;
+    File actual_file;
     int errno = open(actual_file, source_name, stand_back_channel);
     if errno NE 0 then
       errno

@@ -49,7 +49,7 @@ begin
     canvas[py, px] := "1"
   od;
 
-  file f;
+  File f;
   if establish(f, "fern.pbm", stand_out_channel) /= 0 then
     print("error creating file!"); leave
   fi;

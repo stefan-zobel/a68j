@@ -55,7 +55,7 @@ main:
 (
   string line;
 
-  on_logical_file_end(stand_in, (ref file f)bool: done);
+  on_logical_file_end(stand_in, (ref File f)bool: done);
   do getf(stand_in, ($gl$,line));
     int sr := sedol_checksum(line);
     if sr > 0 then

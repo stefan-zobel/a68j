@@ -23,7 +23,7 @@ proc is_prime = (int n)bool:(
 );
 
 proc string_to_int = (string in_a)int:(
-  file f; string a := in_a; associate(f, a);
+  File f; string a := in_a; associate(f, a);
   int i; get(f, i); close(f);
   i
 );

@@ -31,7 +31,7 @@ do for y from -pix to pix
 od;
 
 { Make a plot. }
-file plot;
+File plot;
 int num_pix = 2 * pix + 1;
 make_device (plot, "gif", whole (num_pix, 0) + "x" + whole (num_pix, 0));
 open (plot, "mandelbrot.gif", stand_draw_channel);

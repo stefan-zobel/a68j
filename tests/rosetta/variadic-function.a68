@@ -7,14 +7,14 @@
   tools/rosetta_prep.py. }
 access Genie_Transput (
 main:(
-  mode Strint = union(string, int, proc(ref file)void, void);
+  mode Strint = union(string, int, proc(ref File)void, void);
 
   proc print_strint = (flex[]Strint argv)void: (
     for i to UPB argv do
       case argv[i] in
         (int i):print(whole(i,-1)),
         (string s):print(s),
-        (proc(ref file)void f):f(stand_out),
+        (proc(ref File)void f):f(stand_out),
         (void):print(error_char)
       esac;
       if i NE UPB argv then print((" ")) fi

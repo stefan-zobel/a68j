@@ -125,7 +125,7 @@ Classquat class_quat = (
 
   { PROC repr =}(ref Quat self)string: (
         { 'Shorter form of Quaternion as string' }
-        file f; string s; associate(f, s);
+        File f; string s; associate(f, s);
         putf(f, (squat_fmt, r of self>=0, r of self,
              i of self>=0, i of self, j of self>=0, j of self, k of self>=0, k of self));
         close(f);

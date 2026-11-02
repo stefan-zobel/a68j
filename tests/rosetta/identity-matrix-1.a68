@@ -32,7 +32,7 @@ op ZEROINIT = (Vec self)Vec:
   self INIT SCAL(0);
 
 op REPR = (Vec self)string: (
-  file f; string s; associate(f,s);
+  File f; string s; associate(f,s);
   vec_lwb := LWB self; vec_upb := UPB self;
   putf(f, (vec_fmt, self)); close(f);
   s

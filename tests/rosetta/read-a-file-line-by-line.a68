@@ -8,19 +8,19 @@
 access Genie_Transput (
 {!/usr/local/bin/a68g --script }
 
-file foobar;
+File foobar;
 int errno = open(foobar, "Read_a_file_line_by_line.a68", stand_in_channel);
 
 string line;
 FORMAT line_fmt = $gl$;
 
-proc mount_next_tape = (ref file file_)bool: (
+proc mount_next_tape = (ref File file_)bool: (
   print("Please mount next tape or q to quit");
   if read_char = "q" then done else true fi
 );
 
 on_physical_file_end(foobar, mount_next_tape);
-on_logical_file_end(foobar, (ref file skip_)bool: done);
+on_logical_file_end(foobar, (ref File skip_)bool: done);
 
 for count do
   getf(foobar, (line_fmt, line));

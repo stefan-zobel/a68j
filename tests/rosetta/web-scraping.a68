@@ -39,8 +39,8 @@ string reply;
 int rc = http_content (reply, domain, haystack, 0);
 if rc = 0 AND is_html_page (reply)
 then
-  string line; file freply; associate(freply, reply);
-  on_logical_file_end(freply, (ref file freply)bool: (done; skip));
+  string line; File freply; associate(freply, reply);
+  on_logical_file_end(freply, (ref File freply)bool: (done; skip));
   do
     get(freply,(line, new_line));
     if string_in_string(needle, nil, line) then print((line, new_line)) fi

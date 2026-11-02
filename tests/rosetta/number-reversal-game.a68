@@ -30,7 +30,7 @@ proc knuth_shuffle = (ref[]int a)void:
     knuth_shuffle( digits );
 
     { ignore invalid data in stand in                                        }
-    on_value_error( stand_in, ( ref file f )bool: true );
+    on_value_error( stand_in, ( ref File f )bool: true );
 
     proc print_digits = void:                            { prints the digits }
          begin

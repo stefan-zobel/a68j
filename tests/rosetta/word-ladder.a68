@@ -33,10 +33,10 @@ proc contents = (ref Stack s)[]int: (data of s)[:top of s - 1];
 { start solution }
 
 []string words = begin     { load dictionary file into array }
-                   file f;
+                   File f;
                    bool eof := false;
                    open(f, "unixdict.txt", stand_in_channel);
-                   on_logical_file_end(f, (ref file f)bool: eof := true);
+                   on_logical_file_end(f, (ref File f)bool: eof := true);
                    int idx := 1;
                    flex [1:0] string words;
                    string word_;

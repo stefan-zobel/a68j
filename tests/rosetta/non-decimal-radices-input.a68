@@ -8,9 +8,9 @@
 access Genie_Transput (
 main:
 (
-  file fbuf; string sbuf;
+  File fbuf; string sbuf;
 
-  op FBUF = (string in_sbuf)ref file: (
+  op FBUF = (string in_sbuf)ref File: (
     sbuf := in_sbuf;
     associate(fbuf, sbuf);
     fbuf

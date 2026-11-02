@@ -12,7 +12,7 @@ main:(
 
   proc touch = (string file_name)int:
   begin
-    file actual_file;
+    File actual_file;
     int errno := open(actual_file, file_name, stand_out_channel);
     if errno NE 0 then go to stop_touch fi;
     close(actual_file); { detach the book and keep it }
@@ -31,7 +31,7 @@ main:(
 
   proc mkpage = (string file_name, int page_x)int:
   begin
-    file actual_file;
+    File actual_file;
     int errno := open(actual_file, file_name, stand_out_channel);
     if errno NE 0 then go to stop_mkpage fi;
     set(actual_file,page_x,1,1); { skip to page x, line 1, character 1 }

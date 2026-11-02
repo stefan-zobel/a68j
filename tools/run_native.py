@@ -10,7 +10,7 @@ run time.  Programs read an empty standard input.  --runs N runs each
 program N times and marks it "nondeterministic" if the results differ;
 --default-opts applies to files without a { dg-options } line.
 """
-import argparse, json, os, re, subprocess, sys, time
+import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
 import modtest
 from concurrent.futures import ThreadPoolExecutor
 
@@ -87,14 +87,19 @@ def main():
         if r["compile"] == 0:
             seen = []
             for _ in range(a.runs):
+                # Every run in a new empty directory: programs may create
+                # files, and the JVM run gets the same (run_jvm.py).
+                wd = tempfile.mkdtemp(prefix="a68-run-")
                 try:
                     t0 = time.monotonic()
-                    p = subprocess.run([exe], capture_output=True, env=env, timeout=a.timeout, cwd=a.out,
+                    p = subprocess.run([exe], capture_output=True, env=env, timeout=a.timeout, cwd=wd,
                                        stdin=subprocess.DEVNULL, preexec_fn=preexec)
                     res = dict(exit=p.returncode, stdout=p.stdout.decode("latin-1"), stderr=p.stderr.decode("latin-1"))
                     r["time"] = round(time.monotonic() - t0, 3)
                 except subprocess.TimeoutExpired:
                     res = dict(exit="timeout", stdout="", stderr="")
+                finally:
+                    shutil.rmtree(wd, ignore_errors=True)
                 seen.append(res)
                 if res["exit"] == "timeout":
                     break

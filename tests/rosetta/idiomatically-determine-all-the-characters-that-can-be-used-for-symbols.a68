@@ -25,7 +25,7 @@ begin { determine which characters can be in identifiers, etc. by trying to  }
                          fi
             od;
             { output the source file and try compiling it                    }
-            file   source_file;
+            File   source_file;
             bool   open_error := if open( source_file, source_name, stand_out_channel ) = 0
                                  then
                                      { opened OK - file already exists and   }

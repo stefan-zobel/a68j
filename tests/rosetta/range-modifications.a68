@@ -12,13 +12,13 @@ op UPB = (Range r) int: upb of r;
 
 proc parse_range = (string s) Range:
   begin
-    file f; associate(f, loc string := s);
+    File f; associate(f, loc string := s);
     Range r; get(f, (lwb of r, space, upb of r));
     close(f);
     r
   end;
 
-proc put_range = (ref file f, Range r) void:
+proc put_range = (ref File f, Range r) void:
   put(f, (whole(LWB r, 0), "-", whole(UPB r, 0)));
 
 proc print_range = (Range r) void: put_range(stand_out, r);
@@ -35,7 +35,7 @@ proc parse_ranges = (string s) flex[]Range:
     rs
   end;
 
-proc put_ranges = (ref file f, []Range rs) void:
+proc put_ranges = (ref File f, []Range rs) void:
   for i to UPB rs do
     if i > 1 then put(f, ",") fi;
     put_range(f, rs[i])

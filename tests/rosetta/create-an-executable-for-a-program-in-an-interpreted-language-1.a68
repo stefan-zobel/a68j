@@ -22,7 +22,7 @@ if  { create an executable to run a program with Algol 68G                   }
     print( ( "C source to generate                       (this system) : " ) );
     read( ( c_source, newline ) );
 
-    file input_source_file, output_source_file;
+    File input_source_file, output_source_file;
 
     open( input_source_file, a68_source, stand_in_channel ) /= 0
 then
@@ -66,7 +66,7 @@ else
     bool at_eof := false;
     { set the EOF handler for the input file                                 }
     on_logical_file_end( input_source_file
-                       , ( ref file f )bool:
+                       , ( ref File f )bool:
                            begin
                                { note that we reached EOF on the latest read }
                                at_eof := true;

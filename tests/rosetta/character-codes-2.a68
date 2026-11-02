@@ -6,7 +6,7 @@
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
 access Genie_Transput (
-file tape;
+File tape;
 int errno = open(tape, "/dev/tape1", stand_out_channel)
 make_conv(tape, ebcdic_conv);
 for record do getf(tape, ( ~ )) od; ~ { etc ... }

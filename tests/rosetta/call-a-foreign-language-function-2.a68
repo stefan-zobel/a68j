@@ -10,7 +10,7 @@ begin
    mode Passwd = struct (string name, passwd, int uid, gid, string gecos, dir, shell);
    proc getpwnam = (string name) Passwd :
    begin
-      file c_source;
+      File c_source;
       create (c_source, stand_out_channel);
       putf (c_source, ($gl$,
 "#include <sys/types.h>",

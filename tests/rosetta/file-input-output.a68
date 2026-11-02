@@ -9,12 +9,12 @@ access Genie_Transput (
 proc copy_file_v1 = (string in_name, out_name)void: (
   { note: algol68toc-1.18 - can compile, but not run v1 }
   int errno;
-  file in_file, out_file;
+  File in_file, out_file;
   errno := open(in_file, in_name, stand_in_channel);
   errno := open(out_file, out_name, stand_out_channel);
 
   bool in_ended := false;
-  proc call_back_ended = (ref file f) bool: in_ended := true;
+  proc call_back_ended = (ref File f) bool: in_ended := true;
   on_logical_file_end(in_file, call_back_ended);
 
   string line;
@@ -30,11 +30,11 @@ ended:
 
 proc copy_file_v2 = (string in_name, out_name)void: (
   int errno;
-  file in_file, out_file;
+  File in_file, out_file;
   errno := open(in_file, in_name, stand_in_channel);
   errno := open(out_file, out_name, stand_out_channel);
 
-  proc call_back_ended = (ref file f) bool: go to done;
+  proc call_back_ended = (ref File f) bool: go to done;
   on_logical_file_end(in_file, call_back_ended);
 
   string line;

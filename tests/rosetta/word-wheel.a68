@@ -30,10 +30,10 @@ proc check_word = (string word_, wheel)bool:
   fi;
 
 begin
-  file f;
+  File f;
   bool eof := false;
   open(f, "unixdict.txt", stand_in_channel);
-  on_logical_file_end(f, (ref file f)bool: eof := true);
+  on_logical_file_end(f, (ref File f)bool: eof := true);
   while ~eof do
     string word_;
     get(f, (word_, new_line));

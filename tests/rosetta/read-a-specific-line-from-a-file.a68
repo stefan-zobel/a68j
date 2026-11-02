@@ -16,7 +16,7 @@ proc read_specific_line = ( string     file_name
                           , ref string line
                           , ref string err
                           )bool:
-     if file    input_file;
+     if File    input_file;
         line := "";
         open( input_file, file_name, stand_in_channel ) /= 0
      then
@@ -31,7 +31,7 @@ proc read_specific_line = ( string     file_name
         { notes that we reached EOF on the latest read }
         { and returns TRUE so processing can continue  }
         on_logical_file_end( input_file
-                           , ( ref file f )bool: at_eof := true
+                           , ( ref File f )bool: at_eof := true
                            );
         int    line_number := 0;
         string text;

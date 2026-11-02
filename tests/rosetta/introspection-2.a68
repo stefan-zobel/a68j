@@ -16,7 +16,7 @@ begin
                          long int, long real, long compl);
     mode Llmodes = union(long long bits, long long bytes, {LONG LONG CHAR,}
                          long long int, long long real, long long compl);
-    mode  Xmodes = union(bool, sema, string, void, channel, file, FORMAT);
+    mode  Xmodes = union(bool, sema, string, void, Channel, File, FORMAT);
 
     mode Modes = union(Ssmodes, Smodes, Nmodes, Llmodes, Lmodes, Xmodes);
 
@@ -38,8 +38,8 @@ begin
         (bool):"BOOL",
         (string):"STRING",
         (sema):"SEMA",
-        (channel):"CHANNEL",
-        (file):"FILE",
+        (Channel):"CHANNEL",
+        (File):"FILE",
         (FORMAT):"FORMAT"
       out
         "ARRAY, PROC or STRUCT"

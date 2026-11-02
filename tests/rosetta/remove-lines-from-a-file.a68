@@ -14,7 +14,7 @@ proc remove_lines = ( string file_name, int start_line, int number_of_lines )boo
         { invalid parameters }
         print( ( "number of lines must be >= 0 and start line must be >= 1", newline ) );
         false
-     elif file temp_file;
+     elif File temp_file;
           create( temp_file, stand_back_channel ) /= 0
      then
         { unable to create a temporary output file }
@@ -26,7 +26,7 @@ proc remove_lines = ( string file_name, int start_line, int number_of_lines )boo
         { we would have to get its name ( with "idf( temp file )", close it and re-open it }
         print( ( "Temp file is not rewindable", newline ) );
         false
-     elif file input_file;
+     elif File input_file;
           open( input_file, file_name, stand_in_channel ) /= 0
      then
         { failed to open the file }
@@ -38,7 +38,7 @@ proc remove_lines = ( string file_name, int start_line, int number_of_lines )boo
         { set the EOF handler for the original file    }
         { notes that we reached EOF on the latest read }
         { and returns TRUE so processing can continue  }
-        on_logical_file_end( input_file, ( ref file f )bool: at_eof := true );
+        on_logical_file_end( input_file, ( ref File f )bool: at_eof := true );
         { copy the input file to the temp file }
         while string line;
               get( input_file, ( line, newline ) );
@@ -57,7 +57,7 @@ proc remove_lines = ( string file_name, int start_line, int number_of_lines )boo
             { opened OK - copy the temporary file }
             reset( temp_file ); { rewinds the input file }
             at_eof := false;
-            on_logical_file_end( temp_file, ( ref file f )bool: at_eof := true );
+            on_logical_file_end( temp_file, ( ref File f )bool: at_eof := true );
             int end_line = ( start_line - 1 ) + number_of_lines;
             int line_number := 0;
             while string line;
@@ -93,7 +93,7 @@ proc remove_lines = ( string file_name, int start_line, int number_of_lines )boo
      fi { remove lines } ;
 
 { test the line removal }
-if   file t;
+if   File t;
      open( t, "test.txt", stand_out_channel ) /= 0
 then print( ( "Unable to open test.txt for output", newline ) )
 else print( ( "Before...", newline ) );
