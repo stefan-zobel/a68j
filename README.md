@@ -297,6 +297,7 @@ The detailed documentation is in `docs/`:
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
 - `docs/par-and-sema.md`: parallel clauses.
 - `docs/editor.md`: grammar and HTML renderer.
+- [`docs/algol68-modern-terms.pdf`](docs/algol68-modern-terms.pdf): the book *Algol 68 in Modern Terms* (PDF).
 
 ## Testing
 
