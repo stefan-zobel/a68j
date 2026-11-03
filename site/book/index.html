@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Algol 68 in Modern Terms</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+</span>
+<span class="navlink">
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-preface.html" accesskey="n" rel="next">Preface</a>
+</span>
+<span class="navlink">
+</span>
+</div>
+</nav>
+<header id="title-block-header">
+<h1 class="title">Algol 68 in Modern Terms</h1>
+<p class="subtitle">An Introduction for Programmers</p>
+<p class="date">Version 0.5.0, 3 November 2026</p>
+<div class="abstract">
+<div class="abstract-title">License</div>
+<p>This book is dedicated to the public domain under the <a
+href="https://creativecommons.org/publicdomain/zero/1.0/">Creative
+Commons CC0 1.0 Universal Public Domain Dedication</a>.</p>
+</div>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="-preface.html" id="toc-preface">Preface</a>
+<ul>
+<li><a href="-preface.html#the-implementations"
+id="toc-the-implementations">The implementations</a></li>
+<li><a href="-preface.html#how-the-book-is-organized"
+id="toc-how-the-book-is-organized">How the book is organized</a></li>
+</ul></li>
+<li><a href="1-ch-intro.html" id="toc-ch-intro"><span
+class="toc-section-number">1</span> Introduction</a>
+<ul>
+<li><a href="1-ch-intro.html#algol-68" id="toc-algol-68"><span
+class="toc-section-number">1.1</span> Algol 68</a></li>
+<li><a href="1-ch-intro.html#a-first-program"
+id="toc-a-first-program"><span class="toc-section-number">1.2</span> A
+first program</a></li>
+<li><a href="1-ch-intro.html#compiling-and-running"
+id="toc-compiling-and-running"><span
+class="toc-section-number">1.3</span> Compiling and running</a></li>
+<li><a href="1-ch-intro.html#sec-stropping" id="toc-sec-stropping"><span
+class="toc-section-number">1.4</span> Reserved words, type names and
+operators</a></li>
+<li><a href="1-ch-intro.html#a-second-program"
+id="toc-a-second-program"><span class="toc-section-number">1.5</span> A
+second program</a></li>
+</ul></li>
+<li><a href="2-ch-values.html" id="toc-ch-values"><span
+class="toc-section-number">2</span> Values, types and variables</a>
+<ul>
+<li><a href="2-ch-values.html#sec-types" id="toc-sec-types"><span
+class="toc-section-number">2.1</span> Types</a></li>
+<li><a href="2-ch-values.html#sec-literals" id="toc-sec-literals"><span
+class="toc-section-number">2.2</span> Literals</a></li>
+<li><a href="2-ch-values.html#sec-names" id="toc-sec-names"><span
+class="toc-section-number">2.3</span> Names</a></li>
+<li><a href="2-ch-values.html#sec-constants"
+id="toc-sec-constants"><span class="toc-section-number">2.4</span>
+Constants</a></li>
+<li><a href="2-ch-values.html#sec-variables"
+id="toc-sec-variables"><span class="toc-section-number">2.5</span>
+Variables</a></li>
+<li><a href="2-ch-values.html#sec-references"
+id="toc-sec-references"><span class="toc-section-number">2.6</span> What
+a variable is: references</a></li>
+<li><a href="2-ch-values.html#sec-arithmetic"
+id="toc-sec-arithmetic"><span class="toc-section-number">2.7</span>
+Arithmetic</a></li>
+<li><a href="2-ch-values.html#sec-precedence"
+id="toc-sec-precedence"><span class="toc-section-number">2.8</span>
+Precedence</a></li>
+<li><a href="2-ch-values.html#sec-logic" id="toc-sec-logic"><span
+class="toc-section-number">2.9</span> Comparisons and logical
+operators</a></li>
+<li><a href="2-ch-values.html#sec-coercions"
+id="toc-sec-coercions"><span class="toc-section-number">2.10</span>
+Implicit conversions</a></li>
+<li><a href="2-ch-values.html#sec-assignment"
+id="toc-sec-assignment"><span class="toc-section-number">2.11</span>
+Assignment</a></li>
+<li><a href="2-ch-values.html#sec-explicit" id="toc-sec-explicit"><span
+class="toc-section-number">2.12</span> Explicit conversions and other
+operators</a></li>
+<li><a href="2-ch-values.html#sec-comments" id="toc-sec-comments"><span
+class="toc-section-number">2.13</span> Comments and layout</a></li>
+<li><a href="2-ch-values.html#sec-io" id="toc-sec-io"><span
+class="toc-section-number">2.14</span> Simple input and output</a></li>
+<li><a href="2-ch-values.html#sec-complete" id="toc-sec-complete"><span
+class="toc-section-number">2.15</span> A complete program</a></li>
+<li><a href="2-ch-values.html#exercises"
+id="toc-exercises">Exercises</a></li>
+<li><a href="2-ch-values.html#programming-problems"
+id="toc-programming-problems">Programming problems</a></li>
+</ul></li>
+<li><a href="3-ch-control.html" id="toc-ch-control"><span
+class="toc-section-number">3</span> Expressions and control flow</a>
+<ul>
+<li><a href="3-ch-control.html#sec-everything"
+id="toc-sec-everything"><span class="toc-section-number">3.1</span>
+Everything is an expression</a></li>
+<li><a href="3-ch-control.html#sec-voiding" id="toc-sec-voiding"><span
+class="toc-section-number">3.2</span> Sequences and discarded
+values</a></li>
+<li><a href="3-ch-control.html#sec-scope" id="toc-sec-scope"><span
+class="toc-section-number">3.3</span> Scope</a></li>
+<li><a href="3-ch-control.html#sec-collateral"
+id="toc-sec-collateral"><span class="toc-section-number">3.4</span>
+Unordered evaluation</a></li>
+<li><a href="3-ch-control.html#sec-if" id="toc-sec-if"><span
+class="toc-section-number">3.5</span> <strong>if</strong>
+expressions</a></li>
+<li><a href="3-ch-control.html#sec-case" id="toc-sec-case"><span
+class="toc-section-number">3.6</span> <strong>case</strong>
+expressions</a></li>
+<li><a href="3-ch-control.html#sec-loops" id="toc-sec-loops"><span
+class="toc-section-number">3.7</span> Loops</a></li>
+<li><a href="3-ch-control.html#sec-skip" id="toc-sec-skip"><span
+class="toc-section-number">3.8</span> <strong>skip</strong></a></li>
+<li><a href="3-ch-control.html#sec-jumps" id="toc-sec-jumps"><span
+class="toc-section-number">3.9</span> Jumps</a></li>
+<li><a href="3-ch-control.html#sec-program" id="toc-sec-program"><span
+class="toc-section-number">3.10</span> The structure of a
+program</a></li>
+<li><a href="3-ch-control.html#sec-control-complete"
+id="toc-sec-control-complete"><span
+class="toc-section-number">3.11</span> A complete program</a></li>
+<li><a href="3-ch-control.html#exercises-1"
+id="toc-exercises-1">Exercises</a></li>
+<li><a href="3-ch-control.html#programming-problems-1"
+id="toc-programming-problems-1">Programming problems</a></li>
+</ul></li>
+<li><a href="4-ch-data.html" id="toc-ch-data"><span
+class="toc-section-number">4</span> Arrays and records</a>
+<ul>
+<li><a href="4-ch-data.html#sec-arrays" id="toc-sec-arrays"><span
+class="toc-section-number">4.1</span> Arrays</a></li>
+<li><a href="4-ch-data.html#sec-displays" id="toc-sec-displays"><span
+class="toc-section-number">4.2</span> Array literals</a></li>
+<li><a href="4-ch-data.html#sec-array-values"
+id="toc-sec-array-values"><span class="toc-section-number">4.3</span>
+Arrays are values</a></li>
+<li><a href="4-ch-data.html#sec-matrices" id="toc-sec-matrices"><span
+class="toc-section-number">4.4</span> Multi-dimensional arrays</a></li>
+<li><a href="4-ch-data.html#sec-slices" id="toc-sec-slices"><span
+class="toc-section-number">4.5</span> Slices</a></li>
+<li><a href="4-ch-data.html#sec-strings" id="toc-sec-strings"><span
+class="toc-section-number">4.6</span> Strings are arrays</a></li>
+<li><a href="4-ch-data.html#sec-records" id="toc-sec-records"><span
+class="toc-section-number">4.7</span> Records</a></li>
+<li><a href="4-ch-data.html#sec-modes" id="toc-sec-modes"><span
+class="toc-section-number">4.8</span> Type declarations</a></li>
+<li><a href="4-ch-data.html#sec-multiple-selection"
+id="toc-sec-multiple-selection"><span
+class="toc-section-number">4.9</span> Arrays of records</a></li>
+<li><a href="4-ch-data.html#sec-rowing" id="toc-sec-rowing"><span
+class="toc-section-number">4.10</span> A single value as an
+array</a></li>
+<li><a href="4-ch-data.html#sec-print-data"
+id="toc-sec-print-data"><span class="toc-section-number">4.11</span>
+Printing arrays and records</a></li>
+<li><a href="4-ch-data.html#sec-data-complete"
+id="toc-sec-data-complete"><span class="toc-section-number">4.12</span>
+Two complete programs</a></li>
+<li><a href="4-ch-data.html#exercises-2"
+id="toc-exercises-2">Exercises</a></li>
+<li><a href="4-ch-data.html#programming-problems-2"
+id="toc-programming-problems-2">Programming problems</a></li>
+</ul></li>
+<li><a href="5-ch-procs.html" id="toc-ch-procs"><span
+class="toc-section-number">5</span> Functions and operators</a>
+<ul>
+<li><a href="5-ch-procs.html#sec-proc-decl" id="toc-sec-proc-decl"><span
+class="toc-section-number">5.1</span> Declaring functions</a></li>
+<li><a href="5-ch-procs.html#sec-params" id="toc-sec-params"><span
+class="toc-section-number">5.2</span> Parameters</a></li>
+<li><a href="5-ch-procs.html#sec-deproc" id="toc-sec-deproc"><span
+class="toc-section-number">5.3</span> Functions without
+parameters</a></li>
+<li><a href="5-ch-procs.html#sec-recursion" id="toc-sec-recursion"><span
+class="toc-section-number">5.4</span> Recursion</a></li>
+<li><a href="5-ch-procs.html#sec-proc-values"
+id="toc-sec-proc-values"><span class="toc-section-number">5.5</span>
+Functions as values</a></li>
+<li><a href="5-ch-procs.html#sec-std-procs" id="toc-sec-std-procs"><span
+class="toc-section-number">5.6</span> The standard functions</a></li>
+<li><a href="5-ch-procs.html#sec-op-decl" id="toc-sec-op-decl"><span
+class="toc-section-number">5.7</span> Defining operators</a></li>
+<li><a href="5-ch-procs.html#sec-op-identification"
+id="toc-sec-op-identification"><span
+class="toc-section-number">5.8</span> How an operator is chosen</a></li>
+<li><a href="5-ch-procs.html#sec-procs-complete"
+id="toc-sec-procs-complete"><span class="toc-section-number">5.9</span>
+A complete program</a></li>
+<li><a href="5-ch-procs.html#exercises-3"
+id="toc-exercises-3">Exercises</a></li>
+<li><a href="5-ch-procs.html#programming-problems-3"
+id="toc-programming-problems-3">Programming problems</a></li>
+</ul></li>
+<li><a href="6-ch-moretypes.html" id="toc-ch-moretypes"><span
+class="toc-section-number">6</span> More built-in types and the standard
+library</a>
+<ul>
+<li><a href="6-ch-moretypes.html#sec-complex" id="toc-sec-complex"><span
+class="toc-section-number">6.1</span> Complex numbers</a></li>
+<li><a href="6-ch-moretypes.html#sec-long" id="toc-sec-long"><span
+class="toc-section-number">6.2</span> Precision variants</a></li>
+<li><a href="6-ch-moretypes.html#sec-bits" id="toc-sec-bits"><span
+class="toc-section-number">6.3</span> Bit sets</a></li>
+<li><a href="6-ch-moretypes.html#sec-bytes" id="toc-sec-bytes"><span
+class="toc-section-number">6.4</span> Byte strings</a></li>
+<li><a href="6-ch-moretypes.html#sec-enquiries"
+id="toc-sec-enquiries"><span class="toc-section-number">6.5</span>
+Environment enquiries</a></li>
+<li><a href="6-ch-moretypes.html#sec-math" id="toc-sec-math"><span
+class="toc-section-number">6.6</span> Mathematical functions</a></li>
+<li><a href="6-ch-moretypes.html#sec-extend-ops"
+id="toc-sec-extend-ops"><span class="toc-section-number">6.7</span>
+Extending the standard operators</a></li>
+<li><a href="6-ch-moretypes.html#exercises-4"
+id="toc-exercises-4">Exercises</a></li>
+<li><a href="6-ch-moretypes.html#programming-problems-4"
+id="toc-programming-problems-4">Programming problems</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html" id="toc-ch-advanced"><span
+class="toc-section-number">7</span> Advanced types</a>
+<ul>
+<li><a href="7-ch-advanced.html#sec-flex" id="toc-sec-flex"><span
+class="toc-section-number">7.1</span> Resizable arrays</a></li>
+<li><a href="7-ch-advanced.html#sec-flex-where"
+id="toc-sec-flex-where"><span class="toc-section-number">7.2</span>
+Where <strong>flex</strong> can stand</a>
+<ul>
+<li><a href="7-ch-advanced.html#jagged-arrays"
+id="toc-jagged-arrays">Jagged arrays</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html#sec-vector" id="toc-sec-vector"><span
+class="toc-section-number">7.3</span> Growing an array
+efficiently</a></li>
+<li><a href="7-ch-advanced.html#sec-string" id="toc-sec-string"><span
+class="toc-section-number">7.4</span> Strings</a></li>
+<li><a href="7-ch-advanced.html#sec-transient"
+id="toc-sec-transient"><span class="toc-section-number">7.5</span>
+References into resizable arrays</a></li>
+<li><a href="7-ch-advanced.html#sec-sharing" id="toc-sec-sharing"><span
+class="toc-section-number">7.6</span> Sharing arrays</a></li>
+<li><a href="7-ch-advanced.html#sec-unions" id="toc-sec-unions"><span
+class="toc-section-number">7.7</span> Unions</a></li>
+<li><a href="7-ch-advanced.html#sec-union-details"
+id="toc-sec-union-details"><span class="toc-section-number">7.8</span>
+Working with unions</a>
+<ul>
+<li><a href="7-ch-advanced.html#what-a-conformity-clause-binds"
+id="toc-what-a-conformity-clause-binds">What a conformity clause
+binds</a></li>
+<li><a href="7-ch-advanced.html#optional-values"
+id="toc-optional-values">Optional values</a></li>
+<li><a href="7-ch-advanced.html#which-values-can-be-united"
+id="toc-which-values-can-be-united">Which values can be united</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html#sec-pointers"
+id="toc-sec-pointers"><span class="toc-section-number">7.9</span>
+References to references</a></li>
+<li><a href="7-ch-advanced.html#sec-identity"
+id="toc-sec-identity"><span class="toc-section-number">7.10</span>
+Comparing references</a></li>
+<li><a href="7-ch-advanced.html#sec-ref-fields"
+id="toc-sec-ref-fields"><span class="toc-section-number">7.11</span>
+Records with reference fields</a></li>
+<li><a href="7-ch-advanced.html#sec-casts" id="toc-sec-casts"><span
+class="toc-section-number">7.12</span> Type annotations</a></li>
+<li><a href="7-ch-advanced.html#sec-orthogonality"
+id="toc-sec-orthogonality"><span class="toc-section-number">7.13</span>
+Orthogonality</a></li>
+<li><a href="7-ch-advanced.html#sec-contexts"
+id="toc-sec-contexts"><span class="toc-section-number">7.14</span>
+Implicit conversions and contexts</a></li>
+<li><a href="7-ch-advanced.html#sec-lifetimes"
+id="toc-sec-lifetimes"><span class="toc-section-number">7.15</span>
+Lifetimes</a>
+<ul>
+<li><a href="7-ch-advanced.html#the-lifetime-of-a-loc-cell"
+id="toc-the-lifetime-of-a-loc-cell">The lifetime of a
+<strong>loc</strong> cell</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html#sec-proc-lifetimes"
+id="toc-sec-proc-lifetimes"><span class="toc-section-number">7.16</span>
+Lifetimes of functions</a></li>
+<li><a href="7-ch-advanced.html#sec-recursive"
+id="toc-sec-recursive"><span class="toc-section-number">7.17</span>
+Recursive types</a>
+<ul>
+<li><a href="7-ch-advanced.html#pointers-to-links"
+id="toc-pointers-to-links">Pointers to links</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html#sec-expr" id="toc-sec-expr"><span
+class="toc-section-number">7.18</span> Unions and recursive types</a>
+<ul>
+<li><a href="7-ch-advanced.html#operators-on-unions"
+id="toc-operators-on-unions">Operators on unions</a></li>
+</ul></li>
+<li><a href="7-ch-advanced.html#sec-equivalence"
+id="toc-sec-equivalence"><span class="toc-section-number">7.19</span>
+When two types are the same</a></li>
+<li><a href="7-ch-advanced.html#sec-advanced-complete"
+id="toc-sec-advanced-complete"><span
+class="toc-section-number">7.20</span> A complete program</a></li>
+<li><a href="7-ch-advanced.html#exercises-5"
+id="toc-exercises-5">Exercises</a></li>
+<li><a href="7-ch-advanced.html#programming-problems-5"
+id="toc-programming-problems-5">Programming problems</a></li>
+</ul></li>
+<li><a href="8-ch-par.html" id="toc-ch-par"><span
+class="toc-section-number">8</span> Concurrency</a>
+<ul>
+<li><a href="8-ch-par.html#sec-par-problems"
+id="toc-sec-par-problems"><span class="toc-section-number">8.1</span>
+The problems</a></li>
+<li><a href="8-ch-par.html#sec-par" id="toc-sec-par"><span
+class="toc-section-number">8.2</span> Concurrent execution</a></li>
+<li><a href="8-ch-par.html#sec-sema" id="toc-sec-sema"><span
+class="toc-section-number">8.3</span> Semaphores</a></li>
+<li><a href="8-ch-par.html#sec-mutex" id="toc-sec-mutex"><span
+class="toc-section-number">8.4</span> Mutual exclusion</a></li>
+<li><a href="8-ch-par.html#sec-buffer" id="toc-sec-buffer"><span
+class="toc-section-number">8.5</span> Producer and consumer</a></li>
+<li><a href="8-ch-par.html#sec-philosophers"
+id="toc-sec-philosophers"><span class="toc-section-number">8.6</span>
+The dining philosophers</a></li>
+<li><a href="8-ch-par.html#exercises-6"
+id="toc-exercises-6">Exercises</a></li>
+<li><a href="8-ch-par.html#programming-problems-6"
+id="toc-programming-problems-6">Programming problems</a></li>
+</ul></li>
+<li><a href="9-ch-transput.html" id="toc-ch-transput"><span
+class="toc-section-number">9</span> Input and output</a>
+<ul>
+<li><a href="9-ch-transput.html#sec-books" id="toc-sec-books"><span
+class="toc-section-number">9.1</span> Books, channels and files</a></li>
+<li><a href="9-ch-transput.html#sec-get-put" id="toc-sec-get-put"><span
+class="toc-section-number">9.2</span> Reading and writing files</a></li>
+<li><a href="9-ch-transput.html#sec-stand-in"
+id="toc-sec-stand-in"><span class="toc-section-number">9.3</span>
+Reading the standard input</a></li>
+<li><a href="9-ch-transput.html#sec-events" id="toc-sec-events"><span
+class="toc-section-number">9.4</span> Events</a></li>
+<li><a href="9-ch-transput.html#sec-associate"
+id="toc-sec-associate"><span class="toc-section-number">9.5</span>
+Strings as files</a></li>
+<li><a href="9-ch-transput.html#sec-make-term"
+id="toc-sec-make-term"><span class="toc-section-number">9.6</span>
+Terminators and other settings</a></li>
+<li><a href="9-ch-transput.html#sec-straightening"
+id="toc-sec-straightening"><span class="toc-section-number">9.7</span>
+Printing arrays and records</a></li>
+<li><a href="9-ch-transput.html#sec-conversions"
+id="toc-sec-conversions"><span class="toc-section-number">9.8</span>
+Converting numbers to text</a></li>
+<li><a href="9-ch-transput.html#sec-formats" id="toc-sec-formats"><span
+class="toc-section-number">9.9</span> Formatted output</a>
+<ul>
+<li><a href="9-ch-transput.html#one-picture-one-value"
+id="toc-one-picture-one-value">One picture, one value</a></li>
+<li><a href="9-ch-transput.html#where-the-sign-goes"
+id="toc-where-the-sign-goes">Where the sign goes</a></li>
+<li><a
+href="9-ch-transput.html#choices-general-patterns-and-other-kinds-of-values"
+id="toc-choices-general-patterns-and-other-kinds-of-values">Choices,
+general patterns and other kinds of values</a></li>
+<li><a href="9-ch-transput.html#repetition-and-columns"
+id="toc-repetition-and-columns">Repetition and columns</a></li>
+<li><a href="9-ch-transput.html#sec-format-list"
+id="toc-sec-format-list">How the values and the format are
+matched</a></li>
+</ul></li>
+<li><a href="9-ch-transput.html#sec-readf" id="toc-sec-readf"><span
+class="toc-section-number">9.10</span> Formatted input</a></li>
+<li><a href="9-ch-transput.html#sec-binary" id="toc-sec-binary"><span
+class="toc-section-number">9.11</span> Binary transput</a></li>
+<li><a href="9-ch-transput.html#sec-transput-genie"
+id="toc-sec-transput-genie"><span class="toc-section-number">9.12</span>
+What Algol 68 Genie lacks</a></li>
+<li><a href="9-ch-transput.html#sec-transput-complete"
+id="toc-sec-transput-complete"><span
+class="toc-section-number">9.13</span> A complete program</a></li>
+<li><a href="9-ch-transput.html#exercises-7"
+id="toc-exercises-7">Exercises</a></li>
+<li><a href="9-ch-transput.html#programming-problems-7"
+id="toc-programming-problems-7">Programming problems</a></li>
+</ul></li>
+<li><a href="-app-library.html" id="toc-app-library">Appendix A: The
+standard library</a>
+<ul>
+<li><a href="-app-library.html#types" id="toc-types">Types</a></li>
+<li><a href="-app-library.html#operators"
+id="toc-operators">Operators</a></li>
+<li><a href="-app-library.html#constants"
+id="toc-constants">Constants</a></li>
+<li><a href="-app-library.html#procedures"
+id="toc-procedures">Procedures</a></li>
+</ul></li>
+<li><a href="-app-syntax.html" id="toc-app-syntax">Appendix B: The
+syntax in brief</a></li>
+<li><a href="-app-impl.html" id="toc-app-impl">Appendix C:
+Implementation notes</a>
+<ul>
+<li><a href="-app-impl.html#notation"
+id="toc-notation">Notation</a></li>
+<li><a href="-app-impl.html#sizes" id="toc-sizes">Sizes</a></li>
+<li><a href="-app-impl.html#transput"
+id="toc-transput">Transput</a></li>
+<li><a href="-app-impl.html#other-features"
+id="toc-other-features">Other features</a></li>
+<li><a href="-app-impl.html#printing-numbers"
+id="toc-printing-numbers">Printing numbers</a></li>
+<li><a href="-app-impl.html#running-rosetta-code-programs"
+id="toc-running-rosetta-code-programs">Running Rosetta Code
+programs</a></li>
+</ul></li>
+<li><a href="-app-glossary.html" id="toc-app-glossary">Appendix D:
+Glossary</a></li>
+<li><a href="-app-modules.html" id="toc-app-modules">Appendix E:
+Modules</a>
+<ul>
+<li><a href="-app-modules.html#defining-a-module"
+id="toc-defining-a-module">Defining a module</a></li>
+<li><a href="-app-modules.html#using-a-module"
+id="toc-using-a-module">Using a module</a></li>
+<li><a href="-app-modules.html#compiling"
+id="toc-compiling">Compiling</a></li>
+</ul></li>
+<li><a href="-app-nest.html" id="toc-app-nest">Appendix F: Calling C</a>
+<ul>
+<li><a href="-app-nest.html#formal-holes" id="toc-formal-holes">Formal
+holes</a></li>
+<li><a href="-app-nest.html#types-1" id="toc-types-1">Types</a></li>
+<li><a href="-app-nest.html#variables"
+id="toc-variables">Variables</a></li>
+<li><a href="-app-nest.html#strings-and-functions-as-parameters"
+id="toc-strings-and-functions-as-parameters">Strings and functions as
+parameters</a></li>
+</ul></li>
+<li><a href="-app-partial.html" id="toc-app-partial">Appendix G: Partial
+parametrization</a>
+<ul>
+<li><a href="-app-partial.html#leaving-arguments-out"
+id="toc-leaving-arguments-out">Leaving arguments out</a></li>
+<li><a href="-app-partial.html#closures-without-the-lifetime-problem"
+id="toc-closures-without-the-lifetime-problem">Closures without the
+lifetime problem</a></li>
+<li><a href="-app-partial.html#when-the-arguments-are-evaluated"
+id="toc-when-the-arguments-are-evaluated">When the arguments are
+evaluated</a></li>
+<li><a href="-app-partial.html#calls-with-all-arguments"
+id="toc-calls-with-all-arguments">Calls with all arguments</a></li>
+</ul></li>
+<li><a href="-ch-answers.html" id="toc-ch-answers">Answers to the
+exercises</a>
+<ul>
+<li><a href="-ch-answers.html#ans-ch2" id="toc-ans-ch2">Chapter
+2</a></li>
+<li><a href="-ch-answers.html#ans-ch3" id="toc-ans-ch3">Chapter
+3</a></li>
+<li><a href="-ch-answers.html#ans-ch4" id="toc-ans-ch4">Chapter
+4</a></li>
+<li><a href="-ch-answers.html#ans-ch5" id="toc-ans-ch5">Chapter
+5</a></li>
+<li><a href="-ch-answers.html#ans-ch6" id="toc-ans-ch6">Chapter
+6</a></li>
+<li><a href="-ch-answers.html#ans-ch7" id="toc-ans-ch7">Chapter
+7</a></li>
+<li><a href="-ch-answers.html#ans-ch8" id="toc-ans-ch8">Chapter
+8</a></li>
+<li><a href="-ch-answers.html#ans-ch9" id="toc-ans-ch9">Chapter
+9</a></li>
+</ul></li>
+<li><a href="-bibliography.html"
+id="toc-bibliography">Bibliography</a></li>
+</ul>
+</nav>
+
+</body>
+</html>

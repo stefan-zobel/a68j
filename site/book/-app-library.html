@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix A: The standard library</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-syntax.html" accesskey="n" rel="next">Appendix B: The syntax in brief</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="9-ch-transput.html" accesskey="p" rel="previous">Input and output</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-library">Appendix A: The standard
+library</h1>
+<p>This appendix lists the parts of the standard library of the Revised
+Report that this book uses, by topic. The Report defines many of them
+for every size of a type; the tables show the plain size, and the long
+and short versions follow the rules of Section <a
+href="6-ch-moretypes.html#sec-long" data-reference-type="ref"
+data-reference="sec-long">6.2</a>. Names written with underscores here,
+such as <code>max_int</code>, are written with blanks in the Report and
+in Algol 68 Genie (<code>max <b>int</b></code>).</p>
+<h2 class="unnumbered" id="types">Types</h2>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>real</b></code>, <code><b>bool</b></code>,
+<code><b>char</b></code></td>
+<td style="text-align: left;">the primitive types (Chapter <a
+href="2-ch-values.html#ch-values" data-reference-type="ref"
+data-reference="ch-values">2</a>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>string</b></code></td>
+<td style="text-align: left;"><code><b>flex</b> [1:0] <b>char</b></code>
+(Chapter <a href="7-ch-advanced.html#ch-advanced"
+data-reference-type="ref" data-reference="ch-advanced">7</a>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>compl</b></code></td>
+<td style="text-align: left;">complex numbers, a record of two
+<code><b>real</b></code> fields (Chapter <a
+href="6-ch-moretypes.html#ch-moretypes" data-reference-type="ref"
+data-reference="ch-moretypes">6</a>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>bits</b></code>,
+<code><b>bytes</b></code></td>
+<td style="text-align: left;">bit sets and byte strings (Chapter <a
+href="6-ch-moretypes.html#ch-moretypes" data-reference-type="ref"
+data-reference="ch-moretypes">6</a>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>sema</b></code></td>
+<td style="text-align: left;">semaphores (Chapter <a
+href="8-ch-par.html#ch-par" data-reference-type="ref"
+data-reference="ch-par">8</a>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>file</b></code>,
+<code><b>channel</b></code>, <code><b>format</b></code></td>
+<td style="text-align: left;">transput (Chapter <a
+href="9-ch-transput.html#ch-transput" data-reference-type="ref"
+data-reference="ch-transput">9</a>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>void</b></code></td>
+<td style="text-align: left;">no value</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="operators">Operators</h2>
+<p>The binary operators of the library with their precedences. Every
+unary operator binds more tightly than every binary one.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Precedence</th>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Operands</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">9</td>
+<td style="text-align: left;"><code>I</code></td>
+<td style="text-align: left;"><code><b>int</b></code> or
+<code><b>real</b></code>; builds a <code><b>compl</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>real</b></code> or <code><b>compl</b></code> base,
+<code><b>int</b></code> exponent</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">8</td>
+<td style="text-align: left;"><code>UP</code>, <code>DOWN</code></td>
+<td style="text-align: left;"><code><b>bits</b></code> and
+<code><b>int</b></code>: shift (also <code>SHL</code>,
+<code>SHR</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: left;"><code>LWB</code>, <code>UPB</code></td>
+<td style="text-align: left;"><code><b>int</b></code> (the dimension)
+and an array</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;">numbers; <code><b>int</b></code> and
+<code><b>string</b></code> (repetition)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;">numbers; the result is never
+<code><b>int</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>%</code>, <code>OVER</code></td>
+<td style="text-align: left;"><code><b>int</b></code>: integer
+division</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>%*</code>, <code>MOD</code></td>
+<td style="text-align: left;"><code><b>int</b></code>: remainder</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>ELEM</code></td>
+<td style="text-align: left;"><code><b>int</b></code> and
+<code><b>bits</b></code> or <code><b>bytes</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td style="text-align: left;"><code>+</code>, <code>-</code></td>
+<td style="text-align: left;">numbers; <code>+</code> also joins strings
+and characters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;"><code>&lt;</code>, <code>&lt;=</code>,
+<code>&gt;=</code>, <code>&gt;</code></td>
+<td style="text-align: left;">numbers, characters, strings,
+<code><b>bits</b></code> (<code>&lt;=</code>, <code>&gt;=</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: left;"><code>=</code>, <code>/=</code></td>
+<td style="text-align: left;">all primitive types,
+<code><b>compl</b></code>, <code><b>bits</b></code>, strings</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;"><code>AND</code></td>
+<td style="text-align: left;"><code><b>bool</b></code>,
+<code><b>bits</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: left;"><code>OR</code></td>
+<td style="text-align: left;"><code><b>bool</b></code>,
+<code><b>bits</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><code>+:=</code>, <code>-:=</code>,
+<code>*:=</code>, <code>/:=</code>, <code>%:=</code>,
+<code>%*:=</code></td>
+<td style="text-align: left;">a variable and a value</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><code>+=:</code></td>
+<td style="text-align: left;">a string or character and a string
+variable (prepend)</td>
+</tr>
+</tbody>
+</table>
+<p>The word forms <code>PLUSAB</code>, <code>MINUSAB</code>,
+<code>TIMESAB</code>, <code>DIVAB</code>, <code>OVERAB</code>,
+<code>MODAB</code> and <code>PLUSTO</code> may be used instead of the
+compound assignment symbols, and <code>EQ</code>, <code>NE</code>,
+<code>LT</code>, <code>LE</code>, <code>GE</code>, <code>GT</code>
+instead of the comparisons.</p>
+<p>The unary operators:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>-</code>, <code>+</code></td>
+<td style="text-align: left;">negation, identity</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ABS</code></td>
+<td style="text-align: left;">absolute value; code of a
+<code><b>char</b></code>; <code><b>int</b></code> value of
+<code><b>bits</b></code>; 1 or 0 for a <code><b>bool</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>SIGN</code>, <code>ODD</code></td>
+<td style="text-align: left;">sign of a number; whether an
+<code><b>int</b></code> is odd</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ROUND</code>,
+<code>ENTIER</code></td>
+<td style="text-align: left;">nearest <code><b>int</b></code>, largest
+<code><b>int</b></code> not greater</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>REPR</code></td>
+<td style="text-align: left;">the character with a given code</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>NOT</code></td>
+<td style="text-align: left;">negation of <code><b>bool</b></code> or
+<code><b>bits</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>BIN</code></td>
+<td style="text-align: left;"><code><b>bits</b></code> from an
+<code><b>int</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>RE</code>, <code>IM</code>,
+<code>ARG</code>, <code>CONJ</code></td>
+<td style="text-align: left;">parts of a <code><b>compl</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>LENG</code>,
+<code>SHORTEN</code></td>
+<td style="text-align: left;">conversion to the next longer or shorter
+size</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>LWB</code>, <code>UPB</code></td>
+<td style="text-align: left;">bounds of the first dimension</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>LEVEL</code>, <code>UP</code>,
+<code>DOWN</code></td>
+<td style="text-align: left;">semaphores</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="constants">Constants</h2>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Constant</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>pi</code></td>
+<td style="text-align: left;"><span
+class="math inline"><em>π</em></span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max_int</code>,
+<code>max_real</code></td>
+<td style="text-align: left;">the largest <code><b>int</b></code> and
+<code><b>real</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>small_real</code></td>
+<td style="text-align: left;">the smallest <code><b>real</b></code> that
+changes 1 when added</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bits_width</code>,
+<code>bytes_width</code></td>
+<td style="text-align: left;">the sizes of <code><b>bits</b></code> and
+<code><b>bytes</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>int_lengths</code>,
+<code>int_shorths</code>, <code>real_lengths</code>,
+<code>real_shorths</code></td>
+<td style="text-align: left;">the numbers of sizes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>int_width</code>,
+<code>real_width</code>, <code>exp_width</code></td>
+<td style="text-align: left;">the digits needed to print numbers</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>max_abs_char</code></td>
+<td style="text-align: left;">the largest character code</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>blank</code>,
+<code>null_character</code>, <code>flip</code>, <code>flop</code></td>
+<td style="text-align: left;">the characters <code>" "</code>, code 0,
+<code>"T"</code>, <code>"F"</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="procedures">Procedures</h2>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Procedure</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>sqrt</code>, <code>exp</code>,
+<code>ln</code></td>
+<td style="text-align: left;">square root, exponential, natural
+logarithm</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sin</code>, <code>cos</code>,
+<code>tan</code></td>
+<td style="text-align: left;">trigonometric functions (radians)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>arcsin</code>, <code>arccos</code>,
+<code>arctan</code></td>
+<td style="text-align: left;">their inverses</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>random</code></td>
+<td style="text-align: left;">a pseudo-random <code><b>real</b></code>
+in <span class="math inline">[0, 1)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>whole</code>, <code>fixed</code>,
+<code>float</code></td>
+<td style="text-align: left;">numbers to strings (Section <a
+href="2-ch-values.html#sec-io" data-reference-type="ref"
+data-reference="sec-io">2.14</a>)</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>char_in_string (c, pos, s)</code></td>
+<td style="text-align: left;">whether <code>c</code> occurs in
+<code>s</code>; its index in <code>pos</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bits_pack</code>,
+<code>bytes_pack</code></td>
+<td style="text-align: left;"><code><b>bits</b></code> from
+<code>[] <b>bool</b></code>, <code><b>bytes</b></code> from a
+string</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The transput procedures are listed in Chapter <a
+href="9-ch-transput.html#ch-transput" data-reference-type="ref"
+data-reference="ch-transput">9</a>: <code>print</code>,
+<code>read</code>, <code>put</code>, <code>get</code>,
+<code>printf</code>, <code>putf</code>, <code>readf</code>,
+<code>getf</code>, <code>put_bin</code>, <code>get_bin</code>,
+<code>open</code>, <code>establish</code>, <code>close</code>,
+<code>reset</code>, <code>associate</code>, <code>make_term</code>,
+<code>on_logical_file_end</code>, <code>on_value_error</code>, the
+layout procedures <code>newline</code>, <code>space</code>,
+<code>backspace</code>, <code>newpage</code>, and the files
+<code>stand_in</code>, <code>stand_out</code> and channels
+<code>stand_in_channel</code>, <code>stand_out_channel</code>,
+<code>stand_back_channel</code>.</p>
+</body>
+</html>

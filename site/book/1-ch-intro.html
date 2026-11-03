@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Introduction</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="2-ch-values.html" accesskey="n" rel="next">Values, types and variables</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-preface.html" accesskey="p" rel="previous">Preface</a>
+</span>
+</div>
+</nav>
+<h1 data-number="1" id="ch-intro"><span
+class="header-section-number">1</span> Introduction</h1>
+<h2 data-number="1.1" id="algol-68"><span
+class="header-section-number">1.1</span> Algol 68</h2>
+<p>Algol 68 was designed by Working Group 2.1 of the International
+Federation for Information Processing (IFIP), the group that had earlier
+produced Algol 60. The language was defined in the Report on the
+Algorithmic Language Algol 68 of 1968, published in 1969 [<a
+href="-bibliography.html#bib-report69">2</a>]; a revised definition, the
+Revised Report [<a href="-bibliography.html#bib-rr">1</a>], was
+published in 1975. This book describes the language of the Revised
+Report, which is what all current implementations follow. Lindsey’s
+history of the language [<a href="-bibliography.html#bib-history">8</a>]
+tells how it came about.</p>
+<p>Algol 68 is a compiled, statically typed, imperative language. Its
+designers aimed for a small number of general concepts that combine
+without special cases, a property they called <em>orthogonality</em>.
+The result is a language in which, for example, a block, an
+<code><b>if</b></code> and a <code><b>case</b></code> are all
+expressions with a value, any type can be the element type of an array
+or the result type of a function, and a function is a value like any
+other.</p>
+<h2 data-number="1.2" id="a-first-program"><span
+class="header-section-number">1.2</span> A first program</h2>
+<p>Here is a complete program:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   print (("Hello, world!", newline))
+<b>end</b></code></pre>
+<pre class="output"><code>Hello, world!</code></pre>
+<p>The line after the program is its output. The program consists of a
+<em>block</em>, the text from <code><b>begin</b></code> to
+<code><b>end</b></code>. The block contains one call of the procedure
+<code>print</code>, which writes its argument to the standard output.
+The argument is a list of two items in parentheses: the string
+<code>"Hello, world!"</code> and <code>newline</code>, which ends the
+line. That is why there are two pairs of parentheses: the outer pair
+belongs to the call, the inner pair encloses the list. A call with a
+single item needs only one pair, as in <code>print (newline)</code>.</p>
+<p>The first line, <code><b>access</b> Genie_Transput</code>, makes
+<code>print</code> and the other input and output procedures available.
+The Revised Report includes <code>print</code> in the standard library,
+and Algol 68 Genie provides it that way. The standard library of ga68
+provides only low-level input and output, and a68j follows ga68. The
+module <code>Genie_Transput</code> fills the gap: it provides the
+procedures of the Report that this book uses. It comes with a68j, and
+its source can be compiled with ga68 as well. Every program in this book
+that reads or writes begins with this line; with Algol 68 Genie, the
+line is left out. Modules, a GNU extension of the language, are
+described in Appendix <a href="-app-modules.html#app-modules"
+data-reference-type="ref" data-reference="app-modules">E</a>.</p>
+<h2 data-number="1.3" id="compiling-and-running"><span
+class="header-section-number">1.3</span> Compiling and running</h2>
+<p>With a68j, a program is compiled and run in one step:</p>
+<pre class="shell"><code>$ java -jar a68j-backend.jar -run hello.a68
+Hello, world!</code></pre>
+<p>With ga68, the module <code>Genie_Transput</code> is compiled once,
+and the program is compiled and linked with it:</p>
+<pre class="shell"><code>$ ga68 -c genietransput.a68
+$ ga68 -I. hello.a68 genietransput.o -o hello
+$ ./hello
+Hello, world!</code></pre>
+<p>The source of the module, <code>genietransput.a68</code>, comes with
+a68j.</p>
+<h2 data-number="1.4" id="sec-stropping"><span
+class="header-section-number">1.4</span> Reserved words, type names and
+operators</h2>
+<p>Some words in an Algol 68 program are <em>reserved words</em>:
+<code><b>begin</b></code>, <code><b>end</b></code>,
+<code><b>int</b></code>, <code><b>if</b></code> and some sixty others.
+In this book they are printed in bold, a tradition that goes back to the
+Report, where these words are written in a typeface of their own. In a
+source file they are written in lower case.</p>
+<p>How the reserved words are told apart from other words in a source
+file is called <em>stropping</em> (<span
+class="sans-serif">stropping</span>). Several conventions have been
+used. This book uses the default convention of ga68, which is also
+understood by a68j:</p>
+<ul>
+<li><p>reserved words are written in lower case:
+<code><b>begin</b></code>, <code><b>int</b></code>;</p></li>
+<li><p>a type name that the program declares begins with a capital
+letter: <code>Node</code>, <code>Point</code>;</p></li>
+<li><p>operators that are words are written in capitals:
+<code>ABS</code>, <code>MOD</code>, or a user-defined
+<code>MAX</code>;</p></li>
+<li><p>everything else, such as the names of constants, variables and
+procedures, is written in lower case, with digits and underscores:
+<code>max_value</code>, <code>x2</code>.</p></li>
+</ul>
+<p>Algol 68 Genie uses a different convention by default, in which
+reserved words, type names and word operators are written in capitals
+(<code>BEGIN INT n = 1; ... END</code>) and names may contain
+spaces.</p>
+<h2 data-number="1.5" id="a-second-program"><span
+class="header-section-number">1.5</span> A second program</h2>
+<p>The next program computes the area and the circumference of a
+circle:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ The area and the circumference of a circle. }</span>
+   <b>real</b> r = 2.5;
+   <b>real</b> area = pi * r ** 2;
+   <b>real</b> circumference = 2 * pi * r;
+   print (("radius        ", fixed (r, 0, 2), newline));
+   print (("area          ", fixed (area, 0, 2), newline));
+   print (("circumference ", fixed (circumference, 0, 2), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>radius        2.50
+area          19.63
+circumference 15.71</code></pre>
+<p>The text between braces is a <em>comment</em>. The program declares
+three names for values: <code>r</code> for the radius, and
+<code>area</code> and <code>circumference</code> for the results;
+<code>pi</code> is a constant of the standard library. The operator
+<code>**</code> raises to a power. The procedure <code>fixed</code>
+converts a number into a string with a given number of digits after the
+decimal point; the 0 asks for a string just as wide as needed. All of
+this is explained in the next chapter.</p>
+</body>
+</html>

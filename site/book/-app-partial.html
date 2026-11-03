@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix G: Partial parametrization</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-ch-answers.html" accesskey="n" rel="next">Answers to the exercises</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-nest.html" accesskey="p" rel="previous">Appendix F: Calling C</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-partial">Appendix G: Partial
+parametrization</h1>
+<p>Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
+data-reference-type="ref" data-reference="sec-proc-lifetimes">7.16</a>
+showed that an Algol 68 function cannot be returned from the block whose
+names it uses: a function that composes two other functions, the
+everyday closure of current languages, is an error. Soon after the
+Revised Report, Lindsey proposed an extension that removes most of this
+limitation without changing the lifetime rule [<a
+href="-bibliography.html#bib-partial">6</a>]. The subcommittee of IFIP
+Working Group 2.1 that looked after Algol 68 released it in 1976, so
+that implementations that experimented with such a facility would all
+provide it in the same form; it is not part of the Revised Report. Algol
+68 Genie implements it; ga68 and a68j do not (Appendix <a
+href="-app-impl.html#app-impl" data-reference-type="ref"
+data-reference="app-impl">C</a>): a68j rejects such a call with a
+message, and ga68 currently stops with an internal compiler error. The
+programs of this appendix were run with Algol 68 Genie.</p>
+<h2 class="unnumbered" id="leaving-arguments-out">Leaving arguments
+out</h2>
+<p>With partial parametrization, a call may leave arguments out, by
+writing nothing in their places; the commas stay. Such a call does not
+run the function; it yields a new function that takes the missing
+arguments and has the given ones stored inside it:</p>
+<pre class="algol68"><code><b>proc</b> add = (<b>real</b> x, y) <b>real</b>: x + y;
+<b>proc</b> (<b>real</b>) <b>real</b> add3 = add (3, );
+print ((fixed (add3 (4), 0, 1), " ", fixed (add (3, ) (10), 0, 1), newline))</code></pre>
+<pre class="output"><code>7.0 13.0</code></pre>
+<p><code>add (3, )</code> is a function of one <code><b>real</b></code>,
+which adds 3. It can be called at once, as in
+<code>add (3, ) (10)</code>, or kept and called later. The functional
+languages call the same idea partial application; in Python it is
+<code>functools.partial</code>, in C++ <code>std::bind</code>.</p>
+<p>A function can be given its arguments in several stages. Each stage
+stores the new arguments and yields a function of the remaining
+ones:</p>
+<pre class="algol68"><code><b>proc</b> volume = (<b>real</b> l, w, h) <b>real</b>: l * w * h;
+<b>proc</b> (<b>real</b>, <b>real</b>) <b>real</b> base2 = volume (2, , );
+<b>proc</b> (<b>real</b>) <b>real</b> base6 = base2 (3, );
+print ((fixed (base6 (4), 0, 1), " ", fixed (base2 (1, 1), 0, 1), newline))</code></pre>
+<pre class="output"><code>24.0 2.0</code></pre>
+<h2 class="unnumbered"
+id="closures-without-the-lifetime-problem">Closures without the lifetime
+problem</h2>
+<p>The stored arguments are part of the new function: they are copied
+into it, and the function does not refer to the block in which the call
+was made. This is what makes the idea work. Instead of using the names
+of an enclosing block, the inner function receives everything as
+parameters, and the outer function supplies them by partial
+parametrization. The function <code>compose</code> of Section <a
+href="7-ch-advanced.html#sec-proc-lifetimes" data-reference-type="ref"
+data-reference="sec-proc-lifetimes">7.16</a>, which Algol 68 Genie stops
+at run time there, becomes:</p>
+<pre class="algol68"><code><b>mode</b> Fn = <b>proc</b> (<b>real</b>) <b>real</b>;
+<b>proc</b> compose = (Fn f, g) Fn: ((Fn f, g, <b>real</b> x) <b>real</b>: f (g (x))) (f, g, );
+<b>proc</b> double = (<b>real</b> x) <b>real</b>: 2 * x;
+<b>proc</b> inc = (<b>real</b> x) <b>real</b>: x + 1;
+Fn h = compose (double, inc);
+print ((fixed (h (1), 0, 1), newline))</code></pre>
+<pre class="output"><code>4.0</code></pre>
+<p>The inner function uses only its own parameters <code>f</code>,
+<code>g</code> and <code>x</code>. <code>compose</code> gives it the
+first two and returns the result, which no longer depends on
+<code>compose</code>’s parameters. Lindsey’s proposal shows the same
+pattern with an operator that raises the value of a function to a power,
+so that the cosine “squared” yields <span
+class="math inline">cos<sup>2</sup><em>θ</em></span>. The operator
+<code>^</code> below instead applies a function <code>n</code>
+times:</p>
+<pre class="algol68"><code><b>mode</b> Fn = <b>proc</b> (<b>real</b>) <b>real</b>;
+<b>proc</b> iterate = (Fn f, <b>int</b> n, <b>real</b> x) <b>real</b>:
+<b>begin</b>
+   <b>real</b> y := x;
+   <b>to</b> n <b>do</b> y := f (y) <b>od</b>;
+   y
+<b>end</b>;
+<b>prio</b> ^ = 8;
+<b>op</b> ^ = (Fn f, <b>int</b> n) Fn: iterate (f, n, );
+<b>proc</b> half = (<b>real</b> x) <b>real</b>: x / 2;
+print ((fixed ((half ^ 3) (1), 0, 3), " ", fixed ((cos ^ 20) (1), 0, 6), newline))</code></pre>
+<pre class="output"><code>.125 .739184</code></pre>
+<p>Twenty applications of <code>cos</code> to 1 come close to the number
+<span class="math inline"><em>x</em></span> with <span
+class="math inline">cos <em>x</em> = <em>x</em></span>, 0.739085…; more
+applications get closer.</p>
+<h2 class="unnumbered" id="when-the-arguments-are-evaluated">When the
+arguments are evaluated</h2>
+<p>The arguments of a call that leaves arguments out are evaluated when
+the call is made, not when the resulting function is finally called. A
+value is stored as it is at that moment; a reference is stored as a
+reference, so the function sees later changes of the variable it refers
+to:</p>
+<pre class="algol68"><code><b>proc</b> add = (<b>int</b> a, b) <b>int</b>: a + b;
+<b>proc</b> incr = (<b>ref</b> <b>int</b> c, <b>int</b> d) <b>int</b>: c +:= d;
+<b>int</b> n := 1;
+<b>proc</b> (<b>int</b>) <b>int</b> add_n = add (n, );
+<b>ref</b> <b>int</b> counter = <b>heap</b> <b>int</b> := 0;
+<b>proc</b> (<b>int</b>) <b>int</b> bump = incr (counter, );
+n := 10;
+print ((add_n (5), newline));
+bump (1); bump (2);
+counter +:= 100;
+print ((bump (3), newline))</code></pre>
+<pre class="output"><code>                  +6
+                +106</code></pre>
+<p><code>add_n</code> keeps the value 1 that <code>n</code> had when
+<code>add_n</code> was made; the later assignment to <code>n</code> does
+not change it. <code>bump</code> keeps the reference
+<code>counter</code>, and every call increases the same cell. A heap
+cell and a function that keeps a reference to it are the counter of
+Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
+data-reference-type="ref" data-reference="sec-proc-lifetimes">7.16</a>
+without the need to pass the counter along.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  The lifetime rule still applies to what is
+stored. A function made by partial parametrization lives only as long as
+both the original function and every value stored in it, whichever ends
+first. If a stored reference refers to a <code><b>loc</b></code> cell of
+a block, the function must not outlive that block:</p>
+<pre class="algol68"><code><b>proc</b> incr = (<b>ref</b> <b>int</b> c, <b>int</b> d) <b>int</b>: c +:= d;
+<b>proc</b> make_bump = <b>proc</b> (<b>int</b>) <b>int</b>:
+<b>begin</b>
+   <b>loc</b> <b>int</b> count := 0;
+   incr (count, )
+<b>end</b>;
+<b>proc</b> (<b>int</b>) <b>int</b> bump = make_bump;
+print ((bump (1), newline))</code></pre>
+<pre class="output"><code>3        PROC incr = (REF INT c, INT d) INT: c +:= d;
+                                             1       
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.</code></pre>
+<p>The cell <code>count</code> ends with the block of
+<code>make_bump</code>, and the function returned holds a reference to
+it. By the rules of the proposal, returning the function from the block
+is the error. Algol 68 Genie does not check it there; it stops the
+program only when the function is used, here in <code>incr</code>, whose
+result is the cell that no longer exists. The counter must be a
+<code><b>heap</b></code> cell, as in the previous example.</p>
+</blockquote>
+<h2 class="unnumbered" id="calls-with-all-arguments">Calls with all
+arguments</h2>
+<p>In Lindsey’s proposal, every call is a partial parametrization: a
+call that supplies all arguments yields a function without parameters,
+which is then called at once if the context requires a value, the usual
+case. If the context requires a function without parameters, the call is
+not executed but kept:
+<code><b>proc</b> <b>int</b> tick = incr (counter, 1)</code> would
+declare a function that increases <code>counter</code> by 1 each time it
+is called.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Algol 68 Genie does not
+implement this part of the proposal. It runs a call as soon as all
+arguments are given, and rejects the declaration of
+<code>tick</code>:</p>
+<pre class="output"><code>5        PROC INT tick = incr (counter, 1);
+                         1                 
+a68g: error: 1: INT cannot be coerced to PROC INT in a strong-unit, in closed-clause starting at "BEGIN" in line 1.</code></pre>
+<p>Leaving out at least one argument, as <code>bump</code> does above,
+works in Algol 68 Genie.</p>
+</blockquote>
+</body>
+</html>

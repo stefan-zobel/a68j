@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix D: Glossary</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-modules.html" accesskey="n" rel="next">Appendix E: Modules</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-impl.html" accesskey="p" rel="previous">Appendix C: Implementation notes</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-glossary">Appendix D: Glossary</h1>
+<p>The terms of the Revised Report and the terms this book uses for
+them.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Report</th>
+<th style="text-align: left;">This book</th>
+<th style="text-align: left;">Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a posteriori mode</td>
+<td style="text-align: left;">type after an implicit conversion</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a priori mode</td>
+<td style="text-align: left;">type before an implicit conversion</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">actual declarer</td>
+<td style="text-align: left;">type with bounds</td>
+<td style="text-align: left;"><code>[1:10] <b>int</b></code> in a
+variable declaration</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">actual parameter</td>
+<td style="text-align: left;">argument</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">applied occurrence</td>
+<td style="text-align: left;">use (of a name)</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">assignation</td>
+<td style="text-align: left;">assignment</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">balancing</td>
+<td style="text-align: left;">finding the common type of branches</td>
+<td style="text-align: left;">Section <a href="3-ch-control.html#sec-if"
+data-reference-type="ref" data-reference="sec-if">3.5</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">book</td>
+<td style="text-align: left;">file on disk, data</td>
+<td style="text-align: left;">Section <a
+href="9-ch-transput.html#sec-books" data-reference-type="ref"
+data-reference="sec-books">9.1</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bounds</td>
+<td style="text-align: left;">bounds</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">case clause</td>
+<td style="text-align: left;"><code><b>case</b></code> expression on an
+integer</td>
+<td style="text-align: left;">like <code>switch</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cast</td>
+<td style="text-align: left;">type annotation</td>
+<td style="text-align: left;">does not force a conversion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">channel</td>
+<td style="text-align: left;">kind of device</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">closed clause</td>
+<td style="text-align: left;">block</td>
+<td
+style="text-align: left;"><code><b>begin</b></code>…<code><b>end</b></code>
+or <code>(</code>…<code>)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">coercion</td>
+<td style="text-align: left;">implicit conversion</td>
+<td style="text-align: left;">Section <a
+href="7-ch-advanced.html#sec-contexts" data-reference-type="ref"
+data-reference="sec-contexts">7.14</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">collateral clause</td>
+<td style="text-align: left;">unordered list</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">collateral elaboration</td>
+<td style="text-align: left;">unordered evaluation</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">conditional clause</td>
+<td style="text-align: left;"><code><b>if</b></code> expression</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">conformity clause</td>
+<td style="text-align: left;">type switch, pattern match on a union</td>
+<td style="text-align: left;">Section <a
+href="7-ch-advanced.html#sec-unions" data-reference-type="ref"
+data-reference="sec-unions">7.7</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">context, syntactic position</td>
+<td style="text-align: left;">conversion context</td>
+<td style="text-align: left;">strong, firm, meek, weak, soft</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">defining occurrence</td>
+<td style="text-align: left;">declaration</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">deflexing</td>
+<td style="text-align: left;">removing <code><b>flex</b></code> from a
+type</td>
+<td style="text-align: left;">the type of the value of a resizable
+array</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">denotation</td>
+<td style="text-align: left;">literal</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">deproceduring</td>
+<td style="text-align: left;">implicit call of a parameterless
+function</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dereferencing</td>
+<td style="text-align: left;">automatic reading of a variable</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">descriptor</td>
+<td style="text-align: left;">array header (bounds and address)</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">elaboration</td>
+<td style="text-align: left;">evaluation, execution</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">environment enquiry</td>
+<td style="text-align: left;">implementation constant</td>
+<td style="text-align: left;"><code>max_int</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">equivalent modes</td>
+<td style="text-align: left;">the same type</td>
+<td style="text-align: left;">structural equivalence</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">event routine</td>
+<td style="text-align: left;">callback, handler</td>
+<td style="text-align: left;"><code>on_logical_file_end</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">field selector</td>
+<td style="text-align: left;">field name</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">file</td>
+<td style="text-align: left;">file handle, stream</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">firmly related</td>
+<td style="text-align: left;">convertible in a firm context</td>
+<td style="text-align: left;">overloads must not be</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">flexible name</td>
+<td style="text-align: left;">resizable array variable</td>
+<td style="text-align: left;"><code><b>flex</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">formal declarer</td>
+<td style="text-align: left;">type without bounds</td>
+<td style="text-align: left;"><code>[] <b>int</b></code> in a
+parameter</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">formal parameter</td>
+<td style="text-align: left;">parameter</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">format text</td>
+<td style="text-align: left;">format string</td>
+<td style="text-align: left;">Chapter <a
+href="9-ch-transput.html#ch-transput" data-reference-type="ref"
+data-reference="ch-transput">9</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">formula</td>
+<td style="text-align: left;">operator expression</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">generator</td>
+<td style="text-align: left;">allocation</td>
+<td style="text-align: left;"><code><b>loc</b></code>,
+<code><b>heap</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hip</td>
+<td style="text-align: left;">expression that fits any expected
+type</td>
+<td style="text-align: left;"><code><b>skip</b></code>, a jump;
+<code><b>nil</b></code> fits any reference type</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">identification (of operators)</td>
+<td style="text-align: left;">overload resolution</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">identifier, tag</td>
+<td style="text-align: left;">name, identifier</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">identity declaration</td>
+<td style="text-align: left;">constant declaration</td>
+<td style="text-align: left;"><code><b>int</b> n = 10</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">identity relation</td>
+<td style="text-align: left;">reference comparison</td>
+<td style="text-align: left;"><code><b>is</b></code>,
+<code><b>isnt</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">jump</td>
+<td style="text-align: left;"><code><b>goto</b></code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">loop clause</td>
+<td style="text-align: left;">loop</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mode</td>
+<td style="text-align: left;">type</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mode declaration</td>
+<td style="text-align: left;">type declaration</td>
+<td style="text-align: left;">structural, not nominal</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mode indicant</td>
+<td style="text-align: left;">type name</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">monadic, dyadic operator</td>
+<td style="text-align: left;">unary, binary operator</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">multiple selection</td>
+<td style="text-align: left;">field access on an array of records</td>
+<td style="text-align: left;">Section <a
+href="4-ch-data.html#sec-multiple-selection" data-reference-type="ref"
+data-reference="sec-multiple-selection">4.9</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">multiple value, row</td>
+<td style="text-align: left;">array</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">reference, memory location</td>
+<td style="text-align: left;">the value of a variable</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nil</td>
+<td style="text-align: left;">null reference</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">object, value</td>
+<td style="text-align: left;">value</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">operator declaration</td>
+<td style="text-align: left;">operator definition, overloading</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">parallel clause</td>
+<td style="text-align: left;">concurrent block</td>
+<td style="text-align: left;"><code><b>par</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">plain mode</td>
+<td style="text-align: left;">primitive type</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pragmat</td>
+<td style="text-align: left;">compiler directive</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">priority</td>
+<td style="text-align: left;">precedence</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">priority declaration</td>
+<td style="text-align: left;">precedence declaration</td>
+<td style="text-align: left;"><code><b>prio</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">procedure</td>
+<td style="text-align: left;">function</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">range</td>
+<td style="text-align: left;">scope of a block</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">reach</td>
+<td style="text-align: left;">a block without the blocks nested in
+it</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">routine text</td>
+<td style="text-align: left;">function literal, lambda</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">row display</td>
+<td style="text-align: left;">array literal</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rowing</td>
+<td style="text-align: left;">making a one-element array</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">scope (of a value)</td>
+<td style="text-align: left;">lifetime</td>
+<td style="text-align: left;">Section <a
+href="7-ch-advanced.html#sec-lifetimes" data-reference-type="ref"
+data-reference="sec-lifetimes">7.15</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">selection</td>
+<td style="text-align: left;">field access</td>
+<td style="text-align: left;"><code>x <b>of</b> p</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">serial clause</td>
+<td style="text-align: left;">sequence (block body)</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">skip</td>
+<td style="text-align: left;">undefined value of any type</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">slice</td>
+<td style="text-align: left;">indexing, slice</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">straightening</td>
+<td style="text-align: left;">flattening for transput</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">stropping</td>
+<td style="text-align: left;">marking of reserved words</td>
+<td style="text-align: left;">Section <a
+href="1-ch-intro.html#sec-stropping" data-reference-type="ref"
+data-reference="sec-stropping">1.4</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">structure</td>
+<td style="text-align: left;">record</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">structure display</td>
+<td style="text-align: left;">record literal</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">transient name</td>
+<td style="text-align: left;">reference into a resizable array</td>
+<td style="text-align: left;">may not be stored</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">transput</td>
+<td style="text-align: left;">input and output</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">trimmer</td>
+<td style="text-align: left;">index range of a slice</td>
+<td style="text-align: left;"><code>a[2:4]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">unit</td>
+<td style="text-align: left;">expression</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">united mode</td>
+<td style="text-align: left;">union, sum type</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">uniting</td>
+<td style="text-align: left;">conversion into a union</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">voiding</td>
+<td style="text-align: left;">discarding a value</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">well-formed mode</td>
+<td style="text-align: left;">admissible recursive type</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">widening</td>
+<td style="text-align: left;">widening</td>
+<td style="text-align: left;"><code><b>int</b></code> to
+<code><b>real</b></code> to <code><b>compl</b></code>,
+<code><b>bits</b></code> to <code>[] <b>bool</b></code>,
+<code><b>bytes</b></code> to <code>[] <b>char</b></code></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

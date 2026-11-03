@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Expressions and control flow</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="4-ch-data.html" accesskey="n" rel="next">Arrays and records</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="2-ch-values.html" accesskey="p" rel="previous">Values, types and variables</a>
+</span>
+</div>
+</nav>
+<h1 data-number="3" id="ch-control"><span
+class="header-section-number">3</span> Expressions and control flow</h1>
+<p>The programs of the previous chapter ran from top to bottom. This
+chapter introduces the constructs that choose between alternatives and
+repeat actions, and the rules that say where a declared name can be
+used. It begins with the idea that makes Algol 68 different from most
+languages of its time and from many of ours: there is no separate
+category of statements. Every construct, including a block, a choice and
+a loop, is an expression.</p>
+<h2 data-number="3.1" id="sec-everything"><span
+class="header-section-number">3.1</span> Everything is an
+expression</h2>
+<p>In C, Java or Python, a program is made of statements, and
+expressions are one kind of statement. Algol 68 has only expressions,
+which the Report calls <span class="sans-serif">units</span>. Constructs
+that look like statements, such as an assignment or a call of
+<code>print</code>, are expressions too; most of them simply have a
+value that nobody uses.</p>
+<p>A block, written either
+<code><b>begin</b></code>…<code><b>end</b></code> or
+<code>(</code>…<code>)</code>, contains a sequence of declarations and
+expressions separated by semicolons, and its value is the value of the
+last expression. A block can therefore stand wherever a value is
+needed:</p>
+<pre class="algol68"><code><b>int</b> square = (<b>int</b> t = 7; t * t);
+<b>real</b> mean = <b>begin</b>
+               <b>real</b> a = 2.0, b = 3.5;
+               (a + b) / 2
+            <b>end</b>;
+print ((square, " ", fixed (mean, 0, 2), newline))</code></pre>
+<pre class="output"><code>        +49 2.75</code></pre>
+<p>The two spellings of a block mean exactly the same;
+<code><b>begin</b></code> and <code><b>end</b></code> are usually
+preferred for long blocks, parentheses for short ones. The Report calls
+a block a <span class="sans-serif">closed clause</span> and the sequence
+inside it a <span class="sans-serif">serial clause</span>. Rust and the
+functional languages work the same way; in C, the closest equivalent is
+the “statement expression” of the GNU C compiler.</p>
+<p>A block must end with an expression, not with a declaration, since it
+must have a value. The block
+<code><b>begin</b> <b>int</b> x = 1 <b>end</b></code> is an error
+(“clause does not yield a value”), even in a place where its value is
+not used.</p>
+<p>The value of a block is computed before the block ends, so a block
+may yield the value of one of its own variables:
+<code><b>int</b> n = (<b>int</b> r; read (r); r)</code> reads a number
+through a local variable and yields it. What a block may not yield is
+the variable itself, a reference to a cell that disappears with the
+block; Chapter <a href="7-ch-advanced.html#ch-advanced"
+data-reference-type="ref" data-reference="ch-advanced">7</a> explains
+this rule about lifetimes.</p>
+<h2 data-number="3.2" id="sec-voiding"><span
+class="header-section-number">3.2</span> Sequences and discarded
+values</h2>
+<p>When an expression is followed by a semicolon, its value is
+discarded. The Report calls this <span
+class="sans-serif">voiding</span>, and it is one of the implicit
+conversions: the value is converted to the type
+<code><b>void</b></code>, which has a single, uninteresting value.
+Discarding is what happens to the value of every assignment and every
+call of <code>print</code> in the programs so far:</p>
+<pre class="algol68"><code><b>int</b> x := 3;
+x + 1;                    <span class="comment">{ computed, then discarded }</span>
+x := x + 1;               <span class="comment">{ the reference x is discarded }</span>
+print ((x, newline))</code></pre>
+<pre class="output"><code>         +4</code></pre>
+<p>The value of <code>x := x + 1</code> is the reference <code>x</code>
+(Section <a href="2-ch-values.html#sec-assignment"
+data-reference-type="ref" data-reference="sec-assignment">2.11</a>); it
+is discarded, and so is the value of <code>x + 1</code> in the line
+before, which therefore does nothing useful.</p>
+<h2 data-number="3.3" id="sec-scope"><span
+class="header-section-number">3.3</span> Scope</h2>
+<p>A name declared in a block can be used anywhere in that block,
+including in blocks nested inside it, but not outside. The part of the
+program in which a declaration is valid is its <em>scope</em> (the
+Report says <span class="sans-serif">range</span> for the block, and
+<span class="sans-serif">reach</span> for the block without the blocks
+nested in it). A nested block can declare a name that is already
+declared outside; inside the nested block, the new declaration hides the
+outer one:</p>
+<pre class="algol68"><code><b>int</b> x = 1;
+<b>begin</b>
+   <b>real</b> x = 2.5;          <span class="comment">{ a new x, hiding the outer one }</span>
+   print ((x, newline))
+<b>end</b>;
+print ((x, newline))      <span class="comment">{ the outer x again }</span></code></pre>
+<pre class="output"><code>+2.500000e +0
+         +1</code></pre>
+<p>The same name cannot be declared twice in the same block; this is an
+error found by the compiler (“multiple declaration of identifier”).</p>
+<p>Strictly speaking, the scope of a declaration is the whole block,
+including the part before the declaration. The name can be mentioned
+there, but its value cannot be used, since the declaration has not been
+carried out yet. A program that uses a name before its declaration is
+therefore wrong, but compilers do not always detect it: ga68 and a68j
+accept such a program and use an undefined value. The rule matters for
+procedures that call each other (Chapter <a
+href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a>); for everything else, a declaration
+should simply come before its uses.</p>
+<p>A word about the term: in this book, <em>scope</em> means the region
+of the program text in which a name can be used, as in every current
+language. The Report uses the word <span class="sans-serif">scope</span>
+for something else, the lifetime of a value, which is the subject of
+Chapter <a href="7-ch-advanced.html#ch-advanced"
+data-reference-type="ref" data-reference="ch-advanced">7</a>.</p>
+<h2 data-number="3.4" id="sec-collateral"><span
+class="header-section-number">3.4</span> Unordered evaluation</h2>
+<p>A list of expressions separated by commas and enclosed in parentheses
+is evaluated in an unspecified order:</p>
+<pre class="algol68"><code><b>int</b> a, b;
+(a := 1, b := 2);                  <span class="comment">{ in either order }</span>
+print ((a + b, newline))</code></pre>
+<pre class="output"><code>         +3</code></pre>
+<p>Here the two assignments may be carried out in either order, or even
+interleaved; the program must not depend on the order. The Report calls
+this <span class="sans-serif">collateral elaboration</span>, and the
+list a <span class="sans-serif">collateral clause</span>. The same holds
+wherever several expressions separated by commas are all evaluated: the
+operands of an operator, the arguments of a procedure call, the items of
+a list given to <code>print</code>, the elements of an array literal,
+and the declarations in <code><b>int</b> a = f, b = g</code>. (The
+commas between the alternatives of a <code><b>case</b></code> are
+different: only one alternative is evaluated.) A program whose result
+depends on the order in which <code>f</code> and <code>g</code> are
+called is wrong, even if it happens to work with a particular compiler.
+Some places without commas have the same freedom: the two sides of an
+assignment, an array and its indexes in <code>a[i]</code>, and a
+function and its arguments in a call.</p>
+<p>A semicolon, by contrast, always means “first this, then that”.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  Code that looks harmless can depend on the
+order. In <code>(k +:= 1) * k</code>, the right operand <code>k</code>
+may be read before or after the left one has incremented it. In
+<code><b>int</b> a = 1, b = a + 1</code>, the two declarations are
+carried out in an unspecified order, so <code>b</code> may be computed
+before <code>a</code> exists; C programmers write this all the time, and
+C defines it, but Algol 68 does not. The same holds for two reads in one
+expression, as in <code>read_int - read_int</code> with Algol 68 Genie’s
+<code>read_int</code>, and for <code>a[i] := (i +:= 1)</code> with
+<code>i</code> = 1, which may store 2 into <code>a[1]</code> or into
+<code>a[2]</code>. ga68 and a68j evaluate from left to right (here into
+<code>a[1]</code>), so testing does not reveal the error. Writing
+<code><b>int</b> a = 1; <b>int</b> b = a + 1</code> with a semicolon
+makes the order definite. The items of a <code>print</code> list are
+evaluated in an unspecified order, but they are always printed in the
+order in which they are written.</p>
+</blockquote>
+<h2 data-number="3.5" id="sec-if"><span
+class="header-section-number">3.5</span> <strong>if</strong>
+expressions</h2>
+<p>The conditional expression has the form</p>
+<pre class="algol68"><code><b>if</b> condition <b>then</b> expressions <b>else</b> expressions <b>fi</b></code></pre>
+<p>where <code><b>fi</b></code>, <code><b>if</b></code> spelled
+backwards, closes the construct. The <code><b>else</b></code> part may
+be omitted, and further conditions may be tested with
+<code><b>elif</b></code>. Like a block, an <code><b>if</b></code> has a
+value, so it serves both as a statement and as the conditional
+expression <code>c ? a : b</code> of C:</p>
+<pre class="algol68"><code><b>if</b> n MOD 2 = 0 <b>then</b> print (("even", newline)) <b>else</b> print (("odd", newline)) <b>fi</b>;
+<b>string</b> size = <b>if</b> n &lt; 10 <b>then</b> "small" <b>elif</b> n &lt; 100 <b>then</b> "medium" <b>else</b> "large" <b>fi</b>;
+print ((size, newline));
+print (((n &gt; 0 | "positive" | "not positive"), newline))</code></pre>
+<pre class="output"><code>odd
+small
+positive</code></pre>
+<p>The last line shows the brief form: <code>(c | a | b)</code> means
+<code><b>if</b> c <b>then</b> a <b>else</b> b <b>fi</b></code>, and
+<code>|:</code> stands for <code><b>elif</b></code>. The brief form is
+convenient in short expressions; for anything longer, the words are
+easier to read.</p>
+<p>The condition is itself a sequence and may contain declarations,
+which are then visible in all parts of the <code><b>if</b></code>:</p>
+<pre class="algol68"><code><b>if</b> <b>int</b> k = n * n; k &gt; 100 <b>then</b> print (k) <b>fi</b></code></pre>
+<p>If the <code><b>else</b></code> part is omitted and the condition is
+false, the <code><b>if</b></code> does nothing, which is what is wanted
+in a statement. If such an <code><b>if</b></code> is used for its value,
+the value is undefined. The Report calls this undefined value
+<code><b>skip</b></code> (Section <a href="3-ch-control.html#sec-skip"
+data-reference-type="ref" data-reference="sec-skip">3.8</a>).</p>
+<p>When the branches have different types, the compiler looks for a
+common type to which all branches can be converted, and converts them.
+If one branch is an <code><b>int</b></code> and the other a
+<code><b>real</b></code>, the common type is
+<code><b>real</b></code>:</p>
+<pre class="algol68"><code><b>real</b> r = <b>if</b> n &gt; 5 <b>then</b> 1 <b>else</b> 2.5 <b>fi</b>;     <span class="comment">{ the int 1 is widened to real }</span>
+print ((r, newline))</code></pre>
+<pre class="output"><code>+1.000000e +0</code></pre>
+<p>The Report calls this <span class="sans-serif">balancing</span>. It
+is what C does for <code>c ? 1 : 2.5</code>, and what the type inference
+of a modern language does when it finds the least common type of the
+branches.</p>
+<p>Since an <code><b>if</b></code> yields a value of any type, it can
+also yield a variable, and stand on the left-hand side of an
+assignment:</p>
+<pre class="algol68"><code><b>int</b> a := 3, b := 7;
+(a &gt; b | a | b) := 0;           <span class="comment">{ sets the larger of a and b to 0 }</span>
+print ((a, b, newline))</code></pre>
+<pre class="output"><code>         +3         +0</code></pre>
+<p>sets <code>b</code> to 0. Here both branches yield a variable of type
+<code><b>ref</b> <b>int</b></code>. With a <code><b>real</b></code>
+variable <code>x</code> and an <code><b>int</b></code> variable
+<code>n</code>, <code>(c </code> x | n) := 4| is rejected: the branches
+yield a <code><b>ref</b> <b>real</b></code> and a
+<code><b>ref</b> <b>int</b></code>, and neither can be converted into
+the other.</p>
+<h2 data-number="3.6" id="sec-case"><span
+class="header-section-number">3.6</span> <strong>case</strong>
+expressions</h2>
+<p>The <code><b>case</b></code> expression selects one of several
+alternatives by an integer: the first alternative for 1, the second for
+2, and so on. If the integer is out of range, the
+<code><b>out</b></code> part is chosen; without an
+<code><b>out</b></code> part, nothing happens (or the value is
+undefined).</p>
+<pre class="algol68"><code><b>for</b> day <b>to</b> 8 <b>do</b>
+   <b>string</b> name = <b>case</b> day <b>in</b> "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+                 <b>out</b> "???"
+                 <b>esac</b>;
+   print ((name, " "))
+<b>od</b>;
+print (newline);
+<b>int</b> code = 12;
+print (((code | "one", "two" | "many"), newline))</code></pre>
+<pre class="output"><code>Mon Tue Wed Thu Fri Sat Sun ??? 
+many</code></pre>
+<p>The alternatives are separated by commas, and each can be a single
+expression or a block. The Report requires at least two alternatives
+(for one, an <code><b>if</b></code> does the job); the three
+implementations also accept one. The brief form is
+<code>(i | a, b, c | d)</code>. A second selection can follow the
+<code><b>out</b></code> with <code><b>ouse</b></code>, much as
+<code><b>elif</b></code> follows the <code><b>then</b></code> part of an
+<code><b>if</b></code>.</p>
+<p>This <code><b>case</b></code> corresponds to the <code>switch</code>
+of C, except that the alternatives are numbered from 1 and cannot be
+labeled with arbitrary constants. Chapter <a
+href="7-ch-advanced.html#ch-advanced" data-reference-type="ref"
+data-reference="ch-advanced">7</a> introduces a second, more powerful
+form of <code><b>case</b></code> that selects by the type of a
+value.</p>
+<h2 data-number="3.7" id="sec-loops"><span
+class="header-section-number">3.7</span> Loops</h2>
+<p>Algol 68 has a single loop construct with several optional parts:</p>
+<pre class="algol68"><code><b>for</b> i <b>from</b> first <b>by</b> step <b>to</b> last <b>while</b> condition <b>do</b> expressions <b>od</b></code></pre>
+<p>Every part except <code><b>do</b></code>…<code><b>od</b></code> may
+be left out. The parts have the following meaning:</p>
+<ul>
+<li><p><code><b>for</b> i</code> names the <em>loop variable</em>;
+without it, the loop still counts, but the count has no name.</p></li>
+<li><p><code><b>from</b> first</code> gives the initial value, 1 if
+omitted.</p></li>
+<li><p><code><b>by</b> step</code> gives the increment, 1 if omitted; it
+may be negative.</p></li>
+<li><p><code><b>to</b> last</code> gives the final value; without it,
+there is no limit.</p></li>
+<li><p><code><b>while</b> condition</code> is tested before each
+iteration; the loop ends when it is false.</p></li>
+</ul>
+<p>The values of <code>first</code>, <code>step</code> and
+<code>last</code> are computed once, before the first iteration. The
+loop variable is an <code><b>int</b></code> constant, not a variable: it
+is declared anew for each iteration, it cannot be assigned to, and it
+does not exist after the loop. The usual forms of the loop result from
+the parts that are present:</p>
+<pre class="algol68"><code><b>int</b> sum := 0;
+<b>for</b> i <b>from</b> 1 <b>to</b> 10 <b>do</b> sum +:= i <b>od</b>;
+print ((sum, newline));
+<b>for</b> i <b>from</b> 10 <b>by</b> -3 <b>to</b> 0 <b>do</b> print (i) <b>od</b>;
+print (newline);
+<b>to</b> 3 <b>do</b> print ("ha") <b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>        +55
+        +10         +7         +4         +1
+hahaha</code></pre>
+<p><code><b>to</b> 3 <b>do</b></code> …<code><b>od</b></code> repeats
+the body three times. A loop with only a <code><b>while</b></code> part
+is the <code><b>while</b></code> loop of other languages; Euclid’s
+algorithm for the greatest common divisor is a classic example:</p>
+<pre class="algol68"><code><span class="comment">{ Euclid's algorithm: the greatest common divisor of a and b. }</span>
+<b>int</b> a := 1071, b := 462;
+<b>while</b> b /= 0 <b>do</b>
+   <b>int</b> r = a MOD b;
+   a := b;
+   b := r
+<b>od</b>;
+print (("gcd = ", whole (a, 0), newline))</code></pre>
+<pre class="output"><code>gcd = 21</code></pre>
+<p>The <code><b>for</b></code> and <code><b>while</b></code> parts can
+be combined: the loop then ends when the counter passes the final value
+or the condition becomes false, whichever comes first. Like the
+condition of an <code><b>if</b></code>, the <code><b>while</b></code>
+part may contain declarations, which are visible in the body. This
+replaces the <code><b>do</b></code>…<code><b>while</b></code> loop of C,
+whose body runs before its test: the part of the body that must run
+first is written in the <code><b>while</b></code> part.</p>
+<pre class="algol68"><code><span class="comment">{ The first square greater than 50. }</span>
+<b>int</b> n := 1;
+<b>for</b> i <b>while</b> i * i &lt;= 50 <b>do</b> n := i + 1 <b>od</b>;
+print ((n, n * n, newline));
+<span class="comment">{ The same, with a declaration in the while part. }</span>
+<b>int</b> m := 0;
+<b>while</b> <b>int</b> square = m * m; square &lt;= 50 <b>do</b> m +:= 1 <b>od</b>;
+print ((m, newline))</code></pre>
+<pre class="output"><code>         +8        +64
+         +8</code></pre>
+<p>Finally, <code><b>do</b></code>…<code><b>od</b></code> alone repeats
+forever; the loop is left with a jump (Section <a
+href="3-ch-control.html#sec-jumps" data-reference-type="ref"
+data-reference="sec-jumps">3.9</a>). A loop has no value: its type is
+<code><b>void</b></code>.</p>
+<p>Since the loop variable is a constant, an attempt to assign to it
+fails with the message we met in Chapter <a
+href="2-ch-values.html#ch-values" data-reference-type="ref"
+data-reference="ch-values">2</a>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>for</b> i <b>to</b> 10 <b>do</b>
+      <b>if</b> i = 5 <b>then</b> i := 10 <b>fi</b>;
+      print (i)
+   <b>od</b>
+<b>end</b></code></pre>
+<pre class="output"><code>loop-variable.a68:4:21: error: int secondary does not yield a name</code></pre>
+<p>A few details of the loop are worth knowing. Since the final value is
+computed once, changing a variable that appears in the
+<code><b>to</b></code> part inside the body does not change the number
+of iterations. The <code><b>while</b></code> part is not evaluated any
+more once the counter has passed the final value, which matters if it
+reads input or has other effects. With a step of 0 the final value is
+ignored, and the loop runs forever unless the <code><b>while</b></code>
+part stops it. (ga68 and a68j instead skip such a loop if the start
+value is above the final value.)</p>
+<p>The loop variable is always an <code><b>int</b></code>; there is no
+loop over real numbers with a step of 0.1. That is just as well, since
+real numbers are approximations, and adding 0.1 ten times does not give
+exactly 1.0:</p>
+<pre class="algol68"><code><b>real</b> sum := 0;
+<b>to</b> 10 <b>do</b> sum +:= 0.1 <b>od</b>;
+print ((sum = 1.0, " ", ABS (sum - 1.0) &lt; 1e-6, newline));
+<b>for</b> i <b>from</b> 0 <b>to</b> 4 <b>do</b>
+   <b>real</b> x = i / 4;                     <span class="comment">{ 0, 0.25, 0.5, 0.75, 1 }</span>
+   print ((fixed (x, -4, 2), " "))
+<b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>F T
+0.00 0.25 0.50 0.75 1.00 </code></pre>
+<p>prints</p>
+<pre class="output"><code>F T
+0.00 0.25 0.50 0.75 1.00 </code></pre>
+<p>The right way is to count with an integer and compute each real value
+from the counter, as in the second loop, so that the errors do not
+accumulate. For the same reason, real numbers should not be compared
+with <code>=</code>, but tested for a small difference, as in
+<code>ABS (sum - 1.0) &lt; 1e-6</code>. With the 32-bit
+<code><b>real</b></code> of ga68 and a68j, which has about 7 decimal
+digits, the problem appears sooner than with the 64-bit
+<code>double</code> that most programmers are used to.</p>
+<p>The <code><b>while</b></code> part is the place for an iteration that
+must compute a value before it can decide whether to continue. Newton’s
+method for the square root improves an approximation until the
+improvement is small relative to the value:</p>
+<pre class="algol68"><code><b>proc</b> root = (<b>real</b> a) <b>real</b>:
+<b>begin</b>
+   <b>real</b> x := (a &gt; 1 | a | 1);
+   <b>while</b> <b>real</b> better = (x + a / x) / 2;
+         ABS (better - x) &gt; 1e-6 * x
+   <b>do</b> x := better <b>od</b>;
+   x
+<b>end</b>;
+print ((fixed (root (2), 0, 5), " ", fixed (root (1e6), 0, 2), " ",
+        fixed (root (0.25), -7, 5), newline))</code></pre>
+<pre class="output"><code>1.41421 1000.00 0.50000</code></pre>
+<p>prints <code>1.41421 1000.00 0.50000</code>. The test is relative,
+<code>1e-6 * x</code>, because a fixed tolerance such as
+<code>1e-6</code> is far too coarse for very small roots, and for large
+ones, with only 7 significant digits, it is reached only if the
+iteration happens to arrive at an exact fixed point.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Algol 68 Genie has two
+extensions that appear in Rosetta Code programs: <code>downto</code>
+counts downwards (<code>FOR i FROM 3 DOWNTO 1</code>), and an
+<code>UNTIL</code> part before <code><b>od</b></code> ends the loop
+after the body if its condition is true. ga68 and a68j have neither;
+<code><b>by</b> -1</code> and a <code><b>while</b></code> part do the
+same.</p>
+</blockquote>
+<h2 data-number="3.8" id="sec-skip"><span
+class="header-section-number">3.8</span> <strong>skip</strong></h2>
+<p>The reserved word <code><b>skip</b></code> stands for an undefined
+value of whatever type is needed. It is used where the syntax requires
+an expression but no particular value is meaningful, for example as an
+alternative of a <code><b>case</b></code> that has nothing to do, or as
+the body of a loop that does all its work in the
+<code><b>while</b></code> part:</p>
+<pre class="algol68"><code><b>int</b> n := 0;
+<b>while</b> n +:= 1; n * n &lt; 1000 <b>do</b> <b>skip</b> <b>od</b>;
+print ((n, newline))</code></pre>
+<pre class="output"><code>        +32</code></pre>
+<p>The loop finds the smallest <code>n</code> whose square is at least
+1000, and prints 32. The semicolon in the <code><b>while</b></code> part
+makes sure that <code>n</code> is incremented before it is squared; the
+shorter <code>(n +:= 1) * n &lt; 1000</code> would depend on the order
+of the operands.</p>
+<h2 data-number="3.9" id="sec-jumps"><span
+class="header-section-number">3.9</span> Jumps</h2>
+<p>An expression in a sequence can be given a <em>label</em>, a name
+followed by a colon, and the <code><b>goto</b></code> expression
+continues the program at the labeled expression.
+<code><b>go</b> <b>to</b></code> may also be written as two words, and
+in many places the label alone is enough. A typical use is to leave a
+loop that runs forever:</p>
+<pre class="algol68"><code>   <span class="comment">{ Search for the first multiple of 7 and 11 above 500. }</span>
+   <b>int</b> n := 500;
+   <b>do</b>
+      n +:= 1;
+      <b>if</b> n MOD 7 = 0 <b>andth</b> n MOD 11 = 0 <b>then</b> <b>goto</b> found <b>fi</b>
+   <b>od</b>;
+found:
+   print ((n, newline))</code></pre>
+<pre class="output"><code>       +539</code></pre>
+<p>A jump can only go to a label in the same block or in an enclosing
+block, never into a block, a loop or a branch, since the label is not
+visible there (Section <a href="3-ch-control.html#sec-scope"
+data-reference-type="ref" data-reference="sec-scope">3.3</a>).</p>
+<p>A jump never yields a value, so it is acceptable wherever the type is
+determined by the context or by the other branches of an
+<code><b>if</b></code> or a <code><b>case</b></code>. This makes it easy
+to give up when the data are bad:</p>
+<pre class="algol68"><code>   [] <b>real</b> data = (4, 2.25, -1, 9);
+   <b>for</b> i <b>to</b> UPB data <b>do</b>
+      <b>real</b> r = <b>if</b> data[i] &gt;= 0 <b>then</b> sqrt (data[i]) <b>else</b> <b>goto</b> bad_input <b>fi</b>;
+      print ((fixed (r, 0, 2), newline))
+   <b>od</b>;
+   stop;
+bad_input:
+   print (("negative input", newline))</code></pre>
+<pre class="output"><code>2.00
+1.50
+negative input</code></pre>
+<p>prints <code>2.00</code>, <code>1.50</code> and
+<code>negative input</code>. The <code><b>if</b></code> has the type
+<code><b>real</b></code>, and its <code><b>else</b></code> part, a jump,
+is acceptable as a <code><b>real</b></code>. The predefined label
+<code>stop</code> ends the whole program.</p>
+<p>One case is different. Where a function without parameters is
+expected, as for a parameter of type
+<code><b>proc</b> <b>void</b></code>, a jump is not carried out: it
+becomes a function that carries out the jump when it is called. A
+function can thus be given an exit to take when something goes
+wrong:</p>
+<pre class="algol68"><code>   <b>proc</b> mean = ([] <b>real</b> v, <b>proc</b> <b>void</b> on_empty) <b>real</b>:
+   <b>begin</b>
+      <b>if</b> UPB v &lt; LWB v <b>then</b> on_empty <b>fi</b>;
+      <b>real</b> s := 0;
+      <b>for</b> i <b>from</b> LWB v <b>to</b> UPB v <b>do</b> s +:= v[i] <b>od</b>;
+      s / (UPB v - LWB v + 1)
+   <b>end</b>;
+   [1:0] <b>real</b> none;
+   print ((fixed (mean ((1, 2, 3, 4), no_data), 0, 2), newline));
+   print ((fixed (mean (none, no_data), 0, 2), newline));
+   <b>goto</b> stop;
+no_data:
+   print (("no data", newline))</code></pre>
+<pre class="output"><code>2.50
+no data</code></pre>
+<p>The first call returns normally. In the second, <code>mean</code>
+calls <code>on_empty</code>, and the jump leaves <code>mean</code> and
+continues at the label <code>no_data</code>. In the same way,
+<code>[] <b>proc</b> <b>void</b> switch = (l1, l2, l3)</code> is an
+array of functions that jump, and <code>switch[i]</code> jumps to the
+<code>i</code>-th label, as the switch of Algol 60 did.</p>
+<p>Labels have two restrictions. In a block, no declaration may follow a
+label, so that a jump can never skip a declaration whose name is used
+after the label; a label before a declaration is rejected with a message
+about an invalid sequence. And the condition of an
+<code><b>if</b></code>, a <code><b>case</b></code> or a
+<code><b>while</b></code> may not contain labels.</p>
+<p>A block may also end before its last expression. The reserved word
+<code><b>exit</b></code> after an expression ends the sequence with that
+expression’s value; the part after <code><b>exit</b></code> can only be
+reached by a jump to a label that follows it:</p>
+<pre class="algol68"><code><b>int</b> x = -4;
+<b>int</b> magnitude = <b>begin</b>
+                   <b>if</b> x &gt;= 0 <b>then</b> <b>goto</b> non_negative <b>fi</b>;
+                   -x <b>exit</b>
+                non_negative:
+                   x
+                <b>end</b>;
+print ((magnitude, newline))</code></pre>
+<pre class="output"><code>         +4</code></pre>
+<p>Jumps were common in programs of the 1960s, and Algol 68 still has
+them. With its general loop and the value-yielding
+<code><b>if</b></code> and <code><b>case</b></code> they are rarely
+needed, and the programs in this book use them only to leave a loop
+early. The keyword <code><b>exit</b></code> should not be confused with
+the <code><b>exit</b></code> or <code>break</code> of other languages:
+it does not leave a loop.</p>
+<h2 data-number="3.10" id="sec-program"><span
+class="header-section-number">3.10</span> The structure of a
+program</h2>
+<p>A program is a block, or more generally any construct in brackets: an
+<code><b>if</b></code>, a <code><b>case</b></code> or a loop is a
+program too. Everything it uses that it does not declare itself comes
+from the standard library, which can be thought of as a block enclosing
+the program. In this book, a program is preceded by
+<code><b>access</b> Genie_Transput</code>, which places the declarations
+of that module around the program as well.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Algol 68 Genie also accepts a
+program without the enclosing <code><b>begin</b></code> and
+<code><b>end</b></code>, a convenience that many Rosetta Code programs
+use. ga68 and a68j require the brackets.</p>
+</blockquote>
+<h2 data-number="3.11" id="sec-control-complete"><span
+class="header-section-number">3.11</span> A complete program</h2>
+<p>The program below lists the prime numbers below 60. For each number
+<code>n</code>, it tries the divisors from 2 upwards while no divisor
+has been found and the divisor squared does not exceed <code>n</code>.
+The short-circuit <code><b>andth</b></code> (Section <a
+href="2-ch-values.html#sec-logic" data-reference-type="ref"
+data-reference="sec-logic">2.9</a>) is not essential here, but it
+expresses the intent: once <code>prime</code> is false, the rest of the
+condition does not matter.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ The prime numbers below 60, by trial division. }</span>
+   <b>int</b> count := 0;
+   <b>for</b> n <b>from</b> 2 <b>to</b> 59 <b>do</b>
+      <b>bool</b> prime := <b>true</b>;
+      <b>for</b> d <b>from</b> 2 <b>while</b> prime <b>andth</b> d * d &lt;= n <b>do</b>
+         <b>if</b> n MOD d = 0 <b>then</b> prime := <b>false</b> <b>fi</b>
+      <b>od</b>;
+      <b>if</b> prime <b>then</b>
+         print (whole (n, -4));
+         count +:= 1;
+         <b>if</b> count MOD 10 = 0 <b>then</b> print (newline) <b>fi</b>
+      <b>fi</b>
+   <b>od</b>;
+   print (newline)
+<b>end</b></code></pre>
+<pre class="output"><code>   2   3   5   7  11  13  17  19  23  29
+  31  37  41  43  47  53  59</code></pre>
+<h2 class="unnumbered" id="exercises-1">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch3">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What are the values of <code>(<b>int</b> a = 3; a * a + 1)</code>
+and of <code>(2 &gt; 1 | 10 | 20) + 1</code>?</p></li>
+<li><p>What does the following program print?</p>
+<pre class="algol68"><code><b>int</b> x = 1;
+<b>begin</b> <b>int</b> y = x + 1; <b>begin</b> <b>int</b> x = y * 10; print (x) <b>end</b>; print (x) <b>end</b></code></pre></li>
+<li><p>How many times is the body of each loop executed?<br />
+(a)
+<code><b>for</b> i <b>from</b> 5 <b>to</b> 1 <b>do</b> <b>skip</b> <b>od</b></code><br />
+(b)
+<code><b>for</b> i <b>from</b> 1 <b>by</b> 2 <b>to</b> 10 <b>do</b> <b>skip</b> <b>od</b></code><br />
+(c)
+<code><b>for</b> i <b>from</b> 10 <b>by</b> -2 <b>to</b> 1 <b>do</b> <b>skip</b> <b>od</b></code><br />
+(d) <code><b>to</b> 0 <b>do</b> <b>skip</b> <b>od</b></code></p></li>
+<li><p>Write
+<code>(x &gt; 0 | "plus" |: x &lt; 0 | "minus" | "zero")</code> with
+reserved words instead of the brief form.</p></li>
+<li><p>What type has <code>(n &gt; 0 | 1 | 0.5)</code>, and
+why?</p></li>
+<li><p>Why may a program not rely on the order of the two calls in
+<code>f + g</code>, if <code>f</code> and <code>g</code> print
+something?</p></li>
+<li><p>Write a loop that prints the powers of 2 up to 1000 without using
+a <code><b>for</b></code> part.</p></li>
+<li><p>How many times is the body executed in
+<code><b>int</b> n := 10; <b>for</b> i <b>by</b> 2 <b>to</b> n <b>do</b> n +:= 1 <b>od</b></code>?</p></li>
+<li><p>What does
+<code><b>for</b> i <b>from</b> 1 <b>by</b> 0 <b>to</b> 3 <b>do</b> print (i) <b>od</b></code>
+do?</p></li>
+<li><p>Is
+<code><b>real</b> x = 4 + <b>if</b> p &gt; q <b>then</b> 4 <b>else</b> <b>goto</b> error <b>fi</b></code>
+a correct declaration, if <code>error</code> is a label of the enclosing
+block?</p></li>
+<li><p>With <code><b>real</b> x := 0; <b>int</b> n := 0</code>, is
+<code>(x &gt; 1 </code> x | n) := 4| accepted? Why or why not?</p></li>
+<li><p>What is wrong with <code><b>int</b> a = 1, b = a + 1</code>, and
+how is it corrected?</p></li>
+<li><p>The loop
+<code><b>while</b> ch /= "+" OR ch /= "-" <b>do</b> ... <b>od</b></code>
+is meant to run until <code>ch</code> is a plus or a minus sign. Why
+does it never end?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-1">Programming
+problems</h2>
+<ol>
+<li><p>Print a multiplication table for the numbers 1 to 9, with the
+numbers aligned in columns.</p></li>
+<li><p>Read numbers until a 0 is read, and print their count, their sum
+and their largest value.</p></li>
+<li><p>The Collatz sequence starting at <span
+class="math inline"><em>n</em></span> continues with <span
+class="math inline"><em>n</em>/2</span> if <span
+class="math inline"><em>n</em></span> is even and with <span
+class="math inline">3<em>n</em> + 1</span> if <span
+class="math inline"><em>n</em></span> is odd, until it reaches 1. Print
+the starting value below 1000 with the longest sequence.</p></li>
+<li><p>Print the perfect numbers below 10000 (numbers that are equal to
+the sum of their divisors other than themselves, such as <span
+class="math inline">6 = 1 + 2 + 3</span>).</p></li>
+<li><p>Print a calendar for a month, given the number of days and the
+weekday of the first day.</p></li>
+<li><p><strong>Number bases.</strong> Read a number written in a base
+between 2 and 16 (the base first, then the digits, with <code>A</code>
+to <code>F</code> for 10 to 15) character by character, and print its
+value. Report a digit that is not valid for the base and stop with
+<code><b>goto</b> stop</code>.</p></li>
+<li><p><strong>Brackets.</strong> Read a line and decide whether its
+round brackets are properly nested. Why can the same method not check
+two kinds of brackets, <code>()</code> and <code>[]</code>, without an
+array?</p></li>
+<li><p><strong>Arithmetic without brackets.</strong> Read an expression
+of integers with <code>+</code>, <code>-</code> and <code>*</code>, such
+as <code>2+3*4-5</code>, and evaluate it with the usual precedence. Keep
+a running sum and a pending product, without arrays.</p></li>
+<li><p><strong>Fibonacci and overflow.</strong> Print the Fibonacci
+numbers up to the largest one that fits in an <code><b>int</b></code>,
+testing before each addition whether it would overflow
+(<code>a &gt; max_int - b</code>). How many are there with a 32-bit and
+with a 64-bit <code><b>int</b></code>?</p></li>
+<li><p><strong>Cube roots.</strong> Compute cube roots with Newton’s
+iteration <span
+class="math inline"><em>x</em><sub><em>n</em> + 1</sub> = (2<em>x</em><sub><em>n</em></sub>+<em>a</em>/<em>x</em><sub><em>n</em></sub><sup>2</sup>)/3</span>,
+with a relative test for the end, and compare the results with
+<code>exp (ln (a) / 3)</code>. What happens for negative
+<code>a</code>?</p></li>
+<li><p><strong>Prime factors.</strong> Print the factorization of a
+number as a product of prime powers, such as
+<code>360 = 2^3 * 3^2 * 5</code>.</p></li>
+<li><p><strong>Armstrong numbers.</strong> 153 equals the sum of the
+cubes of its digits. Find all three-digit numbers with this
+property.</p></li>
+</ol>
+</body>
+</html>

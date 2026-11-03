@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Advanced types</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="8-ch-par.html" accesskey="n" rel="next">Concurrency</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="6-ch-moretypes.html" accesskey="p" rel="previous">More built-in types and the standard library</a>
+</span>
+</div>
+</nav>
+<h1 data-number="7" id="ch-advanced"><span
+class="header-section-number">7</span> Advanced types</h1>
+<p>The types of the previous chapters were built in simple ways: arrays
+of numbers, records of strings and numbers, functions of numbers. This
+chapter shows the full power of the type system. It introduces arrays
+that change their size, unions of types, references to references, and
+recursive types such as lists and trees, and it combines them in larger
+examples. It then collects the rules that earlier chapters introduced
+piece by piece: all implicit conversions and the places where each is
+allowed, and the rules that govern how long a value lives.</p>
+<p>This is the chapter where Algol 68 differs most from the languages
+that most programmers know. Many of its rules are easy to state and have
+consequences that are not obvious, so the chapter shows those
+consequences, including the ones that the compilers do not report.</p>
+<p>The guiding principle behind all of it is <em>orthogonality</em>
+(Section <a href="7-ch-advanced.html#sec-orthogonality"
+data-reference-type="ref" data-reference="sec-orthogonality">7.13</a>):
+every way of building a type can be applied to every type, and every
+construct works the same way whatever the types involved.</p>
+<h2 data-number="7.1" id="sec-flex"><span
+class="header-section-number">7.1</span> Resizable arrays</h2>
+<p>The arrays of Chapter <a href="4-ch-data.html#ch-data"
+data-reference-type="ref" data-reference="ch-data">4</a> have fixed
+bounds. A variable declared with <code><b>flex</b></code> before the
+bounds can hold arrays of any size; each assignment gives it the bounds
+of the assigned array:</p>
+<pre class="algol68"><code><b>flex</b> [1:0] <b>int</b> list;                       <span class="comment">{ empty at first }</span>
+print ((UPB list, newline));
+list := (3, 1, 4);
+print ((UPB list, ":", list, newline));
+list := list[2:3];                         <span class="comment">{ shrinks to two elements }</span>
+print ((UPB list, ":", list, newline));
+[] <b>int</b> snapshot = list;                    <span class="comment">{ a fixed copy }</span>
+list := (1, 5, 9, 2, 6);
+print ((UPB snapshot, UPB list, newline))</code></pre>
+<pre class="output"><code>         +0
+         +3:         +3         +1         +4
+         +2:         +1         +4
+         +2         +5</code></pre>
+<p><code><b>flex</b> [1:0] <b>int</b> list</code> declares a variable
+that holds an array of <code><b>int</b></code>, initially empty. The
+bounds in the declaration only determine the initial array. The Report
+calls such a variable a <span class="sans-serif">flexible
+name</span>.</p>
+<p>The value of a resizable array is an ordinary array:
+<code>snapshot</code> is a copy with the bounds 1 to 2, which does not
+change when <code>list</code> changes. The type of such a value is the
+array type without <code><b>flex</b></code>; the Report says that the
+type <span class="sans-serif">deflexes</span> to it.</p>
+<p>There is no operation that adds an element to a resizable array in
+place. An array literal cannot help either: each element of the literal
+must be an <code><b>int</b></code>, and <code>squares</code> is an
+array, so the compiler rejects <code>(squares, i * i)</code>:</p>
+<pre class="algol68"><code><b>flex</b> [1:0] <b>int</b> squares;
+<b>for</b> i <b>to</b> 6 <b>do</b>
+   squares := (squares, i * i)    <span class="comment">{ not allowed: see the text }</span>
+<b>od</b></code></pre>
+<pre class="output"><code>append.a68:6:7: error: ref flex [] int cannot be coerced to 'int' in a strong-unit</code></pre>
+<p>Instead, a new, longer array is built and assigned. A procedure does
+this once and for all:</p>
+<pre class="algol68"><code><b>proc</b> append = (<b>ref</b> <b>flex</b> [] <b>int</b> list, <b>int</b> value) <b>void</b>:
+<b>begin</b>
+   [1 : UPB list + 1] <b>int</b> longer;
+   longer[: UPB list] := list;
+   longer[UPB list + 1] := value;
+   list := longer
+<b>end</b>;
+<b>flex</b> [1:0] <b>int</b> squares;
+<b>for</b> i <b>to</b> 6 <b>do</b> append (squares, i * i) <b>od</b>;
+print ((squares, newline))</code></pre>
+<pre class="output"><code>         +1         +4         +9        +16        +25        +36</code></pre>
+<p>The parameter has the type
+<code><b>ref</b> <b>flex</b> [] <b>int</b></code>: a reference to a
+resizable array variable, the only kind of variable whose bounds may
+change. A <code><b>ref</b> [] <b>int</b></code> parameter would accept
+fixed arrays as well, and could therefore not be given a longer array.
+In the Report, the two are even different types: a
+<code><b>ref</b> <b>flex</b> [] <b>int</b></code> cannot be passed as a
+<code><b>ref</b> [] <b>int</b></code>. This is the price of Algol 68’s
+value semantics for arrays: what other languages call a dynamic array or
+list (<code>std::vector</code>, <code>ArrayList</code>, a Python
+<code>list</code>) is here written out explicitly.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68, a68j and Algol 68 Genie
+accept a <code><b>ref</b> <b>flex</b> [] <b>int</b></code> argument for
+a <code><b>ref</b> [] <b>int</b></code> parameter, contrary to the
+Report. A program that relies on this is not portable.</p>
+</blockquote>
+<h2 data-number="7.2" id="sec-flex-where"><span
+class="header-section-number">7.2</span> Where <strong>flex</strong> can
+stand</h2>
+<p><code><b>flex</b></code> is a property of variables, not of values:
+an array value always has fixed bounds, and only a variable can be given
+a new array of a different size. <code><b>flex</b></code> therefore
+belongs in the type of a variable, that is, under a
+<code><b>ref</b></code>. It can appear in a variable declaration, as
+above, in the type <code><b>ref</b> <b>flex</b> [] <b>int</b></code> of
+a parameter, and in a type declaration that is used to declare
+variables:</p>
+<pre class="algol68"><code><b>mode</b> Buffer = <b>flex</b> [1:0] <b>int</b>;
+Buffer b := (1, 2, 3);
+b := (4, 5)</code></pre>
+<p>The standard type <code><b>string</b></code> is exactly such a
+declaration (Section <a href="7-ch-advanced.html#sec-string"
+data-reference-type="ref" data-reference="sec-string">7.4</a>). A type
+declaration needs bounds, even if they are only initial ones:
+<code><b>mode</b> B = <b>flex</b> [] <b>int</b></code> is rejected with
+“actual bounds expected”. A constant cannot be resizable, so
+<code><b>flex</b> [] <b>int</b> b = (1, 2, 3)</code> is not allowed by
+the Report; the implementations accept it and treat <code>b</code> as a
+<code>[] <b>int</b></code>.</p>
+<p>Deflexing also applies to the fields of a record. A variable of type
+<code><b>struct</b> (<b>string</b> name, <b>int</b> age)</code> holds
+records whose <code>name</code> can have any length, but the record
+value that the variable holds has a field of type
+<code>[] <b>char</b></code>, with the bounds of its current name.</p>
+<h3 class="unnumbered" id="jagged-arrays">Jagged arrays</h3>
+<p>A two-dimensional array <code>[,] <b>int</b></code> is rectangular:
+all its rows have the same length. An array of arrays,
+<code>[] [] <b>int</b></code>, is a different type, whose elements are
+arrays in their own right and may have different lengths, like a Java
+<code><b>int</b>[][]</code>. With <code><b>flex</b></code> at both
+levels, both the number of rows and each row can change:</p>
+<pre class="algol68"><code>[] [] <b>int</b> jag = ((1, 2), 3, (4, 5, 6));
+<b>for</b> i <b>to</b> UPB jag <b>do</b>
+   print ((whole (UPB jag[i], 0), " elements:"));
+   <b>for</b> j <b>to</b> UPB jag[i] <b>do</b> print ((" ", whole (jag[i][j], 0))) <b>od</b>;
+   print (newline)
+<b>od</b>;
+<b>flex</b> [1:0] <b>flex</b> [1:0] <b>int</b> rag := ((1, 2), 3, (4, 5, 6));
+rag[2] := (7, 8, 9, 10);       <span class="comment">{ one row gets longer }</span>
+rag := rag[1:2];               <span class="comment">{ the array loses its last row }</span>
+print ((whole (UPB rag, 0), " rows, row 2 has ",
+        whole (UPB rag[2], 0), " elements", newline))</code></pre>
+<pre class="output"><code>2 elements: 1 2
+1 elements: 3
+3 elements: 4 5 6
+2 rows, row 2 has 4 elements</code></pre>
+<p>In the literal <code>((1, 2), 3, (4, 5, 6))</code>, the element
+<code>3</code> is converted to an array with one element (rowing,
+Section <a href="4-ch-data.html#sec-rowing" data-reference-type="ref"
+data-reference="sec-rowing">4.10</a>). The assignment to
+<code>rag[2]</code> gives the second row a new length, and
+<code>rag := rag[1:2]</code> drops the last row. In between lie the type
+<code>[3] <b>flex</b> [1:0] <b>int</b></code>, three rows of which each
+can change, and <code><b>flex</b> [1:0] [3] <b>int</b></code>, a varying
+number of rows of fixed length 3.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 stops with an internal
+compiler error when a value of type <code>[] [] <b>int</b></code> that
+is not a literal is assigned to a variable of type
+<code><b>flex</b> [] <b>flex</b> [] <b>int</b></code>, as in
+<code>rag := jag</code>. Assigning a literal, as in the example,
+works.</p>
+</blockquote>
+<h2 data-number="7.3" id="sec-vector"><span
+class="header-section-number">7.3</span> Growing an array
+efficiently</h2>
+<p>The procedure <code>append</code> of Section <a
+href="7-ch-advanced.html#sec-flex" data-reference-type="ref"
+data-reference="sec-flex">7.1</a> copies the whole array each time it
+adds an element. Building an array of <span
+class="math inline"><em>n</em></span> elements this way copies about
+<span class="math inline"><em>n</em><sup>2</sup>/2</span> elements,
+which is slow for large <span class="math inline"><em>n</em></span>. The
+dynamic arrays of other languages avoid this by keeping some spare room:
+the array is larger than the number of elements in use, and when it is
+full, it is replaced by one twice as large. Each element is then copied
+only a few times on average.</p>
+<p>In Algol 68 the same structure is a record with a resizable array and
+a count:</p>
+<pre class="algol68"><code><b>mode</b> Vector = <b>struct</b> (<b>flex</b> [1:0] <b>int</b> data, <b>int</b> size);
+<b>proc</b> push = (<b>ref</b> Vector v, <b>int</b> x) <b>void</b>:
+<b>begin</b>
+   <b>if</b> size <b>of</b> v = UPB data <b>of</b> v <b>then</b>
+      <span class="comment">{ full: move the elements into an array twice as large }</span>
+      [(UPB data <b>of</b> v = 0 | 4 | 2 * UPB data <b>of</b> v)] <b>int</b> bigger;
+      bigger[1 : size <b>of</b> v] := (data <b>of</b> v)[1 : size <b>of</b> v];
+      data <b>of</b> v := bigger
+   <b>fi</b>;
+   (data <b>of</b> v)[size <b>of</b> v +:= 1] := x
+<b>end</b>;</code></pre>
+<pre class="output"><code> +1  +4
+ +2  +4
+ +3  +4
+ +4  +4
+ +5  +8
+ +6  +8
+ +7  +8
+ +8  +8
+ +9 +16
++10 +16</code></pre>
+<p>The program prints the number of elements and the capacity after each
+<code>push</code>:</p>
+<pre class="output"><code> +1  +4
+ +2  +4
+ +3  +4
+ +4  +4
+ +5  +8
+ +6  +8
+ +7  +8
+ +8  +8
+ +9 +16
++10 +16</code></pre>
+<p>The field <code>data</code> of a <code>Vector</code> variable is
+itself a resizable array variable: if <code>v</code> has the type
+<code><b>ref</b> Vector</code>, then <code>data <b>of</b> v</code> has
+the type <code><b>ref</b> <b>flex</b> [] <b>int</b></code> and can be
+assigned to, indexed, or passed to <code>append</code> of Section <a
+href="7-ch-advanced.html#sec-flex" data-reference-type="ref"
+data-reference="sec-flex">7.1</a>. The parentheses in
+<code>(data <b>of</b> v)[i]</code> are needed because indexing binds
+more tightly than selection (Section <a
+href="4-ch-data.html#sec-multiple-selection" data-reference-type="ref"
+data-reference="sec-multiple-selection">4.9</a>).</p>
+<p>The same cost applies to strings: <code>s +:= c</code> in a loop
+builds a new string each time. For long texts, collecting the characters
+in a buffer of this kind and converting them at the end is much
+faster.</p>
+<h2 data-number="7.4" id="sec-string"><span
+class="header-section-number">7.4</span> Strings</h2>
+<p>The type <code><b>string</b></code> is defined in the standard
+library as <code><b>flex</b> [1:0] <b>char</b></code>, a resizable array
+of characters. That is why a <code><b>string</b></code> variable can
+hold strings of any length. The library adds a few operators:</p>
+<pre class="algol68"><code><b>string</b> s := "Algol";
+s +:= " 68";                       <span class="comment">{ append }</span>
+"The " +=: s;                      <span class="comment">{ prepend }</span>
+print ((s, ", length ", whole (UPB s, 0), newline));
+print ((3 * "ab", " ", "-" * 10, newline));
+<b>string</b> letters := "";
+<b>for</b> i <b>to</b> 5 <b>do</b> letters +:= REPR (ABS "a" + i - 1) <b>od</b>;
+print ((letters, " ", "abc" &lt; "abd", " ", "abc" = "ab" + "c", newline))</code></pre>
+<pre class="output"><code>The Algol 68, length 12
+ababab ----------
+abcde T T</code></pre>
+<p><code>+</code> joins strings and characters; <code>s +:= t</code>
+appends <code>t</code> to <code>s</code>, and <code>t +=: s</code> puts
+<code>t</code> in front of <code>s</code>. <code>*</code> repeats a
+string a given number of times, and <code>s *:= n</code> replaces
+<code>s</code> by <code>n</code> copies of itself. The comparisons
+<code>=</code>, <code>/=</code>, <code>&lt;</code>, <code>&lt;=</code>,
+<code>&gt;</code>, <code>&gt;=</code> compare strings in dictionary
+order, by the codes of their characters. They are defined for
+<code>[] <b>char</b></code>, so they apply to every array of characters,
+not only to <code><b>string</b></code> variables.</p>
+<h2 data-number="7.5" id="sec-transient"><span
+class="header-section-number">7.5</span> References into resizable
+arrays</h2>
+<p>An element of an array variable is itself a variable:
+<code>a[1]</code> is a reference to the first element. For a resizable
+array, such a reference must not be kept, since the next assignment to
+the array may give it a different size and place the elements elsewhere;
+the reference would then refer to a cell that no longer belongs to the
+array. The language therefore forbids binding such a reference to a name
+or storing it:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>flex</b> [1:3] <b>int</b> a := (1, 2, 3);
+   <b>ref</b> <b>int</b> first = a[1];
+   first := 10;
+   print ((a, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>transient.a68:4:20: error: attempt at storing a transient name</code></pre>
+<p>The Report calls a reference into a resizable array a <span
+class="sans-serif">transient name</span>. The same problem is known in
+C++ as iterator invalidation; Algol 68 rules it out at compile time.</p>
+<p>The rule is stricter than it looks. A transient reference may be used
+only directly, for an assignment or to obtain its value. It may not be
+bound to a name, stored, returned, or passed to a procedure or an
+operator, since a parameter is bound like a constant declaration and no
+type can be written for a transient reference. That excludes some
+everyday code:</p>
+<pre class="algol68"><code><b>flex</b> [1:10] <b>int</b> count;
+<b>for</b> i <b>to</b> 10 <b>do</b> count[i] := 0 <b>od</b>;
+count[3] +:= 1</code></pre>
+<pre class="output"><code>transient-count.a68:6:4: error: attempt at storing a transient name</code></pre>
+<p><code>+:=</code> is an operator whose left operand is a reference, so
+<code>count[3] +:= 1</code> passes a transient reference to it. For the
+same reason <code>read (count[3])</code> and
+<code>swap (count[i], count[j])</code> are rejected, and so is
+<code>s[i] +:= "x"</code> for an element of a
+<code><b>flex</b> [] <b>string</b></code>. Note that
+<code><b>string</b></code> is a resizable array, so the rule applies to
+the characters of every <code><b>string</b></code> variable. Selecting a
+field across all elements, <code>x <b>of</b> path</code> for a
+<code><b>flex</b> [] Point</code> variable <code>path</code>, gives a
+transient reference as well.</p>
+<p>There are three ways around it. The plain assignment
+<code>count[3] := count[3] + 1</code> is allowed. If the size is known
+once the array has been filled, a fixed array can take over:
+<code>[UPB count] <b>int</b> c := count</code> is an ordinary array
+whose elements may be passed anywhere. And the restriction applies only
+to resizable arrays: the elements of fixed arrays and the fields of
+records are ordinary variables.</p>
+<h2 data-number="7.6" id="sec-sharing"><span
+class="header-section-number">7.6</span> Sharing arrays</h2>
+<p>Arrays are values in Algol 68: assigning an array copies its elements
+(Section <a href="4-ch-data.html#sec-array-values"
+data-reference-type="ref" data-reference="sec-array-values">4.3</a>). An
+array is shared only when a reference to it is shared explicitly, which
+the type always shows:</p>
+<pre class="algol68"><code>[5] <b>int</b> a := (1, 2, 3, 4, 5);
+<b>ref</b> [] <b>int</b> r = a;            <span class="comment">{ another name for a }</span>
+<b>ref</b> [] <b>int</b> s := a[2:3];      <span class="comment">{ a pointer to a slice of a }</span>
+r[1] := 10;
+s[1] := 20;
+<b>int</b> x := 7;
+<b>ref</b> [] <b>int</b> one = x;          <span class="comment">{ x seen as an array of one element }</span>
+one[1] := 8;
+print ((a, newline, x, newline))</code></pre>
+<pre class="output"><code>        +10        +20         +3         +4         +5
+         +8</code></pre>
+<p>prints</p>
+<pre class="output"><code>        +10        +20         +3         +4         +5
+         +8</code></pre>
+<p><code>r</code> is a constant of type
+<code><b>ref</b> [] <b>int</b></code> bound to the variable
+<code>a</code>: another name for the same array, so
+<code>r[1] := 10</code> changes <code>a</code>. <code>s</code> is a
+variable that holds a reference to a part of <code>a</code>;
+<code>s[1]</code> is <code>a[2]</code>. And <code>one</code> shows the
+rowing of a variable: the reference <code>x</code> becomes a reference
+to an array with one element, which is <code>x</code> itself.</p>
+<p>The same distinction exists for single values.
+<code><b>ref</b> <b>int</b> r = x</code> makes <code>r</code> another
+name for <code>x</code>, like a reference
+<code><b>int</b>&amp; r = x</code> in C++.
+<code><b>ref</b> <b>int</b> p := x</code> creates a variable that holds
+a reference to <code>x</code> and can later refer to something else,
+like a pointer <code><b>int</b>* p = &amp;x</code> in C. In Java and
+Python, objects and lists are always shared and a copy must be made
+explicitly; in Algol 68, as in C++ (and, with moves instead of copies,
+in Rust), values are copied and sharing must be made explicit.</p>
+<h2 data-number="7.7" id="sec-unions"><span
+class="header-section-number">7.7</span> Unions</h2>
+<p>A <em>union</em> type holds a value of one of several types, together
+with an indication of which type it is.
+<code><b>union</b> (<b>int</b>, <b>real</b>, <b>string</b>)</code> holds
+an <code><b>int</b></code>, a <code><b>real</b></code> or a
+<code><b>string</b></code>. A value of any of these types can be
+assigned to a union variable or passed as a union parameter; this
+implicit conversion is <em>uniting</em> (<span
+class="sans-serif">uniting</span>).</p>
+<p>To use the value inside a union, the program must find out its type.
+This is done with a special form of <code><b>case</b></code>, which the
+Report calls a <span class="sans-serif">conformity clause</span>:</p>
+<pre class="algol68"><code><b>mode</b> Value = <b>union</b> (<b>int</b>, <b>real</b>, <b>string</b>);
+<b>proc</b> describe = (Value v) <b>string</b>:
+   <b>case</b> v <b>in</b>
+      (<b>int</b> n):    "the int " + whole (n, 0),
+      (<b>real</b> x):   "the real " + fixed (x, 0, 2),
+      (<b>string</b> s): "the string """ + s + """"
+   <b>esac</b>;
+[] Value items = (42, 2.5, "hello");
+<b>for</b> i <b>to</b> UPB items <b>do</b> print ((describe (items[i]), newline)) <b>od</b>;
+Value v := 7;
+v := "seven";                          <span class="comment">{ now it holds a string }</span>
+print ((describe (v), newline))</code></pre>
+<pre class="output"><code>the int 42
+the real 2.50
+the string "hello"
+the string "seven"</code></pre>
+<p>Each alternative names a type and, optionally, a name for the value:
+<code>(<b>int</b> n): ...</code> is chosen if the union holds an
+<code><b>int</b></code>, and binds <code>n</code> to it. An
+<code><b>out</b></code> part handles the types that no alternative
+names. A union without a name in its alternative only tests the
+type:</p>
+<pre class="algol68"><code><b>union</b> (<b>int</b>, <b>string</b>) u := "text";
+<b>bool</b> is_int = <b>case</b> u <b>in</b> (<b>int</b>): <b>true</b> <b>out</b> <b>false</b> <b>esac</b>;
+print ((is_int, newline));
+u := 5;
+<b>case</b> u <b>in</b>
+   (<b>int</b> n): print ((n * 2, newline))
+<b>out</b>
+   print (("not an int", newline))
+<b>esac</b></code></pre>
+<pre class="output"><code>F
+        +10</code></pre>
+<p>The union is a <em>tagged union</em>, or <em>sum type</em>: the type
+of the current value is recorded with it and checked at run time, so a
+value can never be read as the wrong type. It corresponds to the
+<code>enum</code> of Rust and Swift, the variant types of ML and Haskell
+and <code>std::variant</code> of C++, and the conformity clause
+corresponds to their pattern matching. Unlike those, an Algol 68 union
+has no names for its alternatives; the alternatives are distinguished by
+their types only. Two alternatives that carry the same type of value
+must therefore be wrapped in different record types.</p>
+<p>The order of the types in a union does not matter, and a union that
+contains a union contains the members of the inner one:
+<code><b>union</b> (<b>int</b>, <b>real</b>)</code> and
+<code><b>union</b> (<b>real</b>, <b>int</b>)</code> are the same type,
+and
+<code><b>union</b> (<b>int</b>, <b>union</b> (<b>real</b>, <b>string</b>))</code>
+is <code><b>union</b> (<b>int</b>, <b>real</b>, <b>string</b>)</code>. A
+union value can be converted implicitly to a larger union, but not to a
+smaller one, since the value might be of a type that the smaller union
+lacks.</p>
+<p>The types of a union must be clearly distinct:
+<code><b>union</b> (<b>int</b>, <b>ref</b> <b>int</b>)</code> is
+rejected (“firmly related components”), because an
+<code><b>int</b></code> variable could become either member. A union
+value needs the space of its largest member plus the tag, and every
+conformity clause is a test at run time.</p>
+<p>The <code>print</code> procedure is an example of unions at work: its
+parameter is an array of a union of all the types it can print.</p>
+<h2 data-number="7.8" id="sec-union-details"><span
+class="header-section-number">7.8</span> Working with unions</h2>
+<h3 class="unnumbered" id="what-a-conformity-clause-binds">What a
+conformity clause binds</h3>
+<p>The name in an alternative is a constant that holds a copy of the
+value: in <code>(<b>int</b> n): n +:= 1</code> the compiler rejects the
+assignment. To change the value in a union variable <code>u</code>,
+assign a new value to <code>u</code> itself, as in
+<code>(<b>int</b> n): u := n + 1</code>. An alternative may also name a
+union of some of the members:
+<code>(<b>union</b> (<b>int</b>, <b>real</b>) x): ...</code> is chosen
+for an <code><b>int</b></code> or a <code><b>real</b></code>, and
+<code>x</code> is then a value of that smaller union.</p>
+<p>The alternatives are chosen by the exact type of the value, without
+conversions. An <code><b>int</b></code> in a union does not match an
+alternative for <code><b>real</b></code>:</p>
+<pre class="algol68"><code><b>union</b> (<b>int</b>, <b>real</b>) u := 3;
+<b>case</b> u <b>in</b>
+   (<b>real</b> r): print (("real ", fixed (r, 0, 1), newline))
+   <b>out</b> print (("not a real", newline))
+<b>esac</b></code></pre>
+<pre class="output"><code>not a real</code></pre>
+<blockquote>
+<p><strong>Pitfall.</strong>  A conformity clause without an
+<code><b>out</b></code> part, none of whose alternatives matches, does
+nothing and yields an undefined value. There is no error at compile time
+or at run time:</p>
+<pre class="algol68"><code><b>union</b> (<b>int</b>, <b>real</b>, <b>string</b>) u := "seven";
+<b>int</b> n = <b>case</b> u <b>in</b> (<b>int</b> i): i, (<b>real</b> r): ROUND r <b>esac</b></code></pre>
+<p>ga68 and a68j give <code>n</code> the value 0, Algol 68 Genie the
+value 1. Rust rejects a match that does not cover every case, and a
+Haskell compiler warns about it and the program stops at run time; Algol
+68 does neither. Every conformity clause that is not meant to ignore the
+remaining types should have an <code><b>out</b></code> part that reports
+the error.</p>
+</blockquote>
+<h3 class="unnumbered" id="optional-values">Optional values</h3>
+<p>A union with <code><b>void</b></code> is the Algol 68 form of an
+optional value, the <code>Option&lt;T&gt;</code> of Rust or the
+<code>Optional&lt;T&gt;</code> of Java. The only value of type
+<code><b>void</b></code> is written <code><b>empty</b></code>:</p>
+<pre class="algol68"><code><b>mode</b> Maybe = <b>union</b> (<b>int</b>, <b>void</b>);
+<b>proc</b> find = ([] <b>int</b> a, <b>int</b> x) Maybe:
+<b>begin</b>
+   Maybe result := <b>empty</b>;
+   <b>for</b> i <b>from</b> LWB a <b>to</b> UPB a <b>while</b> (result | (<b>void</b>): <b>true</b> | <b>false</b>) <b>do</b>
+      <b>if</b> a[i] = x <b>then</b> result := i <b>fi</b>
+   <b>od</b>;
+   result
+<b>end</b>;
+[] <b>int</b> primes = (2, 3, 5, 7, 11);
+<b>for</b> x <b>from</b> 4 <b>to</b> 7 <b>do</b>
+   <b>case</b> find (primes, x) <b>in</b>
+      (<b>int</b> i): print ((whole (x, 0), " at ", whole (i, 0), newline)),
+      (<b>void</b>): print ((whole (x, 0), " not found", newline))
+   <b>esac</b>
+<b>od</b></code></pre>
+<pre class="output"><code>4 not found
+5 at 3
+6 not found
+7 at 4</code></pre>
+<p><code><b>nil</b></code> serves the same purpose for references, but
+only for them; a search that returns an index needs
+<code><b>union</b> (<b>int</b>, <b>void</b>)</code>. The
+<code><b>while</b></code> part of the loop uses the short form of the
+conformity clause: <code>(result </code> (void): true | false)| is
+<code><b>case</b> result <b>in</b> (<b>void</b>): <b>true</b> <b>out</b> <b>false</b> <b>esac</b></code>.
+Rosetta Code programs use the short form often.</p>
+<h3 class="unnumbered" id="which-values-can-be-united">Which values can
+be united</h3>
+<p>Implicit conversions happen in a fixed order (Section <a
+href="7-ch-advanced.html#sec-contexts" data-reference-type="ref"
+data-reference="sec-contexts">7.14</a>): uniting and widening are
+alternatives, and rowing can only follow them. A value is therefore
+united only if its own type is a member of the union, not a type that it
+could be widened or rowed to:</p>
+<pre class="algol68"><code><b>union</b> (<b>real</b>, <b>string</b>) u := 1;
+<b>skip</b></code></pre>
+<pre class="output"><code>union-order.a68:4:25: error: int cannot be coerced to union (real, string) in a strong-unit</code></pre>
+<pre class="algol68"><code><b>union</b> (<b>int</b>, <b>string</b>) u := "x";
+<b>skip</b></code></pre>
+<pre class="output"><code>union-char.a68:4:24: error: char cannot be coerced to union (int, string) in a strong-unit</code></pre>
+<p><code>1</code> is an <code><b>int</b></code>, not a
+<code><b>real</b></code>, and <code>"x"</code> is a
+<code><b>char</b></code>, not a <code><b>string</b></code>; neither is a
+member of the union. The remedies are to write the value with the right
+type (<code>1.0</code>) or to annotate it (<code><b>real</b> (1)</code>,
+<code><b>string</b> ("x")</code>, Section <a
+href="7-ch-advanced.html#sec-casts" data-reference-type="ref"
+data-reference="sec-casts">7.12</a>). For the same reason,
+<code>print (1)</code> prints an integer: <code><b>int</b></code> is a
+member of the union that <code>print</code> accepts, so it is not
+widened. A one-character string literal must be annotated when it is to
+become a <code><b>string</b></code> in a union; this is a common
+surprise.</p>
+<p>A record literal has no type of its own, so it cannot be united
+either: with
+<code><b>mode</b> Pt = <b>struct</b> (<b>int</b> x, y), Sz = <b>struct</b> (<b>int</b> w, h)</code>,
+the declaration <code><b>union</b> (Pt, Sz) r := (1, 2)</code> is
+rejected, and <code><b>union</b> (Pt, Sz) r := Pt (1, 2)</code> says
+which member is meant. Uniting does not reach through a reference: a
+function with a parameter of type
+<code><b>ref</b> <b>union</b> (<b>int</b>, <b>real</b>)</code> does not
+accept an <code><b>int</b></code> variable; the caller must pass a
+variable of the union type. Nor can a union whose members are arrays be
+indexed directly: a conformity clause must first say which member it
+holds. And no conversion applies to the elements of an array: a
+<code>[] <b>int</b></code> is never converted to a
+<code>[] <b>real</b></code> or to an array of a union. (Java allows an
+<code>Integer[]</code> to be used as an <code>Object[]</code>, which is
+why Java must check every store into an array at run time.)</p>
+<h2 data-number="7.9" id="sec-pointers"><span
+class="header-section-number">7.9</span> References to references</h2>
+<p>A reference is a value, so there are variables that hold references.
+A variable of type <code><b>ref</b> <b>int</b></code> is declared like
+any other variable, and its type is
+<code><b>ref</b> <b>ref</b> <b>int</b></code>. Such a variable is what C
+calls a pointer:</p>
+<pre class="algol68"><code><b>int</b> a := 1, b := 2;
+<b>ref</b> <b>int</b> p := a;          <span class="comment">{ p holds a reference to a }</span>
+p := b;                  <span class="comment">{ now p refers to b; a and b are unchanged }</span>
+<b>ref</b> <b>int</b> (p) := 20;       <span class="comment">{ assigns to what p refers to, that is to b }</span>
+print ((a, b, newline));
+print ((p <b>is</b> b, " ", p <b>isnt</b> a, newline))</code></pre>
+<pre class="output"><code>         +1        +20
+T T</code></pre>
+<p>The assignment <code>p := b</code> stores the reference
+<code>b</code> in <code>p</code>; it does not change <code>a</code> or
+<code>b</code>. Which cell an assignment changes is determined by the
+type of its left-hand side: the left-hand side of <code>p := b</code> is
+<code>p</code> itself, of type
+<code><b>ref</b> <b>ref</b> <b>int</b></code>, so a
+<code><b>ref</b> <b>int</b></code> is stored. To assign to the cell that
+<code>p</code> refers to, the left-hand side must be the
+<code><b>ref</b> <b>int</b></code> that <code>p</code> holds. The
+expression <code><b>ref</b> <b>int</b> (p)</code> says exactly that: it
+is <code>p</code> converted to the type
+<code><b>ref</b> <b>int</b></code>, which dereferences it once.</p>
+<p>The <em>null reference</em> is written <code><b>nil</b></code>; it
+refers to no cell, and any attempt to use it as a variable is an error.
+Two references are compared with <code><b>is</b></code> and
+<code><b>isnt</b></code> (also written <code>:=:</code> and
+<code>:/=:</code>); the Report calls these <span
+class="sans-serif">identity relations</span>. They compare references,
+not the values in the cells: <code>p <b>is</b> b</code> is true because
+<code>p</code> refers to the same cell as <code>b</code>.</p>
+<p>Comparing a pointer with <code><b>nil</b></code> needs care. In an
+identity relation, one side is in a soft context, where no dereferencing
+happens, and the other in a strong one, in either order.
+<code><b>nil</b></code> can only stand in a strong context, so in
+<code>q <b>is</b> <b>nil</b></code> the variable <code>q</code> is the
+soft side and is not dereferenced at all: the comparison is between the
+variable <code>q</code> itself and <code><b>nil</b></code>, which is
+always false. The test for a null pointer is
+<code><b>ref</b> <b>int</b> (q) <b>is</b> <b>nil</b></code>:</p>
+<pre class="algol68"><code><b>ref</b> <b>int</b> q := <b>nil</b>;
+print ((q <b>is</b> <b>nil</b>, " ", <b>ref</b> <b>int</b> (q) <b>is</b> <b>nil</b>, newline))</code></pre>
+<pre class="output"><code>F T</code></pre>
+<p>This is the most common pitfall of Algol 68 references, and a direct
+consequence of the rule that an implicit conversion never happens unless
+the context requires it.</p>
+<h2 data-number="7.10" id="sec-identity"><span
+class="header-section-number">7.10</span> Comparing references</h2>
+<p>The same rule applies to two pointer variables. If <code>p</code> and
+<code>q</code> are both of type
+<code><b>ref</b> <b>ref</b> <b>int</b></code> and both refer to
+<code>n</code>, then <code>p <b>is</b> q</code> compares the two
+variables themselves, which are different cells:</p>
+<pre class="algol68"><code><b>int</b> n := 1;
+<b>ref</b> <b>int</b> p := n, q := n;
+print ((p <b>is</b> q, " ", <b>ref</b> <b>int</b> (p) <b>is</b> <b>ref</b> <b>int</b> (q), " ", <b>ref</b> <b>int</b> (p) <b>is</b> n, newline))</code></pre>
+<pre class="output"><code>F T T</code></pre>
+<p>prints <code>F T T</code>. The question that is usually meant,
+whether the two pointers refer to the same cell, is
+<code><b>ref</b> <b>int</b> (p) <b>is</b> <b>ref</b> <b>int</b> (q)</code>.
+The rule of thumb: annotate one side with the type of the references
+that are to be compared, and the other side is dereferenced to the same
+type. <code><b>ref</b> <b>int</b> (p) <b>is</b> n</code> compares the
+reference held by <code>p</code> with the variable <code>n</code>.</p>
+<p>An identity relation is not an operator. It cannot be redefined, and
+it binds more loosely than every operator, so it must be put in
+parentheses when it is combined with <code>AND</code>, <code>OR</code>,
+<code><b>andth</b></code> or <code><b>orel</b></code>:
+<code>p <b>is</b> q AND b</code> means
+<code>p <b>is</b> (q AND b)</code> and is rejected, and the condition of
+a loop over a list is written
+<code><b>while</b> (<b>ref</b> Node (p) <b>isnt</b> no_node) <b>andth</b> value <b>of</b> p /= v <b>do</b></code>.</p>
+<h2 data-number="7.11" id="sec-ref-fields"><span
+class="header-section-number">7.11</span> Records with reference
+fields</h2>
+<p>A record field can be a reference, and a constant record can then
+contain something that changes. A gas meter has a fixed serial number
+and a reading that grows:</p>
+<pre class="algol68"><code><b>mode</b> Meter = <b>struct</b> (<b>int</b> serial, <b>ref</b> <b>int</b> reading);
+Meter m = (23146, <b>heap</b> <b>int</b> := 0);
+reading <b>of</b> m := 10;          <span class="comment">{ m is a constant, its reading is not }</span>
+Meter v := m;                <span class="comment">{ copies the reference, not the cell }</span>
+<b>ref</b> <b>int</b> (reading <b>of</b> v) := 30;
+print ((whole (reading <b>of</b> m, 0), newline))</code></pre>
+<pre class="output"><code>30</code></pre>
+<p>prints <code>30</code>. <code>m</code> is a constant, but its field
+<code>reading</code> is a <code><b>ref</b> <b>int</b></code>, and the
+cell it refers to can be assigned to. Copying the record into
+<code>v</code> copies the reference, not the cell, so <code>m</code> and
+<code>v</code> share the reading. This is the behavior of a
+<code>final</code> field that refers to a mutable object in Java. The
+semaphores of Chapter <a href="8-ch-par.html#ch-par"
+data-reference-type="ref" data-reference="ch-par">8</a> are records of
+this kind.</p>
+<p>Assigning to the reading through the variable <code>v</code> needs an
+annotation. <code>reading <b>of</b> v</code> is a field of a variable,
+and therefore has the type
+<code><b>ref</b> <b>ref</b> <b>int</b></code>: the variable that holds
+the reference. <code>reading <b>of</b> v := 30</code> would try to store
+an <code><b>int</b></code> in it. The annotation
+<code><b>ref</b> <b>int</b> (reading <b>of</b> v)</code> dereferences
+once and yields the cell to be changed. In contrast, selecting from or
+indexing through a reference needs no annotation: if <code>pa</code> is
+a variable of type <code><b>ref</b> [] <b>int</b></code>, then
+<code>pa[1] := 5</code> assigns to an element of the array it refers to,
+and <code>next <b>of</b> p</code> in the lists below selects from the
+record that <code>p</code> refers to. The Report calls this the weak
+dereferencing of Section <a href="7-ch-advanced.html#sec-contexts"
+data-reference-type="ref" data-reference="sec-contexts">7.14</a>.</p>
+<h2 data-number="7.12" id="sec-casts"><span
+class="header-section-number">7.12</span> Type annotations</h2>
+<p>An expression of the form <code>Type (expression)</code> is a
+<em>cast</em>. The word suggests a conversion as in C, but an Algol 68
+cast converts nothing by force: it only places the expression in a
+strong context with the given target type, so that exactly the implicit
+conversions to that type happen. A cast is therefore a type annotation,
+like <code>e: T</code> in Rust or TypeScript. It cannot convert a
+<code><b>real</b></code> to an <code><b>int</b></code>; that needs
+<code>ROUND</code> or <code>ENTIER</code>.</p>
+<pre class="algol68"><code><b>union</b> (<b>int</b>, <b>real</b>) u = <b>real</b> (1);           <span class="comment">{ a real, not an int }</span>
+print ((<b>case</b> u <b>in</b> (<b>real</b>): "real", (<b>int</b>): "int" <b>esac</b>, newline));
+<b>proc</b> next = <b>int</b>: 42;
+<b>proc</b> <b>int</b> saved = next;                    <span class="comment">{ the function itself }</span>
+<b>int</b> value = next;                         <span class="comment">{ the result of a call }</span>
+print ((saved, value, newline))</code></pre>
+<pre class="output"><code>real
+        +42        +42</code></pre>
+<p>The cast <code><b>real</b> (1)</code> makes the united value a
+<code><b>real</b></code> rather than an <code><b>int</b></code>. The
+declaration <code><b>proc</b> <b>int</b> saved = next</code> binds the
+function itself, since its type is a function type, whereas
+<code><b>int</b> value = next</code> calls it.</p>
+<p>An array or record literal is allowed only where the type it must
+have is known, that is, in a strong context. It cannot be the operand of
+an operator, where the operator is not yet known; an annotation provides
+the type:</p>
+<pre class="algol68"><code>print ((UPB [] <b>int</b> (1, 2, 3), newline))</code></pre>
+<pre class="output"><code>         +3</code></pre>
+<p><code>UPB (1, 2, 3)</code> would be rejected. Annotations are also
+the way to say which member of a union a record literal belongs to
+(Section <a href="7-ch-advanced.html#sec-union-details"
+data-reference-type="ref" data-reference="sec-union-details">7.8</a>),
+and <code><b>void</b> (x := f)</code> discards a value explicitly.</p>
+<h2 data-number="7.13" id="sec-orthogonality"><span
+class="header-section-number">7.13</span> Orthogonality</h2>
+<p>The constructions of types can be combined without restriction. There
+are arrays of functions
+(<code>[] <b>proc</b> (<b>real</b>) <b>real</b></code>), functions that
+return functions
+(<code><b>proc</b> (<b>int</b>) <b>proc</b> (<b>int</b>) <b>int</b></code>),
+records with function fields, unions of records, references to arrays of
+references, and so on. Every type except <code><b>void</b></code> can be
+the type of a parameter, a result, a field or an element;
+<code><b>void</b></code> can be the result of a function and a member of
+a union.</p>
+<p>The constructs of the language are equally orthogonal. Any expression
+can stand wherever a value of its type is required, and a block or an
+<code><b>if</b></code> can stand where other languages only allow a
+simple expression, as Chapter <a href="3-ch-control.html#ch-control"
+data-reference-type="ref" data-reference="ch-control">3</a> showed. This
+is why Algol 68 needs few special rules, and why its few rules apply
+everywhere.</p>
+<h2 data-number="7.14" id="sec-contexts"><span
+class="header-section-number">7.14</span> Implicit conversions and
+contexts</h2>
+<p>The chapters so far introduced the six implicit conversions one at a
+time. Here they are together:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Conversion</th>
+<th style="text-align: left;">Report</th>
+<th style="text-align: left;">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">dereferencing</td>
+<td style="text-align: left;"><span
+class="sans-serif">dereferencing</span></td>
+<td style="text-align: left;">a reference is replaced by the value it
+refers to</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">calling</td>
+<td style="text-align: left;"><span
+class="sans-serif">deproceduring</span></td>
+<td style="text-align: left;">a parameterless function is called</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">uniting</td>
+<td style="text-align: left;"><span
+class="sans-serif">uniting</span></td>
+<td style="text-align: left;">a value becomes a value of a union
+type</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">widening</td>
+<td style="text-align: left;"><span
+class="sans-serif">widening</span></td>
+<td style="text-align: left;"><code><b>int</b></code> to
+<code><b>real</b></code> to <code><b>compl</b></code>;</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><code><b>bits</b></code> to
+<code>[] <b>bool</b></code>; <code><b>bytes</b></code> to
+<code>[] <b>char</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rowing</td>
+<td style="text-align: left;"><span
+class="sans-serif">rowing</span></td>
+<td style="text-align: left;">a value becomes an array with one
+element,</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">an array gains a dimension</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">discarding</td>
+<td style="text-align: left;"><span
+class="sans-serif">voiding</span></td>
+<td style="text-align: left;">a value is thrown away</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Rowing also applies to references: a variable of type
+<code><b>ref</b> <b>int</b></code> can become a
+<code><b>ref</b> [] <b>int</b></code> whose only element is the variable
+itself (Section <a href="7-ch-advanced.html#sec-sharing"
+data-reference-type="ref" data-reference="sec-sharing">7.6</a>).</p>
+<p>Where each conversion is allowed depends on the context in which the
+expression stands. There are five contexts, from the most to the least
+permissive:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Context</th>
+<th style="text-align: left;">Where</th>
+<th style="text-align: left;">Conversions allowed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">strong</td>
+<td style="text-align: left;">right-hand side of a declaration or</td>
+<td style="text-align: left;">all</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">assignment, argument, cast, function</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">body, element of a literal, one</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">side of an identity relation</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">firm</td>
+<td style="text-align: left;">operand of an operator</td>
+<td style="text-align: left;">dereferencing, calling, uniting</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">meek</td>
+<td style="text-align: left;">condition of <code><b>if</b></code>,
+<code><b>case</b></code>, <code><b>while</b></code>;</td>
+<td style="text-align: left;">dereferencing, calling</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">index, bound, <code><b>from</b></code>,
+<code><b>by</b></code>, <code><b>to</b></code>;</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">the function in a call</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weak</td>
+<td style="text-align: left;">the array in an indexing, the record</td>
+<td style="text-align: left;">dereferencing (but not of</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">in a selection</td>
+<td style="text-align: left;">the last reference), calling</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">soft</td>
+<td style="text-align: left;">left-hand side of an assignment,</td>
+<td style="text-align: left;">calling</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">one side of an identity relation</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In a strong context, the required type is known, and the compiler
+applies whatever conversions lead to it, always in the same order: first
+dereferencing and calling as often as needed, then either one uniting or
+widening (twice for <code><b>int</b></code> to
+<code><b>compl</b></code>), then rowing (once per dimension added). A
+parameterless function <code>f</code> of type
+<code><b>proc</b> <b>ref</b> <b>int</b></code> that stands where a
+<code><b>real</b></code> is required is called, its result is
+dereferenced, and the <code><b>int</b></code> is widened.</p>
+<p>In a firm context, the operator is not known until the types of the
+operands are, so the conversions that would change the type
+substantially (widening, rowing) are excluded; uniting is allowed so
+that an operator can be declared for a union. A meek context requires a
+value of a particular kind, such as a <code><b>bool</b></code> for a
+condition or an <code><b>int</b></code> for an index, and only
+dereferencing and calling are allowed. A weak context keeps a reference:
+in <code>a[i] := 0</code>, the array <code>a</code> is not dereferenced
+to its value, since the element must remain a reference to be assigned
+to; this is also why a slice of an array variable is a reference
+(Section <a href="4-ch-data.html#sec-slices" data-reference-type="ref"
+data-reference="sec-slices">4.5</a>). And a soft context keeps the
+reference on the left-hand side of an assignment entirely.</p>
+<p>The branches of an <code><b>if</b></code> or a
+<code><b>case</b></code> that yields a value are balanced: one of them
+is in the context of the whole expression, and the others are in a
+strong context, so they can be converted to a common type even where the
+context itself allows little.
+<code><b>if</b> b <b>then</b> 1 <b>else</b> 2.5 <b>fi</b></code> is a
+<code><b>real</b></code>, and so is <code>(b </code> 1 | 2.5) + 1|. On
+the left-hand side of an assignment,
+<code><b>if</b> b <b>then</b> x <b>else</b> y <b>fi</b> := 0</code>
+needs branches that yield references of one type, though a branch may be
+dereferenced to match the other.</p>
+<p>The Report calls a context a <span class="sans-serif">syntactic
+position</span> and its kind its <span class="sans-serif">sort</span>.
+Most of the time, these rules are invisible: they make
+<code>x := x + 1</code> mean what it should. They become visible in
+error messages, which mention them (“in a strong-unit”), and in the
+cases of this chapter: the pointer comparisons, the order of uniting and
+widening, and the annotations that help in an ambiguous situation.</p>
+<h2 data-number="7.15" id="sec-lifetimes"><span
+class="header-section-number">7.15</span> Lifetimes</h2>
+<p>Every value that a program creates exists for a certain time. A cell
+allocated by <code><b>loc</b></code>, which includes every variable
+declaration, lives as long as the block in which it is allocated is
+running; when the block ends, the cell is gone. A cell allocated by
+<code><b>heap</b></code> lives as long as the program can reach it; when
+no reference to it remains, its memory is reclaimed by a garbage
+collector. A function can therefore return a reference to a new heap
+cell:</p>
+<pre class="algol68"><code><b>proc</b> counter = (<b>int</b> start) <b>ref</b> <b>int</b>: <b>heap</b> <b>int</b> := start;
+<b>ref</b> <b>int</b> c = counter (10);
+c +:= 5;
+print ((c, newline))</code></pre>
+<pre class="output"><code>        +15</code></pre>
+<p>The Report calls the lifetime of a value its <span
+class="sans-serif">scope</span>, a word this book reserves for the
+visibility of names (Section <a href="3-ch-control.html#sec-scope"
+data-reference-type="ref" data-reference="sec-scope">3.3</a>). A block
+creates a lifetime that is newer, that is shorter, than the lifetime of
+the enclosing block; heap cells and the values of the standard library
+have the longest lifetime. The lifetime of a record or an array that
+contains references is that of its shortest-lived reference.</p>
+<p>The <em>lifetime rule</em> says that a reference must never outlive
+the cell it refers to: a value may not be assigned to a variable that
+lives longer than the value. Storing a reference to a local cell in a
+variable of an enclosing block, or returning it from the block, breaks
+the rule:</p>
+<pre class="algol68"><code><b>ref</b> <b>int</b> p;
+<b>begin</b>
+   <b>int</b> x := 1;
+   p := x          <span class="comment">{ wrong: p outlives x }</span>
+<b>end</b></code></pre>
+<p>Rust enforces a rule of the same kind with its borrow checker,
+entirely at compile time; in Algol 68 it can only partly be checked by
+the compiler and otherwise must be checked while the program runs.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  The Report says that a program
+that breaks the lifetime rule is wrong and that its further behavior is
+undefined, which allows but does not require an implementation to check
+it. Algol 68 Genie checks: it warns at compile time and stops the
+program with the error “value is exported out of its scope”. ga68 and
+a68j do not check, and such a program may even appear to work, which
+makes the error all the more dangerous. Use <code><b>heap</b></code> for
+anything that must outlive its block.</p>
+</blockquote>
+<h3 class="unnumbered" id="the-lifetime-of-a-loc-cell">The lifetime of a
+<strong>loc</strong> cell</h3>
+<p><code><b>loc</b></code> is an expression like any other and can
+appear anywhere a reference is needed, for example as a dummy argument
+for a <code><b>ref</b></code> parameter whose result is not wanted. The
+precise rule for its lifetime has a surprising consequence. A
+<code><b>loc</b></code> cell belongs to the nearer of two things: the
+function or operator body in which it is allocated (every call counts),
+or the innermost block, loop body or other range that declares a
+variable, a constant, a function, an operator or a type. Ranges without
+such declarations do not count, nor do the loop counter, the name in an
+alternative of a conformity clause, labels and priority declarations.
+Every call of a function counts, even if its body declares nothing:
+<code><b>proc</b> f = <b>ref</b> <b>int</b>: <b>loc</b> <b>int</b> := 0</code>
+returns a reference to a cell that is gone when the call is over. The
+following program keeps references to cells allocated in a loop
+body:</p>
+<pre class="algol68"><code>[3] <b>ref</b> <b>int</b> cells;
+<b>for</b> i <b>to</b> 3 <b>do</b>
+   <b>int</b> square = i * i;
+   cells[i] := <b>loc</b> <b>int</b> := square
+<b>od</b>;
+print ((<b>ref</b> <b>int</b> (cells[2]), newline))</code></pre>
+<pre class="output"><code>6           cells[i] := LOC INT := square
+                        1                
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID loop-clause starting at "FOR" in line 4.</code></pre>
+<p>Algol 68 Genie stops it:</p>
+<pre class="output"><code>6           cells[i] := LOC INT := square
+                        1                
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID loop-clause starting at "FOR" in line 4.</code></pre>
+<p>The loop body declares <code>square</code>, so every
+<code><b>loc</b> <b>int</b></code> belongs to one execution of the body
+and is gone when the next one starts. Without the declaration, writing
+<code>cells[i] := <b>loc</b> <b>int</b> := i * i</code>, the cells
+belong to the block around the loop, and the program is correct and
+prints 4. A harmless-looking change to the body thus changes the
+lifetime of the cells. The advice is simple: if a reference leaves the
+block or loop body in which its cell is allocated, allocate the cell
+with <code><b>heap</b></code>.</p>
+<p><code><b>heap</b></code> can also be used in declarations:
+<code><b>heap</b> <b>int</b> n := 5</code> and
+<code><b>heap</b> [10] <b>int</b> a</code> declare variables whose cells
+live on the heap. There is no operation to free a heap cell; that is
+left to the garbage collector, which costs time and memory. The
+distinction is the one between the stack and the heap in C++ and Rust
+(<code>Box</code>); Java and Python allocate every object on the
+heap.</p>
+<h2 data-number="7.16" id="sec-proc-lifetimes"><span
+class="header-section-number">7.16</span> Lifetimes of functions</h2>
+<p>The lifetime rule also applies to functions, and this is where Algol
+68 differs most from current languages. A function value lives as long
+as the innermost block that declares a name the function uses but does
+not declare itself: a variable, a constant, a parameter of an enclosing
+function, another function, an operator, a label it jumps to, or a type
+name with bounds. A function that uses such a name cannot be returned
+from that block or stored in a variable outside it.</p>
+<p>In JavaScript, Python or Haskell, returning a function that composes
+two other functions is an everyday idiom. In Algol 68 it is an
+error:</p>
+<pre class="algol68"><code><b>mode</b> Fn = <b>proc</b> (<b>real</b>) <b>real</b>;
+<b>proc</b> compose = (Fn f, g) Fn: (<b>real</b> x) <b>real</b>: f (g (x));
+<b>proc</b> double = (<b>real</b> x) <b>real</b>: 2 * x;
+<b>proc</b> inc = (<b>real</b> x) <b>real</b>: x + 1;
+Fn h = compose (double, inc);
+print ((fixed (h (1), 0, 1), newline))</code></pre>
+<pre class="output"><code>7        FN h = compose (double, inc);
+                1                     
+a68g: runtime error: 1: FN value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.</code></pre>
+<p>Algol 68 Genie stops at the call of <code>compose</code>:</p>
+<pre class="output"><code>7        FN h = compose (double, inc);
+                1                     
+a68g: runtime error: 1: FN value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.</code></pre>
+<p>The inner function uses <code>f</code> and <code>g</code>, the
+parameters of <code>compose</code>, which exist only while
+<code>compose</code> runs. Putting the data on the heap does not help
+either:</p>
+<pre class="algol68"><code><b>proc</b> <b>int</b> next = (<b>heap</b> <b>int</b> count := 0; <b>int</b>: count +:= 1)</code></pre>
+<p>The cell of <code>count</code> would live long enough, but the name
+<code>count</code> belongs to the block, and the function uses the name.
+Algol 68 Genie stops this program as well, with the same message; ga68
+and a68j run both programs and print plausible results. Here the lack of
+a check is most dangerous, since such a program appears to work.</p>
+<p>The reason for the rule is that an Algol 68 function does not keep
+alive the variables and constants it uses, as a closure in Lisp,
+JavaScript or Python does by keeping them on the heap; it refers to the
+block in which they are declared, which lives on the stack. A C++ lambda
+that captures by reference has the same problem, without any check; Rust
+rejects such a closure at compile time unless it is declared
+<code>move</code>.</p>
+<p>The usual way out is to pass the state explicitly. A counter becomes
+a heap cell and a function that takes it as a parameter:</p>
+<pre class="algol68"><code><b>proc</b> make_counter = <b>ref</b> <b>int</b>: <b>heap</b> <b>int</b> := 0;
+<b>proc</b> next = (<b>ref</b> <b>int</b> counter) <b>int</b>: counter +:= 1;
+<b>ref</b> <b>int</b> c = make_counter, d = make_counter;
+<b>for</b> k <b>to</b> 3 <b>do</b> print ((whole (next (c), 0), " ")) <b>od</b>;
+print ((whole (next (d), 0), newline))</code></pre>
+<pre class="output"><code>1 2 3 1</code></pre>
+<p>which prints <code>1 2 3 1</code>. A function that composes two
+functions becomes a procedure
+<code>(Fn f, g, <b>real</b> x) <b>real</b>: f (g (x))</code> that
+receives all three values at each call. Where a function value must be
+kept, a record that holds the state together with a function that takes
+the state as a parameter does the job of a closure. Algol 68 Genie
+offers a further way out, partial parametrization, an extension of the
+language that Appendix <a href="-app-partial.html#app-partial"
+data-reference-type="ref" data-reference="app-partial">G</a>
+describes.</p>
+<h2 data-number="7.17" id="sec-recursive"><span
+class="header-section-number">7.17</span> Recursive types</h2>
+<p>A type declaration may refer to the type it declares, which allows
+linked data structures. A list of integers is a chain of records, each
+of which holds a value and a reference to the next record:</p>
+<pre class="algol68"><code><b>mode</b> Node = <b>struct</b> (<b>int</b> value, <b>ref</b> Node next);
+<b>ref</b> Node no_node = <b>nil</b>;
+<b>ref</b> Node list := no_node;
+<b>for</b> i <b>to</b> 5 <b>do</b> list := <b>heap</b> Node := (i * i, list) <b>od</b>;     <span class="comment">{ prepend }</span>
+<b>ref</b> Node p := list;
+<b>while</b> <b>ref</b> Node (p) <b>isnt</b> no_node <b>do</b>
+   print (value <b>of</b> p);
+   p := next <b>of</b> p
+<b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>        +25        +16         +9         +4         +1</code></pre>
+<p>The constant <code>no_node</code> is <code><b>nil</b></code> of the
+type <code><b>ref</b> Node</code>; naming it makes the comparisons
+readable. The loop builds the list by putting each new record in front:
+<code><b>heap</b> Node := (i * i, list)</code> allocates a record on the
+heap, initializes it, and yields the reference to it, which is stored in
+<code>list</code>. The second loop follows the references;
+<code>value <b>of</b> p</code> and <code>next <b>of</b> p</code>
+dereference <code>p</code> automatically. The records must be allocated
+with <code><b>heap</b></code>: with <code><b>loc</b></code> inside a
+procedure, the list would refer to cells that are gone when the
+procedure returns, and ga68 and a68j would not report it.</p>
+<p>The recursion must pass through a reference or a function type. A
+record that contains itself directly would be infinitely large, and the
+compiler rejects it:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>mode</b> Chain = <b>struct</b> (<b>int</b> value, Chain next);
+   <b>skip</b>
+<b>end</b></code></pre>
+<pre class="output"><code>bad-mode.a68:3:9: error: chain does not specify a well formed mode
+bad-mode.a68:3:9: note: mode chain is infinite</code></pre>
+<p>Passing through a reference is not enough on its own, though:
+<code><b>mode</b> A = <b>ref</b> A</code> or
+<code><b>mode</b> U = <b>union</b> (<b>int</b>, <b>ref</b> U)</code>
+would make a type out of nothing but references, and they are rejected
+as well. The precise rule is that every cycle in a type definition must
+pass both through a reference or a function type, and through a record
+or a function type with parameters.
+<code><b>struct</b> (<b>int</b> value, <b>ref</b> Node next)</code>
+satisfies it, and so does
+<code><b>mode</b> F = <b>proc</b> (F) <b>int</b></code>. The Report
+calls the admissible recursive types <span
+class="sans-serif">well-formed modes</span>.</p>
+<p>Several types can refer to each other, if they are declared in the
+same block:</p>
+<pre class="algol68"><code><b>mode</b> Person = <b>struct</b> (<b>string</b> name, <b>ref</b> Dept dept),
+     Dept = <b>struct</b> (<b>string</b> title, <b>ref</b> Person head);
+<b>heap</b> Dept d := ("Research", <b>nil</b>);
+<b>heap</b> Person p := ("Ada", d);
+head <b>of</b> d := p;
+print ((name <b>of</b> head <b>of</b> dept <b>of</b> p, " heads ", title <b>of</b> d, newline))</code></pre>
+<pre class="output"><code>Ada heads Research</code></pre>
+<h3 class="unnumbered" id="pointers-to-links">Pointers to links</h3>
+<p>The type <code><b>ref</b> <b>ref</b> Node</code> is the type of a
+variable that holds a link: the variable <code>list</code> itself, or
+the field <code>next</code> of a node. A procedure that receives such a
+reference can change the link, which makes operations on lists simple.
+The following procedure removes the first node with a given value. It
+walks along the links, not along the nodes, so that the first node needs
+no special treatment:</p>
+<pre class="algol68"><code><b>proc</b> remove = (<b>ref</b> <b>ref</b> Node head, <b>int</b> v) <b>void</b>:
+<b>begin</b>
+   <b>ref</b> <b>ref</b> Node link := head;   <span class="comment">{ the variable that refers to the node }</span>
+   <b>while</b> (<b>ref</b> Node (link) <b>isnt</b> no_node) <b>andth</b> value <b>of</b> link /= v <b>do</b>
+      link := next <b>of</b> link
+   <b>od</b>;
+   <b>if</b> <b>ref</b> Node (link) <b>isnt</b> no_node <b>then</b>
+      <b>ref</b> <b>ref</b> Node (link) := next <b>of</b> link
+   <b>fi</b>
+<b>end</b>;</code></pre>
+<pre class="output"><code>2 4 </code></pre>
+<p>After <code>remove (list, 1)</code>, <code>remove (list, 3)</code>,
+<code>remove (list, 5)</code> and <code>remove (list, 9)</code> on the
+list 1 to 5, the list holds <code>2 4</code>. <code>link</code> is a
+pointer variable of type
+<code><b>ref</b> <b>ref</b> <b>ref</b> Node</code>.
+<code><b>ref</b> Node (link)</code> is the node that the current link
+refers to, and <code>next <b>of</b> link</code> is the link inside that
+node. The assignment
+<code><b>ref</b> <b>ref</b> Node (link) := next <b>of</b> link</code>
+changes the current link so that it skips the node.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  The annotation decides what is assigned.
+With <code><b>ref</b> Node (link) := next <b>of</b> link</code>, the
+left-hand side would be the node itself, and the assignment would copy
+the next node’s value and link into it: a different operation, which
+fails at the last node, whose <code>next</code> is
+<code><b>nil</b></code>. Both versions compile. When an assignment
+involves several levels of references, it pays to write down the type of
+each side.</p>
+</blockquote>
+<h2 data-number="7.18" id="sec-expr"><span
+class="header-section-number">7.18</span> Unions and recursive
+types</h2>
+<p>Unions and recursive types together describe tree-shaped data whose
+nodes are of different kinds: the syntax tree of a compiler, a document,
+a JSON value. An arithmetic expression is a number, a variable, or an
+operator with two operands:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Arithmetic expressions as trees. }</span>
+   <b>mode</b> Expr = <b>union</b> (<b>real</b>, <b>char</b>, <b>ref</b> Binop),
+        Binop = <b>struct</b> (<b>char</b> sym, Expr left, right);
+
+   <b>proc</b> bin = (<b>char</b> sym, Expr left, right) Expr: <b>heap</b> Binop := (sym, left, right);
+
+   <b>proc</b> show = (Expr e) <b>string</b>:
+      <b>case</b> e <b>in</b>
+         (<b>real</b> r): fixed (r, 0, 1),
+         (<b>char</b> name): name,
+         (<b>ref</b> Binop b): "(" + show (left <b>of</b> b) + " " + sym <b>of</b> b + " "
+                            + show (right <b>of</b> b) + ")"
+      <b>esac</b>;
+
+   <b>proc</b> eval = (Expr e, <b>real</b> x) <b>real</b>:
+      <b>case</b> e <b>in</b>
+         (<b>real</b> r): r,
+         (<b>char</b> name): x,
+         (<b>ref</b> Binop b):
+            <b>begin</b>
+               <b>real</b> l = eval (left <b>of</b> b, x), r = eval (right <b>of</b> b, x);
+               <b>char</b> o = sym <b>of</b> b;
+               <b>if</b> o = "+" <b>then</b> l + r
+               <b>elif</b> o = "-" <b>then</b> l - r
+               <b>elif</b> o = "*" <b>then</b> l * r
+               <b>else</b> l / r
+               <b>fi</b>
+            <b>end</b>
+      <b>esac</b>;
+
+   <span class="comment">{ 3 x x - 2 x + 1 }</span>
+   Expr e = bin ("+", bin ("-", bin ("*", 3.0, bin ("*", "x", "x")),
+                               bin ("*", 2.0, "x")),
+                      1.0);
+   print ((show (e), newline));
+   <b>for</b> i <b>from</b> 0 <b>to</b> 3 <b>do</b>
+      print (("x = ", whole (i, 0), ": ", fixed (eval (e, i), 0, 1), newline))
+   <b>od</b>
+<b>end</b></code></pre>
+<pre class="output"><code>(((3.0 * (x * x)) - (2.0 * x)) + 1.0)
+x = 0: 1.0
+x = 1: 2.0
+x = 2: 9.0
+x = 3: 22.0</code></pre>
+<p>prints</p>
+<pre class="output"><code>(((3.0 * (x * x)) - (2.0 * x)) + 1.0)
+x = 0: 1.0
+x = 1: 2.0
+x = 2: 9.0
+x = 3: 22.0</code></pre>
+<p>The type <code>Expr</code> is a union of <code><b>real</b></code>,
+<code><b>char</b></code> (the name of a variable) and
+<code><b>ref</b> Binop</code>, and <code>Binop</code> is a record that
+contains two <code>Expr</code> values. The cycle passes through the
+reference and the record, so the types are well-formed.
+<code><b>union</b> (<b>real</b>, <b>char</b>, Binop)</code> without the
+reference would be infinitely large and is rejected. In Rust the same
+type is written
+<code>enum Expr <span class="comment">{ Num(f64), Var(char), Bin(Box&lt;Binop&gt;) }</span></code>;
+the <code>Box</code> plays the role of <code><b>ref</b></code>.</p>
+<p><code>show</code> and <code>eval</code> are recursive functions with
+one alternative of a conformity clause per kind of node. The procedure
+<code>bin</code> allocates a node on the heap; its arguments are united
+to <code>Expr</code> automatically, since an argument is in a strong
+context.</p>
+<h3 class="unnumbered" id="operators-on-unions">Operators on unions</h3>
+<p>It is tempting to make the construction of expressions more readable
+with operators:
+<code><b>op</b> + = (Expr a, b) Expr: bin ("+", a, b)</code>, so that an
+expression can be written as <code>3.0 * x * x - 2.0 * x + 1.0</code>.
+Declared in the program above, this operator takes over every
+<code>+</code> of two <code><b>real</b></code> values in its scope. The
+operands of an operator are in a firm context, where uniting is allowed,
+and the new <code>+</code> is declared in an inner block, so it hides
+the standard <code>+</code> of the library for <code><b>real</b></code>
+operands. <code>l + r</code> in <code>eval</code> then builds an
+<code>Expr</code> instead of adding, and the compiler reports</p>
+<pre class="output"><code>error: 'EXPR'mode cannot be coerced to 'real' in a strong-unit</code></pre>
+<p>Inside the body of an operator on a union, the effect can be worse:
+an
+<code><b>op</b> = = (<b>union</b> (<b>int</b>, Rational) a, b) <b>bool</b></code>
+whose body compares two <code><b>int</b></code> values with
+<code>=</code> calls itself, without end. The remedy is to declare an
+operator for each combination of member types that is needed
+(<code>(Rational, Rational)</code>, <code>(<b>int</b>, Rational)</code>,
+<code>(Rational, <b>int</b>)</code>), or to give the operator a new
+name, such as <code>PLUS</code>.</p>
+<h2 data-number="7.19" id="sec-equivalence"><span
+class="header-section-number">7.19</span> When two types are the
+same</h2>
+<p>Section <a href="4-ch-data.html#sec-modes" data-reference-type="ref"
+data-reference="sec-modes">4.8</a> showed that type names are only
+abbreviations: two record types with the same fields are the same type.
+This also holds for recursive types. The types</p>
+<pre class="algol68"><code><b>mode</b> A = <b>struct</b> (<b>int</b> v, <b>ref</b> A next);
+<b>mode</b> B = <b>struct</b> (<b>int</b> v, <b>ref</b> B next)</code></pre>
+<p>are the same type, since expanding either definition gives the same
+infinite structure. Deciding this is a non-trivial task for the
+compiler, but it is invisible to the programmer. Together with the rules
+for unions, it means that two types are the same if and only if they
+have the same structure; the Report calls them <span
+class="sans-serif">equivalent modes</span>.</p>
+<h2 data-number="7.20" id="sec-advanced-complete"><span
+class="header-section-number">7.20</span> A complete program</h2>
+<p>The final program counts the words of a text with a binary search
+tree. Each node holds a word, a count and two subtrees. The procedure
+<code>insert</code> takes a reference to the variable that holds a
+subtree, of type <code><b>ref</b> <b>ref</b> Tree</code>, so that it can
+replace an empty subtree with a new node; <code>show</code> traverses
+the tree in order and prints the words alphabetically.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Counting words with a binary search tree. }</span>
+   <b>mode</b> Tree = <b>struct</b> (<b>string</b> key, <b>int</b> count, <b>ref</b> Tree left, right);
+   <b>ref</b> Tree no_tree = <b>nil</b>;
+   <b>proc</b> insert = (<b>ref</b> <b>ref</b> Tree t, <b>string</b> w) <b>void</b>:
+      <b>if</b> <b>ref</b> Tree (t) <b>is</b> no_tree <b>then</b>
+         t := <b>heap</b> Tree := (w, 1, no_tree, no_tree)
+      <b>elif</b> w &lt; key <b>of</b> t <b>then</b> insert (left <b>of</b> t, w)
+      <b>elif</b> w &gt; key <b>of</b> t <b>then</b> insert (right <b>of</b> t, w)
+      <b>else</b> count <b>of</b> t +:= 1
+      <b>fi</b>;
+   <b>proc</b> show = (<b>ref</b> Tree t) <b>void</b>:
+      <b>if</b> t <b>isnt</b> no_tree <b>then</b>
+         show (left <b>of</b> t);
+         print ((key <b>of</b> t, " ", whole (count <b>of</b> t, 0), newline));
+         show (right <b>of</b> t)
+      <b>fi</b>;
+   <b>ref</b> Tree root := no_tree;
+   <b>string</b> text = "the quick brown fox jumps over the lazy dog the end";
+   <b>string</b> w := "";
+   <b>for</b> i <b>to</b> UPB text + 1 <b>do</b>
+      <b>if</b> i &gt; UPB text <b>orel</b> text[i] = " " <b>then</b>
+         (UPB w &gt; 0 | insert (root, w); w := "")
+      <b>else</b>
+         w +:= text[i]
+      <b>fi</b>
+   <b>od</b>;
+   show (root)
+<b>end</b></code></pre>
+<pre class="output"><code>brown 1
+dog 1
+end 1
+fox 1
+jumps 1
+lazy 1
+over 1
+quick 1
+the 3</code></pre>
+<p>The test <code><b>ref</b> Tree (t) <b>is</b> no_tree</code> uses the
+cast of Section <a href="7-ch-advanced.html#sec-pointers"
+data-reference-type="ref" data-reference="sec-pointers">7.9</a>:
+<code>t</code> is a reference to a variable, and the question is whether
+the variable holds <code><b>nil</b></code>. In <code>show</code>, the
+parameter is the tree itself, so <code>t <b>isnt</b> no_tree</code>
+needs no cast. The splitting loop uses <code><b>orel</b></code>
+(Section <a href="2-ch-values.html#sec-logic" data-reference-type="ref"
+data-reference="sec-logic">2.9</a>) so that <code>text[i]</code> is not
+evaluated when <code>i</code> is beyond the end.</p>
+<h2 class="unnumbered" id="exercises-5">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch7">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What are the bounds of <code>s</code> after
+<code><b>flex</b> [1:0] <b>char</b> s; s := "abc"; s := s[2:3] + "xyz"</code>?</p></li>
+<li><p>Why can <code><b>ref</b> [] <b>int</b></code> not be the type of
+the parameter of the procedure <code>append</code>?</p></li>
+<li><p>Write a procedure that takes a
+<code><b>union</b> (<b>int</b>, <b>real</b>, <b>bool</b>)</code> and
+returns it as a <code><b>real</b></code>: an <code><b>int</b></code>
+widened, a <code><b>bool</b></code> as 1.0 or 0.0.</p></li>
+<li><p>Given
+<code><b>int</b> x := 1; <b>ref</b> <b>int</b> p := x</code>, which of
+the following change <code>x</code>? (a) <code>p := 2</code> (b)
+<code><b>ref</b> <b>int</b> (p) := 2</code> (c)
+<code>x := 2</code></p></li>
+<li><p>Why is <code>q <b>is</b> <b>nil</b></code> always false for a
+variable <code>q</code> of type <code><b>ref</b> <b>int</b></code>, and
+what is the correct test?</p></li>
+<li><p>In which contexts are the following expressions: (a)
+<code>x</code> in <code>x := 1</code>, (b) <code>x</code> in
+<code>y := x</code>, (c) <code>x</code> in <code>x + 1</code>, (d)
+<code>b</code> in <code><b>if</b> b <b>then</b></code>?</p></li>
+<li><p>Write a procedure that reverses a list of the type
+<code>Node</code> of Section <a href="7-ch-advanced.html#sec-recursive"
+data-reference-type="ref" data-reference="sec-recursive">7.17</a> in
+place.</p></li>
+<li><p><code><b>flex</b> [1:0] <b>string</b> words</code> holds some
+words. Why is <code>words[1] +:= "s"</code> rejected, and how can the
+program add an <code>s</code> to the first word?</p></li>
+<li><p>Which of these declarations are accepted? (a)
+<code><b>union</b> (<b>int</b>, <b>string</b>) u := "a"</code> (b)
+<code><b>union</b> (<b>int</b>, <b>string</b>) u := "ab"</code> (c)
+<code><b>union</b> (<b>real</b>, <b>string</b>) u := 2</code> (d)
+<code><b>union</b> (<b>int</b>, <b>real</b>) u := 2</code></p></li>
+<li><p>With
+<code><b>int</b> a := 1, b := 1; <b>ref</b> <b>int</b> p := a, q := b</code>,
+what do <code>p <b>is</b> q</code>,
+<code><b>ref</b> <b>int</b> (p) <b>is</b> <b>ref</b> <b>int</b> (q)</code>
+and <code><b>ref</b> <b>int</b> (p) <b>is</b> a</code> yield? What
+changes after <code>q := a</code>?</p></li>
+<li><p>The <code>push</code> of Section <a
+href="7-ch-advanced.html#sec-vector" data-reference-type="ref"
+data-reference="sec-vector">7.3</a> doubles the capacity. How many
+elements are copied in total by 1000 calls of <code>push</code> on an
+empty <code>Vector</code>, and how many by 1000 calls of
+<code>append</code>?</p></li>
+<li><p>Why is the following procedure wrong, and how do ga68, a68j and
+Algol 68 Genie behave when it is used?</p>
+<pre class="algol68"><code><b>proc</b> adder = (<b>int</b> n) <b>proc</b> (<b>int</b>) <b>int</b>: (<b>int</b> x) <b>int</b>: x + n</code></pre></li>
+<li><p>Does the program of Section <a
+href="7-ch-advanced.html#sec-lifetimes" data-reference-type="ref"
+data-reference="sec-lifetimes">7.15</a> that stores
+<code><b>loc</b></code> cells remain correct if the body of the loop is
+<code>cells[i] := <b>loc</b> <b>int</b> := i * i; print (i)</code>? And
+if it is
+<code><b>int</b> j = i; cells[i] := <b>loc</b> <b>int</b> := j</code>?</p></li>
+<li><p>Build two lists of type <code><b>ref</b> Node</code> with the
+same contents 1, 2, 3. What does <code>a <b>is</b> b</code> yield? Write
+an operator <code>EQ</code> that compares two lists element by
+element.</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-5">Programming
+problems</h2>
+<ol>
+<li><p><strong>Two representations of text.</strong> Implement strings
+in two ways: as a <code><b>string</b></code> and as a linked list of
+characters. For both, write procedures that concatenate two strings,
+insert one string into another at a given position, and delete a part of
+a string; each takes a reference to the string to be changed. Compare
+the costs of the operations in the two representations.</p></li>
+<li><p><strong>List operations.</strong> For the lists of Section <a
+href="7-ch-advanced.html#sec-recursive" data-reference-type="ref"
+data-reference="sec-recursive">7.17</a>, write procedures that count the
+elements, build a reversed copy without changing the original, merge two
+sorted lists into one, and sort a list by repeatedly merging.</p></li>
+<li><p><strong>Sets.</strong> Represent sets of integers as sorted
+linked lists, and write the operators <code>+</code> (union),
+<code>*</code> (intersection), <code>-</code> (difference) and
+<code>ELEM</code> (membership, as in <code>3 ELEM s</code>). Then write
+the same operators for sets represented as <code><b>bits</b></code>
+(Section <a href="6-ch-moretypes.html#sec-bits"
+data-reference-type="ref" data-reference="sec-bits">6.3</a>) and
+compare.</p></li>
+<li><p><strong>Tree sort.</strong> Sort an array of integers by
+inserting its elements into a binary search tree and reading them back
+in order. Duplicates must be kept. What is the cost for an array that is
+already sorted?</p></li>
+<li><p><strong>Postfix expressions.</strong> Read an expression in
+postfix notation (<code>3 4 + 2 *</code>) and evaluate it with a stack
+of <code><b>real</b></code> values implemented as a linked
+list.</p></li>
+<li><p><strong>Parsing.</strong> Extend the program of Section <a
+href="7-ch-advanced.html#sec-expr" data-reference-type="ref"
+data-reference="sec-expr">7.18</a>: read a fully parenthesized
+expression such as <code>((3 * (x * x)) - (2 * x))</code>, build its
+tree, print it, and evaluate it for several values of
+<code>x</code>.</p></li>
+<li><p><strong>Symbolic differentiation.</strong> Write a procedure that
+returns the derivative of an <code>Expr</code> with respect to
+<code>x</code>, and a procedure that simplifies the result: <span
+class="math inline">0 ⋅ <em>e</em> = 0</span>, <span
+class="math inline">1 ⋅ <em>e</em> = <em>e</em></span>, <span
+class="math inline"><em>e</em> + 0 = <em>e</em></span>, and operations
+on two numbers are computed.</p></li>
+<li><p><strong>Optional results.</strong> Write a procedure that
+searches a list of (name, number) records for a name and returns
+<code><b>union</b> (<b>int</b>, <b>void</b>)</code>. Use it in a program
+that reads names and reports each one’s number or that it is unknown,
+with an <code><b>out</b></code> branch in every conformity
+clause.</p></li>
+<li><p><strong>A hash table.</strong> Implement a table from strings to
+integers as an array <code>[0 : m - 1] <b>ref</b> Entry</code> of linked
+lists, with procedures to insert, look up and delete. Count the words of
+a text with it and compare the result with the tree of Section <a
+href="7-ch-advanced.html#sec-advanced-complete"
+data-reference-type="ref"
+data-reference="sec-advanced-complete">7.20</a>.</p></li>
+<li><p><strong>Pascal’s triangle.</strong> Store the first 15 rows of
+Pascal’s triangle in a jagged array, once in a
+<code><b>flex</b> [1:0] <b>flex</b> [1:0] <b>int</b></code> that grows
+row by row, and once as a <code>[15] <b>ref</b> [] <b>int</b></code>
+whose rows are allocated with <code><b>heap</b></code>.</p></li>
+<li><p><strong>A deck of cards.</strong> Declare the 52 cards of a deck
+as a fixed array of records, each with a field
+<code><b>ref</b> Card next</code>, and link them into a circle. A hand
+is a record with a count and a reference to its first card. Deal cards
+from the deck to four hands only by changing links, without copying a
+card. Why is it allowed here to keep references to elements of the
+array?</p></li>
+<li><p><strong>A queue.</strong> Implement a queue as a record with
+references to its first and its last node, so that both adding at the
+end and removing at the front take constant time. Write a procedure that
+creates a candidate node on the heap and appends it only if it passes a
+test; what happens to a rejected node?</p></li>
+<li><p><strong>Exact or approximate.</strong> Find the largest <span
+class="math inline"><em>n</em></span> whose factorial fits in an
+<code><b>int</b></code>, without causing an overflow. Then write a
+function that returns
+<code><b>union</b> (<b>int</b>, <b>real</b>)</code>: the exact factorial
+up to that <span class="math inline"><em>n</em></span>, and Stirling’s
+approximation beyond it. How must a caller use the result?</p></li>
+<li><p><strong>A JSON value.</strong> Define a type for JSON values: a
+union of <code><b>void</b></code> (null), <code><b>bool</b></code>,
+<code><b>real</b></code>, <code><b>string</b></code>, and references to
+arrays and objects, where an object is a list of (key, value) pairs.
+Write a procedure that prints such a value in JSON notation with
+indentation. Check that your types are well-formed.</p></li>
+<li><p><strong>Cross-reference.</strong> Read an Algol 68 program and
+print every identifier in alphabetical order with the numbers of the
+lines on which it occurs, using a tree whose nodes hold a list of line
+numbers. Reserved words, which are written in lower case in SUPPER
+stropping, can be recognized with a table.</p></li>
+</ol>
+</body>
+</html>

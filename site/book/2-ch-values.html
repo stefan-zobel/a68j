@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Values, types and variables</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="3-ch-control.html" accesskey="n" rel="next">Expressions and control flow</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="1-ch-intro.html" accesskey="p" rel="previous">Introduction</a>
+</span>
+</div>
+</nav>
+<h1 data-number="2" id="ch-values"><span
+class="header-section-number">2</span> Values, types and variables</h1>
+<p>This chapter introduces the building blocks of every program: values
+and their types, constants and variables, the arithmetic and logical
+operators, assignment, and simple input and output. One idea in it is
+more important than the others and is the key to much of the language: a
+variable in Algol 68 is a name for a <em>reference</em> to a memory
+cell, and the language says so openly. Section <a
+href="2-ch-values.html#sec-references" data-reference-type="ref"
+data-reference="sec-references">2.6</a> explains what this means.</p>
+<h2 data-number="2.1" id="sec-types"><span
+class="header-section-number">2.1</span> Types</h2>
+<p>Every value in a program has a <em>type</em> (<span
+class="sans-serif">mode</span>). The type determines which values are
+possible and which operations apply. Algol 68 has four <em>primitive
+types</em>:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Values</th>
+<th style="text-align: left;">Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code><b>int</b></code></td>
+<td style="text-align: left;">whole numbers</td>
+<td style="text-align: left;"><code>0</code>, <code>42</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>real</b></code></td>
+<td style="text-align: left;">floating-point numbers</td>
+<td style="text-align: left;"><code>3.5</code>, <code>1e6</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>bool</b></code></td>
+<td style="text-align: left;">truth values</td>
+<td style="text-align: left;"><code><b>true</b></code>,
+<code><b>false</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>char</b></code></td>
+<td style="text-align: left;">single characters</td>
+<td style="text-align: left;"><code>"a"</code>, <code>"7"</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The type <code><b>string</b></code> for sequences of characters is
+not primitive: it is a resizable array of <code><b>char</b></code>
+(Chapter <a href="7-ch-advanced.html#ch-advanced"
+data-reference-type="ref" data-reference="ch-advanced">7</a>). It can be
+used in the same simple ways as the primitive types, though, and this
+chapter does so.</p>
+<p>The range of <code><b>int</b></code> and the precision of
+<code><b>real</b></code> depend on the implementation. The standard
+library provides constants that describe them, among them
+<code>max_int</code>, the largest <code><b>int</b></code>, and
+<code>small_real</code>, the smallest <code><b>real</b></code> that
+gives a result different from 1 both when it is added to 1 and when it
+is subtracted from 1:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   print (("max_int    ", max_int, newline));
+   print (("small_real ", small_real, newline));
+   print (("long max_int ", long_max_int, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>max_int    +2147483647
+small_real +1.192093e -7
+long max_int +9223372036854775807</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  In ga68 and a68j,
+<code><b>int</b></code> has 32 bits and <code><b>real</b></code> is a
+32-bit floating-point number (single precision, about 7 decimal digits).
+The types <code><b>long</b> <b>int</b></code> and
+<code><b>long</b> <b>real</b></code> have 64 bits. In Algol 68 Genie,
+<code><b>int</b></code> has 64 bits and <code><b>real</b></code> is a
+64-bit floating-point number. Precision variants are the subject of
+Chapter <a href="6-ch-moretypes.html#ch-moretypes"
+data-reference-type="ref" data-reference="ch-moretypes">6</a>.</p>
+</blockquote>
+<h2 data-number="2.2" id="sec-literals"><span
+class="header-section-number">2.2</span> Literals</h2>
+<p>A value written directly in the program text is a <em>literal</em>
+(<span class="sans-serif">denotation</span>):</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   print ((0, 42, 1 000 000, newline));
+   print ((3.5, " ", .25, " ", 1e6, " ", 2.5e-3, newline));
+   print (("a", "Z", "_", """", newline));
+   print ((<b>true</b>, <b>false</b>, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>         +0        +42   +1000000
++3.500000e +0 +2.500000e -1 +1.000000e +6 +2.500000e -3
+aZ_"
+TF</code></pre>
+<p>An <code><b>int</b></code> literal is a sequence of digits. It has no
+sign: in <code>-5</code>, the minus is an operator applied to the
+literal <code>5</code>. Blanks may appear between the digits, so
+<code>1 000 000</code> is a single literal; commas may not.</p>
+<p>A <code><b>real</b></code> literal has a decimal point, an exponent,
+or both: <code>3.5</code>, <code>.25</code>, <code>1e6</code>,
+<code>2.5e-3</code>. There must be at least one digit after the point,
+so <code>5.</code> is not a literal; <code>5.0</code> is. The letter of
+the exponent may be written <code>e</code> or <code>E</code>.</p>
+<p>A <code><b>char</b></code> literal is a single character between
+double quotes. A double quote itself is written twice: <code>""""</code>
+is the literal for the character <code>"</code>. The same rule applies
+to strings: <code>"say ""hi"""</code> is the string
+<code>say "hi"</code>.</p>
+<p>The two <code><b>bool</b></code> literals are
+<code><b>true</b></code> and <code><b>false</b></code>. When
+<code>print</code> writes a truth value, it writes <code>T</code> or
+<code>F</code>.</p>
+<h2 data-number="2.3" id="sec-names"><span
+class="header-section-number">2.3</span> Names</h2>
+<p>The names that a program gives to its constants, variables and
+procedures are <em>identifiers</em> (<span
+class="sans-serif">identifier</span>, <span
+class="sans-serif">tag</span>). An identifier begins with a lower-case
+letter and continues with lower-case letters, digits and underscores:
+<code>x</code>, <code>x2</code>, <code>max_value</code>. Reserved words
+cannot be used as identifiers.</p>
+<p>Capital letters have a meaning of their own (Section <a
+href="1-ch-intro.html#sec-stropping" data-reference-type="ref"
+data-reference="sec-stropping">1.4</a>): a word that begins with a
+capital letter is a type name or an operator. A name in the style of
+other languages, such as <code>maxValue</code>, is therefore read as the
+identifier <code>max</code> followed by a type name <code>Value</code>,
+and the compiler complains about the type:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> maxValue = 100;
+   print ((maxValue, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>identifier-case.a68:3:11: error: indicant Value has not been declared properly</code></pre>
+<h2 data-number="2.4" id="sec-constants"><span
+class="header-section-number">2.4</span> Constants</h2>
+<p>A declaration of the form</p>
+<pre class="algol68"><code><b>int</b> days_per_week = 7</code></pre>
+<p>binds the identifier <code>days_per_week</code> to the value 7, for
+the rest of the block in which the declaration appears. Such a binding
+cannot be changed; <code>days_per_week</code> is a <em>constant</em>.
+The Report calls this form an <span class="sans-serif">identity
+declaration</span>, since it declares that the identifier and the value
+are identical: wherever <code>days_per_week</code> is used, it stands
+for 7. It corresponds to <code>const</code> in C and JavaScript, to
+<code>final</code> in Java and to <code>let</code> in Rust.</p>
+<p>The value need not be known when the program is compiled. Any
+expression of the right type can stand on the right-hand side, including
+one that uses other constants or reads input. Several constants can be
+declared at once, separated by commas; declarations are separated by
+semicolons:</p>
+<pre class="algol68"><code><b>int</b> days_per_week = 7;
+<b>int</b> weeks = 52, extra_days = 1;
+<b>int</b> days_per_year = days_per_week * weeks + extra_days;
+<b>real</b> g = 9.81;
+<b>char</b> separator = ",";
+<b>bool</b> verbose = <b>false</b>;</code></pre>
+<pre class="output"><code>       +365,9.81,F</code></pre>
+<p>An attempt to change a constant is an error, found by the
+compiler:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> n = 10;
+   n := 11;
+   print ((n, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>constant-assign.a68:4:4: error: int secondary does not yield a name</code></pre>
+<p>The message is phrased in the terms of the Report: a <span
+class="sans-serif">name</span> is what this book calls a reference, and
+the message says that <code>n</code> is not a reference, so nothing can
+be assigned to it. Section <a href="2-ch-values.html#sec-references"
+data-reference-type="ref" data-reference="sec-references">2.6</a>
+explains this.</p>
+<h2 data-number="2.5" id="sec-variables"><span
+class="header-section-number">2.5</span> Variables</h2>
+<p>A <em>variable</em> is declared with <code>:=</code> instead of
+<code>=</code>, or with no initial value at all:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> count := 0;
+   <b>real</b> total := 0.0;
+   count := count + 1;
+   total := total + 2.5;
+   count := count + 1;
+   total := total + 4.0;
+   print (("count = ", count, ", total = ", total, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>count =          +2, total = +6.500000e +0</code></pre>
+<p>The declaration <code><b>int</b> count := 0</code> creates a variable
+that holds an <code><b>int</b></code>, with the initial value 0. The
+<em>assignment</em> <code>count := count + 1</code> replaces the value
+held by <code>count</code> with a new value. Several declarations can be
+joined with commas, but the type may be left out only if the next
+declaration is of the same kind: <code><b>int</b> x = 5, y := 6</code>
+is an error (“mixed identity-declaration and variable-declaration”),
+whereas <code><b>int</b> x = 5, <b>int</b> y := 6</code> is allowed. The
+declarations joined by commas are carried out in an unspecified order,
+so one of them must not use another (Section <a
+href="3-ch-control.html#sec-collateral" data-reference-type="ref"
+data-reference="sec-collateral">3.4</a>).</p>
+<p>A variable declared without an initial value, as in
+<code><b>real</b> x</code>, holds no defined value until a value is
+assigned to it. Using it before then is an error that the compiler does
+not detect. A <code><b>string</b></code> variable, and a
+<code><b>string</b></code> inside an array or record variable, is the
+exception: it starts out as the empty string, since a string is a
+resizable array whose initial bounds are 1 and 0 (Section <a
+href="7-ch-advanced.html#sec-flex" data-reference-type="ref"
+data-reference="sec-flex">7.1</a>), and an empty array has no elements
+that could be undefined.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 and a68j give such a
+variable an initial value: zero, <code><b>false</b></code> or a blank
+character. A program should not rely on this, since other
+implementations do not.</p>
+</blockquote>
+<h2 data-number="2.6" id="sec-references"><span
+class="header-section-number">2.6</span> What a variable is:
+references</h2>
+<p>In most languages a variable is a primitive concept: a name that
+refers to a place in memory whose content can change. Algol 68 builds
+variables from two simpler concepts, and makes both visible.</p>
+<p>The first concept is <em>allocation</em>. The expression
+<code><b>loc</b> <b>int</b></code> allocates a fresh memory cell that
+can hold an <code><b>int</b></code>, on the stack of the current block,
+and yields a <em>reference</em> to that cell. The type of a reference to
+an <code><b>int</b></code> cell is <code><b>ref</b> <b>int</b></code>,
+read “reference to int”. A reference is a value like any other: it can
+be bound to an identifier, passed to a procedure or stored in another
+cell. The Report calls a reference a <span
+class="sans-serif">name</span> and an allocation a <span
+class="sans-serif">generator</span>.</p>
+<p>The second concept is the constant declaration of the previous
+section. Together they give a variable:</p>
+<pre class="algol68"><code><b>int</b> a := 5;                    <span class="comment">{ the short form }</span>
+<b>ref</b> <b>int</b> b = <b>loc</b> <b>int</b> := 5;      <span class="comment">{ what the short form means }</span>
+a := a + 1;
+b := b + 1;
+print ((a, b, newline))</code></pre>
+<pre class="output"><code>         +6         +6</code></pre>
+<p>The declaration
+<code><b>ref</b> <b>int</b> b = <b>loc</b> <b>int</b> := 5</code>
+allocates a cell, assigns 5 to it, and binds <code>b</code> to the
+reference. The short form <code><b>int</b> a := 5</code> means exactly
+the same, and a program normally uses the short form. But the long form
+shows what the identifier of a variable stands for: not the number in
+the cell, but the reference to the cell. The type of <code>a</code> is
+<code><b>ref</b> <b>int</b></code>, not <code><b>int</b></code>.</p>
+<p>Since a reference is a value, it can be bound to a second name. The
+second name then refers to the same cell, and an assignment through it
+changes the variable:</p>
+<pre class="algol68"><code><b>int</b> a := 5;
+<b>ref</b> <b>int</b> alias = a;          <span class="comment">{ another name for the cell of a }</span>
+alias := 99;
+print ((a, newline))</code></pre>
+<pre class="output"><code>        +99</code></pre>
+<p>prints 99. Nothing has been copied: the declaration binds the name
+<code>alias</code> to the reference that <code>a</code> stands for.</p>
+<p>This explains the error message of the previous section. The
+left-hand side of an assignment must be a reference, of type
+<code><b>ref</b> <b>int</b></code> when an <code><b>int</b></code> is
+assigned. A constant declared as <code><b>int</b> n = 10</code> has the
+type <code><b>int</b></code>; it is the number 10 itself, and there is
+nothing to assign to.</p>
+<p>Programmers who know C++ will recognize the idea: <code>b</code>
+behaves like a C++ reference <code><b>int</b>&amp; b</code> to a cell.
+In Rust, <code>b</code> would be a <code>&amp;mut i32</code>, which
+needs an explicit <code>*</code> to read the cell; Algol 68 reads the
+cell implicitly where a value is needed (Section <a
+href="2-ch-values.html#sec-coercions" data-reference-type="ref"
+data-reference="sec-coercions">2.10</a>). Programmers who know Java or
+Python can think of the reference as the hidden storage location behind
+every variable; Algol 68 simply gives it a type. The distinction between
+a value and a reference to a cell holding that value is the source of
+most of the power of the language’s type system, and later chapters
+return to it often: references to references, references in records,
+references returned by functions, and how long the cell behind a
+reference lives.</p>
+<h2 data-number="2.7" id="sec-arithmetic"><span
+class="header-section-number">2.7</span> Arithmetic</h2>
+<p>The arithmetic operators on <code><b>int</b></code> and
+<code><b>real</b></code> are:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Operand types</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code> <code>-</code>
+<code>*</code></td>
+<td style="text-align: left;">addition, subtraction, multiplication</td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>real</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;">division</td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>real</b></code>; the result is <code><b>real</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;">integer division, truncating toward
+zero</td>
+<td style="text-align: left;"><code><b>int</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>MOD</code></td>
+<td style="text-align: left;">remainder, never negative</td>
+<td style="text-align: left;"><code><b>int</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;">power</td>
+<td style="text-align: left;"><code><b>int</b></code> or
+<code><b>real</b></code> base, <code><b>int</b></code> exponent</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-</code> (unary)</td>
+<td style="text-align: left;">negation</td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>real</b></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Note that <code>/</code> always yields a <code><b>real</b></code>,
+even for two <code><b>int</b></code> operands, so
+<code>n := 4 / 2</code> is rejected for an <code><b>int</b></code>
+variable <code>n</code>; integer division is <code>%</code>. The
+remainder <code>a MOD b</code> lies between 0 and <code>ABS b - 1</code>
+even if <code>a</code> is negative, unlike the <code>%</code> operator
+of C, Java or JavaScript:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> a = 17, b = 5;
+   print ((a + b, a - b, a * b, newline));
+   print ((a / b, newline));
+   print ((a % b, a MOD b, newline));
+   print ((-a % b, -a MOD b, newline));
+   print ((a ** 2, " ", 2.5 ** 2, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>        +22        +12        +85
++3.400000e +0
+         +3         +2
+         -3         +3
+       +289 +6.250000e +0</code></pre>
+<p>The power operator requires an <code><b>int</b></code> exponent,
+which may be negative if the base is a <code><b>real</b></code>:
+<code>2.0 ** -1</code> is 0.5. A <code><b>real</b></code> power, such as
+a square root, is computed with the functions of the standard library
+(<code>sqrt</code>, <code>exp</code>, <code>ln</code>), which Chapter <a
+href="6-ch-moretypes.html#ch-moretypes" data-reference-type="ref"
+data-reference="ch-moretypes">6</a> describes.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  An <code><b>int</b></code>
+result that does not fit into an <code><b>int</b></code> is undefined by
+the Report. In ga68 and a68j, it wraps around silently:
+<code>max_int + 1</code> gives <span
+class="math inline"> − 2147483648</span>. The result of an
+<code><b>int</b></code> raised to a negative power, such as
+<code>2 ** -1</code>, is undefined as well.</p>
+</blockquote>
+<h2 data-number="2.8" id="sec-precedence"><span
+class="header-section-number">2.8</span> Precedence</h2>
+<p>Every binary operator has a <em>precedence</em> (<span
+class="sans-serif">priority</span>) from 1 to 9. An operator of higher
+precedence binds more tightly: <code>2 + 3 * 4</code> is
+<code>2 + (3 * 4)</code>. Operators of equal precedence are applied from
+left to right: <code>10 - 4 - 3</code> is <code>(10 - 4) - 3</code>. The
+standard operators have the following precedences:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Precedence</th>
+<th style="text-align: left;">Operators</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">9</td>
+<td style="text-align: left;"><code>I</code> (complex numbers,
+Chapter <a href="6-ch-moretypes.html#ch-moretypes"
+data-reference-type="ref" data-reference="ch-moretypes">6</a>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: left;"><code>**</code>, <code>UP</code>,
+<code>LWB</code>, <code>UPB</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;"><code>*</code>, <code>/</code>,
+<code>%</code>, <code>MOD</code>, <code>ELEM</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td style="text-align: left;"><code>+</code>, <code>-</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;"><code>&lt;</code>, <code>&lt;=</code>,
+<code>&gt;=</code>, <code>&gt;</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: left;"><code>=</code>, <code>/=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;"><code>AND</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: left;"><code>OR</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;"><code>+:=</code>, <code>-:=</code>,
+<code>*:=</code>, <code>/:=</code>, <code>%:=</code>, …</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two rules differ from what most current languages do. First,
+<code>**</code> is applied from left to right like every other operator,
+so <code>2 ** 3 ** 2</code> is <span
+class="math inline">(2<sup>3</sup>)<sup>2</sup> = 64</span>, not <span
+class="math inline">2<sup>9</sup> = 512</span>. Second, every unary
+operator binds more tightly than every binary operator. In
+<code>-2 ** 2</code>, the minus applies to the 2 first, so the result is
+<span class="math inline">(−2)<sup>2</sup> = 4</span>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   print ((2 + 3 * 4, (2 + 3) * 4, newline));
+   print ((10 - 4 - 3, 2 ** 3 ** 2, newline));
+   print ((-2 ** 2, -(2 ** 2), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>        +14        +20
+         +3        +64
+         +4         -4</code></pre>
+<p>When in doubt, parentheses make the intended order explicit, and the
+programs in this book use them wherever the order might surprise a
+reader. Older programs, and many on Rosetta Code, write some operators
+as words: <code>OVER</code> for <code>%</code>, <code>PLUSAB</code> for
+<code>+:=</code>, and so on (Appendix <a
+href="-app-library.html#app-library" data-reference-type="ref"
+data-reference="app-library">A</a>). Chapter <a
+href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a> shows how a program declares operators
+of its own and their precedences.</p>
+<h2 data-number="2.9" id="sec-logic"><span
+class="header-section-number">2.9</span> Comparisons and logical
+operators</h2>
+<p>The comparison operators <code>=</code>, <code>/=</code> (not equal),
+<code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>,
+<code>&gt;=</code> compare two numbers, or two characters in the order
+of their character codes, and yield a <code><b>bool</b></code>. The
+logical operators are <code>AND</code>, <code>OR</code> and the unary
+<code>NOT</code>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> x = 7;
+   print ((x &gt; 5, " ", x = 7, " ", x /= 7, newline));
+   print ((x &gt; 0 AND x &lt; 10, " ", x &lt; 0 OR x &gt; 100, " ", NOT (x = 7), newline));
+   print (("a" &lt; "b", " ", "Z" &lt; "a", newline))
+<b>end</b></code></pre>
+<pre class="output"><code>T T F
+T F F
+T T</code></pre>
+<p>Since <code>AND</code> has a lower precedence than the comparisons,
+<code>x &gt; 0 AND x &lt; 10</code> needs no parentheses. Applied to two
+truth values, <code>=</code> tests whether they are equal and
+<code>/=</code> is the exclusive or;
+<code>(a &lt; 0) = (b &lt; 0)</code> tests whether <code>a</code> and
+<code>b</code> have the same sign.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  <code>NOT</code> is a unary operator and
+binds more tightly than every binary operator, so <code>NOT x = 7</code>
+means <code>(NOT x) = 7</code>, which the compiler rejects for an
+<code><b>int</b></code> <code>x</code>:</p>
+<pre class="output"><code>not-prec.a68:4:12: error: monadic operator NOT int has not been declared</code></pre>
+<p>The test is written <code>NOT (x = 7)</code> or <code>x /= 7</code>.
+Programmers who know Python, where <code>not</code> binds loosely, fall
+into this easily. Similarly, <code>x &lt; y &lt; z</code> is not a
+chained comparison: <code>x &lt; y</code> is a <code><b>bool</b></code>,
+which cannot be compared with a number.</p>
+</blockquote>
+<p><code>AND</code> and <code>OR</code> are ordinary operators: both
+operands are evaluated before the operator is applied, as with every
+operator. They do not “short-circuit” like <code>&amp;&amp;</code> and
+<code>||</code> in C or Java. The GNU dialect of Algol 68, which ga68
+and a68j implement, adds the short-circuit forms
+<code><b>andth</b></code> and <code><b>orel</b></code>, which evaluate
+their right operand only when it is needed. They bind more weakly than
+every operator, and a chain of them needs parentheses:
+<code>a <b>andth</b> (b <b>andth</b> c)</code> (Appendix <a
+href="-app-syntax.html#app-syntax" data-reference-type="ref"
+data-reference="app-syntax">B</a>). The following program shows the
+difference; it uses a small procedure <code>check</code> that prints a
+line before it returns its argument (procedures are the subject of
+Chapter <a href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a>):</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>proc</b> check = (<b>bool</b> b) <b>bool</b>: (print (("checked", newline)); b);
+   print ((<b>false</b> AND check (<b>true</b>), newline));
+   print ((<b>false</b> <b>andth</b> check (<b>true</b>), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>checked
+F
+F</code></pre>
+<h2 data-number="2.10" id="sec-coercions"><span
+class="header-section-number">2.10</span> Implicit conversions</h2>
+<p>In the program of Section <a href="2-ch-values.html#sec-references"
+data-reference-type="ref" data-reference="sec-references">2.6</a>,
+<code>a</code> has the type <code><b>ref</b> <b>int</b></code>, and yet
+<code>a + 1</code> is allowed, although <code>+</code> is defined for
+<code><b>int</b></code> and not for references. The compiler inserts an
+operation that reads the cell: it converts the reference into the value
+it refers to. Such an automatic change of type is an <em>implicit
+conversion</em> (<span class="sans-serif">coercion</span>), and this one
+is called <em>dereferencing</em> (<span
+class="sans-serif">dereferencing</span>).</p>
+<p>Algol 68 has six kinds of implicit conversion; this chapter needs
+two. The second is <em>widening</em> (<span
+class="sans-serif">widening</span>): an <code><b>int</b></code> is
+converted into a <code><b>real</b></code> where a
+<code><b>real</b></code> is required. Both conversions can apply one
+after the other: in <code>r := n</code> below, the variable
+<code>n</code> is first dereferenced to an <code><b>int</b></code>,
+which is then widened to a <code><b>real</b></code>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> n := 3;
+   <b>real</b> r := 2;                 <span class="comment">{ int to real: widening }</span>
+   r := n;                      <span class="comment">{ again: n is read, then widened }</span>
+   print ((n + 1, " ", r / 2, newline));
+   print ((n + 0.5, " ", n &lt; 3.5, newline))    <span class="comment">{ mixed operands }</span>
+<b>end</b></code></pre>
+<pre class="output"><code>         +4 +1.500000e +0
++3.500000e +0 T</code></pre>
+<p>There is no implicit conversion in the other direction, from
+<code><b>real</b></code> to <code><b>int</b></code>, since it would lose
+information:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> i = 2.5;
+   print ((i, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>no-narrowing.a68:3:12: error: real cannot be coerced to int in a strong-unit</code></pre>
+<p>The message, again in the terms of the Report, says that a
+<code><b>real</b></code> cannot be converted to <code><b>int</b></code>
+in a “strong-unit”. A <span class="sans-serif">unit</span> is an
+expression; <span class="sans-serif">strong</span> describes the place
+where the expression appears.</p>
+<p>This is the last important idea of the chapter: which implicit
+conversions are allowed depends on where an expression stands. Algol 68
+distinguishes five kinds of place, called <em>conversion contexts</em>
+(<span class="sans-serif">syntactic positions</span>, <span
+class="sans-serif">contexts</span>). The right-hand side of a
+declaration or an assignment is a <em>strong</em> context, where all
+conversions are allowed, since the required type is known. An operand of
+an operator is a <em>firm</em> context, where widening is <em>not</em>
+allowed, since the operator to apply is chosen by the types of its
+operands and is not known in advance. The operator <code>ROUND</code>,
+for example, is defined for a <code><b>real</b></code> operand only, and
+an <code><b>int</b></code> operand is not widened to make it fit:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> n = 3;
+   print ((ROUND n, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>round-int.a68:4:12: error: monadic operator ROUND int has not been declared</code></pre>
+<p>How then can <code>n + 0.5</code> work, with an
+<code><b>int</b></code> and a <code><b>real</b></code> operand? Not by
+widening: the standard library simply defines the arithmetic and
+comparison operators for each combination of <code><b>int</b></code> and
+<code><b>real</b></code> operands (Revised Report, Section 10.2.3.5).
+Chapter <a href="7-ch-advanced.html#ch-advanced"
+data-reference-type="ref" data-reference="ch-advanced">7</a> describes
+all six implicit conversions and all five contexts.</p>
+<h2 data-number="2.11" id="sec-assignment"><span
+class="header-section-number">2.11</span> Assignment</h2>
+<p>An assignment <code>x := e</code> evaluates <code>e</code> and stores
+its value in the cell that the reference <code>x</code> refers to. An
+assignment is itself an expression: its value is the reference on the
+left-hand side. That makes <code>a := b := 7</code> possible: it assigns
+7 to <code>b</code>, and the result, the reference <code>b</code>, is
+dereferenced and its value assigned to <code>a</code>. The two sides of
+an assignment are evaluated in an unspecified order (Section <a
+href="3-ch-control.html#sec-collateral" data-reference-type="ref"
+data-reference="sec-collateral">3.4</a>).</p>
+<p>The <em>compound assignment</em> <code>x +:= e</code> adds
+<code>e</code> to the value of <code>x</code> and stores the result in
+<code>x</code>; it is short for <code>x := x + e</code>, except that
+<code>x</code> is evaluated only once. Similar operators exist for the
+other arithmetic operators: <code>-:=</code>, <code>*:=</code>,
+<code>/:=</code> (for a <code><b>real</b></code> variable),
+<code>%:=</code> and <code>%*:=</code> (the <code>MOD</code> form). They
+are operators of precedence 1, so <code>x +:= 1 + 2</code> adds 3. Their
+value, like that of an assignment, is the reference on the left-hand
+side.</p>
+<p>Unlike the assignment, these are ordinary operators, and like all
+operators of the same precedence they are applied from left to
+right:</p>
+<pre class="algol68"><code><b>int</b> a := 2, b := 1;
+a +:= b +:= 3;              <span class="comment">{ (a +:= b) +:= 3 }</span>
+print ((a, b, newline))</code></pre>
+<pre class="output"><code>         +6         +1</code></pre>
+<p>prints 6 and 1: <code>a +:= b +:= 3</code> is
+<code>(a +:= b) +:= 3</code>, and <code>b</code> is not changed. A chain
+of assignments <code>a := b := 3</code>, in contrast, groups to the
+right. And <code>n +:= x</code> for an <code><b>int</b></code> variable
+<code>n</code> and a <code><b>real</b></code> <code>x</code> is
+rejected, for the same reason as <code>n := n + x</code>.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> a, b;
+   a := b := 7;                    <span class="comment">{ assigns 7 to b, then to a }</span>
+   print ((a, b, newline));
+   <b>int</b> total := 10;
+   total +:= 5;  total *:= 2;  total -:= 1;
+   print ((total, newline));
+   <b>int</b> k := 17;
+   k %:= 5;
+   print ((k, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>         +7         +7
+        +29
+         +3</code></pre>
+<h2 data-number="2.12" id="sec-explicit"><span
+class="header-section-number">2.12</span> Explicit conversions and other
+operators</h2>
+<p>A <code><b>real</b></code> is converted into an
+<code><b>int</b></code> with one of two operators. <code>ENTIER x</code>
+is the largest integer not greater than <code>x</code> (the floor).
+<code>ROUND x</code> is the integer nearest to <code>x</code>.
+Characters are converted to and from their integer codes with
+<code>ABS</code> and <code>REPR</code>. A few more operators complete
+the set used in this chapter:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>ENTIER x</code></td>
+<td style="text-align: left;">the largest <code><b>int</b></code> not
+greater than the <code><b>real</b></code> <code>x</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ROUND x</code></td>
+<td style="text-align: left;">the <code><b>int</b></code> nearest to the
+<code><b>real</b></code> <code>x</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ABS x</code></td>
+<td style="text-align: left;">the absolute value of an
+<code><b>int</b></code> or <code><b>real</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>SIGN x</code></td>
+<td style="text-align: left;"><span class="math inline"> − 1</span>, 0
+or 1, according to the sign of <code>x</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ODD n</code></td>
+<td style="text-align: left;"><code><b>true</b></code> if the
+<code><b>int</b></code> <code>n</code> is odd</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ABS c</code></td>
+<td style="text-align: left;">the character code of the
+<code><b>char</b></code> <code>c</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>REPR n</code></td>
+<td style="text-align: left;">the character with the code
+<code>n</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   print ((ROUND 2.5, ROUND -2.5, ROUND 2.4, newline));
+   print ((ENTIER 2.5, ENTIER -2.5, newline));
+   print ((ABS -7, " ", ABS -2.5, SIGN -7, " ", ODD 7, newline));
+   print ((ABS "A", " ", REPR 66, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>         +3         -3         +2
+         +2         -3
+         +7 +2.500000e +0         -1 T
+        +65 B</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  The Report does not say
+whether a number exactly halfway between two integers, such as 2.5, is
+rounded up or down. ga68 and a68j round it away from zero:
+<code>ROUND 2.5</code> is 3 and <code>ROUND -2.5</code> is <span
+class="math inline"> − 3</span>.</p>
+</blockquote>
+<h2 data-number="2.13" id="sec-comments"><span
+class="header-section-number">2.13</span> Comments and layout</h2>
+<p>In the convention of this book, a <em>comment</em> is text between
+braces, <code><span class="comment">{ like this }</span></code>.
+Comments can be nested:
+<code><span class="comment">{ a { nested } comment }</span></code> is
+one comment. The layout of a program, its spaces and line breaks, is
+free: a program can be written on one line or spread over many. In the
+stropping of this book, spaces are not allowed inside an identifier or a
+reserved word, but may appear between the digits of a number. The Report
+allows spaces inside identifiers as well, which is why it and older
+texts write <code>max <b>int</b></code> where this book writes
+<code>max_int</code>.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  The Report encloses a comment
+in two <code>#</code> symbols, or between two of the bold words
+<strong>comment</strong> or <strong>co</strong>. In the stropping
+convention of this book, ga68 and a68j accept only braces. Algol 68
+Genie accepts <code>#</code>…<code>#</code>,
+<code>CO</code>…<code>CO</code> and
+<code>COMMENT</code>…<code>COMMENT</code>, but not braces. These
+comments cannot be nested: a comment ends at the next symbol of the kind
+that began it.</p>
+</blockquote>
+<h2 data-number="2.14" id="sec-io"><span
+class="header-section-number">2.14</span> Simple input and output</h2>
+<p>The procedure <code>print</code> writes a list of values to the
+standard output. Each value is written in a standard layout: an
+<code><b>int</b></code> with its sign, in a field wide enough for
+<code>max_int</code> (11 characters in ga68 and a68j), a
+<code><b>real</b></code> in scientific notation, a
+<code><b>bool</b></code> as <code>T</code> or <code>F</code>, and a
+<code><b>char</b></code> or a string as it is. Apart from the padding of
+an <code><b>int</b></code>, no separators are inserted; a program that
+wants spaces between numbers prints them. For more control, three
+procedures convert a number into a string:</p>
+<ul>
+<li><p><code>whole (n, w)</code> converts the <code><b>int</b></code>
+<code>n</code> into a string of width <code>w</code>. A width of 0 gives
+a string just as wide as needed; a positive width gives a string of
+exactly that width, with a sign; a negative width gives that width
+without a plus sign.</p></li>
+<li><p><code>fixed (x, w, d)</code> converts the number <code>x</code>
+into a string of width <code>w</code> with <code>d</code> digits after
+the decimal point. Again, width 0 means “as wide as needed”.</p></li>
+<li><p><code>float (x, w, d, e)</code> converts <code>x</code> into
+scientific notation with an exponent of <code>e</code> digits
+(Chapter <a href="9-ch-transput.html#ch-transput"
+data-reference-type="ref" data-reference="ch-transput">9</a>).</p></li>
+</ul>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> n = 42;
+   <b>real</b> x = 3.14159;
+   print ((n, " ", x, " ", <b>true</b>, newline));
+   print ((whole (n, 0), "|", whole (n, 6), "|", whole (-n, 0), newline));
+   print ((fixed (x, 0, 2), "|", fixed (x, 8, 3), "|", fixed (-x, 0, 1), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>        +42 +3.141590e +0 T
+42|   +42|-42
+3.14|  +3.142|-3.1</code></pre>
+<p>A number that does not fit into the given width is not printed in a
+wider field: <code>whole (12345, 3)</code> yields three asterisks
+(Section <a href="9-ch-transput.html#sec-conversions"
+data-reference-type="ref" data-reference="sec-conversions">9.8</a>).</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  The <code>print</code> of the
+Report writes a blank before every number that does not begin a line.
+ga68, a68j and Algol 68 Genie leave it out, which is why the outputs in
+this book show numbers directly after a preceding string.</p>
+</blockquote>
+<p>The procedure <code>read</code> reads values from the standard input
+into variables. Numbers are separated by blanks or line breaks. The
+procedures <code>read_int</code> and <code>read_real</code>, an
+extension of Algol 68 Genie that <code>Genie_Transput</code> also
+provides, read a single value and return it, which is convenient for
+initializing a constant:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>int</b> a, b;
+   <b>real</b> c;
+   read ((a, b, c));
+   print ((a + b, " ", c * 2, newline));
+   <b>int</b> d = read_int;
+   print ((d, newline))
+<b>end</b></code></pre>
+<p>With the input</p>
+<pre class="output"><code>3 4
+1.5
+  99</code></pre>
+<p>the program writes</p>
+<pre class="output"><code>         +7 +3.000000e +0
+        +99</code></pre>
+<p>A number is read after skipping blanks and line breaks, but a
+<code><b>char</b></code> is read as it is: a blank is a character. At
+the end of a line, reading a <code><b>char</b></code> moves on to the
+first character of the next line; the line break itself is never read as
+a character. The layout procedure <code>space</code> skips a single
+character, so a date written as <code>7/3/1975</code> can be read into
+three numbers:</p>
+<pre class="algol68"><code><b>int</b> day, month, year;
+read ((day, space, month, space, year));
+print ((whole (year, 0), "-", whole (month, 0), "-", whole (day, 0), newline))</code></pre>
+<pre class="output"><code>1975-3-7</code></pre>
+<p>prints <code>1975-3-7</code>.</p>
+<h2 data-number="2.15" id="sec-complete"><span
+class="header-section-number">2.15</span> A complete program</h2>
+<p>The last program of this chapter reads a temperature in degrees
+Fahrenheit and converts it to degrees Celsius. The output shown is for
+the input <code>98.6</code>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Read a temperature in degrees Fahrenheit and print it in Celsius. }</span>
+   <b>real</b> fahrenheit;
+   read (fahrenheit);
+   <b>real</b> celsius = (fahrenheit - 32) * 5 / 9;
+   print ((fixed (fahrenheit, 0, 1), " F is ",
+           fixed (celsius, 0, 1), " C", newline))
+<b>end</b></code></pre>
+<pre class="output"><code>98.6 F is 37.0 C</code></pre>
+<p>Writing <code>(fahrenheit - 32) * (5 / 9)</code> would also have
+worked, since <code>/</code> yields a <code><b>real</b></code> even for
+two <code><b>int</b></code> operands; with integer division,
+<code>5 % 9</code> would have been 0.</p>
+<h2 class="unnumbered" id="exercises">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch2">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>Which of the following are <code><b>int</b></code> literals,
+which are <code><b>real</b></code> literals, and which are neither?
+<code>12</code>, <code>-3</code>, <code>1 000</code>,
+<code>1,000</code>, <code>2.</code>, <code>.5</code>, <code>3e2</code>,
+<code>0.0</code>.</p></li>
+<li><p>What are the values of <code>17 % 5</code>, <code>-17 % 5</code>,
+<code>17 MOD 5</code>, <code>-17 MOD 5</code> and
+<code>17 / 5</code>?</p></li>
+<li><p>What are the values of <code>2 + 3 * 4 ** 2</code> and
+<code>-3 ** 2</code>?</p></li>
+<li><p>Explain the difference between <code><b>int</b> n = 10</code> and
+<code><b>int</b> n := 10</code>. What is the type of <code>n</code> in
+each case?</p></li>
+<li><p>Write the declaration <code><b>real</b> x := 1.5, y</code>
+without the short form, using <code><b>loc</b></code>.</p></li>
+<li><p>Which of the following are correct, given
+<code><b>int</b> i := 1</code> and <code><b>real</b> r := 2.5</code>?
+(a) <code>r := i</code> (b) <code>i := r</code> (c)
+<code>i := ROUND r</code> (d) <code>r := ROUND i</code></p></li>
+<li><p>After <code><b>int</b> a := 1, b := 2</code>, what are the values
+of <code>a</code> and <code>b</code> after
+<code>a := b := a + b</code>?</p></li>
+<li><p>Why does the compiler reject <code>maxCount := 0</code>, even if
+a variable <code>max_count</code> has been declared?</p></li>
+<li><p>What does
+<code><b>int</b> x := 1; <b>ref</b> <b>int</b> r = x; r := r + 1; print (x)</code>
+print?</p></li>
+<li><p>Add parentheses to show how
+<code>a &lt; b AND x &gt; 0 = y &gt; 0 OR NOT done</code> is
+grouped.</p></li>
+<li><p>What are the values of <code>2.0 ** -2</code> and
+<code>ABS (-7 MOD 3)</code>? Why is <code>NOT n = 0</code> rejected for
+an <code><b>int</b></code> <code>n</code>?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems">Programming
+problems</h2>
+<ol>
+<li><p>Read a number of seconds and print it as hours, minutes and
+seconds.</p></li>
+<li><p>Read the three coefficients of a quadratic equation whose roots
+are real, and print the roots (<code>sqrt</code> computes a square
+root).</p></li>
+<li><p>Read a character and print its code, the next character, and
+whether it is a digit
+(<code>"0" &lt;= c AND c &lt;= "9"</code>).</p></li>
+<li><p>Read an amount of money in cents and print the smallest number of
+coins of 50, 20, 10, 5, 2 and 1 cents that make it up.</p></li>
+<li><p><strong>Easter.</strong> Read a year and print the date of Easter
+Sunday, computed with the anonymous Gregorian algorithm
+(Meeus/Jones/Butcher), which needs only <code>%</code> and
+<code>MOD</code>.</p></li>
+<li><p><strong>Day of the week.</strong> Read a date written as
+<code>dd/mm/yyyy</code> and print the day of the week as a number, using
+Zeller’s congruence. Where does it matter that <code>MOD</code> never
+yields a negative result?</p></li>
+<li><p><strong>Clock.</strong> Read an hour from 0 to 23 and print it on
+a 12-hour clock with <code>AM</code> or <code>PM</code>, without
+<code><b>if</b></code>: the hour is <code>(h + 11) MOD 12 + 1</code>.
+(Hint: <code>REPR</code> and <code>ABS</code> can compute the
+letter.)</p></li>
+<li><p><strong>Rounding money.</strong> Read an amount as a
+<code><b>real</b></code>, round it to cents with <code>ROUND</code>, and
+print euros and cents with <code>%</code> and <code>MOD</code>. Try a
+negative amount, and an amount above 100000 with the 32-bit
+<code><b>real</b></code> of ga68 or a68j. What goes wrong, and why
+should money not be kept in a <code><b>real</b></code>?</p></li>
+</ol>
+</body>
+</html>

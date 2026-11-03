@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix C: Implementation notes</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-glossary.html" accesskey="n" rel="next">Appendix D: Glossary</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-syntax.html" accesskey="p" rel="previous">Appendix B: The syntax in brief</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-impl">Appendix C: Implementation
+notes</h1>
+<p>This appendix collects the differences between the implementations
+that the book mentions: ga68, the Algol 68 front end of GCC; a68j, which
+compiles the same language to the Java virtual machine; and Algol 68
+Genie (a68g), an interpreter that many Algol 68 programs on the web,
+among them most Rosetta Code programs, are written for. The information
+describes the versions used for this book, which the preface lists.</p>
+<h2 class="unnumbered" id="notation">Notation</h2>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">ga68 and a68j</th>
+<th style="text-align: left;">Algol 68 Genie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">reserved words</td>
+<td style="text-align: left;">lower case:
+<code><b>begin</b> <b>int</b></code></td>
+<td style="text-align: left;">upper case: <code>BEGIN INT</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">declared type names</td>
+<td style="text-align: left;">capitalized: <code>Node</code></td>
+<td style="text-align: left;">upper case: <code>NODE</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">word operators</td>
+<td style="text-align: left;">upper case: <code>ABS</code></td>
+<td style="text-align: left;">upper case: <code>ABS</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">names</td>
+<td style="text-align: left;">lower case, underscores:
+<code>max_int</code></td>
+<td style="text-align: left;">lower case, blanks allowed:
+<code>max <b>int</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">comments</td>
+<td
+style="text-align: left;"><code><span class="comment">{ ... }</span></code>
+(nested)</td>
+<td style="text-align: left;"><code># ... #</code>,
+<code>CO ... CO</code>, <code>COMMENT ... COMMENT</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">program</td>
+<td style="text-align: left;">a block or other enclosed construct</td>
+<td style="text-align: left;">the same, or a sequence without
+brackets</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Converting a program from one notation to the other is mechanical:
+the reserved words and the type names change case, blanks in names
+become underscores, and comments get the other brackets. A name that is
+a reserved word in ga68 but not in Algol 68 Genie, such as
+<code><b>in</b></code>, <code><b>out</b></code>,
+<code><b>empty</b></code>, <code><b>word</b></code> or
+<code><b>op</b></code>, must be renamed.</p>
+<h2 class="unnumbered" id="sizes">Sizes</h2>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">ga68 and a68j</th>
+<th style="text-align: center;">Algol 68 Genie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code><b>int</b></code></td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>long</b> <b>int</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">128 bits</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code><b>long</b> <b>long</b> <b>int</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">72 decimal digits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>real</b></code></td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>long</b> <b>real</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">128 bits</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code><b>long</b> <b>long</b> <b>real</b></code></td>
+<td style="text-align: center;">80 bits (ga68), 64 bits (a68j)</td>
+<td style="text-align: center;">63 decimal digits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>bits</b></code></td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">64</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A program written for Algol 68 Genie that relies on 64-bit
+<code><b>int</b></code> values must use
+<code><b>long</b> <b>int</b></code> with ga68 and a68j. Since
+<code><b>real</b></code> has only about seven decimal digits in ga68 and
+a68j, numerical programs should use <code><b>long</b> <b>real</b></code>
+there.</p>
+<h2 class="unnumbered" id="transput">Transput</h2>
+<p>ga68 and a68j have no transput of the Report in their standard
+library. The module <code>Genie_Transput</code>, which comes with a68j
+and can be compiled with ga68, provides unformatted transput:
+<code>print</code>, <code>read</code>, <code>put</code>,
+<code>get</code>, files on disk, files associated with strings, the
+layout procedures and the events for the end of the file and for value
+errors. It does not provide formats, binary transput, or the printing of
+records, <code><b>compl</b></code>, <code><b>short</b></code> and
+<code><b>long</b> <b>long</b></code> values. Algol 68 Genie provides the
+transput of the Report almost completely, and adds <code>eof</code> and
+<code>eoln</code>, which <code>Genie_Transput</code> also has;
+Section <a href="9-ch-transput.html#sec-transput-genie"
+data-reference-type="ref" data-reference="sec-transput-genie">9.12</a>
+lists what it lacks.</p>
+<h2 class="unnumbered" id="other-features">Other features</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">ga68 and a68j</th>
+<th style="text-align: left;">Algol 68 Genie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code><b>par</b></code></td>
+<td style="text-align: left;">ga68: one unit after the other; a68j:
+threads with the option <code>-fpar-threads</code></td>
+<td style="text-align: left;">threads</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>sema</b></code></td>
+<td style="text-align: left;">not in ga68; a68j with
+<code>-fpar-threads</code></td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>compl</b></code> operators</td>
+<td style="text-align: left;">a68j only</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>bytes</b></code></td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">formats</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lifetime rule (references, procedures,
+<code><b>loc</b></code> cells)</td>
+<td style="text-align: left;">not checked</td>
+<td style="text-align: left;">checked at run time</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bounds of an array field when a record is
+assigned</td>
+<td style="text-align: left;">not checked</td>
+<td style="text-align: left;">checked</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">initial value of a variable</td>
+<td style="text-align: left;">zero, <code><b>false</b></code>, blank,
+empty</td>
+<td style="text-align: left;">undefined (an error when used)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>andth</b></code>,
+<code><b>orel</b></code></td>
+<td style="text-align: left;">yes (GNU extension)</td>
+<td style="text-align: left;">yes (also <code>ANDF</code>,
+<code>ORF</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>XOR</code> for
+<code><b>bits</b></code></td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>downto</code>, <code>until</code> in
+loops</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">modules</td>
+<td style="text-align: left;">yes (GNU extension, Appendix <a
+href="-app-modules.html#app-modules" data-reference-type="ref"
+data-reference="app-modules">E</a>)</td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calling C
+(<code><b>nest</b> C</code>)</td>
+<td style="text-align: left;">ga68 only (Appendix <a
+href="-app-nest.html#app-nest" data-reference-type="ref"
+data-reference="app-nest">F</a>)</td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">partial parametrization</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">yes (Appendix <a
+href="-app-partial.html#app-partial" data-reference-type="ref"
+data-reference="app-partial">G</a>)</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="printing-numbers">Printing numbers</h2>
+<p><code>print</code> writes an <code><b>int</b></code> in a field of
+<code>int_width + 1</code> characters with its sign, so the output of
+ga68 and a68j is narrower than that of Algol 68 Genie. A
+<code><b>real</b></code> is written in floating-point notation with
+<code>real_width</code> digits. Programs whose output should not depend
+on the implementation use <code>whole</code> and <code>fixed</code>.</p>
+<p>When ga68 and a68j convert a <code><b>real</b></code> to a string,
+the last of its seven digits is sometimes wrong (9.81 is printed as
+<code>9.810001</code>); the examples of this book avoid such values.</p>
+<h2 class="unnumbered" id="running-rosetta-code-programs">Running
+Rosetta Code programs</h2>
+<p>Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie
+in upper-case notation. To run one with ga68 or a68j, convert the
+notation as above, add <code><b>access</b> Genie_Transput</code> and an
+enclosing block if the program has none, and check whether it relies on
+64-bit integers, on formats or on the other features in the table
+above.</p>
+</body>
+</html>

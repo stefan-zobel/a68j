@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Answers to the exercises</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-bibliography.html" accesskey="n" rel="next">Bibliography</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-partial.html" accesskey="p" rel="previous">Appendix G: Partial parametrization</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="ch-answers">Answers to the exercises</h1>
+<p>The numerical answers have been checked by running them. The checks
+are programs in the directory <code>examples/answers</code> of the
+book’s sources, one for each chapter.</p>
+<h2 class="unnumbered" id="ans-ch2">Chapter 2</h2>
+<ol>
+<li><p><code>12</code> and <code>1 000</code> are
+<code><b>int</b></code> literals (blanks are allowed between digits);
+<code>.5</code>, <code>3e2</code> and <code>0.0</code> are
+<code><b>real</b></code> literals. <code>-3</code> is not a literal but
+an expression: the unary operator <code>-</code> applied to the literal
+<code>3</code>. <code>1,000</code> is two literals, <code>1</code> and
+<code>000</code>, separated by a comma. <code>2.</code> is not a
+literal, since a digit must follow the point.</p></li>
+<li><p><code>17 % 5</code> is 3, <code>-17 % 5</code> is <span
+class="math inline"> − 3</span> (the unary minus binds first, and
+<code>%</code> truncates toward zero), <code>17 MOD 5</code> is 2,
+<code>-17 MOD 5</code> is 3 (the remainder is never negative), and
+<code>17 / 5</code> is the <code><b>real</b></code> 3.4.</p></li>
+<li><p><code>2 + 3 * 4 ** 2</code> is <span
+class="math inline">2 + 3 ⋅ 16 = 50</span>. <code>-3 ** 2</code> is
+<span class="math inline">(−3)<sup>2</sup> = 9</span>, since unary
+operators bind more tightly than binary ones.</p></li>
+<li><p><code><b>int</b> n = 10</code> binds <code>n</code> to the value
+10; <code>n</code> has the type <code><b>int</b></code> and cannot be
+assigned to. <code><b>int</b> n := 10</code> allocates a cell, stores 10
+in it and binds <code>n</code> to the reference to the cell;
+<code>n</code> has the type <code><b>ref</b> <b>int</b></code>.</p></li>
+<li><p><code><b>ref</b> <b>real</b> x = <b>loc</b> <b>real</b> := 1.5, y = <b>loc</b> <b>real</b></code>.
+Writing <code><b>ref</b> <b>real</b></code> before <code>y</code> as
+well is also correct.</p></li>
+<li><p>(a) is correct: <code>i</code> is dereferenced and the
+<code><b>int</b></code> is widened to <code><b>real</b></code>. (b) is
+wrong: there is no implicit conversion from <code><b>real</b></code> to
+<code><b>int</b></code>. (c) is correct. (d) is wrong:
+<code>ROUND</code> is defined for a <code><b>real</b></code> operand
+only, and an operand is not widened.</p></li>
+<li><p>Both are 3. The expression <code>a + b</code> is evaluated first,
+giving 3; this is assigned to <code>b</code>, and the value of
+<code>b</code> is then assigned to <code>a</code>.</p></li>
+<li><p>Since a capital letter begins a type name, <code>maxCount</code>
+is read as the identifier <code>max</code> followed by the type name
+<code>Count</code>. Identifiers are written in lower case:
+<code>max_count</code>.</p></li>
+<li><p>2. <code>r</code> is a second name for the cell of
+<code>x</code>.</p></li>
+<li><p><code>((a &lt; b) AND ((x &gt; 0) = (y &gt; 0))) OR (NOT done)</code>:
+the comparisons <code>&lt;</code> and <code>&gt;</code> (precedence 5)
+bind more tightly than <code>=</code> (4), which binds more tightly than
+<code>AND</code> (3) and <code>OR</code> (2), and the unary
+<code>NOT</code> binds most tightly of all.</p></li>
+<li><p>0.25 and 2: <code>-7 MOD 3</code> is 2, since <code>MOD</code>
+never yields a negative result. <code>NOT n = 0</code> means
+<code>(NOT n) = 0</code>, and <code>NOT</code> is not defined for an
+<code><b>int</b></code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch3">Chapter 3</h2>
+<ol>
+<li><p>10 and 11.</p></li>
+<li><p>It prints 20 and then 1. The inner block declares a new
+<code>x</code> with the value <span
+class="math inline"><em>y</em> ⋅ 10 = 20</span>; after that block,
+<code>x</code> is the outermost <code>x</code> again.</p></li>
+<li><p>(a) never, since the initial value is already greater than the
+final value; (b) five times (1, 3, 5, 7, 9); (c) five times (10, 8, 6,
+4, 2); (d) never.</p></li>
+<li><p><code><b>if</b> x &gt; 0 <b>then</b> "plus" <b>elif</b> x &lt; 0 <b>then</b> "minus" <b>else</b> "zero" <b>fi</b></code>.</p></li>
+<li><p><code><b>real</b></code>: the two branches are balanced, and the
+common type of <code><b>int</b></code> and <code><b>real</b></code> is
+<code><b>real</b></code>; the 1 is widened.</p></li>
+<li><p>The operands of an operator are evaluated in an unspecified order
+(collateral elaboration), so either call may come first.</p></li>
+<li><p><code><b>int</b> p := 1; <b>while</b> p &lt;= 1000 <b>do</b> print (p); p *:= 2 <b>od</b></code>.</p></li>
+<li><p>Five times, for <code>i</code> = 1, 3, 5, 7, 9: the final value
+10 is computed once, before the first iteration, and the changes of
+<code>n</code> do not affect it.</p></li>
+<li><p>It prints 1 forever. With a step of 0 the final value is
+ignored.</p></li>
+<li><p>Yes. A jump is acceptable as a value of the type that the other
+branch gives, so the <code><b>if</b></code> has the type
+<code><b>int</b></code> and the declaration gives <code>x</code> the
+value 8.0 if <code>p &gt; q</code>. ga68 and a68j accept it with a
+warning.</p></li>
+<li><p>No. The branches yield a <code><b>ref</b> <b>real</b></code> and
+a <code><b>ref</b> <b>int</b></code>, and neither can be converted into
+the other, so they have no common type; the compiler reports that the
+<code><b>real</b></code> branch “does not yield a name”.</p></li>
+<li><p>The two declarations are carried out in an unspecified order, so
+<code>b</code> may be computed before <code>a</code> has a value.
+Written with a semicolon,
+<code><b>int</b> a = 1; <b>int</b> b = a + 1</code>, the order is
+fixed.</p></li>
+<li><p>A character cannot be both <code>"+"</code> and <code>"-"</code>,
+so one of the two comparisons is always true, and so is their
+<code>OR</code>. The condition must be
+<code>ch /= "+" AND ch /= "-"</code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch4">Chapter 4</h2>
+<ol>
+<li><p><code>[1900:2000] <b>real</b> rainfall;</code><br />
+<code><b>for</b> y <b>from</b> LWB rainfall <b>to</b> UPB rainfall <b>do</b> rainfall[y] := 0 <b>od</b></code></p></li>
+<li><p><code>a[2:3]</code> is the array <code>(6, 7)</code> with the
+bounds 1 to 2, so <code>LWB a[2:3]</code> is 1. <code>a[3:]</code> has
+the elements 7, 8, 9 and the bounds 1 to 3, so its <code>UPB</code> is
+3. <code>a[2:3 @ 0]</code> has the bounds 0 to 1, and its element 0 is
+6.</p></li>
+<li><p>All three are one-dimensional arrays of <code><b>int</b></code>
+(references to them, since <code>m</code> is a variable).
+<code>m[2, ]</code> is the second row, with the bounds 1 to 4;
+<code>m[, 3]</code> is the third column, with the bounds 1 to 3;
+<code>m[2:3, 2]</code> is the part of the second column in rows 2 and 3,
+renumbered to the bounds 1 to 2.</p></li>
+<li><p><code>(4, 5, 6)</code>: the assignment copies the elements of
+<code>b</code> into <code>a</code>, and the later change of
+<code>b</code> does not affect <code>a</code>.</p></li>
+<li><p><code><b>mode</b> Date = <b>struct</b> (<b>int</b> day, month, year);</code><br />
+<code>Date d = (3, 11, 1975)</code></p></li>
+<li><p>Indexing binds more tightly than selection, so the expression
+means <code>name <b>of</b> (class[1][1])</code>, which tries to index a
+record. It must be written
+<code>(name <b>of</b> class[1])[1]</code>.</p></li>
+<li><p><code>y <b>of</b> ps := (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)</code>.
+Note that <code>y <b>of</b> ps := 0</code> does not work: the 0 is
+converted into an array with one element, and the bounds do not match (a
+run-time error).</p></li>
+<li><p>2 to 11 (the second dimension is left out and keeps its bounds),
+1 to 3 (a range is renumbered), and 0 to 9 (the first dimension keeps
+its bounds).</p></li>
+<li><p><code>1 1 2 3 4 6</code>. The right-hand side is a value that is
+complete before anything is stored, so the overlap does no
+harm.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch5">Chapter 5</h2>
+<ol>
+<li><p>(a)
+<code><b>proc</b> (<b>real</b>, <b>int</b>) <b>real</b></code>; (b)
+<code><b>proc</b> <b>bool</b></code>; (c)
+<code><b>proc</b> (<b>ref</b> [] <b>int</b>) <b>void</b></code>.</p></li>
+<li><p>With a loop:</p>
+<pre class="algol68"><code><b>proc</b> digit_sum = (<b>int</b> n) <b>int</b>:
+<b>begin</b>
+   <b>int</b> sum := 0, rest := n;
+   <b>while</b> rest &gt; 0 <b>do</b> sum +:= rest MOD 10; rest := rest % 10 <b>od</b>;
+   sum
+<b>end</b></code></pre>
+<p>Recursively:
+<code><b>proc</b> digit_sum = (<b>int</b> n) <b>int</b>: (n &lt; 10 | n | n MOD 10 + digit_sum (n % 10))</code>.</p></li>
+<li><p>The parameter <code>n</code> is a constant of type
+<code><b>int</b></code>, which cannot be assigned to. Written as
+<code><b>proc</b> inc = (<b>ref</b> <b>int</b> n) <b>void</b>: n +:= 1</code>,
+it takes a reference to the caller’s variable, as in
+<code>inc (count)</code>.</p></li>
+<li><p><code><b>proc</b> apply_twice = (<b>proc</b> (<b>int</b>) <b>int</b> f, <b>int</b> x) <b>int</b>: f (f (x))</code>;
+the call <code>apply_twice ((<b>int</b> n) <b>int</b>: 2 * n, 5)</code>
+gives 20.</p></li>
+<li><p><code><b>prio</b> ABOVE = 5; <b>op</b> ABOVE = (<b>int</b> a, b) <b>bool</b>: a &gt; b</code>.
+Since <code>+</code> has the higher precedence 6,
+<code>1 + 2 ABOVE 2</code> means <code>(1 + 2) ABOVE 2</code>, which is
+<code><b>true</b></code>.</p></li>
+<li><p>A unary operator binds more tightly than a binary one, so the
+expression means <code>(SQUARE 2) MAX 3</code>, which is 4.</p></li>
+<li><p>An assignment is one of the expressions that are discarded as
+they are: its value, the variable <code>p</code>, is thrown away without
+calling the function that <code>p</code> holds. Every other expression
+that yields a function without parameters, such as <code>p</code> on its
+own, an element <code>ps[1]</code> or a call <code>g (1)</code>, is
+called when it is discarded.</p></li>
+<li><p>9: the precedence belongs to the symbol <code>+</code>, so in
+that block <code>1 + 2 * 3</code> is <code>(1 + 2) * 3</code> for
+integers too.</p></li>
+<li><p>Yes. Two declarations of a binary operator clash only if both
+pairs of operand types are related; here the first operands
+(<code><b>int</b></code> and <code><b>real</b></code>) are not, since an
+<code><b>int</b></code> operand is not widened.</p></li>
+<li><pre class="algol68"><code><b>op</b> * = ([] <b>real</b> a, <b>real</b> k) [] <b>real</b>:
+<b>begin</b>
+   [LWB a : UPB a] <b>real</b> r;
+   <b>for</b> i <b>from</b> LWB a <b>to</b> UPB a <b>do</b> r[i] := a[i] * k <b>od</b>;
+   r
+<b>end</b></code></pre></li>
+<li><p>The items of a <code>print</code> list are evaluated in an
+unspecified order (Section <a href="3-ch-control.html#sec-collateral"
+data-reference-type="ref" data-reference="sec-collateral">3.4</a>), so
+<code>d</code> may be read before or after <code>month</code> has
+changed it. The call must come first, in a declaration of its own:
+<code><b>string</b> m = month (d); print ((m, " ", d))</code>.</p></li>
+<li><pre class="algol68"><code><b>proc</b> sum = (<b>int</b> lo, hi, <b>proc</b> (<b>int</b>) <b>real</b> term) <b>real</b>:
+<b>begin</b>
+   <b>real</b> s := 0;
+   <b>for</b> k <b>from</b> lo <b>to</b> hi <b>do</b> s +:= term (k) <b>od</b>;
+   s
+<b>end</b></code></pre>
+<p><code>sum (1, 100, (<b>int</b> k) <b>real</b>: 1 / (k * k))</code>
+gives about 1.635, and
+<code>sum (1, 3, (<b>int</b> k) <b>real</b>: v[k] * w[k])</code> the
+scalar product of three-element arrays. <code>v[k] * w[k]</code> on its
+own is a <code><b>real</b></code>, not a function of <code>k</code>: the
+call is rejected, and there is no <code>k</code> at that place anyway.
+The function literal is called by <code>sum</code> for each
+<code>k</code>, and its body is evaluated with that
+<code>k</code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch6">Chapter 6</h2>
+<ol>
+<li><p><span
+class="math inline">(1+<em>i</em>)(1−<em>i</em>) = 2</span>, so the real
+part is 2.0; <code>ABS (0 I 2)</code> is 2.0.</p></li>
+<li><p>There is no implicit conversion from <code><b>int</b></code> to
+<code><b>long</b> <b>int</b></code>. Correct is
+<code><b>long</b> <b>int</b> n := <b>long</b> 5</code> or
+<code><b>long</b> <b>int</b> n := LENG 5</code>.</p></li>
+<li><p>10, 16 and <code><b>true</b></code>: bit 32 is the least
+significant bit.</p></li>
+<li><pre class="algol68"><code><b>proc</b> popcount = (<b>bits</b> b) <b>int</b>:
+<b>begin</b>
+   <b>int</b> count := 0;
+   <b>for</b> i <b>to</b> bits_width <b>do</b> <b>if</b> i ELEM b <b>then</b> count +:= 1 <b>fi</b> <b>od</b>;
+   count
+<b>end</b></code></pre></li>
+<li><p>With the environment enquiry <code>int_lengths</code>:
+<code><b>long</b> <b>long</b> <b>int</b></code> is a distinct, longer
+type only if <code>int_lengths</code> is at least 3.</p></li>
+<li><p>No. The comparisons of <code><b>bits</b></code> are set
+comparisons: <code>&gt;=</code> asks whether the first value contains
+all bits of the second, and <code>2r100</code> does not contain the bits
+of <code>2r011</code>.</p></li>
+<li><p><code>2 * (3 I 4)</code>, the complex number <span
+class="math inline">6 + 8<em>i</em></span>, since <code>I</code> has the
+precedence 9.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch7">Chapter 7</h2>
+<ol>
+<li><p>1 to 5: <code>s[2:3]</code> is <code>"bc"</code>, and the
+assignment gives <code>s</code> the bounds of
+<code>"bcxyz"</code>.</p></li>
+<li><p>A parameter of type <code><b>ref</b> [] <b>int</b></code> would
+also accept a variable with fixed bounds, to which a longer array cannot
+be assigned. Only <code><b>ref</b> <b>flex</b> [] <b>int</b></code>
+guarantees a variable whose bounds may change. Moreover, in the Report a
+<code><b>ref</b> <b>flex</b> [] <b>int</b></code> is a different type,
+which cannot be passed as a <code><b>ref</b> [] <b>int</b></code> at
+all.</p></li>
+<li><pre class="algol68"><code><b>proc</b> to_real = (<b>union</b> (<b>int</b>, <b>real</b>, <b>bool</b>) v) <b>real</b>:
+   <b>case</b> v <b>in</b> (<b>int</b> i): i, (<b>real</b> r): r, (<b>bool</b> b): (b | 1 | 0) <b>esac</b></code></pre></li>
+<li><p>(b) and (c). (a) is an error: the left-hand side <code>p</code>
+has the type <code><b>ref</b> <b>ref</b> <b>int</b></code>, so the
+right-hand side must be a <code><b>ref</b> <b>int</b></code>, and the
+compiler reports that an <code><b>int</b></code> cannot be converted to
+<code><b>ref</b> <b>int</b></code>.</p></li>
+<li><p>One side of an identity relation is soft, the other strong.
+<code><b>nil</b></code> can only be the strong side, so <code>q</code>
+is the soft side and is not dereferenced: the variable <code>q</code>
+itself, which is never <code><b>nil</b></code>, is compared. The correct
+test is
+<code><b>ref</b> <b>int</b> (q) <b>is</b> <b>nil</b></code>.</p></li>
+<li><p>(a) soft, (b) strong, (c) firm, (d) meek.</p></li>
+<li><pre class="algol68"><code><b>proc</b> reverse = (<b>ref</b> <b>ref</b> Node list) <b>void</b>:
+<b>begin</b>
+   <b>ref</b> Node prev := no_node, cur := list;
+   <b>while</b> <b>ref</b> Node (cur) <b>isnt</b> no_node <b>do</b>
+      <b>ref</b> Node rest = next <b>of</b> cur;
+      next <b>of</b> cur := prev;
+      prev := cur;
+      cur := rest
+   <b>od</b>;
+   list := prev
+<b>end</b></code></pre></li>
+<li><p><code>words[1]</code> is a reference into a resizable array, a
+transient reference, and <code>+:=</code> is an operator whose left
+operand would receive it. <code>words[1] := words[1] + "s"</code> is
+allowed.</p></li>
+<li><p>(a) is rejected: <code>"a"</code> is a <code><b>char</b></code>,
+which is not a member of the union; <code><b>string</b> ("a")</code>
+works. (b) is accepted. (c) is rejected: <code>2</code> is an
+<code><b>int</b></code>, and uniting cannot follow widening. (d) is
+accepted.</p></li>
+<li><p><code>F</code>, <code>F</code>, <code>T</code>:
+<code>p <b>is</b> q</code> compares the two pointer variables,
+<code><b>ref</b> <b>int</b> (p) <b>is</b> <b>ref</b> <b>int</b> (q)</code>
+compares <code>a</code> with <code>b</code>, and
+<code><b>ref</b> <b>int</b> (p) <b>is</b> a</code> compares
+<code>a</code> with <code>a</code>. After <code>q := a</code> the
+results are <code>F</code>, <code>T</code>, <code>T</code>: the
+variables <code>p</code> and <code>q</code> are still different
+cells.</p></li>
+<li><p>With <code>push</code>, the array is replaced when it holds 4, 8,
+16, …, 512 elements, which copies <span
+class="math inline">4 + 8 + ⋯ + 512 = 1020</span> elements, about one
+per element. With <code>append</code>, the <span
+class="math inline"><em>k</em></span>-th call copies the <span
+class="math inline"><em>k</em> − 1</span> elements before it, <span
+class="math inline">0 + 1 + ⋯ + 999 = 499 500</span> in all.</p></li>
+<li><p>The function <code>(<b>int</b> x) <b>int</b>: x + n</code> uses
+<code>n</code>, a parameter of <code>adder</code>, so its lifetime ends
+when <code>adder</code> returns, and it may not be returned. Algol 68
+Genie stops with “value is exported out of its scope”; ga68 and a68j run
+the program, and the function returned by <code>adder (3)</code> even
+yields 7 for the argument 4.</p></li>
+<li><p>The first loop body declares nothing, since
+<code>print (i)</code> is not a declaration: the program remains
+correct. The second declares <code>j</code>, so each cell lives only
+during one execution of the body, and the program is wrong; Algol 68
+Genie stops it.</p></li>
+<li><p><code>a <b>is</b> b</code> is <code><b>false</b></code>: the two
+lists consist of different cells, although their contents are equal.</p>
+<pre class="algol68"><code><b>prio</b> EQ = 4;
+<b>op</b> EQ = (<b>ref</b> Node a, b) <b>bool</b>:
+   <b>if</b> a <b>is</b> <b>nil</b> <b>then</b> b <b>is</b> <b>nil</b>
+   <b>elif</b> b <b>is</b> <b>nil</b> <b>then</b> <b>false</b>
+   <b>else</b> value <b>of</b> a = value <b>of</b> b <b>andth</b> (next <b>of</b> a EQ next <b>of</b> b)
+   <b>fi</b></code></pre>
+<p><code>a EQ b</code> is <code><b>true</b></code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch8">Chapter 8</h2>
+<ol>
+<li><p>Both leave the order of <code>a</code> and <code>b</code>
+unspecified, and in both they may be interleaved. With
+<code><b>par</b></code>, each is a separate process, so one of them can
+wait on a semaphore while the other goes on.</p></li>
+<li><p>The part waits forever; if no other part can continue either, the
+program hangs (a deadlock). Formally, the Report leaves the rest of the
+program undefined once no process can continue.</p></li>
+<li><p>With one producer and one consumer, <code>mutex</code> is not
+strictly necessary: <code>tail</code> is changed only by the producer
+and <code>head</code> only by the consumer, and <code>free</code> and
+<code>full</code> ensure that they never use the same element of the
+buffer at the same time. With several producers or several consumers,
+two of them could change the same position at once, and
+<code>mutex</code> becomes necessary.</p></li>
+<li><p>Let philosopher 0 pick up the right fork first and then the left
+one, while all others pick up the left fork first. Then the five can
+never each hold exactly one fork while waiting for the next.</p></li>
+<li><p>When the buffer is full, the producer takes <code>mutex</code>
+and then waits in <code>DOWN free</code> while holding it. The consumer
+waits in <code>DOWN mutex</code> and can never make a place free: a
+deadlock.</p></li>
+<li><p><code><b>sema</b></code> is a record whose only field is a
+reference to the counter, so <code>b</code> is a copy of that reference
+and refers to the same counter as <code>a</code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="ans-ch9">Chapter 9</h2>
+<ol>
+<li><p><code>open</code> connects the file with an existing book;
+<code>establish</code> creates a new one.</p></li>
+<li><p>That the routine has dealt with the event, so that the transput
+continues at the same place. If it returns <code><b>false</b></code>,
+the default action follows; at the end of the file, the Report leaves
+the program undefined, and the implementations stop it with an
+error.</p></li>
+<li><pre class="algol68"><code><b>proc</b> int_to_string = (<b>int</b> n) <b>string</b>:
+<b>begin</b>
+   <b>string</b> s := "";
+   File f;
+   associate (f, s);
+   put (f, n);
+   s
+<b>end</b></code></pre>
+<p>The result has the standard layout of <code>print</code>, with the
+sign and leading blanks.</p></li>
+<li><p><code>$4d$</code> prints <code>0007</code> for 7; for <span
+class="math inline"> − 7</span> it is an error, since the picture has no
+sign frame. <code>$4zd$</code> prints four blanks and 7 for 7, and is
+also an error for <span class="math inline"> − 7</span>.
+<code>$-3zd$</code> prints four blanks and 7 for 7, and a minus sign,
+three blanks and 7 for <span class="math inline"> − 7</span>: the sign
+frame <code>-</code> prints a blank for a positive value.</p></li>
+<li><p>Reading a string stops before the line break and does not skip
+it, so the line break must be skipped with <code>newline</code>. If both
+are read in one call, <code>get (input, (line, newline))</code>, and the
+last line has no line break, <code>newline</code> meets the end of the
+input and the event routine jumps away before the line is printed. With
+two calls, the line is printed first.</p></li>
+<li><p>(a) One value: the frames form a single picture of four digits,
+and 3 is printed as <code>00/03</code>; the format then starts again and
+prints 4 as <code>00/04</code>. (b) Two values, printed as
+<code>03/04</code>.</p></li>
+<li><p><code>" -5"</code>, <code>"  5"</code>, <code>"2.50"</code> and
+<code>"-.25"</code>. A positive width always writes a sign, a negative
+one only a minus sign; with width 0, <code>fixed</code> writes no zero
+before the point.</p></li>
+<li><p>Both <code>a</code> and <code>b</code> fail on the same
+<code>x</code>, since the routine leaves it in place; in the
+implementations, the routine is called twice, and <code>a</code> and
+<code>b</code> keep their old values. The <code>5</code> is never
+read.</p></li>
+<li><pre class="algol68"><code>$g(0), " ", c("January", "February", "March", "April", "May", "June",
+   "July", "August", "September", "October", "November", "December"),
+ " ", g(0)$</code></pre>
+<p>The pictures <code>" "</code> have no pattern and use no
+value.</p></li>
+</ol>
+</body>
+</html>

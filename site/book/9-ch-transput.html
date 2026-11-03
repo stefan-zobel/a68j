@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Input and output</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-library.html" accesskey="n" rel="next">Appendix A: The standard library</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="8-ch-par.html" accesskey="p" rel="previous">Concurrency</a>
+</span>
+</div>
+</nav>
+<h1 data-number="9" id="ch-transput"><span
+class="header-section-number">9</span> Input and output</h1>
+<p>The programs so far used <code>print</code> and <code>read</code> on
+the standard output and the standard input. This chapter describes input
+and output in general: how a program reads and writes files, reads from
+and writes to strings, reacts to the end of the input and to bad data,
+converts numbers to text, and lays out its output precisely with
+formats. The Report calls input and output together <span
+class="sans-serif">transput</span>.</p>
+<p>The transput of the Report is a large part of its standard library,
+and the implementations provide it to different degrees. Algol 68 Genie
+provides nearly all of it; Section <a
+href="9-ch-transput.html#sec-transput-genie" data-reference-type="ref"
+data-reference="sec-transput-genie">9.12</a> lists what it lacks. For
+ga68 and a68j, the module <code>Genie_Transput</code> provides the
+unformatted part used in this chapter; formatted and binary transput are
+not available there, and the examples of those sections were run with
+Algol 68 Genie.</p>
+<h2 data-number="9.1" id="sec-books"><span
+class="header-section-number">9.1</span> Books, channels and files</h2>
+<p>The Report distinguishes three things that current languages usually
+do not separate:</p>
+<ul>
+<li><p>A <span class="sans-serif">book</span> is the data itself, such
+as a file on disk, identified by a name. Its text is divided into pages,
+the pages into lines, and the lines into characters, and a position in a
+book is given by a page, a line and a character number.</p></li>
+<li><p>A <span class="sans-serif">channel</span> describes a kind of
+device and what can be done with it: <code>stand_in_channel</code> for
+reading, <code>stand_out_channel</code> for writing,
+<code>stand_back_channel</code> for both.</p></li>
+<li><p>A <span class="sans-serif">file</span> (here of type
+<code>File</code>) is what a program uses to read or write a book
+through a channel: a file handle or stream, in today’s terms. It records
+the current position in the book, the procedures to call when something
+unusual happens, and a few settings.</p></li>
+</ul>
+<p>The procedure <code>open (f, name, <b>channel</b>)</code> connects
+the file <code>f</code> with an existing book;
+<code>establish (f, name, <b>channel</b>)</code> creates a new one, and
+<code>create (f, <b>channel</b>)</code> creates a new book without a
+name, a temporary file. These procedures return 0 on success.
+<code>close (f)</code> ends the connection, <code>scratch (f)</code>
+ends it and deletes the book, and <code>reset (f)</code> returns to the
+start of the book. The files <code>stand_in</code> and
+<code>stand_out</code> are open from the start; <code>print (x)</code>
+is short for <code>put (stand_out, x)</code>, and <code>read (x)</code>
+for <code>get (stand_in, x)</code>.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  In ga68 and a68j the type is
+called <code>File</code> and the channels and procedures are those of
+<code>Genie_Transput</code>, since the reserved word
+<code><b>file</b></code> of ga68 does not yet denote a usable type. In
+the Report and in Algol 68 Genie, the type is <code><b>file</b></code>.
+In the Report, <code>establish</code> has three more parameters, the
+number of pages, lines per page and characters per line of the new book;
+the implementations leave them out.</p>
+</blockquote>
+<h2 data-number="9.2" id="sec-get-put"><span
+class="header-section-number">9.2</span> Reading and writing files</h2>
+<p>The procedures <code>put</code> and <code>get</code> write and read a
+list of values, like <code>print</code> and <code>read</code>, but on a
+given file. The following program writes five lines to a new file and
+then reads them back:</p>
+<pre class="algol68"><code>   File results;
+   <b>if</b> establish (results, "squares.txt", stand_out_channel) /= 0 <b>then</b>
+      print (("cannot create squares.txt", newline)); stop
+   <b>fi</b>;
+   <b>for</b> i <b>to</b> 5 <b>do</b> put (results, (i, " ", i * i, newline)) <b>od</b>;
+   close (results);
+
+   File data;
+   <b>if</b> open (data, "squares.txt", stand_in_channel) /= 0 <b>then</b>
+      print (("cannot open squares.txt", newline)); stop
+   <b>fi</b>;
+   on_logical_file_end (data, (<b>ref</b> File f) <b>bool</b>: <b>goto</b> done);
+   <b>do</b>
+      <b>int</b> n, square;
+      get (data, (n, square));
+      print ((whole (n, 0), " squared is ", whole (square, 0), newline))
+   <b>od</b>;
+done:
+   close (data)</code></pre>
+<pre class="output"><code>1 squared is 1
+2 squared is 4
+3 squared is 9
+4 squared is 16
+5 squared is 25</code></pre>
+<p>The reading loop has no condition: it ends when the input is
+exhausted. The procedure <code>on_logical_file_end</code> installs a
+procedure that the transput calls when a <code>get</code> reaches the
+end of the book; here it jumps out of the loop to the label
+<code>done</code>. Such procedures are the Report’s <span
+class="sans-serif">event routines</span>; today they would be called
+callbacks or handlers. Section <a href="9-ch-transput.html#sec-events"
+data-reference-type="ref" data-reference="sec-events">9.4</a> describes
+them in general.</p>
+<p>The predefined label <code>stop</code> ends the program;
+<code><b>goto</b> stop</code>, or just <code>stop</code>, can be written
+anywhere.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  In Algol 68 Genie,
+<code>establish</code> returns 0 even if the file already exists; the
+error comes with the first <code>put</code> (“file exists”). The program
+above therefore fails when it is run a second time in the same
+directory. <code>open</code> with <code>stand_out_channel</code> opens
+an existing file for writing and empties it. A program that should work
+in both cases tries <code>open</code> first and calls
+<code>establish</code> only if that fails.</p>
+</blockquote>
+<h2 data-number="9.3" id="sec-stand-in"><span
+class="header-section-number">9.3</span> Reading the standard input</h2>
+<p>The same technique reads all of the standard input, however much
+there is. Numbers are separated by blanks and line breaks. One detail
+matters here: the event routine jumps to a label of the program’s block,
+so it lives only as long as that block (Section <a
+href="7-ch-advanced.html#sec-proc-lifetimes" data-reference-type="ref"
+data-reference="sec-proc-lifetimes">7.16</a>), whereas
+<code>stand_in</code> lives as long as the whole program. Installing the
+routine in <code>stand_in</code> itself would break the lifetime rule;
+the Report uses a case like this as its example. The program therefore
+copies <code>stand_in</code> into a local file variable and reads from
+that:</p>
+<pre class="algol68"><code>   <span class="comment">{ Sum all numbers on the standard input, however many there are. }</span>
+   <b>real</b> sum := 0;
+   <b>int</b> count := 0;
+   File input := stand_in;           <span class="comment">{ a copy, local to this block }</span>
+   on_logical_file_end (input, (<b>ref</b> File f) <b>bool</b>: <b>goto</b> finished);
+   <b>do</b>
+      <b>real</b> x;
+      get (input, x);
+      sum +:= x;
+      count +:= 1
+   <b>od</b>;
+finished:
+   print ((whole (count, 0), " numbers, sum ", fixed (sum, 0, 2), newline))</code></pre>
+<pre class="output"><code>4 numbers, sum 11.25</code></pre>
+<p>with the input</p>
+<pre class="output"><code>1.5 2.5
+3
+
+4.25</code></pre>
+<p>The copy <code>input</code> reads the same data as
+<code>stand_in</code>: a <code>File</code> value contains references to
+the book and to the current position, which the copy shares, and its own
+event routines, which it does not share. The copy can therefore be given
+an event routine that lives only as long as the block, while reading
+continues where <code>stand_in</code> stands.</p>
+<p>A number is read up to the first character that cannot belong to it:
+<code>12abc</code> yields 12 and leaves <code>abc</code> for the next
+read, and <code>1,024</code> yields 1. Leading blanks and line breaks
+are skipped. A character is read as it is, a blank included; at the end
+of a line, the line break is skipped and the first character of the next
+line is read.</p>
+<p>A <code><b>string</b></code> is read up to the end of the line; the
+line break itself is not read, and the next <code>get</code> of a string
+would yield an empty string at once. It is skipped with
+<code>newline</code>, which, like <code>space</code>,
+<code>backspace</code> and <code>newpage</code>, can appear in the list
+of <code>get</code> as well as of <code>put</code>. On input they skip
+the rest of the line, one character, and so on; on output they start a
+new line, move one position, and start a new page. A program that
+processes its input line by line reads a line, processes it, and then
+skips the line break:</p>
+<pre class="algol68"><code>   <span class="comment">{ Number the lines of the standard input. }</span>
+   <b>int</b> n := 0;
+   File input := stand_in;
+   on_logical_file_end (input, (<b>ref</b> File f) <b>bool</b>: <b>goto</b> finished);
+   <b>do</b>
+      <b>string</b> line;
+      get (input, line);              <span class="comment">{ the rest of the line }</span>
+      n +:= 1;
+      print ((whole (n, -3), "  ", line, newline));
+      get (input, newline)            <span class="comment">{ skip the line break }</span>
+   <b>od</b>;
+finished:
+   <b>skip</b></code></pre>
+<pre class="output"><code>  1  Algol 68 was designed
+  2  by IFIP Working Group 2.1.
+  3  
+  4  The Revised Report appeared in 1975.</code></pre>
+<p>The input was:</p>
+<pre class="output"><code>Algol 68 was designed
+by IFIP Working Group 2.1.
+
+The Revised Report appeared in 1975.</code></pre>
+<blockquote>
+<p><strong>Pitfall.</strong>  The shorter
+<code>get (input, (line, newline))</code> looks equivalent, but it loses
+the last line if the input does not end with a line break:
+<code>newline</code> then reaches the end of the input, the event
+routine jumps away, and the line that was just read is never printed.
+Text editors and programs do not always write a final line break.</p>
+</blockquote>
+<p>The layout procedures are ordinary procedures of type
+<code><b>proc</b> (<b>ref</b> File) <b>void</b></code>. They can be
+called directly, as <code>newline (stand_out)</code>, and a program can
+write its own procedure of this type and put it in a list, where
+<code>put</code> and <code>get</code> call it with the file:</p>
+<pre class="algol68"><code><b>proc</b> indent = (<b>ref</b> File f) <b>void</b>: put (f, "    ");
+print (("total:", newline, indent, "12 items", newline));
+<b>for</b> i <b>to</b> 3 <b>do</b> print (i) <b>od</b>;
+newline (stand_out);
+print (("done", newline))</code></pre>
+<pre class="output"><code>total:
+    12 items
+         +1         +2         +3
+done</code></pre>
+<h2 data-number="9.4" id="sec-events"><span
+class="header-section-number">9.4</span> Events</h2>
+<p>An event routine is installed in a file for one kind of event. It
+receives the file and returns a <code><b>bool</b></code>. If it returns
+<code><b>true</b></code>, it reports that it has dealt with the event
+and the transput continues; if it returns <code><b>false</b></code>, the
+default action follows. A routine can also jump out, as in the examples
+above.</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Installed with</th>
+<th style="text-align: left;">Called when</th>
+<th style="text-align: left;">Default action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>on_logical_file_end</code></td>
+<td style="text-align: left;">the data of the book are exhausted</td>
+<td style="text-align: left;">error</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>on_physical_file_end</code></td>
+<td style="text-align: left;">the medium is full or exhausted</td>
+<td style="text-align: left;">error</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>on_line_end</code></td>
+<td style="text-align: left;">a line is exhausted</td>
+<td style="text-align: left;"><code>newline</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>on_page_end</code></td>
+<td style="text-align: left;">a page is exhausted</td>
+<td style="text-align: left;"><code>newpage</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>on_format_end</code></td>
+<td style="text-align: left;">a format is exhausted (Section <a
+href="9-ch-transput.html#sec-format-list" data-reference-type="ref"
+data-reference="sec-format-list">[sec-format-list]</a>)</td>
+<td style="text-align: left;">start it again</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>on_value_error</code></td>
+<td style="text-align: left;">a value cannot be read or written</td>
+<td style="text-align: left;">error</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>on_char_error</code></td>
+<td style="text-align: left;">a character cannot be converted</td>
+<td style="text-align: left;">error</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The Report leaves the program undefined where the table says “error”;
+the implementations stop it with a message. <code>Genie_Transput</code>
+provides the logical end of the file and the value error. Algol 68 Genie
+provides all except <code>on_char_error</code>; a character that cannot
+be converted causes a value error.</p>
+<p>A routine that returns <code><b>true</b></code> must really have
+dealt with the event, because the transput then continues at the same
+place. With Algol 68 Genie and <code>Genie_Transput</code>, a value
+error on input occurs when the text is not a number. (The Report calls
+the char error routine for a character that cannot belong to a number,
+and the value error routine for a number that cannot be converted.) If
+the routine only counts the error, the bad text is still there, and the
+next number fails in the same way:</p>
+<pre class="algol68"><code><b>string</b> text := "12 x3 45 67";
+File f;
+associate (f, text);
+make_term (f, " ");
+<b>int</b> errors := 0;
+on_value_error (f, (<b>ref</b> File g) <b>bool</b>:
+   <b>begin</b>
+      errors +:= 1;
+      <b>true</b>                   <span class="comment">{ the error has been dealt with }</span>
+   <b>end</b>);
+<b>int</b> a := -1, b := -1, c := -1, d := -1;
+get (f, (a, b, c, d));
+print ((whole (a, 0), " ", whole (b, 0), " ", whole (c, 0), " ",
+        whole (d, 0), ", errors: ", whole (errors, 0), newline))</code></pre>
+<pre class="output"><code>12 -1 -1 -1, errors: 3</code></pre>
+<p>prints <code>12 -1 -1 -1, errors: 3</code>: one bad word spoiled all
+the following values. The routine must remove the cause, here by reading
+the bad word as a string:</p>
+<pre class="algol68"><code><b>string</b> text := "12 x3 45 67";
+File f;
+associate (f, text);
+make_term (f, " ");
+<b>int</b> errors := 0;
+on_value_error (f, (<b>ref</b> File g) <b>bool</b>:
+   <b>begin</b>
+      errors +:= 1;
+      <b>string</b> bad;
+      get (g, bad);          <span class="comment">{ skip the word that is not a number }</span>
+      <b>true</b>                   <span class="comment">{ the error has been dealt with }</span>
+   <b>end</b>);
+<b>int</b> a := -1, b := -1, c := -1, d := -1;
+get (f, (a, b, c, d));
+print ((whole (a, 0), " ", whole (b, 0), " ", whole (c, 0), " ",
+        whole (d, 0), ", errors: ", whole (errors, 0), newline))</code></pre>
+<pre class="output"><code>12 -1 45 67, errors: 1</code></pre>
+<p>which prints <code>12 -1 45 67, errors: 1</code>. In the same way, a
+logical file end routine that returns <code><b>true</b></code> without
+having made more data available is called again, according to the
+Report; the implementations call it once and continue, and the value
+that was to be read is then not meaningful. Such a routine should jump
+away, as in the examples above, or return <code><b>false</b></code>.</p>
+<h2 data-number="9.5" id="sec-associate"><span
+class="header-section-number">9.5</span> Strings as files</h2>
+<p>The procedure <code>associate (f, s)</code> connects a file with a
+string variable instead of a book. Reading then takes the characters
+from the string, and writing adds to it. This converts between numbers
+and their textual form with all the facilities of the transput:</p>
+<pre class="algol68"><code><b>string</b> text := "3 4 5";
+File f;
+associate (f, text);               <span class="comment">{ f now reads from text }</span>
+<b>int</b> a, b, c;
+get (f, (a, b, c));
+print ((whole (a * a + b * b - c * c, 0), newline));
+
+<b>string</b> line := "";
+File g;
+associate (g, line);               <span class="comment">{ g now writes into line }</span>
+put (g, ("a = ", whole (a, 0), ", c = ", whole (c, 0)));
+print ((line, newline))</code></pre>
+<pre class="output"><code>0
+a = 3, c = 5</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  In the Report,
+<code>associate</code> connects a file with an array of arrays of arrays
+of characters (pages, lines, characters) of fixed size, and writing
+overwrites it from the start. Algol 68 Genie and
+<code>Genie_Transput</code> use a <code><b>ref</b> <b>string</b></code>
+instead and append to it, which is what programs need in practice.</p>
+</blockquote>
+<h2 data-number="9.6" id="sec-make-term"><span
+class="header-section-number">9.6</span> Terminators and other
+settings</h2>
+<p>A string read with <code>get</code> ends at the end of the line. The
+procedure <code>make_term (f, s)</code> makes it end also at every
+character of the string <code>s</code>; the terminating character itself
+is not read. The complete program at the end of this chapter uses it to
+read a name that ends at a blank.</p>
+<p>A file can be asked what it allows: <code>get_possible (f)</code>,
+<code>put_possible (f)</code>, <code>bin_possible (f)</code>,
+<code>reset_possible (f)</code> and <code>set_possible (f)</code> return
+a <code><b>bool</b></code>. After a file has been written,
+<code>reset</code> returns to the start so that it can be read; reading
+and writing cannot simply alternate.</p>
+<p>The Report provides further procedures, which Algol 68 Genie does not
+have: the current position (<code>char_number</code>,
+<code>line_number</code>, <code>page_number</code>) and the setting of
+it (<code>set_char_number</code> and a <code>set</code> with page, line
+and character), a new name for a book (<code>reidf</code>), and a
+translation table for characters (<code>make_conv</code>). A program
+that needs the current line number counts the lines itself.
+<code>Genie_Transput</code> provides, besides <code>make_term</code>,
+the functions <code>eof</code> and <code>eoln</code> of Algol 68 Genie,
+which test for the end of the file and of the line.</p>
+<h2 data-number="9.7" id="sec-straightening"><span
+class="header-section-number">9.7</span> Printing arrays and
+records</h2>
+<p><code>put</code> and <code>print</code> accept arrays and records,
+not only single values, provided that they contain no references,
+functions or unions. They are broken down into their elements and
+fields, which are printed one after the other; the Report calls this
+<span class="sans-serif">straightening</span>. An array of records thus
+prints the fields of every element:</p>
+<pre class="algol68"><code><b>mode</b> Point = <b>struct</b> (<b>int</b> x, y);
+[] Point path = ((1, 2), (3, 4));
+print ((path, newline))</code></pre>
+<pre class="output"><code>                  +1                  +2                  +3                  +4</code></pre>
+<p><code>get</code> straightens in the same way: <code>get (f, m)</code>
+for a <code>[2,3] <b>int</b></code> variable <code>m</code> reads six
+numbers into it, row by row. For input the Report is stricter: apart
+from a <code><b>string</b></code> variable itself, the variable may
+contain no resizable arrays, so a record with a
+<code><b>string</b></code> field or an array of strings cannot be read
+with one <code>get</code>.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  <code>Genie_Transput</code>
+straightens arrays of the primitive types but not records (Section <a
+href="4-ch-data.html#sec-print-data" data-reference-type="ref"
+data-reference="sec-print-data">4.11</a>), and its <code>get</code> does
+not accept arrays; this example was run with Algol 68 Genie, whose
+<code><b>int</b></code> has 64 bits and is therefore printed in a wider
+field. Algol 68 Genie also reads a record with
+<code><b>string</b></code> fields with one <code>get</code>.</p>
+</blockquote>
+<h2 data-number="9.8" id="sec-conversions"><span
+class="header-section-number">9.8</span> Converting numbers to text</h2>
+<p>The procedures <code>whole</code>, <code>fixed</code> and
+<code>float</code> of Section <a href="2-ch-values.html#sec-io"
+data-reference-type="ref" data-reference="sec-io">2.14</a> convert a
+number into a string of a given width, which is the usual way to lay out
+numbers without formats:</p>
+<ul>
+<li><p><code>whole (i, w)</code> writes an integer in a field of width
+<span class="math inline">|<em>w</em>|</span>. If <code>w</code> is
+positive, a sign is always written; if it is negative, only a minus
+sign. <code>w = 0</code> gives the shortest string.</p></li>
+<li><p><code>fixed (x, w, d)</code> writes a real with <code>d</code>
+digits after the point, in a field of width <span
+class="math inline">|<em>w</em>|</span>, with the same rules for the
+sign.</p></li>
+<li><p><code>float (x, w, d, e)</code> writes a real in scientific
+notation with <code>d</code> digits after the point and an exponent of
+<code>e</code> digits.</p></li>
+</ul>
+<pre class="algol68"><code>print (("[", whole (42, 6), "] [", whole (42, -6), "] [", whole (-42, 0),
+        "] [", whole (123456, 3), "]", newline));
+print (("[", fixed (3.14159, 8, 3), "] [", fixed (3.14159, -8, 3),
+        "] [", fixed (3.14159, 6, 4), "] [", fixed (0.015, 0, 4), "]", newline));
+print (("[", float (31415.9, 10, 3, 2), "] [", float (31415.9, -10, 3, -2),
+        "]", newline))</code></pre>
+<pre class="output"><code>[   +42] [    42] [-42] [***]
+[  +3.142] [   3.142] [+3.142] [.0150]
+[+31.416e+3] [ 31.416e 3]</code></pre>
+<p>prints</p>
+<pre class="output"><code>[   +42] [    42] [-42] [***]
+[  +3.142] [   3.142] [+3.142] [.0150]
+[+31.416e+3] [ 31.416e 3]</code></pre>
+<p>A number that does not fit is not given a wider field, unlike C’s
+<code>printf</code>: <code>whole (123456, 3)</code> yields three
+asterisks. <code>fixed</code> first gives up digits after the point, so
+that <code>fixed (3.14159, 6, 4)</code> yields <code>+3.142</code>; only
+when the integral part does not fit either does it yield asterisks.
+<code>fixed</code> writes no zero before the point of a number below 1
+if the width is 0 (<code>.0150</code>). <code>float</code> chooses the
+exponent so that as many digits as possible stand before the point.</p>
+<h2 data-number="9.9" id="sec-formats"><span
+class="header-section-number">9.9</span> Formatted output</h2>
+<p>For complete control over the layout, the Report provides
+<em>formats</em>, a small language of their own, comparable to the
+format strings of <code>printf</code> in C or of Fortran’s
+<code>FORMAT</code> statement. A format text is written between dollar
+signs. The procedure <code>printf</code> takes a list that begins with a
+format and continues with the values; <code>putf</code> does the same
+for a given file, and <code>readf</code> and <code>getf</code> read
+according to a format.</p>
+<pre class="algol68"><code><b>int</b> n = 42;
+<b>real</b> x = 3.14159;
+printf (($"[" 5d "]" l$, n));          <span class="comment">{ five digits, leading zeros }</span>
+printf (($"[" 5zd "]" l$, n));         <span class="comment">{ leading zeros suppressed }</span>
+printf (($"[" -4zd "]" l$, -n));       <span class="comment">{ a sign if negative }</span>
+printf (($"[" zzd.dd "]" l$, x));      <span class="comment">{ fixed point }</span>
+printf (($"[" d.3de+2d "]" l$, x * 1000));   <span class="comment">{ floating point }</span>
+printf (($"[" 3a "]" x b l$, "abc", <b>true</b>))</code></pre>
+<pre class="output"><code>[00042]
+[    42]
+[-   42]
+[  3.14]
+[3.142e+03]
+[abc] T</code></pre>
+<p>A format consists of <em>pictures</em>, each of which describes how
+one value is printed, separated by commas. A picture is made of
+<em>frames</em>:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Frame</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>d</code></td>
+<td style="text-align: left;">a digit</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>z</code></td>
+<td style="text-align: left;">a digit, printed as a blank if it is a
+leading zero</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code>, <code>-</code></td>
+<td style="text-align: left;">a sign: always, or only if negative</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>.</code></td>
+<td style="text-align: left;">the decimal point</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>e</code></td>
+<td style="text-align: left;">the exponent marker of a floating-point
+number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>a</code></td>
+<td style="text-align: left;">a character</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>b</code></td>
+<td style="text-align: left;">a truth value (<code>T</code> or
+<code>F</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>g</code></td>
+<td style="text-align: left;">a value in its standard layout, as
+<code>print</code> would print it</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A number before a frame repeats it: <code>5d</code> is five digits
+and <code>3zd</code> is three suppressible digits followed by one that
+is always printed. Between the frames, <em>insertions</em> add text: a
+string in quotes is printed as it is, <code>x</code> prints a blank,
+<code>l</code> ends the line and <code>p</code> the page, and
+<code>k</code> moves to a given column. They too can be repeated, as in
+<code>2x</code> or <code>3"-"</code>.</p>
+<h3 class="unnumbered" id="one-picture-one-value">One picture, one
+value</h3>
+<p>Everything between two commas is one picture, and one picture prints
+one value, however many frames it has:</p>
+<pre class="algol68"><code>printf (($"a = " 2d ", b = " 2d l$, 1));      <span class="comment">{ one picture: one value }</span>
+printf (($"a = " 2d, ", b = " 2d l$, 1, 2))   <span class="comment">{ two pictures }</span></code></pre>
+<pre class="output"><code>a = 00, b = 01
+a = 01, b = 02</code></pre>
+<p>prints</p>
+<pre class="output"><code>a = 00, b = 01
+a = 01, b = 02</code></pre>
+<p>In the first format, <code>2d ", b = " 2d</code> is a single picture
+of four digits with some text in the middle, and it prints the single
+value 1 as <code>0001</code> with the text inserted. This is easy to get
+wrong and hard to see; when a format prints something strange, the
+commas are the first thing to check.</p>
+<h3 class="unnumbered" id="where-the-sign-goes">Where the sign goes</h3>
+<p>A sign frame before the digits puts the sign at the left edge of the
+field. A sign frame after the <code>z</code> frames lets it move to just
+before the first printed digit:</p>
+<pre class="algol68"><code><b>for</b> i <b>to</b> 3 <b>do</b>
+   <b>int</b> n = (i | 42, -42, -7);
+   printf (($"[" -4zd "] [", 4z-d "] [", 4z+d "] [", +4d "]" l$, n, n, n, n))
+<b>od</b></code></pre>
+<pre class="output"><code>[    42] [    42] [   +42] [+0042]
+[-   42] [   -42] [   -42] [-0042]
+[-    7] [    -7] [    -7] [-0007]</code></pre>
+<p>prints</p>
+<pre class="output"><code>[    42] [    42] [   +42] [+0042]
+[-   42] [   -42] [   -42] [-0042]
+[-    7] [    -7] [    -7] [-0007]</code></pre>
+<p>A negative value in a picture without a sign frame is a value
+error.</p>
+<h3 class="unnumbered"
+id="choices-general-patterns-and-other-kinds-of-values">Choices, general
+patterns and other kinds of values</h3>
+<p>A truth value can be printed with two strings of the program’s
+choice, <code>b("yes", "no")</code>, and an integer between 1 and <span
+class="math inline"><em>n</em></span> can select one of <span
+class="math inline"><em>n</em></span> strings with
+<code>c("one", "two", ...)</code>. Both make it easy to print plurals
+and names:</p>
+<pre class="algol68"><code><b>for</b> n <b>from</b> 0 <b>to</b> 2 <b>do</b>
+   printf (($g(0) " file" b("", "s") " found" l$, n, n = 1))
+<b>od</b>;
+<b>for</b> month <b>from</b> 1 <b>to</b> 3 <b>do</b>
+   printf (($c("January", "February", "March") ", " g(0) l$, month, month))
+<b>od</b>;
+printf (($b("yes", "no") ", " b l$, 3 &gt; 2, 3 &gt; 4))</code></pre>
+<pre class="output"><code>0 files found
+1 file found
+2 files found
+January, 1
+February, 2
+March, 3
+yes, F</code></pre>
+<p>prints</p>
+<pre class="output"><code>0 files found
+1 file found
+2 files found
+January, 1
+February, 2
+March, 3
+yes, F</code></pre>
+<p>The general pattern <code>g</code> prints a value as
+<code>print</code> would. With parameters, it prints a number like the
+conversion procedures of Section <a
+href="9-ch-transput.html#sec-conversions" data-reference-type="ref"
+data-reference="sec-conversions">9.8</a>: <code>g(w)</code> like
+<code>whole</code>, <code>g(w, d)</code> like <code>fixed</code>, and
+<code>g(w, d, e)</code> like <code>float</code>. The parameters can be
+any integer expressions. A <code><b>bits</b></code> value is printed in
+base 2, 4, 8 or 16 with a picture such as <code>2r8d</code> or
+<code>16r4d</code>:</p>
+<pre class="algol68"><code><b>real</b> x = 1234.5678;
+printf (($g l$, x));
+printf (($g(10) "|" g(-10, 2) "|" g(-12, 3, 2) l$, 42, x, x));
+<b>int</b> w = 9;
+printf (($g(w, w - 6) l$, x));            <span class="comment">{ the parameters can be computed }</span>
+<b>bits</b> b = 2r1011;
+printf (($2r8d, " " 16r4d l$, b, 16rbeef))</code></pre>
+<pre class="output"><code>+1.23456780000000e  +3
+       +42|   1234.57| 1234.568e+0
++1234.568
+00001011 beef</code></pre>
+<p>prints</p>
+<pre class="output"><code>+1.23456780000000e  +3
+       +42|   1234.57| 1234.568e+0
++1234.568
+00001011 beef</code></pre>
+<p>The first line shows the standard layout of a
+<code><b>real</b></code> in Algol 68 Genie, whose
+<code><b>real</b></code> has 64 bits.</p>
+<p>A string is printed with <code>a</code> frames, one per character,
+and the number of frames must equal the length of the string; insertions
+between the frames are allowed:</p>
+<pre class="algol68"><code>printf (($a". "5a l$, "JSmith"));          <span class="comment">{ one string, split by an insertion }</span>
+printf (($"[" 5a "]" l$, "Algol"));
+printf (($"[" 5a "]" l$, "Al"))           <span class="comment">{ wrong length: a run-time error }</span></code></pre>
+<pre class="output"><code>J. Smith
+[Algol]
+5        printf (($"[" 5a "]" l$, "Al"))           COMMENT wrong length: a run-time error COMMENT
+                        1                                                                        
+a68g: runtime error: 1: error transputting [] CHAR value, in [] "SIMPLOUT" collateral-clause starting at "(" in this line.</code></pre>
+<p>prints <code>J. Smith</code> and <code>[Algol]</code>, and then stops
+with an error, since <code>"Al"</code> has only two characters for five
+frames. A string of variable length is printed with <code>g</code> or
+with the computed repetition of the next section.</p>
+<p>A part of a format can also be chosen when the program runs. The
+format pattern <code>f(...)</code> contains an expression that yields a
+format, and inserts that format in its place:</p>
+<pre class="algol68"><code><b>for</b> n <b>to</b> 3 <b>do</b>
+   printf (($g(0), x f(n = 1 | $"item"$ | $"items"$) l$, n))
+<b>od</b>;
+printf (($"Smith""Jones" l$));
+printf (($"Smith" 1"Jones" l$))</code></pre>
+<pre class="output"><code>1 item
+2 items
+3 items
+Smith"Jones
+SmithJones</code></pre>
+<p>prints</p>
+<pre class="output"><code>1 item
+2 items
+3 items
+Smith"Jones
+SmithJones</code></pre>
+<blockquote>
+<p><strong>Pitfall.</strong>  Two string insertions with nothing between
+them are one string: as in a string literal, a doubled quote stands for
+a quote character, so <code>"Smith""Jones"</code> prints
+<code>Smith"Jones</code>, as the fourth line shows. A repetition count,
+even <code>1</code>, keeps them apart. Algol 68 Genie also accepts a
+space between them, the Report does not.</p>
+</blockquote>
+<h3 class="unnumbered" id="repetition-and-columns">Repetition and
+columns</h3>
+<p>A repetition can be computed while the program runs: in
+<code>n (k) (...)</code>, the part in parentheses is repeated
+<code>k</code> times, which suits arrays of any size. An integer value
+is printed through a real picture as a real number:</p>
+<pre class="algol68"><code><b>format</b> row = $3zd, 2x zd.ddd, 2x zzzd.d l$;
+printf (($"   n   sqrt n    n ** 3" l$));
+<b>for</b> n <b>to</b> 5 <b>do</b> printf ((row, n, sqrt (n), n ** 3)) <b>od</b>;
+[] <b>int</b> v = (7, 11, 13, 17);
+printf (($"values:" n (UPB v) (x 2d) l$, v))</code></pre>
+<pre class="output"><code>   n   sqrt n    n ** 3
+   1   1.000     1.0
+   2   1.414     8.0
+   3   1.732    27.0
+   4   2.000    64.0
+   5   2.236   125.0
+values: 07 11 13 17</code></pre>
+<p>The insertion <code>k</code> moves to the column given by its
+repetition count, which can also be computed. That is enough for a
+simple plot:</p>
+<pre class="algol68"><code><b>for</b> i <b>from</b> 0 <b>to</b> 8 <b>do</b>
+   <b>real</b> x = i * pi / 8;
+   <b>int</b> column = 10 + ROUND (20 * sin (x));
+   printf (($zd.dd, n (column) k "*" l$, x))
+<b>od</b></code></pre>
+<pre class="output"><code> 0.00    *
+ 0.39            *
+ 0.79                  *
+ 1.18                      *
+ 1.57                        *
+ 1.96                      *
+ 2.36                  *
+ 2.75            *
+ 3.14    *</code></pre>
+<p>prints</p>
+<pre class="output"><code> 0.00    *
+ 0.39            *
+ 0.79                  *
+ 1.18                      *
+ 1.57                        *
+ 1.96                      *
+ 2.36                  *
+ 2.75            *
+ 3.14    *</code></pre>
+<h3 class="unnumbered" id="sec-format-list">How the values and the
+format are matched</h3>
+<p>The values of the list are matched with the pictures of the format
+one by one. When the format is exhausted and values remain, it starts
+again from the beginning: <code>printf (($2d l$, 1, 2, 3))</code> prints
+three lines. This is the default action of the event
+<code>on_format_end</code>. A list may contain several formats, each of
+which applies to the values after it. The layout procedures
+<code>newline</code> and <code>space</code> cannot appear in the list of
+<code>printf</code>; the insertions <code>l</code> and <code>x</code>
+take their place.</p>
+<p>A format is a value of the type <code><b>format</b></code> and can be
+stored in a variable, passed to a procedure, or chosen at run time: a
+<code><b>proc</b> (<b>int</b>) <b>format</b></code> can return different
+formats for different cases. A format that computes a repetition from a
+local name, <code>n (digits) d</code>, is subject to the lifetime rule
+(Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
+data-reference-type="ref" data-reference="sec-proc-lifetimes">7.16</a>)
+like a function, and cannot leave the block of <code>digits</code>.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  In the Report, the rest of a
+format that is not used up when the list ends waits for the next
+<code>putf</code> on the same file. Algol 68 Genie stops the program
+instead (“number of pictures does not match number of arguments”): the
+values must use the format up to its end.</p>
+</blockquote>
+<h2 data-number="9.10" id="sec-readf"><span
+class="header-section-number">9.10</span> Formatted input</h2>
+<p><code>readf</code> and <code>getf</code> read according to a format.
+Every frame reads one character position: a picture <code>3zd</code>
+reads four characters, and a <code>z</code> frame accepts a blank as a
+zero. The characters of a literal insertion such as <code>"-"</code>
+must be present in the input and are read over; <code>x</code> skips one
+character. This makes it easy to read data in fixed columns, such as the
+records of this file:</p>
+<pre class="output"><code>Ann Smith  2024-03-15  82
+Bob Jones  2023-11-02 100
+Cleo Grant 2024-01-30   7</code></pre>
+<pre class="algol68"><code>   <b>format</b> record = $10a, x 4d, "-" 2d, "-" 2d, 3zd l$;
+   File input := stand_in;
+   on_logical_file_end (input, (<b>ref</b> File f) <b>bool</b>: <b>goto</b> done);
+   <b>do</b>
+      <b>string</b> name; <b>int</b> year, month, day, score;
+      getf (input, (record, name, year, month, day, score));
+      printf (($10a, x 2d, "." 2d, "." 4d, 5zd l$, name, day, month, year, score))
+   <b>od</b>;
+done:
+   <b>skip</b></code></pre>
+<pre class="output"><code>Ann Smith  15.03.2024    82
+Bob Jones  02.11.2023   100
+Cleo Grant 30.01.2024     7</code></pre>
+<p>prints</p>
+<pre class="output"><code>Ann Smith  15.03.2024    82
+Bob Jones  02.11.2023   100
+Cleo Grant 30.01.2024     7</code></pre>
+<p>The pictures <code>"-" 2d</code> skip the dash and read the month.
+The <code>10a</code> reads exactly ten characters, the blanks of a short
+name included. A field that is one character too short or too long
+shifts every field after it: with <code>4zd</code> for the score, which
+reads five characters, the program stops at the first record with an
+error.</p>
+<h2 data-number="9.11" id="sec-binary"><span
+class="header-section-number">9.11</span> Binary transput</h2>
+<p>The procedures <code>put_bin</code> and <code>get_bin</code> write
+values to a file and read them back in an internal, binary form, without
+conversion into characters. A file written this way can only be read
+back by a program that reads the same types in the same order:</p>
+<pre class="algol68"><code>File f;
+<b>if</b> establish (f, "data.bin", stand_back_channel) /= 0 <b>then</b> stop <b>fi</b>;
+put_bin (f, (42, 3.5, "xyz"));
+reset (f);                                    <span class="comment">{ back to the start }</span>
+<b>int</b> n; <b>real</b> x; [1:3] <b>char</b> s;
+get_bin (f, (n, x, s));
+print ((whole (n, 0), " ", fixed (x, 0, 2), " ", s, newline));
+close (f)</code></pre>
+<pre class="output"><code>42 3.50 xyz</code></pre>
+<p>The channel <code>stand_back_channel</code> allows both reading and
+writing, and <code>reset</code> returns to the start of the file before
+reading. Binary and character transput cannot be mixed on one sequential
+file until it is reset; Algol 68 Genie enforces this.</p>
+<p>Binary transput was meant for intermediate files that a program
+writes and reads again. Such a file does not need a name, and it should
+disappear when the program no longer needs it. <code>create</code> and
+<code>scratch</code> do exactly that:</p>
+<pre class="algol68"><code>File scratch_file;
+<b>if</b> create (scratch_file, stand_back_channel) /= 0 <b>then</b> stop <b>fi</b>;
+<b>for</b> i <b>to</b> 5 <b>do</b> put_bin (scratch_file, i * i) <b>od</b>;
+reset (scratch_file);                         <span class="comment">{ back to the start }</span>
+<b>int</b> sum := 0;
+<b>for</b> i <b>to</b> 5 <b>do</b> <b>int</b> n; get_bin (scratch_file, n); sum +:= n <b>od</b>;
+scratch (scratch_file);                       <span class="comment">{ close and delete }</span>
+print (("sum of squares ", whole (sum, 0), newline))</code></pre>
+<pre class="output"><code>sum of squares 55</code></pre>
+<h2 data-number="9.12" id="sec-transput-genie"><span
+class="header-section-number">9.12</span> What Algol 68 Genie lacks</h2>
+<p>Algol 68 Genie provides nearly all of the Report’s transput. The
+exceptions, apart from those already mentioned, are:</p>
+<ul>
+<li><p>the position enquiries <code>char_number</code>,
+<code>line_number</code> and <code>page_number</code>,
+<code>set_char_number</code>, <code>reidf</code>, <code>make_conv</code>
+and the event <code>on_char_error</code>;</p></li>
+<li><p><code>set</code> moves relative to the current position, with one
+parameter, instead of to a given page, line and character;</p></li>
+<li><p>the insertion <code>k</code> cannot move back to an earlier
+column, and <code>backspace</code> and the insertion <code>y</code>
+cannot be used on <code>stand_out</code>;</p></li>
+<li><p>a <code>z</code> frame after a <code>d</code> frame always prints
+its digit, where the Report suppresses some zeros in date-like pictures;
+pictures with only <code>d</code> frames after the first are printed the
+same everywhere;</p></li>
+<li><p>the format is not kept for the next call of <code>putf</code>
+(Section <a href="9-ch-transput.html#sec-format-list"
+data-reference-type="ref"
+data-reference="sec-format-list">[sec-format-list]</a>).</p></li>
+</ul>
+<h2 data-number="9.13" id="sec-transput-complete"><span
+class="header-section-number">9.13</span> A complete program</h2>
+<p>The final program reads a file of names and marks and prints a
+report. The file <code>marks.txt</code> contains:</p>
+<pre class="output"><code>Ann 72 85 90
+Ben 88 79 81
+Cleo 95 91 70
+Dan 60 75 68</code></pre>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Read names and marks from a file and print a report. }</span>
+   File data;
+   <b>if</b> open (data, "marks.txt", stand_in_channel) /= 0 <b>then</b>
+      print (("cannot open marks.txt", newline)); stop
+   <b>fi</b>;
+   make_term (data, " ");                  <span class="comment">{ a name ends at a blank }</span>
+   on_logical_file_end (data, (<b>ref</b> File f) <b>bool</b>: <b>goto</b> done);
+   <b>int</b> students := 0;
+   <b>real</b> class_total := 0;
+   print (("name      average", newline));
+   <b>do</b>
+      <b>string</b> name;
+      <b>int</b> a, b, c;
+      get (data, (name, a, b, c, newline));
+      <b>real</b> average = (a + b + c) / 3;
+      print ((name, " " * (10 - UPB name), fixed (average, -7, 2), newline));
+      students +:= 1;
+      class_total +:= average
+   <b>od</b>;
+done:
+   close (data);
+   print (("class     ", fixed (class_total / students, -7, 2), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>name      average
+Ann         82.33
+Ben         82.67
+Cleo        85.33
+Dan         67.67
+class       79.50</code></pre>
+<p><code>make_term (data, " ")</code> ends a name at the first blank, so
+that <code>get</code> reads the name and then the three numbers. The
+<code>newline</code> at the end of the list skips the line break, so
+that the next name starts at the beginning of the next line. The
+expression <code>" " * (10 - UPB name)</code> pads the name to ten
+characters.</p>
+<h2 class="unnumbered" id="exercises-7">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch9">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What is the difference between <code>open</code> and
+<code>establish</code>?</p></li>
+<li><p>What does an event routine that returns <code><b>true</b></code>
+tell the transput?</p></li>
+<li><p>Write a procedure <code>int_to_string</code> that converts an
+<code><b>int</b></code> into a string by writing it into a string with
+<code>associate</code> and <code>put</code>.</p></li>
+<li><p>What do the formats <code>$4d$</code>, <code>$4zd$</code> and
+<code>$-3zd$</code> print for the values 7 and <span
+class="math inline"> − 7</span>?</p></li>
+<li><p>Why does the program of Section <a
+href="9-ch-transput.html#sec-stand-in" data-reference-type="ref"
+data-reference="sec-stand-in">9.3</a> read the line and the line break
+with two calls of <code>get</code>?</p></li>
+<li><p>How many values does each of these formats print, and what do
+they print for the values 3 and 4? (a) <code>$2d "/" 2d$</code> (b)
+<code>$2d, "/" 2d$</code></p></li>
+<li><p>What do <code>whole (-5, 3)</code>, <code>whole (5, -3)</code>,
+<code>fixed (2.5, 0, 2)</code> and <code>fixed (-0.25, 0, 2)</code>
+yield?</p></li>
+<li><p>A value error routine returns <code><b>true</b></code> without
+reading anything. What happens when <code>get (f, (a, b))</code> meets
+the input <code>x 5</code>?</p></li>
+<li><p>Write a format that prints a date given as three integers day,
+month and year as <code>15 March 2024</code>.</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-7">Programming
+problems</h2>
+<ol>
+<li><p><strong>Line numbers.</strong> Copy a text file to another file
+with a line number in front of each line, and start a new page with a
+page number after every 50 lines.</p></li>
+<li><p><strong>Word count.</strong> Count the characters, words and
+lines of the standard input, like the Unix program <code>wc</code>. Make
+sure that a last line without a line break is counted.</p></li>
+<li><p><strong>Retirement list.</strong> Each line of a file holds a
+name in 12 columns, a comma, the letter <code>M</code> or
+<code>F</code>, a comma and an age in 3 columns. Print the people who
+have reached the retirement age (which differs for men and women) in one
+column and the others in a second column, with one <code>getf</code> and
+one <code>printf</code> per record.</p></li>
+<li><p><strong>Column totals.</strong> Read a table of numbers separated
+by commas, with an unknown number of rows, and print it with a format,
+with a total for each column.</p></li>
+<li><p><strong>Bad records.</strong> Read records of a fixed layout with
+<code>getf</code>, and install an <code>on_value_error</code> routine
+that prints the number of each bad record and skips it.</p></li>
+<li><p><strong>Bank statement.</strong> Read transactions (date, text,
+amount) and print a statement with a running balance, the amounts in a
+column with a floating sign or with <code>b("CR", "DR")</code>, and a
+heading on every page.</p></li>
+<li><p><strong>A calendar.</strong> Print the calendar of a month, with
+the name of the month chosen by a <code>c</code> pattern and the first
+week indented with a computed repetition.</p></li>
+<li><p><strong>Amounts in words.</strong> Print an amount of money below
+one million in words, as on a check, using choice patterns for the
+units, tens and hundreds.</p></li>
+<li><p><strong>Justification.</strong> Read a text and print it with
+lines of a given width and straight margins on both sides, by
+distributing extra blanks between the words, alternately from the left
+and from the right.</p></li>
+<li><p><strong>The last lines.</strong> Print the last <span
+class="math inline"><em>n</em></span> lines of the standard input, which
+may be of any length, numbered with <code>whole</code>.</p></li>
+<li><p><strong>Merging.</strong> Write two sorted sequences of numbers
+to temporary files made with <code>create</code>, <code>reset</code>
+them, merge them onto the standard output, and <code>scratch</code>
+them.</p></li>
+<li><p><strong>Number conversion.</strong> Write a procedure that
+converts a <code><b>real</b></code> into a string with a given number of
+significant digits, using <code>associate</code> or
+<code>float</code>.</p></li>
+<li><p><strong>Announcements.</strong> Given the children of a family
+with their names, sexes and years of birth, print sentences such as “Ann
+is the eldest of three children” or “Tom is the only son”, choosing the
+words with <code>b(...)</code>, <code>c(...)</code> and
+<code>f(...)</code> patterns in a single <code>printf</code> per child
+(Algol 68 Genie).</p></li>
+</ol>
+</body>
+</html>

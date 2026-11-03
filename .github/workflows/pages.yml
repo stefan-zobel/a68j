@@ -1,0 +1,40 @@
+# Publishes the HTML version of the book (site/book/) with GitHub Pages.
+# site/book/index.html becomes the start page of the site.
+#
+# Repository setting required once: Settings > Pages > Build and deployment
+# > Source: "GitHub Actions".
+
+name: Publish book
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'site/book/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a running deployment is not cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/book
+      - id: deployment
+        uses: actions/deploy-pages@v5

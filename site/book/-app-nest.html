@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix F: Calling C</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-partial.html" accesskey="n" rel="next">Appendix G: Partial parametrization</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-modules.html" accesskey="p" rel="previous">Appendix E: Modules</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-nest">Appendix F: Calling C</h1>
+<p>A program sometimes needs a function that exists only in another
+language: a routine of the C library, of the operating system, or of a
+library written in C. ga68 can call such functions directly, and it can
+also use variables of a C program. This appendix describes how. The
+mechanism is a GNU extension; a68j and Algol 68 Genie cannot call C
+(a68j has a similar mechanism for Java methods, described in its own
+documentation).</p>
+<h2 class="unnumbered" id="formal-holes">Formal holes</h2>
+<p>The construct that names a C function or variable is a <em>formal
+hole</em>:</p>
+<pre class="algol68"><code><b>nest</b> C "name"</code></pre>
+<p>It is written where a value is expected and stands for that value.
+Its type is not written in the hole; it is the type the context
+requires, so a formal hole may only be written in a strong context
+(Section <a href="7-ch-advanced.html#sec-contexts"
+data-reference-type="ref" data-reference="sec-contexts">7.14</a>), such
+as the value of a constant declaration, an argument or the right-hand
+side of an assignment:</p>
+<pre class="algol68"><code><b>proc</b> (<b>int</b>) <b>int</b> c_abs = <b>nest</b> C "abs";
+<b>proc</b> (<b>long</b> <b>real</b>) <b>long</b> <b>real</b> cbrt = <b>nest</b> C "cbrt";
+<b>proc</b> (<b>real</b>) <b>real</b> cbrtf = <b>nest</b> C "cbrtf";
+print ((c_abs (-7), newline));
+print ((fixed (cbrt (<b>long</b> 2.0), 0, 12), newline));
+print ((fixed (cbrtf (2.0), 0, 12), newline))</code></pre>
+<pre class="output"><code>         +7
+1.259921049895
+1.259921073913</code></pre>
+<p>Each declaration says which type the C function has in Algol 68
+terms. The compiler translates the type into the corresponding C type
+and generates a call of the C function with that name. The name
+<code>C</code> after <code><b>nest</b></code> is the language; the word
+<code>C</code> is not reserved and can still name a type, an operator or
+a module elsewhere in the program. The C library and the mathematical
+library are linked with every program by the ga68 command, so their
+functions need nothing else.</p>
+<p>The notation goes back to the proposal for modules and separate
+compilation of 1978 [<a href="-bibliography.html#bib-modules">7</a>]
+(the same proposal as the modules of Appendix <a
+href="-app-modules.html#app-modules" data-reference-type="ref"
+data-reference="app-modules">E</a>). There, a formal hole marks a place
+in one part of a program that another, separately compiled part fills
+in, so that a program can be developed top-down; the proposal already
+allowed the part to be written in another language, with an example in
+Fortran. ga68 provides only the second use.</p>
+<h2 class="unnumbered" id="types-1">Types</h2>
+<p>The types that can cross the border are the simple ones and those
+built from them:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Algol 68</th>
+<th style="text-align: left;">C</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code><b>void</b></code> (as a
+result)</td>
+<td style="text-align: left;"><code><b>void</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>bool</b></code></td>
+<td style="text-align: left;"><code><b>bool</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>char</b></code></td>
+<td style="text-align: left;">a 32-bit integer (the character code)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>short</b> <b>int</b></code>,
+<code><b>short</b> <b>short</b> <b>int</b></code></td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>short</b></code>, <code><b>char</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>long</b> <b>int</b></code>,
+<code><b>long</b> <b>long</b> <b>int</b></code></td>
+<td style="text-align: left;"><code><b>long</b></code>,
+<code><b>long</b> <b>long</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>bits</b></code>,
+<code><b>short</b> <b>bits</b></code>,
+<code><b>short</b> <b>short</b> <b>bits</b></code></td>
+<td style="text-align: left;"><code>unsigned <b>int</b></code>,
+<code>unsigned <b>short</b></code>,
+<code>unsigned <b>char</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>long</b> <b>bits</b></code>,
+<code><b>long</b> <b>long</b> <b>bits</b></code></td>
+<td style="text-align: left;"><code>unsigned <b>long</b></code>,
+<code>unsigned <b>long</b> <b>long</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>real</b></code>,
+<code><b>long</b> <b>real</b></code></td>
+<td style="text-align: left;"><code>float</code>,
+<code>double</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>ref</b></code> <em>T</em></td>
+<td style="text-align: left;">a pointer to <em>T</em></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>proc</b></code> with parameters
+and result of these types</td>
+<td style="text-align: left;">a function, or a pointer to one</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">a record with fields of these types</td>
+<td style="text-align: left;">the corresponding
+<code><b>struct</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>string</b></code>, only as a
+parameter</td>
+<td style="text-align: left;">three parameters, see below</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Other arrays and unions cannot be passed.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  Nothing checks that the declared type
+matches the C function. The compiler trusts the declaration, and the C
+library has no type information to compare it with. A wrong type gives
+wrong results, not an error message. The most likely mistake is the
+floating-point type: since <code><b>real</b></code> is a C
+<code>float</code>, a function of the C library that takes and returns
+<code>double</code>, such as <code>cbrt</code> or <code>sin</code>, must
+be declared with <code><b>long</b> <b>real</b></code>, as in the example
+above; declared with <code><b>real</b></code>, it receives and returns
+meaningless bit patterns. The <code>float</code> variants have an
+<code>f</code> at the end of their name (<code>cbrtf</code>).</p>
+</blockquote>
+<h2 class="unnumbered" id="variables">Variables</h2>
+<p>A C variable can be used in two ways. Without further marking, the
+hole stands for the value of the variable at the moment the hole is
+evaluated, here when the declaration is executed; later changes by the C
+program are not seen:</p>
+<pre class="algol68"><code><b>int</b> limit = <b>nest</b> C "limit";</code></pre>
+<p>With an ampersand before the name, it stands for the variable itself,
+and the Algol 68 declaration has a reference type: assignments to it
+change the C variable, and the C program sees them.</p>
+<pre class="algol68"><code><b>ref</b> <b>int</b> calls = <b>nest</b> C "&amp;calls";</code></pre>
+<p>Without the ampersand, a hole of a <code><b>ref</b></code> type
+stands for the value of a C pointer variable, so the Algol 68 name
+refers to the C object the pointer points to.</p>
+<h2 class="unnumbered" id="strings-and-functions-as-parameters">Strings
+and functions as parameters</h2>
+<p>A C function that receives an Algol 68 string gets three parameters
+for it: a pointer to the characters, the number of characters, and the
+distance in bytes from one character to the next. The characters are
+32-bit codes, not bytes, and they need not be next to each other,
+because the string may be a column of a two-dimensional array of
+characters, such as <code>m[, 2]</code>. A C function that counts the
+vowels of a string, a C function that calls a function it receives, and
+a counter variable:</p>
+<pre class="other"><code>/* C side of the example cfun.a68. */
+#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+
+int calls = 0;
+
+/* The number of vowels in an Algol 68 string: the characters (UCS-4),
+   their number and the distance in bytes between two of them. */
+int vowels (const uint32_t *s, size_t len, size_t stride)
+{
+  int n = 0;
+  calls++;
+  for (size_t i = 0; i &lt; len; i++)
+    {
+      uint32_t c = *(const uint32_t *) ((const char *) s + i * stride);
+      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+        n++;
+    }
+  return n;
+}
+
+/* Calls f for 1, ..., n and returns the sum of the results. */
+int sum_of (int (*f) (int), int n)
+{
+  int s = 0;
+  calls++;
+  for (int i = 1; i &lt;= n; i++)
+    s += f (i);
+  return s;
+}</code></pre>
+<p>and the Algol 68 program that uses them:</p>
+<pre class="algol68"><code><b>ref</b> <b>int</b> calls = <b>nest</b> C "&amp;calls";
+<b>proc</b> (<b>string</b>) <b>int</b> vowels = <b>nest</b> C "vowels";
+<b>proc</b> (<b>proc</b> (<b>int</b>) <b>int</b>, <b>int</b>) <b>int</b> sum_of = <b>nest</b> C "sum_of";
+
+<b>string</b> s = "parametrization";
+print ((vowels (s), " ", vowels (s[1:5]), newline));
+<b>proc</b> square = (<b>int</b> i) <b>int</b>: i * i;
+print ((sum_of (square, 4), newline));
+print (("calls: ", calls, newline))</code></pre>
+<pre class="output"><code>         +7          +2
+        +30
+calls:          +3</code></pre>
+<p>The C file is compiled with a C compiler and linked with the
+program:</p>
+<pre class="shell"><code>$ cc -c cfun.c
+$ ga68 -I. cfun.a68 cfun.o genietransput.o -o cfun</code></pre>
+<p>An Algol 68 function that is passed to C, such as <code>square</code>
+above, arrives as an ordinary C function pointer. ga68 makes it point to
+a small piece of code that it places in the stack frame of the block in
+which the function is declared. A C library must therefore not keep the
+pointer and call it after that block has ended, even if the function
+uses no names of the block. The same piece of code is the reason why the
+linker warns that such a program “requires executable stack”; the
+warning is expected, but a system that forbids executable stacks will
+not run the program.</p>
+</body>
+</html>

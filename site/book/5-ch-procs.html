@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Functions and operators</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="6-ch-moretypes.html" accesskey="n" rel="next">More built-in types and the standard library</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="4-ch-data.html" accesskey="p" rel="previous">Arrays and records</a>
+</span>
+</div>
+</nav>
+<h1 data-number="5" id="ch-procs"><span
+class="header-section-number">5</span> Functions and operators</h1>
+<p>A program of any size is built from parts that each solve one task
+and that can be used again: functions. In Algol 68, a function is a
+value like a number or an array. It has a type, it can be bound to a
+name, stored in a variable, passed to another function and returned from
+one. The Report calls a function a <span
+class="sans-serif">procedure</span>; this book uses both words, since
+Algol 68 programs declare functions with the reserved word
+<code><b>proc</b></code>.</p>
+<p>The second half of the chapter shows how a program defines operators
+of its own. Operators are functions with a different calling syntax, and
+they make it possible to extend the arithmetic of the language to new
+types, such as fractions or vectors.</p>
+<h2 data-number="5.1" id="sec-proc-decl"><span
+class="header-section-number">5.1</span> Declaring functions</h2>
+<p>A function declaration gives the function a name, its parameters with
+their types, its result type and its body:</p>
+<pre class="algol68"><code><b>proc</b> max = (<b>int</b> a, b) <b>int</b>: (a &gt; b | a | b);
+<b>proc</b> hypotenuse = (<b>real</b> a, b) <b>real</b>: sqrt (a * a + b * b);
+<b>proc</b> greet = (<b>string</b> name) <b>void</b>:
+   print (("Hello, ", name, "!", newline));
+print ((max (3, 7), " ", fixed (hypotenuse (3, 4), 0, 1), newline));
+greet ("Algol")</code></pre>
+<pre class="output"><code>         +7 5.0
+Hello, Algol!</code></pre>
+<p>The declaration
+<code><b>proc</b> max = (<b>int</b> a, b) <b>int</b>: (a &gt; b </code>
+a | b)| has the same form as the constant declarations of Chapter <a
+href="2-ch-values.html#ch-values" data-reference-type="ref"
+data-reference="ch-values">2</a>: a name, an equals sign and a value.
+The value is a <em>function literal</em> (<span
+class="sans-serif">routine text</span>), the part
+<code>(<b>int</b> a, b) <b>int</b>: (a &gt; b </code> a | b)|. It lists
+the parameters in parentheses, then the result type, a colon and the
+body, which is a single expression, usually a block. The type of
+<code>max</code> is
+<code><b>proc</b> (<b>int</b>, <b>int</b>) <b>int</b></code>, the type
+of functions that take two <code><b>int</b></code> values and return an
+<code><b>int</b></code>. Parameters of the same type can share the type,
+as in <code>(<b>int</b> a, b)</code>; parameters of different types are
+separated by commas: <code>(<b>string</b> s, <b>int</b> n)</code>.</p>
+<p>The declaration
+<code><b>proc</b> max = (<b>int</b> a, b) <b>int</b>: ...</code> is
+short for
+<code><b>proc</b> (<b>int</b>, <b>int</b>) <b>int</b> max = (<b>int</b> a, b) <b>int</b>: ...</code>,
+which names the type in full. The short form requires a function literal
+on the right-hand side. A function value computed in some other way,
+such as a choice between two functions, needs the full type:
+<code><b>proc</b> (<b>real</b>) <b>real</b> f = (c </code> sin | cos)|.
+The short form with such a value is rejected with a message about a
+missing symbol that does not point to the cause.</p>
+<p>A function whose result is of no interest has the result type
+<code><b>void</b></code>, as <code>greet</code> shows. There is no
+<code>return</code> statement: the result of a function is the value of
+its body, which is the value of the last expression in the block. A
+function that must finish early jumps to a label at the end of its body
+(Section <a href="3-ch-control.html#sec-jumps" data-reference-type="ref"
+data-reference="sec-jumps">3.9</a>), which is rarely necessary since
+<code><b>if</b></code> and <code><b>case</b></code> yield values.</p>
+<p>A call gives the arguments in parentheses after the name. The Report
+calls the parameters <span class="sans-serif">formal parameters</span>
+and the arguments <span class="sans-serif">actual parameters</span>.</p>
+<h2 data-number="5.2" id="sec-params"><span
+class="header-section-number">5.2</span> Parameters</h2>
+<p>When a function is called, each parameter is bound to its argument
+exactly as a constant is bound to its value in a declaration: the call
+<code>max (3, 7)</code> behaves like the declarations
+<code><b>int</b> a = 3, b = 7</code> followed by the body. This explains
+the rules for parameters, which differ from those of most languages.</p>
+<p>A parameter is a constant. It cannot be assigned to:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>proc</b> countdown = (<b>int</b> n) <b>void</b>:
+      <b>while</b> n &gt; 0 <b>do</b> print (n); n := n - 1 <b>od</b>;
+   countdown (3)
+<b>end</b></code></pre>
+<pre class="output"><code>param-constant.a68:4:33: error: int secondary does not yield a name</code></pre>
+<p>A function that needs a variable for its work declares one, for
+example <code><b>int</b> k := n</code>. A function that is to change a
+variable of its caller takes a reference to that variable as its
+parameter:</p>
+<pre class="algol68"><code><b>proc</b> swap = (<b>ref</b> <b>int</b> a, b) <b>void</b>: (<b>int</b> t = a; a := b; b := t);
+<b>int</b> x := 1, y := 2;
+swap (x, y);
+print ((x, y, newline))</code></pre>
+<pre class="output"><code>         +2         +1</code></pre>
+<p>The parameters of <code>swap</code> are of type
+<code><b>ref</b> <b>int</b></code>. The call <code>swap (x, y)</code>
+passes the references <code>x</code> and <code>y</code>, and the
+assignments in the body go to the caller’s variables. In C this would be
+done with pointers, in C++ with reference parameters, in Pascal with
+<code>var</code> parameters. Algol 68 needs no special kind of parameter
+for it: the reference is an ordinary value, passed like any other.</p>
+<p>Both kinds of parameter can be arrays. A parameter of type
+<code>[] <b>real</b></code> accepts an array of <code><b>real</b></code>
+with any bounds, and the function finds them with <code>LWB</code> and
+<code>UPB</code>. A parameter of type
+<code><b>ref</b> [] <b>real</b></code> accepts an array variable, whose
+elements the function can then change:</p>
+<pre class="algol68"><code><b>proc</b> sum = ([] <b>real</b> v) <b>real</b>:
+<b>begin</b>
+   <b>real</b> s := 0;
+   <b>for</b> i <b>from</b> LWB v <b>to</b> UPB v <b>do</b> s +:= v[i] <b>od</b>;
+   s
+<b>end</b>;
+<b>proc</b> scale = (<b>ref</b> [] <b>real</b> v, <b>real</b> factor) <b>void</b>:
+   <b>for</b> i <b>from</b> LWB v <b>to</b> UPB v <b>do</b> v[i] *:= factor <b>od</b>;
+[0:3] <b>real</b> w;
+w[@1] := (1, 2, 3, 4);
+scale (w, 10);
+print ((fixed (sum (w), 0, 1), " ", fixed (sum ((0.5, 0.25)), 0, 2), newline))</code></pre>
+<pre class="output"><code>100.0 .75</code></pre>
+<p>The second call of <code>sum</code> passes an array literal. Since a
+literal has the bounds 1 to <span class="math inline"><em>n</em></span>,
+the function sees those bounds; for the variable <code>w</code>, it sees
+the bounds 0 to 3.</p>
+<p>A function can also return a reference to a cell that already exists,
+such as an element of an array it receives by reference. Its call can
+then stand on the left of an assignment, as in C++ a function that
+returns a reference:</p>
+<pre class="algol68"><code><b>proc</b> max_elem = (<b>ref</b> [] <b>real</b> a) <b>ref</b> <b>real</b>:
+<b>begin</b>
+   <b>int</b> k := LWB a;
+   <b>for</b> i <b>from</b> LWB a + 1 <b>to</b> UPB a <b>do</b>
+      <b>if</b> a[i] &gt; a[k] <b>then</b> k := i <b>fi</b>
+   <b>od</b>;
+   a[k]
+<b>end</b>;
+[4] <b>real</b> v := (3, 9, 4, 1);
+max_elem (v) := 0;
+max_elem (v) *:= 10;
+<b>for</b> i <b>to</b> 4 <b>do</b> print ((fixed (v[i], 0, 1), " ")) <b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>3.0 .0 40.0 1.0 </code></pre>
+<p>The parameter must be a <code><b>ref</b> [] <b>real</b></code>. With
+<code>[] <b>real</b> a</code>, the element <code>a[k]</code> would be a
+value, not a cell of the caller’s array, and could not be returned as a
+<code><b>ref</b> <b>real</b></code>.</p>
+<h2 data-number="5.3" id="sec-deproc"><span
+class="header-section-number">5.3</span> Functions without
+parameters</h2>
+<p>A function may have no parameters. Its type is then
+<code><b>proc</b> <b>int</b></code> (or
+<code><b>proc</b> <b>void</b></code>, and so on), and its literal has no
+parameter list: <code><b>int</b>: expression</code>. Such a function is
+called simply by writing its name; no empty parentheses are needed, or
+even allowed:</p>
+<pre class="algol68"><code><b>int</b> seed := 1;
+<b>proc</b> next = <b>int</b>: (seed := seed * 75 MOD 65537; seed);
+<b>int</b> a = next;              <span class="comment">{ next is called: no parentheses needed }</span>
+<b>int</b> b = next;
+print ((a, b, newline))</code></pre>
+<pre class="output"><code>        +75      +5625</code></pre>
+<p>Writing <code>next</code> where an <code><b>int</b></code> is
+expected calls the function. This is another implicit conversion, which
+the Report calls <span class="sans-serif">deproceduring</span>. Where a
+function itself is expected, the name is not a call:
+<code>newline</code> in a call of <code>print</code> is a function with
+a parameter, passed as a value, and <code>print</code> calls it at the
+right moment.</p>
+<p>Each call of <code>next</code> changes the variable
+<code>seed</code>, so the two calls give different results. In a list
+such as <code>print ((next, next))</code> the order of the two calls
+would be unspecified (Section <a href="3-ch-control.html#sec-collateral"
+data-reference-type="ref" data-reference="sec-collateral">3.4</a>); the
+program above therefore calls the function in two separate
+declarations.</p>
+<p>A parameterless function whose value is discarded is called as well,
+which is how a function of type <code><b>proc</b> <b>void</b></code> is
+called as a statement. (<code>newline</code> is not such a function: it
+has a file parameter, and <code>newline;</code> alone does nothing;
+<code>print (newline)</code> writes a line break.) There is one
+exception that is easy to overlook:</p>
+<pre class="algol68"><code><b>proc</b> hello = <b>void</b>: print (("hello", newline));
+<b>proc</b> <b>void</b> p;
+p := hello;           <span class="comment">{ assigns the function; nothing is called }</span>
+print (("assigned", newline));
+p;                    <span class="comment">{ a name alone: the function is called }</span>
+hello</code></pre>
+<pre class="output"><code>assigned
+hello
+hello</code></pre>
+<p>prints <code>assigned</code> and then <code>hello</code> twice. The
+assignment <code>p := hello</code> stores the function in the variable
+<code>p</code> and does not call it, although its value, the variable
+<code>p</code>, is discarded. A discarded assignment, a reference
+comparison, an allocation, a type annotation, a literal and a format are
+discarded as they are; any other expression that yields a function
+without parameters is called.</p>
+<p>A parameter of type <code><b>proc</b> <b>real</b></code> differs from
+one of type <code><b>real</b></code> in when the argument is evaluated.
+A <code><b>real</b></code> parameter receives a value, computed once
+before the call; a <code><b>proc</b> <b>real</b></code> parameter
+receives a function, which is called at every use of the parameter:</p>
+<pre class="algol68"><code><b>proc</b> twice_value = (<b>real</b> x) <b>real</b>: x + x;
+<b>proc</b> twice_call = (<b>proc</b> <b>real</b> x) <b>real</b>: x + x;
+<b>int</b> n := 0;
+<b>proc</b> count = <b>real</b>: n +:= 1;
+print ((fixed (twice_value (count), 0, 1), newline));
+print ((fixed (twice_call (count), 0, 1), newline))</code></pre>
+<pre class="output"><code>2.0
+5.0</code></pre>
+<p><code>twice_value</code> gets the value 1 and doubles it.
+<code>twice_call</code> gets the function <code>count</code> and calls
+it twice, which gives 2 and 3, and returns their sum, 5. Passing a
+literal such as <code><b>real</b>: v[i] * w[i]</code> for a
+<code><b>proc</b> <b>real</b></code> parameter gives the effect of Algol
+60’s call by name: the expression is evaluated anew at each use, with
+the current value of <code>i</code>. Algol 60 programs used this for
+summation functions, a trick known as Jensen’s device; in Algol 68 a
+parameter of type <code><b>proc</b> (<b>int</b>) <b>real</b></code> does
+the same more plainly.</p>
+<h2 data-number="5.4" id="sec-recursion"><span
+class="header-section-number">5.4</span> Recursion</h2>
+<p>A function may call itself. The classic examples are the factorial
+and the Fibonacci numbers:</p>
+<pre class="algol68"><code><b>proc</b> factorial = (<b>int</b> n) <b>int</b>: (n &lt;= 1 | 1 | n * factorial (n - 1));
+<b>proc</b> fib = (<b>int</b> n) <b>int</b>: (n &lt; 2 | n | fib (n - 1) + fib (n - 2));
+print ((factorial (10), fib (20), newline))</code></pre>
+<pre class="output"><code>   +3628800      +6765</code></pre>
+<p>Two functions can also call each other. Since the scope of a
+declaration is the whole block (Section <a
+href="3-ch-control.html#sec-scope" data-reference-type="ref"
+data-reference="sec-scope">3.3</a>), <code>is_even</code> can mention
+<code>is_odd</code> before <code>is_odd</code> is declared. This is
+allowed because the call only happens later, when both declarations have
+been carried out:</p>
+<pre class="algol68"><code><b>proc</b> is_even = (<b>int</b> n) <b>bool</b>: (n = 0 | <b>true</b> | is_odd (n - 1));
+<b>proc</b> is_odd = (<b>int</b> n) <b>bool</b>: (n = 0 | <b>false</b> | is_even (n - 1));
+print ((is_even (10), " ", is_odd (10), newline))</code></pre>
+<pre class="output"><code>T F</code></pre>
+<h2 data-number="5.5" id="sec-proc-values"><span
+class="header-section-number">5.5</span> Functions as values</h2>
+<p>A function is a value, so there are also variables that hold
+functions. The declaration
+<code><b>proc</b> (<b>real</b>) <b>real</b> f := sqrt</code> declares a
+variable for functions from <code><b>real</b></code> to
+<code><b>real</b></code> and stores in it the square root of the
+standard library. A later assignment can store another function, for
+example a function literal written directly in the program:</p>
+<pre class="algol68"><code><b>proc</b> (<b>real</b>) <b>real</b> f := sqrt;
+print ((fixed (f (2), 0, 4), newline));
+f := (<b>real</b> x) <b>real</b>: x * x;               <span class="comment">{ a function literal }</span>
+print ((fixed (f (3), 0, 4), newline))</code></pre>
+<pre class="output"><code>1.4142
+9.0000</code></pre>
+<p>A function literal is what other languages call a <em>lambda</em> or
+an anonymous function. Functions that take other functions as parameters
+are called <em>higher-order functions</em>. A typical example computes
+an integral numerically:</p>
+<pre class="algol68"><code><span class="comment">{ The integral of f from a to b, by the trapezoidal rule with n steps. }</span>
+<b>proc</b> integrate = (<b>proc</b> (<b>real</b>) <b>real</b> f, <b>real</b> a, b, <b>int</b> n) <b>real</b>:
+<b>begin</b>
+   <b>real</b> h = (b - a) / n;
+   <b>real</b> sum := (f (a) + f (b)) / 2;
+   <b>for</b> i <b>to</b> n - 1 <b>do</b> sum +:= f (a + i * h) <b>od</b>;
+   sum * h
+<b>end</b>;
+<b>proc</b> bell = (<b>real</b> x) <b>real</b>: exp (-x * x);
+print ((fixed (integrate (bell, -3, 3, 100), 0, 4), newline));
+print ((fixed (integrate ((<b>real</b> x) <b>real</b>: x * x, 0, 3, 100), 0, 4), newline))</code></pre>
+<pre class="output"><code>1.7724
+9.0004</code></pre>
+<p>The first call passes a declared function, the bell curve <span
+class="math inline"><em>e</em><sup>−<em>x</em><sup>2</sup></sup></span>,
+whose integral is the square root of <span
+class="math inline"><em>π</em></span>, about 1.7725; the second passes a
+literal for <span class="math inline"><em>x</em><sup>2</sup></span>. The
+function in a call can itself be the result of an expression:
+<code>(b </code> sin | cos) (x)| chooses the function first and then
+calls it with <code>x</code>.</p>
+<p>The body of a function can use the names of the blocks around it, not
+only its parameters. A function can thus read and change variables of
+the enclosing blocks:</p>
+<pre class="algol68"><code><b>int</b> calls := 0;
+<b>proc</b> counted_square = (<b>int</b> n) <b>int</b>: (calls +:= 1; n * n);
+<b>int</b> total := 0;
+<b>for</b> i <b>to</b> 4 <b>do</b> total +:= counted_square (i) <b>od</b>;
+print ((total, calls, newline))</code></pre>
+<pre class="output"><code>        +30         +4</code></pre>
+<p>Such a function is called a <em>closure</em> in current terminology.
+Algol 68 closures have a restriction that the closures of Lisp,
+JavaScript or Python do not have: a function may not be used after the
+block that declares a name it uses has ended. A function that uses a
+variable, a constant or a parameter of a block therefore cannot be
+returned from that block or stored in a variable outside it. Section <a
+href="7-ch-advanced.html#sec-proc-lifetimes" data-reference-type="ref"
+data-reference="sec-proc-lifetimes">7.16</a> explains this rule, which
+is about the lifetimes of values, and how the implementations check
+it.</p>
+<h2 data-number="5.6" id="sec-std-procs"><span
+class="header-section-number">5.6</span> The standard functions</h2>
+<p>The standard library provides the usual mathematical functions for
+<code><b>real</b></code> arguments: <code>sqrt</code>, <code>exp</code>,
+<code>ln</code> (the natural logarithm), <code>sin</code>,
+<code>cos</code>, <code>tan</code>, <code>arcsin</code>,
+<code>arccos</code> and <code>arctan</code>, together with the constant
+<code>pi</code>. The parameterless function <code>random</code> returns
+a pseudo-random <code><b>real</b></code> between 0 and 1. Chapter <a
+href="6-ch-moretypes.html#ch-moretypes" data-reference-type="ref"
+data-reference="ch-moretypes">6</a> describes the library in more
+detail.</p>
+<h2 data-number="5.7" id="sec-op-decl"><span
+class="header-section-number">5.7</span> Defining operators</h2>
+<p>An operator is declared like a function, with <code><b>op</b></code>
+instead of <code><b>proc</b></code>. A binary operator has two
+parameters, a unary one has one. The name of an operator is either a
+word in capitals, such as <code>MAX</code>, or a symbol made of
+characters such as <code>+ - * / &lt; &gt; =</code> and a few others. A
+symbol has one or two characters, and the second must be one of
+<code>&lt; &gt; / = *</code>; either may be followed by <code>:=</code>
+or <code>=:</code>. A unary operator may not begin with one of these
+five. Thus <code>//</code> and <code>+:=</code> can be declared, but
+<code>++</code> cannot (“invalid operator tag”):</p>
+<pre class="algol68"><code><b>prio</b> MAX = 9;
+<b>op</b> MAX = (<b>int</b> a, b) <b>int</b>: (a &gt; b | a | b);
+<b>op</b> MAX = (<b>real</b> a, b) <b>real</b>: (a &gt; b | a | b);
+<b>op</b> SQUARE = (<b>int</b> n) <b>int</b>: n * n;
+print ((3 MAX 9, " ", fixed (2.5 MAX 1.5, 0, 1), newline));
+print ((SQUARE 4 + 1, " ", 2 * 5 MAX 6, newline))</code></pre>
+<pre class="output"><code>         +9 2.5
+        +17         +12</code></pre>
+<p>A binary operator needs a precedence, declared with
+<code><b>prio</b></code> (<span class="sans-serif">priority
+declaration</span>); without it, the compiler reports an error. Here
+<code>MAX</code> gets the precedence 9, higher than that of
+<code>*</code>, so <code>2 * 5 MAX 6</code> means
+<code>2 * (5 MAX 6)</code>. A unary operator needs no precedence: like
+the standard unary operators, it binds more tightly than every binary
+operator, so <code>SQUARE 4 + 1</code> is 17.</p>
+<p>The same operator can be declared several times for different operand
+types; the example declares <code>MAX</code> for two
+<code><b>int</b></code> and for two <code><b>real</b></code> operands.
+This is <em>overloading</em>. The standard operators are declared in the
+same way in the standard library, and a program can add new meanings to
+them: <code>+</code> for vectors, <code>*</code> for matrices,
+<code>&lt;</code> for dates.</p>
+<p>The declarations of one operator in the same block must differ enough
+that the compiler can always tell them apart, even after the implicit
+conversions allowed for operands. Two declarations clash if every
+operand could be converted, by the conversions allowed for operands, to
+the parameter types of both; for a binary operator this must hold for
+both operands. Declarations for <code>(<b>int</b>, <b>real</b>)</code>
+and <code>(<b>real</b>, <b>int</b>)</code> can therefore coexist. The
+Report calls clashing types <span class="sans-serif">firmly
+related</span>. In practice the operand types must really differ, not
+merely in whether an operand is a reference, and a union is related to
+each of its members (Section <a href="7-ch-advanced.html#sec-expr"
+data-reference-type="ref" data-reference="sec-expr">7.18</a>); the
+compiler reports a violation as “firmly related”.</p>
+<p>An operator can also be defined for arrays. The result of the
+following <code>+</code> is a new array, which is copied out of the
+function like any other value:</p>
+<pre class="algol68"><code><b>op</b> + = ([] <b>real</b> a, b) [] <b>real</b>:
+<b>begin</b>
+   <b>if</b> LWB a /= LWB b <b>orel</b> UPB a /= UPB b <b>then</b>
+      print (("bounds differ", newline)); stop
+   <b>fi</b>;
+   [LWB a : UPB a] <b>real</b> sum;
+   <b>for</b> i <b>from</b> LWB a <b>to</b> UPB a <b>do</b> sum[i] := a[i] + b[i] <b>od</b>;
+   sum
+<b>end</b>;
+[] <b>real</b> v = (1.5, 2.5, 3.5);
+[] <b>real</b> w = v + [] <b>real</b> (1, 1, 1);
+<b>for</b> i <b>to</b> UPB w <b>do</b> print ((fixed (w[i], 0, 1), " ")) <b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>2.5 3.5 4.5 </code></pre>
+<p>The second operand is an array literal, which must be annotated with
+its type: a literal is allowed only where its type is known, and the
+operand of an operator is not such a place (Section <a
+href="7-ch-advanced.html#sec-casts" data-reference-type="ref"
+data-reference="sec-casts">7.12</a>).</p>
+<p>Since type names are only abbreviations,
+<code><b>mode</b> Meters = <b>real</b></code> does not create a type of
+its own, and an operator for <code>Meters</code> would be an operator
+for <code><b>real</b></code>. A record with a single field does create a
+distinct type, the “newtype” of current languages. The record types must
+have different field names, or they would be the same type:</p>
+<pre class="algol68"><code><b>mode</b> Meters = <b>struct</b> (<b>real</b> m), Seconds = <b>struct</b> (<b>real</b> s);
+<b>proc</b> meters = (<b>real</b> x) Meters: (Meters r; m <b>of</b> r := x; r);
+<b>proc</b> seconds = (<b>real</b> x) Seconds: (Seconds r; s <b>of</b> r := x; r);
+<b>op</b> + = (Meters a, b) Meters: meters (m <b>of</b> a + m <b>of</b> b);
+<b>op</b> / = (Meters d, Seconds t) <b>real</b>: m <b>of</b> d / s <b>of</b> t;
+Meters distance = meters (100) + meters (300);
+Seconds time = seconds (50);
+print ((fixed (distance / time, 0, 1), " m/s", newline))</code></pre>
+<pre class="output"><code>8.0 m/s</code></pre>
+<p>A record literal needs at least two fields, so the functions
+<code>meters</code> and <code>seconds</code> build the values.</p>
+<h2 data-number="5.8" id="sec-op-identification"><span
+class="header-section-number">5.8</span> How an operator is chosen</h2>
+<p>When the compiler meets an operator, it chooses the declaration by
+the types of the operands. Operands are in a firm context (Section <a
+href="2-ch-values.html#sec-coercions" data-reference-type="ref"
+data-reference="sec-coercions">2.10</a>): a variable is dereferenced and
+a parameterless function is called, but an <code><b>int</b></code> is
+not widened to a <code><b>real</b></code>. An operator declared only for
+<code><b>real</b></code> operands therefore does not accept an
+<code><b>int</b></code>:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <b>op</b> HALF = (<b>real</b> x) <b>real</b>: x / 2;
+   print ((HALF 3, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>no-widening-op.a68:4:12: error: monadic operator HALF int has not been declared</code></pre>
+<p>The standard operators avoid this problem by declaring every
+combination of <code><b>int</b></code> and <code><b>real</b></code>
+operands.</p>
+<p>The precedence belongs to the symbol, not to one of its declarations:
+all the meanings of <code>+</code> in a block have the same precedence,
+and a <code><b>prio</b></code> declaration changes it for all of them,
+the standard ones included:</p>
+<pre class="algol68"><code>print ((3 + 4 * 7, newline));
+<b>begin</b>
+   <b>prio</b> + = 7;              <span class="comment">{ now + binds as tightly as * }</span>
+   print ((3 + 4 * 7, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>        +31
+        +49</code></pre>
+<p>prints 31 and 49. Inside the inner block, <code>3 + 4 * 7</code> is
+<code>(3 + 4) * 7</code>. A program that wants the same convenience must
+do the same, or call the operator with a <code><b>real</b></code>
+operand. The Report calls the choice of the declaration the <span
+class="sans-serif">identification</span> of the operator; current
+languages call it <em>overload resolution</em>.</p>
+<h2 data-number="5.9" id="sec-procs-complete"><span
+class="header-section-number">5.9</span> A complete program</h2>
+<p>The final program of this chapter defines a type of exact fractions
+and the arithmetic operators for it. The function <code>rat</code>
+reduces a fraction to lowest terms with the greatest common divisor and
+makes the denominator positive. A new operator <code>//</code> builds a
+fraction from two integers; it is given the precedence of
+<code>/</code>. The unary operator <code>STR</code> converts a fraction
+into a string.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Exact arithmetic with fractions. }</span>
+   <b>mode</b> Rat = <b>struct</b> (<b>int</b> num, den);
+   <b>proc</b> gcd = (<b>int</b> a, b) <b>int</b>: (b = 0 | ABS a | gcd (b, a MOD b));
+   <b>proc</b> rat = (<b>int</b> n, d) Rat:
+   <b>begin</b>
+      <b>int</b> g = gcd (n, d) * SIGN d;
+      (n % g, d % g)
+   <b>end</b>;
+   <b>op</b> + = (Rat a, b) Rat:
+      rat (num <b>of</b> a * den <b>of</b> b + num <b>of</b> b * den <b>of</b> a, den <b>of</b> a * den <b>of</b> b);
+   <b>op</b> - = (Rat a, b) Rat:
+      rat (num <b>of</b> a * den <b>of</b> b - num <b>of</b> b * den <b>of</b> a, den <b>of</b> a * den <b>of</b> b);
+   <b>op</b> * = (Rat a, b) Rat: rat (num <b>of</b> a * num <b>of</b> b, den <b>of</b> a * den <b>of</b> b);
+   <b>op</b> / = (Rat a, b) Rat: rat (num <b>of</b> a * den <b>of</b> b, den <b>of</b> a * num <b>of</b> b);
+   <b>op</b> - = (Rat a) Rat: (-num <b>of</b> a, den <b>of</b> a);
+   <b>op</b> +:= = (<b>ref</b> Rat a, Rat b) <b>ref</b> Rat: a := a + b;
+   <b>op</b> STR = (Rat a) <b>string</b>:
+      whole (num <b>of</b> a, 0) + (den <b>of</b> a = 1 | "" | "/" + whole (den <b>of</b> a, 0));
+   <b>prio</b> // = 7;
+   <b>op</b> // = (<b>int</b> n, d) Rat: rat (n, d);
+   Rat sum := 0 // 1;
+   <b>for</b> k <b>to</b> 6 <b>do</b> sum +:= 1 // k <b>od</b>;
+   print (("1 + 1/2 + ... + 1/6 = ", STR sum, newline));
+   print ((STR (3 // 4 * (2 // 3 - 1 // 6)), " ", STR - (6 // 8), " ",
+           STR (1 // 2 / (1 // 4)), newline))
+<b>end</b></code></pre>
+<pre class="output"><code>1 + 1/2 + ... + 1/6 = 49/20
+3/8 -3/4 2</code></pre>
+<p>Note how the standard symbols <code>+</code>, <code>-</code>,
+<code>*</code> and <code>/</code> get a new meaning for the type
+<code>Rat</code> without losing their meaning for numbers, and how the
+unary and binary <code>-</code> are declared separately. Defining
+<code>+</code> does not define <code>+:=</code>: the program declares it
+separately, with a reference to the variable as its left operand and the
+variable as its result, like the standard <code>+:=</code>. The
+expression <code>STR - (6 // 8)</code> applies two unary operators, the
+minus first.</p>
+<h2 class="unnumbered" id="exercises-3">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch5">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What is the type of each of these functions? (a)
+<code><b>proc</b> f = (<b>real</b> x, <b>int</b> n) <b>real</b>: x ** n</code>
+(b) <code><b>proc</b> g = <b>bool</b>: random &lt; 0.5</code> (c)
+<code><b>proc</b> h = (<b>ref</b> [] <b>int</b> a) <b>void</b>: a[1] := 0</code></p></li>
+<li><p>Write a function <code>digit_sum</code> that returns the sum of
+the decimal digits of a non-negative <code><b>int</b></code>, once with
+a loop and once recursively.</p></li>
+<li><p>Why does
+<code><b>proc</b> inc = (<b>int</b> n) <b>void</b>: n +:= 1</code> not
+compile, and how must it be written to increase the caller’s
+variable?</p></li>
+<li><p>Write a function <code>apply_twice</code> that takes a function
+of type <code><b>proc</b> (<b>int</b>) <b>int</b></code> and an
+<code><b>int</b></code> and applies the function twice. Call it with a
+function literal that doubles its argument.</p></li>
+<li><p>Declare an operator <code>ABOVE</code> so that
+<code>a ABOVE b</code> is <code><b>true</b></code> if <code>a</code> is
+greater than <code>b</code>, for <code><b>int</b></code> operands, with
+the precedence of <code>&gt;</code>. What is the value of
+<code>1 + 2 ABOVE 2</code>?</p></li>
+<li><p>With the operators of this chapter, what is
+<code>SQUARE 2 MAX 3</code>?</p></li>
+<li><p>Why does the assignment <code>p := hello</code> not call the
+function <code>hello</code>, although its value is discarded?</p></li>
+<li><p>In a block that contains <code><b>prio</b> + = 7</code>, what is
+the value of <code>1 + 2 * 3</code>?</p></li>
+<li><p>May
+<code><b>op</b> MAX = (<b>int</b> a, <b>real</b> b) <b>real</b></code>
+and
+<code><b>op</b> MAX = (<b>real</b> a, <b>int</b> b) <b>real</b></code>
+be declared in the same block?</p></li>
+<li><p>Write an operator <code>*</code> that multiplies a
+<code>[] <b>real</b></code> by a <code><b>real</b></code> and returns a
+new array with the same bounds.</p></li>
+<li><p>A function
+<code>month = (<b>ref</b> <b>int</b> day) <b>string</b></code> takes a
+day of the year, returns the name of its month and changes
+<code>day</code> to the day within that month. Why is
+<code>print ((month (d), " ", d))</code> wrong, and how is it
+corrected?</p></li>
+<li><p>Write a function
+<code>sum = (<b>int</b> lo, hi, <b>proc</b> (<b>int</b>) <b>real</b> term) <b>real</b></code>
+and use it to compute the sum of <span
+class="math inline">1/<em>k</em><sup>2</sup></span> for <span
+class="math inline"><em>k</em></span> from 1 to 100 and the scalar
+product of two arrays <code>v</code> and <code>w</code>. Why can the
+second call not simply pass <code>v[k] * w[k]</code>?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-3">Programming
+problems</h2>
+<ol>
+<li><p>Write a function that returns the <span
+class="math inline"><em>n</em></span>-th prime number, and use it to
+print the first 20 primes.</p></li>
+<li><p>Solve the Towers of Hanoi recursively and print the moves for
+four discs.</p></li>
+<li><p>Write a function that finds a root of a function
+<code><b>proc</b> (<b>real</b>) <b>real</b></code> in an interval by
+bisection, and use it to compute the cube root of 2.</p></li>
+<li><p>Define a type <code>Vector</code> with three
+<code><b>real</b></code> fields and the operators <code>+</code>,
+<code>-</code>, <code>*</code> (scalar product) and a unary
+<code>ABS</code> (length).</p></li>
+<li><p>Extend the rational numbers of this chapter with the comparison
+operators <code>=</code> and <code>&lt;</code>, and use them to sort an
+array of fractions.</p></li>
+<li><p><strong>Merge sort.</strong> Sort an array by recursive merge
+sort, passing the halves to the recursive calls as slices of a
+<code><b>ref</b> [] <b>int</b></code>.</p></li>
+<li><p><strong>Permutations.</strong> Print all permutations of the
+numbers 1 to <span class="math inline"><em>n</em></span>, and all ways
+of choosing <span class="math inline"><em>k</em></span> of them, with a
+recursive procedure that fills an array position by position.</p></li>
+<li><p><strong>Plotting.</strong> Write a procedure that takes a
+function <code><b>proc</b> (<b>real</b>) <b>real</b></code>, an interval
+and a height, and plots the function with characters. Plot
+<code>sin</code> and a function literal.</p></li>
+<li><p><strong>Horner’s rule.</strong> Write a function that evaluates a
+polynomial whose coefficients are given in an array with any lower
+bound, and count the multiplications compared with computing each power
+separately.</p></li>
+<li><p><strong>The 91 function.</strong> McCarthy’s function is <span
+class="math inline"><em>f</em>(<em>n</em>) = <em>n</em> − 10</span> for
+<span class="math inline"><em>n</em> &gt; 100</span> and <span
+class="math inline"><em>f</em>(<em>f</em>(<em>n</em>+11))</span>
+otherwise. Compute it recursively for <span
+class="math inline"><em>n</em></span> from 1 to 110, and find a simple
+formula for its values.</p></li>
+<li><p><strong>Monte Carlo.</strong> Estimate <span
+class="math inline"><em>π</em></span> by choosing random points in a
+square with <code>random</code> and counting those inside the circle,
+for <span class="math inline">10<sup>3</sup></span>, <span
+class="math inline">10<sup>4</sup></span> and <span
+class="math inline">10<sup>5</sup></span> points.</p></li>
+<li><p><strong>Matrices.</strong> Declare <code>+</code>, <code>*</code>
+and <code>*:=</code> for <code>[,] <b>real</b></code>, checking that the
+bounds fit.</p></li>
+<li><p><strong>Resistors.</strong> Declare an operator <code>PAR</code>
+that combines two resistances in parallel, <span
+class="math inline"><em>a</em><em>b</em>/(<em>a</em>+<em>b</em>)</span>,
+choose a precedence for it relative to <code>+</code> (resistances in
+series), and add an assigning form <code>PARAB</code> in the style of
+<code>+:=</code>. Compute a network of several resistors with one
+formula.</p></li>
+<li><p><strong>A maze.</strong> Describe a maze by a function
+<code>blocked = (<b>int</b> x, y) <b>bool</b></code> and find a way from
+the entrance to the exit with a recursive procedure that tries each
+direction, marks the cells it has visited, and backs out of dead ends.
+Print the path as the recursion returns, and explain why it comes out in
+reverse order.</p></li>
+<li><p><strong>An evaluator.</strong> Evaluate integer expressions with
+<code>+ - * /</code> and parentheses, given as a string, with mutually
+recursive functions for expressions, terms and factors that share a
+position variable.</p></li>
+</ol>
+</body>
+</html>

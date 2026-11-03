@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix E: Modules</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-nest.html" accesskey="n" rel="next">Appendix F: Calling C</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-glossary.html" accesskey="p" rel="previous">Appendix D: Glossary</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-modules">Appendix E: Modules</h1>
+<p>The Revised Report has no modules: a program is a single text, and
+the only library is the standard one. Large programs need a way to
+divide the text into separately compiled parts with defined interfaces.
+The GNU dialect of Algol 68, which ga68 and a68j implement, adds modules
+for this purpose, following a proposal by Lindsey and Boom [<a
+href="-bibliography.html#bib-modules">7</a>]; outside this appendix, the
+book uses them only for <code>Genie_Transput</code>. This appendix
+describes the essentials. Algol 68 Genie has no modules.</p>
+<h2 class="unnumbered" id="defining-a-module">Defining a module</h2>
+<p>A module is a separate source file of the form</p>
+<pre class="algol68"><code><b>module</b> Name =
+<b>def</b>
+   declarations and expressions
+<b>fed</b></code></pre>
+<p>The declarations between <code><b>def</b></code> and
+<code><b>fed</b></code> are private, unless they are marked with
+<code><b>pub</b></code>; the public ones form the interface of the
+module. Types, constants, variables, functions, operators and
+precedences can be public. The sequence is executed once, before the
+program that uses the module starts, and must end with an expression, as
+every sequence must (often <code><b>skip</b></code>).</p>
+<p>The following module implements a stack of integers. The list behind
+it is private; only the three functions are public:</p>
+<pre class="algol68"><code><b>module</b> Stack =
+<b>def</b>
+   <span class="comment">{ A stack of integers, as a linked list. }</span>
+   <b>mode</b> Cell = <b>struct</b> (<b>int</b> value, <b>ref</b> Cell below);
+   <b>ref</b> Cell bottom = <b>nil</b>;
+   <b>ref</b> Cell top := bottom;
+   <b>pub</b> <b>proc</b> push = (<b>int</b> x) <b>void</b>: top := <b>heap</b> Cell := (x, top);
+   <b>pub</b> <b>proc</b> pop = <b>int</b>: (<b>int</b> x = value <b>of</b> top; top := below <b>of</b> top; x);
+   <b>pub</b> <b>proc</b> is_empty = <b>bool</b>: top <b>is</b> bottom;
+   <b>skip</b>
+<b>fed</b></code></pre>
+<h2 class="unnumbered" id="using-a-module">Using a module</h2>
+<p>A program uses modules by naming them after
+<code><b>access</b></code>, before its block:</p>
+<pre class="algol68"><code><b>access</b> Stack, Genie_Transput
+<b>begin</b>
+   <b>for</b> i <b>to</b> 5 <b>do</b> push (i * i) <b>od</b>;
+   <b>while</b> NOT is_empty <b>do</b> print (pop) <b>od</b>;
+   print (newline)
+<b>end</b></code></pre>
+<pre class="output"><code>        +25        +16         +9         +4         +1</code></pre>
+<p>The public names of all accessed modules are visible in the block, as
+if they had been declared in a block around it. Two modules that both
+declare the same public name cannot be accessed together, since the name
+would be declared twice; a module that is used by two other modules can
+be accessed by both, and is executed only once. A module can itself
+access other modules, by writing <code><b>access</b></code> before its
+<code><b>def</b></code>.</p>
+<h2 class="unnumbered" id="compiling">Compiling</h2>
+<p>A module is compiled on its own, and the program is compiled with the
+compiled modules. With ga68, a module is compiled to an object file,
+which also contains its interface, and the program is linked with
+it:</p>
+<pre class="shell"><code>$ ga68 -c stack.a68
+$ ga68 -I. use-stack.a68 stack.o genietransput.o -o use-stack</code></pre>
+<p>With a68j, a module is compiled to a library jar, and the directory
+of the jar is given to the program:</p>
+<pre class="shell"><code>$ java -jar a68j-backend.jar stack.a68 -d lib/libstack.jar
+$ java -jar a68j-backend.jar -I lib -run use-stack.a68</code></pre>
+<p>The modules that come with a68j, such as <code>Genie_Transput</code>,
+need no such step.</p>
+</body>
+</html>

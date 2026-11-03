@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>More built-in types and the standard library</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="7-ch-advanced.html" accesskey="n" rel="next">Advanced types</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="5-ch-procs.html" accesskey="p" rel="previous">Functions and operators</a>
+</span>
+</div>
+</nav>
+<h1 data-number="6" id="ch-moretypes"><span
+class="header-section-number">6</span> More built-in types and the
+standard library</h1>
+<p>Chapters <a href="2-ch-values.html#ch-values"
+data-reference-type="ref" data-reference="ch-values">2</a> to <a
+href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a> used four primitive types. This chapter
+introduces the remaining built-in types of the language: complex
+numbers, numbers of greater or smaller precision, bit sets and byte
+strings. It closes with a survey of the constants and functions of the
+standard library. Much of the chapter depends on the implementation,
+since the precision of numbers does; where it does, the text says what
+ga68, a68j and Algol 68 Genie provide.</p>
+<h2 data-number="6.1" id="sec-complex"><span
+class="header-section-number">6.1</span> Complex numbers</h2>
+<p>The type <code><b>compl</b></code> holds a complex number, a pair of
+<code><b>real</b></code> values for the real and the imaginary part. The
+binary operator <code>I</code> builds a complex number from its two
+parts: <code>1 I 2</code> is <span
+class="math inline">1 + 2<em>i</em></span>. The arithmetic operators
+<code>+</code>, <code>-</code>, <code>*</code> and <code>/</code> work
+on complex numbers, also mixed with <code><b>int</b></code> and
+<code><b>real</b></code> operands, and <code>=</code> and
+<code>/=</code> compare them. Further operators give the parts and
+properties of a complex number:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>RE z</code>, <code>IM z</code></td>
+<td style="text-align: left;">the real and the imaginary part</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ABS z</code></td>
+<td style="text-align: left;">the absolute value <span
+class="math inline">|<em>z</em>|</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ARG z</code></td>
+<td style="text-align: left;">the argument (angle), between <span
+class="math inline"> − <em>π</em></span> and <span
+class="math inline"><em>π</em></span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>CONJ z</code></td>
+<td style="text-align: left;">the complex conjugate</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>a I b</code></td>
+<td style="text-align: left;">the complex number <span
+class="math inline"><em>a</em> + <em>b</em><em>i</em></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="algol68"><code><b>proc</b> show = (<b>compl</b> z) <b>string</b>:
+   fixed (RE z, 0, 3) + (IM z &lt; 0 | " - " | " + ")
+      + fixed (ABS IM z, 0, 3) + "i";
+<b>compl</b> z = 1 I 2, w = 3 I -1;
+print ((show (z + w), "   ", show (z * w), "   ", show (z / w), newline));
+print ((fixed (ABS (3 I 4), 0, 3), " ", fixed (ARG (0 I 1), 0, 4), " ",
+        show (CONJ z), newline));
+<b>compl</b> r := 2.5;                 <span class="comment">{ a real is widened to compl }</span>
+r *:= 0 I 1;
+print ((show (r), newline))</code></pre>
+<pre class="output"><code>4.000 + 1.000i   5.000 + 5.000i   .100 + .700i
+5.000 1.5708 1.000 - 2.000i
+.000 + 2.500i</code></pre>
+<p>The function <code>show</code> formats a complex number for printing.
+A <code><b>real</b></code> (and therefore an <code><b>int</b></code>) is
+widened to <code><b>compl</b></code> where a complex number is required,
+so <code><b>compl</b> r := 2.5</code> is allowed; this is the second
+step of the widening that Chapter <a href="2-ch-values.html#ch-values"
+data-reference-type="ref" data-reference="ch-values">2</a>
+introduced.</p>
+<p>The standard library declares <code><b>compl</b></code> as a record,
+<code><b>mode</b> <b>compl</b> = <b>struct</b> (<b>real</b> re, im)</code>,
+so <code>re <b>of</b> z</code> selects the real part of a complex
+variable and can be assigned to, and
+<code><b>compl</b> z = (1, 2)</code> is a record literal. Two details
+catch the unwary: <code>I</code> has the highest precedence, 9, so
+<code>2 * x I y</code> means <code>2 * (x I y)</code>; and complex
+numbers have no order, so there is no <code>&lt;</code>.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 does not yet provide the
+complex operators; a program that uses them fails when it is linked. The
+examples in this section were run with a68j and Algol 68 Genie.
+<code>Genie_Transput</code> does not print complex numbers directly,
+which is why the example formats them itself; the <code>print</code> of
+the Report and of Algol 68 Genie prints the two parts.</p>
+</blockquote>
+<p>As an application, the following program solves quadratic equations,
+whose roots may be complex. The discriminant decides whether the square
+root is real or imaginary; the <code><b>if</b></code> balances its two
+branches to <code><b>compl</b></code>.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ The roots of a x^2 + b x + c, real or complex. }</span>
+   <b>proc</b> show = (<b>compl</b> z) <b>string</b>:
+      fixed (RE z, 0, 3) + (IM z &lt; 0 | " - " | " + ")
+         + fixed (ABS IM z, 0, 3) + "i";
+   <b>proc</b> roots = (<b>real</b> a, b, c) <b>void</b>:
+   <b>begin</b>
+      <b>real</b> d = b * b - 4 * a * c;
+      <b>compl</b> root = (d &gt;= 0 | sqrt (d) | 0 I sqrt (-d));
+      <b>compl</b> x1 = (-b + root) / (2 * a), x2 = (-b - root) / (2 * a);
+      print ((show (x1), "   ", show (x2), newline))
+   <b>end</b>;
+   roots (1, -3, 2);
+   roots (1, 2, 5);
+   roots (2, 0, 8)
+<b>end</b></code></pre>
+<pre class="output"><code>2.000 + .000i   1.000 + .000i
+-1.000 + 2.000i   -1.000 - 2.000i
+.000 + 2.000i   .000 - 2.000i</code></pre>
+<h2 data-number="6.2" id="sec-long"><span
+class="header-section-number">6.2</span> Precision variants</h2>
+<p>The types <code><b>int</b></code>, <code><b>real</b></code>,
+<code><b>compl</b></code> and <code><b>bits</b></code> come in several
+sizes. The prefix <code><b>long</b></code> gives a variant with more
+bits, <code><b>long</b> <b>long</b></code> one with still more, and
+<code><b>short</b></code> and <code><b>short</b> <b>short</b></code>
+variants with fewer. How many variants there are and how large they are
+depends on the implementation. A variant that the implementation does
+not distinguish has the same values as the next larger or smaller one,
+but it is still a type of its own: a
+<code><b>long</b> <b>long</b> <b>int</b></code> must be converted with
+<code>SHORTEN</code> to become a <code><b>long</b> <b>int</b></code>,
+even where both have 64 bits.</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">ga68</th>
+<th style="text-align: center;">a68j</th>
+<th style="text-align: center;">Algol 68 Genie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: left;"><code><b>short</b> <b>short</b> <b>int</b></code></td>
+<td style="text-align: center;">8 bits</td>
+<td style="text-align: center;">8 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>short</b> <b>int</b></code></td>
+<td style="text-align: center;">16 bits</td>
+<td style="text-align: center;">16 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>int</b></code></td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>long</b> <b>int</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">128 bits</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code><b>long</b> <b>long</b> <b>int</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">72 decimal digits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>real</b></code></td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">32 bits</td>
+<td style="text-align: center;">64 bits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>long</b> <b>real</b></code></td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">128 bits</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code><b>long</b> <b>long</b> <b>real</b></code></td>
+<td style="text-align: center;">80 bits</td>
+<td style="text-align: center;">64 bits</td>
+<td style="text-align: center;">63 decimal digits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code><b>bits</b></code></td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">64</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code><b>long</b> <b>bits</b></code></td>
+<td style="text-align: center;">64</td>
+<td style="text-align: center;">64</td>
+<td style="text-align: center;">128</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A literal of a long type is written with the prefix:
+<code><b>long</b> 1</code>, <code><b>long</b> 2.5</code>,
+<code><b>long</b> <b>long</b> 0</code>. The operator <code>LENG</code>
+converts a value to the next longer type and <code>SHORTEN</code> to the
+next shorter one; there is no implicit conversion between the sizes, so
+a <code><b>long</b> <b>int</b></code> and an <code><b>int</b></code>
+cannot be added without <code>LENG</code>. The names of the standard
+constants and functions for the long types begin with
+<code>long_</code>: <code>long_max_int</code>, <code>long_pi</code>,
+<code>long_sqrt</code>.</p>
+<pre class="algol68"><code><b>long</b> <b>int</b> big = <b>long</b> 123456789 * <b>long</b> 1000000;
+print ((big, newline));
+print ((long_max_int, newline));
+<b>long</b> <b>real</b> third = <b>long</b> 1 / <b>long</b> 3;
+print ((third, newline));
+print ((LENG max_int + <b>long</b> 1, newline));       <span class="comment">{ no overflow in long }</span>
+print ((SHORTEN (<b>long</b> 2 ** 20), newline))</code></pre>
+<pre class="output"><code>    +123456789000000
++9223372036854775807
++3.33333333333333e  -1
+         +2147483648
+   +1048576</code></pre>
+<p>The last two lines show the conversions:
+<code>LENG max_int + <b>long</b> 1</code> computes in
+<code><b>long</b> <b>int</b></code> and so does not overflow, and
+<code>SHORTEN</code> converts a value that fits back to
+<code><b>int</b></code>.</p>
+<p>The long types are what a program needs for exact large integers and
+for precise floating-point computations. With 32-bit integers, 13!
+already overflows; with <code><b>long</b> <b>int</b></code>, all
+factorials up to 20! are exact:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Factorials with long int, and their numbers of digits. }</span>
+   <b>long</b> <b>int</b> f := <b>long</b> 1;
+   <b>for</b> n <b>to</b> 20 <b>do</b>
+      f *:= LENG n;
+      <b>if</b> n MOD 5 = 0 <b>then</b>
+         <b>string</b> digits = whole (f, 0);
+         print ((whole (n, -2), "! = ", whole (f, -20),
+                 "  (", whole (UPB digits, 0), " digits)", newline))
+      <b>fi</b>
+   <b>od</b>
+<b>end</b></code></pre>
+<pre class="output"><code> 5! =                  120  (3 digits)
+10! =              3628800  (7 digits)
+15! =        1307674368000  (13 digits)
+20! =  2432902008176640000  (19 digits)</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  <code>Genie_Transput</code>
+prints <code><b>long</b> <b>int</b></code> and
+<code><b>long</b> <b>real</b></code> values, but not the
+<code><b>short</b></code> and <code><b>long</b> <b>long</b></code>
+variants; they are converted with <code>LENG</code> or
+<code>SHORTEN</code> before printing. In Algol 68 Genie,
+<code><b>long</b> <b>long</b> <b>int</b></code> and
+<code><b>long</b> <b>long</b> <b>real</b></code> are computed in
+software with a very large precision, which Rosetta Code programs use
+for big numbers.</p>
+</blockquote>
+<h2 data-number="6.3" id="sec-bits"><span
+class="header-section-number">6.3</span> Bit sets</h2>
+<p>A value of type <code><b>bits</b></code> is a fixed-size sequence of
+bits, as many as the constant <code>bits_width</code> says. It is the
+Algol 68 equivalent of an unsigned integer used as a set of flags or a
+bit mask. Literals are written in base 2, 4, 8 or 16 with a prefix that
+gives the base: <code>2r1100</code>, <code>8r14</code> and
+<code>16rc</code> are the same value. The operators on
+<code><b>bits</b></code> are:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>a AND b</code>, <code>a OR b</code>,
+<code>NOT a</code></td>
+<td style="text-align: left;">bitwise and, or, complement</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>a SHL n</code>,
+<code>a SHR n</code></td>
+<td style="text-align: left;">shift left or right by <code>n</code>
+bits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>n ELEM a</code></td>
+<td style="text-align: left;">bit <code>n</code> of <code>a</code>, as a
+<code><b>bool</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>a = b</code>,
+<code>a /= b</code></td>
+<td style="text-align: left;">equality</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>a &lt;= b</code>,
+<code>a &gt;= b</code></td>
+<td style="text-align: left;">subset, superset (not numerical
+order)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ABS a</code>,
+<code>BIN n</code></td>
+<td style="text-align: left;">conversion to and from
+<code><b>int</b></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="algol68"><code><b>bits</b> a = 2r1100, b = 16r0a;                  <span class="comment">{ 12 and 10 }</span>
+print ((ABS (a AND b), ABS (a OR b), ABS (a SHL 2), ABS (a SHR 2), newline));
+print ((a, newline));
+print ((bits_width, " ", bits_width ELEM a, (bits_width - 2) ELEM a, newline));
+<b>bits</b> c = BIN 37;                             <span class="comment">{ from int to bits }</span>
+print ((ABS c, " ", ABS bits_pack ((<b>true</b>, <b>true</b>, <b>false</b>)), newline))</code></pre>
+<pre class="output"><code>         +8        +14        +48         +3
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFTTFF
+        +32 FT
+        +37          +6</code></pre>
+<p>Two details differ from current conventions. First,
+<code>print</code> writes a <code><b>bits</b></code> value as a row of
+<code>T</code> and <code>F</code> characters, one per bit. Second, the
+bits are numbered from the left: bit 1 is the most significant bit and
+bit <code>bits_width</code> the least significant one. In
+<code>2r1100</code>, the two set bits are therefore numbers 29 and 30 of
+32. The function <code>bits_pack</code> builds a
+<code><b>bits</b></code> value from an array of
+<code><b>bool</b></code>, whose last element becomes the least
+significant bit.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  The comparisons of
+<code><b>bits</b></code> values are set comparisons:
+<code>2r100 &gt;= 2r011</code> is false, since the first value does not
+contain the bits of the second. For numerical order, compare
+<code>ABS a</code> and <code>ABS b</code>. <code>ELEM</code> has the
+precedence 7, so <code>i + 1 ELEM b</code> means
+<code>i + (1 ELEM b)</code> and is rejected; write
+<code>(i + 1) ELEM b</code>. A negative shift count shifts in the other
+direction. And <code>ABS</code> of a value whose first bit is set does
+not fit into an <code><b>int</b></code> of the same width: the Report
+leaves the result undefined, and a68j gives a negative number.</p>
+</blockquote>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68, a68j and Algol 68 Genie
+also provide <code>XOR</code> for <code><b>bits</b></code>, which the
+Report does not have; it can be written as
+<code>(a OR b) AND NOT (a AND b)</code>.</p>
+</blockquote>
+<h2 data-number="6.4" id="sec-bytes"><span
+class="header-section-number">6.4</span> Byte strings</h2>
+<p>The type <code><b>bytes</b></code> is a string of fixed length,
+<code>bytes_width</code> characters, stored compactly. It was meant for
+machines on which a <code><b>string</b></code> was expensive. The
+function <code>bytes_pack</code> converts a string to
+<code><b>bytes</b></code>, and <code>n ELEM b</code> selects a
+character.</p>
+<pre class="algol68"><code><b>bytes</b> code = bytes_pack ("ALGOL");
+print ((2 ELEM code, " ", 5 ELEM code, newline))</code></pre>
+<pre class="output"><code>L L</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 and a68j do not yet
+support <code><b>bytes</b></code>; the example was run with Algol 68
+Genie. Programs rarely need this type today, since
+<code><b>string</b></code> serves the same purpose.</p>
+</blockquote>
+<h2 data-number="6.5" id="sec-enquiries"><span
+class="header-section-number">6.5</span> Environment enquiries</h2>
+<p>The standard library contains constants that describe the
+implementation, which the Report calls <span
+class="sans-serif">environment enquiries</span>. A program that wants to
+be portable uses them instead of assuming particular sizes:</p>
+<pre class="algol68"><code>print (("max_int        ", max_int, newline));
+print (("long_max_int   ", long_max_int, newline));
+print (("small_real     ", small_real, newline));
+print (("long_small_real", long_small_real, newline));
+print (("bits_width     ", bits_width, newline));
+print (("int_lengths    ", int_lengths, newline));
+print (("int_shorths    ", int_shorths, newline))</code></pre>
+<pre class="output"><code>max_int        +2147483647
+long_max_int   +9223372036854775807
+small_real     +1.192093e -7
+long_small_real+2.22044604925031e -16
+bits_width             +32
+int_lengths             +2
+int_shorths             +3</code></pre>
+<p>The most important ones are:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Constant</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>max_int</code>,
+<code>long_max_int</code></td>
+<td style="text-align: left;">the largest integer of each size</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max_real</code>,
+<code>long_max_real</code></td>
+<td style="text-align: left;">the largest real of each size</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>small_real</code></td>
+<td style="text-align: left;">the smallest <code><b>real</b></code>
+<span class="math inline"><em>x</em></span> with <span
+class="math inline">1 + <em>x</em> &gt; 1</span> and <span
+class="math inline">1 − <em>x</em> &lt; 1</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>int_lengths</code>,
+<code>int_shorths</code></td>
+<td style="text-align: left;">1 + the number of
+<code><b>long</b></code>, <code><b>short</b></code> sizes of
+<code><b>int</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>real_lengths</code>,
+<code>real_shorths</code></td>
+<td style="text-align: left;">the same for <code><b>real</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bits_width</code>,
+<code>bytes_width</code></td>
+<td style="text-align: left;">the number of bits in
+<code><b>bits</b></code>, characters in <code><b>bytes</b></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>int_width</code>,
+<code>real_width</code></td>
+<td style="text-align: left;">the digits needed to print an
+<code><b>int</b></code>, a <code><b>real</b></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max_abs_char</code></td>
+<td style="text-align: left;">the largest character code</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>blank</code>,
+<code>null_character</code></td>
+<td style="text-align: left;">the space character, a filler character
+(code 0 here)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>flip</code>, <code>flop</code></td>
+<td style="text-align: left;">the characters for true and false
+(<code>"T"</code> and <code>"F"</code> here)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>int_lengths</code> and <code>int_shorths</code> count
+<code><b>int</b></code> itself, so <code>int_lengths = 2</code> means
+that there is one distinct <code><b>long</b></code> size (and
+<code>int_shorths = 2</code> one <code><b>short</b></code> size); a
+larger prefix gives a type with the same values as the largest distinct
+one.</p>
+<h2 data-number="6.6" id="sec-math"><span
+class="header-section-number">6.6</span> Mathematical functions</h2>
+<p>The standard library provides the mathematical functions of
+Section <a href="5-ch-procs.html#sec-std-procs"
+data-reference-type="ref" data-reference="sec-std-procs">5.6</a>, each
+also in a version for each long size: <code>sqrt</code>,
+<code>exp</code>, <code>ln</code>, <code>sin</code>, <code>cos</code>,
+<code>tan</code>, <code>arcsin</code>, <code>arccos</code>,
+<code>arctan</code>; for <code><b>long</b> <b>real</b></code>, they are
+<code>long_sqrt</code>, <code>long_exp</code>, and so on. The function
+<code>random</code> returns a pseudo-random <code><b>real</b></code>
+between 0 and 1.</p>
+<pre class="algol68"><code><b>for</b> i <b>from</b> 0 <b>to</b> 3 <b>do</b>
+   <b>real</b> x = i * pi / 8;
+   print ((fixed (x, -6, 4), fixed (sin (x), -8, 4), fixed (cos (x), -8, 4),
+           fixed (exp (x), -8, 4), newline))
+<b>od</b>;
+print ((fixed (long_sqrt (<b>long</b> 2), 0, 15), newline))</code></pre>
+<pre class="output"><code>0.0000  0.0000  1.0000  1.0000
+0.3927  0.3827  0.9239  1.4810
+0.7854  0.7071  0.7071  2.1933
+1.1781  0.9239  0.3827  3.2482
+1.414213562373095</code></pre>
+<p>The negative widths ask <code>fixed</code> for a field of six or
+eight characters without a plus sign (Section <a
+href="2-ch-values.html#sec-io" data-reference-type="ref"
+data-reference="sec-io">2.14</a>).</p>
+<h2 data-number="6.7" id="sec-extend-ops"><span
+class="header-section-number">6.7</span> Extending the standard
+operators</h2>
+<p>A program can declare a standard operator for operand types that the
+library does not cover, as Chapter <a href="5-ch-procs.html#ch-procs"
+data-reference-type="ref" data-reference="ch-procs">5</a> did for
+fractions. The standard <code>MOD</code>, for example, is defined for
+integers only; a declaration adds a version for <code><b>real</b></code>
+operands, while the standard <code>MOD</code> keeps its meaning:</p>
+<pre class="algol68"><code><b>op</b> MOD = (<b>real</b> a, b) <b>real</b>: a - b * ENTIER (a / b);
+print ((fixed (7.5 MOD 2.0, 0, 2), " ", fixed (-7.5 MOD 2.0, 0, 2), newline));
+print ((7 MOD 2, newline))                   <span class="comment">{ the standard MOD }</span></code></pre>
+<pre class="output"><code>1.50 .50
+         +1</code></pre>
+<h2 class="unnumbered" id="exercises-4">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch6">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What are <code>RE ((1 I 1) * (1 I -1))</code> and
+<code>ABS (0 I 2)</code>?</p></li>
+<li><p>Why is <code><b>long</b> <b>int</b> n := 5</code> not allowed,
+and how is it written correctly?</p></li>
+<li><p>Assuming <code>bits_width</code> is 32, what are
+<code>ABS (16rff AND 2r1010)</code>, <code>ABS (2r1 SHL 4)</code> and
+<code>32 ELEM 2r1</code>?</p></li>
+<li><p>Write a function <code>popcount</code> that counts the set bits
+in a <code><b>bits</b></code> value, using <code>ELEM</code>.</p></li>
+<li><p>How can a program find out whether
+<code><b>long</b> <b>long</b> <b>int</b></code> is longer than
+<code><b>long</b> <b>int</b></code> in the implementation it runs
+on?</p></li>
+<li><p>Is <code>2r100 &gt;= 2r011</code> true? Why or why not?</p></li>
+<li><p>What does <code>2 * 3 I 4</code> mean?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-4">Programming
+problems</h2>
+<ol>
+<li><p>Compute <span class="math inline">2<sup>62</sup></span> and <span
+class="math inline">3<sup>39</sup></span> exactly with
+<code><b>long</b> <b>int</b></code>.</p></li>
+<li><p>Print the first 90 Fibonacci numbers with
+<code><b>long</b> <b>int</b></code>.</p></li>
+<li><p>Use the Newton iteration <span
+class="math inline"><em>z</em> ← <em>z</em> − (<em>z</em><sup>3</sup>−1)/(3<em>z</em><sup>2</sup>)</span>
+to find which of the three cube roots of 1 is reached from each starting
+point of a grid in the complex plane, and print the grid as
+characters.</p></li>
+<li><p>Represent a set of the numbers 1 to 32 as
+<code><b>bits</b></code>, and write the operations union, intersection,
+membership and size.</p></li>
+<li><p><strong>Mandelbrot.</strong> Print the Mandelbrot set with
+characters, using <code><b>compl</b></code> arithmetic.</p></li>
+<li><p><strong>A bit sieve.</strong> Write the sieve of Eratosthenes on
+an array of <code><b>bits</b></code> words, splitting a number into a
+word index and a bit number, and compare its size with the
+<code>[] <b>bool</b></code> version of Chapter <a
+href="4-ch-data.html#ch-data" data-reference-type="ref"
+data-reference="ch-data">4</a>.</p></li>
+<li><p><strong>Gray code.</strong> Convert numbers to their Gray code
+(<code>n XOR (n SHR 1)</code> on <code><b>bits</b></code>) and back, and
+print the codes of 0 to 15.</p></li>
+<li><p><strong>An adder.</strong> Add two positive numbers given as
+<code><b>bits</b></code> bit by bit, as hardware does, with a carry, and
+report an overflow.</p></li>
+<li><p><strong>Machine epsilon.</strong> Find the smallest power of 2
+that, added to 1, gives a result different from 1, by halving, for
+<code><b>real</b></code> and <code><b>long</b> <b>real</b></code>, and
+compare it with <code>small_real</code>.</p></li>
+<li><p><strong>Exact factorials.</strong> Compute 50! exactly with an
+array of <code><b>int</b></code> digits in base 10000, and compare the
+result with <code><b>long</b> <b>long</b> <b>int</b></code> in Algol 68
+Genie.</p></li>
+<li><p><strong>Safe fractions.</strong> Make the rational numbers of
+Chapter <a href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a> safe from overflow: compute the products
+in <code><b>long</b> <b>int</b></code> with <code>LENG</code>, reduce
+with a <code><b>long</b></code> greatest common divisor, and convert
+back with <code>SHORTEN</code> only after checking against
+<code>LENG max_int</code>. Use them for the first terms of a power
+series with exact coefficients, such as that of <span
+class="math inline"><em>e</em><sup><em>x</em></sup></span>.</p></li>
+</ol>
+</body>
+</html>

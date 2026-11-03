@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix B: The syntax in brief</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-app-impl.html" accesskey="n" rel="next">Appendix C: Implementation notes</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-library.html" accesskey="p" rel="previous">Appendix A: The standard library</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-syntax">Appendix B: The syntax in
+brief</h1>
+<p>The Revised Report defines the syntax of Algol 68 with a two-level
+grammar, which also expresses the type rules. This appendix gives a
+simplified, context-free summary in the extended Backus–Naur form that
+most language references use today. It describes the shape of programs;
+whether a program is correct also depends on the types, which the
+grammar below does not check. The names of the nonterminals are the
+terms of this book, with the Report’s term in a comment where it
+differs.</p>
+<p>Notation: <code><span class="comment">{ x }</span></code> means zero
+or more repetitions of <code>x</code>, <code>[ x ]</code> an optional
+<code>x</code>, <code>x | y</code> a choice; terminal symbols are in
+quotes.</p>
+<pre class="algol68"><code>program        = [ <b>access</b> ] enclosed .
+<b>access</b>         = "access" module_name <span class="comment">{ "," module_name }</span> .
+
+block          = "begin" sequence "end" | "(" sequence ")" .
+                                          (* closed clause *)
+sequence       = <span class="comment">{ declaration ";" }</span> part <span class="comment">{ exit_part }</span> .
+                                          (* serial clause *)
+part           = <span class="comment">{ label ":" }</span> expression
+                 <span class="comment">{ ";" ( declaration | { label ":" } expression ) }</span> .
+exit_part      = "exit" label ":" part .
+
+declaration    = mode_decl | prio_decl | op_decl | constant_decl
+               | variable_decl | proc_decl .
+mode_decl      = "mode" Type_name "=" type <span class="comment">{ "," Type_name "=" type }</span> .
+prio_decl      = "prio" operator "=" digit <span class="comment">{ "," operator "=" digit }</span> .
+op_decl        = "op" operator "=" function_literal
+                 <span class="comment">{ "," operator "=" function_literal }</span> .
+constant_decl  = formal_type name "=" expression
+                 <span class="comment">{ "," name "=" expression }</span> .  (* identity declaration *)
+variable_decl  = [ "loc" | "heap" ] actual_type name [ ":=" expression ]
+                 <span class="comment">{ "," name [ ":=" expression ] }</span> .
+proc_decl      = "proc" name "=" function_literal
+                 <span class="comment">{ "," name "=" function_literal }</span> .
+
+type           = "int" | "real" | "bool" | "char" | "string" | "compl"
+               | "bits" | "bytes" | "sema" | "format" | "void"
+               | ( "long" | "short" ) <span class="comment">{ "long" | "short" }</span> type
+               | "ref" type
+               | "[" [ bounds <span class="comment">{ "," bounds }</span> ] "]" type
+               | "flex" "[" [ bounds <span class="comment">{ "," bounds }</span> ] "]" type
+               | "struct" "(" type names <span class="comment">{ "," type names }</span> ")"
+               | "union" "(" type <span class="comment">{ "," type }</span> ")"
+               | "proc" [ "(" type <span class="comment">{ "," type }</span> ")" ] type
+               | Type_name .
+bounds         = [ expression ":" ] expression .
+                    (* formal types have no bounds, actual ones have *)
+
+expression     = assignment | identity | function_literal | jump
+               | "skip" | "nil" | formula
+               | tertiary ( "andth" | "orel" ) tertiary .  (* unit *)
+assignment     = tertiary ":=" expression .
+identity       = tertiary ( "is" | "isnt" | ":=:" | ":/=:" ) tertiary .
+function_literal = [ "(" type names <span class="comment">{ "," type names }</span> ")" ] type ":"
+                   expression .                 (* routine text *)
+jump           = [ "goto" | "go" "to" ] label .
+formula        = [ formula operator ] operand .
+                    (* binary operators <b>by</b> precedence 1 <b>to</b> 9 *)
+operand        = <span class="comment">{ unary_operator }</span> secondary .
+secondary      = primary | selection | generator .
+selection      = field "of" secondary .
+generator      = ( "loc" | "heap" ) actual_type .
+primary        = name | literal | cast | call | slice | enclosed .
+cast           = type enclosed .
+call           = primary "(" expression <span class="comment">{ "," expression }</span> ")" .
+slice          = primary "[" index <span class="comment">{ "," index }</span> "]" .
+index          = expression | [ expression ] ":" [ expression ]
+                 [ "@" expression ] | "@" expression .
+
+enclosed       = block | collateral | parallel | if_expr | case_expr
+               | conformity | loop .
+collateral     = "(" expression "," expression <span class="comment">{ "," expression }</span> ")"
+               | "(" ")" .              (* also array and record literals *)
+parallel       = "par" "(" expression "," expression <span class="comment">{ "," expression }</span> ")" .
+if_expr        = "if" sequence "then" sequence
+                 <span class="comment">{ "elif" sequence "then" sequence }</span>
+                 [ "else" sequence ] "fi" .
+case_expr      = "case" sequence "in" sequence <span class="comment">{ "," sequence }</span>
+                 [ "ouse" ... | "out" sequence ] "esac" .
+conformity     = "case" sequence "in"
+                 "(" type [ name ] ")" ":" sequence
+                 <span class="comment">{ "," "(" type [ name ] ")" ":" sequence }</span>
+                 [ "out" sequence ] "esac" .
+loop           = [ "for" name ] [ "from" expression ] [ "by" expression ]
+                 [ "to" expression ] [ "while" sequence ]
+                 "do" sequence "od" .</code></pre>
+<p>The brief forms <code>( c | a | b )</code> for <code><b>if</b></code>
+and <code>( i | a, b | c )</code> for <code><b>case</b></code> follow
+the same pattern, with <code>|:</code> for <code><b>elif</b></code> and
+<code><b>ouse</b></code>. Format texts (Chapter <a
+href="9-ch-transput.html#ch-transput" data-reference-type="ref"
+data-reference="ch-transput">9</a>), bits and other literals, and
+comments are lexical matters not shown here. The GNU extensions
+<code><b>andth</b></code> and <code><b>orel</b></code> are not
+operators: they bind more weakly than every operator, so that
+<code>a &lt; b <b>andth</b> c &lt; d</code> needs no parentheses, but a
+chain such as <code>a <b>andth</b> b <b>andth</b> c</code> must be
+written with parentheses,
+<code>a <b>andth</b> (b <b>andth</b> c)</code>. Modules are described in
+Appendix <a href="-app-modules.html#app-modules"
+data-reference-type="ref" data-reference="app-modules">E</a>.</p>
+</body>
+</html>

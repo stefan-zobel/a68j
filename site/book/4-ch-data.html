@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Arrays and records</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="5-ch-procs.html" accesskey="n" rel="next">Functions and operators</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="3-ch-control.html" accesskey="p" rel="previous">Expressions and control flow</a>
+</span>
+</div>
+</nav>
+<h1 data-number="4" id="ch-data"><span
+class="header-section-number">4</span> Arrays and records</h1>
+<p>The values of the previous chapters were single numbers, characters
+and truth values. Real programs work with collections of values: a list
+of measurements, a matrix, a table of names and dates. Algol 68 provides
+two ways of building such values. An <em>array</em> holds a number of
+values of the same type, selected by position; a <em>record</em> holds a
+fixed set of values of possibly different types, selected by name. Both
+can be combined freely: arrays of records, records containing arrays,
+arrays of arrays. This chapter also introduces type declarations, which
+give a name to a type.</p>
+<h2 data-number="4.1" id="sec-arrays"><span
+class="header-section-number">4.1</span> Arrays</h2>
+<p>An array variable is declared by giving its bounds in square brackets
+before the element type:</p>
+<pre class="algol68"><code>[1:5] <b>int</b> squares;
+<b>for</b> i <b>from</b> LWB squares <b>to</b> UPB squares <b>do</b> squares[i] := i * i <b>od</b>;
+print ((squares, newline));
+print ((squares[3], " ", LWB squares, UPB squares, newline));
+[0:2] <b>char</b> letters;
+letters[0] := "x"; letters[1] := "y"; letters[2] := "z";
+print ((letters[0], letters[2], newline))</code></pre>
+<pre class="output"><code>         +1         +4         +9        +16        +25
+         +9          +1         +5
+xz</code></pre>
+<p>The declaration <code>[1:5] <b>int</b> squares</code> allocates five
+cells for <code><b>int</b></code> values, numbered 1 to 5. Unlike in C,
+Java or Python, the numbering need not start at 0 or 1:
+<code>[0:2] <b>char</b> letters</code> has the indices 0, 1 and 2, and
+an array of the years 1990 to 2025 could be declared as
+<code>[1990:2025] <b>real</b></code>. The lower bound is the first
+number and the upper bound the second; the operators <code>LWB</code>
+and <code>UPB</code> give them. A loop over all elements should use them
+rather than repeat the numbers. If the lower bound is 1, it can be left
+out: <code>[n] <b>real</b></code> means
+<code>[1:n] <b>real</b></code>.</p>
+<p>An element is selected by an <em>index</em> in square brackets, as in
+<code>squares[3]</code>. The Report calls an array a <span
+class="sans-serif">multiple value</span> or <span
+class="sans-serif">row</span>, and the selection of an element a <span
+class="sans-serif">slice</span>.</p>
+<p>The bounds are evaluated when the declaration is carried out, so the
+size of an array can depend on input. The following program reads a
+count and then that many numbers:</p>
+<pre class="algol68"><code><b>int</b> n = read_int;
+[n] <b>real</b> values;                     <span class="comment">{ the same as [1:n] real values }</span>
+<b>for</b> i <b>to</b> n <b>do</b> values[i] := read_real <b>od</b>;
+<b>real</b> sum := 0;
+<b>for</b> i <b>to</b> n <b>do</b> sum +:= values[i] <b>od</b>;
+print (("mean of ", whole (n, 0), " values: ", fixed (sum / n, 0, 3), newline))</code></pre>
+<pre class="output"><code>mean of 4 values: 3.000</code></pre>
+<p>The input was:</p>
+<pre class="output"><code>4
+2.5 3.5
+1.0 5.0</code></pre>
+<p>Once declared, the array keeps its bounds; an array that can grow or
+shrink is the subject of Chapter <a
+href="7-ch-advanced.html#ch-advanced" data-reference-type="ref"
+data-reference="ch-advanced">7</a>. Every index is checked: an index
+outside the bounds stops the program with an error.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   [1:3] <b>int</b> a := (10, 20, 30);
+   <b>int</b> i := 4;
+   print ((a[i], newline))
+<b>end</b></code></pre>
+<pre class="output"><code>out-of-bounds.a68:5: runtime error: bound 4 out of range [1:3]</code></pre>
+<h2 data-number="4.2" id="sec-displays"><span
+class="header-section-number">4.2</span> Array literals</h2>
+<p>A list of values in parentheses, separated by commas, is an <em>array
+literal</em> (<span class="sans-serif">row display</span>) wherever an
+array is expected. A constant array can take its bounds from the
+literal: the declaration
+<code>[] <b>int</b> primes = (2, 3, 5, 7, 11)</code> gives no bounds,
+and <code>primes</code> has the bounds 1 to 5. The Report calls a type
+written without bounds, such as <code>[] <b>int</b></code>, a <span
+class="sans-serif">formal declarer</span>; one with bounds, as in the
+declaration of a variable, an <span class="sans-serif">actual
+declarer</span>.</p>
+<pre class="algol68"><code>[] <b>int</b> primes = (2, 3, 5, 7, 11);
+[] <b>real</b> weights = (1, 0.5, 0.25);         <span class="comment">{ each int is widened }</span>
+[] <b>int</b> none = ();
+print ((UPB primes, UPB weights, UPB none, newline));
+[1:3] <b>int</b> v := (7, 8, 9);
+v := (1, 2, 3);                           <span class="comment">{ replaces all elements }</span>
+print ((v, newline))</code></pre>
+<pre class="output"><code>         +5         +3         +0
+         +1         +2         +3</code></pre>
+<p>The elements of a literal are converted to the element type where
+necessary, so the integers of <code>weights</code> are widened to
+<code><b>real</b></code>. The empty literal <code>()</code> gives an
+array with the bounds 1 to 0, that is, with no elements. A literal can
+also be assigned to an array variable, which replaces all its elements.
+A literal always has the lower bound 1, so its bounds match those of the
+variable only if the variable has the lower bound 1 and as many elements
+as the literal. For a variable <code>[0:2] <b>int</b> w</code>, the
+assignment <code>w := (1, 2, 3)</code> fails, but
+<code>w[@1] := (1, 2, 3)</code> works: <code>w[@1]</code> is the whole
+of <code>w</code>, renumbered to start at 1 (Section <a
+href="4-ch-data.html#sec-slices" data-reference-type="ref"
+data-reference="sec-slices">4.5</a>).</p>
+<h2 data-number="4.3" id="sec-array-values"><span
+class="header-section-number">4.3</span> Arrays are values</h2>
+<p>An array in Algol 68 is a value, like a number. Assigning one array
+variable to another copies the elements:</p>
+<pre class="algol68"><code>[1:3] <b>int</b> a := (1, 2, 3), b;
+b := a;                     <span class="comment">{ copies the elements }</span>
+b[1] := 99;
+print ((a[1], b[1], newline))</code></pre>
+<pre class="output"><code>         +1        +99</code></pre>
+<p>After the assignment, <code>a</code> and <code>b</code> are separate
+arrays; changing <code>b</code> does not change <code>a</code>. This is
+the behavior of arrays in C when they are inside a
+<code><b>struct</b></code>, or of the arrays of Fortran, but not that of
+Java, Python or JavaScript, where an assignment makes two names refer to
+the same array. In Algol 68, two names refer to the same array only if a
+reference to it is shared explicitly (Chapter <a
+href="7-ch-advanced.html#ch-advanced" data-reference-type="ref"
+data-reference="ch-advanced">7</a>). A constant declared with an array
+value, <code>[] <b>int</b> c = b</code>, is a copy as well: later
+changes of <code>b</code> do not show in <code>c</code>. The same holds
+for a parameter of type <code>[] <b>int</b></code> (Chapter <a
+href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a>).</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Algol 68 Genie does not always
+copy: if a procedure has a <code>[] <b>int</b></code> parameter and a
+<code><b>ref</b> [] <b>int</b></code> parameter, and both are given the
+same array, a change through the reference shows in the value parameter
+during the call. ga68 and a68j copy, as the Report requires.</p>
+</blockquote>
+<p>Since an array variable has fixed bounds, an assignment must supply
+an array with the same bounds. A mismatch is detected when the program
+runs:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   [1:3] <b>int</b> a;
+   [1:4] <b>int</b> b := (1, 2, 3, 4);
+   a := b;
+   print ((a, newline))
+<b>end</b></code></pre>
+<pre class="output"><code>bounds-mismatch.a68:5: runtime error: multiple bounds mismatch in assignation: dim 1: [1:3] /= [1:4]</code></pre>
+<h2 data-number="4.4" id="sec-matrices"><span
+class="header-section-number">4.4</span> Multi-dimensional arrays</h2>
+<p>An array can have several dimensions; the bounds of each dimension
+are separated by commas, and so are the indices:</p>
+<pre class="algol68"><code>[1:2, 1:3] <b>int</b> m := ((1, 2, 3),
+                     (4, 5, 6));
+print ((whole (1 UPB m, 0), " rows, ", whole (2 UPB m, 0), " columns", newline));
+<b>for</b> i <b>to</b> 1 UPB m <b>do</b>
+   <b>for</b> j <b>to</b> 2 UPB m <b>do</b> print (whole (m[i, j], -4)) <b>od</b>;
+   print (newline)
+<b>od</b></code></pre>
+<pre class="output"><code>2 rows, 3 columns
+   1   2   3
+   4   5   6</code></pre>
+<p><code>1 UPB m</code> is the upper bound of the first dimension and
+<code>2 UPB m</code> that of the second; plain <code>UPB m</code> means
+<code>1 UPB m</code>. A literal for a two-dimensional array is a list of
+rows, each of which is a list.</p>
+<p>An array of arrays is something different:
+<code>[] [] <b>int</b></code> is an array whose elements are themselves
+arrays, and those may have different lengths, as in
+<code>((1), (2, 3), (4, 5, 6))</code>. Its elements are selected with
+two pairs of brackets, <code>x[3][2]</code>. A two-dimensional array, by
+contrast, is always rectangular.</p>
+<h2 data-number="4.5" id="sec-slices"><span
+class="header-section-number">4.5</span> Slices</h2>
+<p>An index range in place of an index selects a part of an array, a
+<em>slice</em>:</p>
+<pre class="algol68"><code>[1:6] <b>int</b> a := (10, 20, 30, 40, 50, 60);
+print ((a[2:4], newline));
+print ((LWB a[2:4], UPB a[2:4], newline));        <span class="comment">{ bounds 1 to 3 }</span>
+print ((LWB a[2:4 @ 2], UPB a[2:4 @ 2], newline)); <span class="comment">{ bounds 2 to 4 }</span>
+print ((a[:2], " ", a[5:], newline));
+a[1:3] := (0, 0, 0);                               <span class="comment">{ assigns into a }</span>
+print ((a, newline))</code></pre>
+<pre class="output"><code>        +20        +30        +40
+         +1         +3
+         +2         +4
+        +10        +20         +50        +60
+         +0         +0         +0        +40        +50        +60</code></pre>
+<p>The slice <code>a[2:4]</code> consists of the elements 2 to 4 of
+<code>a</code>, but its own bounds are 1 to 3: a range is renumbered
+from 1 unless a new lower bound is given after <code>@</code>, as in
+<code>a[2:4 @ 2]</code>. Either end of the range can be left out; it
+then defaults to the corresponding bound of the array. The Report calls
+an index range a <span class="sans-serif">trimmer</span>.</p>
+<p>A slice of an array variable is not a copy: it refers to the elements
+of the original array, so an assignment to the slice changes the array,
+as the last line shows. In the terms of Section <a
+href="2-ch-values.html#sec-references" data-reference-type="ref"
+data-reference="sec-references">2.6</a>, the slice of a reference to an
+array is a reference to part of the array. An assignment between
+overlapping parts of an array is safe, since the right-hand side is a
+value that is complete before anything is stored:</p>
+<pre class="algol68"><code>[6] <b>int</b> a := (1, 2, 3, 4, 5, 6);
+a[2:6] := a[1:5];               <span class="comment">{ shift right by one place }</span>
+print ((a, newline))</code></pre>
+<pre class="output"><code>         +1         +1         +2         +3         +4         +5</code></pre>
+<p>shifts the elements one place to the right, which in C would need
+<code>memmove</code> rather than <code>memcpy</code>.</p>
+<p>In a multi-dimensional array, an index can be given for some
+dimensions and left out for others. Leaving out the second index of a
+matrix selects a row, leaving out the first selects a column:</p>
+<pre class="algol68"><code>[1:3, 1:3] <b>int</b> m := ((1, 2, 3), (4, 5, 6), (7, 8, 9));
+print ((m[2, ], newline));             <span class="comment">{ the second row }</span>
+print ((m[, 3], newline));             <span class="comment">{ the third column }</span>
+m[, 1] := (0, 0, 0);                   <span class="comment">{ clears the first column }</span>
+print ((m[3, ], newline))</code></pre>
+<pre class="output"><code>         +4         +5         +6
+         +3         +6         +9
+         +0         +8         +9</code></pre>
+<p>A dimension whose index is left out entirely keeps its bounds; only a
+range with a colon is renumbered:</p>
+<pre class="algol68"><code>[0:9, 2:11] <b>int</b> m;
+print ((LWB m[1, ], UPB m[1, ], newline));        <span class="comment">{ 2 and 11: kept }</span>
+print ((LWB m[1, :], UPB m[1, :], newline));      <span class="comment">{ 1 and 10: renumbered }</span>
+print ((LWB m[1, 3:], UPB m[1, 3:], newline));    <span class="comment">{ 1 and 9 }</span>
+print ((LWB m[1, 3:10 @ 3], UPB m[1, 3:10 @ 3], newline))</code></pre>
+<pre class="output"><code>         +2        +11
+         +1        +10
+         +1         +9
+         +3        +10</code></pre>
+<p>For a matrix whose bounds do not start at 1, a loop over a row
+<code>m[i, ]</code> must therefore run from <code>LWB m[i, ]</code>, not
+from 1.</p>
+<p>A row or an element that a loop body uses several times can be given
+a name of its own. Inside a loop over <code>i</code>, the declaration
+<code><b>ref</b> [] <b>int</b> row = m[i, ]</code> makes
+<code>row[j]</code> the same cell as <code>m[i, j]</code>, so
+assignments to it change the matrix. For an element that is only read,
+<code><b>int</b> x = v[i]</code> names its current value; this is a
+copy, which later assignments to <code>v[i]</code> do not change.</p>
+<h2 data-number="4.6" id="sec-strings"><span
+class="header-section-number">4.6</span> Strings are arrays</h2>
+<p>The type <code><b>string</b></code> is an array of characters.
+Strings normally have the lower bound 1; a string variable takes the
+bounds of whatever is assigned to it, so a slice with <code>@</code> can
+give it another, and loops should use <code>LWB s</code>. Everything
+said about arrays applies to it: <code>UPB s</code> is normally its
+length, <code>s[i]</code> its <code>i</code>-th character, and
+<code>s[2:4]</code> a part of it:</p>
+<pre class="algol68"><code><b>string</b> s = "Algol 68 report";
+print ((UPB s, " ", s[1], " ", s[7:8], newline));
+<b>int</b> vowels := 0;
+<b>for</b> i <b>to</b> UPB s <b>do</b>
+   <b>char</b> c = s[i];
+   <b>if</b> c = "a" OR c = "e" OR c = "i" OR c = "o" OR c = "u" <b>then</b> vowels +:= 1 <b>fi</b>
+<b>od</b>;
+print ((vowels, newline))</code></pre>
+<pre class="output"><code>        +15 A 68
+         +3</code></pre>
+<p>Strings are compared with <code>=</code> and <code>&lt;</code> in the
+order of their character codes, which is alphabetical for letters of the
+same case (in ASCII, every capital letter comes before every small
+letter), and joined with <code>+</code>. A string variable can hold
+strings of different lengths, which an ordinary array cannot; Chapter <a
+href="7-ch-advanced.html#ch-advanced" data-reference-type="ref"
+data-reference="ch-advanced">7</a> explains how.</p>
+<h2 data-number="4.7" id="sec-records"><span
+class="header-section-number">4.7</span> Records</h2>
+<p>A <em>record</em> groups values of possibly different types into one
+value. Its type, written with <code><b>struct</b></code>, lists the
+types and names of its <em>fields</em>:</p>
+<pre class="algol68"><code><b>struct</b> (<b>string</b> name, <b>int</b> born, <b>bool</b> alive) p := ("Ada", 1815, <b>false</b>);
+print ((name <b>of</b> p, " was born in ", whole (born <b>of</b> p, 0), newline));
+born <b>of</b> p := 1816;                         <span class="comment">{ assigns to one field }</span>
+p := ("Grace", 1906, <b>false</b>);               <span class="comment">{ assigns all fields }</span>
+print ((name <b>of</b> p, " ", whole (born <b>of</b> p, 0), newline))</code></pre>
+<pre class="output"><code>Ada was born in 1815
+Grace 1906</code></pre>
+<p>The record type of <code>p</code> has three fields:
+<code>name</code>, a <code><b>string</b></code>, <code>born</code>, an
+<code><b>int</b></code>, and <code>alive</code>, a
+<code><b>bool</b></code>. A field is selected with
+<code><b>of</b></code>: <code>name <b>of</b> p</code> is what most
+languages write as <code>p.name</code>. If <code>p</code> is a variable,
+<code>born <b>of</b> p</code> is a reference to the field, so the field
+can be assigned to on its own. The Report calls a record a <span
+class="sans-serif">structure</span>, a field name a <span
+class="sans-serif">field selector</span>, and
+<code>name <b>of</b> p</code> a <span
+class="sans-serif">selection</span>.</p>
+<p>A record value can be written as a list of field values in
+parentheses, in the order of the fields (<span
+class="sans-serif">structure display</span>). Such a literal needs at
+least two fields; a record with a single field must be built by
+assigning to the field.</p>
+<p>Selection with <code><b>of</b></code> binds less tightly than
+indexing: <code>name <b>of</b> class[i]</code> means
+<code>name <b>of</b> (class[i])</code>, the name of the
+<code>i</code>-th element of an array of records. If a field is itself
+an array, parentheses are needed to index it:
+<code>(marks <b>of</b> class[i])[k]</code>. The same holds for a field
+that is a function: <code>(f <b>of</b> s) (x)</code> calls it, while
+<code>f <b>of</b> s (x)</code> selects the field <code>f</code> of
+<code>s (x)</code> and is rejected, with a message that <code>s</code>
+must yield a function.</p>
+<h2 data-number="4.8" id="sec-modes"><span
+class="header-section-number">4.8</span> Type declarations</h2>
+<p>Writing out a record type at each use would be tedious and
+error-prone. A <em>type declaration</em> (<span class="sans-serif">mode
+declaration</span>) gives a type a name:</p>
+<pre class="algol68"><code><b>mode</b> Point = <b>struct</b> (<b>real</b> x, y);
+<b>mode</b> Circle = <b>struct</b> (Point center, <b>real</b> radius);
+Circle c := ((0, 0), 1.5);
+x <b>of</b> center <b>of</b> c := 2;
+print ((fixed (x <b>of</b> center <b>of</b> c, 0, 1), " ",
+        fixed (radius <b>of</b> c, 0, 1), newline))</code></pre>
+<pre class="output"><code>2.0 1.5</code></pre>
+<p>The names of declared types begin with a capital letter (Section <a
+href="1-ch-intro.html#sec-stropping" data-reference-type="ref"
+data-reference="sec-stropping">1.4</a>). A declared type can be used
+wherever a type is expected, including in other type declarations: a
+<code>Circle</code> contains a <code>Point</code>. The field
+<code>x <b>of</b> center <b>of</b> c</code> is the <code>x</code> of the
+<code>center</code> of <code>c</code>.</p>
+<p>A type declaration does not create a new, distinct type; it gives a
+name to a type that is determined by its structure. Two record types
+with the same field types and field names, in the same order, are the
+same type, whatever they are called:</p>
+<pre class="algol68"><code><b>mode</b> Meters = <b>struct</b> (<b>real</b> value, <b>int</b> precision);
+<b>mode</b> Seconds = <b>struct</b> (<b>real</b> value, <b>int</b> precision);
+Meters distance = (100, 2);
+Seconds time = distance;                <span class="comment">{ allowed: the same type }</span>
+print ((fixed (value <b>of</b> time, 0, 1), newline))</code></pre>
+<pre class="output"><code>100.0</code></pre>
+<p>This <em>structural equivalence</em> differs from the <em>nominal
+typing</em> of C, Java, Rust and most current languages, where two
+separately declared <code><b>struct</b></code>s are different types even
+if their fields are identical. In Algol 68, a <code>Meters</code> and a
+<code>Seconds</code> as declared above are interchangeable, and the type
+system does not keep them apart. Chapter <a
+href="7-ch-advanced.html#ch-advanced" data-reference-type="ref"
+data-reference="ch-advanced">7</a> returns to the question of when two
+types are the same.</p>
+<p>A type declaration can also name an array type, such as
+<code><b>mode</b> Vector = [1:3] <b>real</b></code>. It must then give
+the bounds: a type without bounds, such as <code>[] <b>int</b></code>,
+is allowed for a parameter or a constant, which take their bounds from a
+value, but not in a type declaration, since a type declaration may be
+used to declare variables.</p>
+<h2 data-number="4.9" id="sec-multiple-selection"><span
+class="header-section-number">4.9</span> Arrays of records</h2>
+<p>When the fields of an array of records are selected with
+<code><b>of</b></code>, the result is an array of fields:</p>
+<pre class="algol68"><code><b>mode</b> Point = <b>struct</b> (<b>int</b> x, y);
+[1:4] Point path := ((0, 0), (3, 4), (6, 0), (9, 4));
+print ((x <b>of</b> path, newline));            <span class="comment">{ all x fields: a [] int }</span>
+y <b>of</b> path[2] := 5;                       <span class="comment">{ one field of one element }</span>
+print ((y <b>of</b> path, newline))</code></pre>
+<pre class="output"><code>         +0         +3         +6         +9
+         +0         +5         +0         +4</code></pre>
+<p><code>x <b>of</b> path</code> is an array of the four <code>x</code>
+values. If <code>path</code> is a variable, it is even a reference to
+them, so that <code>x <b>of</b> path := (1, 2, 3, 4)</code> assigns to
+the <code>x</code> field of every element. The Report calls this <span
+class="sans-serif">multiple selection</span>. Few current languages have
+it; the closest analog is selecting a column of a table in a data-frame
+library.</p>
+<h2 data-number="4.10" id="sec-rowing"><span
+class="header-section-number">4.10</span> A single value as an
+array</h2>
+<p>Where an array is required and a single value is given, the value is
+converted into an array with one element, the bounds 1 to 1:</p>
+<pre class="algol68"><code>[] <b>int</b> single = 42;                  <span class="comment">{ a one-element array }</span>
+print ((LWB single, UPB single, single[1], newline));
+print (newline)                      <span class="comment">{ a list of one item }</span></code></pre>
+<pre class="output"><code>         +1         +1        +42
+</code></pre>
+<p>This implicit conversion is called <em>rowing</em> (<span
+class="sans-serif">rowing</span>) in the Report, since an array is a
+<span class="sans-serif">row</span>. It is why
+<code>print (newline)</code> needs only one pair of parentheses:
+<code>print</code> expects a list, and the single item
+<code>newline</code> is turned into a list of one. It is also why
+<code>y <b>of</b> ps := 0</code>, for an array <code>ps</code> of three
+points, fails when the program runs: <code>0</code> becomes an array
+with one element, which does not fit the three <code>y</code>
+fields.</p>
+<h2 data-number="4.11" id="sec-print-data"><span
+class="header-section-number">4.11</span> Printing arrays and
+records</h2>
+<p><code>print</code> accepts arrays of numbers, truth values and
+characters, and prints their elements one after the other, as the
+examples of this chapter show. A matrix is printed row by row, without
+line breaks between the rows. The Report’s <code>print</code> also
+accepts records, which it prints field by field, as long as they contain
+no references, functions or unions. A <code><b>string</b></code> field
+is printed as its characters, and an array of strings as its strings one
+after the other.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  <code>Genie_Transput</code>
+does not accept records in <code>print</code>; their fields must be
+printed one by one. Algol 68 Genie accepts them. All three
+implementations print arrays of strings.</p>
+</blockquote>
+<h2 data-number="4.12" id="sec-data-complete"><span
+class="header-section-number">4.12</span> Two complete programs</h2>
+<p>The first program sorts an array with <em>insertion sort</em>: each
+element in turn is moved to the left until the elements before it are
+not greater. The constant array <code>data</code> is copied into a
+variable with the same bounds, which the program then rearranges.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ Insertion sort. }</span>
+   [] <b>int</b> data = (31, 41, 59, 26, 53, 58, 97, 93, 23, 84);
+   [LWB data : UPB data] <b>int</b> a := data;
+   <b>for</b> i <b>from</b> LWB a + 1 <b>to</b> UPB a <b>do</b>
+      <b>int</b> v = a[i];
+      <b>int</b> j := i - 1;
+      <b>while</b> j &gt;= LWB a <b>andth</b> a[j] &gt; v <b>do</b>
+         a[j + 1] := a[j];
+         j -:= 1
+      <b>od</b>;
+      a[j + 1] := v
+   <b>od</b>;
+   <b>for</b> i <b>to</b> UPB a <b>do</b> print (whole (a[i], -4)) <b>od</b>;
+   print (newline)
+<b>end</b></code></pre>
+<pre class="output"><code>  23  26  31  41  53  58  59  84  93  97</code></pre>
+<p>The condition of the inner loop uses <code><b>andth</b></code>
+(Section <a href="2-ch-values.html#sec-logic" data-reference-type="ref"
+data-reference="sec-logic">2.9</a>): when <code>j</code> has passed the
+lower bound, <code>a[j]</code> must not be evaluated, since the index
+would be out of range. With <code>AND</code>, both operands would be
+evaluated and the program would stop with an index error.</p>
+<p>The second program keeps a table of records, each with a name and
+three marks, and finds the student with the best average:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ The student with the best average mark. }</span>
+   <b>mode</b> Student = <b>struct</b> (<b>string</b> name, [1:3] <b>int</b> marks);
+   [] Student class = (("Ann",  (72, 85, 90)),
+                       ("Ben",  (88, 79, 81)),
+                       ("Cleo", (95, 91, 70)));
+   <b>real</b> best := -1;
+   <b>int</b> best_index := 0;
+   <b>for</b> i <b>to</b> UPB class <b>do</b>
+      <b>int</b> sum := 0;
+      <b>for</b> k <b>to</b> 3 <b>do</b> sum +:= (marks <b>of</b> class[i])[k] <b>od</b>;
+      <b>real</b> average = sum / 3;
+      print ((name <b>of</b> class[i], ": ", fixed (average, 0, 2), newline));
+      <b>if</b> average &gt; best <b>then</b> best := average; best_index := i <b>fi</b>
+   <b>od</b>;
+   print (("best: ", name <b>of</b> class[best_index], newline))
+<b>end</b></code></pre>
+<pre class="output"><code>Ann: 82.33
+Ben: 82.67
+Cleo: 85.33
+best: Cleo</code></pre>
+<p>The record type <code>Student</code> has an array field with the
+bounds 1 to 3, and the array <code>class</code> takes its bounds from
+the literal. Note the parentheses in
+<code>(marks <b>of</b> class[i])[k]</code>, explained in Section <a
+href="4-ch-data.html#sec-records" data-reference-type="ref"
+data-reference="sec-records">4.7</a>. The bounds in a type apply only
+where a variable is created: they are computed anew for each variable,
+and a constant of type <code>Student</code> takes the bounds of its
+value. A literal with four marks would be accepted in
+<code>class</code>, and the error would appear only when such a record
+is assigned to a <code>Student</code> variable.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 and a68j do not check the
+bounds of an array field when a record is assigned: a
+<code>Student</code> variable then holds four marks. Algol 68 Genie
+reports the error.</p>
+</blockquote>
+<h2 class="unnumbered" id="exercises-2">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch4">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>Declare an array that holds one <code><b>real</b></code> for each
+year from 1900 to 2000, and write a loop that sets all elements to
+0.</p></li>
+<li><p>Given <code>[] <b>int</b> a = (5, 6, 7, 8, 9)</code>, what are
+<code>a[2:3]</code>, <code>LWB a[2:3]</code>, <code>UPB a[3:]</code> and
+<code>a[2:3 @ 0][0]</code>?</p></li>
+<li><p>Given <code>[1:3, 1:4] <b>int</b> m</code>, what are the types
+and bounds of <code>m[2, ]</code>, <code>m[, 3]</code> and
+<code>m[2:3, 2]</code>?</p></li>
+<li><p>After
+<code>[1:3] <b>int</b> a := (1, 2, 3), b := (4, 5, 6)</code>, what does
+<code>a := b; b[1] := 0</code> leave in <code>a</code>?</p></li>
+<li><p>Declare a type <code>Date</code> with fields <code>day</code>,
+<code>month</code> and <code>year</code>, and a constant for 3 November
+1975.</p></li>
+<li><p>Why does <code>name <b>of</b> class[1][1]</code> not give the
+first character of the first name in an array <code>class</code> of
+records with a <code><b>string</b></code> field <code>name</code>? How
+must it be written?</p></li>
+<li><p>Given <code>[1:10] Point ps</code> with
+<code><b>mode</b> Point = <b>struct</b> (<b>real</b> x, y)</code>, write
+a single assignment that sets the <code>y</code> field of all ten points
+to 0.</p></li>
+<li><p>For <code>[0:9, 2:11] <b>int</b> m</code>, what are the bounds of
+<code>m[1, ]</code>, <code>m[1, 3:5]</code> and
+<code>m[ , 2]</code>?</p></li>
+<li><p>What does <code>a[2:5] := a[1:4]</code> leave in
+<code>[6] <b>int</b> a := (1, 2, 3, 4, 5, 6)</code>?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-2">Programming
+problems</h2>
+<ol>
+<li><p>Read ten numbers and print them in reverse order.</p></li>
+<li><p>Read a matrix of <span class="math inline">3 × 3</span> integers
+and print its transpose and the sum of its diagonal.</p></li>
+<li><p>Multiply two matrices whose sizes are read from the
+input.</p></li>
+<li><p>Use the sieve of Eratosthenes, an array of
+<code><b>bool</b></code>, to print the prime numbers below
+1000.</p></li>
+<li><p>Keep a table of records of the planets (name, distance from the
+sun, diameter) and print them sorted by diameter.</p></li>
+<li><p><strong>Binary search.</strong> Write a binary search for a value
+in a sorted array that works for any bounds, using <code>LWB</code> and
+<code>UPB</code>. Test it on arrays with the bounds 1 to 10, 0 to 9 and
+<span class="math inline"> − 5</span> to 4.</p></li>
+<li><p><strong>Merging.</strong> Merge two sorted arrays into one sorted
+array, so that a value that occurs in both appears only once.</p></li>
+<li><p><strong>Rotation.</strong> Rotate a square matrix by 90 degrees
+using row and column slices (<code>r[ , n + 1 - i] := m[i, ]</code>),
+and rotate an array by <span class="math inline"><em>r</em></span>
+places with slice assignments only.</p></li>
+<li><p><strong>Game of Life.</strong> Play Conway’s Game of Life on a
+<code>[0:n+1, 0:m+1] <b>bool</b></code> board whose border stays empty,
+so that the loop over the neighbors needs no special cases. Compute each
+generation into a second board and assign it to the first.</p></li>
+<li><p><strong>Generalized Fibonacci.</strong> In the Fibonacci numbers
+of order <span class="math inline"><em>m</em></span>, each number is the
+sum of the <span class="math inline"><em>m</em></span> before it,
+starting with <span class="math inline"><em>m</em> − 1</span> zeros and
+a one. Print the first 30 for a given <span
+class="math inline"><em>m</em></span>, keeping only the last <span
+class="math inline"><em>m</em></span> numbers in an array
+<code>[0 : m - 1] <b>int</b></code> indexed with
+<code>MOD</code>.</p></li>
+<li><p><strong>League table.</strong> Read the results of the games of a
+league, keep a table of records (team, games, points, goals for and
+against), and print it sorted by points, then by goal
+difference.</p></li>
+</ol>
+</body>
+</html>

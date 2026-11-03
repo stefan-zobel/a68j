@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Concurrency</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="9-ch-transput.html" accesskey="n" rel="next">Input and output</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="7-ch-advanced.html" accesskey="p" rel="previous">Advanced types</a>
+</span>
+</div>
+</nav>
+<h1 data-number="8" id="ch-par"><span
+class="header-section-number">8</span> Concurrency</h1>
+<p>Algol 68 was one of the first languages to include concurrency in its
+definition. A program can ask for several parts of itself to run at the
+same time, and the parts can coordinate with <em>semaphores</em>, the
+synchronization primitive that Edsger Dijkstra had introduced a few
+years earlier. This chapter presents the two constructs,
+<code><b>par</b></code> and <code><b>sema</b></code>, and uses them to
+solve three classic problems.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Concurrency is the part of the
+language where the implementations differ most. Algol 68 Genie runs the
+units of a <code><b>par</b></code> clause in threads of the operating
+system. ga68 currently runs them one after the other, which the Report
+allows, and does not yet support semaphores. a68j runs them in threads
+when given the option <code>-fpar-threads</code>, and supports
+semaphores only with that option; without it, a program that uses
+<code>LEVEL</code> is rejected (“no lowering routine installed”). The
+examples of this chapter were run with Algol 68 Genie and with a68j.</p>
+</blockquote>
+<h2 data-number="8.1" id="sec-par-problems"><span
+class="header-section-number">8.1</span> The problems</h2>
+<p>Two problems arise as soon as parts of a program run at the same time
+and share data. The first is <em>mutual exclusion</em>. If two parts
+both execute <code>total +:= 1</code> on the same variable, each reads
+the old value, adds one and stores the result; if both read before
+either stores, one increment is lost. A sequence of operations that must
+not be interleaved with another such sequence is a <em>critical
+section</em>, and the program needs a way to let only one part at a time
+enter it.</p>
+<p>The second problem is <em>communication</em>. One part, the producer,
+computes values that another part, the consumer, needs. The consumer
+must wait until a value is available, and if the values are passed
+through a buffer of limited size, the producer must wait until there is
+room.</p>
+<h2 data-number="8.2" id="sec-par"><span
+class="header-section-number">8.2</span> Concurrent execution</h2>
+<p>A list of expressions in parentheses, preceded by
+<code><b>par</b></code>, is a <em>concurrent block</em> (<span
+class="sans-serif">parallel clause</span>). Its expressions may be
+evaluated at the same time:</p>
+<pre class="algol68"><code><b>int</b> a, b;
+<b>par</b> (a := 6 * 7, b := 2 ** 10);       <span class="comment">{ two units, possibly at the same time }</span>
+print ((whole (a, 0), " ", whole (b, 0), newline))</code></pre>
+<pre class="output"><code>42 1024</code></pre>
+<p>The <code><b>par</b></code> clause ends when all its expressions have
+ended; it has no value. The expressions of an ordinary list may also be
+interleaved (Section <a href="3-ch-control.html#sec-collateral"
+data-reference-type="ref" data-reference="sec-collateral">3.4</a>). What
+<code><b>par</b></code> adds is that each of its expressions is a
+separate <em>process</em>: one of them can wait on a semaphore while the
+others go on. Waiting outside a <code><b>par</b></code> clause has no
+other process to wait for; the Report leaves it undefined, and Algol 68
+Genie rejects <code>DOWN</code> and <code>UP</code> outside a
+<code><b>par</b></code> clause altogether.</p>
+<p>A <code><b>par</b></code> clause has a fixed number of expressions. A
+variable number of processes is started by recursion, each level
+starting one worker and the rest of the range:</p>
+<pre class="algol68"><code><b>int</b> n = 6;
+[n] <b>int</b> squares;
+<b>proc</b> worker = (<b>int</b> i) <b>void</b>: squares[i] := i * i;
+<b>proc</b> spawn = (<b>int</b> lo, hi) <b>void</b>:
+   <b>if</b> lo = hi <b>then</b> worker (lo)
+   <b>else</b> <b>par</b> (worker (lo), spawn (lo + 1, hi))
+   <b>fi</b>;
+spawn (1, n);
+<b>for</b> i <b>to</b> n <b>do</b> print ((whole (squares[i], 0), " ")) <b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>1 4 9 16 25 36 </code></pre>
+<p>Each worker writes only its own element of <code>squares</code>, so
+the workers need no coordination, and the program prints
+<code>1 4 9 16 25 36</code>.</p>
+<h2 data-number="8.3" id="sec-sema"><span
+class="header-section-number">8.3</span> Semaphores</h2>
+<p>A semaphore is a counter that is changed only by two indivisible
+operations. The type is <code><b>sema</b></code>, and a semaphore is
+created with the operator <code>LEVEL</code>, which also gives its
+initial value: <code><b>sema</b> mutex = LEVEL 1</code>. The operations
+are unary operators:</p>
+<ul>
+<li><p><code>DOWN s</code> waits until the counter of <code>s</code> is
+greater than zero and then decreases it by one. Dijkstra called this
+operation <span class="math inline"><em>P</em></span>; in today’s
+libraries it is called <code>acquire</code> or
+<code>wait</code>.</p></li>
+<li><p><code>UP s</code> increases the counter by one, which may let a
+waiting part continue. Dijkstra called it <span
+class="math inline"><em>V</em></span>; today it is <code>release</code>
+or <code>signal</code>.</p></li>
+</ul>
+<p><code>LEVEL s</code> also gives the current value of the counter. A
+semaphore whose counter is 0 or 1 is a <em>lock</em> (a mutex); a
+semaphore with a larger counter limits the number of parts that may pass
+at the same time.</p>
+<p>The standard library declares <code><b>sema</b></code> as a record
+with a single field that is a reference to an <code><b>int</b></code>,
+and <code>LEVEL n</code> allocates the counter on the heap. A copy of a
+semaphore therefore shares the counter, like the records with reference
+fields of Section <a href="7-ch-advanced.html#sec-ref-fields"
+data-reference-type="ref" data-reference="sec-ref-fields">7.11</a>:</p>
+<pre class="algol68"><code><b>sema</b> a = LEVEL 2;
+<b>sema</b> b = a;                  <span class="comment">{ the same counter, not a copy of it }</span>
+<b>par</b> (DOWN b, <b>skip</b>);
+print ((whole (LEVEL a, 0), newline))</code></pre>
+<pre class="output"><code>1</code></pre>
+<p>prints 1. This is what makes it possible to pass a semaphore to a
+procedure. A semaphore that was declared without <code>LEVEL</code>,
+such as an element of <code>[5] <b>sema</b> forks</code>, holds no
+counter, and using it is a run-time error; that is why the programs
+below initialize every semaphore. <code>UP</code> lets all waiting parts
+compete for the counter again; which one gets it is not specified, so a
+part may in principle wait forever while others pass.</p>
+<p>Note that <code>LEVEL</code>, like every unary operator, binds more
+tightly than any binary operator: <code>LEVEL n - 1</code> means
+<code>(LEVEL n) - 1</code>, which is not defined. The initial value
+<code>n - 1</code> must be written in parentheses, as in the last
+program of this chapter.</p>
+<h2 data-number="8.4" id="sec-mutex"><span
+class="header-section-number">8.4</span> Mutual exclusion</h2>
+<p>The following program lets three concurrent parts each add 100 000 to
+a shared total. Each increment is a critical section, protected by the
+semaphore <code>mutex</code>:</p>
+<pre class="algol68"><code><b>int</b> total := 0;
+<b>sema</b> mutex = LEVEL 1;
+<b>proc</b> add = (<b>int</b> n) <b>void</b>:
+   <b>to</b> n <b>do</b>
+      DOWN mutex;          <span class="comment">{ enter the critical section }</span>
+      total +:= 1;
+      UP mutex             <span class="comment">{ leave it }</span>
+   <b>od</b>;
+<b>par</b> (add (100000), add (100000), add (100000));
+print ((whole (total, 0), newline))</code></pre>
+<pre class="output"><code>300000</code></pre>
+<p>Without the <code>DOWN</code> and <code>UP</code>, the result would
+usually be smaller than 300 000, and different from run to run, since
+increments would be lost when two parts interleave. Such an error is
+called a <em>race condition</em>; it is the classic problem of
+concurrent programming, and it is hard to find precisely because it does
+not show up on every run.</p>
+<p>The program takes the lock 300 000 times, which costs time and makes
+the parts wait for each other most of the time. Parts that share nothing
+need no lock at all, so the better design lets each part count in a
+variable of its own and takes the lock only once, to add its result:</p>
+<pre class="algol68"><code><b>int</b> total := 0;
+<b>sema</b> mutex = LEVEL 1;
+<b>proc</b> add = (<b>int</b> n) <b>void</b>:
+<b>begin</b>
+   <b>int</b> mine := 0;                     <span class="comment">{ private to this part }</span>
+   <b>to</b> n <b>do</b> mine +:= 1 <b>od</b>;
+   DOWN mutex; total +:= mine; UP mutex
+<b>end</b>;
+<b>par</b> (add (100000), add (100000), add (100000));
+print ((whole (total, 0), newline))</code></pre>
+<pre class="output"><code>300000</code></pre>
+<p>A critical section should be as short as possible and should do no
+more than the shared data require.</p>
+<h2 data-number="8.5" id="sec-buffer"><span
+class="header-section-number">8.5</span> Producer and consumer</h2>
+<p>The second program passes values from a producer to a consumer
+through a buffer with room for four values. Three semaphores coordinate
+the two parts: <code>free</code> counts the free places,
+<code>full</code> the filled ones, and <code>mutex</code> protects the
+buffer and its two positions.</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ A producer and a consumer that communicate through a bounded buffer. }</span>
+   <b>int</b> size = 4;
+   [0 : size - 1] <b>int</b> buffer;
+   <b>int</b> head := 0, tail := 0;
+   <b>sema</b> free = LEVEL size,     <span class="comment">{ the number of free places }</span>
+        full = LEVEL 0,        <span class="comment">{ the number of filled places }</span>
+        mutex = LEVEL 1;
+   <b>proc</b> put = (<b>int</b> value) <b>void</b>:
+   <b>begin</b>
+      DOWN free;
+      DOWN mutex; buffer[tail] := value; tail := (tail + 1) MOD size; UP mutex;
+      UP full
+   <b>end</b>;
+   <b>proc</b> get = <b>int</b>:
+   <b>begin</b>
+      DOWN full;
+      DOWN mutex; <b>int</b> value = buffer[head]; head := (head + 1) MOD size; UP mutex;
+      UP free;
+      value
+   <b>end</b>;
+   <b>int</b> n = 20;
+   <b>int</b> sum := 0;
+   <b>par</b> (
+      <b>for</b> i <b>to</b> n <b>do</b> put (i * i) <b>od</b>,           <span class="comment">{ the producer }</span>
+      <b>to</b> n <b>do</b> sum +:= get <b>od</b>                  <span class="comment">{ the consumer }</span>
+   );
+   print (("sum of the first ", whole (n, 0), " squares: ", whole (sum, 0),
+           newline))
+<b>end</b></code></pre>
+<pre class="output"><code>sum of the first 20 squares: 2870</code></pre>
+<p><code>put</code> waits for a free place, stores the value and signals
+a filled place; <code>get</code> does the opposite. If the producer is
+faster, it waits in <code>DOWN free</code> when the buffer is full; if
+the consumer is faster, it waits in <code>DOWN full</code> when the
+buffer is empty. Today’s languages offer the same structure ready-made
+as a blocking queue or a channel, but it is built from exactly these
+parts.</p>
+<p>The order of the two <code>DOWN</code>s in <code>put</code> matters.
+If the producer took <code>mutex</code> first and then waited in
+<code>DOWN free</code> for a free place, it would wait while holding the
+lock, and the consumer, which needs the lock to make a place free, could
+never get it: a deadlock. The rule is to wait for a resource before
+taking the lock that protects it, and to hold the lock for as short a
+time as possible.</p>
+<h2 data-number="8.6" id="sec-philosophers"><span
+class="header-section-number">8.6</span> The dining philosophers</h2>
+<p>Dijkstra’s best-known synchronization problem has five philosophers
+sitting at a round table, with one fork between each two of them. A
+philosopher alternately thinks and eats, and needs both neighboring
+forks to eat. If every philosopher picks up the left fork first and then
+waits for the right one, all five may end up holding one fork each and
+waiting forever, a <em>deadlock</em>.</p>
+<p>One simple solution is a butler who lets at most four philosophers
+sit at the table at the same time. Then at least one of them can always
+get both forks. In the program, each fork is a semaphore with the
+initial value 1, and the butler is a semaphore with the initial value
+4:</p>
+<pre class="algol68"><code><b>access</b> Genie_Transput
+<b>begin</b>
+   <span class="comment">{ The dining philosophers, with a butler who admits at most four at a time. }</span>
+   <b>int</b> n = 5, meals = 1000;
+   [0 : n - 1] <b>sema</b> fork;
+   [0 : n - 1] <b>int</b> eaten;
+   <b>for</b> i <b>from</b> 0 <b>to</b> n - 1 <b>do</b> fork[i] := LEVEL 1; eaten[i] := 0 <b>od</b>;
+   <b>sema</b> butler = LEVEL (n - 1);
+   <b>proc</b> philosopher = (<b>int</b> i) <b>void</b>:
+      <b>to</b> meals <b>do</b>
+         DOWN butler;
+         DOWN fork[i]; DOWN fork[(i + 1) MOD n];
+         eaten[i] +:= 1;                              <span class="comment">{ eat }</span>
+         UP fork[(i + 1) MOD n]; UP fork[i];
+         UP butler                                    <span class="comment">{ think }</span>
+      <b>od</b>;
+   <b>par</b> (philosopher (0), philosopher (1), philosopher (2),
+        philosopher (3), philosopher (4));
+   <b>for</b> i <b>from</b> 0 <b>to</b> n - 1 <b>do</b> print ((whole (eaten[i], 0), " ")) <b>od</b>;
+   print (newline)
+<b>end</b></code></pre>
+<pre class="output"><code>1000 1000 1000 1000 1000 </code></pre>
+<p>Each philosopher eats 1000 times and counts the meals in its own
+element of <code>eaten</code>, which no other philosopher changes; the
+counts are printed after the <code><b>par</b></code> clause has ended.
+Without the butler, the program could hang.</p>
+<h2 class="unnumbered" id="exercises-6">Exercises</h2>
+<p>The <a href="-ch-answers.html#ans-ch8">answers</a> are at the end of
+the book.</p>
+<ol>
+<li><p>What is the difference between <code>(a, b)</code> and
+<code><b>par</b> (a, b)</code>?</p></li>
+<li><p>What happens if a program executes <code>DOWN s</code> on a
+semaphore declared as <code><b>sema</b> s = LEVEL 0</code>, and no other
+part ever executes <code>UP s</code>?</p></li>
+<li><p>Is the semaphore <code>mutex</code> of the producer and consumer
+program necessary as long as there is exactly one producer and one
+consumer? When does it become necessary?</p></li>
+<li><p>Give another solution of the dining philosophers that needs no
+butler. (Hint: let one philosopher pick up the forks in the other
+order.)</p></li>
+<li><p>What happens to the producer and consumer program if the two
+<code>DOWN</code>s in <code>put</code> are exchanged, when the producer
+is faster than the consumer?</p></li>
+<li><p>Why does
+<code><b>sema</b> b = a; <b>par</b> (DOWN b, <b>skip</b>)</code> change
+<code>LEVEL a</code>?</p></li>
+</ol>
+<h2 class="unnumbered" id="programming-problems-6">Programming
+problems</h2>
+<ol>
+<li><p>Compute the sum of the elements of a large array with four
+concurrent parts, each summing a quarter.</p></li>
+<li><p>Build a pipeline of three stages, each a concurrent part
+connected to the next by a buffer: the first generates numbers, the
+second squares them, the third prints them.</p></li>
+<li><p>Implement a semaphore-protected counter as a record with a
+<code><b>sema</b></code> field and the procedures <code>increment</code>
+and <code>value</code>.</p></li>
+<li><p><strong>A channel type.</strong> Define a record type for a
+bounded buffer (a reference to an array, references to the two
+positions, and three semaphores) with procedures <code>send</code> and
+<code>receive</code>, so that several pipelines can be built from one
+definition.</p></li>
+<li><p><strong>Readers and writers.</strong> Several parts read a shared
+table and some change it. Readers may read at the same time, but a
+writer needs the table to itself. Solve it with semaphores, and think
+about whether a writer can be kept waiting forever.</p></li>
+<li><p><strong>A barrier.</strong> Build a barrier for <span
+class="math inline"><em>n</em></span> processes from semaphores: no
+process continues past it until all have reached it. Make it
+reusable.</p></li>
+<li><p><strong>Two resources.</strong> Two processes each need a printer
+and a scanner. Show how they can deadlock, and avoid it by acquiring the
+resources in a fixed order.</p></li>
+<li><p><strong>Parallel merge sort.</strong> Sort an array with merge
+sort in which the two halves are sorted in a <code><b>par</b></code>
+clause, down to a given depth, and compare the time with the sequential
+version.</p></li>
+<li><p><strong>A prime sieve pipeline.</strong> Generate the primes with
+a pipeline of processes: each process holds one prime, passes on the
+numbers it does not divide, and starts a new process for the first
+number that reaches it.</p></li>
+</ol>
+</body>
+</html>
