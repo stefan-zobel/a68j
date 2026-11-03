@@ -1,7 +1,7 @@
 access Genie_Transput
 begin
-   int n = 7;
 { begin excerpt }
+   int n = 7;
    if n MOD 2 = 0 then print (("even", newline)) else print (("odd", newline)) fi;
    string size = if n < 10 then "small" elif n < 100 then "medium" else "large" fi;
    print ((size, newline));

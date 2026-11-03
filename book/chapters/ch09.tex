@@ -278,7 +278,7 @@ which is the usual way to lay out numbers without formats:
   \code|d| digits after the point and an exponent of \code|e| digits.
 \end{itemize}
 
-\example{ch09/conversions}
+\program{ch09/conversions}
 
 \noindent prints
 \outputof{ch09/conversions}
@@ -337,7 +337,7 @@ too can be repeated, as in \code|2x| or \code|3"-"|.
 Everything between two commas is one picture, and one picture prints
 one value, however many frames it has:
 
-\example{ch09/pictures}
+\program{ch09/pictures}
 
 \noindent prints
 \outputof{ch09/pictures}
@@ -354,7 +354,7 @@ A sign frame before the digits puts the sign at the left edge of the
 field. A sign frame after the \code|z| frames lets it move to just before
 the first printed digit:
 
-\example{ch09/signs}
+\program{ch09/signs}
 
 \noindent prints
 \outputof{ch09/signs}
@@ -368,7 +368,7 @@ A truth value can be printed with two strings of the program's choice,
 $n$ strings with \code|c("one", "two", ...)|. Both make it easy to print
 plurals and names:
 
-\example{ch09/choice}
+\program{ch09/choice}
 
 \noindent prints
 \outputof{ch09/choice}
@@ -381,7 +381,7 @@ Section~\ref{sec-conversions}: \code|g(w)| like \code|whole|,
 \code|bits| value is printed in base 2, 4, 8 or 16 with a picture such as
 \code|2r8d| or \code|16r4d|:
 
-\example{ch09/general}
+\program{ch09/general}
 
 \noindent prints
 \outputof{ch09/general}
@@ -404,7 +404,7 @@ A part of a format can also be chosen when the program runs. The format pattern
 \code|f(...)| contains an expression that yields a format, and inserts
 that format in its place:
 
-\example{ch09/format-f}
+\program{ch09/format-f}
 
 \noindent prints
 \outputof{ch09/format-f}
@@ -429,7 +429,7 @@ real picture as a real number:
 The insertion \code|k| moves to the column given by its repetition
 count, which can also be computed. That is enough for a simple plot:
 
-\example{ch09/plot}
+\program{ch09/plot}
 
 \noindent prints
 \outputof{ch09/plot}
@@ -470,7 +470,7 @@ the input and are read over; \code|x| skips one character. This makes it easy to
 the records of this file:
 \lstinputlisting[style=output]{examples/ch09/readf.in}
 
-\example{ch09/readf}
+\program{ch09/readf}
 
 \noindent prints
 \outputof{ch09/readf}

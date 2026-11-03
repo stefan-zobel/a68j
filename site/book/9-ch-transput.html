@@ -474,9 +474,6 @@ print (("[", fixed (3.14159, 8, 3), "] [", fixed (3.14159, -8, 3),
         "] [", fixed (3.14159, 6, 4), "] [", fixed (0.015, 0, 4), "]", newline));
 print (("[", float (31415.9, 10, 3, 2), "] [", float (31415.9, -10, 3, -2),
         "]", newline))</code></pre>
-<pre class="output"><code>[   +42] [    42] [-42] [***]
-[  +3.142] [   3.142] [+3.142] [.0150]
-[+31.416e+3] [ 31.416e 3]</code></pre>
 <p>prints</p>
 <pre class="output"><code>[   +42] [    42] [-42] [***]
 [  +3.142] [   3.142] [+3.142] [.0150]
@@ -577,8 +574,6 @@ value</h3>
 one value, however many frames it has:</p>
 <pre class="algol68"><code>printf (($"a = " 2d ", b = " 2d l$, 1));      <span class="comment">{ one picture: one value }</span>
 printf (($"a = " 2d, ", b = " 2d l$, 1, 2))   <span class="comment">{ two pictures }</span></code></pre>
-<pre class="output"><code>a = 00, b = 01
-a = 01, b = 02</code></pre>
 <p>prints</p>
 <pre class="output"><code>a = 00, b = 01
 a = 01, b = 02</code></pre>
@@ -595,9 +590,6 @@ before the first printed digit:</p>
    <b>int</b> n = (i | 42, -42, -7);
    printf (($"[" -4zd "] [", 4z-d "] [", 4z+d "] [", +4d "]" l$, n, n, n, n))
 <b>od</b></code></pre>
-<pre class="output"><code>[    42] [    42] [   +42] [+0042]
-[-   42] [   -42] [   -42] [-0042]
-[-    7] [    -7] [    -7] [-0007]</code></pre>
 <p>prints</p>
 <pre class="output"><code>[    42] [    42] [   +42] [+0042]
 [-   42] [   -42] [   -42] [-0042]
@@ -620,13 +612,6 @@ and names:</p>
    printf (($c("January", "February", "March") ", " g(0) l$, month, month))
 <b>od</b>;
 printf (($b("yes", "no") ", " b l$, 3 &gt; 2, 3 &gt; 4))</code></pre>
-<pre class="output"><code>0 files found
-1 file found
-2 files found
-January, 1
-February, 2
-March, 3
-yes, F</code></pre>
 <p>prints</p>
 <pre class="output"><code>0 files found
 1 file found
@@ -652,10 +637,6 @@ printf (($g(10) "|" g(-10, 2) "|" g(-12, 3, 2) l$, 42, x, x));
 printf (($g(w, w - 6) l$, x));            <span class="comment">{ the parameters can be computed }</span>
 <b>bits</b> b = 2r1011;
 printf (($2r8d, " " 16r4d l$, b, 16rbeef))</code></pre>
-<pre class="output"><code>+1.23456780000000e  +3
-       +42|   1234.57| 1234.568e+0
-+1234.568
-00001011 beef</code></pre>
 <p>prints</p>
 <pre class="output"><code>+1.23456780000000e  +3
        +42|   1234.57| 1234.568e+0
@@ -687,11 +668,6 @@ format, and inserts that format in its place:</p>
 <b>od</b>;
 printf (($"Smith""Jones" l$));
 printf (($"Smith" 1"Jones" l$))</code></pre>
-<pre class="output"><code>1 item
-2 items
-3 items
-Smith"Jones
-SmithJones</code></pre>
 <p>prints</p>
 <pre class="output"><code>1 item
 2 items
@@ -732,15 +708,6 @@ simple plot:</p>
    <b>int</b> column = 10 + ROUND (20 * sin (x));
    printf (($zd.dd, n (column) k "*" l$, x))
 <b>od</b></code></pre>
-<pre class="output"><code> 0.00    *
- 0.39            *
- 0.79                  *
- 1.18                      *
- 1.57                        *
- 1.96                      *
- 2.36                  *
- 2.75            *
- 3.14    *</code></pre>
 <p>prints</p>
 <pre class="output"><code> 0.00    *
  0.39            *
@@ -799,9 +766,6 @@ Cleo Grant 2024-01-30   7</code></pre>
    <b>od</b>;
 done:
    <b>skip</b></code></pre>
-<pre class="output"><code>Ann Smith  15.03.2024    82
-Bob Jones  02.11.2023   100
-Cleo Grant 30.01.2024     7</code></pre>
 <p>prints</p>
 <pre class="output"><code>Ann Smith  15.03.2024    82
 Bob Jones  02.11.2023   100

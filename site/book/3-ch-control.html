@@ -206,7 +206,8 @@ be omitted, and further conditions may be tested with
 <code><b>elif</b></code>. Like a block, an <code><b>if</b></code> has a
 value, so it serves both as a statement and as the conditional
 expression <code>c ? a : b</code> of C:</p>
-<pre class="algol68"><code><b>if</b> n MOD 2 = 0 <b>then</b> print (("even", newline)) <b>else</b> print (("odd", newline)) <b>fi</b>;
+<pre class="algol68"><code><b>int</b> n = 7;
+<b>if</b> n MOD 2 = 0 <b>then</b> print (("even", newline)) <b>else</b> print (("odd", newline)) <b>fi</b>;
 <b>string</b> size = <b>if</b> n &lt; 10 <b>then</b> "small" <b>elif</b> n &lt; 100 <b>then</b> "medium" <b>else</b> "large" <b>fi</b>;
 print ((size, newline));
 print (((n &gt; 0 | "positive" | "not positive"), newline))</code></pre>
@@ -232,7 +233,8 @@ common type to which all branches can be converted, and converts them.
 If one branch is an <code><b>int</b></code> and the other a
 <code><b>real</b></code>, the common type is
 <code><b>real</b></code>:</p>
-<pre class="algol68"><code><b>real</b> r = <b>if</b> n &gt; 5 <b>then</b> 1 <b>else</b> 2.5 <b>fi</b>;     <span class="comment">{ the int 1 is widened to real }</span>
+<pre class="algol68"><code><b>int</b> n = 7;
+<b>real</b> r = <b>if</b> n &gt; 5 <b>then</b> 1 <b>else</b> 2.5 <b>fi</b>;     <span class="comment">{ the int 1 is widened to real }</span>
 print ((r, newline))</code></pre>
 <pre class="output"><code>+1.000000e +0</code></pre>
 <p>The Report calls this <span class="sans-serif">balancing</span>. It
@@ -391,8 +393,6 @@ print ((sum = 1.0, " ", ABS (sum - 1.0) &lt; 1e-6, newline));
    print ((fixed (x, -4, 2), " "))
 <b>od</b>;
 print (newline)</code></pre>
-<pre class="output"><code>F T
-0.00 0.25 0.50 0.75 1.00 </code></pre>
 <p>prints</p>
 <pre class="output"><code>F T
 0.00 0.25 0.50 0.75 1.00 </code></pre>

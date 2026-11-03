@@ -206,7 +206,8 @@ semicolons:</p>
 <b>int</b> days_per_year = days_per_week * weeks + extra_days;
 <b>real</b> g = 9.81;
 <b>char</b> separator = ",";
-<b>bool</b> verbose = <b>false</b>;</code></pre>
+<b>bool</b> verbose = <b>false</b>;
+print ((days_per_year, separator, fixed (g, 0, 2), separator, verbose, newline))</code></pre>
 <pre class="output"><code>       +365,9.81,F</code></pre>
 <p>An attempt to change a constant is an error, found by the
 compiler:</p>

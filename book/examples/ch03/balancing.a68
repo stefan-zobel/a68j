@@ -1,7 +1,7 @@
 access Genie_Transput
 begin
-   int n = 7;
 { begin excerpt }
+   int n = 7;
    real r = if n > 5 then 1 else 2.5 fi;     { the int 1 is widened to real }
    print ((r, newline))
 { end excerpt }

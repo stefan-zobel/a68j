@@ -127,7 +127,7 @@ only a few times on average.
 In Algol 68 the same structure is a record with a resizable array and a
 count:
 
-\example{ch07/vector}
+\program{ch07/vector}
 
 \noindent The program prints the number of elements and the capacity
 after each \code|push|:
@@ -210,7 +210,7 @@ Arrays are values in Algol 68: assigning an array copies its elements
 (Section~\ref{sec-array-values}). An array is shared only when a
 reference to it is shared explicitly, which the type always shows:
 
-\example{ch07/share}
+\program{ch07/share}
 
 \noindent prints
 \outputof{ch07/share}
@@ -646,7 +646,7 @@ a function counts, even if its body declares nothing:
 is gone when the call is over. The following program keeps references to cells allocated in
 a loop body:
 
-\example{ch07/loop-loc}
+\program{ch07/loop-loc}
 
 \noindent Algol 68 Genie stops it:
 \outputof{ch07/loop-loc}
@@ -681,7 +681,7 @@ it.
 In JavaScript, Python or Haskell, returning a function that composes two
 other functions is an everyday idiom. In Algol 68 it is an error:
 
-\example{ch07/compose}
+\program{ch07/compose}
 
 \noindent Algol 68 Genie stops at the call of \code|compose|:
 \outputof{ch07/compose}
@@ -792,7 +792,7 @@ nodes are of different kinds: the syntax tree of a compiler, a document,
 a JSON value. An arithmetic expression is a number, a variable, or an
 operator with two operands:
 
-\example{ch07/expr}
+\program{ch07/expr}
 
 \noindent prints
 \outputof{ch07/expr}

@@ -12,10 +12,10 @@ begin
       fi;
       (data of v)[size of v +:= 1] := x
    end;
-   { end excerpt }
    Vector v := ((), 0);
    for i to 10 do
       push (v, i * i);
       print ((whole (size of v, 3), whole (UPB data of v, 4), newline))
    od
+   { end excerpt }
 end

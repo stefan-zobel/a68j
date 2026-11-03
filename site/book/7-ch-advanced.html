@@ -227,17 +227,12 @@ a count:</p>
       data <b>of</b> v := bigger
    <b>fi</b>;
    (data <b>of</b> v)[size <b>of</b> v +:= 1] := x
-<b>end</b>;</code></pre>
-<pre class="output"><code> +1  +4
- +2  +4
- +3  +4
- +4  +4
- +5  +8
- +6  +8
- +7  +8
- +8  +8
- +9 +16
-+10 +16</code></pre>
+<b>end</b>;
+Vector v := ((), 0);
+<b>for</b> i <b>to</b> 10 <b>do</b>
+   push (v, i * i);
+   print ((whole (size <b>of</b> v, 3), whole (UPB data <b>of</b> v, 4), newline))
+<b>od</b></code></pre>
 <p>The program prints the number of elements and the capacity after each
 <code>push</code>:</p>
 <pre class="output"><code> +1  +4
@@ -357,8 +352,6 @@ s[1] := 20;
 <b>ref</b> [] <b>int</b> one = x;          <span class="comment">{ x seen as an array of one element }</span>
 one[1] := 8;
 print ((a, newline, x, newline))</code></pre>
-<pre class="output"><code>        +10        +20         +3         +4         +5
-         +8</code></pre>
 <p>prints</p>
 <pre class="output"><code>        +10        +20         +3         +4         +5
          +8</code></pre>
@@ -992,9 +985,6 @@ body:</p>
    cells[i] := <b>loc</b> <b>int</b> := square
 <b>od</b>;
 print ((<b>ref</b> <b>int</b> (cells[2]), newline))</code></pre>
-<pre class="output"><code>6           cells[i] := LOC INT := square
-                        1                
-a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID loop-clause starting at "FOR" in line 4.</code></pre>
 <p>Algol 68 Genie stops it:</p>
 <pre class="output"><code>6           cells[i] := LOC INT := square
                         1                
@@ -1034,9 +1024,6 @@ error:</p>
 <b>proc</b> inc = (<b>real</b> x) <b>real</b>: x + 1;
 Fn h = compose (double, inc);
 print ((fixed (h (1), 0, 1), newline))</code></pre>
-<pre class="output"><code>7        FN h = compose (double, inc);
-                1                     
-a68g: runtime error: 1: FN value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.</code></pre>
 <p>Algol 68 Genie stops at the call of <code>compose</code>:</p>
 <pre class="output"><code>7        FN h = compose (double, inc);
                 1                     
@@ -1221,11 +1208,6 @@ operator with two operands:</p>
       print (("x = ", whole (i, 0), ": ", fixed (eval (e, i), 0, 1), newline))
    <b>od</b>
 <b>end</b></code></pre>
-<pre class="output"><code>(((3.0 * (x * x)) - (2.0 * x)) + 1.0)
-x = 0: 1.0
-x = 1: 2.0
-x = 2: 9.0
-x = 3: 22.0</code></pre>
 <p>prints</p>
 <pre class="output"><code>(((3.0 * (x * x)) - (2.0 * x)) + 1.0)
 x = 0: 1.0

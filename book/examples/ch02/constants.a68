@@ -7,6 +7,6 @@ begin
    real g = 9.81;
    char separator = ",";
    bool verbose = false;
-{ end excerpt }
    print ((days_per_year, separator, fixed (g, 0, 2), separator, verbose, newline))
+{ end excerpt }
 end
