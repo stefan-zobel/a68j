@@ -18,7 +18,9 @@ As of 2 November 2026 entries 1 to 4 have been filed in the GCC
 Bugzilla (PR 128378, PR 128380, PR 128382 and PR 128383, linked at the entries); the others
 have not. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
-sources have not been examined yet.
+sources have not been examined yet. Entries 16 to 22 were found while the
+examples of the book were checked (3 November 2026); the causes of 16 to
+19 have been examined only as far as their entries say.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -41,6 +43,13 @@ where ga68 crashes or reads uninitialized memory.
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
 | 14 | ga68 `a68-low-clauses.cc` | a row display whose rows differ in bounds is not checked, and a longer later row is written past the allocated elements | run-time error |
 | 15 | ga68 `a68-low-clauses.cc` | a row display copies a row with a stride (`m[, 1]`) as if it were contiguous | correct |
+| 16 | ga68 `a68-low.cc` | a row display assigned to a row variable whose mode is a mode indicant (`Vec v := (1.0, 2.0, 3.0)`): internal compiler error in `a68_low_assignation` | correct |
+| 17 | ga68 | a procedure of the standard prelude (`sin`) as an argument or in a row display: internal compiler error in `a68_type_moid` | correct |
+| 18 | ga68 | assigning a `[] [] int` to a `flex [] flex [] int`: internal compiler error in `fold_convert_loc` | correct |
+| 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end | message "not supported yet" |
+| 20 | libga68 `ga68.map` | the operators on `compl` are not exported from the shared libga68 | correct |
+| 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
+| 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | reproduces |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
 
@@ -509,6 +518,198 @@ element (line 1304), which ignores the stride. The comment above it (line
 
 Suggested fix: copy the elements one by one along the strides of the
 row, or use `memcpy` only when the row is contiguous.
+
+## 16. Internal compiler error for a row variable whose mode is an indicant
+
+```
+begin mode Vec = [1 : 3] real;
+      Vec v := (1.0, 2.0, 3.0);
+      puts (fixed (v[2], 0, 1) + "'n")
+end
+```
+
+ga68: `internal compiler error: in a68_low_assignation, at
+algol68/a68-low.cc:1053`, called from `a68_lower_variable_declaration`.
+The expected output, which a68g gives, is `2.0`. The same happens with
+`Vec v; v := (1.0, 2.0, 3.0)`. The program works when the declarer is
+written out, `[1 : 3] real v := (1.0, 2.0, 3.0)`, and in an identity
+declaration, `Vec v = (1.0, 2.0, 3.0)`.
+
+The assertion that fails is `TREE_TYPE (TREE_TYPE (lhs)) == TREE_TYPE
+(rhs)`: the type of the name and the type of the row display differ.
+Why they differ has not been examined.
+
+## 17. Internal compiler error for a procedure of the standard prelude used as a value
+
+```
+begin proc ap = (proc (real) real f, real a) real: f (a);
+      puts (fixed (ap (sin, 1.0), 0, 4) + "'n")
+end
+```
+
+ga68: `internal compiler error: in a68_type_moid, at
+algol68/a68-lang.cc:121`. The expected output, which a68g gives, is
+`.8415`. A row display does the same, `[] proc (real) real fs = (sin,
+cos)`, and so does `sqrt` instead of `sin`. A procedure declared in the
+program, `proc my_sqrt = (real x) real: sqrt (x)`, works as the argument.
+
+The backtrace goes from `collect_call_arguments` (a68-low-units.cc:1157)
+or from `a68_lower_collateral_clause` to `a68_low_dup` (a68-low.cc:736),
+which asks `a68_type_moid` for the mode of the type of the value; the
+assertion there fails because no mode is attached to that type. Where
+the type of a lowered standard procedure should get its mode has not been
+examined.
+
+## 18. Internal compiler error when a row of rows is assigned to a flexible row of rows
+
+```
+begin [] [] int jag = ((1, 2), (3, 4, 5));
+      flex [1 : 0] flex [1 : 0] int rag;
+      rag := jag;
+      puts (whole (UPB rag[2], 0) + "'n")
+end
+```
+
+ga68: `internal compiler error: in fold_convert_loc, at
+fold-const.cc:2620`, in `gimplify_modify_expr`. The expected output, which
+a68g gives, is `3`. The same happens when `jag` is the initial value of
+`rag`. Assigning the row display itself, `rag := ((1, 2), (3, 4, 5))`,
+works. The cause has not been examined.
+
+## 19. Partial parametrization crashes the back end
+
+```
+begin proc add = (real x, y) real: x + y;
+      proc (real) real g := add (3, );
+      puts (fixed (g (4), 0, 1) + "'n")
+end
+```
+
+Partial parametrization (Lindsey, ALGOL Bulletin 39.3.1) is not part of
+the Revised Report, but the ga68 front end accepts the call with a
+missing argument. The back end then stops with `internal compiler error:
+in fold_convert_loc, at fold-const.cc:2620`. a68g, which implements the
+extension, prints `7.0`. ga68 should either implement it or reject the
+program with a message. The cause has not been examined.
+
+## 20. The operators on `compl` are not exported from the shared libga68
+
+```
+begin compl z = 1 I 2, w = 3 I 4;
+      compl a = z + w, b = z - w, c = z * w, d = z / w, e = CONJ z;
+      real f = ABS z, g = ARG z;
+      puts (fixed (re of a, 0, 1) + " " + fixed (im of a, 0, 1) + " "
+            + fixed (re of b, 0, 1) + " " + fixed (im of b, 0, 1) + " "
+            + fixed (re of c, 0, 1) + " " + fixed (im of c, 0, 1) + " "
+            + fixed (re of d, 0, 2) + " " + fixed (im of d, 0, 2) + " "
+            + fixed (im of e, 0, 1) + " " + fixed (f, 0, 4) + " " + fixed (g, 0, 4) + "'n")
+end
+```
+
+With the default (static) libga68 the program prints `4.0 6.0 -2.0 -2.0
+-5.0 10.0 .44 .08 -2.0 2.2361 1.1071`, as a68g does. With
+`-shared-libga68` it does not link:
+
+```
+undefined reference to `STANDARD_u_4'
+undefined reference to `STANDARD_m_8'
+undefined reference to `STANDARD_r_11'
+```
+
+and also `STANDARD_s_14`, `STANDARD_CONJ15`, `STANDARD_ABS18` and
+`STANDARD_ARG19`. The operators are defined in Algol 68 in
+`standard.a68.in` (section 10.2.3.7, from line 32) and are in
+`libga68.so`, but as local symbols: the version script `ga68.map` lists
+only some symbols of the standard prelude by name (lines 74 to 99) and
+makes all others local (`local: *;`, lines 101 and 102). `libga68.a`
+defines 74 global `STANDARD_` symbols, `libga68.so` exports 25. This is
+the same kind of defect as entry 1.
+
+Suggested fix: export every `STANDARD_` symbol that ga68 can emit a
+reference to, for example with a pattern `STANDARD_*;` in `ga68.map`.
+
+## 21. A row variable declared in a module lives on the stack of the module's prelude
+
+`store.a68`:
+
+```
+module Store =
+def
+   [1 : 100] int items;
+   int count := 0;
+   pub proc add = (int x) void: (count +:= 1; items[count] := x);
+   pub proc get = (int i) int: items[i];
+   skip
+fed
+```
+
+`use-store.a68`:
+
+```
+access Store
+begin
+   [1 : 50] int local;
+   for i to 50 do local[i] := -i od;
+   for i to 3 do add (i * 10) od;
+   puts (whole (get (3), 0) + " " + whole (local[50], 0) + "'n")
+end
+```
+
+```
+ga68 -fstropping=supper -c store.a68
+ga68 -fstropping=supper use-store.a68 store.o -o use-store
+```
+
+The program stops with `store.a68:5: runtime error: bound 1 out of range
+[-193273528365:-201863462959]`; the expected output is `30 -50`. With
+`heap [1 : 100] int items` the program prints `30 -50`.
+
+The declarations of the module text are lowered into the function
+`STORE__prelude` (a68-low.cc:1353). For `[1 : 100] int items` the
+GIMPLE dump of `store.a68` shows that the descriptor (40 bytes) and the
+elements (400 bytes) are allocated with `__builtin_alloca_with_align` in
+that function, and that their address is stored in the global
+`STORE_items`. When `STORE__prelude` returns, `STORE_items` points into
+a dead stack frame, which the accessing program overwrites with its own
+variables.
+
+Suggested fix: allocate the storage of the variables of a module text
+statically or on the heap, not on the stack of the prelude.
+
+## 22. The postlude of a module is never executed
+
+`greet.a68`:
+
+```
+module Greet =
+def
+   pub proc hello = void: puts ("hello'n");
+   skip
+postlude
+   puts ("bye'n")
+fed
+```
+
+`use-greet.a68`:
+
+```
+access Greet
+begin hello
+end
+```
+
+The program prints only `hello`; `bye` is missing. The accessing program
+does call `GREET__postlude`.
+
+The prelude of a module increments a sentinel and does its work only when
+the sentinel is 1. The postlude is meant to decrement it and to do its
+work when it is 0, but the code under the comment `/* Decrease sentinel.
+*/` (a68-low.cc:1392) builds a `POSTINCREMENT_EXPR`, so the sentinel
+becomes 2 and the postlude, including the calls of the postludes of the
+modules it accesses and of the standard postludes, is skipped.
+
+Suggested fix: use `POSTDECREMENT_EXPR` there. The fix has not been
+tested by rebuilding ga68.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

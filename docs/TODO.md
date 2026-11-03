@@ -1,8 +1,7 @@
 # TODO: ideas for later
 
-Ideas that are not planned yet. The larger topics have files of their own:
-[`TODO-formats.md`](TODO-formats.md) and
-[`TODO-method-size.md`](TODO-method-size.md).
+Ideas that are not planned yet. The larger topic of formats has a file of
+its own: [`TODO-formats.md`](TODO-formats.md).
 
 ## Compact element access in hot code too
 

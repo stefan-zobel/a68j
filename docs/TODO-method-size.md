@@ -1,9 +1,14 @@
-# TODO: methods too large for the JVM and for its JIT
+# Methods too large for the JVM and for its JIT (done)
 
-Status, 2 Nov 2026: steps 1, 2 and 3 of the plan are done (sections 9,
+Status, 2 Nov 2026: the three steps of the plan are done (sections 9,
 10 and 11 of [`optimizations.md`](optimizations.md), results below).
-Section 7 of `optimizations.md` describes the loop methods. The
-measurements in the following sections are those before steps 1 and 2.
+Step 1 reports a method above 65 535 bytes as a compile-time error
+instead of a Java stack trace; step 2 makes the code smaller (`MOD` and
+`OVER` with a constant divisor, compact element access in code that
+runs once and in methods too large for the JIT); step 3 cuts serial
+clauses into methods of their own (`Cut`). Section 7 of
+`optimizations.md` describes the loop methods. The measurements in the
+following sections are those before steps 1 and 2.
 
 ## The limits
 
@@ -136,81 +141,7 @@ magnitude counts:
 4. Code is large mainly because of the inline element access and the
    inline `MOD` and `OVER`.
 
-## Plan
-
-Each step is measured on its own: method sizes and bytes per line over
-the same 669 programs, the ga68 test suite, `tests/extra`, the Java and PAR
-tests and all Rosetta programs with the same results as before, and the
-twelve long Rosetta programs and `big-program-1`/`-2` with
-`tools/perf_ab.py` (five runs, median, alternating), against the version
-before the step.
-
-### Step 1: a clear error instead of a Java stack trace (done)
-
-If a method is still above 65 535 bytes after all rounds, report it like
-other compile errors: which method (the main program, a procedure, a
-loop), its source lines, its size, the limit. Small; remains useful as the
-last resort after steps 2 and 3.
-
-### Step 2: smaller code (done)
-
-- **`MOD`, `OVER`, `%*` and their assigning forms with a constant
-  divisor:** for a divisor greater than 0 the checks for 0 and -1 are not
-  needed and the sign correction is shorter (`irem`, `dup`, `ifge`, add the
-  divisor). About 15 bytes instead of 50 to 71, and fewer instructions in
-  hot loops too.
-- **Code that runs once:** the code of the main program outside every loop
-  runs at most once unless a jump goes back to a label before it. There
-  the element access (and other inline fast paths) can be a call of the
-  runtime with the same checks and messages, about 15 to 25 bytes instead
-  of 140 to 240. This does not change the behavior and costs no time: that
-  code runs once. Not for serial clauses with labels, not in procedures
-  (they may be called often), not in loop methods.
-- **Hot code (done in a narrower form):** the compact element access also
-  in a method that is still above 8000 bytes after its loops became
-  methods of their own, chosen per method by its measured size; all
-  other methods keep the inline fast paths. Results below ("Compact
-  access by size"). Not done: the compact access (or only a shared slow
-  path) in all hot code, which would need the time measurements of
-  section 3 of `optimizations.md` (C2 compiling code without a profile).
-
-### Step 3: more than loops as methods of their own (done)
-
-Done as planned, with the changes named in "Results of step 3" below.
-The plan:
-
-The general solution for both limits. In a method that is still above
-8000 bytes after its loops are methods (or that has no loop):
-
-- **The rest of a serial clause:** cut the serial clause after phrase k;
-  the phrases from k + 1 on become a method that gets the frame and the
-  JVM locals it uses, as a loop method does (values, and direct variables
-  in the one `long[]` holder), and returns the value of the serial clause.
-  Declarations in the rest stay local to it. A rest that is still too
-  large is cut again, so 6000 statements become a chain of a few methods.
-  Cuts only after the last label of the serial clause: a jump from the rest
-  back to a label before the cut leaves the method by an exception, as a
-  jump out of a loop method does today (`GenClauses#jump`), but a jump into
-  the middle of another method is not possible.
-- **Branches of conditional and case clauses, closed clauses:** for a large
-  procedure without loops, such as the step of an interpreter with a long
-  case clause, each large branch becomes a method; the dispatch stays
-  small.
-- **Where to cut without estimating:** a label before each phrase gives
-  the exact size of each phrase in the generated code of the previous
-  round (`CodeAttribute#labelToBci`); the next round cuts so that each
-  part stays below 8000 bytes. The sizes stay measured, as today; an
-  estimate from the number of nodes was useless (0.4 to 6.7 bytes per
-  node, section 7 of `optimizations.md`).
-- **Tests:** a script like `tools/loop_methods_test.sh` with the generated
-  programs A, B and C, jumps across cuts in both directions, declarations
-  before and after a cut, direct variables assigned in the rest, every
-  kind of value of the serial clause (INT, REAL, a structure, a row, a
-  union, VOID), runtime errors with their line numbers inside a rest, and a
-  test mode that cuts every serial clause (like `A68J_LOOP_METHODS=every`)
-  over all test suites.
-
-### Not planned
+## Not planned
 
 - **Larger inlining limits:** a68j cannot set options of the JVM that runs
   the program, and the gain measured is within the noise. Smaller code
@@ -310,7 +241,7 @@ methods are unchanged (section 10 of `optimizations.md`).
 ## Results of step 3 (2 Nov 2026)
 
 What was done: section 11 of `optimizations.md`, class `Cut`. Changes
-against the plan above:
+against the plan:
 
 - **One mechanism for both cases:** a branch, a closed clause or any
   other serial clause as a whole is the rest from phrase 0 on. Only rests
@@ -356,11 +287,3 @@ Results (details in section 11 of `optimizations.md`):
   an error), 1.15 to 1.31 s.
 - Still a compile-time error: a row display of 20 000 elements, and a
   main program whose parts would each need the values of 250 variables.
-
-## Order
-
-Step 1 (small), then step 2 (`MOD`/`OVER` first, then the code that runs
-once, then the compact access by size), then step 3. All three are done.
-Step 2 made the code smaller (results above); step 3 removes the limit
-except for a single unit that is too large and a part that would need
-more than 200 parameters.

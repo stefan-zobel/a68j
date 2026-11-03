@@ -3,10 +3,10 @@
 Algol 68 has strings as `flex [] char`, slices, `+` and comparisons, but
 no case conversion, trimming, splitting, joining, replacing, padding or
 conversion of a string to a number. Programs build these by hand (in the
-Algol 68 Genie solutions of Rosetta Code at least 98 programs do,
-java-open-points.md B1). The module `Texts` provides them, written in plain
-Algol 68. It comes with `a68j-backend.jar`, like `Genie_Transput`, and
-needs no option:
+Algol 68 Genie solutions of Rosetta Code at least 98 programs do, see
+"How many programs need it" below). The module `Texts` provides them,
+written in plain Algol 68. It comes with `a68j-backend.jar`, like
+`Genie_Transput`, and needs no option:
 
 ```
 access Texts (
@@ -136,13 +136,28 @@ that both access without `pub` would work as well (checked with ga68 and
 a68j), but then every program and test that uses `Genie_Transput` with
 ga68 would have to compile and link it too.
 
+## How many programs need it
+
+In the 1328 Algol 68 Genie solutions of Rosetta Code
+(`tests/rosetta/orig`), at least 98 programs declare such helpers
+themselves (found by the names of their `PROC` and `OP` declarations,
+each match checked by hand, so this is a lower bound); 29 of them belong
+to tasks about text, the others need the helpers on the side. By kind:
+number to string 29, padding and centring 31, upper and lower case 14,
+string to number 11, trimming 10, splitting 10, prefix, suffix and index
+9, replace 3, join 3. A further 31 programs use `associate` on a string
+only, to format or parse with the transput, and 9 use the regular
+expressions of Algol 68 Genie (`grep in string`, `sub in string`). For
+comparison, only 9 programs use the file system (java-open-points.md
+B2), all of them in tasks about the file system.
+
 ## Not provided
 
 - Unicode: letters beyond ASCII are not changed by `UPPER` and `LOWER`.
 - Searching: `char_in_string`, `string_in_string` and
   `last_char_in_string` are in `Genie_Transput`.
-- Regular expressions: they need Java and are planned as a module of
-  their own (java-open-points.md, B1).
+- Regular expressions: they need Java and are in the module `Regex`
+  ([regex.md](regex.md)).
 
 ## Tests
 
