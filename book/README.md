@@ -33,8 +33,10 @@ the examples were checked.
 Every example is run with a68j (`backend/a68j-backend.jar`, built by the
 top-level `build.sh`) and, if given, with ga68 and Algol 68 Genie; all
 must give the recorded output. Examples of features that ga68 or a68j
-lack (formats, `bytes`, `compl` in ga68) are run with the implementations
-named in their `.cfg` file only.
+lack (formats, `bytes`, semaphores in ga68) are run with the implementations
+named in their `.cfg` file only. ga68 programs are linked with the static
+libga68 (`libga68.a` in the `--libdir`), as the ga68 driver does by
+default; the shared library does not export all operators of the prelude.
 
 ```sh
 python3 book/tools/run_examples.py --ga68 …/gcc/xgcc --libdir …/libga68/.libs --a68g a68g

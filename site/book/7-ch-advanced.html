@@ -1407,17 +1407,19 @@ element.</p></li>
 <h2 class="unnumbered" id="programming-problems-5">Programming
 problems</h2>
 <ol>
-<li><p><strong>Two representations of text.</strong> Implement strings
-in two ways: as a <code><b>string</b></code> and as a linked list of
-characters. For both, write procedures that concatenate two strings,
-insert one string into another at a given position, and delete a part of
-a string; each takes a reference to the string to be changed. Compare
-the costs of the operations in the two representations.</p></li>
+<li><p><strong>Text in pieces.</strong> Keep a long text as a linked
+list of pieces, each a <code><b>string</b></code>, so that joining two
+texts only links their lists. Write procedures for joining, for the
+length, for the character at a given position, and for turning the list
+back into one <code><b>string</b></code>. Which operations are cheaper
+than with a single <code><b>string</b></code>, and which are more
+expensive?</p></li>
 <li><p><strong>List operations.</strong> For the lists of Section <a
 href="7-ch-advanced.html#sec-recursive" data-reference-type="ref"
-data-reference="sec-recursive">7.17</a>, write procedures that count the
-elements, build a reversed copy without changing the original, merge two
-sorted lists into one, and sort a list by repeatedly merging.</p></li>
+data-reference="sec-recursive">7.17</a>, write procedures that return
+the <span class="math inline"><em>n</em></span>-th element, append a
+copy of one list to another, merge two sorted lists into one, and sort a
+list by repeatedly merging.</p></li>
 <li><p><strong>Sets.</strong> Represent sets of integers as sorted
 linked lists, and write the operators <code>+</code> (union),
 <code>*</code> (intersection), <code>-</code> (difference) and
@@ -1491,10 +1493,10 @@ arrays and objects, where an object is a list of (key, value) pairs.
 Write a procedure that prints such a value in JSON notation with
 indentation. Check that your types are well-formed.</p></li>
 <li><p><strong>Cross-reference.</strong> Read an Algol 68 program and
-print every identifier in alphabetical order with the numbers of the
-lines on which it occurs, using a tree whose nodes hold a list of line
-numbers. Reserved words, which are written in lower case in SUPPER
-stropping, can be recognized with a table.</p></li>
+build an index of its identifiers: a tree, sorted by name, whose nodes
+hold a list of the line numbers where the name occurs. Print the index
+in alphabetical order. Reserved words, which are written in lower case
+in SUPPER stropping, can be recognized with a table.</p></li>
 </ol>
 </body>
 </html>

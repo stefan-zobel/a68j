@@ -616,23 +616,27 @@ why?</p></li>
 something?</p></li>
 <li><p>Write a loop that prints the powers of 2 up to 1000 without using
 a <code><b>for</b></code> part.</p></li>
-<li><p>How many times is the body executed in
-<code><b>int</b> n := 10; <b>for</b> i <b>by</b> 2 <b>to</b> n <b>do</b> n +:= 1 <b>od</b></code>?</p></li>
+<li><p>What does
+<code><b>int</b> k := 3; <b>to</b> k <b>do</b> k *:= 2; print (k) <b>od</b></code>
+print?</p></li>
 <li><p>What does
 <code><b>for</b> i <b>from</b> 1 <b>by</b> 0 <b>to</b> 3 <b>do</b> print (i) <b>od</b></code>
 do?</p></li>
 <li><p>Is
-<code><b>real</b> x = 4 + <b>if</b> p &gt; q <b>then</b> 4 <b>else</b> <b>goto</b> error <b>fi</b></code>
-a correct declaration, if <code>error</code> is a label of the enclosing
-block?</p></li>
-<li><p>With <code><b>real</b> x := 0; <b>int</b> n := 0</code>, is
-<code>(x &gt; 1 </code> x | n) := 4| accepted? Why or why not?</p></li>
+<code><b>string</b> name = <b>case</b> k <b>in</b> "one", "two", "three" <b>out</b> <b>goto</b> bad <b>esac</b></code>
+a correct declaration, if <code>bad</code> is a label of the enclosing
+serial clause? What happens for <code>k = 5</code>?</p></li>
+<li><p>With
+<code><b>real</b> x := 1.5; <b>int</b> n := 2; <b>bool</b> b = x &gt; n</code>,
+the declaration <code><b>real</b> v = (b | x | n)</code> is accepted,
+but <code><b>ref</b> <b>real</b> r = (b | x | n)</code> is rejected.
+Why?</p></li>
 <li><p>What is wrong with <code><b>int</b> a = 1, b = a + 1</code>, and
 how is it corrected?</p></li>
 <li><p>The loop
-<code><b>while</b> ch /= "+" OR ch /= "-" <b>do</b> ... <b>od</b></code>
-is meant to run until <code>ch</code> is a plus or a minus sign. Why
-does it never end?</p></li>
+<code><b>int</b> n; <b>while</b> read (n); n &lt; 1 AND n &gt; 9 <b>do</b> ... <b>od</b></code>
+is meant to repeat until a number from 1 to 9 is read. Why does it stop
+after the first number, whatever it is?</p></li>
 </ol>
 <h2 class="unnumbered" id="programming-problems-1">Programming
 problems</h2>

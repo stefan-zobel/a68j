@@ -951,12 +951,13 @@ page number after every 50 lines.</p></li>
 <li><p><strong>Word count.</strong> Count the characters, words and
 lines of the standard input, like the Unix program <code>wc</code>. Make
 sure that a last line without a line break is counted.</p></li>
-<li><p><strong>Retirement list.</strong> Each line of a file holds a
-name in 12 columns, a comma, the letter <code>M</code> or
-<code>F</code>, a comma and an age in 3 columns. Print the people who
-have reached the retirement age (which differs for men and women) in one
-column and the others in a second column, with one <code>getf</code> and
-one <code>printf</code> per record.</p></li>
+<li><p><strong>Exam results.</strong> Each line of a file holds a
+student number of 6 digits, a name in 20 columns and three marks of 3
+digits. Print a line per student with the name, the average with one
+decimal, and <code>passed</code> or <code>failed</code> (an average of
+at least 50 and no mark below 30 passes) chosen with a
+<code>b(...)</code> pattern, with one <code>getf</code> and one
+<code>printf</code> per student.</p></li>
 <li><p><strong>Column totals.</strong> Read a table of numbers separated
 by commas, with an unknown number of rows, and print it with a format,
 with a total for each column.</p></li>
@@ -975,8 +976,8 @@ one million in words, as on a check, using choice patterns for the
 units, tens and hundreds.</p></li>
 <li><p><strong>Justification.</strong> Read a text and print it with
 lines of a given width and straight margins on both sides, by
-distributing extra blanks between the words, alternately from the left
-and from the right.</p></li>
+distributing extra blanks between the words as evenly as possible. The
+last line of a paragraph keeps a ragged right margin.</p></li>
 <li><p><strong>The last lines.</strong> Print the last <span
 class="math inline"><em>n</em></span> lines of the standard input, which
 may be of any length, numbered with <code>whole</code>.</p></li>

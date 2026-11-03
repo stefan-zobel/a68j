@@ -136,9 +136,10 @@ catch the unwary: <code>I</code> has the highest precedence, 9, so
 <code>2 * x I y</code> means <code>2 * (x I y)</code>; and complex
 numbers have no order, so there is no <code>&lt;</code>.</p>
 <blockquote>
-<p><strong>Implementation note.</strong>  ga68 does not yet provide the
-complex operators; a program that uses them fails when it is linked. The
-examples in this section were run with a68j and Algol 68 Genie.
+<p><strong>Implementation note.</strong>  With ga68 a program that uses
+the complex operators must be linked with the static libga68, which is
+the default: the shared library (<code>-shared-libga68</code>) does not
+export them, and the program fails when it is linked.
 <code>Genie_Transput</code> does not print complex numbers directly,
 which is why the example formats them itself; the <code>print</code> of
 the Report and of Algol 68 Genie prints the two parts.</p>

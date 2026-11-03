@@ -340,9 +340,11 @@ about whether a writer can be kept waiting forever.</p></li>
 class="math inline"><em>n</em></span> processes from semaphores: no
 process continues past it until all have reached it. Make it
 reusable.</p></li>
-<li><p><strong>Two resources.</strong> Two processes each need a printer
-and a scanner. Show how they can deadlock, and avoid it by acquiring the
-resources in a fixed order.</p></li>
+<li><p><strong>Two transfers.</strong> Two processes move money between
+the same two accounts in opposite directions, and each protects both
+accounts with a semaphore before it changes them. Show how they can
+deadlock, and avoid it by always taking the semaphore of the account
+with the smaller number first.</p></li>
 <li><p><strong>Parallel merge sort.</strong> Sort an array with merge
 sort in which the two halves are sorted in a <code><b>par</b></code>
 clause, down to a given depth, and compare the time with the sequential

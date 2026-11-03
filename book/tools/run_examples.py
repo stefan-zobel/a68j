@@ -182,7 +182,7 @@ class Ga68:
                 return result(path, cfg, c.returncode, "", c.stderr.decode("utf-8", "replace"))
             objs.append(o)
         exe = os.path.join(self.work, os.path.relpath(path, EXAMPLES).replace(os.sep, "_")[:-4])
-        c = subprocess.run(self.base + ["-I" + self.work, "-I" + mdir, os.path.basename(path)] + objs + ["-lga68", "-lm", "-o", exe],
+        c = subprocess.run(self.base + ["-I" + self.work, "-I" + mdir, os.path.basename(path)] + objs + [os.path.join(self.libdir, "libga68.a"), "-lm", "-o", exe],
                            capture_output=True, cwd=os.path.dirname(path), env=self.env)
         if c.returncode != 0:
             return result(path, cfg, c.returncode, "", c.stderr.decode("utf-8", "replace"))

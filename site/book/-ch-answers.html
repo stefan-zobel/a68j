@@ -119,29 +119,32 @@ common type of <code><b>int</b></code> and <code><b>real</b></code> is
 <li><p>The operands of an operator are evaluated in an unspecified order
 (collateral elaboration), so either call may come first.</p></li>
 <li><p><code><b>int</b> p := 1; <b>while</b> p &lt;= 1000 <b>do</b> print (p); p *:= 2 <b>od</b></code>.</p></li>
-<li><p>Five times, for <code>i</code> = 1, 3, 5, 7, 9: the final value
-10 is computed once, before the first iteration, and the changes of
-<code>n</code> do not affect it.</p></li>
+<li><p>It prints 6, 12 and 24. The number of repetitions is computed
+once, before the first iteration, so the loop runs three times, and the
+changes of <code>k</code> do not affect it.</p></li>
 <li><p>It prints 1 forever. With a step of 0 the final value is
 ignored.</p></li>
-<li><p>Yes. A jump is acceptable as a value of the type that the other
-branch gives, so the <code><b>if</b></code> has the type
-<code><b>int</b></code> and the declaration gives <code>x</code> the
-value 8.0 if <code>p &gt; q</code>. ga68 and a68j accept it with a
-warning.</p></li>
-<li><p>No. The branches yield a <code><b>ref</b> <b>real</b></code> and
-a <code><b>ref</b> <b>int</b></code>, and neither can be converted into
-the other, so they have no common type; the compiler reports that the
-<code><b>real</b></code> branch “does not yield a name”.</p></li>
+<li><p>Yes. A jump is acceptable as a value of any type, here
+<code><b>string</b></code>. For <code>k = 5</code> the
+<code><b>out</b></code> part is chosen, control goes to
+<code>bad</code>, and <code>name</code> never gets a value.</p></li>
+<li><p>In <code><b>real</b> v = (b </code> x | n)| the context gives the
+type <code><b>real</b></code> to both branches: <code>x</code> is
+dereferenced, and <code>n</code> is dereferenced and widened. A
+<code><b>ref</b> <b>int</b></code> cannot become a
+<code><b>ref</b> <b>real</b></code>, so in the second declaration the
+<code>n</code> branch cannot be converted, and all three compilers
+report that <code><b>ref</b> <b>int</b></code> cannot be coerced to
+<code><b>ref</b> <b>real</b></code>.</p></li>
 <li><p>The two declarations are carried out in an unspecified order, so
 <code>b</code> may be computed before <code>a</code> has a value.
 Written with a semicolon,
 <code><b>int</b> a = 1; <b>int</b> b = a + 1</code>, the order is
 fixed.</p></li>
-<li><p>A character cannot be both <code>"+"</code> and <code>"-"</code>,
-so one of the two comparisons is always true, and so is their
-<code>OR</code>. The condition must be
-<code>ch /= "+" AND ch /= "-"</code>.</p></li>
+<li><p>No number is both less than 1 and greater than 9, so the
+condition is always false, and the loop ends after the first
+<code>read</code>. The condition must be
+<code>n &lt; 1 OR n &gt; 9</code>.</p></li>
 </ol>
 <h2 class="unnumbered" id="ans-ch4">Chapter 4</h2>
 <ol>
