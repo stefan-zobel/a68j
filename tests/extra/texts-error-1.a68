@@ -1,0 +1,8 @@
+{ dg-modules "texts" }
+{ TOINT of a string that is not an int is a runtime error of the module
+  Texts: the message on stand error, exit status 1. }
+access Texts (
+    puts (whole (TOINT " 12 ", 0) + "'n");
+    puts (whole (TOINT "12x", 0) + "'n");
+    puts ("not reached'n")
+)

@@ -1,0 +1,80 @@
+{ dg-options "-fstropping=supper -fnest-java" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ regex.a68 - the module Regex of a68j: the regular expressions of Algol 68
+  Genie, under their names, on top of java.util.regex
+  (a68j.jlib.PosixRegex).
+
+      access Regex (
+          int first, last;
+          if grep_in_string ("[0-9]+", "abc 123 def", first, last) = 0
+          then puts (whole (first, 0) + " " + whole (last, 0) + "'n")    { 5 7 }
+          fi
+      )
+
+  grep_in_string (pattern, s, first, last)
+          0 if the pattern matches in s, with the index of the first and
+          the last character of the match in first and last (an empty
+          match gives last = first - 1); 1 if it does not match, with
+          first and last unchanged; 2 if the pattern is invalid.  first
+          and last may be nil.
+  grep_in_substring (pattern, s, first, last)
+          the same, but "^" does not match at the start of s.
+  sub_in_string (pattern, replacement, s)
+          replaces the first match in the string s refers to by the
+          replacement, taken literally; 0, 1 or 2 as above.
+
+  The patterns are POSIX extended regular expressions as in Algol 68
+  Genie, with these differences (docs/regex.md): of several alternatives
+  the first that fits is taken, not the longest match; patterns that only
+  Java accepts work (\d, lazy quantifiers, look-ahead).
+
+  Bundled with a68j-backend.jar; a program needs no -fnest-java to access
+  this module.  It runs with a68j only, as it needs Java. }
+
+module Regex =
+def
+    { The first match: (first << 32) | end, counted from 0 with the end
+      exclusive, or -1 (no match) or -2 (invalid pattern). }
+    proc (string, string, bool) long int j_grep = nest Java "a68j.jlib.PosixRegex.grep";
+
+    proc grep = (string pattern, s, bool not_bol, ref int first, last) int:
+       begin long int r = j_grep (pattern, s, not_bol);
+             if r = -long 1 then 1
+             elif r = -long 2 then 2
+             else long int two32 = long 4294967296;
+                  int a = SHORTEN (r % two32), b = SHORTEN (r MOD two32);
+                  (first isnt nil | first := LWB s + a);
+                  (last isnt nil | last := LWB s + b - 1);
+                  0
+             fi
+       end;
+
+    pub proc grep_in_string = (string pattern, s, ref int first, last) int:
+       grep (pattern, s, false, first, last);
+
+    pub proc grep_in_substring = (string pattern, s, ref int first, last) int:
+       grep (pattern, s, true, first, last);
+
+    pub proc sub_in_string = (string pattern, replacement, ref string s) int:
+       begin int a := 0, b := 0;
+             int r = grep (pattern, s, false, a, b);
+             if r = 0 then s := s[LWB s : a - 1] + replacement + s[b + 1 : UPB s] fi;
+             r
+       end;
+
+    skip
+fed

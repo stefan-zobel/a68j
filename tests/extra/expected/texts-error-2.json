@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 1,
+ "file": "texts-error-2.a68",
+ "stderr": "runtime error: SPLIT with an empty separator\n",
+ "stdout": "2\n"
+}

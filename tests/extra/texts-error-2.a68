@@ -1,0 +1,9 @@
+{ dg-modules "texts" }
+{ SPLIT with an empty separator is a runtime error of the module Texts
+  (there is no sensible field to return). }
+access Texts (
+    string no_sep = "";
+    puts (whole (UPB ("a,b" SPLIT ","), 0) + "'n");
+    puts (whole (UPB ("a,b" SPLIT no_sep), 0) + "'n");
+    puts ("not reached'n")
+)

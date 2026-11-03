@@ -10,7 +10,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Intrinsics.BUNDLED_MODULES).  A program names them in { dg-modules } like
 # any other packet: for ga68 the source in backend/lib is compiled, while
 # a68j has them built in, so run_jvm.py does not compile them.
-BUNDLED = ("genietransput",)
+BUNDLED = ("genietransput", "texts")
 
 
 def module_source(path, m):

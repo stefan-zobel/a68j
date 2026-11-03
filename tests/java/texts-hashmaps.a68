@@ -1,0 +1,9 @@
+{ The bundled modules Hashmaps, Genie_Transput and Texts in one access
+  clause: they declare no common identifier and no common priority
+  (docs/texts.md). }
+access Hashmaps, Genie_Transput, Texts (
+    String_int_map count = new_string_int_map;
+    [] string w = words ("b a b c b");
+    for i to UPB w do w[i] AT count +:= 1 od;
+    print ((UPPER "b", "b" ELEM count, " ", SIZE count, " ", "x" STARTS "x", newline))
+)

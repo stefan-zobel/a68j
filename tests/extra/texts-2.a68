@@ -1,0 +1,112 @@
+{ dg-modules "genietransput texts" }
+{ Texts together with Genie_Transput: the two modules can be accessed
+  together, and TOINT, TOREAL, TOLONGINT, TOLONGREAL and the procedures
+  string_to_int ... read the same values as get of Genie_Transput on an
+  associated string, for pseudo-random decimal numbers (the same strings
+  in ga68 and a68j). }
+access Genie_Transput, Texts (
+    int seed := 12345;
+    { The minimal standard generator of Park and Miller, 16807 * seed
+      modulo 2 ** 31 - 1, without overflow (Schrage's method). }
+    proc next = (int n) int:
+       begin int t = 16807 * (seed MOD 127773) - 2836 * (seed % 127773);
+             seed := (t > 0 | t | t + 2147483647);
+             seed MOD n
+       end;
+    proc digits = (int n) string:
+       begin string s;
+             to n do s +:= REPR (ABS "0" + next (10)) od;
+             s
+       end;
+
+    int real_same := 0, real_differ := 0, int_same := 0, int_differ := 0,
+        real_valid := 0, int_valid := 0;
+    to 3000
+    do string s := (next (2) = 0 | "" | "-") + digits (1 + next (12));
+       if next (3) > 0 then s +:= "." + digits (next (12)) fi;
+       if next (2) = 0
+       then s +:= (next (2) = 0 | "e" | "E-") + whole (next (46), 0)
+       fi;
+       real x := 0.0, y := 0.0;
+       bool ok = string_to_real (s, x);
+       string t := s;
+       File f;
+       bool bad := false;
+       associate (f, t);
+       on_value_error (f, (ref File g) bool: (bad := true; true));
+       get (f, y);
+       (ok | real_valid +:= 1);
+       if ok = NOT bad andth (NOT ok orel (x = y AND TOREAL s = x))
+       then real_same +:= 1
+       else real_differ +:= 1;
+            (real_differ <= 5 | print (("real differs: ", s, newline)))
+       fi
+    od;
+    to 3000
+    do string s := (next (2) = 0 | "" | "-") + digits (1 + next (11));
+       int a := 0, b := 0;
+       bool ok = string_to_int (s, a);
+       string t := s;
+       File f;
+       bool bad := false;
+       associate (f, t);
+       on_value_error (f, (ref File g) bool: (bad := true; true));
+       get (f, b);
+       (ok | int_valid +:= 1);
+       if ok = NOT bad andth (NOT ok orel (a = b AND TOINT s = a))
+       then int_same +:= 1
+       else int_differ +:= 1;
+            (int_differ <= 5 | print (("int differs: ", s, newline)))
+       fi
+    od;
+    { long real and long int, with exponents up to 330 and up to 20 digits. }
+    int long_real_same := 0, long_real_differ := 0, long_real_valid := 0,
+        long_int_same := 0, long_int_differ := 0, long_int_valid := 0;
+    to 3000
+    do string s := (next (2) = 0 | "" | "-") + digits (1 + next (20));
+       if next (3) > 0 then s +:= "." + digits (next (20)) fi;
+       if next (2) = 0
+       then s +:= (next (2) = 0 | "e" | "E-") + whole (next (331), 0)
+       fi;
+       long real x := long 0.0, y := long 0.0;
+       bool ok = string_to_long_real (s, x);
+       string t := s;
+       File f;
+       bool bad := false;
+       associate (f, t);
+       on_value_error (f, (ref File g) bool: (bad := true; true));
+       get (f, y);
+       (ok | long_real_valid +:= 1);
+       if ok = NOT bad andth (NOT ok orel (x = y AND TOLONGREAL s = x))
+       then long_real_same +:= 1
+       else long_real_differ +:= 1;
+            (long_real_differ <= 5 | print (("long real differs: ", s, newline)))
+       fi
+    od;
+    to 3000
+    do string s := (next (2) = 0 | "" | "-") + digits (1 + next (20));
+       long int a := long 0, b := long 0;
+       bool ok = string_to_long_int (s, a);
+       string t := s;
+       File f;
+       bool bad := false;
+       associate (f, t);
+       on_value_error (f, (ref File g) bool: (bad := true; true));
+       get (f, b);
+       (ok | long_int_valid +:= 1);
+       if ok = NOT bad andth (NOT ok orel (a = b AND TOLONGINT s = a))
+       then long_int_same +:= 1
+       else long_int_differ +:= 1;
+            (long_int_differ <= 5 | print (("long int differs: ", s, newline)))
+       fi
+    od;
+    print (("reals: ", whole (real_same, 0), " same, ", whole (real_differ, 0), " differ, ", whole (real_valid, 0), " valid", newline));
+    print (("ints: ", whole (int_same, 0), " same, ", whole (int_differ, 0), " differ, ", whole (int_valid, 0), " valid", newline));
+    print (("long reals: ", whole (long_real_same, 0), " same, ", whole (long_real_differ, 0),
+            " differ, ", whole (long_real_valid, 0), " valid", newline));
+    print (("long ints: ", whole (long_int_same, 0), " same, ", whole (long_int_differ, 0),
+            " differ, ", whole (long_int_valid, 0), " valid", newline));
+    { Both modules in one expression. }
+    print ((UPPER "abc" RJUST 6, TRIM "  x  " CENTRE 3, char_in_string ("b", nil, "abc"),
+            to_upper ("q"), newline))
+)

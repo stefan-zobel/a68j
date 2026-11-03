@@ -36,7 +36,7 @@ mkdir -p out/a68j/lib && cp lib/ga68.m68 out/a68j/lib/
 # The Algol 68 part of the standard prelude (libga68's standard.a68), compiled by the backend itself.
 "$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fbuilding-libga68 -fclass=a68j.lib.Standard lib/standard.a68 -d out
 # The bundled Algol 68 modules (Intrinsics.BUNDLED_MODULES): classes a68j.lib.X, export data a68j/lib/x.m68.
-for m in lists hashmaps genietransput; do
+for m in lists hashmaps genietransput texts regex; do
   M=$(echo $m | cut -c1 | tr a-z A-Z)$(echo $m | cut -c2-)
   "$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fstropping=supper -fnest-java -fclass=a68j.lib.$M lib/$m.a68 -d out
   mv out/$m.m68 out/a68j/lib/$m.m68

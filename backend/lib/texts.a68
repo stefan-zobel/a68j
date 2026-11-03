@@ -1,0 +1,501 @@
+{ dg-options "-fstropping=supper" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ texts.a68 - the module Texts of a68j: string functions that Algol 68
+  lacks (case, trimming, prefixes and suffixes, splitting, joining,
+  replacing, padding, strings to numbers), written in plain Algol 68.
+
+      access Texts (
+          [] string f = "a, b ,c" SPLIT ",";
+          for i to UPB f do puts (UPPER TRIM f[i] + "'n") od;
+          puts (whole (TOINT " 42 " + 1, 0) + "'n")
+      )
+
+  It is bundled with a68j-backend.jar (like Genie_Transput), so a68j needs
+  nothing else.  It uses no Java, so the same source also compiles with
+  ga68 as an ordinary module:
+
+      ga68 -c texts.a68
+      ga68 -I. prog.a68 texts.o
+
+  What it provides (docs/texts.md has the details):
+
+      UPPER s, LOWER s         s in upper or lower case (also for a char)
+      TRIM s, LTRIM s, RTRIM s s without white space at both ends, at the
+                               start, at the end
+      TOINT s, TOREAL s        the number in s (also for a char); anything
+                               else is a runtime error
+      TOLONGINT s, TOLONGREAL s
+                               the same for long int and long real
+      s STARTS p, s ENDS p     whether s begins or ends with p (priority 5)
+      s SPLIT sep              the fields of s between the separators
+                               (priority 6)
+      s LJUST w, s RJUST w, s CENTRE w
+                               s filled with blanks to the width w
+                               (priority 6)
+      words (s)                the words of s
+      join (parts, sep)        the strings of parts with sep between them
+      replace_all (s, old, new)
+                               s with every old replaced by new
+      string_to_int (s, v), string_to_real (s, v),
+      string_to_long_int (s, v), string_to_long_real (s, v)
+                               true and the number in v, or false
+
+  Every dyadic operator also takes a char as either string operand: an
+  operand is only firm, so a char is not widened to a string there.
+  Letters and white space are ASCII, as in Genie_Transput and Algol 68
+  Genie; other characters are left as they are.  White space is blank,
+  tab, newline, carriage return, form feed and vertical tab.  Every
+  string result has the lower bound 1.
+
+  The module declares none of the identifiers and priorities of
+  Genie_Transput and Lists (the searches char_in_string ..., to_upper,
+  to_lower and the is_ procedures stay in Genie_Transput), so a program
+  can access it together with them. }
+
+module Texts =
+def
+    pub prio STARTS = 5, ENDS = 5, SPLIT = 6, LJUST = 6, RJUST = 6, CENTRE = 6;
+
+    { A misuse of the module ends the program, as a transput error does in
+      Genie_Transput. }
+    proc text_error = (string message) void:
+       begin fputs (stderr, "runtime error: " + message + "'n");
+             posix_exit (1)
+       end;
+
+    proc is_white = (char c) bool:
+       c = " " OR c = "'t" OR c = "'n" OR c = "'r" OR c = "'f" OR c = REPR 11;
+
+    proc digit = (char c) bool: c >= "0" AND c <= "9";
+
+    proc length = (string s) int: UPB s - LWB s + 1;
+
+    { Case. }
+
+    proc up = (char c) char:
+       (c >= "a" AND c <= "z" | REPR (ABS c - ABS "a" + ABS "A") | c);
+    proc down = (char c) char:
+       (c >= "A" AND c <= "Z" | REPR (ABS c - ABS "A" + ABS "a") | c);
+
+    pub op UPPER = (string s) string:
+       begin [UPB s - LWB s + 1] char r;
+             for i to UPB r do r[i] := up (s[LWB s + i - 1]) od;
+             r
+       end;
+    pub op LOWER = (string s) string:
+       begin [UPB s - LWB s + 1] char r;
+             for i to UPB r do r[i] := down (s[LWB s + i - 1]) od;
+             r
+       end;
+    pub op UPPER = (char c) char: up (c);
+    pub op LOWER = (char c) char: down (c);
+
+    { Trimming: s[a:b] has the lower bound 1, also when it is empty. }
+
+    proc trimmed = (string s, bool at_start, at_end) string:
+       begin int a := LWB s, b := UPB s;
+             if at_start then while a <= b andth is_white (s[a]) do a +:= 1 od fi;
+             if at_end then while b >= a andth is_white (s[b]) do b -:= 1 od fi;
+             s[a:b]
+       end;
+
+    pub op TRIM = (string s) string: trimmed (s, true, true);
+    pub op LTRIM = (string s) string: trimmed (s, true, false);
+    pub op RTRIM = (string s) string: trimmed (s, false, true);
+
+    { Prefixes and suffixes. }
+
+    { Whether P occurs in S at the position I (which may be out of S). }
+    proc occurs_at = (string s, int i, string p) bool:
+       begin int n = UPB p - LWB p + 1;
+             if i < LWB s OR i + n - 1 > UPB s then false
+             else bool same := true;
+                  for k from 0 to n - 1 while same
+                  do same := s[i + k] = p[LWB p + k] od;
+                  same
+             fi
+       end;
+
+    proc starts = (string s, p) bool: occurs_at (s, LWB s, p);
+    proc ends = (string s, p) bool:
+       occurs_at (s, UPB s - (UPB p - LWB p), p);
+
+    pub op STARTS = (string s, p) bool: starts (s, p);
+    pub op STARTS = (string s, char p) bool: starts (s, p);
+    pub op STARTS = (char s, string p) bool: starts (s, p);
+    pub op STARTS = (char s, p) bool: starts (s, p);
+    pub op ENDS = (string s, p) bool: ends (s, p);
+    pub op ENDS = (string s, char p) bool: ends (s, p);
+    pub op ENDS = (char s, string p) bool: ends (s, p);
+    pub op ENDS = (char s, p) bool: ends (s, p);
+
+    { Splitting.  A string with n separators has n + 1 fields, so "" has
+      one empty field; the separators are found from left to right and do
+      not overlap. }
+
+    proc split = (string s, sep) [] string:
+       begin int n = UPB sep - LWB sep + 1;
+             if n = 0 then text_error ("SPLIT with an empty separator") fi;
+             int count := 1, i := LWB s;
+             while i <= UPB s - n + 1
+             do if occurs_at (s, i, sep) then count +:= 1; i +:= n else i +:= 1 fi od;
+             [count] string r;
+             int k := 1, start := LWB s;
+             i := LWB s;
+             while i <= UPB s - n + 1
+             do if occurs_at (s, i, sep)
+                then r[k] := s[start : i - 1]; k +:= 1; i +:= n; start := i
+                else i +:= 1
+                fi
+             od;
+             r[k] := s[start : UPB s];
+             r
+       end;
+
+    pub op SPLIT = (string s, sep) [] string: split (s, sep);
+    pub op SPLIT = (string s, char sep) [] string: split (s, sep);
+    pub op SPLIT = (char s, string sep) [] string: split (s, sep);
+    pub op SPLIT = (char s, sep) [] string: split (s, sep);
+
+    { The words of S: the parts between runs of white space. }
+    pub proc words = (string s) [] string:
+       begin int count := 0, i := LWB s;
+             while i <= UPB s
+             do while i <= UPB s andth is_white (s[i]) do i +:= 1 od;
+                if i <= UPB s then count +:= 1 fi;
+                while i <= UPB s andth NOT is_white (s[i]) do i +:= 1 od
+             od;
+             [count] string r;
+             int k := 0;
+             i := LWB s;
+             while i <= UPB s
+             do while i <= UPB s andth is_white (s[i]) do i +:= 1 od;
+                int start = i;
+                while i <= UPB s andth NOT is_white (s[i]) do i +:= 1 od;
+                if i > start then k +:= 1; r[k] := s[start : i - 1] fi
+             od;
+             r
+       end;
+
+    { Joining and replacing. }
+
+    pub proc join = ([] string parts, string sep) string:
+       begin int ns = UPB sep - LWB sep + 1;
+             int total := 0;
+             for k from LWB parts to UPB parts
+             do total +:= UPB parts[k] - LWB parts[k] + 1;
+                (k > LWB parts | total +:= ns)
+             od;
+             [total] char r;
+             int j := 0;
+             for k from LWB parts to UPB parts
+             do if k > LWB parts then r[j + 1 : j + ns] := sep[LWB sep : UPB sep]; j +:= ns fi;
+                string p = parts[k];
+                int np = UPB p - LWB p + 1;
+                r[j + 1 : j + np] := p[LWB p : UPB p];
+                j +:= np
+             od;
+             r
+       end;
+
+    { Every occurrence of OLD in S, from left to right and without
+      overlapping, replaced by NEW. }
+    pub proc replace_all = (string s, old, new) string:
+       begin int no = UPB old - LWB old + 1, nn = UPB new - LWB new + 1;
+             if no = 0 then text_error ("replace_all with an empty string to replace") fi;
+             int count := 0, i := LWB s;
+             while i <= UPB s - no + 1
+             do if occurs_at (s, i, old) then count +:= 1; i +:= no else i +:= 1 fi od;
+             [UPB s - LWB s + 1 + count * (nn - no)] char r;
+             int j := 0;
+             i := LWB s;
+             while i <= UPB s
+             do if occurs_at (s, i, old)
+                then r[j + 1 : j + nn] := new[LWB new : UPB new]; j +:= nn; i +:= no
+                else j +:= 1; r[j] := s[i]; i +:= 1
+                fi
+             od;
+             r
+       end;
+
+    { Padding.  A string longer than the width is returned unchanged (with
+      the lower bound 1); in CENTRE an odd number of blanks puts the extra
+      blank on the right. }
+
+    proc padded = (string s, int w, int blanks_before) string:
+       begin int n = UPB s - LWB s + 1;
+             if w <= n then s[LWB s : UPB s]
+             else [w] char r;
+                  for i to w do r[i] := " " od;
+                  r[blanks_before + 1 : blanks_before + n] := s[LWB s : UPB s];
+                  r
+             fi
+       end;
+
+    pub op LJUST = (string s, int w) string: padded (s, w, 0);
+    pub op RJUST = (string s, int w) string: padded (s, w, w - length (s));
+    pub op CENTRE = (string s, int w) string: padded (s, w, (w - length (s)) % 2);
+    pub op LJUST = (char c, int w) string: padded (c, w, 0);
+    pub op RJUST = (char c, int w) string: padded (c, w, w - 1);
+    pub op CENTRE = (char c, int w) string: padded (c, w, (w - 1) % 2);
+
+    { Strings to numbers.  White space around the number is allowed, and a
+      sign before it.  An int is digits only; a real has digits with an
+      optional point and an optional exponent (e or E, an optional sign,
+      digits), as read of Genie_Transput accepts it: 5, -0.5, .5, 5.,
+      1e10, 2.5E-3. }
+
+    { The int in S, at most MAX and at least -MAX - 1, in V. }
+    proc scan_integer = (string s, long long int max, ref long long int v) bool:
+       begin int a := LWB s, b := UPB s;
+             while a <= b andth is_white (s[a]) do a +:= 1 od;
+             while b >= a andth is_white (s[b]) do b -:= 1 od;
+             bool negative := false;
+             if a <= b andth (s[a] = "+" OR s[a] = "-")
+             then negative := s[a] = "-"; a +:= 1
+             fi;
+             if a > b then false
+             else { The value is built up as a negative number, which can
+                    reach -max - 1. }
+                  long long int min = -max - long long 1;
+                  long long int x := long long 0;
+                  bool ok := true;
+                  for i from a to b while ok
+                  do if NOT digit (s[i]) then ok := false
+                     else long long int d = LENG LENG (ABS s[i] - ABS "0");
+                          { x * 10 - d >= min; % truncates towards zero,
+                            so (min + d) % 10 is rounded up. }
+                          if x < (min + d) % long long 10 then ok := false
+                          else x := x * long long 10 - d
+                          fi
+                     fi
+                  od;
+                  if ok AND NOT negative
+                  then (x < -max | ok := false | x := -x)
+                  fi;
+                  if ok then v := x fi;
+                  ok
+             fi
+       end;
+
+    pub proc string_to_int = (string s, ref int v) bool:
+       begin long long int x;
+             bool ok = scan_integer (s, LENG LENG max_int, x);
+             (ok | v := SHORTEN SHORTEN x);
+             ok
+       end;
+
+    pub proc string_to_long_int = (string s, ref long int v) bool:
+       begin long long int x;
+             bool ok = scan_integer (s, LENG long_max_int, x);
+             (ok | v := SHORTEN x);
+             ok
+       end;
+
+    { Double-double arithmetic for the conversion of a decimal number to a
+      correctly rounded real.  This is the reader of Genie_Transput
+      (genietransput.a68, decimal_to_long_real and its helpers), copied, so
+      that TOREAL and read give the same bits; the two copies must stay
+      the same.  A third module shared by both without pub would work as
+      well, but every program and test that uses Genie_Transput would need
+      it too. }
+
+    mode Dd = struct (long real hi, lo);
+
+    proc two_sum = (long real a, b) Dd:
+       begin long real s = a + b;
+             long real bb = s - a;
+             (s, (a - (s - bb)) + (b - bb))
+       end;
+
+    proc split_dd = (long real a) Dd:
+       begin long real t = long 134217729.0 * a;      { 2 ** 27 + 1 }
+             long real h = t - (t - a);
+             (h, a - h)
+       end;
+
+    proc two_prod = (long real a, b) Dd:
+       begin long real p = a * b;
+             Dd x = split_dd (a), y = split_dd (b);
+             (p, ((hi of x * hi of y - p) + hi of x * lo of y + lo of x * hi of y)
+                 + lo of x * lo of y)
+       end;
+
+    proc dd_mul = (Dd a, b) Dd:
+       begin Dd p = two_prod (hi of a, hi of b);
+             two_sum (hi of p, lo of p + (hi of a * lo of b + lo of a * hi of b))
+       end;
+
+    Dd dd_tenth = begin long real h = long 0.1;
+                        Dd t = two_prod (long 10.0, h);
+                        (h, ((long 1.0 - hi of t) - lo of t) / long 10.0)
+                  end;
+
+    { M * 10 ** E as a long real, M >= 0; it may be infinite. }
+    proc decimal_to_long_real = (long long int m, int e) long real:
+       begin long long int two32 = long long 4294967296;
+             long real a = SHORTEN (m % two32), b = SHORTEN (m %* two32);
+             Dd md = two_sum (a * long 4294967296.0, b);
+             if e >= 0 AND e <= 22 AND m < long long 9007199254740992
+             then long real p := long 1.0;
+                  to e do p := p * long 10.0 od;
+                  hi of md * p
+             elif e < 0 AND e >= -22 AND m < long long 9007199254740992
+             then long real p := long 1.0;
+                  to -e do p := p * long 10.0 od;
+                  hi of md / p
+             else Dd p := (long 1.0, long 0.0);
+                  int k := 0;
+                  Dd f = (e >= 0 | (long 10.0, long 0.0) | dd_tenth);
+                  to ABS e
+                  do p := dd_mul (p, f);
+                     if hi of p >= long 1024.0
+                     then p := (hi of p / long 1024.0, lo of p / long 1024.0); k +:= 10
+                     elif hi of p < long 1.0 / long 1024.0
+                     then p := (hi of p * long 1024.0, lo of p * long 1024.0); k -:= 10
+                     fi
+                  od;
+                  long real r := hi of dd_mul (md, p);
+                  while k >= 10 do r := r * long 1024.0; k -:= 10 od;
+                  while k > 0 do r := r * long 2.0; k -:= 1 od;
+                  while k <= -10 do r := r / long 1024.0; k +:= 10 od;
+                  while k < 0 do r := r / long 2.0; k +:= 1 od;
+                  r
+             fi
+       end;
+
+    { The real in S as a long real in V, correctly rounded, at most
+      long max real in magnitude. }
+    proc scan_real = (string s, ref long real v) bool:
+       begin int a := LWB s, b := UPB s;
+             while a <= b andth is_white (s[a]) do a +:= 1 od;
+             while b >= a andth is_white (s[b]) do b -:= 1 od;
+             bool negative := false;
+             if a <= b andth (s[a] = "+" OR s[a] = "-")
+             then negative := s[a] = "-"; a +:= 1
+             fi;
+             { The significant digits in m, the decimal exponent in e, as in
+               get_real of Genie_Transput. }
+             long long int m := long long 0;
+             long long int m_max = long long 99999999999999999;
+             int digits := 0, e := 0;
+             while a <= b andth digit (s[a])
+             do if m <= m_max
+                then m := m * long long 10 + LENG LENG (ABS s[a] - ABS "0")
+                else e +:= 1
+                fi;
+                digits +:= 1;
+                a +:= 1
+             od;
+             if a <= b andth s[a] = "."
+             then a +:= 1;
+                  while a <= b andth digit (s[a])
+                  do if m <= m_max
+                     then m := m * long long 10 + LENG LENG (ABS s[a] - ABS "0");
+                          e -:= 1
+                     fi;
+                     digits +:= 1;
+                     a +:= 1
+                  od
+             fi;
+             bool ok := digits > 0;
+             if ok andth (a <= b andth (s[a] = "e" OR s[a] = "E"))
+             then a +:= 1;
+                  bool negative_exponent := false;
+                  if a <= b andth (s[a] = "+" OR s[a] = "-")
+                  then negative_exponent := s[a] = "-"; a +:= 1
+                  fi;
+                  if a > b orel NOT digit (s[a]) then ok := false
+                  else int x := 0;
+                       while a <= b andth digit (s[a])
+                       do (x < 100000 | x := x * 10 + ABS s[a] - ABS "0");
+                          a +:= 1
+                       od;
+                       e +:= (negative_exponent | -x | x)
+                  fi
+             fi;
+             { The whole string must be the number. }
+             ok := ok AND a > b;
+             if ok AND m /= long long 0 AND e > 400 then ok := false fi;
+             if ok
+             then long real r = (m = long long 0 OR e < -400 | long 0.0
+                                 | decimal_to_long_real (m, e));
+                  if r > long_max_real then ok := false
+                  else v := (negative | -r | r)
+                  fi
+             fi;
+             ok
+       end;
+
+    { A real is read as a long real and shortened, as get of
+      Genie_Transput reads it. }
+    pub proc string_to_real = (string s, ref real v) bool:
+       begin long real x;
+             bool ok = scan_real (s, x) andth ABS x <= LENG max_real;
+             (ok | v := SHORTEN x);
+             ok
+       end;
+
+    pub proc string_to_long_real = (string s, ref long real v) bool:
+       scan_real (s, v);
+
+    proc not_a_number = (string what, s, mode_name) void:
+       text_error (what + " of """ + s + """, which is not " + mode_name);
+
+    pub op TOINT = (string s) int:
+       begin int v := 0;
+             (NOT string_to_int (s, v) | not_a_number ("TOINT", s, "an int"));
+             v
+       end;
+    pub op TOINT = (char c) int:
+       begin int v := 0;
+             (NOT string_to_int (c, v) | not_a_number ("TOINT", c, "an int"));
+             v
+       end;
+    pub op TOREAL = (string s) real:
+       begin real v := 0.0;
+             (NOT string_to_real (s, v) | not_a_number ("TOREAL", s, "a real"));
+             v
+       end;
+    pub op TOREAL = (char c) real:
+       begin real v := 0.0;
+             (NOT string_to_real (c, v) | not_a_number ("TOREAL", c, "a real"));
+             v
+       end;
+    pub op TOLONGINT = (string s) long int:
+       begin long int v := long 0;
+             (NOT string_to_long_int (s, v) | not_a_number ("TOLONGINT", s, "a long int"));
+             v
+       end;
+    pub op TOLONGINT = (char c) long int:
+       begin long int v := long 0;
+             (NOT string_to_long_int (c, v) | not_a_number ("TOLONGINT", c, "a long int"));
+             v
+       end;
+    pub op TOLONGREAL = (string s) long real:
+       begin long real v := long 0.0;
+             (NOT string_to_long_real (s, v) | not_a_number ("TOLONGREAL", s, "a long real"));
+             v
+       end;
+    pub op TOLONGREAL = (char c) long real:
+       begin long real v := long 0.0;
+             (NOT string_to_long_real (c, v) | not_a_number ("TOLONGREAL", c, "a long real"));
+             v
+       end;
+
+    skip
+fed

@@ -77,7 +77,9 @@ It is rare and a matter of polish.
 Modules in the style of `Lists` and `Hashmaps`, where a Java API fills a
 gap in the Algol 68 library (the prelude of the Revised Report and its
 transput). They are ordered by how much they would help in everyday
-programs, in my estimate.
+programs, in my estimate. B1 is the exception to "Java": its string
+functions are planned in plain Algol 68, and only its regular
+expressions use Java.
 
 Two rules from java-modules.md apply to all of them:
 
@@ -88,36 +90,124 @@ Two rules from java-modules.md apply to all of them:
   `access pub Lists` instead (java-modules.md, "`Lists` and `Hashmaps`
   together").
 
-### B1. `Texts`: regular expressions and string functions
+### B1. `Texts` and `Regex`: string functions and regular expressions
+
+**Status (3 Nov 2026): implemented** as planned below, see
+[texts.md](texts.md) and [regex.md](regex.md); the differences from
+this plan are noted where they occur.
 
 **The gap.** Algol 68 has strings as `flex [] char`, slices and
 `char in string`, but no regular expressions, no split, no replace, no
-case conversion, no trimming and no formatting into a string. Every small
-program that parses input or searches text builds these by hand. This is,
-in my estimate, the most painful gap.
+case conversion of strings, no trimming, no padding and no conversion of
+a string to a number. Every small program that parses input or formats
+text builds these by hand.
 
-**The Java side.** `java.util.regex.Pattern` and `Matcher`, and the
-methods of `String` (`split`, `replace`, `replaceAll`, `strip`,
-`toUpperCase`, `toLowerCase`, `formatted`, `repeat`).
+**Measured.** In the 1328 Algol 68 Genie solutions of Rosetta Code
+(`tests/rosetta/orig`), at least 98 programs declare such helpers
+themselves (found by the names of their `PROC` and `OP` declarations,
+each match checked by hand, so this is a lower bound); 29 of them belong
+to tasks about text, the others need the helpers on the side. By kind:
+number to string 29, padding and centring 31, upper and lower case 14,
+string to number 11, trimming 10, splitting 10, prefix, suffix and index
+9, replace 3, join 3. A further 31 programs use `associate` on a string
+only, to format or parse with the transput, and 9 use the regular
+expressions of Algol 68 Genie (`grep in string`, `sub in string`). For
+comparison, only 9 programs use the file system (B2), all of them in
+tasks about the file system.
 
-**How it fits.**
+**The plan in short.** Two modules, so that the string functions stay
+portable:
 
-- Plain string functions need no objects: `proc (string) string upper`,
-  `proc (string, string, string) string replace_all` and so on are direct
-  `nest Java` holes on `String` methods.
-- `Pattern` and `Matcher` are opaque objects. `find`, `matches`, `group`,
-  `start` and `end` give `bool`, `string` and `int`. Algol 68 indexes from
-  1, Java from 0, so `start` and `end` should be shifted to Algol 68
-  positions.
-- `split` could return a `Stringlist` from `Lists` (with
-  `access pub Lists`) or a `flex [] string`.
-- A replace with a procedure (`Matcher.replaceAll(Function)`) works with
-  the functional interfaces of section 1a: `proc (Match) string`.
+- `Texts`, in plain Algol 68 like `Genie_Transput`: bundled with a68j,
+  and it compiles with ga68 as well. Characters are classified in ASCII,
+  as in `Genie_Transput` and Algol 68 Genie. With ASCII, a Java version
+  would add nothing but speed, so there is no Java in it.
+- `Regex`, backed by `java.util.regex`, with the procedures of Algol 68
+  Genie under their names. It needs Java, so it runs with a68j only.
 
-**Prerequisite.** Several of these methods are overloaded with
-`CharSequence` and `Iterable` parameters. Since A1 is done, a hole that
-does not choose one of them is a compile-time error, so the module needs
-modes that fit one overload, or a small Java helper class.
+#### `Texts`
+
+The interface follows the standard prelude: monadic operators for what
+transforms one value (as `ABS`, `REPR`, `ENTIER`), dyadic operators where
+an expression with two operands reads naturally, and procedures for three
+or more parameters, an output parameter, or a row as the main argument.
+The Rosetta authors do the same; most of their helpers are operators
+(`OP TOUPPER`, `OP TRIM`, `OP PAD`, `OP TOINT`).
+
+| Name | Meaning |
+|---|---|
+| `UPPER s`, `LOWER s` | the string (or `char`) in upper or lower case, ASCII letters only |
+| `TRIM s`, `LTRIM s`, `RTRIM s` | without white space (blank, tab, newline, CR, FF, VT) at both ends, at the start, at the end |
+| `TOINT s`, `TOREAL s` | the number in `s` (white space around it allowed); anything else is a runtime error (added: `TOLONGINT`, `TOLONGREAL` and `string_to_long_int`, `string_to_long_real`, as `real` has single precision; texts.md) |
+| `s STARTS p`, `s ENDS p` | whether `s` begins or ends with `p` (priority 5, as `<`) |
+| `s SPLIT sep` | the fields of `s` between the separators, as `[] string`; `sep` is taken literally, empty fields are kept (`"a,,b"` gives three fields); priority 6, as `+` |
+| `s LJUST w`, `s RJUST w`, `s CENTRE w` | `s` filled with blanks to the width `w`, left-aligned, right-aligned or centred; a longer `s` is returned unchanged; priority 6 |
+| `words (s)` | the words of `s`, separated by runs of white space, without empty fields |
+| `join (parts, sep)` | the strings of `parts` with `sep` between them |
+| `replace_all (s, old, new)` | `s` with every occurrence of `old` replaced by `new`, literally |
+| `string_to_int (s, ref int v)`, `string_to_real (s, ref real v)` | `true` and the value in `v` if `s` is a number, else `false` and `v` unchanged (the pattern of `char in string`) |
+
+Rules for the design:
+
+- **`char` as well as `string`.** An operand of an operator is only firm,
+  so `","` is not widened to a `string` there. Every dyadic operator
+  also exists with a `char` operand, as in `Hashmaps`.
+- **Positions** are Algol 68 indices, relative to `LWB s`.
+- **No clash with `Genie_Transput`.** A program often accesses both, and
+  two modules that export the same identifier cannot be accessed
+  together (`multiple declaration of identifier`, checked with a68j). So
+  `Texts` does not declare the searches again (`char_in_string`,
+  `string_in_string`, `last_char_in_string`) nor `to_upper`, `to_lower`
+  and the `is_` procedures; they stay in `Genie_Transput`. Neither module
+  declares a priority the other one declares, and `Texts` declares none
+  of `AT`, `INDEX`, `HAS` and `REMOVE` of `Lists`.
+- **`TOREAL` and `string_to_real`** should read the same bits as `read`
+  of `Genie_Transput` (correctly rounded, see genie-transput.md). Whether
+  the reader can be shared through a third module that both access
+  without `pub`, instead of a copy, is to be checked. (Done: it can, but
+  every user of `Genie_Transput` with ga68 would then need that module
+  too, so `Texts` has a copy; texts.md.)
+
+#### `Regex`
+
+The procedures of Algol 68 Genie, with the same modes and results
+(checked with Algol 68 Genie 3.1.2):
+
+| Name | Meaning |
+|---|---|
+| `grep_in_string (pattern, s, ref int start, ref int end) int` | 0 if `pattern` matches in `s`, with the first and last position of the match (relative to `LWB s`); 1 if not, with `start` and `end` unchanged; 2 if the pattern is invalid. `start` and `end` may be `nil` |
+| `grep_in_substring (pattern, s, ref int start, ref int end) int` | the same, but `^` does not match at the start of `s` (`$` does match at its end) |
+| `sub_in_string (pattern, replacement, ref string s) int` | replaces the first match in `s` by `replacement`, taken literally (no `\1`, `$0` or `&`); 0, 1 or 2 as above |
+
+Where it differs from Algol 68 Genie, and must be documented:
+
+- **Which match.** Algol 68 Genie uses POSIX regular expressions, which
+  take the leftmost longest match; Java takes the leftmost match of the
+  first alternative that fits. `a|ab` in `xabc` gives positions 2 to 3 in
+  Algol 68 Genie and 2 to 2 in Java (both measured).
+- **POSIX classes.** Java does not know `[[:alpha:]]` and does not reject
+  it either: on `ab:c` the pattern `[[:alpha:]]+` finds `a` in Java
+  (measured), not `ab`. The module translates the twelve POSIX classes
+  into their Java equivalents (`\p{Alpha}` ...) before compiling the
+  pattern. Equivalence classes and collating elements (`[[=a=]]`,
+  `[[.x.]]`) give 2. (Done differently: those of one character are taken
+  as the character, as Algol 68 Genie accepts them; regex.md.)
+- **Java syntax.** Patterns that only Java accepts (lazy quantifiers,
+  `\d`, look-ahead) work instead of giving 2.
+
+Inside, a small Java class (as for `Lists`, java-modules.md section 5)
+compiles and caches the patterns, maps between Algol 68 positions (code
+points) and Java positions (UTF-16 units, which differ beyond U+FFFF),
+emulates the `^` of `grep_in_substring` (a matcher without anchoring
+bounds on a region that does not start at 0), and uses
+`Matcher.quoteReplacement`. (Done differently: `^` becomes a
+look-behind, and the replacement is built in Algol 68, so
+`quoteReplacement` is not needed; regex.md, "Inside".) More than the procedures of Algol 68 Genie
+(replace all, all matches, groups) can follow later as a second step.
+
+The direct gain in Rosetta Code is small: most of the 9 programs that
+use these procedures also need something else that ga68 lacks, such as
+HTTP or a format.
 
 ### B2. `Files`: files and directories
 

@@ -1,0 +1,85 @@
+[a+] on [caab]: 0 2 3
+[a\{2\}] on [caab]: 1 -9 -9
+[a{2}] on [caab]: 0 2 3
+[(a)b] on [cab]: 0 2 3
+[a|b] on [cb]: 0 2 2
+[x*] on [abc]: 0 1 0
+[b*] on [abc]: 0 1 0
+[] on [abc]: 0 1 0
+[$] on [abc]: 0 4 3
+[^] on [abc]: 0 1 0
+[[]a]] on [x]]: 0 2 2
+[[\d]] on [\]: 0 1 1
+[[\d]] on [d]: 0 1 1
+[\d] on [5]: 0 1 1
+[\w+] on [  ab_1 ]: 0 3 6
+[\s] on [a b]: 0 2 2
+[\bb] on [a b]: 0 3 3
+[\<b] on [a b]: 0 3 3
+[^b] on [a
+b]: 0 3 3
+[a.b] on [a
+b]: 1 -9 -9
+[a$] on [a
+b]: 0 1 1
+[A] on [a]: 1 -9 -9
+[a{,2}] on [aaa]: 0 1 2
+[(] on [a]: 2 -9 -9
+[a**] on [aa]: 2 -9 -9
+[a{2,1}] on [a]: 2 -9 -9
+[[[:alpha:]]+] on [1ab:c]: 0 2 3
+[[[:upper:][:digit:]]+] on [xA1b]: 0 2 3
+[[[=a=]]] on [a]: 0 1 1
+[[[.a.]]] on [a]: 0 1 1
+[[[:foo:]]] on [a]: 2 -9 -9
+[\(a\)] on [(a)]: 0 1 3
+[a\|b] on [b]: 1 -9 -9
+[\.] on [a.b]: 0 2 2
+[[a-]] on [-]: 0 1 1
+[a?] on [b]: 0 1 0
+[(a|ab)(c|bcd)] on [abcd]: 0 1 4
+[\1] on [a]: 2 -9 -9
+[(a)\1] on [aa]: 0 1 2
+sub [b+] [X] on [abbcb]: 0 [aXcb] 1
+sub [x*] [Z] on [abc]: 0 [Zabc] 1
+sub [$] [Z] on [abc]: 0 [abcZ] 1
+sub [q] [Z] on [abc]: 1 [abc] 1
+sub [(] [Z] on [abc]: 2 [abc] 1
+sub [b] [] on [abc]: 0 [ac] 1
+sub [] [Z] on []: 0 [Z] 1
+0 aXYc 1 4
+sub-grep [^a] on [abc]: 1 -9 -9
+sub-grep [^b] on [a
+b]: 0 3 3
+sub-grep [c$] on [abc]: 0 3 3
+sub-grep [\<a] on [abc]: 0 1 1
+sub-grep [\ba] on [abc]: 0 1 1
+sub-grep [^] on [abc]: 1 -9 -9
+sub-grep [x*] on [abc]: 0 1 0
+         +0         +4         +4
+         +0
+[a|ab] on [xabc]: 0 2 2
+[[^a]] on [a
+b]: 0 3 3
+[a\>] on [ab a]: 0 4 4
+[[a] on [a]: 2 -9 -9
+[a\] on [a]: 2 -9 -9
+[[[=ab=]]] on [a]: 2 -9 -9
+[[[.-.]]] on [-]: 0 1 1
+[[]]] on []]: 0 1 1
+[[^]]] on []a]: 0 2 2
+[[\]] on [\]: 0 1 1
+[[a&&b]] on [&]: 0 1 1
+[[[]] on [[]: 0 1 1
+[x{,1}y] on [xy]: 0 1 2
+[[[:space:]]+] on [a 	b]: 0 2 3
+[[[:punct:]]] on [a,b]: 0 2 2
+[[[:xdigit:]]+] on [xFf9g]: 0 2 4
+[(a)(b)\2] on [abb]: 0 1 3
+[a.c] on [abc]: 0 1 3
+[^$] on []: 0 1 0
+[b$] on [ab
+]: 0 2 2
+[(ab|a)c] on [abc]: 0 1 3
+       +200
+exit 0

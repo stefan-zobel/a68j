@@ -842,8 +842,11 @@ that access them (`-I tests/java/lib`).
 | `hashmaps-both` | `access Lists, Hashmaps`: the message as in ga68 |
 | `hashmaps-error` | a missing key with `ELEM`, with the position in the program |
 | `hashmaps-speed` | 1 000 000 keys |
+| `texts-hashmaps` | `Hashmaps`, `Genie_Transput` and `Texts` in one access clause ([texts.md](texts.md)) |
+| `regex-a68g` | the module `Regex` on 74 patterns, compared with Algol 68 Genie ([regex.md](regex.md)) |
+| `regex-unicode` | `Regex` with characters beyond U+FFFF, bounds and `nil` positions |
 
-Result on 1 Nov 2026: 44 of 44 with JDK 25 and JDK 28 ea+21.
+Result on 3 Nov 2026: 49 of 49 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 

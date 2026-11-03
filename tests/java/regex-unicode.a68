@@ -1,0 +1,20 @@
+{ The module Regex with characters beyond U+FFFF (two UTF-16 units in
+  Java, one character in Algol 68): positions count characters.  Also a
+  string whose lower bound is negative, nil positions, and "^" after a
+  newline in grep_in_substring. }
+access Regex (
+    proc show = (int r, a, e) void: puts (whole (r, 0) + " " + whole (a, 0) + " " + whole (e, 0) + "'n");
+    string s = "a" + REPR 128512 + "b" + REPR 128513;
+    int a := -9, e := -9;
+    show (grep_in_string ("b", s, a, e), a, e);
+    show (grep_in_string (REPR 128512 + "b", s, a, e), a, e);
+    show (grep_in_string ("[" + REPR 128513 + "]", s, a, e), a, e);
+    show (grep_in_string (".$", s, a, e), a, e);
+    show (grep_in_string ("[^a]+", s, a, e), a, e);
+    string t := s;
+    int r = sub_in_string (REPR 128512, "<>", t);
+    puts (whole (r, 0) + " " + whole (UPB t, 0) + " " + (t[2:3] = "<>" | "T" | "F") + "'n");
+    show (grep_in_string ("b", "xyb"[@-3], a, e), a, e);
+    show (grep_in_string ("b", "abc", nil, nil), a, e);
+    show (grep_in_substring ("^a", "a" + REPR 10 + "a", a, e), a, e)
+)

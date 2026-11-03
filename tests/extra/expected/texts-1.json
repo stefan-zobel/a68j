@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "texts-1.a68",
+ "stderr": "",
+ "stdout": "case: [HELLO, WORLD 9!][hello, world 9!][][A,B,C]Qq11\ntrim: [a b][a b  ][  a b][][][v]1\nstarts/ends: TTFTTFTFFTF TTFTTTFT TTF\nsplit: 3:[a][][b]\n1:[]\n2:[][]\n1:[abc]\n3:[a][b][-c]\n3:[a][b][c]\n1:[x]\n2:[][]\n2:[][a]\nwords: 4:[the][quick][brown][fox]\n0:\n0:\n1:[one]\njoin: [a, b, c][ac][][aBc][x][pp+-qq]\nreplace: [a::b::c][bb][abc][][][abc][aaaaaa]\npad: [ab   ][   ab][ ab  ][  ab  ][abc][abc][abc][   ][x  ][  x][ x  ][  a,b,c][ab  |]\nint: 42 -17 0 7 8 7 -12\nT 0 T 0 T -1 F5 FF5\nF3F3F3F3F3F3F3F3F3\nreal: 2.500000 -.500000 .250000 5.000000 1000.000000 .010000 37.500000 1.000000 .000000 .000000 8.000000 TTTTTTF7.000000\nF7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 F7.000000 \nlong: -123456789012345 9 TTTTTTFFT FT TTTTTTTFTF\n"
+}

@@ -1,0 +1,140 @@
+{ dg-modules "texts" }
+{ The bundled module Texts (backend/lib/texts.a68): every operator and
+  procedure, with empty strings, strings whose lower bound is not 1, char
+  operands, and the limits of int and long int.  ga68 compiles the module from
+  backend/lib (tools/modtest.py), a68j has it built into the jar. }
+access Texts (
+    proc show = (string s) void: puts ("[" + s + "]");
+    proc b = (bool x) string: (x | "T" | "F");
+    proc row = ([] string r) void:
+       begin puts (whole (UPB r - LWB r + 1, 0) + ":");
+             for i from LWB r to UPB r do show (r[i]) od;
+             puts ("'n")
+       end;
+    { A string with the bounds 5 to 9. }
+    string odd = "a,b,c"[@5];
+    string blank = "";
+
+    puts ("case: "); show (UPPER "Hello, World 9!"); show (LOWER "Hello, World 9!");
+    show (UPPER blank); show (UPPER odd);
+    puts (UPPER "q"); puts (LOWER "Q"); puts (UPPER "1");
+    puts (whole (LWB UPPER odd, 0) + "'n");
+
+    puts ("trim: "); show (TRIM "  a b 't'n"); show (LTRIM "  a b  "); show (RTRIM "  a b  ");
+    show (TRIM "   "); show (TRIM blank); show (TRIM (REPR 11 + "v" + "'r'f"));
+    puts (whole (LWB TRIM "  x"[@3], 0) + "'n");
+
+    puts ("starts/ends: ");
+    puts (b ("abc" STARTS "ab") + b ("abc" STARTS "abc") + b ("abc" STARTS "abcd")
+          + b ("abc" STARTS "") + b ("" STARTS "") + b ("" STARTS "a"));
+    puts (b ("abc" STARTS "a") + b ("abc" STARTS "b") + b ("a" STARTS "ab")
+          + b ("a" STARTS "a") + b ("a" STARTS "b"));
+    puts (" ");
+    puts (b ("abc" ENDS "bc") + b ("abc" ENDS "abc") + b ("abc" ENDS "xabc")
+          + b ("abc" ENDS "") + b ("" ENDS "") + b ("abc" ENDS "c") + b ("c" ENDS "bc")
+          + b ("c" ENDS "c"));
+    puts (" " + b (odd STARTS "a,") + b (odd ENDS ",c") + b ("xa,b"[@0] STARTS odd[5:6]));
+    puts ("'n");
+
+    puts ("split: ");
+    row ("a,,b" SPLIT ","); row ("" SPLIT ","); row ("," SPLIT ",");
+    row ("abc" SPLIT ","); row ("a--b---c" SPLIT "--"); row (odd SPLIT ",");
+    row ("x" SPLIT ","); row ("x" SPLIT "x"); row ("aaa" SPLIT "aa");
+    puts ("words: ");
+    row (words ("  the quick'tbrown  fox'n")); row (words ("")); row (words (" 't "));
+    row (words ("one"));
+
+    puts ("join: ");
+    show (join (("a", "b", "c"), ", ")); show (join (("a", "", "c"), "")); show (join ((), "-"));
+    show (join ("abc" SPLIT "b", "B")); show (join (("x"), "-"));
+    show (join ([] string ("pp"[@3], "qq"[@7])[@4], "+-"[@2]));
+    puts ("'n");
+
+    puts ("replace: ");
+    show (replace_all ("a.b.c", ".", "::")); show (replace_all ("aaaa", "aa", "b"));
+    show (replace_all ("abc", "x", "y")); show (replace_all ("", "x", "y"));
+    show (replace_all ("abcabc", "abc", "")); show (replace_all (odd, ",", ""));
+    show (replace_all ("aaa", "a", "aa"));
+    puts ("'n");
+
+    puts ("pad: ");
+    show ("ab" LJUST 5); show ("ab" RJUST 5); show ("ab" CENTRE 5); show ("ab" CENTRE 6);
+    show ("abc" LJUST 2); show ("abc" RJUST 0); show ("abc" CENTRE -1); show ("" CENTRE 3);
+    show ("x" LJUST 3); show ("x" RJUST 3); show ("x" CENTRE 4); show (odd RJUST 7);
+    show ("a" + "b" LJUST 4 + "|");
+    puts ("'n");
+
+    puts ("int: ");
+    for i to 5
+    do string s = case i in "42", " -17 ", "+0", "007", "'t8'n" esac;
+       puts (whole (TOINT s, 0) + " ")
+    od;
+    puts (whole (TOINT "7", 0) + " " + whole (TOINT "-12"[@3], 0) + "'n");
+    { The limits of int and the strings just beyond them. }
+    string max = whole (max_int, 0), min = "-" + whole (max_int, 0);
+    int v := -1;
+    puts (b (string_to_int (max, v)) + " " + whole (v - max_int, 0) + " ");
+    puts (b (string_to_int (min, v)) + " " + whole (v + max_int, 0) + " ");
+    { -max int - 1: the last digit of max int, plus one. }
+    string min1 = min[: UPB min - 1] + REPR (ABS min[UPB min] + 1);
+    puts (b (string_to_int (min1, v)) + " " + whole (v + max_int, 0) + " ");
+    string max1 = max[: UPB max - 1] + REPR (ABS max[UPB max] + 1);
+    v := 5;
+    puts (b (string_to_int (max1, v)) + whole (v, 0) + " ");
+    puts (b (string_to_int (max + "0", v)) + b (string_to_int (min + "0", v)) + whole (v, 0) + "'n");
+    for i to 9
+    do string s = case i in "", " ", "-", "+ 1", "1 2", "12x", "0x1F", "1.0", "--1" esac;
+       v := 3;
+       puts (b (string_to_int (s, v)) + whole (v, 0))
+    od;
+    puts ("'n");
+
+    puts ("real: ");
+    proc r = (real x) string: fixed (x, 0, 6);
+    for i to 10
+    do string s = case i in "2.5", " -0.5 ", ".25", "5.", "1e3", "1E-2", "+3.75e+1",
+                             "0.000000000000000000001e21", "0", "-0.0" esac;
+       puts (r (TOREAL s) + " ")
+    od;
+    { Large and small values are compared rather than printed.  real has
+      single precision in ga68 and a68j (max real is about 3.4e38), long
+      real double precision, and fixed of libga68 loses digits of a large
+      real and does not end for 1e10 and above (docs/ga68-bug-reports.md,
+      3 and 4). }
+    real y := 7.0;
+    puts (r (TOREAL "8") + " " + b (TOREAL "0.1" = 0.1) + b (TOREAL "1234567.125" = 1234567.125)
+          + b (TOREAL "123456789012345678901234567890" = 1.2345678901234568e29)
+          + b (TOREAL "1e-30" > 0.0) + b (TOREAL "1e-400" = 0.0)
+          + b (TOREAL "3.4028234e38" = max_real) + b (string_to_real ("3.5e38", y))
+          + r (y) + "'n");
+    real x := 7.0;
+    for i to 12
+    do string s = case i in "", ".", "e5", "1e", "1e+", "1.2.3", "1x", "- 1", "1e400",
+                             "1e309", "inf", "1 e5" esac;
+       x := 7.0;
+       puts (b (string_to_real (s, x)) + r (x) + " ")
+    od;
+    puts ("'n");
+
+    puts ("long: ");
+    puts (whole (TOLONGINT " -123456789012345 ", 0) + " " + whole (TOLONGINT "9", 0) + " ");
+    string lmax = whole (long_max_int, 0), lmin = "-" + whole (long_max_int, 0);
+    long int w := long 5;
+    puts (b (string_to_long_int (lmax, w)) + b (w = long_max_int)
+          + b (string_to_long_int (lmin, w)) + b (w = -long_max_int));
+    string lmin1 = lmin[: UPB lmin - 1] + REPR (ABS lmin[UPB lmin] + 1),
+           lmax1 = lmax[: UPB lmax - 1] + REPR (ABS lmax[UPB lmax] + 1);
+    puts (b (string_to_long_int (lmin1, w)) + b (w = -long_max_int - long 1));
+    w := long 5;
+    puts (b (string_to_long_int (lmax1, w)) + b (string_to_long_int ("1x", w))
+          + b (w = long 5) + " ");
+    { An int that is too large for int is a long int. }
+    puts (b (string_to_int ("3000000000", v)) + b (string_to_long_int ("3000000000", w)) + " ");
+    long real lx := long 7.0;
+    puts (b (TOLONGREAL "0.1" = long 0.1) + b (TOLONGREAL "-2.5e-3" = -long 2.5e-3)
+          + b (TOLONGREAL "1.7976931348623157e308" = long_max_real)
+          + b (TOLONGREAL "4.9e-324" > long 0.0) + b (TOLONGREAL "2e-324" = long 0.0)
+          + b (TOLONGREAL "3.5e38" = long 3.5e38) + b (TOLONGREAL "5" = long 5.0)
+          + b (string_to_long_real ("1.8e308", lx)) + b (lx = long 7.0)
+          + b (string_to_long_real ("1e", lx)) + "'n")
+)

@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 1,
+ "file": "texts-error-1.a68",
+ "stderr": "runtime error: TOINT of \"12x\", which is not an int\n",
+ "stdout": "12\n"
+}

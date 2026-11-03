@@ -187,6 +187,14 @@ With a 24-bit significand this goes wrong in two ways:
 - **The scaling is inexact.** `16000000.0 / 10.0 ** 8` is a little below
   0.16, so every digit after the first comes out as 9.
 
+The scaling also spoils the digits after the point: `fixed (1234567.125,
+0, 6)` gives `1234567.046165` instead of `1234567.125000`, although
+1234567.125 is exact in a 32-bit `real` too. Redoing `subfixed` step by
+step in 32-bit arithmetic (numpy `float32`) gives the same digits:
+`1234567.125 / 10.0 ** 7` is 0.12345670908..., not 0.1234567125, and
+after the seven digits before the point only the error is left. With
+`long real` the same call gives `1234567.125000`.
+
 Fix: convert in `long real` for `real` arguments, or, in general, use a
 correctly rounded binary-to-decimal conversion (such as the C library's
 `snprintf` with `%.*f`/`%.*e` and a precision large enough for the
