@@ -17,14 +17,3 @@ To find out: measure the performance tests and the Rosetta programs with
 `A68J_COMPACT_ACCESS=every` against the default, alternately
 (`tools/perf_ab.py`), and compare the machine code of C2 for a few hot
 loops. Only if there is no measurable loss would the default change.
-
-## An executable jar for a program
-
-`-d libX.jar` adds a module to a library jar, and the same option with a
-program only adds its class to the jar. For a program, the compiler could
-also write the manifest of an executable jar: `Main-Class` the class of the
-program and `Class-Path` `a68j-runtime.jar` and the library jars it uses,
-so that `java -jar prog.jar` runs it with the runtime jar next to it.
-No new option would be needed: whether the jar becomes executable follows
-from whether the source is a program or a module. Open: relative paths in
-`Class-Path`, and a jar that holds a program and modules.

@@ -618,6 +618,26 @@ public final class Gen {
         }
     }
 
+    /**
+     * The version of a68j of this compiler: the Implementation-Version of
+     * the jar it was loaded from (build.sh writes the file VERSION there),
+     * or null if it was not loaded from such a jar (as when build.sh
+     * compiles the standard prelude and the bundled modules).
+     */
+    public static final String VERSION = Gen.class.getPackage().getImplementationVersion();
+
+    /**
+     * Emit the call of Rt#checkVersion for the class CLASSNAME, if this
+     * compiler has a version.
+     */
+    private static void checkVersion(CodeBuilder code, String className) {
+        if (VERSION != null) {
+            Gen.constant(code, VERSION);
+            Gen.constant(code, className);
+            code.invokestatic(CD_RT, "checkVersion", MethodTypeDesc.of(CD_void, CD_String, CD_String));
+        }
+    }
+
     /** Compile the program (or module); returns the class file. */
     public byte[] compile() {
         Node top = a68.job.topNode;
@@ -673,6 +693,7 @@ public final class Gen {
                     : thisClass.packageName() + "." + thisClass.displayName();
             clb.withMethodBody("main", MethodTypeDesc.of(CD_void, CD_String.arrayType()),
                     ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
+                        checkVersion(code, mainName);
                         Gen.constant(code, mainName);
                         code.aload(0);
                         code.invokestatic(CD_RT, "setProgramArgs",
@@ -851,6 +872,8 @@ public final class Gen {
                     code.lconst_1();
                     code.lcmp();
                     code.ifne(skip);
+                    checkVersion(code, thisClass.packageName().isEmpty() ? thisClass.displayName()
+                            : thisClass.packageName() + "." + thisClass.displayName());
                     if (revelation != null) {
                         GenClauses.revelationLudes(this, revelation, true);
                     }

@@ -6,5 +6,9 @@ set -e
 cd "$(dirname "$0")"
 rm -rf out && mkdir -p out
 "${JAVAC:-javac}" --release 21 -Xlint:all -d out $(find src/main/java -name '*.java')
-"${JAR:-jar}" --create --file a68j.jar --main-class a68j.tools.TokenDump -C out .
+# The version of a68j (the file VERSION) as the Implementation-Version of the jar.
+V=$(tr -d ' \r\n' < VERSION)
+printf 'Implementation-Title: a68j\nImplementation-Version: %s\n' "$V" > out.mf
+"${JAR:-jar}" --create --file a68j.jar --manifest out.mf --main-class a68j.tools.TokenDump -C out .
+rm -f out.mf
 echo "built a68j.jar"

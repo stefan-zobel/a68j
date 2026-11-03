@@ -23,10 +23,12 @@ import java.util.List;
  * {@code .jar} the class and the export data are added to that library jar
  * (the analogue of {@code libX.so}; a program accessing a module of
  * {@code X} finds {@code libX.jar} in the -I/-L directories, and needs it on
- * the class path, which -run does by itself).
+ * the class path, which -run does by itself); a program compiled into a jar
+ * makes it an executable jar ({@link #programManifest}).
  *
  * <p>Options as ga68: -fstropping=upper|supper, -std=algol68|gnu68,
- * -fbrackets, -I DIR, -L DIR, -fmodules-map=..., -fmodules-map-file=FILE.
+ * -fbrackets, -I DIR, -L DIR, -fmodules-map=..., -fmodules-map-file=FILE,
+ * --version.
  * a68j only: -run (compile and run, the rest of the arguments go to the
  * program), -fclass=NAME, -d DIR|JAR, -fpar-threads (the units of a
  * parallel clause run in threads and the SEMA operators are available, see
@@ -174,6 +176,11 @@ public final class Compile {
                 case "-I" -> a68.includePaths.add(args[++i]);
                 case "-L" -> libDirs.add(args[++i]);
                 case "-run" -> run = true;
+                case "--version" -> {
+                    System.out.println(Gen.VERSION != null ? "a68j " + Gen.VERSION
+                            : "a68j (no version: not loaded from a jar built by build.sh)");
+                    return;
+                }
                 case "-fbuilding-libga68" -> a68.options().buildingLibga68 = true;
                 default -> {
                     if (arg.startsWith("-fmodules-map=")) {
@@ -266,6 +273,10 @@ public final class Compile {
                 if (exports.length > 0) {
                     entries.put(a68j.front.Imports.LIBRARY_JAR_EXPORTS + base + ".m68", exports);
                 }
+                if (moduleId == null) {
+                    // A program: the jar becomes executable.
+                    entries.put("META-INF/MANIFEST.MF", programManifest(name, outDir, jars));
+                }
                 updateJar(outDir, entries);
                 return;
             }
@@ -318,9 +329,55 @@ public final class Compile {
     }
 
     /**
+     * The manifest of the jar JAR into which the program of class NAME is
+     * compiled (-d prog.jar): an executable jar, run with
+     * {@code java -jar prog.jar}. Main-Class is the program; Class-Path names
+     * the runtime jar and the jars among JARS (the library jars of the
+     * modules, see {@link #runJars}, and the jars of -fjava-classpath) by
+     * their file names, so that they are found next to JAR. The runtime jar
+     * is named both as a release copy of this version
+     * ({@code a68j-runtime-<version>.jar}) and as build.sh names it
+     * ({@code a68j-runtime.jar}); the JVM skips the entries it does not
+     * find. Directories of JARS are not named.
+     */
+    private static byte[] programManifest(String name, Path jar, List<String> jars) throws java.io.IOException {
+        java.util.Set<String> cp = new java.util.LinkedHashSet<>();
+        if (Gen.VERSION != null) {
+            cp.add("a68j-runtime-" + Gen.VERSION + ".jar");
+        }
+        cp.add("a68j-runtime.jar");
+        String self = jar.getFileName().toString();
+        for (String j : jars) {
+            Path f = Path.of(j).getFileName();
+            if (f != null && f.toString().endsWith(".jar") && !f.toString().equals(self) && !Files.isDirectory(Path.of(j))) {
+                cp.add(f.toString());
+            }
+        }
+        java.util.jar.Manifest mf = new java.util.jar.Manifest();
+        java.util.jar.Attributes at = mf.getMainAttributes();
+        at.put(java.util.jar.Attributes.Name.MANIFEST_VERSION, "1.0");
+        at.put(new java.util.jar.Attributes.Name("Created-By"), Gen.VERSION != null ? "a68j " + Gen.VERSION : "a68j");
+        at.put(java.util.jar.Attributes.Name.MAIN_CLASS, name);
+        StringBuilder path = new StringBuilder();
+        for (String e : cp) {
+            try {
+                // An entry is a relative URL: a space becomes %20.
+                path.append(path.isEmpty() ? "" : " ").append(new java.net.URI(null, null, e, null).getRawPath());
+            } catch (java.net.URISyntaxException x) {
+                throw new java.io.IOException(x);
+            }
+        }
+        at.put(java.util.jar.Attributes.Name.CLASS_PATH, path.toString());
+        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        mf.write(bytes);
+        return bytes.toByteArray();
+    }
+
+    /**
      * Add (or replace) ENTRIES in the jar JAR, creating it if needed: the
      * classes and export data of the module packets compiled into a library
-     * jar one after the other.
+     * jar one after the other, and the manifest if ENTRIES has one (a
+     * program, see {@link #programManifest}).
      */
     private static void updateJar(Path jar, java.util.Map<String, byte[]> entries) throws java.io.IOException {
         java.util.Map<String, byte[]> all = new java.util.TreeMap<>();

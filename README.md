@@ -92,6 +92,9 @@ standard prelude and the bundled modules. Next to the jar it writes
 (JEP 483). The cache is optional. It also writes `a68j-runtime.jar`,
 which holds only the runtime, the standard prelude and the bundled
 modules: what a compiled program needs to run, without the compiler.
+The version of a68j is in the file `VERSION`; `sh build.sh release` also
+writes copies of the two jars with the version in their names to
+`backend/dist`.
 
 ## Usage
 
@@ -118,7 +121,16 @@ java -cp a68j-runtime.jar:lib/libmymod.jar:out Program
 ```
 
 The runtime jar must come from the same version of a68j as the compiler
-that compiled the program.
+that compiled the program; a program checks this when it starts.
+
+A program compiled into a jar (`-d prog.jar`) becomes an executable jar.
+Its manifest names `a68j-runtime.jar` (or its release copy) and the jars
+of the modules and of `-fjava-classpath` it uses, to be found next to it:
+
+```sh
+java -jar a68j-backend.jar -I lib program.a68 -d dist/program.jar
+java -jar dist/program.jar      # a68j-runtime.jar and libmymod.jar in dist
+```
 
 Common options (as in ga68 where ga68 has them):
 
@@ -128,8 +140,9 @@ Common options (as in ga68 where ga68 has them):
 | `-std=algol68` / `-std=gnu68` | strict Algol 68 or the GNU dialect (default) |
 | `-I dir`, `-L dir` | where to find module interfaces (`X.m68`, `libX.jar`) |
 | `-fmodules-map=…`, `-fmodules-map-file=…` | map module names to files, as in ga68 |
-| `-d dir` | output directory; `-d libX.jar` adds a module to a library jar |
+| `-d dir` | output directory; `-d libX.jar` adds a module to a library jar, `-d prog.jar` makes an executable jar of a program |
 | `-run` | compile in memory and run |
+| `--version` | the version of a68j |
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` formal holes (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
 

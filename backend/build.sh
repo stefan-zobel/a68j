@@ -2,6 +2,8 @@
 # Build the JVM backend (requires JDK 25); builds the front end first.
 set -e
 cd "$(dirname "$0")"
+# The argument (release, see the end); the runtime jar below reuses "$@".
+arg=${1:-}
 # Use $JDK25 if set, else $JAVA_HOME if it is JDK 25 or newer, else the default path.
 if [ -z "$JDK25" ]; then
   v=$("${JAVA_HOME:-/nonexistent}/bin/java" -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.specification.version = //p')
@@ -18,6 +20,14 @@ case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) S=';' ;;
   *) S=':' ;;
 esac
+# The version of a68j: the file VERSION, written as the Implementation-Version
+# into the manifests of the jars (Rt#version, Gen#VERSION).
+V=$(tr -d ' \r\n' < ../VERSION)
+case "$V" in
+  [0-9]*.[0-9]*.[0-9]*) ;;
+  *) echo "build.sh: ../VERSION does not hold a version x.y.z: '$V'" >&2; exit 1 ;;
+esac
+printf 'Implementation-Title: a68j\nImplementation-Version: %s\n' "$V" > version.mf
 # The front end, with javac and jar of the same JDK.
 JAVAC="$JAVA_HOME/bin/javac" JAR="$JAVA_HOME/bin/jar" ../build.sh
 rm -rf out && mkdir -p out
@@ -42,10 +52,10 @@ if [ -x "$JDK28/bin/javac" ]; then
   mkdir -p out28
   "$JDK28/bin/javac" --release 28 -Xlint:all -cp out -d out28 $(find src/main/java28 -name '*.java')
   # The jar tool of JDK 25 cannot validate class files of JDK 28.
-  "$JDK28/bin/jar" --create --file a68j-backend.jar --main-class a68j.jvm.Compile -C out . --release 28 -C out28 .
+  "$JDK28/bin/jar" --create --file a68j-backend.jar --manifest version.mf --main-class a68j.jvm.Compile -C out . --release 28 -C out28 .
   echo "built backend/a68j-backend.jar (multi-release, with the JDK 28 classes)"
 else
-  "$JAVA_HOME/bin/jar" --create --file a68j-backend.jar --main-class a68j.jvm.Compile -C out .
+  "$JAVA_HOME/bin/jar" --create --file a68j-backend.jar --manifest version.mf --main-class a68j.jvm.Compile -C out .
   echo "built backend/a68j-backend.jar (without the JDK 28 classes: no \$JDK28)"
 fi
 # The runtime jar: only what a compiled program needs at run time (a68j.rt,
@@ -59,11 +69,20 @@ for f in $(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class'); do
 done
 rm -f a68j-runtime.jar
 if [ -d out28 ]; then
-  "$JDK28/bin/jar" --create --file a68j-runtime.jar "$@" --release 28 -C out28 .
+  "$JDK28/bin/jar" --create --file a68j-runtime.jar --manifest version.mf "$@" --release 28 -C out28 .
 else
-  "$JAVA_HOME/bin/jar" --create --file a68j-runtime.jar "$@"
+  "$JAVA_HOME/bin/jar" --create --file a68j-runtime.jar --manifest version.mf "$@"
 fi
+rm -f version.mf
 echo "built backend/a68j-runtime.jar"
+# sh build.sh release: copies of the two jars with the version in their names,
+# as a release ships them: dist/a68j-backend-x.y.z.jar, dist/a68j-runtime-x.y.z.jar.
+if [ "$arg" = release ]; then
+  mkdir -p dist
+  cp a68j-backend.jar "dist/a68j-backend-$V.jar"
+  cp a68j-runtime.jar "dist/a68j-runtime-$V.jar"
+  echo "built backend/dist/a68j-backend-$V.jar and backend/dist/a68j-runtime-$V.jar"
+fi
 # AOT cache (JDK 25, JEP 483/514/515): the classes of the compiler and of the
 # runtime, loaded, linked and with method profiles from a training run of
 # lib/aot-training.a68. Used with java -XX:AOTCache=backend/a68j-backend.aot;

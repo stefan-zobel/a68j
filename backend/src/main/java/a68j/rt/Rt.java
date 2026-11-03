@@ -576,6 +576,36 @@ public final class Rt {
         setProgramName(name, java.util.Arrays.asList(args));
     }
 
+    /**
+     * The version of a68j that this runtime belongs to: the
+     * Implementation-Version of the jar it was loaded from (build.sh writes
+     * the file VERSION there), or null if it was not loaded from such a jar.
+     */
+    public static String version() {
+        return Rt.class.getPackage().getImplementationVersion();
+    }
+
+    /**
+     * Called first by the main method of a program and by the prelude of a
+     * module (the first time) when the compiler that compiled CLASSNAME was
+     * that of a68j COMPILEDBY: stop with a message if this runtime belongs
+     * to another version. The generated code calls methods of the runtime
+     * by name and type, so that with another runtime it could fail anywhere
+     * or compute something else. A runtime without a version is not
+     * checked.
+     */
+    public static void checkVersion(String compiledBy, String className) {
+        String v = version();
+        if (v != null && !v.equals(compiledBy)) {
+            OUT.flush();
+            System.err.print("a68j: error: " + className + " was compiled by a68j " + compiledBy
+                    + ", but the runtime is that of a68j " + v
+                    + "; compile it again or use the runtime of a68j " + compiledBy + "\n");
+            System.err.flush();
+            Runtime.getRuntime().halt(1);
+        }
+    }
+
     /** Stack size of the thread that runs the program. */
     static final long STACK_SIZE = 128L << 20;
 
