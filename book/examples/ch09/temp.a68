@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   File scratch_file;
+   if create (scratch_file, stand_back_channel) /= 0 then stop fi;
+   for i to 5 do put_bin (scratch_file, i * i) od;
+   reset (scratch_file);                         { back to the start }
+   int sum := 0;
+   for i to 5 do int n; get_bin (scratch_file, n); sum +:= n od;
+   scratch (scratch_file);                       { close and delete }
+   print (("sum of squares ", whole (sum, 0), newline))
+{ end excerpt }
+end

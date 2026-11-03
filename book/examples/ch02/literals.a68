@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+   print ((0, 42, 1 000 000, newline));
+   print ((3.5, " ", .25, " ", 1e6, " ", 2.5e-3, newline));
+   print (("a", "Z", "_", """", newline));
+   print ((true, false, newline))
+end

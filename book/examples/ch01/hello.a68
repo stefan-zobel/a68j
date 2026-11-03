@@ -1,0 +1,4 @@
+access Genie_Transput
+begin
+   print (("Hello, world!", newline))
+end

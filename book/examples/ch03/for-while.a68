@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { The first square greater than 50. }
+   int n := 1;
+   for i while i * i <= 50 do n := i + 1 od;
+   print ((n, n * n, newline));
+   { The same, with a declaration in the while part. }
+   int m := 0;
+   while int square = m * m; square <= 50 do m +:= 1 od;
+   print ((m, newline))
+{ end excerpt }
+end

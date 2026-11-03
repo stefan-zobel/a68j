@@ -1,0 +1,3 @@
+7        FN h = compose (double, inc);
+                1                     
+a68g: runtime error: 1: FN value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.

@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   format record = $10a, x 4d, "-" 2d, "-" 2d, 3zd l$;
+   File input := stand_in;
+   on_logical_file_end (input, (ref File f) bool: goto done);
+   do
+      string name; int year, month, day, score;
+      getf (input, (record, name, year, month, day, score));
+      printf (($10a, x 2d, "." 2d, "." 4d, 5zd l$, name, day, month, year, score))
+   od;
+done:
+   skip
+{ end excerpt }
+end

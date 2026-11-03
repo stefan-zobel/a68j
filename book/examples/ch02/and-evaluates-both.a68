@@ -1,0 +1,6 @@
+access Genie_Transput
+begin
+   proc check = (bool b) bool: (print (("checked", newline)); b);
+   print ((false AND check (true), newline));
+   print ((false andth check (true), newline))
+end

@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   ref int q := nil;
+   print ((q is nil, " ", ref int (q) is nil, newline))
+{ end excerpt }
+end

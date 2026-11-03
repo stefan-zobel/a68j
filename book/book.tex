@@ -1,0 +1,44 @@
+\documentclass[paper=a4,fontsize=11pt,DIV=11,parskip=no,toc=index,bibliography=totoc]{scrbook}
+\input{preamble}
+
+\title{Algol 68 in Modern Terms}
+\subtitle{An Introduction for Programmers}
+\author{}
+\input{build/version}
+\date{Version \bookversion\\[0.5ex]\bookdate}
+\publishers{\small
+  This book is dedicated to the public domain under the\\
+  Creative Commons CC0 1.0 Universal Public Domain Dedication:\\
+  \url{https://creativecommons.org/publicdomain/zero/1.0/}}
+
+\begin{document}
+\frontmatter
+\maketitle
+{\hypersetup{linkcolor=black}\tableofcontents}
+\include{chapters/preface}
+
+\mainmatter
+\include{chapters/ch01}
+\include{chapters/ch02}
+\include{chapters/ch03}
+\include{chapters/ch04}
+\include{chapters/ch05}
+\include{chapters/ch06}
+\include{chapters/ch07}
+\include{chapters/ch08}
+\include{chapters/ch09}
+
+\appendix
+\include{chapters/appA}
+\include{chapters/appB}
+\include{chapters/appC}
+\include{chapters/appD}
+\include{chapters/appE}
+\include{chapters/appF}
+\include{chapters/appG}
+
+\backmatter
+\include{chapters/answers}
+\include{chapters/biblio}
+\printindex
+\end{document}

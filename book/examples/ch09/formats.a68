@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int n = 42;
+   real x = 3.14159;
+   printf (($"[" 5d "]" l$, n));          { five digits, leading zeros }
+   printf (($"[" 5zd "]" l$, n));         { leading zeros suppressed }
+   printf (($"[" -4zd "]" l$, -n));       { a sign if negative }
+   printf (($"[" zzd.dd "]" l$, x));      { fixed point }
+   printf (($"[" d.3de+2d "]" l$, x * 1000));   { floating point }
+   printf (($"[" 3a "]" x b l$, "abc", true))
+{ end excerpt }
+end

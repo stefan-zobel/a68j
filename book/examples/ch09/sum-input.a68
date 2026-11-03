@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { Sum all numbers on the standard input, however many there are. }
+   real sum := 0;
+   int count := 0;
+   File input := stand_in;           { a copy, local to this block }
+   on_logical_file_end (input, (ref File f) bool: goto finished);
+   do
+      real x;
+      get (input, x);
+      sum +:= x;
+      count +:= 1
+   od;
+finished:
+   print ((whole (count, 0), " numbers, sum ", fixed (sum, 0, 2), newline))
+{ end excerpt }
+end

@@ -1,0 +1,76 @@
+access Genie_Transput
+begin
+   { Checks of the answers to the exercises of Chapter 7. }
+   { Exercise 1 }
+   flex [1:0] char s; s := "abc"; s := s[2:3] + "xyz";
+   print ((LWB s, UPB s, " ", s, newline));
+   { Exercise 3 }
+   proc to_real = (union (int, real, bool) v) real:
+      case v in (int i): i, (real r): r, (bool b): (b | 1 | 0) esac;
+   print ((fixed (to_real (3), 0, 1), " ", fixed (to_real (2.5), 0, 1), " ",
+           fixed (to_real (true), 0, 1), newline));
+   { Exercise 4 }
+   int x := 1; ref int p := x;
+   ref int (p) := 2; print ((x, newline));
+   { Exercise 7 }
+   mode Node = struct (int value, ref Node next);
+   ref Node no_node = nil;
+   proc reverse = (ref ref Node list) void:
+   begin
+      ref Node prev := no_node, cur := list;
+      while ref Node (cur) isnt no_node do
+         ref Node rest = next of cur;
+         next of cur := prev;
+         prev := cur;
+         cur := rest
+      od;
+      list := prev
+   end;
+   ref Node l := no_node;
+   for i to 4 do l := heap Node := (i, l) od;
+   reverse (l);
+   ref Node q := l;
+   while ref Node (q) isnt no_node do print (value of q); q := next of q od;
+   print (newline);
+   { Other claims of the chapter }
+   union (int, union (real, string)) u = "xy";
+   union (int, real, string) w = u;
+   print ((case w in (string t): t out "?" esac, newline));
+   proc half = (real x) real: x / 2;
+   [] proc (real) real fs = (half, (real x) real: x + 1);
+   print ((fixed (fs[2] (0), 0, 1), newline));
+   proc adder = (int n) proc (int) int: (int m) int: m + 1;
+   print ((adder (1) (5), " ", l :/=: no_node, newline));
+   { Exercise 10 }
+   int a := 1, b := 1;
+   ref int pa := a, qb := b;
+   print ((pa is qb, ref int (pa) is ref int (qb), ref int (pa) is a, newline));
+   qb := a;
+   print ((pa is qb, ref int (pa) is ref int (qb), ref int (pa) is a, newline));
+   { Exercise 11: elements copied by push (doubling) and by append }
+   int cap := 0, size := 0, copied_push := 0, copied_append := 0;
+   to 1000 do
+      if size = cap then copied_push +:= size; cap := (cap = 0 | 4 | 2 * cap) fi;
+      copied_append +:= size;
+      size +:= 1
+   od;
+   print ((copied_push, copied_append, newline));
+   { Exercise 13, first variant: no declaration in the loop body }
+   [3] ref int cells;
+   for i to 3 do cells[i] := loc int := i * i; print (i) od;
+   print ((ref int (cells[2]), newline));
+   { Exercise 14 }
+   begin
+      mode Node = struct (int value, ref Node next);
+      proc list3 = ref Node:
+         heap Node := (1, heap Node := (2, heap Node := (3, nil)));
+      prio EQ = 4;
+      op EQ = (ref Node a, b) bool:
+         if a is nil then b is nil
+         elif b is nil then false
+         else value of a = value of b andth (next of a EQ next of b)
+         fi;
+      ref Node a = list3, b = list3;
+      print ((a is b, a EQ b, newline))
+   end
+end

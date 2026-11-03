@@ -1,0 +1,7 @@
+max_int        +2147483647
+long_max_int   +9223372036854775807
+small_real     +1.192093e -7
+long_small_real+2.22044604925031e -16
+bits_width             +32
+int_lengths             +2
+int_shorths             +3

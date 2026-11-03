@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+   { The student with the best average mark. }
+   mode Student = struct (string name, [1:3] int marks);
+   [] Student class = (("Ann",  (72, 85, 90)),
+                       ("Ben",  (88, 79, 81)),
+                       ("Cleo", (95, 91, 70)));
+   real best := -1;
+   int best_index := 0;
+   for i to UPB class do
+      int sum := 0;
+      for k to 3 do sum +:= (marks of class[i])[k] od;
+      real average = sum / 3;
+      print ((name of class[i], ": ", fixed (average, 0, 2), newline));
+      if average > best then best := average; best_index := i fi
+   od;
+   print (("best: ", name of class[best_index], newline))
+end

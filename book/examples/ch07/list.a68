@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Node = struct (int value, ref Node next);
+   ref Node no_node = nil;
+   ref Node list := no_node;
+   for i to 5 do list := heap Node := (i * i, list) od;     { prepend }
+   ref Node p := list;
+   while ref Node (p) isnt no_node do
+      print (value of p);
+      p := next of p
+   od;
+   print (newline)
+{ end excerpt }
+end

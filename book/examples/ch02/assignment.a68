@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+   int a, b;
+   a := b := 7;                    { assigns 7 to b, then to a }
+   print ((a, b, newline));
+   int total := 10;
+   total +:= 5;  total *:= 2;  total -:= 1;
+   print ((total, newline));
+   int k := 17;
+   k %:= 5;
+   print ((k, newline))
+end

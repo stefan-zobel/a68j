@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   bytes code = bytes_pack ("ALGOL");
+   print ((2 ELEM code, " ", 5 ELEM code, newline))
+{ end excerpt }
+end

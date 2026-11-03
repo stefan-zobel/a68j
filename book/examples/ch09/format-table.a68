@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   format row = $3zd, 2x zd.ddd, 2x zzzd.d l$;
+   printf (($"   n   sqrt n    n ** 3" l$));
+   for n to 5 do printf ((row, n, sqrt (n), n ** 3)) od;
+   [] int v = (7, 11, 13, 17);
+   printf (($"values:" n (UPB v) (x 2d) l$, v))
+{ end excerpt }
+end

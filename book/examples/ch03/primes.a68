@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+   { The prime numbers below 60, by trial division. }
+   int count := 0;
+   for n from 2 to 59 do
+      bool prime := true;
+      for d from 2 while prime andth d * d <= n do
+         if n MOD d = 0 then prime := false fi
+      od;
+      if prime then
+         print (whole (n, -4));
+         count +:= 1;
+         if count MOD 10 = 0 then print (newline) fi
+      fi
+   od;
+   print (newline)
+end

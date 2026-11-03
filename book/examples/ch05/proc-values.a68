@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc (real) real f := sqrt;
+   print ((fixed (f (2), 0, 4), newline));
+   f := (real x) real: x * x;               { a function literal }
+   print ((fixed (f (3), 0, 4), newline))
+{ end excerpt }
+end

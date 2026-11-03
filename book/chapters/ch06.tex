@@ -1,0 +1,307 @@
+\chapter{More built-in types and the standard library}\label{ch-moretypes}
+
+Chapters~\ref{ch-values} to~\ref{ch-procs} used four primitive types. This chapter introduces the
+remaining built-in types of the language: complex numbers, numbers of
+greater or smaller precision, bit sets and byte strings. It closes with a
+survey of the constants and functions of the standard library. Much of
+the chapter depends on the implementation, since the precision of numbers
+does; where it does, the text says what ga68, a68j and Algol 68 Genie
+provide.
+
+\section{Complex numbers}\label{sec-complex}
+
+The type \code|compl| holds a complex number, a pair of \code|real| values
+for the real and the imaginary part. The binary operator \code|I| builds a
+complex number from its two parts: \code|1 I 2| is $1 + 2i$. The
+arithmetic operators \code|+|, \code|-|, \code|*| and \code|/| work on
+complex numbers, also mixed with \code|int| and \code|real| operands, and
+\code|=| and \code|/=| compare them. Further operators give the parts and
+properties of a complex number:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Operator & Result \\
+\midrule
+\code|RE z|, \code|IM z| & the real and the imaginary part \\
+\code|ABS z| & the absolute value $|z|$ \\
+\code|ARG z| & the argument (angle), between $-\pi$ and $\pi$ \\
+\code|CONJ z| & the complex conjugate \\
+\code|a I b| & the complex number $a + bi$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\example{ch06/complex}
+
+The function \code|show| formats a complex number for printing. A
+\code|real| (and therefore an \code|int|) is widened to \code|compl|
+where a complex number is required, so \code|compl r := 2.5| is allowed;
+this is the second step of the widening that Chapter~\ref{ch-values} introduced.
+
+The standard library declares \code|compl| as a record,
+\code|mode compl = struct (real re, im)|, so \code|re of z| selects the
+real part of a complex variable and can be assigned to, and
+\code|compl z = (1, 2)| is a record literal. Two details catch the
+unwary: \code|I| has the highest precedence, 9, so \code|2 * x I y| means
+\code|2 * (x I y)|; and complex numbers have no order, so there is no
+\code|<|.
+
+\begin{implnote}
+ga68 does not yet provide the complex operators; a program that uses
+them fails when it is linked. The examples in this section were run with
+a68j and Algol 68 Genie. \code|Genie_Transput| does not print complex
+numbers directly, which is why the example formats them itself; the
+\code|print| of the Report and of Algol 68 Genie prints the two parts.
+\end{implnote}
+
+As an application, the following program solves quadratic equations,
+whose roots may be complex. The discriminant decides whether the square
+root is real or imaginary; the \code|if| balances its two branches to
+\code|compl|.
+
+\example{ch06/quadratic}
+
+\section{Precision variants}\label{sec-long}
+
+The types \code|int|, \code|real|, \code|compl| and \code|bits| come in
+several sizes. The prefix \code|long| gives a variant with more bits,
+\code|long long| one with still more, and \code|short| and
+\code|short short| variants with fewer. How many variants there are and
+how large they are depends on the implementation. A variant that the
+implementation does not distinguish has the same values as the next
+larger or smaller one, but it is still a type of its own: a
+\code|long long int| must be converted with \code|SHORTEN| to become a
+\code|long int|, even where both have 64 bits.
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Type & ga68 & a68j & Algol 68 Genie \\
+\midrule
+\code|short short int| & 8 bits & 8 bits & 64 bits \\
+\code|short int| & 16 bits & 16 bits & 64 bits \\
+\code|int| & 32 bits & 32 bits & 64 bits \\
+\code|long int| & 64 bits & 64 bits & 128 bits \\
+\code|long long int| & 64 bits & 64 bits & 72 decimal digits \\
+\midrule
+\code|real| & 32 bits & 32 bits & 64 bits \\
+\code|long real| & 64 bits & 64 bits & 128 bits \\
+\code|long long real| & 80 bits & 64 bits & 63 decimal digits \\
+\midrule
+\code|bits| & 32 & 32 & 64 \\
+\code|long bits| & 64 & 64 & 128 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A literal of a long type is written with the prefix: \code|long 1|,
+\code|long 2.5|, \code|long long 0|. The operator \code|LENG| converts a
+value to the next longer type and \code|SHORTEN| to the next shorter one;
+there is no implicit conversion between the sizes, so a \code|long int|
+and an \code|int| cannot be added without \code|LENG|. The names of the
+standard constants and functions for the long types begin with
+\code|long_|: \code|long_max_int|, \code|long_pi|, \code|long_sqrt|.
+
+\example{ch06/lengths}
+
+The last two lines show the conversions: \code|LENG max_int + long 1|
+computes in \code|long int| and so does not overflow, and \code|SHORTEN|
+converts a value that fits back to \code|int|.
+
+The long types are what a program needs for exact large integers and for
+precise floating-point computations. With 32-bit integers, 13! already
+overflows; with \code|long int|, all factorials up to 20! are exact:
+
+\example{ch06/factorials}
+
+\begin{implnote}
+\code|Genie_Transput| prints \code|long int| and \code|long real| values,
+but not the \code|short| and \code|long long| variants; they are
+converted with \code|LENG| or \code|SHORTEN| before printing. In
+Algol 68 Genie, \code|long long int| and \code|long long real| are
+computed in software with a very large precision, which Rosetta Code
+programs use for big numbers.
+\end{implnote}
+
+\section{Bit sets}\label{sec-bits}
+
+A value of type \code|bits| is a fixed-size sequence of bits, as many as
+the constant \code|bits_width| says. It is the Algol 68 equivalent of an
+unsigned integer used as a set of flags or a bit mask. Literals are
+written in base 2, 4, 8 or 16 with a prefix that gives the base:
+\code|2r1100|, \code|8r14| and \code|16rc| are the same value. The
+operators on \code|bits| are:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Operator & Result \\
+\midrule
+\code|a AND b|, \code|a OR b|, \code|NOT a| & bitwise and, or, complement \\
+\code|a SHL n|, \code|a SHR n| & shift left or right by \code|n| bits \\
+\code|n ELEM a| & bit \code|n| of \code|a|, as a \code|bool| \\
+\code|a = b|, \code|a /= b| & equality \\
+\code|a <= b|, \code|a >= b| & subset, superset (not numerical order) \\
+\code|ABS a|, \code|BIN n| & conversion to and from \code|int| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\example{ch06/bits}
+
+Two details differ from current conventions. First, \code|print| writes a
+\code|bits| value as a row of \code|T| and \code|F| characters, one per
+bit. Second, the bits are numbered from the left: bit 1 is the most
+significant bit and bit \code|bits_width| the least significant one. In
+\code|2r1100|, the two set bits are therefore numbers 29 and 30 of 32.
+The function \code|bits_pack| builds a \code|bits| value from an array of
+\code|bool|, whose last element becomes the least significant bit.
+
+\begin{pitfall}
+The comparisons of \code|bits| values are set comparisons:
+\code|2r100 >= 2r011| is false, since the first value does not contain
+the bits of the second. For numerical order, compare \code|ABS a| and
+\code|ABS b|. \code|ELEM| has the precedence 7, so
+\code|i + 1 ELEM b| means \code|i + (1 ELEM b)| and is rejected; write
+\code|(i + 1) ELEM b|. A negative shift count shifts in the other
+direction. And \code|ABS| of a value whose first bit is set does not fit
+into an \code|int| of the same width: the Report leaves the result
+undefined, and a68j gives a negative number.
+\end{pitfall}
+
+\begin{implnote}
+ga68, a68j and Algol 68 Genie also provide \code|XOR| for \code|bits|,
+which the Report does not have; it can be written as
+\code|(a OR b) AND NOT (a AND b)|.
+\end{implnote}
+
+\section{Byte strings}\label{sec-bytes}
+
+The type \code|bytes| is a string of fixed length, \code|bytes_width|
+characters, stored compactly. It was meant for machines on which a
+\code|string| was expensive. The function \code|bytes_pack| converts a
+string to \code|bytes|, and \code|n ELEM b| selects a character.
+
+\example{ch06/bytes}
+
+\begin{implnote}
+ga68 and a68j do not yet support \code|bytes|; the example was run with
+Algol 68 Genie. Programs rarely need this type today, since \code|string|
+serves the same purpose.
+\end{implnote}
+
+\section{Environment enquiries}\label{sec-enquiries}
+
+The standard library contains constants that describe the implementation,
+which the Report calls \rr{environment enquiries}. A program that wants to
+be portable uses them instead of assuming particular sizes:
+
+\example{ch06/enquiries}
+
+The most important ones are:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Constant & Meaning \\
+\midrule
+\code|max_int|, \code|long_max_int| & the largest integer of each size \\
+\code|max_real|, \code|long_max_real| & the largest real of each size \\
+\code|small_real| & the smallest \code|real| $x$ with $1 + x > 1$ and $1 - x < 1$ \\
+\code|int_lengths|, \code|int_shorths| & 1 + the number of \code|long|, \code|short| sizes of \code|int| \\
+\code|real_lengths|, \code|real_shorths| & the same for \code|real| \\
+\code|bits_width|, \code|bytes_width| & the number of bits in \code|bits|, characters in \code|bytes| \\
+\code|int_width|, \code|real_width| & the digits needed to print an \code|int|, a \code|real| \\
+\code|max_abs_char| & the largest character code \\
+\code|blank|, \code|null_character| & the space character, a filler character (code 0 here) \\
+\code|flip|, \code|flop| & the characters for true and false (\code|"T"| and \code|"F"| here) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\code|int_lengths| and \code|int_shorths| count \code|int| itself, so
+\code|int_lengths = 2| means that there is one distinct \code|long| size
+(and \code|int_shorths = 2| one \code|short| size); a larger prefix gives a type
+with the same values as the largest distinct one.
+
+\section{Mathematical functions}\label{sec-math}
+
+The standard library provides the mathematical functions of
+Section~\ref{sec-std-procs}, each also in a version for each long size:
+\code|sqrt|, \code|exp|, \code|ln|, \code|sin|, \code|cos|, \code|tan|,
+\code|arcsin|, \code|arccos|, \code|arctan|; for \code|long real|, they
+are \code|long_sqrt|, \code|long_exp|, and so on. The function
+\code|random| returns a pseudo-random \code|real| between 0 and 1.
+
+\example{ch06/functions}
+
+The negative widths ask \code|fixed| for a field of six or eight
+characters without a plus sign (Section~\ref{sec-io}).
+
+\section{Extending the standard operators}\label{sec-extend-ops}
+
+A program can declare a standard operator for operand types that the
+library does not cover, as Chapter~\ref{ch-procs} did for fractions. The standard
+\code|MOD|, for example, is defined for integers only; a declaration adds
+a version for \code|real| operands, while the standard \code|MOD| keeps its
+meaning:
+
+\example{ch06/real-mod}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch6]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What are \code|RE ((1 I 1) * (1 I -1))| and \code|ABS (0 I 2)|?
+\item Why is \code|long int n := 5| not allowed, and how is it written
+  correctly?
+\item Assuming \code|bits_width| is 32, what are
+  \code|ABS (16rff AND 2r1010)|, \code|ABS (2r1 SHL 4)| and
+  \code|32 ELEM 2r1|?
+\item Write a function \code|popcount| that counts the set bits in a
+  \code|bits| value, using \code|ELEM|.
+\item How can a program find out whether \code|long long int| is longer
+  than \code|long int| in the implementation it runs on?
+\item Is \code|2r100 >= 2r011| true? Why or why not?
+\item What does \code|2 * 3 I 4| mean?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Compute $2^{62}$ and $3^{39}$ exactly with \code|long int|.
+\item Print the first 90 Fibonacci numbers with \code|long int|.
+\item Use the Newton iteration $z \leftarrow z - (z^3 - 1) / (3z^2)$
+  to find which of the three cube roots of 1 is reached from each
+  starting point of a grid in the complex plane, and print the grid as
+  characters.
+\item Represent a set of the numbers 1 to 32 as \code|bits|, and write the
+  operations union, intersection, membership and size.
+\item \textbf{Mandelbrot.} Print the Mandelbrot set with characters,
+  using \code|compl| arithmetic.
+\item \textbf{A bit sieve.} Write the sieve of Eratosthenes on an array
+  of \code|bits| words, splitting a number into a word index and a bit
+  number, and compare its size with the \code|[] bool| version of
+  Chapter~\ref{ch-data}.
+\item \textbf{Gray code.} Convert numbers to their Gray code
+  (\code|n XOR (n SHR 1)| on \code|bits|) and back, and print the codes
+  of 0 to 15.
+\item \textbf{An adder.} Add two positive numbers given as \code|bits|
+  bit by bit, as hardware does, with a carry, and report an overflow.
+\item \textbf{Machine epsilon.} Find the smallest power of 2 that,
+  added to 1, gives a result different from 1, by halving, for
+  \code|real| and \code|long real|, and compare it with \code|small_real|.
+\item \textbf{Exact factorials.} Compute 50! exactly with an array of
+  \code|int| digits in base 10000, and compare the result with
+  \code|long long int| in Algol 68 Genie.
+\item \textbf{Safe fractions.} Make the rational numbers of
+  Chapter~\ref{ch-procs} safe from overflow: compute the products in
+  \code|long int| with \code|LENG|, reduce with a \code|long| greatest
+  common divisor, and convert back with \code|SHORTEN| only after
+  checking against \code|LENG max_int|. Use them for the first terms of a
+  power series with exact coefficients, such as that of $e^x$.
+\end{enumerate}

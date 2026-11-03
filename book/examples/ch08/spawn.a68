@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int n = 6;
+   [n] int squares;
+   proc worker = (int i) void: squares[i] := i * i;
+   proc spawn = (int lo, hi) void:
+      if lo = hi then worker (lo)
+      else par (worker (lo), spawn (lo + 1, hi))
+      fi;
+   spawn (1, n);
+   for i to n do print ((whole (squares[i], 0), " ")) od;
+   print (newline)
+{ end excerpt }
+end

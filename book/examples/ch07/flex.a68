@@ -1,0 +1,14 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   flex [1:0] int list;                       { empty at first }
+   print ((UPB list, newline));
+   list := (3, 1, 4);
+   print ((UPB list, ":", list, newline));
+   list := list[2:3];                         { shrinks to two elements }
+   print ((UPB list, ":", list, newline));
+   [] int snapshot = list;                    { a fixed copy }
+   list := (1, 5, 9, 2, 6);
+   print ((UPB snapshot, UPB list, newline))
+{ end excerpt }
+end

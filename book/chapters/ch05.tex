@@ -1,0 +1,419 @@
+\chapter{Functions and operators}\label{ch-procs}
+
+A program of any size is built from parts that each solve one task and
+that can be used again: functions. In Algol 68, a function is a value like
+a number or an array. It has a type, it can be bound to a name, stored in
+a variable, passed to another function and returned from one. The Report
+calls a function a \rr{procedure}; this book uses both words, since
+Algol 68 programs declare functions with the reserved word \code|proc|.
+
+The second half of the chapter shows how a program defines operators of
+its own. Operators are functions with a different calling syntax, and
+they make it possible to extend the arithmetic of the language to new
+types, such as fractions or vectors.
+
+\section{Declaring functions}\label{sec-proc-decl}
+
+A function declaration gives the function a name, its parameters with
+their types, its result type and its body:
+
+\example{ch05/declare}
+
+The declaration \code|proc max = (int a, b) int: (a > b | a | b)| has the
+same form as the constant declarations of Chapter~\ref{ch-values}: a name, an equals
+sign and a value. The value is a \term{function literal}
+(\rr{routine text}), the part \code|(int a, b) int: (a > b | a | b)|. It
+lists the parameters in parentheses, then the result type, a colon and
+the body, which is a single expression, usually a block. The type of
+\code|max| is \code|proc (int, int) int|, the type of functions that take
+two \code|int| values and return an \code|int|. Parameters of the same
+type can share the type, as in \code|(int a, b)|; parameters of different
+types are separated by commas: \code|(string s, int n)|.
+
+The declaration \code|proc max = (int a, b) int: ...| is short for
+\code|proc (int, int) int max = (int a, b) int: ...|, which names the
+type in full. The short form requires a function literal on the
+right-hand side. A function value computed in some other way, such as a
+choice between two functions, needs the full type:
+\code|proc (real) real f = (c | sin | cos)|. The short form with such a
+value is rejected with a message about a missing symbol that does not
+point to the cause.
+
+A function whose result is of no interest has the result type
+\code|void|, as \code|greet| shows. There is no \texttt{return}
+statement: the result of a function is the value of its body, which is
+the value of the last expression in the block. A function that must
+finish early jumps to a label at the end of its body (Section~\ref{sec-jumps}),
+which is rarely necessary since \code|if| and \code|case| yield values.
+
+A call gives the arguments in parentheses after the name. The Report
+calls the parameters \rr{formal parameters} and the arguments
+\rr{actual parameters}.
+
+\section{Parameters}\label{sec-params}
+
+When a function is called, each parameter is bound to its argument
+exactly as a constant is bound to its value in a declaration: the call
+\code|max (3, 7)| behaves like the declarations \code|int a = 3, b = 7|
+followed by the body. This explains the rules for parameters, which differ
+from those of most languages.
+
+A parameter is a constant. It cannot be assigned to:
+
+\example{ch05/param-constant}
+
+A function that needs a variable for its work declares one, for example
+\code|int k := n|. A function that is to change a variable of its caller
+takes a reference to that variable as its parameter:
+
+\example{ch05/ref-param}
+
+The parameters of \code|swap| are of type \code|ref int|. The call
+\code|swap (x, y)| passes the references \code|x| and \code|y|, and the
+assignments in the body go to the caller's variables. In C this would be
+done with pointers, in C++ with reference parameters, in Pascal with
+\texttt{var} parameters. Algol 68 needs no special kind of parameter for
+it: the reference is an ordinary value, passed like any other.
+
+Both kinds of parameter can be arrays. A parameter of type \code|[] real|
+accepts an array of \code|real| with any bounds, and the function finds
+them with \code|LWB| and \code|UPB|. A parameter of type \code|ref [] real|
+accepts an array variable, whose elements the function can then change:
+
+\example{ch05/array-param}
+
+The second call of \code|sum| passes an array literal. Since a literal
+has the bounds 1 to $n$, the function sees those bounds; for the variable
+\code|w|, it sees the bounds 0 to 3.
+
+A function can also return a reference to a cell that already exists,
+such as an element of an array it receives by reference. Its call can
+then stand on the left of an assignment, as in C++ a function that
+returns a reference:
+
+\example{ch05/max-elem}
+
+\noindent The parameter must be a \code|ref [] real|. With
+\code|[] real a|, the element \code|a[k]| would be a value, not a cell of
+the caller's array, and could not be returned as a \code|ref real|.
+
+\section{Functions without parameters}\label{sec-deproc}
+
+A function may have no parameters. Its type is then \code|proc int| (or
+\code|proc void|, and so on), and its literal has no parameter list:
+\code|int: expression|. Such a function is called simply by writing its
+name; no empty parentheses are needed, or even allowed:
+
+\example{ch05/parameterless}
+
+Writing \code|next| where an \code|int| is expected calls the function. This
+is another implicit conversion, which the Report calls
+\rr{deproceduring}. Where a function itself is expected, the name is not
+a call: \code|newline| in a call of \code|print| is a function with a
+parameter, passed as a value, and \code|print| calls it at the right
+moment.
+
+Each call of \code|next| changes the variable \code|seed|, so the two
+calls give different results. In a list such as
+\code|print ((next, next))| the order of the two calls would be
+unspecified (Section~\ref{sec-collateral}); the program above therefore
+calls the function in two separate declarations.
+
+A parameterless function whose value is discarded is called as well,
+which is how a function of type \code|proc void| is called as a
+statement. (\code|newline| is not such a function: it has a file
+parameter, and \code|newline;| alone does nothing; \code|print (newline)|
+writes a line break.) There is one exception that is easy to overlook:
+
+\example{ch05/discard-call}
+
+\noindent prints \code|assigned| and then \code|hello| twice. The
+assignment \code|p := hello| stores the function in the variable
+\code|p| and does not call it, although its value, the variable
+\code|p|, is discarded. A discarded assignment, a reference comparison,
+an allocation, a type annotation, a literal and a format are discarded
+as they are; any other expression that yields a function without parameters is
+called.
+
+A parameter of type \code|proc real| differs from one of type
+\code|real| in when the argument is evaluated. A \code|real| parameter
+receives a value, computed once before the call; a \code|proc real|
+parameter receives a function, which is called at every use of the
+parameter:
+
+\example{ch05/by-name}
+
+\noindent \code|twice_value| gets the value 1 and doubles it.
+\code|twice_call| gets the function \code|count| and calls it twice,
+which gives 2 and 3, and returns their sum, 5. Passing a literal such as \code|real: v[i] * w[i]| for a
+\code|proc real| parameter gives the effect of Algol 60's call by name:
+the expression is evaluated anew at each use, with the current value of
+\code|i|. Algol 60 programs used this for summation functions, a trick
+known as Jensen's device; in Algol 68 a parameter of type
+\code|proc (int) real| does the same more plainly.
+
+\section{Recursion}\label{sec-recursion}
+
+A function may call itself. The classic examples are the factorial and
+the Fibonacci numbers:
+
+\example{ch05/recursion}
+
+Two functions can also call each other. Since the scope of a declaration
+is the whole block (Section~\ref{sec-scope}), \code|is_even| can mention
+\code|is_odd| before \code|is_odd| is declared. This is allowed because
+the call only happens later, when both declarations have been carried
+out:
+
+\example{ch05/mutual}
+
+\section{Functions as values}\label{sec-proc-values}
+
+A function is a value, so there are also variables that hold functions.
+The declaration \code|proc (real) real f := sqrt| declares a variable for
+functions from \code|real| to \code|real| and stores in it the square root
+of the standard library. A later assignment can store another function,
+for example a function literal written directly in the program:
+
+\example{ch05/proc-values}
+
+A function literal is what other languages call a \term{lambda} or an
+anonymous function. Functions that take other functions as parameters are
+called \term{higher-order functions}. A typical example computes an
+integral numerically:
+
+\example{ch05/higher-order}
+
+The first call passes a declared function, the bell curve
+$e^{-x^2}$, whose integral is the square root of $\pi$, about 1.7725; the second
+passes a literal for $x^2$. The function in a call can itself be the
+result of an expression: \code|(b | sin | cos) (x)| chooses the function
+first and then calls it with \code|x|.
+
+The body of a function can use the names of the blocks around it, not
+only its parameters. A function can thus read and change variables of
+the enclosing blocks:
+
+\example{ch05/closure}
+
+Such a function is called a \term{closure} in current terminology. Algol
+68 closures have a restriction that the closures of Lisp, JavaScript or
+Python do not have: a function may not be used after the block that
+declares a name it uses has ended. A function that uses a variable, a
+constant or a parameter of a block therefore cannot be returned from
+that block or stored in a variable outside it.
+Section~\ref{sec-proc-lifetimes} explains this rule, which is about the
+lifetimes of values, and how the implementations check it.
+
+\section{The standard functions}\label{sec-std-procs}
+
+The standard library provides the usual mathematical functions for
+\code|real| arguments: \code|sqrt|, \code|exp|, \code|ln| (the natural
+logarithm), \code|sin|, \code|cos|, \code|tan|, \code|arcsin|,
+\code|arccos| and \code|arctan|, together with the constant \code|pi|.
+The parameterless function \code|random| returns a pseudo-random
+\code|real| between 0 and 1. Chapter~\ref{ch-moretypes} describes the library in more
+detail.
+
+\section{Defining operators}\label{sec-op-decl}
+
+An operator is declared like a function, with \code|op| instead of
+\code|proc|. A binary operator has two parameters, a unary one has one.
+The name of an operator is either a word in capitals, such as
+\code|MAX|, or a symbol made of characters such as \code|+ - * / < > =|
+and a few others. A symbol has one or two characters, and the second
+must be one of \code|< > / = *|; either may be followed by \code|:=|
+or \code|=:|. A unary operator may not begin with one of these five. Thus \code|//| and \code|+:=| can be declared, but
+\code|++| cannot (``invalid operator tag''):
+
+\example{ch05/operators}
+
+A binary operator needs a precedence, declared with \code|prio|
+(\rr{priority declaration}); without it, the compiler reports an error.
+Here \code|MAX| gets the precedence 9, higher than that of \code|*|, so
+\code|2 * 5 MAX 6| means \code|2 * (5 MAX 6)|. A unary operator needs no
+precedence: like the standard unary operators, it binds more tightly
+than every binary operator, so \code|SQUARE 4 + 1| is 17.
+
+The same operator can be declared several times for different operand
+types; the example declares \code|MAX| for two \code|int| and for two
+\code|real| operands. This is \term{overloading}. The standard operators
+are declared in the same way in the standard library, and a program can
+add new meanings to them: \code|+| for vectors, \code|*| for matrices,
+\code|<| for dates.
+
+The declarations of one operator in the same block must differ enough
+that the compiler can always tell them apart, even after the implicit
+conversions allowed for operands. Two declarations clash if every
+operand could be converted, by the conversions allowed for operands, to
+the parameter types of both; for a binary operator this must hold for
+both operands. Declarations for \code|(int, real)| and \code|(real, int)|
+can therefore coexist. The Report calls clashing types \rr{firmly
+related}. In practice the operand types must really differ, not merely
+in whether an operand is a reference, and a union is related to each of
+its members (Section~\ref{sec-expr}); the compiler reports a violation as
+``firmly related''.
+
+An operator can also be defined for arrays. The result of the following
+\code|+| is a new array, which is copied out of the function like any
+other value:
+
+\example{ch05/vec-add}
+
+The second operand is an array literal, which must be annotated with its
+type: a literal is allowed only where its type is known, and the operand
+of an operator is not such a place (Section~\ref{sec-casts}).
+
+Since type names are only abbreviations, \code|mode Meters = real| does
+not create a type of its own, and an operator for \code|Meters| would be
+an operator for \code|real|. A record with a single field does create a
+distinct type, the ``newtype'' of current languages. The record types
+must have different field names, or they would be the same type:
+
+\example{ch05/newtype}
+
+A record literal needs at least two fields, so the functions
+\code|meters| and \code|seconds| build the values.
+
+\section{How an operator is chosen}\label{sec-op-identification}
+
+When the compiler meets an operator, it chooses the declaration by the
+types of the operands. Operands are in a firm context
+(Section~\ref{sec-coercions}): a variable is dereferenced and a
+parameterless function is called, but an \code|int| is not widened to a
+\code|real|. An operator declared only for \code|real| operands therefore
+does not accept an \code|int|:
+
+\example{ch05/no-widening-op}
+
+The standard operators avoid this problem by declaring every combination
+of \code|int| and \code|real| operands.
+
+The precedence belongs to the symbol, not to one of its declarations: all
+the meanings of \code|+| in a block have the same precedence, and a
+\code|prio| declaration changes it for all of them, the standard ones
+included:
+
+\example{ch05/prio-symbol}
+
+\noindent prints 31 and 49. Inside the inner block, \code|3 + 4 * 7| is
+\code|(3 + 4) * 7|. A program that wants the same
+convenience must do the same, or call the operator with a \code|real|
+operand. The Report calls the choice of the declaration the
+\rr{identification} of the operator; current languages call it
+\term{overload resolution}.
+
+\section{A complete program}\label{sec-procs-complete}
+
+The final program of this chapter defines a type of exact fractions and
+the arithmetic operators for it. The function \code|rat| reduces a
+fraction to lowest terms with the greatest common divisor and makes the
+denominator positive. A new operator \code|//| builds a fraction from two
+integers; it is given the precedence of \code|/|. The unary operator
+\code|STR| converts a fraction into a string.
+
+\example{ch05/rational}
+
+Note how the standard symbols \code|+|, \code|-|, \code|*| and \code|/|
+get a new meaning for the type \code|Rat| without losing their meaning
+for numbers, and how the unary and binary \code|-| are declared
+separately. Defining \code|+| does not define \code|+:=|: the program
+declares it separately, with a reference to the variable as its left
+operand and the variable as its result, like the standard \code|+:=|. The expression \code|STR - (6 // 8)| applies two unary
+operators, the minus first.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch5]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What is the type of each of these functions?
+  (a) \code|proc f = (real x, int n) real: x ** n|
+  (b) \code|proc g = bool: random < 0.5|
+  (c) \code|proc h = (ref [] int a) void: a[1] := 0|
+\item Write a function \code|digit_sum| that returns the sum of the
+  decimal digits of a non-negative \code|int|, once with a loop and once
+  recursively.
+\item Why does \code|proc inc = (int n) void: n +:= 1| not compile, and how
+  must it be written to increase the caller's variable?
+\item Write a function \code|apply_twice| that takes a function of type
+  \code|proc (int) int| and an \code|int| and applies the function twice.
+  Call it with a function literal that doubles its argument.
+\item Declare an operator \code|ABOVE| so that \code|a ABOVE b| is
+  \code|true| if \code|a| is greater than \code|b|, for \code|int|
+  operands, with the precedence of \code|>|. What is the value of
+  \code|1 + 2 ABOVE 2|?
+\item With the operators of this chapter, what is \code|SQUARE 2 MAX 3|?
+\item Why does the assignment \code|p := hello| not call the function
+  \code|hello|, although its value is discarded?
+\item In a block that contains \code|prio + = 7|, what is the value of
+  \code|1 + 2 * 3|?
+\item May \code|op MAX = (int a, real b) real| and
+  \code|op MAX = (real a, int b) real| be declared in the same block?
+\item Write an operator \code|*| that multiplies a \code|[] real| by a
+  \code|real| and returns a new array with the same bounds.
+\item A function \code|month = (ref int day) string| takes a day of the
+  year, returns the name of its month and changes \code|day| to the day
+  within that month. Why is \code|print ((month (d), " ", d))| wrong, and
+  how is it corrected?
+\item Write a function \code|sum = (int lo, hi, proc (int) real term) real|
+  and use it to compute the sum of $1/k^2$ for $k$ from 1 to 100 and the scalar product of
+  two arrays \code|v| and \code|w|. Why can the second call not simply
+  pass \code|v[k] * w[k]|?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Write a function that returns the $n$-th prime number, and use it
+  to print the first 20 primes.
+\item Solve the Towers of Hanoi recursively and print the moves for four
+  discs.
+\item Write a function that finds a root of a function
+  \code|proc (real) real| in an interval by bisection, and use it to
+  compute the cube root of 2.
+\item Define a type \code|Vector| with three \code|real| fields and the
+  operators \code|+|, \code|-|, \code|*| (scalar product) and a unary
+  \code|ABS| (length).
+\item Extend the rational numbers of this chapter with the comparison
+  operators \code|=| and \code|<|, and use them to sort an array of
+  fractions.
+\item \textbf{Merge sort.} Sort an array by recursive merge sort,
+  passing the halves to the recursive calls as slices of a
+  \code|ref [] int|.
+\item \textbf{Permutations.} Print all permutations of the numbers 1 to
+  $n$, and all ways of choosing $k$ of them, with a recursive procedure
+  that fills an array position by position.
+\item \textbf{Plotting.} Write a procedure that takes a function
+  \code|proc (real) real|, an interval and a height, and plots the
+  function with characters. Plot \code|sin| and a function literal.
+\item \textbf{Horner's rule.} Write a function that evaluates a
+  polynomial whose coefficients are given in an array with any lower
+  bound, and count the multiplications compared with computing each power
+  separately.
+\item \textbf{The 91 function.} McCarthy's function is
+  $f(n) = n - 10$ for $n > 100$ and $f(f(n + 11))$ otherwise. Compute it
+  recursively for $n$ from 1 to 110, and find a simple formula for its
+  values.
+\item \textbf{Monte Carlo.} Estimate $\pi$ by choosing random points in
+  a square with \code|random| and counting those inside the circle, for
+  $10^3$, $10^4$ and $10^5$ points.
+\item \textbf{Matrices.} Declare \code|+|, \code|*| and \code|*:=| for
+  \code|[,] real|, checking that the bounds fit.
+\item \textbf{Resistors.} Declare an operator \code|PAR| that combines
+  two resistances in parallel, $ab/(a + b)$, choose a precedence for it
+  relative to \code|+| (resistances in series), and add an assigning
+  form \code|PARAB| in the style of \code|+:=|. Compute a network of
+  several resistors with one formula.
+\item \textbf{A maze.} Describe a maze by a function
+  \code|blocked = (int x, y) bool| and find a way from the entrance to
+  the exit with a recursive procedure that tries each direction, marks
+  the cells it has visited, and backs out of dead ends. Print the path as the
+  recursion returns, and explain why it comes out in reverse order.
+\item \textbf{An evaluator.} Evaluate integer expressions with
+  \code|+ - * /| and parentheses, given as a string, with mutually
+  recursive functions for expressions, terms and factors that share a
+  position variable.
+\end{enumerate}

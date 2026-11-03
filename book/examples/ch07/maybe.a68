@@ -1,0 +1,21 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Maybe = union (int, void);
+   proc find = ([] int a, int x) Maybe:
+   begin
+      Maybe result := empty;
+      for i from LWB a to UPB a while (result | (void): true | false) do
+         if a[i] = x then result := i fi
+      od;
+      result
+   end;
+   [] int primes = (2, 3, 5, 7, 11);
+   for x from 4 to 7 do
+      case find (primes, x) in
+         (int i): print ((whole (x, 0), " at ", whole (i, 0), newline)),
+         (void): print ((whole (x, 0), " not found", newline))
+      esac
+   od
+{ end excerpt }
+end

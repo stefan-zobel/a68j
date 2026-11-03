@@ -1,0 +1,23 @@
+access Genie_Transput
+begin
+   { Check of the answer to exercise 4 of Chapter 8: no butler, but }
+   { philosopher 0 picks up the forks in the other order.           }
+   int n = 5, meals = 1000;
+   [0 : n - 1] sema fork;
+   [0 : n - 1] int eaten;
+   for i from 0 to n - 1 do fork[i] := LEVEL 1; eaten[i] := 0 od;
+   proc philosopher = (int i) void:
+   begin
+      int first = (i = 0 | (i + 1) MOD n | i),
+          second = (i = 0 | i | (i + 1) MOD n);
+      to meals do
+         DOWN fork[first]; DOWN fork[second];
+         eaten[i] +:= 1;
+         UP fork[second]; UP fork[first]
+      od
+   end;
+   par (philosopher (0), philosopher (1), philosopher (2),
+        philosopher (3), philosopher (4));
+   for i from 0 to n - 1 do print ((whole (eaten[i], 0), " ")) od;
+   print (newline)
+end

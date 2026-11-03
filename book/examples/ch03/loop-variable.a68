@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+   for i to 10 do
+      if i = 5 then i := 10 fi;
+      print (i)
+   od
+end

@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   string text := "3 4 5";
+   File f;
+   associate (f, text);               { f now reads from text }
+   int a, b, c;
+   get (f, (a, b, c));
+   print ((whole (a * a + b * b - c * c, 0), newline));
+
+   string line := "";
+   File g;
+   associate (g, line);               { g now writes into line }
+   put (g, ("a = ", whole (a, 0), ", c = ", whole (c, 0)));
+   print ((line, newline))
+{ end excerpt }
+end

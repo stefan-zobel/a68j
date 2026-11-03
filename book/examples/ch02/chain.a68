@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   real x = 1, y = 2, z = 3;
+   print ((x < y < z, newline))
+end

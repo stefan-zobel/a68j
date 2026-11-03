@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a := 5;                    { the short form }
+   ref int b = loc int := 5;      { what the short form means }
+   a := a + 1;
+   b := b + 1;
+   print ((a, b, newline))
+{ end excerpt }
+end

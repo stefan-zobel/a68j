@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc factorial = (int n) int: (n <= 1 | 1 | n * factorial (n - 1));
+   proc fib = (int n) int: (n < 2 | n | fib (n - 1) + fib (n - 2));
+   print ((factorial (10), fib (20), newline))
+{ end excerpt }
+end

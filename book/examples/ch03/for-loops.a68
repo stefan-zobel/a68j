@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int sum := 0;
+   for i from 1 to 10 do sum +:= i od;
+   print ((sum, newline));
+   for i from 10 by -3 to 0 do print (i) od;
+   print (newline);
+   to 3 do print ("ha") od;
+   print (newline)
+{ end excerpt }
+end

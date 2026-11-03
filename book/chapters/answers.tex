@@ -1,0 +1,371 @@
+\chapter*{Answers to the exercises}\label{ch-answers}
+\addcontentsline{toc}{chapter}{Answers to the exercises}
+
+The numerical answers have been checked by running them. The checks are
+programs in the directory \texttt{examples/answers} of the book's sources,
+one for each chapter.
+
+\section*{Chapter 2}\label{ans-ch2}
+
+\begin{enumerate}
+\item \code|12| and \code|1 000| are \code|int| literals (blanks are
+  allowed between digits); \code|.5|,
+  \code|3e2| and \code|0.0| are \code|real| literals. \code|-3| is not a
+  literal but an expression: the unary operator \code|-| applied to the
+  literal \code|3|. \code|1,000| is two literals, \code|1| and
+  \code|000|, separated by a comma. \code|2.| is not a literal, since a
+  digit must follow the point.
+\item \code|17 % 5| is 3, \code|-17 % 5| is $-3$ (the unary minus binds
+  first, and \code|%| truncates toward zero), \code|17 MOD 5| is 2,
+  \code|-17 MOD 5| is 3 (the remainder is never negative), and
+  \code|17 / 5| is the \code|real| 3.4.
+\item \code|2 + 3 * 4 ** 2| is $2 + 3 \cdot 16 = 50$. \code|-3 ** 2| is
+  $(-3)^2 = 9$, since unary operators bind more tightly than binary ones.
+\item \code|int n = 10| binds \code|n| to the value 10; \code|n| has the
+  type \code|int| and cannot be assigned to. \code|int n := 10| allocates
+  a cell, stores 10 in it and binds \code|n| to the reference to the cell;
+  \code|n| has the type \code|ref int|.
+\item \code|ref real x = loc real := 1.5, y = loc real|. Writing
+  \code|ref real| before \code|y| as well is also correct.
+\item (a) is correct: \code|i| is dereferenced and the \code|int| is
+  widened to \code|real|. (b) is wrong: there is no implicit conversion
+  from \code|real| to \code|int|. (c) is correct. (d) is wrong:
+  \code|ROUND| is defined for a \code|real| operand only, and an operand
+  is not widened.
+\item Both are 3. The expression \code|a + b| is evaluated first, giving
+  3; this is assigned to \code|b|, and the value of \code|b| is then
+  assigned to \code|a|.
+\item Since a capital letter begins a type name, \code|maxCount| is read
+  as the identifier \code|max| followed by the type name \code|Count|.
+  Identifiers are written in lower case: \code|max_count|.
+\item 2. \code|r| is a second name for the cell of \code|x|.
+\item \code|((a < b) AND ((x > 0) = (y > 0))) OR (NOT done)|: the
+  comparisons \code|<| and \code|>| (precedence 5) bind more tightly than
+  \code|=| (4), which binds more tightly than \code|AND| (3) and
+  \code|OR| (2), and the unary \code|NOT| binds most tightly of all.
+\item 0.25 and 2: \code|-7 MOD 3| is 2, since \code|MOD| never yields a
+  negative result. \code|NOT n = 0| means \code|(NOT n) = 0|, and
+  \code|NOT| is not defined for an \code|int|.
+\end{enumerate}
+
+\section*{Chapter 3}\label{ans-ch3}
+
+\begin{enumerate}
+\item 10 and 11.
+\item It prints 20 and then 1. The inner block declares a new \code|x|
+  with the value $y \cdot 10 = 20$; after that block, \code|x| is the
+  outermost \code|x| again.
+\item (a) never, since the initial value is already greater than the
+  final value; (b) five times (1, 3, 5, 7, 9); (c) five times (10, 8, 6,
+  4, 2); (d) never.
+\item \code|if x > 0 then "plus" elif x < 0 then "minus" else "zero" fi|.
+\item \code|real|: the two branches are balanced, and the common type of
+  \code|int| and \code|real| is \code|real|; the 1 is widened.
+\item The operands of an operator are evaluated in an unspecified order
+  (collateral elaboration), so either call may come first.
+\item \code|int p := 1; while p <= 1000 do print (p); p *:= 2 od|.
+\item It prints 6, 12 and 24. The number of repetitions is computed
+  once, before the first iteration, so the loop runs three times, and
+  the changes of \code|k| do not affect it.
+\item It prints 1 forever. With a step of 0 the final value is ignored.
+\item Yes. A jump is acceptable as a value of any type, here
+  \code|string|. For \code|k = 5| the \code|out| part is chosen, control
+  goes to \code|bad|, and \code|name| never gets a value.
+\item In \code|real v = (b | x | n)| the context gives the type
+  \code|real| to both branches: \code|x| is dereferenced, and \code|n| is
+  dereferenced and widened. A \code|ref int| cannot become a
+  \code|ref real|, so in the second declaration the \code|n| branch
+  cannot be converted, and all three compilers report that
+  \code|ref int| cannot be coerced to \code|ref real|.
+\item The two declarations are carried out in an unspecified order, so
+  \code|b| may be computed before \code|a| has a value. Written with a
+  semicolon, \code|int a = 1; int b = a + 1|, the order is fixed.
+\item No number is both less than 1 and greater than 9, so the
+  condition is always false, and the loop ends after the first
+  \code|read|. The condition must be \code|n < 1 OR n > 9|.
+\end{enumerate}
+
+\section*{Chapter 4}\label{ans-ch4}
+
+\begin{enumerate}
+\item \code|[1900:2000] real rainfall;|\\
+  \code|for y from LWB rainfall to UPB rainfall do rainfall[y] := 0 od|
+\item \code|a[2:3]| is the array \code|(6, 7)| with the bounds 1 to 2, so
+  \code|LWB a[2:3]| is 1. \code|a[3:]| has the elements 7, 8, 9 and the
+  bounds 1 to 3, so its \code|UPB| is 3. \code|a[2:3 @ 0]| has the bounds
+  0 to 1, and its element 0 is 6.
+\item All three are one-dimensional arrays of \code|int| (references to
+  them, since \code|m| is a variable). \code|m[2, ]| is the second row,
+  with the bounds 1 to 4; \code|m[, 3]| is the third column, with the
+  bounds 1 to 3; \code|m[2:3, 2]| is the part of the second column in
+  rows 2 and 3, renumbered to the bounds 1 to 2.
+\item \code|(4, 5, 6)|: the assignment copies the elements of \code|b|
+  into \code|a|, and the later change of \code|b| does not affect
+  \code|a|.
+\item \code|mode Date = struct (int day, month, year);|\\
+  \code|Date d = (3, 11, 1975)|
+\item Indexing binds more tightly than selection, so the expression means
+  \code|name of (class[1][1])|, which tries to index a record. It must be
+  written \code|(name of class[1])[1]|.
+\item \code|y of ps := (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)|. Note that
+  \code|y of ps := 0| does not work: the 0 is converted into an array
+  with one element, and the bounds do not match (a run-time error).
+\item 2 to 11 (the second dimension is left out and keeps its bounds),
+  1 to 3 (a range is renumbered), and 0 to 9 (the first dimension keeps
+  its bounds).
+\item \code|1 1 2 3 4 6|. The right-hand side is a value that is
+  complete before anything is stored, so the overlap does no harm.
+\end{enumerate}
+
+\section*{Chapter 5}\label{ans-ch5}
+
+\begin{enumerate}
+\item (a) \code|proc (real, int) real|; (b) \code|proc bool|;
+  (c) \code|proc (ref [] int) void|.
+\item With a loop:
+\begin{lstlisting}
+proc digit_sum = (int n) int:
+begin
+   int sum := 0, rest := n;
+   while rest > 0 do sum +:= rest MOD 10; rest := rest % 10 od;
+   sum
+end
+\end{lstlisting}
+  Recursively:
+  \code{proc digit_sum = (int n) int: (n < 10 | n | n MOD 10 + digit_sum (n % 10))}.
+\item The parameter \code|n| is a constant of type \code|int|, which
+  cannot be assigned to. Written as \code|proc inc = (ref int n) void: n +:= 1|,
+  it takes a reference to the caller's variable, as in \code|inc (count)|.
+\item \code|proc apply_twice = (proc (int) int f, int x) int: f (f (x))|;
+  the call \code|apply_twice ((int n) int: 2 * n, 5)| gives 20.
+\item \code|prio ABOVE = 5; op ABOVE = (int a, b) bool: a > b|. Since
+  \code|+| has the higher precedence 6, \code|1 + 2 ABOVE 2| means
+  \code|(1 + 2) ABOVE 2|, which is \code|true|.
+\item A unary operator binds more tightly than a binary one, so the
+  expression means \code|(SQUARE 2) MAX 3|, which is 4.
+\item An assignment is one of the expressions that are discarded as they
+  are: its value, the variable \code|p|, is thrown away without calling
+  the function that \code|p| holds. Every other expression that yields a
+  function without parameters, such as \code|p| on its own, an element
+  \code|ps[1]| or a call \code|g (1)|, is called when it is discarded.
+\item 9: the precedence belongs to the symbol \code|+|, so in that block
+  \code|1 + 2 * 3| is \code|(1 + 2) * 3| for integers too.
+\item Yes. Two declarations of a binary operator clash only if both
+  pairs of operand types are related; here the first operands
+  (\code|int| and \code|real|) are not, since an \code|int| operand is
+  not widened.
+\item
+\begin{lstlisting}
+op * = ([] real a, real k) [] real:
+begin
+   [LWB a : UPB a] real r;
+   for i from LWB a to UPB a do r[i] := a[i] * k od;
+   r
+end
+\end{lstlisting}
+\item The items of a \code|print| list are evaluated in an unspecified
+  order (Section~\ref{sec-collateral}), so \code|d| may be read before or
+  after \code|month| has changed it. The call must come first, in a
+  declaration of its own:
+  \code|string m = month (d); print ((m, " ", d))|.
+\item
+\begin{lstlisting}
+proc sum = (int lo, hi, proc (int) real term) real:
+begin
+   real s := 0;
+   for k from lo to hi do s +:= term (k) od;
+   s
+end
+\end{lstlisting}
+  \code|sum (1, 100, (int k) real: 1 / (k * k))| gives about 1.635, and
+  \code|sum (1, 3, (int k) real: v[k] * w[k])| the scalar product of
+  three-element arrays. \code|v[k] * w[k]| on its own is a \code|real|,
+  not a function of \code|k|: the call is rejected, and there is no
+  \code|k| at that place anyway. The function literal is called by
+  \code|sum| for each \code|k|, and its body is evaluated with that
+  \code|k|.
+\end{enumerate}
+
+\section*{Chapter 6}\label{ans-ch6}
+
+\begin{enumerate}
+\item $(1 + i)(1 - i) = 2$, so the real part is 2.0; \code|ABS (0 I 2)| is
+  2.0.
+\item There is no implicit conversion from \code|int| to \code|long int|.
+  Correct is \code|long int n := long 5| or \code|long int n := LENG 5|.
+\item 10, 16 and \code|true|: bit 32 is the least significant bit.
+\item
+\begin{lstlisting}
+proc popcount = (bits b) int:
+begin
+   int count := 0;
+   for i to bits_width do if i ELEM b then count +:= 1 fi od;
+   count
+end
+\end{lstlisting}
+\item With the environment enquiry \code|int_lengths|: \code|long long int|
+  is a distinct, longer type only if \code|int_lengths| is at least 3.
+\item No. The comparisons of \code|bits| are set comparisons: \code|>=|
+  asks whether the first value contains all bits of the second, and
+  \code|2r100| does not contain the bits of \code|2r011|.
+\item \code|2 * (3 I 4)|, the complex number $6 + 8i$, since \code|I| has
+  the precedence 9.
+\end{enumerate}
+
+\section*{Chapter 7}\label{ans-ch7}
+
+\begin{enumerate}
+\item 1 to 5: \code|s[2:3]| is \code|"bc"|, and the assignment gives
+  \code|s| the bounds of \code|"bcxyz"|.
+\item A parameter of type \code|ref [] int| would also accept a variable
+  with fixed bounds, to which a longer array cannot be assigned. Only
+  \code|ref flex [] int| guarantees a variable whose bounds may change.
+  Moreover, in the Report a \code|ref flex [] int| is a different type,
+  which cannot be passed as a \code|ref [] int| at all.
+\item
+\begin{lstlisting}
+proc to_real = (union (int, real, bool) v) real:
+   case v in (int i): i, (real r): r, (bool b): (b | 1 | 0) esac
+\end{lstlisting}
+\item (b) and (c). (a) is an error: the left-hand side \code|p| has the
+  type \code|ref ref int|, so the right-hand side must be a
+  \code|ref int|, and the compiler reports that an \code|int| cannot be
+  converted to \code|ref int|.
+\item One side of an identity relation is soft, the other strong.
+  \code|nil| can only be the strong side, so \code|q| is the soft side and
+  is not dereferenced: the variable \code|q| itself, which is never
+  \code|nil|, is compared. The correct
+  test is \code|ref int (q) is nil|.
+\item (a) soft, (b) strong, (c) firm, (d) meek.
+\item
+\begin{lstlisting}
+proc reverse = (ref ref Node list) void:
+begin
+   ref Node prev := no_node, cur := list;
+   while ref Node (cur) isnt no_node do
+      ref Node rest = next of cur;
+      next of cur := prev;
+      prev := cur;
+      cur := rest
+   od;
+   list := prev
+end
+\end{lstlisting}
+\item \code|words[1]| is a reference into a resizable array, a transient
+  reference, and \code|+:=| is an operator whose left operand would
+  receive it. \code|words[1] := words[1] + "s"| is allowed.
+\item (a) is rejected: \code|"a"| is a \code|char|, which is not a member
+  of the union; \code|string ("a")| works. (b) is accepted. (c) is
+  rejected: \code|2| is an \code|int|, and uniting cannot follow widening.
+  (d) is accepted.
+\item \code|F|, \code|F|, \code|T|: \code|p is q| compares the two
+  pointer variables, \code|ref int (p) is ref int (q)| compares \code|a|
+  with \code|b|, and \code|ref int (p) is a| compares \code|a| with
+  \code|a|. After \code|q := a| the results are \code|F|, \code|T|,
+  \code|T|: the variables \code|p| and \code|q| are still different
+  cells.
+\item With \code|push|, the array is replaced when it holds 4, 8, 16,
+  \ldots, 512 elements, which copies $4 + 8 + \cdots + 512 = 1020$
+  elements, about one per element. With \code|append|, the $k$-th call
+  copies the $k - 1$ elements before it, $0 + 1 + \cdots + 999 = 499\,500$
+  in all.
+\item The function \code|(int x) int: x + n| uses \code|n|, a parameter
+  of \code|adder|, so its lifetime ends when \code|adder| returns, and it
+  may not be returned. Algol 68 Genie stops with ``value is exported out
+  of its scope''; ga68 and a68j run the program, and the
+  function returned by \code|adder (3)| even yields 7 for the argument 4.
+\item The first loop body declares nothing, since \code|print (i)| is not
+  a declaration: the program remains correct. The second declares
+  \code|j|, so each cell lives only during one execution of the body, and
+  the program is wrong; Algol 68 Genie stops it.
+\item \code|a is b| is \code|false|: the two lists consist of different
+  cells, although their contents are equal.
+\begin{lstlisting}
+prio EQ = 4;
+op EQ = (ref Node a, b) bool:
+   if a is nil then b is nil
+   elif b is nil then false
+   else value of a = value of b andth (next of a EQ next of b)
+   fi
+\end{lstlisting}
+  \code|a EQ b| is \code|true|.
+\end{enumerate}
+
+\section*{Chapter 8}\label{ans-ch8}
+
+\begin{enumerate}
+\item Both leave the order of \code|a| and \code|b| unspecified, and in
+  both they may be interleaved. With \code|par|, each is a separate
+  process, so one of them can wait on a semaphore while the other goes on.
+\item The part waits forever; if no other part can continue either, the
+  program hangs (a deadlock). Formally, the Report leaves the rest of the
+  program undefined once no process can continue.
+\item With one producer and one consumer, \code|mutex| is not strictly
+  necessary: \code|tail| is changed only by the producer and \code|head|
+  only by the consumer, and \code|free| and \code|full| ensure that they
+  never use the same element of the buffer at the same time. With several
+  producers or several consumers, two of them could change the same
+  position at once, and \code|mutex| becomes necessary.
+\item Let philosopher 0 pick up the right fork first and then the left
+  one, while all others pick up the left fork first. Then the five can
+  never each hold exactly one fork while waiting for the next.
+\item When the buffer is full, the producer takes \code|mutex| and then
+  waits in \code|DOWN free| while holding it. The consumer waits in
+  \code|DOWN mutex| and can never make a place free: a deadlock.
+\item \code|sema| is a record whose only field is a reference to the
+  counter, so \code|b| is a copy of that reference and refers to the
+  same counter as \code|a|.
+\end{enumerate}
+
+\section*{Chapter 9}\label{ans-ch9}
+
+\begin{enumerate}
+\item \code|open| connects the file with an existing book;
+  \code|establish| creates a new one.
+\item That the routine has dealt with the event, so that the transput
+  continues at the same place. If it returns \code|false|, the default
+  action follows; at the end of the file, the Report leaves the program
+  undefined, and the implementations stop it with an error.
+\item
+\begin{lstlisting}
+proc int_to_string = (int n) string:
+begin
+   string s := "";
+   File f;
+   associate (f, s);
+   put (f, n);
+   s
+end
+\end{lstlisting}
+  The result has the standard layout of \code|print|, with the sign and
+  leading blanks.
+\item \code|$4d$| prints \texttt{0007} for 7; for $-7$ it is an error,
+  since the picture has no sign frame. \code|$4zd$| prints four blanks
+  and 7 for 7, and is also an error for $-7$. \code|$-3zd$| prints four
+  blanks and 7 for 7, and a minus sign, three blanks and 7 for $-7$: the
+  sign frame \code|-| prints a blank for a positive value.
+\item Reading a string stops before the line break and does not skip it,
+  so the line break must be skipped with \code|newline|. If both are read
+  in one call, \code|get (input, (line, newline))|, and the last line has
+  no line break, \code|newline| meets the end of the input and the event
+  routine jumps away before the line is printed. With two calls, the line
+  is printed first.
+\item (a) One value: the frames form a single picture of four digits,
+  and 3 is printed as \code|00/03|; the format then starts again and
+  prints 4 as \code|00/04|. (b) Two values, printed as
+  \code|03/04|.
+\item \code|" -5"|, \code|"  5"|, \code|"2.50"| and \code|"-.25"|.
+  A positive width always writes a sign, a negative one only a minus
+  sign; with width 0, \code|fixed| writes no zero before the point.
+\item Both \code|a| and \code|b| fail on the same \code|x|, since the
+  routine leaves it in place; in the implementations, the routine is
+  called twice, and \code|a| and \code|b| keep their old values. The
+  \code|5| is never read.
+\item
+\begin{lstlisting}
+$g(0), " ", c("January", "February", "March", "April", "May", "June",
+   "July", "August", "September", "October", "November", "December"),
+ " ", g(0)$
+\end{lstlisting}
+  The pictures \code|" "| have no pattern and use no value.
+\end{enumerate}

@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   real x = 1234.5678;
+   printf (($g l$, x));
+   printf (($g(10) "|" g(-10, 2) "|" g(-12, 3, 2) l$, 42, x, x));
+   int w = 9;
+   printf (($g(w, w - 6) l$, x));            { the parameters can be computed }
+   bits b = 2r1011;
+   printf (($2r8d, " " 16r4d l$, b, 16rbeef))
+{ end excerpt }
+end

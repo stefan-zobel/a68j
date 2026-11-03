@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int calls := 0;
+   proc counted_square = (int n) int: (calls +:= 1; n * n);
+   int total := 0;
+   for i to 4 do total +:= counted_square (i) od;
+   print ((total, calls, newline))
+{ end excerpt }
+end

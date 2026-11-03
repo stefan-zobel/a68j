@@ -1,0 +1,1 @@
+out-of-bounds.a68:5: runtime error: bound 4 out of range [1:3]

@@ -1,0 +1,2 @@
+bad-mode.a68:3:9: error: chain does not specify a well formed mode
+bad-mode.a68:3:9: note: mode chain is infinite

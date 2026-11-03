@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Meter = struct (int serial, ref int reading);
+   Meter m = (23146, heap int := 0);
+   reading of m := 10;          { m is a constant, its reading is not }
+   Meter v := m;                { copies the reference, not the cell }
+   ref int (reading of v) := 30;
+   print ((whole (reading of m, 0), newline))
+{ end excerpt }
+end

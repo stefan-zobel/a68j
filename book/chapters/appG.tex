@@ -1,0 +1,111 @@
+\chapter{Partial parametrization}\label{app-partial}
+
+Section~\ref{sec-proc-lifetimes} showed that an Algol 68 function cannot
+be returned from the block whose names it uses: a function that composes
+two other functions, the everyday closure of current languages, is an
+error. Soon after the Revised Report, Lindsey proposed an extension that
+removes most of this limitation without changing the lifetime
+rule~\cite{partial}. The subcommittee of IFIP Working Group 2.1 that
+looked after Algol 68 released it in 1976, so that implementations that
+experimented with such a facility would all provide it in the same form;
+it is not part of the Revised Report. Algol 68 Genie implements it;
+ga68 and a68j do not (Appendix~\ref{app-impl}): a68j rejects such a call
+with a message, and ga68 currently stops with an internal compiler
+error. The programs of this
+appendix were run with Algol 68 Genie.
+
+\section*{Leaving arguments out}
+
+With partial parametrization, a call may leave arguments out, by writing
+nothing in their places; the commas stay. Such a call does not run the function; it
+yields a new function that takes the missing arguments and has the given
+ones stored inside it:
+
+\example{appG/add}
+
+\noindent \code|add (3, )| is a function of one \code|real|, which adds 3.
+It can be called at once, as in \code|add (3, ) (10)|, or kept and called
+later. The functional languages call the same idea partial application;
+in Python it is \texttt{functools.partial}, in C++ \texttt{std::bind}.
+
+A function can be given its arguments in several stages. Each stage
+stores the new arguments and yields a function of the remaining ones:
+
+\example{appG/stages}
+
+\section*{Closures without the lifetime problem}
+
+The stored arguments are part of the new function: they are copied into
+it, and the function does not refer to the block in which the call was
+made. This is what makes the idea work. Instead of using the names of an
+enclosing block, the inner function receives everything as parameters,
+and the outer function supplies them by partial parametrization. The
+function \code|compose| of Section~\ref{sec-proc-lifetimes}, which Algol
+68 Genie stops at run time there, becomes:
+
+\example{appG/compose}
+
+\noindent The inner function uses only its own parameters
+\code|f|, \code|g| and \code|x|. \code|compose| gives it the first two and
+returns the result, which no longer depends on \code|compose|'s
+parameters. Lindsey's proposal shows the same pattern with an operator
+that raises the value of a function to a power, so that the cosine
+``squared'' yields $\cos^2\theta$. The operator \code|^| below instead
+applies a function \code|n| times:
+
+\example{appG/power}
+
+\noindent Twenty applications of \code|cos| to 1 come close to the
+number $x$ with $\cos x = x$, 0.739085\ldots; more applications get
+closer.
+
+\section*{When the arguments are evaluated}
+
+The arguments of a call that leaves arguments out are evaluated when the call is made, not
+when the resulting function is finally called. A value is stored as it
+is at that moment; a reference is stored as a reference, so the function
+sees later changes of the variable it refers to:
+
+\example{appG/when}
+
+\noindent \code|add_n| keeps the value 1 that \code|n| had when
+\code|add_n| was made; the later assignment to \code|n| does not change
+it. \code|bump| keeps the reference \code|counter|, and every call
+increases the same cell. A heap cell and a function that keeps a
+reference to it are the counter of Section~\ref{sec-proc-lifetimes}
+without the need to pass the counter along.
+
+\begin{pitfall}
+The lifetime rule still applies to what is stored. A function made by
+partial parametrization lives only as long as both the original function
+and every value stored in it, whichever ends first. If a stored reference refers to a \code|loc| cell of a
+block, the function must not outlive that block:
+
+\example{appG/scope}
+
+\noindent The cell \code|count| ends with the block of
+\code|make_bump|, and the function returned holds a reference to it. By
+the rules of the proposal, returning the function from the block is the
+error. Algol 68 Genie does not check it there; it stops the program only
+when the function is used, here in \code|incr|, whose result is the cell
+that no longer exists. The counter must be a \code|heap| cell, as in the
+previous example.
+\end{pitfall}
+
+\section*{Calls with all arguments}
+
+In Lindsey's proposal, every call is a partial parametrization: a call
+that supplies all arguments yields a function without parameters, which
+is then called at once if the context requires a value, the usual case.
+If the context requires a function without parameters, the call is not
+executed but kept: \code|proc int tick = incr (counter, 1)| would declare
+a function that increases \code|counter| by 1 each time it is called.
+
+\begin{implnote}
+Algol 68 Genie does not implement this part of the proposal. It runs a
+call as soon as all arguments are given, and rejects the declaration of
+\code|tick|:
+\outputof{appG/complete}
+\noindent Leaving out at least one argument, as \code|bump| does above,
+works in Algol 68 Genie.
+\end{implnote}

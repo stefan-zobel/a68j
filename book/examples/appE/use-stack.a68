@@ -1,0 +1,6 @@
+access Stack, Genie_Transput
+begin
+   for i to 5 do push (i * i) od;
+   while NOT is_empty do print (pop) od;
+   print (newline)
+end

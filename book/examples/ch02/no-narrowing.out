@@ -1,0 +1,1 @@
+no-narrowing.a68:3:12: error: real cannot be coerced to int in a strong-unit

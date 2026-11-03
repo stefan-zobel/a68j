@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Point = struct (real x, y);
+   mode Circle = struct (Point center, real radius);
+   Circle c := ((0, 0), 1.5);
+   x of center of c := 2;
+   print ((fixed (x of center of c, 0, 1), " ",
+           fixed (radius of c, 0, 1), newline))
+{ end excerpt }
+end

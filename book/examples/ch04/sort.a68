@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+   { Insertion sort. }
+   [] int data = (31, 41, 59, 26, 53, 58, 97, 93, 23, 84);
+   [LWB data : UPB data] int a := data;
+   for i from LWB a + 1 to UPB a do
+      int v = a[i];
+      int j := i - 1;
+      while j >= LWB a andth a[j] > v do
+         a[j + 1] := a[j];
+         j -:= 1
+      od;
+      a[j + 1] := v
+   od;
+   for i to UPB a do print (whole (a[i], -4)) od;
+   print (newline)
+end

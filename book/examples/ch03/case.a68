@@ -1,0 +1,14 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for day to 8 do
+      string name = case day in "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+                    out "???"
+                    esac;
+      print ((name, " "))
+   od;
+   print (newline);
+   int code = 12;
+   print (((code | "one", "two" | "many"), newline))
+{ end excerpt }
+end

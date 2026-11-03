@@ -1,0 +1,21 @@
+access Genie_Transput
+begin
+   { The dining philosophers, with a butler who admits at most four at a time. }
+   int n = 5, meals = 1000;
+   [0 : n - 1] sema fork;
+   [0 : n - 1] int eaten;
+   for i from 0 to n - 1 do fork[i] := LEVEL 1; eaten[i] := 0 od;
+   sema butler = LEVEL (n - 1);
+   proc philosopher = (int i) void:
+      to meals do
+         DOWN butler;
+         DOWN fork[i]; DOWN fork[(i + 1) MOD n];
+         eaten[i] +:= 1;                              { eat }
+         UP fork[(i + 1) MOD n]; UP fork[i];
+         UP butler                                    { think }
+      od;
+   par (philosopher (0), philosopher (1), philosopher (2),
+        philosopher (3), philosopher (4));
+   for i from 0 to n - 1 do print ((whole (eaten[i], 0), " ")) od;
+   print (newline)
+end

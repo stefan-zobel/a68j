@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [] real data = (4, 2.25, -1, 9);
+   for i to UPB data do
+      real r = if data[i] >= 0 then sqrt (data[i]) else goto bad_input fi;
+      print ((fixed (r, 0, 2), newline))
+   od;
+   stop;
+bad_input:
+   print (("negative input", newline))
+{ end excerpt }
+end

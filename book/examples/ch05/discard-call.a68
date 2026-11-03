@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc hello = void: print (("hello", newline));
+   proc void p;
+   p := hello;           { assigns the function; nothing is called }
+   print (("assigned", newline));
+   p;                    { a name alone: the function is called }
+   hello
+{ end excerpt }
+end

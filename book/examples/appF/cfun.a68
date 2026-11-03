@@ -1,0 +1,14 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   ref int calls = nest C "&calls";
+   proc (string) int vowels = nest C "vowels";
+   proc (proc (int) int, int) int sum_of = nest C "sum_of";
+
+   string s = "parametrization";
+   print ((vowels (s), " ", vowels (s[1:5]), newline));
+   proc square = (int i) int: i * i;
+   print ((sum_of (square, 4), newline));
+   print (("calls: ", calls, newline))
+{ end excerpt }
+end

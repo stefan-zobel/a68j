@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for n from 0 to 2 do
+      printf (($g(0) " file" b("", "s") " found" l$, n, n = 1))
+   od;
+   for month from 1 to 3 do
+      printf (($c("January", "February", "March") ", " g(0) l$, month, month))
+   od;
+   printf (($b("yes", "no") ", " b l$, 3 > 2, 3 > 4))
+{ end excerpt }
+end

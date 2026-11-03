@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int total := 0;
+   sema mutex = LEVEL 1;
+   proc add = (int n) void:
+   begin
+      int mine := 0;                     { private to this part }
+      to n do mine +:= 1 od;
+      DOWN mutex; total +:= mine; UP mutex
+   end;
+   par (add (100000), add (100000), add (100000));
+   print ((whole (total, 0), newline))
+{ end excerpt }
+end

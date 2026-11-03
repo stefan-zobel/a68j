@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int n := 0;
+   while n +:= 1; n * n < 1000 do skip od;
+   print ((n, newline))
+{ end excerpt }
+end

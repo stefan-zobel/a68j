@@ -1,0 +1,997 @@
+\chapter{Advanced types}\label{ch-advanced}
+
+The types of the previous chapters were built in simple ways: arrays of
+numbers, records of strings and numbers, functions of numbers. This
+chapter shows the full power of the type system. It introduces arrays
+that change their size, unions of types, references to references, and
+recursive types such as lists and trees, and it combines them in larger
+examples. It then collects the rules that earlier chapters introduced
+piece by piece: all implicit conversions and the places where each is
+allowed, and the rules that govern how long a value lives.
+
+This is the chapter where Algol 68 differs most from the languages that
+most programmers know. Many of its rules are easy to state and have
+consequences that are not obvious, so the chapter shows those
+consequences, including the ones that the compilers do not report.
+
+The guiding principle behind all of it is \term{orthogonality}
+(Section~\ref{sec-orthogonality}): every way of building a type can be
+applied to every type, and every construct works the same way whatever
+the types involved.
+
+\section{Resizable arrays}\label{sec-flex}
+
+The arrays of Chapter~\ref{ch-data} have fixed bounds. A variable declared with
+\code|flex| before the bounds can hold arrays of any size; each assignment
+gives it the bounds of the assigned array:
+
+\example{ch07/flex}
+
+\code|flex [1:0] int list| declares a variable that holds an array of
+\code|int|, initially empty. The bounds in the declaration only determine
+the initial array. The Report calls such a variable a \rr{flexible name}.
+
+The value of a resizable array is an ordinary array: \code|snapshot| is
+a copy with the bounds 1 to 2, which does not change when \code|list|
+changes. The type of such a value is the array type without
+\code|flex|; the Report says that the type \rr{deflexes} to it.
+
+There is no operation that adds an element to a resizable array in
+place. An array literal cannot help either: each element of the literal
+must be an \code|int|, and \code|squares| is an array, so the compiler
+rejects \code|(squares, i * i)|:
+
+\example{ch07/append}
+
+Instead, a new, longer array is built and assigned. A procedure does this
+once and for all:
+
+\example{ch07/append-proc}
+
+The parameter has the type \code|ref flex [] int|: a reference to a
+resizable array variable, the only kind of variable whose bounds may
+change. A \code|ref [] int| parameter would accept fixed arrays as well,
+and could therefore not be given a longer array. In the Report, the two
+are even different types: a \code|ref flex [] int| cannot be passed as a
+\code|ref [] int|. This is the price of Algol 68's value semantics for
+arrays: what other languages call a dynamic array or list
+(\texttt{std::vector}, \texttt{ArrayList}, a Python \texttt{list}) is
+here written out explicitly.
+
+\begin{implnote}
+ga68, a68j and Algol 68 Genie accept a \code|ref flex [] int| argument for
+a \code|ref [] int| parameter, contrary to the Report. A program that
+relies on this is not portable.
+\end{implnote}
+
+\section{Where \textbf{flex} can stand}\label{sec-flex-where}
+
+\code|flex| is a property of variables, not of values: an array value
+always has fixed bounds, and only a variable can be given a new array of
+a different size. \code|flex| therefore belongs in the type of a
+variable, that is, under a \code|ref|. It can appear in a variable
+declaration, as above, in the type \code|ref flex [] int| of a
+parameter, and in a type declaration that is used to declare variables:
+\begin{lstlisting}
+mode Buffer = flex [1:0] int;
+Buffer b := (1, 2, 3);
+b := (4, 5)
+\end{lstlisting}
+The standard type \code|string| is exactly such a declaration
+(Section~\ref{sec-string}). A type declaration needs bounds, even if they
+are only initial ones: \code|mode B = flex [] int| is rejected with
+``actual bounds expected''. A constant cannot be resizable, so
+\code|flex [] int b = (1, 2, 3)| is not allowed by the Report; the
+implementations accept it and treat \code|b| as a \code|[] int|.
+
+Deflexing also applies to the fields of a record. A variable of type
+\code|struct (string name, int age)| holds records whose \code|name| can
+have any length, but the record value that the variable holds has a
+field of type \code|[] char|, with the bounds of its current name.
+
+\subsection*{Jagged arrays}
+
+A two-dimensional array \code|[,] int| is rectangular: all its rows have
+the same length. An array of arrays, \code|[] [] int|, is a different
+type, whose elements are arrays in their own right and may have
+different lengths, like a Java \code|int[][]|. With \code|flex| at both
+levels, both the number of rows and each row can change:
+
+\example{ch07/jagged}
+
+In the literal \code|((1, 2), 3, (4, 5, 6))|, the element \code|3| is
+converted to an array with one element (rowing,
+Section~\ref{sec-rowing}). The assignment to \code|rag[2]| gives the second
+row a new length, and \code|rag := rag[1:2]| drops the last row. In
+between lie the type \code|[3] flex [1:0] int|, three rows of which each
+can change, and \code|flex [1:0] [3] int|, a varying number of rows of
+fixed length 3.
+
+\begin{implnote}
+ga68 stops with an internal compiler error when a value of type
+\code|[] [] int| that is not a literal is assigned to a variable of type
+\code|flex [] flex [] int|, as in \code|rag := jag|. Assigning a literal,
+as in the example, works.
+\end{implnote}
+
+\section{Growing an array efficiently}\label{sec-vector}
+
+The procedure \code|append| of Section~\ref{sec-flex} copies the whole
+array each time it adds an element. Building an array of $n$ elements
+this way copies about $n^2/2$ elements, which is slow for large $n$. The
+dynamic arrays of other languages avoid this by keeping some spare room:
+the array is larger than the number of elements in use, and when it is
+full, it is replaced by one twice as large. Each element is then copied
+only a few times on average.
+
+In Algol 68 the same structure is a record with a resizable array and a
+count:
+
+\example{ch07/vector}
+
+\noindent The program prints the number of elements and the capacity
+after each \code|push|:
+\outputof{ch07/vector}
+
+The field \code|data| of a \code|Vector| variable is itself a resizable
+array variable: if \code|v| has the type \code|ref Vector|, then
+\code|data of v| has the type \code|ref flex [] int| and can be assigned
+to, indexed, or passed to \code|append| of Section~\ref{sec-flex}. The
+parentheses in \code|(data of v)[i]| are needed because indexing binds
+more tightly than selection (Section~\ref{sec-multiple-selection}).
+
+The same cost applies to strings: \code|s +:= c| in a loop builds a new
+string each time. For long texts, collecting the characters in a buffer
+of this kind and converting them at the end is much faster.
+
+\section{Strings}\label{sec-string}
+
+The type \code|string| is defined in the standard library as
+\code|flex [1:0] char|, a resizable array of characters. That is why a
+\code|string| variable can hold strings of any length. The library adds a
+few operators:
+
+\example{ch07/strings}
+
+\code|+| joins strings and characters; \code|s +:= t| appends \code|t|
+to \code|s|, and \code|t +=: s| puts \code|t| in front of \code|s|.
+\code|*| repeats a string a given number of times, and \code|s *:= n|
+replaces \code|s| by \code|n| copies of itself. The comparisons
+\code|=|, \code|/=|, \code|<|, \code|<=|, \code|>|, \code|>=| compare
+strings in dictionary order, by the codes of their characters. They are
+defined for \code|[] char|, so they apply to every array of characters,
+not only to \code|string| variables.
+
+\section{References into resizable arrays}\label{sec-transient}
+
+An element of an array variable is itself a variable: \code|a[1]| is a
+reference to the first element. For a resizable array, such a reference
+must not be kept, since the next assignment to the array may give it a
+different size and place the elements elsewhere; the reference would then
+refer to a cell that no longer belongs to the array. The language
+therefore forbids binding such a reference to a name or storing it:
+
+\example{ch07/transient}
+
+The Report calls a reference into a resizable array a \rr{transient
+name}. The same problem is known in C++ as iterator invalidation; Algol
+68 rules it out at compile time.
+
+The rule is stricter than it looks. A transient reference may be used
+only directly, for an assignment or to obtain its value. It may not be
+bound to a name, stored, returned, or passed to a procedure or an
+operator, since a parameter is bound like a constant declaration and no
+type can be written for a transient reference. That excludes some
+everyday code:
+
+\example{ch07/transient-count}
+
+\code|+:=| is an operator whose left operand is a reference, so
+\code|count[3] +:= 1| passes a transient reference to it. For the same
+reason \code|read (count[3])| and \code|swap (count[i], count[j])| are
+rejected, and so is \code|s[i] +:= "x"| for an element of a
+\code|flex [] string|. Note that \code|string| is a resizable array, so
+the rule applies to the characters of every \code|string| variable.
+Selecting a field across all elements, \code|x of path| for a
+\code|flex [] Point| variable \code|path|, gives a transient reference
+as well.
+
+There are three ways around it. The plain assignment
+\code|count[3] := count[3] + 1| is allowed. If the size is known once the
+array has been filled, a fixed array can take over:
+\code|[UPB count] int c := count| is an ordinary array whose elements may
+be passed anywhere. And the restriction applies only to resizable
+arrays: the elements of fixed arrays and the fields of records are
+ordinary variables.
+
+\section{Sharing arrays}\label{sec-sharing}
+
+Arrays are values in Algol 68: assigning an array copies its elements
+(Section~\ref{sec-array-values}). An array is shared only when a
+reference to it is shared explicitly, which the type always shows:
+
+\example{ch07/share}
+
+\noindent prints
+\outputof{ch07/share}
+
+\code|r| is a constant of type \code|ref [] int| bound to the variable
+\code|a|: another name for the same array, so \code|r[1] := 10| changes
+\code|a|. \code|s| is a variable that holds a reference to a part of
+\code|a|; \code|s[1]| is \code|a[2]|. And \code|one| shows the rowing of
+a variable: the reference \code|x| becomes a reference to an array with
+one element, which is \code|x| itself.
+
+The same distinction exists for single values. \code|ref int r = x|
+makes \code|r| another name for \code|x|, like a reference
+\code|int& r = x| in C++. \code|ref int p := x| creates a variable that
+holds a reference to \code|x| and can later refer to something else, like
+a pointer \code|int* p = &x| in C. In Java and Python, objects and lists
+are always shared and a copy must be made explicitly; in Algol 68, as in
+C++ (and, with moves instead of copies, in Rust), values are copied and
+sharing must be made explicit.
+
+\section{Unions}\label{sec-unions}
+
+A \term{union} type holds a value of one of several types, together with
+an indication of which type it is. \code|union (int, real, string)| holds
+an \code|int|, a \code|real| or a \code|string|. A value of any of these
+types can be assigned to a union variable or passed as a union parameter;
+this implicit conversion is \term{uniting} (\rr{uniting}).
+
+To use the value inside a union, the program must find out its type. This
+is done with a special form of \code|case|, which the Report calls a
+\rr{conformity clause}:
+
+\example{ch07/union}
+
+Each alternative names a type and, optionally, a name for the value:
+\code|(int n): ...| is chosen if the union holds an \code|int|, and binds
+\code|n| to it. An \code|out| part handles the types that no alternative
+names. A union without a name in its alternative only tests the type:
+
+\example{ch07/union-test}
+
+The union is a \term{tagged union}, or \term{sum type}: the type of the
+current value is recorded with it and checked at run time, so a value can
+never be read as the wrong type. It corresponds to the \texttt{enum} of
+Rust and Swift, the variant types of ML and Haskell and
+\texttt{std::variant} of C++, and the conformity clause corresponds to
+their pattern matching. Unlike those, an Algol 68 union has no names for
+its alternatives; the alternatives are distinguished by their types only.
+Two alternatives that carry the same type of value must therefore be
+wrapped in different record types.
+
+The order of the types in a union does not matter, and a union that
+contains a union contains the members of the inner one:
+\code|union (int, real)| and \code|union (real, int)| are the same type,
+and \code|union (int, union (real, string))| is
+\code|union (int, real, string)|. A union value can be converted
+implicitly to a larger union, but not to a smaller one, since the value
+might be of a type that the smaller union lacks.
+
+The types of a union must be clearly distinct: \code|union (int, ref int)|
+is rejected (``firmly related components''), because an \code|int|
+variable could become either member. A union value needs the space of
+its largest member plus the tag, and every conformity clause is a test at
+run time.
+
+The \code|print| procedure is an example of unions at work: its parameter
+is an array of a union of all the types it can print.
+
+\section{Working with unions}\label{sec-union-details}
+
+\subsection*{What a conformity clause binds}
+
+The name in an alternative is a constant that holds a copy of the value:
+in \code|(int n): n +:= 1| the compiler rejects the assignment. To
+change the value in a union variable \code|u|, assign a new value to
+\code|u| itself, as in \code|(int n): u := n + 1|. An alternative may also
+name a union of some of the members: \code|(union (int, real) x): ...|
+is chosen for an \code|int| or a \code|real|, and \code|x| is then a
+value of that smaller union.
+
+The alternatives are chosen by the exact type of the value, without
+conversions. An \code|int| in a union does not match an alternative for
+\code|real|:
+
+\example{ch07/nowiden}
+
+\begin{pitfall}
+A conformity clause without an \code|out| part, none of whose
+alternatives matches, does nothing and yields an undefined value. There
+is no error at compile time or at run time:
+\begin{lstlisting}
+union (int, real, string) u := "seven";
+int n = case u in (int i): i, (real r): ROUND r esac
+\end{lstlisting}
+ga68 and a68j give \code|n| the value 0, Algol 68 Genie the value 1.
+Rust rejects a match that does not cover every case, and a Haskell
+compiler warns about it and the program stops at run time; Algol 68 does
+neither. Every conformity clause that is not meant to ignore
+the remaining types should have an \code|out| part that reports the
+error.
+\end{pitfall}
+
+\subsection*{Optional values}
+
+A union with \code|void| is the Algol 68 form of an optional value, the
+\code|Option<T>| of Rust or the \code|Optional<T>| of Java. The only value
+of type \code|void| is written \code|empty|:
+
+\example{ch07/maybe}
+
+\code|nil| serves the same purpose for references, but only for them; a
+search that returns an index needs \code|union (int, void)|. The
+\code|while| part of the loop uses the short form of the conformity
+clause: \code|(result | (void): true | false)| is
+\code|case result in (void): true out false esac|. Rosetta Code
+programs use the short form often.
+
+\subsection*{Which values can be united}
+
+Implicit conversions happen in a fixed order (Section~\ref{sec-contexts}):
+uniting and widening are alternatives, and rowing can only follow them.
+A value is therefore united only if its own type is a member of the
+union, not a type that it could be widened or rowed to:
+
+\example{ch07/union-order}
+
+\example{ch07/union-char}
+
+\code|1| is an \code|int|, not a \code|real|, and \code|"x"| is a
+\code|char|, not a \code|string|; neither is a member of the union. The
+remedies are to write the value with the right type (\code|1.0|) or to
+annotate it (\code|real (1)|, \code|string ("x")|,
+Section~\ref{sec-casts}). For the same reason, \code|print (1)| prints an
+integer: \code|int| is a member of the union that \code|print| accepts,
+so it is not widened. A one-character string literal must be annotated
+when it is to become a \code|string| in a union; this is a common
+surprise.
+
+A record literal has no type of its own, so it cannot be united either:
+with \code|mode Pt = struct (int x, y), Sz = struct (int w, h)|, the
+declaration \code|union (Pt, Sz) r := (1, 2)| is rejected, and
+\code|union (Pt, Sz) r := Pt (1, 2)| says which member is meant.
+Uniting does not reach through a reference: a function with a
+parameter of type \code|ref union (int, real)| does not accept an
+\code|int| variable; the caller must pass a variable of the union type. Nor can a union whose
+members are arrays be indexed directly: a conformity clause must first
+say which member it holds. And no
+conversion applies to the elements of an array: a \code|[] int| is never
+converted to a \code|[] real| or to an array of a union. (Java allows an
+\code|Integer[]| to be used as an \code|Object[]|, which is why Java must
+check every store into an array at run time.)
+
+\section{References to references}\label{sec-pointers}
+
+A reference is a value, so there are variables that hold references. A
+variable of type \code|ref int| is declared like any other variable, and
+its type is \code|ref ref int|. Such a variable is what C calls a
+pointer:
+
+\example{ch07/pointers}
+
+The assignment \code|p := b| stores the reference \code|b| in \code|p|;
+it does not change \code|a| or \code|b|. Which cell an assignment changes
+is determined by the type of its left-hand side: the left-hand side of
+\code|p := b| is \code|p| itself, of type \code|ref ref int|, so a
+\code|ref int| is stored. To assign to the cell that \code|p| refers to,
+the left-hand side must be the \code|ref int| that \code|p| holds. The
+expression \code|ref int (p)| says exactly that: it is \code|p| converted
+to the type \code|ref int|, which dereferences it once.
+
+The \term{null reference} is written \code|nil|; it refers to no cell, and
+any attempt to use it as a variable is an error. Two references are
+compared with \code|is| and \code|isnt| (also written \code|:=:| and
+\code|:/=:|); the Report calls these \rr{identity relations}. They
+compare references, not the values in the cells: \code|p is b| is true
+because \code|p| refers to the same cell as \code|b|.
+
+Comparing a pointer with \code|nil| needs care. In an identity relation,
+one side is in a soft context, where no dereferencing happens, and the
+other in a strong one, in either order. \code|nil| can only stand in a
+strong context, so in \code|q is nil| the variable \code|q| is the soft
+side and is not dereferenced at all: the comparison is between the
+variable \code|q| itself and \code|nil|, which is always false. The test
+for a null pointer is \code|ref int (q) is nil|:
+
+\example{ch07/nil}
+
+This is the most common pitfall of Algol 68 references, and a direct
+consequence of the rule that an implicit conversion never happens
+unless the context requires it.
+
+\section{Comparing references}\label{sec-identity}
+
+The same rule applies to two pointer variables. If \code|p| and \code|q|
+are both of type \code|ref ref int| and both refer to \code|n|, then
+\code|p is q| compares the two variables themselves, which are different
+cells:
+
+\example{ch07/refcompare}
+
+\noindent prints \code|F T T|. The question that is usually meant, whether
+the two pointers refer to the same cell, is
+\code|ref int (p) is ref int (q)|. The rule of thumb: annotate one side
+with the type of the references that are to be compared, and the
+other side is dereferenced to the same type. \code|ref int (p) is n|
+compares the reference held by \code|p| with the variable \code|n|.
+
+An identity relation is not an operator. It cannot be redefined, and it
+binds more loosely than every operator, so it must be put in parentheses
+when it is combined with \code|AND|, \code|OR|, \code|andth| or
+\code|orel|: \code|p is q AND b| means \code|p is (q AND b)| and is
+rejected, and the condition of a loop over a list is written
+\code|while (ref Node (p) isnt no_node) andth value of p /= v do|.
+
+\section{Records with reference fields}\label{sec-ref-fields}
+
+A record field can be a reference, and a constant record can then
+contain something that changes. A gas meter has a fixed serial number and
+a reading that grows:
+
+\example{ch07/meter}
+
+\noindent prints \code|30|. \code|m| is a constant, but its field
+\code|reading| is a \code|ref int|, and the cell it refers to can be
+assigned to. Copying the record into \code|v| copies the reference, not
+the cell, so \code|m| and \code|v| share the reading. This is the
+behavior of a \code|final| field that refers to a mutable object in
+Java. The semaphores of Chapter~\ref{ch-par} are records of this kind.
+
+Assigning to the reading through the variable \code|v| needs an
+annotation. \code|reading of v| is a field of a variable, and therefore
+has the type \code|ref ref int|: the variable that holds the reference.
+\code|reading of v := 30| would try to store an \code|int| in it. The
+annotation \code|ref int (reading of v)| dereferences once and yields
+the cell to be changed. In contrast, selecting from or indexing through
+a reference needs no annotation: if \code|pa| is a variable of type
+\code|ref [] int|, then \code|pa[1] := 5| assigns to an element of the
+array it refers to, and \code|next of p| in the lists below selects from
+the record that \code|p| refers to. The Report calls this the weak
+dereferencing of Section~\ref{sec-contexts}.
+
+\section{Type annotations}\label{sec-casts}
+
+An expression of the form \code|Type (expression)| is a \term{cast}. The
+word suggests a conversion as in C, but an Algol 68 cast converts nothing
+by force: it only places the expression in a strong context with the
+given target type, so that exactly the implicit conversions to that type
+happen. A cast is therefore a type annotation, like \texttt{e: T} in
+Rust or TypeScript. It cannot convert a \code|real| to an \code|int|; that
+needs \code|ROUND| or \code|ENTIER|.
+
+\example{ch07/casts}
+
+The cast \code|real (1)| makes the united value a \code|real| rather than
+an \code|int|. The declaration \code|proc int saved = next| binds the
+function itself, since its type is a function type, whereas
+\code|int value = next| calls it.
+
+An array or record literal is allowed only where the type it must have
+is known, that is, in a strong context. It cannot be the operand of an
+operator, where the operator is not yet known; an annotation provides the
+type:
+
+\example{ch07/display-operand}
+
+\code|UPB (1, 2, 3)| would be rejected. Annotations are also the way to
+say which member of a union a record literal belongs to
+(Section~\ref{sec-union-details}), and \code|void (x := f)| discards a
+value explicitly.
+
+\section{Orthogonality}\label{sec-orthogonality}
+
+The constructions of types can be combined without restriction. There
+are arrays of functions (\code|[] proc (real) real|), functions that
+return functions (\code|proc (int) proc (int) int|), records with
+function fields, unions of records, references to arrays of references,
+and so on. Every type except \code|void| can be the type of a parameter,
+a result, a field or an element; \code|void| can be the result of a
+function and a member of a union.
+
+The constructs of the language are equally orthogonal. Any expression
+can stand wherever a value of its type is required, and a block or an
+\code|if| can stand where other languages only allow a simple
+expression, as Chapter~\ref{ch-control} showed. This is why Algol 68 needs few special
+rules, and why its few rules apply everywhere.
+
+\section{Implicit conversions and contexts}\label{sec-contexts}
+
+The chapters so far introduced the six implicit conversions one at a time.
+Here they are together:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Conversion & Report & Effect \\
+\midrule
+dereferencing & \rr{dereferencing} & a reference is replaced by the value it refers to \\
+calling & \rr{deproceduring} & a parameterless function is called \\
+uniting & \rr{uniting} & a value becomes a value of a union type \\
+widening & \rr{widening} & \code|int| to \code|real| to \code|compl|; \\
+         &              & \code|bits| to \code|[] bool|; \code|bytes| to \code|[] char| \\
+rowing & \rr{rowing} & a value becomes an array with one element, \\
+       &             & an array gains a dimension \\
+discarding & \rr{voiding} & a value is thrown away \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Rowing also applies to references: a variable of type \code|ref int|
+can become a \code|ref [] int| whose only element is the variable itself
+(Section~\ref{sec-sharing}).
+
+Where each conversion is allowed depends on the context in which the
+expression stands. There are five contexts, from the most to the least
+permissive:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Context & Where & Conversions allowed \\
+\midrule
+strong & right-hand side of a declaration or & all \\
+       & assignment, argument, cast, function & \\
+       & body, element of a literal, one & \\
+       & side of an identity relation & \\
+firm   & operand of an operator & dereferencing, calling, uniting \\
+meek   & condition of \code|if|, \code|case|, \code|while|; & dereferencing, calling \\
+       & index, bound, \code|from|, \code|by|, \code|to|; & \\
+       & the function in a call & \\
+weak   & the array in an indexing, the record & dereferencing (but not of \\
+       & in a selection & the last reference), calling \\
+soft   & left-hand side of an assignment, & calling \\
+       & one side of an identity relation & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In a strong context, the required type is known, and the compiler applies
+whatever conversions lead to it, always in the same order: first
+dereferencing and calling as often as needed, then either one uniting or
+widening (twice for \code|int| to \code|compl|), then rowing (once per
+dimension added). A parameterless function \code|f| of type
+\code|proc ref int| that stands where a \code|real| is required is
+called, its result is dereferenced, and the \code|int| is widened.
+
+In a firm context, the operator is not
+known until the types of the operands are, so the conversions that would
+change the type substantially (widening, rowing) are excluded; uniting is
+allowed so that an operator can be declared for a union. A meek context
+requires a value of a particular kind, such as a \code|bool| for a
+condition or an \code|int| for an index, and only dereferencing and
+calling are allowed. A weak context keeps a reference: in \code|a[i] := 0|,
+the array \code|a| is not dereferenced to its value, since the element
+must remain a reference to be assigned to; this is also why a slice of an
+array variable is a reference (Section~\ref{sec-slices}). And a soft
+context keeps the reference on the left-hand side of an assignment
+entirely.
+
+The branches of an \code|if| or a \code|case| that yields a value are
+balanced: one of them is in the context of the whole expression, and the
+others are in a strong context, so they can be converted to a common
+type even where the context itself allows little. \code|if b then 1 else 2.5 fi|
+is a \code|real|, and so is \code|(b | 1 | 2.5) + 1|. On the left-hand
+side of an assignment, \code|if b then x else y fi := 0| needs branches
+that yield references of one type, though a branch may be dereferenced to
+match the other.
+
+The Report calls a context a \rr{syntactic position} and its kind its
+\rr{sort}. Most of the time, these rules are invisible: they make
+\code|x := x + 1| mean what it should. They become visible in error
+messages, which mention them (``in a strong-unit''), and in the cases of
+this chapter: the pointer comparisons, the order of uniting and widening,
+and the annotations that help in an ambiguous situation.
+
+\section{Lifetimes}\label{sec-lifetimes}
+
+Every value that a program creates exists for a certain time. A cell
+allocated by \code|loc|, which includes every variable declaration,
+lives as long as the block in which it is allocated is running; when the
+block ends, the cell is gone. A cell allocated by \code|heap| lives as
+long as the program can reach it; when no reference to it remains, its
+memory is reclaimed by a garbage collector. A function can therefore
+return a reference to a new heap cell:
+
+\example{ch07/heap}
+
+The Report calls the lifetime of a value its \rr{scope}, a word this book
+reserves for the visibility of names (Section~\ref{sec-scope}). A block
+creates a lifetime that is newer, that is shorter, than the lifetime of
+the enclosing block; heap cells and the values of the standard library
+have the longest lifetime. The lifetime of a record or an array that
+contains references is that of its shortest-lived reference.
+
+The \term{lifetime rule} says that a reference must never outlive the
+cell it refers to: a value may not be assigned to a variable that lives
+longer than the value. Storing a reference to a local cell in a variable
+of an enclosing block, or returning it from the block, breaks the rule:
+\begin{lstlisting}
+ref int p;
+begin
+   int x := 1;
+   p := x          { wrong: p outlives x }
+end
+\end{lstlisting}
+Rust enforces a rule of the same kind with its borrow checker, entirely
+at compile time; in Algol 68 it can only partly be checked by the
+compiler and otherwise must be checked while the program runs.
+
+\begin{implnote}
+The Report says that a program that breaks the lifetime rule is wrong and
+that its further behavior is undefined, which allows but does not
+require an implementation to check it. Algol 68 Genie checks: it warns at
+compile time and stops the program with the error ``value is exported out
+of its scope''. ga68 and a68j do not check, and such a program may even
+appear to work, which makes the error all the more dangerous. Use
+\code|heap| for anything that must outlive its block.
+\end{implnote}
+
+\subsection*{The lifetime of a \textbf{loc} cell}
+
+\code|loc| is an expression like any other and can appear anywhere a
+reference is needed, for example as a dummy argument for a
+\code|ref| parameter whose result is not wanted. The precise rule for its
+lifetime has a surprising consequence. A \code|loc| cell belongs to the
+nearer of two things: the function or operator body in which it is
+allocated (every call counts), or the innermost block, loop body or
+other range that declares a variable, a constant, a function, an
+operator or a type. Ranges without such
+declarations do not count, nor do the loop counter, the name in an
+alternative of a conformity clause, labels and priority declarations. Every call of
+a function counts, even if its body declares nothing:
+\code|proc f = ref int: loc int := 0| returns a reference to a cell that
+is gone when the call is over. The following program keeps references to cells allocated in
+a loop body:
+
+\example{ch07/loop-loc}
+
+\noindent Algol 68 Genie stops it:
+\outputof{ch07/loop-loc}
+
+The loop body declares \code|square|, so every \code|loc int| belongs to
+one execution of the body and is gone when the next one starts. Without
+the declaration, writing \code|cells[i] := loc int := i * i|, the cells
+belong to the block around the loop, and the program is correct and
+prints 4. A harmless-looking change to the body thus changes the
+lifetime of the cells. The advice is simple: if a reference leaves the
+block or loop body in which its cell is allocated, allocate the cell with
+\code|heap|.
+
+\code|heap| can also be used in declarations: \code|heap int n := 5| and
+\code|heap [10] int a| declare variables whose cells live on the heap.
+There is no operation to free a heap cell; that is left to the garbage
+collector, which costs time and memory. The distinction is the one
+between the stack and the heap in C++ and Rust (\texttt{Box}); Java and
+Python allocate every object on the heap.
+
+\section{Lifetimes of functions}\label{sec-proc-lifetimes}
+
+The lifetime rule also applies to functions, and this is where Algol 68
+differs most from current languages. A function value lives as long as
+the innermost block that declares a name the function uses but does not
+declare itself: a variable, a constant, a parameter of an enclosing
+function, another function, an operator, a label it jumps to, or a type
+name with bounds. A function that uses such a
+name cannot be returned from that block or stored in a variable outside
+it.
+
+In JavaScript, Python or Haskell, returning a function that composes two
+other functions is an everyday idiom. In Algol 68 it is an error:
+
+\example{ch07/compose}
+
+\noindent Algol 68 Genie stops at the call of \code|compose|:
+\outputof{ch07/compose}
+
+The inner function uses \code|f| and \code|g|, the parameters of
+\code|compose|, which exist only while \code|compose| runs. Putting the
+data on the heap does not help either:
+\begin{lstlisting}
+proc int next = (heap int count := 0; int: count +:= 1)
+\end{lstlisting}
+The cell of \code|count| would live long enough, but the name
+\code|count| belongs to the block, and the function uses the name. Algol
+68 Genie stops this program as well, with the same message; ga68 and a68j
+run both programs and print plausible results. Here the lack of a check
+is most dangerous, since such a program appears to work.
+
+The reason for the rule is that an Algol 68 function does not keep alive
+the variables and constants it uses, as a closure in Lisp, JavaScript or
+Python does by keeping them on the heap; it refers to the block in which
+they are declared, which lives on the stack. A C++ lambda that captures by reference has the same
+problem, without any check; Rust rejects such a closure at compile time
+unless it is declared \code|move|.
+
+The usual way out is to pass the state explicitly. A counter becomes a
+heap cell and a function that takes it as a parameter:
+
+\example{ch07/counter}
+
+\noindent which prints \code|1 2 3 1|. A function that composes two
+functions becomes a procedure \code|(Fn f, g, real x) real: f (g (x))|
+that receives all three values at each call. Where a function value must
+be kept, a record that holds the state together with a function that
+takes the state as a parameter does the job of a closure. Algol 68 Genie
+offers a further way out, partial parametrization, an extension of the
+language that Appendix~\ref{app-partial} describes.
+
+\section{Recursive types}\label{sec-recursive}
+
+A type declaration may refer to the type it declares, which allows
+linked data structures. A list of integers is a chain of records, each of
+which holds a value and a reference to the next record:
+
+\example{ch07/list}
+
+The constant \code|no_node| is \code|nil| of the type \code|ref Node|;
+naming it makes the comparisons readable. The loop builds the list by
+putting each new record in front: \code|heap Node := (i * i, list)|
+allocates a record on the heap, initializes it, and yields the reference
+to it, which is stored in \code|list|. The second loop follows the
+references; \code|value of p| and \code|next of p| dereference \code|p|
+automatically. The records must be allocated with \code|heap|: with
+\code|loc| inside a procedure, the list would refer to cells that are
+gone when the procedure returns, and ga68 and a68j would not report it.
+
+The recursion must pass through a reference or a function type. A record
+that contains itself directly would be infinitely large, and the compiler
+rejects it:
+
+\example{ch07/bad-mode}
+
+Passing through a reference is not enough on its own, though:
+\code|mode A = ref A| or \code|mode U = union (int, ref U)| would make a
+type out of nothing but references, and they are rejected as well. The
+precise rule is that every cycle in a type definition must pass both
+through a reference or a function type, and through a record or a
+function type with parameters. \code|struct (int value, ref Node next)|
+satisfies it, and so does \code|mode F = proc (F) int|. The Report calls
+the admissible recursive types \rr{well-formed modes}.
+
+Several types can refer to each other, if they are declared in the same
+block:
+
+\example{ch07/mutual}
+
+\subsection*{Pointers to links}
+
+The type \code|ref ref Node| is the type of a variable that holds a
+link: the variable \code|list| itself, or the field \code|next| of a
+node. A procedure that receives such a reference can change the link,
+which makes operations on lists simple. The following procedure removes
+the first node with a given value. It walks along the links, not along
+the nodes, so that the first node needs no special treatment:
+
+\example{ch07/remove}
+
+After \code|remove (list, 1)|, \code|remove (list, 3)|,
+\code|remove (list, 5)| and \code|remove (list, 9)| on the list 1 to 5,
+the list holds \code|2 4|. \code|link| is a pointer variable of type
+\code|ref ref ref Node|. \code|ref Node (link)| is the node that the
+current link refers to, and \code|next of link| is the link inside that
+node. The assignment \code|ref ref Node (link) := next of link| changes
+the current link so that it skips the node.
+
+\begin{pitfall}
+The annotation decides what is assigned. With
+\code|ref Node (link) := next of link|, the left-hand side would be the
+node itself, and the assignment would copy the next node's value and
+link into it: a different operation, which fails at the last node, whose
+\code|next| is \code|nil|. Both versions compile. When an assignment
+involves several levels of references, it pays to write down the type of
+each side.
+\end{pitfall}
+
+\section{Unions and recursive types}\label{sec-expr}
+
+Unions and recursive types together describe tree-shaped data whose
+nodes are of different kinds: the syntax tree of a compiler, a document,
+a JSON value. An arithmetic expression is a number, a variable, or an
+operator with two operands:
+
+\example{ch07/expr}
+
+\noindent prints
+\outputof{ch07/expr}
+
+The type \code|Expr| is a union of \code|real|, \code|char| (the name of
+a variable) and \code|ref Binop|, and \code|Binop| is a record that
+contains two \code|Expr| values. The cycle passes through the reference
+and the record, so the types are well-formed. \code|union (real, char, Binop)|
+without the reference would be infinitely large and is rejected. In Rust
+the same type is written
+\code|enum Expr { Num(f64), Var(char), Bin(Box<Binop>) }|; the
+\texttt{Box} plays the role of \code|ref|.
+
+\code|show| and \code|eval| are recursive functions with one alternative
+of a conformity clause per kind of node. The procedure \code|bin|
+allocates a node on the heap; its arguments are united to \code|Expr|
+automatically, since an argument is in a strong context.
+
+\subsection*{Operators on unions}
+
+It is tempting to make the construction of expressions more readable
+with operators: \code|op + = (Expr a, b) Expr: bin ("+", a, b)|, so that
+an expression can be written as \code|3.0 * x * x - 2.0 * x + 1.0|.
+Declared in the program above, this operator takes over every
+\code|+| of two \code|real| values in its scope. The operands of an
+operator are in a firm context, where uniting is allowed, and the new
+\code|+| is declared in an inner block, so it hides the standard
+\code|+| of the library for \code|real| operands. \code|l + r| in
+\code|eval| then builds an \code|Expr| instead of adding, and the
+compiler reports
+\begin{lstlisting}[style=output]
+error: 'EXPR'mode cannot be coerced to 'real' in a strong-unit
+\end{lstlisting}
+Inside the body of an operator on a union, the effect can be worse: an
+\code|op = = (union (int, Rational) a, b) bool| whose body compares two
+\code|int| values with \code|=| calls itself, without end. The remedy is
+to declare an operator for each combination of member types that is
+needed (\code|(Rational, Rational)|, \code|(int, Rational)|,
+\code|(Rational, int)|), or to give the operator a new name, such as
+\code|PLUS|.
+
+\section{When two types are the same}\label{sec-equivalence}
+
+Section~\ref{sec-modes} showed that type names are only abbreviations:
+two record types with the same fields are the same type. This also holds
+for recursive types. The types
+\begin{lstlisting}
+mode A = struct (int v, ref A next);
+mode B = struct (int v, ref B next)
+\end{lstlisting}
+are the same type, since expanding either definition gives the same
+infinite structure. Deciding this is a non-trivial task for the compiler,
+but it is invisible to the programmer. Together with the rules for unions,
+it means that two types are the same if and only if they have the same
+structure; the Report calls them \rr{equivalent modes}.
+
+\section{A complete program}\label{sec-advanced-complete}
+
+The final program counts the words of a text with a binary search tree.
+Each node holds a word, a count and two subtrees. The procedure
+\code|insert| takes a reference to the variable that holds a subtree, of
+type \code|ref ref Tree|, so that it can replace an empty subtree with a
+new node; \code|show| traverses the tree in order and prints the words
+alphabetically.
+
+\example{ch07/tree}
+
+The test \code|ref Tree (t) is no_tree| uses the cast of
+Section~\ref{sec-pointers}: \code|t| is a reference to a variable, and the
+question is whether the variable holds \code|nil|. In \code|show|, the
+parameter is the tree itself, so \code|t isnt no_tree| needs no cast.
+The splitting loop uses \code|orel| (Section~\ref{sec-logic}) so that
+\code|text[i]| is not evaluated when \code|i| is beyond the end.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch7]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What are the bounds of \code|s| after
+  \code|flex [1:0] char s; s := "abc"; s := s[2:3] + "xyz"|?
+\item Why can \code|ref [] int| not be the type of the parameter of the
+  procedure \code|append|?
+\item Write a procedure that takes a \code|union (int, real, bool)| and
+  returns it as a \code|real|: an \code|int| widened, a \code|bool| as
+  1.0 or 0.0.
+\item Given \code|int x := 1; ref int p := x|, which of the following
+  change \code|x|? (a) \code|p := 2| (b) \code|ref int (p) := 2|
+  (c) \code|x := 2|
+\item Why is \code|q is nil| always false for a variable \code|q| of
+  type \code|ref int|, and what is the correct test?
+\item In which contexts are the following expressions:
+  (a) \code|x| in \code|x := 1|, (b) \code|x| in \code|y := x|,
+  (c) \code|x| in \code|x + 1|, (d) \code|b| in \code|if b then|?
+\item Write a procedure that reverses a list of the type \code|Node| of
+  Section~\ref{sec-recursive} in place.
+\item \code|flex [1:0] string words| holds some words. Why is
+  \code|words[1] +:= "s"| rejected, and how can the program add an
+  \code|s| to the first word?
+\item Which of these declarations are accepted?
+  (a) \code|union (int, string) u := "a"|
+  (b) \code|union (int, string) u := "ab"|
+  (c) \code|union (real, string) u := 2|
+  (d) \code|union (int, real) u := 2|
+\item With \code|int a := 1, b := 1; ref int p := a, q := b|, what do
+  \code|p is q|, \code|ref int (p) is ref int (q)| and
+  \code|ref int (p) is a| yield? What changes after \code|q := a|?
+\item The \code|push| of Section~\ref{sec-vector} doubles the capacity.
+  How many elements are copied in total by 1000 calls of \code|push| on
+  an empty \code|Vector|, and how many by 1000 calls of \code|append|?
+\item Why is the following procedure wrong, and how do ga68, a68j and
+  Algol 68 Genie behave when it is used?
+\begin{lstlisting}
+proc adder = (int n) proc (int) int: (int x) int: x + n
+\end{lstlisting}
+\item Does the program of Section~\ref{sec-lifetimes} that stores
+  \code|loc| cells remain correct if the body of the loop is
+  \code|cells[i] := loc int := i * i; print (i)|? And if it is
+  \code|int j = i; cells[i] := loc int := j|?
+\item Build two lists of type \code|ref Node| with the same contents
+  1, 2, 3. What does \code|a is b| yield? Write an operator \code|EQ|
+  that compares two lists element by element.
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item \textbf{Text in pieces.} Keep a long text as a linked list of
+  pieces, each a \code|string|, so that joining two texts only links
+  their lists. Write procedures for joining, for the length, for the
+  character at a given position, and for turning the list back into one
+  \code|string|. Which operations are cheaper than with a single
+  \code|string|, and which are more expensive?
+\item \textbf{List operations.} For the lists of
+  Section~\ref{sec-recursive}, write procedures that return the
+  $n$-th element, append a copy of one list to another, merge two sorted
+  lists into one, and sort a list by repeatedly merging.
+\item \textbf{Sets.} Represent sets of integers as sorted linked lists,
+  and write the operators \code|+| (union), \code|*| (intersection),
+  \code|-| (difference) and \code|ELEM| (membership, as in
+  \code|3 ELEM s|). Then write the same operators for sets represented
+  as \code|bits| (Section~\ref{sec-bits}) and compare.
+\item \textbf{Tree sort.} Sort an array of integers by inserting its
+  elements into a binary search tree and reading them back in order.
+  Duplicates must be kept. What is the cost for an array that is
+  already sorted?
+\item \textbf{Postfix expressions.} Read an expression in postfix
+  notation (\texttt{3 4 + 2 *}) and evaluate it with a stack of
+  \code|real| values implemented as a linked list.
+\item \textbf{Parsing.} Extend the program of Section~\ref{sec-expr}:
+  read a fully parenthesized expression such as
+  \texttt{((3 * (x * x)) - (2 * x))}, build its tree, print it, and
+  evaluate it for several values of \code|x|.
+\item \textbf{Symbolic differentiation.} Write a procedure that returns
+  the derivative of an \code|Expr| with respect to \code|x|, and a
+  procedure that simplifies the result: $0 \cdot e = 0$, $1 \cdot e = e$,
+  $e + 0 = e$, and operations on two numbers are computed.
+\item \textbf{Optional results.} Write a procedure that searches a
+  list of (name, number) records for a name and returns
+  \code|union (int, void)|. Use it in a program that reads names and
+  reports each one's number or that it is unknown, with an \code|out|
+  branch in every conformity clause.
+\item \textbf{A hash table.} Implement a table from strings to integers
+  as an array \code|[0 : m - 1] ref Entry| of linked lists, with
+  procedures to insert, look up and delete. Count the words of a text
+  with it and compare the result with the tree of
+  Section~\ref{sec-advanced-complete}.
+\item \textbf{Pascal's triangle.} Store the first 15 rows of Pascal's
+  triangle in a jagged array, once in a \code|flex [1:0] flex [1:0] int|
+  that grows row by row, and once as a \code|[15] ref [] int| whose rows
+  are allocated with \code|heap|.
+\item \textbf{A deck of cards.} Declare the 52 cards of a deck as a
+  fixed array of records, each with a field \code|ref Card next|, and
+  link them into a circle. A hand is a record with a count and a
+  reference to its first card. Deal cards from the deck to four hands
+  only by changing links, without copying a card. Why is it allowed here
+  to keep references to elements of the array?
+\item \textbf{A queue.} Implement a queue as a record with references
+  to its first and its last node, so that both adding at the end and
+  removing at the front take constant time. Write a procedure that
+  creates a candidate node on the heap and appends it only if it passes a
+  test; what happens to a rejected node?
+\item \textbf{Exact or approximate.} Find the largest $n$ whose
+  factorial fits in an \code|int|, without causing an overflow. Then
+  write a function that returns \code|union (int, real)|: the exact
+  factorial up to that $n$, and Stirling's approximation beyond it. How
+  must a caller use the result?
+\item \textbf{A JSON value.} Define a type for JSON values: a union of
+  \code|void| (null), \code|bool|, \code|real|, \code|string|, and
+  references to arrays and objects, where an object is a list of
+  (key, value) pairs. Write a procedure that prints such a value in
+  JSON notation with indentation. Check that your types are
+  well-formed.
+\item \textbf{Cross-reference.} Read an Algol 68 program and build an
+  index of its identifiers: a tree, sorted by name, whose nodes hold a
+  list of the line numbers where the name occurs. Print the index in
+  alphabetical order.
+  Reserved words, which are written in lower case in SUPPER stropping,
+  can be recognized with a table.
+\end{enumerate}

@@ -1,0 +1,64 @@
+access Genie_Transput
+begin
+   { Checks of the answers to the exercises of Chapter 5. }
+   { Exercise 2 }
+   proc digit_sum = (int n) int:
+   begin
+      int sum := 0, rest := n;
+      while rest > 0 do sum +:= rest MOD 10; rest := rest % 10 od;
+      sum
+   end;
+   proc digit_sum_rec = (int n) int: (n < 10 | n | n MOD 10 + digit_sum_rec (n % 10));
+   print ((digit_sum (1975), digit_sum_rec (1975), digit_sum (0), newline));
+   { Exercise 3 }
+   proc inc = (ref int n) void: n +:= 1;
+   int k := 41; inc (k); print ((k, newline));
+   { Exercise 4 }
+   proc apply_twice = (proc (int) int f, int x) int: f (f (x));
+   print ((apply_twice ((int n) int: 2 * n, 5), newline));
+   { Exercise 5 }
+   prio ABOVE = 5;
+   op ABOVE = (int a, b) bool: a > b;
+   print ((1 + 2 ABOVE 2, newline));
+   { Exercise 6 }
+   prio MAX = 9;
+   op MAX = (int a, b) int: (a > b | a | b);
+   op SQUARE = (int n) int: n * n;
+   print ((SQUARE 2 MAX 3, newline));
+   { Exercises 8 to 10 }
+   begin prio + = 7; print ((1 + 2 * 3, newline)) end;
+   op MAX = (int a, real b) real: (a > b | a | b);
+   op MAX = (real a, int b) real: (a > b | a | b);
+   print ((fixed (1 MAX 2.5, 0, 1), " ", fixed (3.5 MAX 2, 0, 1), newline));
+   op * = ([] real a, real k) [] real:
+   begin
+      [LWB a : UPB a] real r;
+      for i from LWB a to UPB a do r[i] := a[i] * k od;
+      r
+   end;
+   [] real v = [] real (1, 2) * 1.5;
+   print ((fixed (v[1], 0, 1), " ", fixed (v[2], 0, 1), newline));
+   { Exercise 11 }
+   proc month = (ref int day) string:
+   begin
+      [] int length = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+      [] string name = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+      int m := 1;
+      while day > length[m] do day -:= length[m]; m +:= 1 od;
+      name[m]
+   end;
+   int d := 45;
+   string m = month (d);
+   print ((m, " ", whole (d, 0), newline));
+   { Exercise 12 }
+   proc sum = (int lo, hi, proc (int) real term) real:
+   begin
+      real s := 0;
+      for k from lo to hi do s +:= term (k) od;
+      s
+   end;
+   [] real vv = (1, 2, 3), ww = (4, 5, 6);
+   print ((fixed (sum (1, 100, (int k) real: 1 / (k * k)), 0, 4), " ",
+           fixed (sum (1, 3, (int k) real: vv[k] * ww[k]), 0, 1), newline))
+end

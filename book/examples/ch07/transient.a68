@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+   flex [1:3] int a := (1, 2, 3);
+   ref int first = a[1];
+   first := 10;
+   print ((a, newline))
+end

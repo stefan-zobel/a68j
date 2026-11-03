@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+   { Factorials with long int, and their numbers of digits. }
+   long int f := long 1;
+   for n to 20 do
+      f *:= LENG n;
+      if n MOD 5 = 0 then
+         string digits = whole (f, 0);
+         print ((whole (n, -2), "! = ", whole (f, -20),
+                 "  (", whole (UPB digits, 0), " digits)", newline))
+      fi
+   od
+end

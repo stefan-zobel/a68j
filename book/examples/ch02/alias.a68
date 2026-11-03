@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a := 5;
+   ref int alias = a;          { another name for the cell of a }
+   alias := 99;
+   print ((a, newline))
+{ end excerpt }
+end

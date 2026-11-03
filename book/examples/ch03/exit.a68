@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int x = -4;
+   int magnitude = begin
+                      if x >= 0 then goto non_negative fi;
+                      -x exit
+                   non_negative:
+                      x
+                   end;
+   print ((magnitude, newline))
+{ end excerpt }
+end

@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc volume = (real l, w, h) real: l * w * h;
+   proc (real, real) real base2 = volume (2, , );
+   proc (real) real base6 = base2 (3, );
+   print ((fixed (base6 (4), 0, 1), " ", fixed (base2 (1, 1), 0, 1), newline))
+{ end excerpt }
+end

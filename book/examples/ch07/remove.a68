@@ -1,0 +1,25 @@
+access Genie_Transput
+begin
+   mode Node = struct (int value, ref Node next);
+   ref Node no_node = nil;
+   { begin excerpt }
+   proc remove = (ref ref Node head, int v) void:
+   begin
+      ref ref Node link := head;   { the variable that refers to the node }
+      while (ref Node (link) isnt no_node) andth value of link /= v do
+         link := next of link
+      od;
+      if ref Node (link) isnt no_node then
+         ref ref Node (link) := next of link
+      fi
+   end;
+   { end excerpt }
+   ref Node list := no_node;
+   for i from 5 by -1 to 1 do list := heap Node := (i, list) od;
+   remove (list, 1); remove (list, 3); remove (list, 5); remove (list, 9);
+   ref Node p := list;
+   while p isnt no_node do
+      print ((whole (value of p, 0), " ")); p := next of p
+   od;
+   print (newline)
+end

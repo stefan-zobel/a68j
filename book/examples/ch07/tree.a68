@@ -1,0 +1,30 @@
+access Genie_Transput
+begin
+   { Counting words with a binary search tree. }
+   mode Tree = struct (string key, int count, ref Tree left, right);
+   ref Tree no_tree = nil;
+   proc insert = (ref ref Tree t, string w) void:
+      if ref Tree (t) is no_tree then
+         t := heap Tree := (w, 1, no_tree, no_tree)
+      elif w < key of t then insert (left of t, w)
+      elif w > key of t then insert (right of t, w)
+      else count of t +:= 1
+      fi;
+   proc show = (ref Tree t) void:
+      if t isnt no_tree then
+         show (left of t);
+         print ((key of t, " ", whole (count of t, 0), newline));
+         show (right of t)
+      fi;
+   ref Tree root := no_tree;
+   string text = "the quick brown fox jumps over the lazy dog the end";
+   string w := "";
+   for i to UPB text + 1 do
+      if i > UPB text orel text[i] = " " then
+         (UPB w > 0 | insert (root, w); w := "")
+      else
+         w +:= text[i]
+      fi
+   od;
+   show (root)
+end

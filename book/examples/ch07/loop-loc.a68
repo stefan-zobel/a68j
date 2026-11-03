@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [3] ref int cells;
+   for i to 3 do
+      int square = i * i;
+      cells[i] := loc int := square
+   od;
+   print ((ref int (cells[2]), newline))
+{ end excerpt }
+end

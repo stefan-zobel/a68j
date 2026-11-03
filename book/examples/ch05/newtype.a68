@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Meters = struct (real m), Seconds = struct (real s);
+   proc meters = (real x) Meters: (Meters r; m of r := x; r);
+   proc seconds = (real x) Seconds: (Seconds r; s of r := x; r);
+   op + = (Meters a, b) Meters: meters (m of a + m of b);
+   op / = (Meters d, Seconds t) real: m of d / s of t;
+   Meters distance = meters (100) + meters (300);
+   Seconds time = seconds (50);
+   print ((fixed (distance / time, 0, 1), " m/s", newline))
+{ end excerpt }
+end

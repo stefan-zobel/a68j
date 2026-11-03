@@ -1,0 +1,11 @@
+module Stack =
+def
+   { A stack of integers, as a linked list. }
+   mode Cell = struct (int value, ref Cell below);
+   ref Cell bottom = nil;
+   ref Cell top := bottom;
+   pub proc push = (int x) void: top := heap Cell := (x, top);
+   pub proc pop = int: (int x = value of top; top := below of top; x);
+   pub proc is_empty = bool: top is bottom;
+   skip
+fed

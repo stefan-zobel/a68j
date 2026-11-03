@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int x := 3;
+   x + 1;                    { computed, then discarded }
+   x := x + 1;               { the reference x is discarded }
+   print ((x, newline))
+{ end excerpt }
+end

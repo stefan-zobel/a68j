@@ -1,0 +1,6 @@
+access Genie_Transput
+begin
+   print (("max_int    ", max_int, newline));
+   print (("small_real ", small_real, newline));
+   print (("long max_int ", long_max_int, newline))
+end

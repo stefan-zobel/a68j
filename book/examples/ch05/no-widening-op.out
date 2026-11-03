@@ -1,0 +1,1 @@
+no-widening-op.a68:4:12: error: monadic operator HALF int has not been declared

@@ -1,0 +1,16 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { The integral of f from a to b, by the trapezoidal rule with n steps. }
+   proc integrate = (proc (real) real f, real a, b, int n) real:
+   begin
+      real h = (b - a) / n;
+      real sum := (f (a) + f (b)) / 2;
+      for i to n - 1 do sum +:= f (a + i * h) od;
+      sum * h
+   end;
+   proc bell = (real x) real: exp (-x * x);
+   print ((fixed (integrate (bell, -3, 3, 100), 0, 4), newline));
+   print ((fixed (integrate ((real x) real: x * x, 0, 3, 100), 0, 4), newline))
+{ end excerpt }
+end

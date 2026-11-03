@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for i from 0 to 8 do
+      real x = i * pi / 8;
+      int column = 10 + ROUND (20 * sin (x));
+      printf (($zd.dd, n (column) k "*" l$, x))
+   od
+{ end excerpt }
+end

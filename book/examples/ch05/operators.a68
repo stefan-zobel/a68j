@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   prio MAX = 9;
+   op MAX = (int a, b) int: (a > b | a | b);
+   op MAX = (real a, b) real: (a > b | a | b);
+   op SQUARE = (int n) int: n * n;
+   print ((3 MAX 9, " ", fixed (2.5 MAX 1.5, 0, 1), newline));
+   print ((SQUARE 4 + 1, " ", 2 * 5 MAX 6, newline))
+{ end excerpt }
+end

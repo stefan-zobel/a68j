@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   op HALF = (real x) real: x / 2;
+   print ((HALF 3, newline))
+end

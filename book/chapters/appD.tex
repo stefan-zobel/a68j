@@ -1,0 +1,95 @@
+\chapter{Glossary}\label{app-glossary}
+
+The terms of the Revised Report and the terms this book uses for them.
+
+\begin{longtable}{p{0.28\textwidth}p{0.33\textwidth}p{0.28\textwidth}}
+\toprule
+Report & This book & Remarks \\
+\midrule
+\endhead
+a posteriori mode & type after an implicit conversion &  \\
+a priori mode & type before an implicit conversion &  \\
+actual declarer & type with bounds & \code|[1:10] int| in a variable declaration \\
+actual parameter & argument &  \\
+applied occurrence & use (of a name) &  \\
+assignation & assignment &  \\
+balancing & finding the common type of branches & Section~\ref{sec-if} \\
+book & file on disk, data & Section~\ref{sec-books} \\
+bounds & bounds &  \\
+case clause & \code|case| expression on an integer & like \texttt{switch} \\
+cast & type annotation & does not force a conversion \\
+channel & kind of device &  \\
+closed clause & block & \code|begin|\ldots\code|end| or \code|(|\ldots\code|)| \\
+coercion & implicit conversion & Section~\ref{sec-contexts} \\
+collateral clause & unordered list &  \\
+collateral elaboration & unordered evaluation &  \\
+conditional clause & \code|if| expression &  \\
+conformity clause & type switch, pattern match on a union & Section~\ref{sec-unions} \\
+context, syntactic position & conversion context & strong, firm, meek, weak, soft \\
+defining occurrence & declaration &  \\
+deflexing & removing \code|flex| from a type & the type of the value of a resizable array \\
+denotation & literal &  \\
+deproceduring & implicit call of a parameterless function &  \\
+dereferencing & automatic reading of a variable &  \\
+descriptor & array header (bounds and address) &  \\
+elaboration & evaluation, execution &  \\
+environment enquiry & implementation constant & \code|max_int| \\
+equivalent modes & the same type & structural equivalence \\
+event routine & callback, handler & \code|on_logical_file_end| \\
+field selector & field name &  \\
+file & file handle, stream &  \\
+firmly related & convertible in a firm context & overloads must not be \\
+flexible name & resizable array variable & \code|flex| \\
+formal declarer & type without bounds & \code|[] int| in a parameter \\
+formal parameter & parameter &  \\
+format text & format string & Chapter~\ref{ch-transput} \\
+formula & operator expression &  \\
+generator & allocation & \code|loc|, \code|heap| \\
+hip & expression that fits any expected type & \code|skip|, a jump; \code|nil| fits any reference type \\
+identification (of operators) & overload resolution &  \\
+identifier, tag & name, identifier &  \\
+identity declaration & constant declaration & \code|int n = 10| \\
+identity relation & reference comparison & \code|is|, \code|isnt| \\
+jump & \code|goto| &  \\
+loop clause & loop &  \\
+mode & type &  \\
+mode declaration & type declaration & structural, not nominal \\
+mode indicant & type name &  \\
+monadic, dyadic operator & unary, binary operator &  \\
+multiple selection & field access on an array of records & Section~\ref{sec-multiple-selection} \\
+multiple value, row & array &  \\
+name & reference, memory location & the value of a variable \\
+nil & null reference &  \\
+object, value & value &  \\
+operator declaration & operator definition, overloading &  \\
+parallel clause & concurrent block & \code|par| \\
+plain mode & primitive type &  \\
+pragmat & compiler directive &  \\
+priority & precedence &  \\
+priority declaration & precedence declaration & \code|prio| \\
+procedure & function &  \\
+range & scope of a block &  \\
+reach & a block without the blocks nested in it &  \\
+routine text & function literal, lambda &  \\
+row display & array literal &  \\
+rowing & making a one-element array &  \\
+scope (of a value) & lifetime & Section~\ref{sec-lifetimes} \\
+selection & field access & \code|x of p| \\
+serial clause & sequence (block body) &  \\
+skip & undefined value of any type &  \\
+slice & indexing, slice &  \\
+straightening & flattening for transput &  \\
+stropping & marking of reserved words & Section~\ref{sec-stropping} \\
+structure & record &  \\
+structure display & record literal &  \\
+transient name & reference into a resizable array & may not be stored \\
+transput & input and output &  \\
+trimmer & index range of a slice & \code|a[2:4]| \\
+unit & expression &  \\
+united mode & union, sum type &  \\
+uniting & conversion into a union &  \\
+voiding & discarding a value &  \\
+well-formed mode & admissible recursive type &  \\
+widening & widening & \code|int| to \code|real| to \code|compl|, \code|bits| to \code|[] bool|, \code|bytes| to \code|[] char| \\
+\bottomrule
+\end{longtable}

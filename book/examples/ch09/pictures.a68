@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   printf (($"a = " 2d ", b = " 2d l$, 1));      { one picture: one value }
+   printf (($"a = " 2d, ", b = " 2d l$, 1, 2))   { two pictures }
+{ end excerpt }
+end

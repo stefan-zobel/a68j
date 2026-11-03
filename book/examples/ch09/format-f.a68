@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for n to 3 do
+      printf (($g(0), x f(n = 1 | $"item"$ | $"items"$) l$, n))
+   od;
+   printf (($"Smith""Jones" l$));
+   printf (($"Smith" 1"Jones" l$))
+{ end excerpt }
+end

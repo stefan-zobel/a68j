@@ -1,0 +1,1 @@
+ch03-target.a68:4:17: error: 'ref int' cannot be coerced to 'ref real' in a strong-unit

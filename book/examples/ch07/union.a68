@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Value = union (int, real, string);
+   proc describe = (Value v) string:
+      case v in
+         (int n):    "the int " + whole (n, 0),
+         (real x):   "the real " + fixed (x, 0, 2),
+         (string s): "the string """ + s + """"
+      esac;
+   [] Value items = (42, 2.5, "hello");
+   for i to UPB items do print ((describe (items[i]), newline)) od;
+   Value v := 7;
+   v := "seven";                          { now it holds a string }
+   print ((describe (v), newline))
+{ end excerpt }
+end

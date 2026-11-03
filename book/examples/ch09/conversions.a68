@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   print (("[", whole (42, 6), "] [", whole (42, -6), "] [", whole (-42, 0),
+           "] [", whole (123456, 3), "]", newline));
+   print (("[", fixed (3.14159, 8, 3), "] [", fixed (3.14159, -8, 3),
+           "] [", fixed (3.14159, 6, 4), "] [", fixed (0.015, 0, 4), "]", newline));
+   print (("[", float (31415.9, 10, 3, 2), "] [", float (31415.9, -10, 3, -2),
+           "]", newline))
+{ end excerpt }
+end

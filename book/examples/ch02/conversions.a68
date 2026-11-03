@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+   int n := 3;
+   real r := 2;                 { int to real: widening }
+   r := n;                      { again: n is read, then widened }
+   print ((n + 1, " ", r / 2, newline));
+   print ((n + 0.5, " ", n < 3.5, newline))    { mixed operands }
+end

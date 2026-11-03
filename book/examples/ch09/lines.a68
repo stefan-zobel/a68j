@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { Number the lines of the standard input. }
+   int n := 0;
+   File input := stand_in;
+   on_logical_file_end (input, (ref File f) bool: goto finished);
+   do
+      string line;
+      get (input, line);              { the rest of the line }
+      n +:= 1;
+      print ((whole (n, -3), "  ", line, newline));
+      get (input, newline)            { skip the line break }
+   od;
+finished:
+   skip
+{ end excerpt }
+end

@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [] int single = 42;                  { a one-element array }
+   print ((LWB single, UPB single, single[1], newline));
+   print (newline)                      { a list of one item }
+{ end excerpt }
+end

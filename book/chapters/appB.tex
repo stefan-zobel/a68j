@@ -1,0 +1,101 @@
+\chapter{The syntax in brief}\label{app-syntax}
+
+The Revised Report defines the syntax of Algol 68 with a two-level
+grammar, which also expresses the type rules. This appendix gives a
+simplified, context-free summary in the extended Backus--Naur form that
+most language references use today. It describes the shape of programs;
+whether a program is correct also depends on the types, which the grammar
+below does not check. The names of the nonterminals are the terms of
+this book, with the Report's term in a comment where it differs.
+
+Notation: \texttt{\{ x \}} means zero or more repetitions of \texttt{x},
+\texttt{[ x ]} an optional \texttt{x}, \texttt{x | y} a choice; terminal
+symbols are in quotes.
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize]
+program        = [ access ] enclosed .
+access         = "access" module_name { "," module_name } .
+
+block          = "begin" sequence "end" | "(" sequence ")" .
+                                          (* closed clause *)
+sequence       = { declaration ";" } part { exit_part } .
+                                          (* serial clause *)
+part           = { label ":" } expression
+                 { ";" ( declaration | { label ":" } expression ) } .
+exit_part      = "exit" label ":" part .
+
+declaration    = mode_decl | prio_decl | op_decl | constant_decl
+               | variable_decl | proc_decl .
+mode_decl      = "mode" Type_name "=" type { "," Type_name "=" type } .
+prio_decl      = "prio" operator "=" digit { "," operator "=" digit } .
+op_decl        = "op" operator "=" function_literal
+                 { "," operator "=" function_literal } .
+constant_decl  = formal_type name "=" expression
+                 { "," name "=" expression } .  (* identity declaration *)
+variable_decl  = [ "loc" | "heap" ] actual_type name [ ":=" expression ]
+                 { "," name [ ":=" expression ] } .
+proc_decl      = "proc" name "=" function_literal
+                 { "," name "=" function_literal } .
+
+type           = "int" | "real" | "bool" | "char" | "string" | "compl"
+               | "bits" | "bytes" | "sema" | "format" | "void"
+               | ( "long" | "short" ) { "long" | "short" } type
+               | "ref" type
+               | "[" [ bounds { "," bounds } ] "]" type
+               | "flex" "[" [ bounds { "," bounds } ] "]" type
+               | "struct" "(" type names { "," type names } ")"
+               | "union" "(" type { "," type } ")"
+               | "proc" [ "(" type { "," type } ")" ] type
+               | Type_name .
+bounds         = [ expression ":" ] expression .
+                    (* formal types have no bounds, actual ones have *)
+
+expression     = assignment | identity | function_literal | jump
+               | "skip" | "nil" | formula
+               | tertiary ( "andth" | "orel" ) tertiary .  (* unit *)
+assignment     = tertiary ":=" expression .
+identity       = tertiary ( "is" | "isnt" | ":=:" | ":/=:" ) tertiary .
+function_literal = [ "(" type names { "," type names } ")" ] type ":"
+                   expression .                 (* routine text *)
+jump           = [ "goto" | "go" "to" ] label .
+formula        = [ formula operator ] operand .
+                    (* binary operators by precedence 1 to 9 *)
+operand        = { unary_operator } secondary .
+secondary      = primary | selection | generator .
+selection      = field "of" secondary .
+generator      = ( "loc" | "heap" ) actual_type .
+primary        = name | literal | cast | call | slice | enclosed .
+cast           = type enclosed .
+call           = primary "(" expression { "," expression } ")" .
+slice          = primary "[" index { "," index } "]" .
+index          = expression | [ expression ] ":" [ expression ]
+                 [ "@" expression ] | "@" expression .
+
+enclosed       = block | collateral | parallel | if_expr | case_expr
+               | conformity | loop .
+collateral     = "(" expression "," expression { "," expression } ")"
+               | "(" ")" .              (* also array and record literals *)
+parallel       = "par" "(" expression "," expression { "," expression } ")" .
+if_expr        = "if" sequence "then" sequence
+                 { "elif" sequence "then" sequence }
+                 [ "else" sequence ] "fi" .
+case_expr      = "case" sequence "in" sequence { "," sequence }
+                 [ "ouse" ... | "out" sequence ] "esac" .
+conformity     = "case" sequence "in"
+                 "(" type [ name ] ")" ":" sequence
+                 { "," "(" type [ name ] ")" ":" sequence }
+                 [ "out" sequence ] "esac" .
+loop           = [ "for" name ] [ "from" expression ] [ "by" expression ]
+                 [ "to" expression ] [ "while" sequence ]
+                 "do" sequence "od" .
+\end{lstlisting}
+
+The brief forms \code{( c | a | b )} for \code|if| and
+\code{( i | a, b | c )} for \code|case| follow the same pattern, with
+\code{|:} for \code|elif| and \code|ouse|. Format texts (Chapter~\ref{ch-transput}),
+bits and other literals, and comments are lexical matters not shown here.
+The GNU extensions \code|andth| and \code|orel| are not operators: they
+bind more weakly than every operator, so that \code|a < b andth c < d|
+needs no parentheses, but a chain such as \code|a andth b andth c| must
+be written with parentheses, \code|a andth (b andth c)|. Modules are
+described in Appendix~\ref{app-modules}.

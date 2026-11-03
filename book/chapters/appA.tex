@@ -1,0 +1,129 @@
+\chapter{The standard library}\label{app-library}
+
+This appendix lists the parts of the standard library of the Revised
+Report that this book uses, by topic. The Report defines many of them
+for every size of a type; the tables show the plain size, and the long
+and short versions follow the rules of Section~\ref{sec-long}. Names
+written with underscores here, such as \code|max_int|, are written with
+blanks in the Report and in Algol 68 Genie (\texttt{max int}).
+
+\section*{Types}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Type & Values \\
+\midrule
+\code|int|, \code|real|, \code|bool|, \code|char| & the primitive types (Chapter~\ref{ch-values}) \\
+\code|string| & \code|flex [1:0] char| (Chapter~\ref{ch-advanced}) \\
+\code|compl| & complex numbers, a record of two \code|real| fields (Chapter~\ref{ch-moretypes}) \\
+\code|bits|, \code|bytes| & bit sets and byte strings (Chapter~\ref{ch-moretypes}) \\
+\code|sema| & semaphores (Chapter~\ref{ch-par}) \\
+\code|file|, \code|channel|, \code|format| & transput (Chapter~\ref{ch-transput}) \\
+\code|void| & no value \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Operators}
+
+The binary operators of the library with their precedences. Every unary
+operator binds more tightly than every binary one.
+
+\begin{longtable}{clp{0.5\textwidth}}
+\toprule
+Precedence & Operator & Operands \\
+\midrule
+\endhead
+9 & \code|I| & \code|int| or \code|real|; builds a \code|compl| \\
+8 & \code|**| & \code|int|, \code|real| or \code|compl| base, \code|int| exponent \\
+8 & \code|UP|, \code|DOWN| & \code|bits| and \code|int|: shift (also \code|SHL|, \code|SHR|) \\
+8 & \code|LWB|, \code|UPB| & \code|int| (the dimension) and an array \\
+7 & \code|*| & numbers; \code|int| and \code|string| (repetition) \\
+7 & \code|/| & numbers; the result is never \code|int| \\
+7 & \texttt{\%}, \code|OVER| & \code|int|: integer division \\
+7 & \texttt{\%*}, \code|MOD| & \code|int|: remainder \\
+7 & \code|ELEM| & \code|int| and \code|bits| or \code|bytes| \\
+6 & \code|+|, \code|-| & numbers; \code|+| also joins strings and characters \\
+5 & \code|<|, \code|<=|, \code|>=|, \code|>| & numbers, characters, strings, \code|bits| (\code|<=|, \code|>=|) \\
+4 & \code|=|, \code|/=| & all primitive types, \code|compl|, \code|bits|, strings \\
+3 & \code|AND| & \code|bool|, \code|bits| \\
+2 & \code|OR| & \code|bool|, \code|bits| \\
+1 & \code|+:=|, \code|-:=|, \code|*:=|, \code|/:=|, \texttt{\%:=}, \texttt{\%*:=} & a variable and a value \\
+1 & \code|+=:| & a string or character and a string variable (prepend) \\
+\bottomrule
+\end{longtable}
+
+The word forms \code|PLUSAB|, \code|MINUSAB|, \code|TIMESAB|,
+\code|DIVAB|, \code|OVERAB|, \code|MODAB| and \code|PLUSTO| may be used
+instead of the compound assignment symbols, and \code|EQ|, \code|NE|,
+\code|LT|, \code|LE|, \code|GE|, \code|GT| instead of the comparisons.
+
+\noindent The unary operators:
+
+\begin{center}
+\begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+\toprule
+Operator & Meaning \\
+\midrule
+\code|-|, \code|+| & negation, identity \\
+\code|ABS| & absolute value; code of a \code|char|; \code|int| value of \code|bits|; 1 or 0 for a \code|bool| \\
+\code|SIGN|, \code|ODD| & sign of a number; whether an \code|int| is odd \\
+\code|ROUND|, \code|ENTIER| & nearest \code|int|, largest \code|int| not greater \\
+\code|REPR| & the character with a given code \\
+\code|NOT| & negation of \code|bool| or \code|bits| \\
+\code|BIN| & \code|bits| from an \code|int| \\
+\code|RE|, \code|IM|, \code|ARG|, \code|CONJ| & parts of a \code|compl| \\
+\code|LENG|, \code|SHORTEN| & conversion to the next longer or shorter size \\
+\code|LWB|, \code|UPB| & bounds of the first dimension \\
+\code|LEVEL|, \code|UP|, \code|DOWN| & semaphores \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Constants}
+
+\begin{center}
+\begin{tabular}{p{0.45\textwidth}p{0.45\textwidth}}
+\toprule
+Constant & Meaning \\
+\midrule
+\code|pi| & $\pi$ \\
+\code|max_int|, \code|max_real| & the largest \code|int| and \code|real| \\
+\code|small_real| & the smallest \code|real| that changes 1 when added \\
+\code|bits_width|, \code|bytes_width| & the sizes of \code|bits| and \code|bytes| \\
+\code|int_lengths|, \code|int_shorths|, \code|real_lengths|, \code|real_shorths| & the numbers of sizes \\
+\code|int_width|, \code|real_width|, \code|exp_width| & the digits needed to print numbers \\
+\code|max_abs_char| & the largest character code \\
+\code|blank|, \code|null_character|, \code|flip|, \code|flop| & the characters \code|" "|, code 0, \code|"T"|, \code|"F"| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Procedures}
+
+\begin{center}
+\begin{tabular}{p{0.38\textwidth}p{0.52\textwidth}}
+\toprule
+Procedure & Meaning \\
+\midrule
+\code|sqrt|, \code|exp|, \code|ln| & square root, exponential, natural logarithm \\
+\code|sin|, \code|cos|, \code|tan| & trigonometric functions (radians) \\
+\code|arcsin|, \code|arccos|, \code|arctan| & their inverses \\
+\code|random| & a pseudo-random \code|real| in $[0, 1)$ \\
+\code|whole|, \code|fixed|, \code|float| & numbers to strings (Section~\ref{sec-io}) \\
+\code|char_in_string (c, pos, s)| & whether \code|c| occurs in \code|s|; its index in \code|pos| \\
+\code|bits_pack|, \code|bytes_pack| & \code|bits| from \code|[] bool|, \code|bytes| from a string \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The transput procedures are listed in Chapter~\ref{ch-transput}: \code|print|,
+\code|read|, \code|put|, \code|get|, \code|printf|, \code|putf|,
+\code|readf|, \code|getf|, \code|put_bin|, \code|get_bin|, \code|open|,
+\code|establish|, \code|close|, \code|reset|, \code|associate|,
+\code|make_term|, \code|on_logical_file_end|, \code|on_value_error|, the
+layout procedures \code|newline|, \code|space|, \code|backspace|,
+\code|newpage|, and the files \code|stand_in|, \code|stand_out| and
+channels \code|stand_in_channel|, \code|stand_out_channel|,
+\code|stand_back_channel|.

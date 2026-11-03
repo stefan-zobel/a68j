@@ -1,0 +1,3 @@
+5        PROC INT tick = incr (counter, 1);
+                         1                 
+a68g: error: 1: INT cannot be coerced to PROC INT in a strong-unit, in closed-clause starting at "BEGIN" in line 1.

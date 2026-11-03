@@ -1,0 +1,107 @@
+\chapter{Introduction}\label{ch-intro}
+
+\section{Algol 68}
+
+Algol 68 was designed by Working Group 2.1 of the International Federation
+for Information Processing (IFIP), the group that had earlier produced
+Algol 60. The language was defined in the Report on the Algorithmic
+Language Algol 68 of 1968, published in 1969~\cite{report69}; a revised definition, the
+Revised Report~\cite{rr}, was published in 1975. This book describes the
+language of the Revised Report, which is what all current implementations
+follow. Lindsey's history of the language~\cite{history} tells how it
+came about.
+
+Algol 68 is a compiled, statically typed, imperative language. Its
+designers aimed for a small number of general concepts that combine
+without special cases, a property they called \term{orthogonality}. The
+result is a language in which, for example, a block, an \code|if| and a
+\code|case| are all expressions with a value, any type can be the element
+type of an array or the result type of a function, and a function is a
+value like any other.
+
+\section{A first program}
+
+Here is a complete program:
+
+\example{ch01/hello}
+
+The line after the program is its output. The program consists of a
+\term{block}, the text from \code|begin| to \code|end|. The block contains
+one call of the procedure \code|print|, which writes its argument to the
+standard output. The argument is a list of two items in parentheses: the
+string \code|"Hello, world!"| and \code|newline|, which ends the line.
+That is why there are two pairs of parentheses: the outer pair belongs to
+the call, the inner pair encloses the list. A call with a single item
+needs only one pair, as in \code|print (newline)|.
+
+The first line, \code|access Genie_Transput|, makes \code|print| and the
+other input and output procedures available. The Revised Report includes
+\code|print| in the standard library, and Algol 68 Genie provides it that
+way. The standard library of ga68 provides only low-level input and
+output, and a68j follows ga68. The module \code|Genie_Transput| fills the
+gap: it provides the procedures of the Report that this book uses. It
+comes with a68j, and its source can be compiled with ga68 as well. Every
+program in this book that reads or writes begins with this line; with
+Algol 68 Genie, the line is left out. Modules, a GNU extension of the
+language, are described in Appendix~\ref{app-modules}.
+
+\section{Compiling and running}
+
+With a68j, a program is compiled and run in one step:
+
+\begin{lstlisting}[style=shell]
+$ java -jar a68j-backend.jar -run hello.a68
+Hello, world!
+\end{lstlisting}
+
+With ga68, the module \code|Genie_Transput| is compiled once, and the
+program is compiled and linked with it:
+
+\begin{lstlisting}[style=shell]
+$ ga68 -c genietransput.a68
+$ ga68 -I. hello.a68 genietransput.o -o hello
+$ ./hello
+Hello, world!
+\end{lstlisting}
+
+The source of the module, \texttt{genietransput.a68}, comes with a68j.
+
+\section{Reserved words, type names and operators}\label{sec-stropping}
+
+Some words in an Algol 68 program are \term{reserved words}: \code|begin|,
+\code|end|, \code|int|, \code|if| and some sixty others. In this book
+they are printed in bold, a tradition that goes back to the Report, where
+these words are written in a typeface of their own. In a source file they
+are written in lower case.
+
+How the reserved words are told apart from other words in a source file is
+called \term{stropping} (\rr{stropping}). Several conventions have been
+used. This book uses the default convention of ga68, which is also
+understood by a68j:
+\begin{itemize}
+\item reserved words are written in lower case: \code|begin|, \code|int|;
+\item a type name that the program declares begins with a capital letter:
+  \code|Node|, \code|Point|;
+\item operators that are words are written in capitals: \code|ABS|,
+  \code|MOD|, or a user-defined \code|MAX|;
+\item everything else, such as the names of constants, variables and
+  procedures, is written in lower case, with digits and underscores:
+  \code|max_value|, \code|x2|.
+\end{itemize}
+Algol 68 Genie uses a different convention by default, in which reserved
+words, type names and word operators are written in capitals
+(\code|BEGIN INT n = 1; ... END|) and names may contain spaces.
+
+\section{A second program}
+
+The next program computes the area and the circumference of a circle:
+
+\example{ch01/circle}
+
+The text between braces is a \term{comment}. The program declares three
+names for values: \code|r| for the radius, and \code|area| and
+\code|circumference| for the results; \code|pi| is a constant of the
+standard library. The operator \code|**| raises to a power. The
+procedure \code|fixed| converts a number into a string with a given number
+of digits after the decimal point; the 0 asks for a string just as wide as
+needed. All of this is explained in the next chapter.

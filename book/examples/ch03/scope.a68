@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int x = 1;
+   begin
+      real x = 2.5;          { a new x, hiding the outer one }
+      print ((x, newline))
+   end;
+   print ((x, newline))      { the outer x again }
+{ end excerpt }
+end

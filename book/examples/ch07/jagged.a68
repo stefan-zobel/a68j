@@ -1,0 +1,16 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [] [] int jag = ((1, 2), 3, (4, 5, 6));
+   for i to UPB jag do
+      print ((whole (UPB jag[i], 0), " elements:"));
+      for j to UPB jag[i] do print ((" ", whole (jag[i][j], 0))) od;
+      print (newline)
+   od;
+   flex [1:0] flex [1:0] int rag := ((1, 2), 3, (4, 5, 6));
+   rag[2] := (7, 8, 9, 10);       { one row gets longer }
+   rag := rag[1:2];               { the array loses its last row }
+   print ((whole (UPB rag, 0), " rows, row 2 has ",
+           whole (UPB rag[2], 0), " elements", newline))
+{ end excerpt }
+end

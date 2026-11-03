@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+   int n = 42;
+   real x = 3.14159;
+   print ((n, " ", x, " ", true, newline));
+   print ((whole (n, 0), "|", whole (n, 6), "|", whole (-n, 0), newline));
+   print ((fixed (x, 0, 2), "|", fixed (x, 8, 3), "|", fixed (-x, 0, 1), newline))
+end

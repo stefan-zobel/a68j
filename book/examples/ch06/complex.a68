@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc show = (compl z) string:
+      fixed (RE z, 0, 3) + (IM z < 0 | " - " | " + ")
+         + fixed (ABS IM z, 0, 3) + "i";
+   compl z = 1 I 2, w = 3 I -1;
+   print ((show (z + w), "   ", show (z * w), "   ", show (z / w), newline));
+   print ((fixed (ABS (3 I 4), 0, 3), " ", fixed (ARG (0 I 1), 0, 4), " ",
+           show (CONJ z), newline));
+   compl r := 2.5;                 { a real is widened to compl }
+   r *:= 0 I 1;
+   print ((show (r), newline))
+{ end excerpt }
+end

@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int seed := 1;
+   proc next = int: (seed := seed * 75 MOD 65537; seed);
+   int a = next;              { next is called: no parentheses needed }
+   int b = next;
+   print ((a, b, newline))
+{ end excerpt }
+end

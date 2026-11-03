@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   op + = ([] real a, b) [] real:
+   begin
+      if LWB a /= LWB b orel UPB a /= UPB b then
+         print (("bounds differ", newline)); stop
+      fi;
+      [LWB a : UPB a] real sum;
+      for i from LWB a to UPB a do sum[i] := a[i] + b[i] od;
+      sum
+   end;
+   [] real v = (1.5, 2.5, 3.5);
+   [] real w = v + [] real (1, 1, 1);
+   for i to UPB w do print ((fixed (w[i], 0, 1), " ")) od;
+   print (newline)
+{ end excerpt }
+end

@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   long int big = long 123456789 * long 1000000;
+   print ((big, newline));
+   print ((long_max_int, newline));
+   long real third = long 1 / long 3;
+   print ((third, newline));
+   print ((LENG max_int + long 1, newline));       { no overflow in long }
+   print ((SHORTEN (long 2 ** 20), newline))
+{ end excerpt }
+end

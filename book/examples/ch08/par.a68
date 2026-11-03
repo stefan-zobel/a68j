@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a, b;
+   par (a := 6 * 7, b := 2 ** 10);       { two units, possibly at the same time }
+   print ((whole (a, 0), " ", whole (b, 0), newline))
+{ end excerpt }
+end

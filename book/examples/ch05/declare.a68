@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc max = (int a, b) int: (a > b | a | b);
+   proc hypotenuse = (real a, b) real: sqrt (a * a + b * b);
+   proc greet = (string name) void:
+      print (("Hello, ", name, "!", newline));
+   print ((max (3, 7), " ", fixed (hypotenuse (3, 4), 0, 1), newline));
+   greet ("Algol")
+{ end excerpt }
+end

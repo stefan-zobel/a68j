@@ -1,0 +1,6 @@
+access Genie_Transput
+begin
+   print ((2 + 3 * 4, (2 + 3) * 4, newline));
+   print ((10 - 4 - 3, 2 ** 3 ** 2, newline));
+   print ((-2 ** 2, -(2 ** 2), newline))
+end

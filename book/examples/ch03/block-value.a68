@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int square = (int t = 7; t * t);
+   real mean = begin
+                  real a = 2.0, b = 3.5;
+                  (a + b) / 2
+               end;
+   print ((square, " ", fixed (mean, 0, 2), newline))
+{ end excerpt }
+end

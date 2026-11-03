@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { Euclid's algorithm: the greatest common divisor of a and b. }
+   int a := 1071, b := 462;
+   while b /= 0 do
+      int r = a MOD b;
+      a := b;
+      b := r
+   od;
+   print (("gcd = ", whole (a, 0), newline))
+{ end excerpt }
+end

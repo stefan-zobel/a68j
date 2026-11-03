@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc mean = ([] real v, proc void on_empty) real:
+   begin
+      if UPB v < LWB v then on_empty fi;
+      real s := 0;
+      for i from LWB v to UPB v do s +:= v[i] od;
+      s / (UPB v - LWB v + 1)
+   end;
+   [1:0] real none;
+   print ((fixed (mean ((1, 2, 3, 4), no_data), 0, 2), newline));
+   print ((fixed (mean (none, no_data), 0, 2), newline));
+   goto stop;
+no_data:
+   print (("no data", newline))
+{ end excerpt }
+end

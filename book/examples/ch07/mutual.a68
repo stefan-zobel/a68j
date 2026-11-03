@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Person = struct (string name, ref Dept dept),
+        Dept = struct (string title, ref Person head);
+   heap Dept d := ("Research", nil);
+   heap Person p := ("Ada", d);
+   head of d := p;
+   print ((name of head of dept of p, " heads ", title of d, newline))
+{ end excerpt }
+end

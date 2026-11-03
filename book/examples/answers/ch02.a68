@@ -1,0 +1,29 @@
+access Genie_Transput
+begin
+   { Checks of the answers to the exercises of Chapter 2. }
+   { Exercise 2 }
+   print ((17 % 5, -17 % 5, 17 MOD 5, -17 MOD 5, " ", 17 / 5, newline));
+   { Exercise 3 }
+   print ((2 + 3 * 4 ** 2, -3 ** 2, newline));
+   { Exercise 5 }
+   ref real x = loc real := 1.5, y = loc real;
+   y := 2;
+   print ((x, " ", y, newline));
+   { Exercise 6 (a) and (c) }
+   int i := 1; real r := 2.5;
+   r := i; i := ROUND 2.5;
+   print ((r, " ", i, newline));
+   { Exercise 7 }
+   int a := 1, b := 2;
+   a := b := a + b;
+   print ((a, b, newline));
+   { Exercise 9 }
+   int x9 := 1; ref int rr = x9; rr := rr + 1;
+   print ((x9, newline));
+   { Exercise 10 }
+   int aa = 1, bb = 2; real xx = 1, yy = -1; bool done = false;
+   print ((aa < bb AND xx > 0 = yy > 0 OR NOT done,
+           ((aa < bb) AND ((xx > 0) = (yy > 0))) OR (NOT done), newline));
+   { Exercise 11 }
+   print ((fixed (2.0 ** -2, 0, 2), " ", ABS (-7 MOD 3), newline))
+end

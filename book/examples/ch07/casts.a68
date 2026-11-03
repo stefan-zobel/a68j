@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   union (int, real) u = real (1);           { a real, not an int }
+   print ((case u in (real): "real", (int): "int" esac, newline));
+   proc next = int: 42;
+   proc int saved = next;                    { the function itself }
+   int value = next;                         { the result of a call }
+   print ((saved, value, newline))
+{ end excerpt }
+end

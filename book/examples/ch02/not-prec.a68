@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   int x = 5;
+   print ((NOT x = 7, newline))
+end

@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [1:3] int a := (1, 2, 3), b;
+   b := a;                     { copies the elements }
+   b[1] := 99;
+   print ((a[1], b[1], newline))
+{ end excerpt }
+end

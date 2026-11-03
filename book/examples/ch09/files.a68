@@ -1,0 +1,24 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   File results;
+   if establish (results, "squares.txt", stand_out_channel) /= 0 then
+      print (("cannot create squares.txt", newline)); stop
+   fi;
+   for i to 5 do put (results, (i, " ", i * i, newline)) od;
+   close (results);
+
+   File data;
+   if open (data, "squares.txt", stand_in_channel) /= 0 then
+      print (("cannot open squares.txt", newline)); stop
+   fi;
+   on_logical_file_end (data, (ref File f) bool: goto done);
+   do
+      int n, square;
+      get (data, (n, square));
+      print ((whole (n, 0), " squared is ", whole (square, 0), newline))
+   od;
+done:
+   close (data)
+{ end excerpt }
+end

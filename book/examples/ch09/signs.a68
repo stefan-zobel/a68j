@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for i to 3 do
+      int n = (i | 42, -42, -7);
+      printf (($"[" -4zd "] [", 4z-d "] [", 4z+d "] [", +4d "]" l$, n, n, n, n))
+   od
+{ end excerpt }
+end

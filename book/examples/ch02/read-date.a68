@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int day, month, year;
+   read ((day, space, month, space, year));
+   print ((whole (year, 0), "-", whole (month, 0), "-", whole (day, 0), newline))
+{ end excerpt }
+end

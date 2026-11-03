@@ -1,0 +1,113 @@
+\chapter{Implementation notes}\label{app-impl}
+
+This appendix collects the differences between the implementations that
+the book mentions: ga68, the Algol 68 front end of GCC; a68j, which
+compiles the same language to the Java virtual machine; and Algol 68
+Genie (a68g), an interpreter that many Algol 68 programs on the web,
+among them most Rosetta Code programs, are written for. The information
+describes the versions used for this book, which the preface lists.
+
+\section*{Notation}
+
+\begin{center}
+\small
+\begin{tabular}{p{0.2\textwidth}p{0.35\textwidth}p{0.35\textwidth}}
+\toprule
+ & ga68 and a68j & Algol 68 Genie \\
+\midrule
+reserved words & lower case: \code|begin int| & upper case: \texttt{BEGIN INT} \\
+declared type names & capitalized: \code|Node| & upper case: \texttt{NODE} \\
+word operators & upper case: \code|ABS| & upper case: \texttt{ABS} \\
+names & lower case, underscores: \code|max_int| & lower case, blanks allowed: \texttt{max int} \\
+comments & \code|{ ... }| (nested) & \texttt{\# ... \#}, \texttt{CO ... CO}, \texttt{COMMENT ... COMMENT} \\
+program & a block or other enclosed construct & the same, or a sequence without brackets \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Converting a program from one notation to the other is mechanical: the
+reserved words and the type names change case, blanks in names become
+underscores, and comments get the other brackets. A name that is a
+reserved word in ga68 but not in Algol 68 Genie, such as \code|in|,
+\code|out|, \code|empty|, \code|word| or \code|op|, must be renamed.
+
+\section*{Sizes}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+ & ga68 and a68j & Algol 68 Genie \\
+\midrule
+\code|int| & 32 bits & 64 bits \\
+\code|long int| & 64 bits & 128 bits \\
+\code|long long int| & 64 bits & 72 decimal digits \\
+\code|real| & 32 bits & 64 bits \\
+\code|long real| & 64 bits & 128 bits \\
+\code|long long real| & 80 bits (ga68), 64 bits (a68j) & 63 decimal digits \\
+\code|bits| & 32 & 64 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A program written for Algol 68 Genie that relies on 64-bit \code|int|
+values must use \code|long int| with ga68 and a68j. Since \code|real| has
+only about seven decimal digits in ga68 and a68j, numerical programs
+should use \code|long real| there.
+
+\section*{Transput}
+
+ga68 and a68j have no transput of the Report in their standard library.
+The module \code|Genie_Transput|, which comes with a68j and can be
+compiled with ga68, provides unformatted transput: \code|print|,
+\code|read|, \code|put|, \code|get|, files on disk, files associated with
+strings, the layout procedures and the events for the end of the file and
+for value errors. It does not provide formats, binary transput, or the
+printing of records, \code|compl|, \code|short| and \code|long long|
+values. Algol 68 Genie provides the transput of the Report almost
+completely, and adds \code|eof| and \code|eoln|, which
+\code|Genie_Transput| also has; Section~\ref{sec-transput-genie} lists
+what it lacks.
+
+\section*{Other features}
+
+\begin{longtable}{p{0.3\textwidth}p{0.3\textwidth}p{0.3\textwidth}}
+\toprule
+Feature & ga68 and a68j & Algol 68 Genie \\
+\midrule
+\endhead
+\code|par| & ga68: one unit after the other; a68j: threads with the option \code|-fpar-threads| & threads \\
+\code|sema| & not in ga68; a68j with \code|-fpar-threads| & yes \\
+\code|compl| operators & a68j only & yes \\
+\code|bytes| & no & yes \\
+formats & no & yes \\
+lifetime rule (references, procedures, \code|loc| cells) & not checked & checked at run time \\
+bounds of an array field when a record is assigned & not checked & checked \\
+initial value of a variable & zero, \code|false|, blank, empty & undefined (an error when used) \\
+\code|andth|, \code|orel| & yes (GNU extension) & yes (also \texttt{ANDF}, \texttt{ORF}) \\
+\code|XOR| for \code|bits| & yes & yes \\
+\code|downto|, \code|until| in loops & no & yes \\
+modules & yes (GNU extension, Appendix~\ref{app-modules}) & no \\
+calling C (\code|nest C|) & ga68 only (Appendix~\ref{app-nest}) & no \\
+partial parametrization & no & yes (Appendix~\ref{app-partial}) \\
+\bottomrule
+\end{longtable}
+
+\section*{Printing numbers}
+
+\code|print| writes an \code|int| in a field of \code|int_width + 1|
+characters with its sign, so the output of ga68 and a68j is narrower than
+that of Algol 68 Genie. A \code|real| is written in floating-point
+notation with \code|real_width| digits. Programs whose output should not
+depend on the implementation use \code|whole| and \code|fixed|.
+
+When ga68 and a68j convert a \code|real| to a string, the last of its
+seven digits is sometimes wrong (9.81 is printed as \texttt{9.810001});
+the examples of this book avoid such values.
+
+\section*{Running Rosetta Code programs}
+
+Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie in
+upper-case notation. To run one with ga68 or a68j, convert the notation as
+above, add \code|access Genie_Transput| and an enclosing block if the
+program has none, and check whether it relies on 64-bit integers, on
+formats or on the other features in the table above.

@@ -1,0 +1,23 @@
+access Genie_Transput
+begin
+   { Checks of the answers to the exercises of Chapter 6. }
+   { Exercise 1 }
+   print ((fixed (RE ((1 I 1) * (1 I -1)), 0, 1), " ", fixed (ABS (0 I 2), 0, 1), newline));
+   { Exercise 2 }
+   long int n := long 5;
+   print ((whole (n, 0), newline));
+   { Exercise 3 }
+   print ((whole (ABS (16rff AND 2r1010), 0), " ", whole (ABS (2r1 SHL 4), 0), " ",
+           (bits_width ELEM 2r1 | "T" | "F"), newline));
+   { Exercise 4 }
+   proc popcount = (bits b) int:
+   begin
+      int count := 0;
+      for i to bits_width do if i ELEM b then count +:= 1 fi od;
+      count
+   end;
+   print ((whole (popcount (2r1011), 0), newline));
+   { Exercises 6 and 7 }
+   compl z = 2 * 3 I 4;
+   print ((2r100 >= 2r011, " ", fixed (RE z, 0, 1), " ", fixed (IM z, 0, 1), newline))
+end

@@ -1,0 +1,26 @@
+access Genie_Transput
+begin
+   { Checks of the answers to the exercises of Chapter 9. }
+   proc int_to_string = (int n) string:
+   begin
+      string s := "";
+      File f;
+      associate (f, s);
+      put (f, n);
+      s
+   end;
+   print (("[", int_to_string (42), "] [", int_to_string (-7), "]", newline));
+   { Exercise 7 }
+   print (("[", whole (-5, 3), "] [", whole (5, -3), "] [", fixed (2.5, 0, 2),
+           "] [", fixed (-0.25, 0, 2), "]", newline));
+   { Exercise 8 }
+   string text := "x 5";
+   File g;
+   associate (g, text);
+   make_term (g, " ");
+   int errors := 0;
+   on_value_error (g, (ref File h) bool: (errors +:= 1; true));
+   int a := -1, b := -1;
+   get (g, (a, b));
+   print ((whole (a, 0), " ", whole (b, 0), " ", whole (errors, 0), newline))
+end

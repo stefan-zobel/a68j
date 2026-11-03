@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+   int x = 7;
+   print ((x > 5, " ", x = 7, " ", x /= 7, newline));
+   print ((x > 0 AND x < 10, " ", x < 0 OR x > 100, " ", NOT (x = 7), newline));
+   print (("a" < "b", " ", "Z" < "a", newline))
+end

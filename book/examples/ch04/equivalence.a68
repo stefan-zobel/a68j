@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Meters = struct (real value, int precision);
+   mode Seconds = struct (real value, int precision);
+   Meters distance = (100, 2);
+   Seconds time = distance;                { allowed: the same type }
+   print ((fixed (value of time, 0, 1), newline))
+{ end excerpt }
+end

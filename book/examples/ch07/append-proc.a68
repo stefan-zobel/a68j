@@ -1,0 +1,15 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc append = (ref flex [] int list, int value) void:
+   begin
+      [1 : UPB list + 1] int longer;
+      longer[: UPB list] := list;
+      longer[UPB list + 1] := value;
+      list := longer
+   end;
+   flex [1:0] int squares;
+   for i to 6 do append (squares, i * i) od;
+   print ((squares, newline))
+{ end excerpt }
+end

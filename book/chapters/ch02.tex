@@ -1,0 +1,595 @@
+\chapter{Values, types and variables}\label{ch-values}
+
+This chapter introduces the building blocks of every program: values and
+their types, constants and variables, the arithmetic and logical
+operators, assignment, and simple input and output. One idea in it is
+more important than the others and is the key to much of the language:
+a variable in Algol 68 is a name for a \emph{reference} to a memory cell,
+and the language says so openly. Section~\ref{sec-references} explains
+what this means.
+
+\section{Types}\label{sec-types}
+
+Every value in a program has a \term{type} (\rr{mode}). The type
+determines which values are possible and which operations apply. Algol 68
+has four \term{primitive types}:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Type & Values & Examples \\
+\midrule
+\code|int| & whole numbers & \code|0|, \code|42| \\
+\code|real| & floating-point numbers & \code|3.5|, \code|1e6| \\
+\code|bool| & truth values & \code|true|, \code|false| \\
+\code|char| & single characters & \code|"a"|, \code|"7"| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The type \code|string| for sequences of characters is not primitive: it is
+a resizable array of \code|char| (Chapter~\ref{ch-advanced}). It can be used in the same
+simple ways as the primitive types, though, and this chapter does so.
+
+The range of \code|int| and the precision of \code|real| depend on the
+implementation. The standard library provides constants that describe
+them, among them \code|max_int|, the largest \code|int|, and
+\code|small_real|, the smallest \code|real| that gives a result different
+from 1 both when it is added to 1 and when it is subtracted from 1:
+
+\example{ch02/limits}
+
+\begin{implnote}
+In ga68 and a68j, \code|int| has 32 bits and \code|real| is a 32-bit
+floating-point number (single precision, about 7 decimal digits). The
+types \code|long int| and \code|long real| have 64 bits. In Algol 68 Genie,
+\code|int| has 64 bits and \code|real| is a 64-bit floating-point number.
+Precision variants are the subject of Chapter~\ref{ch-moretypes}.
+\end{implnote}
+
+\section{Literals}\label{sec-literals}
+
+A value written directly in the program text is a \term{literal}
+(\rr{denotation}):
+
+\example{ch02/literals}
+
+An \code|int| literal is a sequence of digits. It has no sign: in
+\code|-5|, the minus is an operator applied to the literal \code|5|.
+Blanks may appear between the digits, so \code|1 000 000| is a single
+literal; commas may not.
+
+A \code|real| literal has a decimal point, an exponent, or both:
+\code|3.5|, \code|.25|, \code|1e6|, \code|2.5e-3|. There must be at least
+one digit after the point, so \code|5.| is not a literal; \code|5.0| is.
+The letter of the exponent may be written \code|e| or \code|E|.
+
+A \code|char| literal is a single character between double quotes. A
+double quote itself is written twice: \code|""""| is the literal for the
+character \code|"|. The same rule applies to strings: \code|"say ""hi"""|
+is the string \texttt{say "hi"}.
+
+The two \code|bool| literals are \code|true| and \code|false|. When
+\code|print| writes a truth value, it writes \code|T| or \code|F|.
+
+\section{Names}\label{sec-names}
+
+The names that a program gives to its constants, variables and procedures
+are \term{identifiers} (\rr{identifier}, \rr{tag}). An identifier begins
+with a lower-case letter and continues with lower-case letters, digits
+and underscores: \code|x|, \code|x2|, \code|max_value|. Reserved words
+cannot be used as identifiers.
+
+Capital letters have a meaning of their own (Section~\ref{sec-stropping}): a word that
+begins with a capital letter is a type name or an operator. A name in the
+style of other languages, such as \code|maxValue|, is therefore read as
+the identifier \code|max| followed by a type name \code|Value|, and the
+compiler complains about the type:
+
+\example{ch02/identifier-case}
+
+\section{Constants}\label{sec-constants}
+
+A declaration of the form
+\begin{lstlisting}
+int days_per_week = 7
+\end{lstlisting}
+binds the identifier \code|days_per_week| to the value 7, for the rest of
+the block in which the declaration appears. Such a binding cannot be
+changed; \code|days_per_week| is a \term{constant}. The Report calls this
+form an \rr{identity declaration}, since it declares that the identifier
+and the value are identical: wherever \code|days_per_week| is used, it
+stands for 7. It corresponds to \code|const| in C and JavaScript, to
+\code|final| in Java and to \code|let| in Rust.
+
+The value need not be known when the program is compiled. Any expression
+of the right type can stand on the right-hand side, including one that
+uses other constants or reads input. Several constants can be declared
+at once, separated by commas; declarations are separated by semicolons:
+
+\example{ch02/constants}
+
+An attempt to change a constant is an error, found by the compiler:
+
+\example{ch02/constant-assign}
+
+The message is phrased in the terms of the Report: a \rr{name} is what
+this book calls a reference, and the message says that \code|n| is not a
+reference, so nothing can be assigned to it. Section~\ref{sec-references}
+explains this.
+
+\section{Variables}\label{sec-variables}
+
+A \term{variable} is declared with \code|:=| instead of \code|=|, or with
+no initial value at all:
+
+\example{ch02/variables}
+
+The declaration \code|int count := 0| creates a variable that holds an
+\code|int|, with the initial value 0. The \term{assignment}
+\code|count := count + 1| replaces the value held by \code|count| with a
+new value. Several declarations can be joined with commas, but the type
+may be left out only if the next declaration is of the same kind:
+\code|int x = 5, y := 6| is an error (``mixed identity-declaration and
+variable-declaration''), whereas \code|int x = 5, int y := 6| is allowed.
+The declarations joined by commas are carried out in an unspecified
+order, so one of them must not use another
+(Section~\ref{sec-collateral}).
+
+A variable declared without an initial value, as in \code|real x|, holds
+no defined value until a value is assigned to it. Using it before then is
+an error that the compiler does not detect. A \code|string| variable, and a \code|string| inside an array or record
+variable, is the exception: it starts out as the empty string, since a string is a
+resizable array whose initial bounds are 1 and 0
+(Section~\ref{sec-flex}), and an empty array has no elements that could
+be undefined.
+
+\begin{implnote}
+ga68 and a68j give such a variable an initial value: zero, \code|false|
+or a blank character. A program should not rely on this, since other
+implementations do not.
+\end{implnote}
+
+\section{What a variable is: references}\label{sec-references}
+
+In most languages a variable is a primitive concept: a name that refers
+to a place in memory whose content can change. Algol 68 builds variables
+from two simpler concepts, and makes both visible.
+
+The first concept is \term{allocation}. The expression \code|loc int|
+allocates a fresh memory cell that can hold an \code|int|, on the stack
+of the current block, and yields a \term{reference} to that cell. The
+type of a reference to an \code|int| cell is \code|ref int|, read
+``reference to int''. A reference is a value like any other: it can be
+bound to an identifier, passed to a procedure or stored in another cell.
+The Report calls a reference a \rr{name} and an allocation a
+\rr{generator}.
+
+The second concept is the constant declaration of the previous section.
+Together they give a variable:
+
+\example{ch02/references}
+
+The declaration \code|ref int b = loc int := 5| allocates a cell, assigns
+5 to it, and binds \code|b| to the reference. The short form
+\code|int a := 5| means exactly the same, and a program normally uses the
+short form. But the long form shows what the identifier of a variable
+stands for: not the number in the cell, but the reference to the cell.
+The type of \code|a| is \code|ref int|, not \code|int|.
+
+Since a reference is a value, it can be bound to a second name. The
+second name then refers to the same cell, and an assignment through it
+changes the variable:
+
+\example{ch02/alias}
+
+\noindent prints 99. Nothing has been copied: the declaration binds the
+name \code|alias| to the reference that \code|a| stands for.
+
+This explains the error message of the previous section. The left-hand
+side of an assignment must be a reference, of type \code|ref int| when an
+\code|int| is assigned. A constant declared as \code|int n = 10| has the
+type \code|int|; it is the number 10 itself, and there is nothing to
+assign to.
+
+Programmers who know C++ will recognize the idea: \code|b| behaves like
+a C++ reference \texttt{int\& b} to a cell. In Rust, \code|b| would be a
+\texttt{\&mut i32}, which needs an explicit \texttt{*} to read the cell;
+Algol 68 reads the cell implicitly where a value is needed
+(Section~\ref{sec-coercions}). Programmers who know Java or Python can think of the
+reference as the hidden storage location behind every variable; Algol 68
+simply gives it a type. The distinction between a value and a reference
+to a cell holding that value is the source of most of the power of the
+language's type system, and later chapters return to it often: references
+to references, references in records, references returned by functions,
+and how long the cell behind a reference lives.
+
+\section{Arithmetic}\label{sec-arithmetic}
+
+The arithmetic operators on \code|int| and \code|real| are:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Operator & Meaning & Operand types \\
+\midrule
+\code|+| \code|-| \code|*| & addition, subtraction, multiplication & \code|int|, \code|real| \\
+\code|/| & division & \code|int|, \code|real|; the result is \code|real| \\
+\texttt{\%} & integer division, truncating toward zero & \code|int| \\
+\code|MOD| & remainder, never negative & \code|int| \\
+\code|**| & power & \code|int| or \code|real| base, \code|int| exponent \\
+\code|-| (unary) & negation & \code|int|, \code|real| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Note that \code|/| always yields a \code|real|, even for two \code|int|
+operands, so \code|n := 4 / 2| is rejected for an \code|int| variable
+\code|n|; integer division is \code|%|. The remainder \code|a MOD b| lies
+between 0 and \code|ABS b - 1| even if \code|a| is negative, unlike the
+\texttt{\%} operator of C, Java or JavaScript:
+
+\example{ch02/arithmetic}
+
+The power operator requires an \code|int| exponent, which may be
+negative if the base is a \code|real|: \code|2.0 ** -1| is 0.5. A
+\code|real| power,
+such as a square root, is computed with the functions of the standard
+library (\code|sqrt|, \code|exp|, \code|ln|), which Chapter~\ref{ch-moretypes} describes.
+
+\begin{implnote}
+An \code|int| result that does not fit into an \code|int| is undefined by
+the Report. In ga68 and a68j, it wraps around silently:
+\code|max_int + 1| gives $-2147483648$. The result of an \code|int| raised to a
+negative power, such as \code|2 ** -1|, is undefined as well.
+\end{implnote}
+
+\section{Precedence}\label{sec-precedence}
+
+Every binary operator has a \term{precedence} (\rr{priority}) from 1 to 9.
+An operator of higher precedence binds more tightly: \code|2 + 3 * 4| is
+\code|2 + (3 * 4)|. Operators of equal precedence are applied from left to
+right: \code|10 - 4 - 3| is \code|(10 - 4) - 3|. The standard operators
+have the following precedences:
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+Precedence & Operators \\
+\midrule
+9 & \code|I| (complex numbers, Chapter~\ref{ch-moretypes}) \\
+8 & \code|**|, \code|UP|, \code|LWB|, \code|UPB| \\
+7 & \code|*|, \code|/|, \texttt{\%}, \code|MOD|, \code|ELEM| \\
+6 & \code|+|, \code|-| \\
+5 & \code|<|, \code|<=|, \code|>=|, \code|>| \\
+4 & \code|=|, \code|/=| \\
+3 & \code|AND| \\
+2 & \code|OR| \\
+1 & \code|+:=|, \code|-:=|, \code|*:=|, \code|/:=|, \texttt{\%:=}, \ldots \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two rules differ from what most current languages do. First, \code|**|
+is applied from left to right like every other operator, so
+\code|2 ** 3 ** 2| is $(2^3)^2 = 64$, not $2^9 = 512$. Second, every
+unary operator binds more tightly than every binary operator. In
+\code|-2 ** 2|, the minus applies to the 2 first, so the result is
+$(-2)^2 = 4$:
+
+\example{ch02/precedence}
+
+When in doubt, parentheses make the intended order explicit, and the
+programs in this book use them wherever the order might surprise a reader.
+Older programs, and many on Rosetta Code, write some operators as words:
+\code|OVER| for \texttt{\%}, \code|PLUSAB| for \code|+:=|, and so on
+(Appendix~\ref{app-library}).
+Chapter~\ref{ch-procs} shows how a program declares operators of its own and their
+precedences.
+
+\section{Comparisons and logical operators}\label{sec-logic}
+
+The comparison operators \code|=|, \code|/=| (not equal), \code|<|,
+\code|<=|, \code|>|, \code|>=| compare two numbers, or two characters in
+the order of their character codes, and yield a \code|bool|. The logical
+operators are \code|AND|, \code|OR| and the unary \code|NOT|:
+
+\example{ch02/logic}
+
+Since \code|AND| has a lower precedence than the comparisons,
+\code|x > 0 AND x < 10| needs no parentheses. Applied to two truth
+values, \code|=| tests whether they are equal and \code|/=| is the
+exclusive or; \code|(a < 0) = (b < 0)| tests whether \code|a| and
+\code|b| have the same sign.
+
+\begin{pitfall}
+\code|NOT| is a unary operator and binds more tightly than every binary
+operator, so \code|NOT x = 7| means \code|(NOT x) = 7|, which the
+compiler rejects for an \code|int| \code|x|:
+\lstinputlisting[style=output]{examples/ch02/not-prec.out}
+\noindent The test is written \code|NOT (x = 7)| or \code|x /= 7|.
+Programmers who know Python, where \code|not| binds loosely, fall into
+this easily. Similarly, \code|x < y < z| is not a chained comparison:
+\code|x < y| is a \code|bool|, which cannot be compared with a number.
+\end{pitfall}
+
+\code|AND| and \code|OR| are ordinary operators: both operands are
+evaluated before the operator is applied, as with every operator. They do
+not ``short-circuit'' like \texttt{\&\&} and \texttt{||} in C or Java. The
+GNU dialect of Algol 68, which ga68 and a68j implement, adds the
+short-circuit forms \code|andth| and \code|orel|, which evaluate their
+right operand only when it is needed. They bind more weakly than every
+operator, and a chain of them needs parentheses:
+\code|a andth (b andth c)| (Appendix~\ref{app-syntax}). The following program shows the
+difference; it uses a small procedure \code|check| that prints a line
+before it returns its argument (procedures are the subject of
+Chapter~\ref{ch-procs}):
+
+\example{ch02/and-evaluates-both}
+
+\section{Implicit conversions}\label{sec-coercions}
+
+In the program of Section~\ref{sec-references}, \code|a| has the type
+\code|ref int|, and yet \code|a + 1| is allowed, although \code|+| is
+defined for \code|int| and not for references. The compiler inserts an
+operation that reads the cell: it converts the reference into the value it
+refers to. Such an automatic change of type is an \term{implicit
+conversion} (\rr{coercion}), and this one is called
+\term{dereferencing} (\rr{dereferencing}).
+
+Algol 68 has six kinds of implicit conversion; this chapter needs two.
+The second is \term{widening} (\rr{widening}): an \code|int| is
+converted into a \code|real| where a \code|real| is required. Both
+conversions can apply one after the other: in \code|r := n| below, the
+variable \code|n| is first dereferenced to an \code|int|, which is then
+widened to a \code|real|:
+
+\example{ch02/conversions}
+
+There is no implicit conversion in the other direction, from \code|real| to
+\code|int|, since it would lose information:
+
+\example{ch02/no-narrowing}
+
+The message, again in the terms of the Report, says that a \code|real|
+cannot be converted to \code|int| in a ``strong-unit''. A \rr{unit} is an
+expression; \rr{strong} describes the place where the expression appears.
+
+This is the last important idea of the chapter: which implicit
+conversions are allowed depends on where an expression stands. Algol 68
+distinguishes five kinds of place, called \term{conversion contexts}
+(\rr{syntactic positions}, \rr{contexts}). The right-hand side of a
+declaration or an assignment is a \term{strong} context, where all
+conversions are allowed, since the required type is known. An operand of
+an operator is a \term{firm} context, where widening is \emph{not}
+allowed, since the operator to apply is chosen by the types of its
+operands and is not known in advance. The operator \code|ROUND|, for
+example, is defined for a \code|real| operand only, and an \code|int|
+operand is not widened to make it fit:
+
+\example{ch02/round-int}
+
+How then can \code|n + 0.5| work, with an \code|int| and a \code|real|
+operand? Not by widening: the standard library simply defines the
+arithmetic and comparison operators for each combination of \code|int| and
+\code|real| operands (Revised Report, Section 10.2.3.5). Chapter~\ref{ch-advanced} describes
+all six implicit conversions and all five contexts.
+
+\section{Assignment}\label{sec-assignment}
+
+An assignment \code|x := e| evaluates \code|e| and stores its value in
+the cell that the reference \code|x| refers to. An assignment is itself
+an expression: its value is the reference on the left-hand side. That
+makes \code|a := b := 7| possible: it assigns 7 to \code|b|, and the result,
+the reference \code|b|, is dereferenced and its value assigned to
+\code|a|. The two sides of an assignment are evaluated in an unspecified
+order (Section~\ref{sec-collateral}).
+
+The \term{compound assignment} \code|x +:= e| adds \code|e| to the value
+of \code|x| and stores the result in \code|x|; it is short for
+\code|x := x + e|, except that \code|x| is evaluated only once. Similar
+operators exist for the other arithmetic operators: \code|-:=|,
+\code|*:=|, \code|/:=| (for a \code|real| variable), \code|%:=| and
+\code|%*:=| (the \code|MOD| form). They are operators of precedence 1, so
+\code|x +:= 1 + 2| adds 3. Their value, like that of an assignment, is
+the reference on the left-hand side.
+
+Unlike the assignment, these are ordinary operators, and like all
+operators of the same precedence they are applied from left to right:
+
+\example{ch02/plusab}
+
+\noindent prints 6 and 1: \code|a +:= b +:= 3| is \code|(a +:= b) +:= 3|,
+and \code|b| is not changed. A chain of assignments \code|a := b := 3|,
+in contrast, groups to the right. And \code|n +:= x| for an \code|int|
+variable \code|n| and a \code|real| \code|x| is rejected, for the same
+reason as \code|n := n + x|.
+
+\example{ch02/assignment}
+
+\section{Explicit conversions and other operators}\label{sec-explicit}
+
+A \code|real| is converted into an \code|int| with one of two operators.
+\code|ENTIER x| is the largest integer not greater than \code|x| (the
+floor). \code|ROUND x| is the integer nearest to \code|x|. Characters are
+converted to and from their integer codes with \code|ABS| and
+\code|REPR|. A few more operators complete the set used in this chapter:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Operator & Result \\
+\midrule
+\code|ENTIER x| & the largest \code|int| not greater than the \code|real| \code|x| \\
+\code|ROUND x| & the \code|int| nearest to the \code|real| \code|x| \\
+\code|ABS x| & the absolute value of an \code|int| or \code|real| \\
+\code|SIGN x| & $-1$, 0 or 1, according to the sign of \code|x| \\
+\code|ODD n| & \code|true| if the \code|int| \code|n| is odd \\
+\code|ABS c| & the character code of the \code|char| \code|c| \\
+\code|REPR n| & the character with the code \code|n| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\example{ch02/explicit}
+
+\begin{implnote}
+The Report does not say whether a number exactly halfway between two
+integers, such as 2.5, is rounded up or down. ga68 and a68j round it away
+from zero: \code|ROUND 2.5| is 3 and \code|ROUND -2.5| is $-3$.
+\end{implnote}
+
+\section{Comments and layout}\label{sec-comments}
+
+In the convention of this book, a \term{comment} is text between
+braces, \code|{ like this }|. Comments can be nested: \code|{ a { nested } comment }| is one comment. The
+layout of a program, its spaces and line breaks, is free: a program can be
+written on one line or spread over many. In the stropping of this book,
+spaces are not allowed inside an identifier or a reserved word, but may
+appear between the digits of a number. The Report allows spaces inside
+identifiers as well, which is why it and older texts write
+\code|max int| where this book writes \code|max_int|.
+
+\begin{implnote}
+The Report encloses a comment in two \code|#| symbols, or between two
+of the bold words \textbf{comment} or \textbf{co}. In the stropping
+convention of this book, ga68 and a68j accept only braces. Algol 68 Genie
+accepts \code|#|\ldots\code|#|, \texttt{CO}\ldots\texttt{CO} and
+\texttt{COMMENT}\ldots\texttt{COMMENT}, but not braces. These comments
+cannot be nested: a comment ends at the next symbol of the kind that
+began it.
+\end{implnote}
+
+\section{Simple input and output}\label{sec-io}
+
+The procedure \code|print| writes a list of values to the standard
+output. Each value is written in a standard layout: an \code|int| with
+its sign, in a field wide enough for \code|max_int| (11 characters in ga68
+and a68j), a \code|real| in scientific notation,
+a \code|bool| as \code|T| or \code|F|, and a \code|char| or a string as
+it is. Apart from the padding of an \code|int|, no separators are
+inserted; a program that wants spaces between numbers prints them. For more control, three procedures convert a number
+into a string:
+\begin{itemize}
+\item \code|whole (n, w)| converts the \code|int| \code|n| into a string
+  of width \code|w|. A width of 0 gives a string just as wide as needed; a
+  positive width gives a string of exactly that width, with a sign; a
+  negative width gives that width without a plus sign.
+\item \code|fixed (x, w, d)| converts the number \code|x| into a string of
+  width \code|w| with \code|d| digits after the decimal point. Again,
+  width 0 means ``as wide as needed''.
+\item \code|float (x, w, d, e)| converts \code|x| into scientific
+  notation with an exponent of \code|e| digits (Chapter~\ref{ch-transput}).
+\end{itemize}
+
+\example{ch02/output}
+
+A number that does not fit into the given width is not printed in a
+wider field: \code|whole (12345, 3)| yields three asterisks
+(Section~\ref{sec-conversions}).
+
+\begin{implnote}
+The \code|print| of the Report writes a blank before every number that
+does not begin a line. ga68, a68j and Algol 68 Genie leave it out, which
+is why the outputs in this book show numbers directly after a preceding
+string.
+\end{implnote}
+
+The procedure \code|read| reads values from the standard input into
+variables. Numbers are separated by blanks or line breaks. The procedures
+\code|read_int| and \code|read_real|, an extension of Algol 68 Genie that
+\code|Genie_Transput| also provides, read a single value and return it,
+which is convenient for initializing a constant:
+
+\program{ch02/input}
+
+With the input
+\lstinputlisting[style=output]{examples/ch02/input.in}
+\noindent the program writes
+\outputof{ch02/input}
+
+A number is read after skipping blanks and line breaks, but a
+\code|char| is read as it is: a blank is a character. At the end of a
+line, reading a \code|char| moves on to the first character of the next
+line; the line break itself is never read as a character. The layout
+procedure \code|space| skips a single character, so a
+date written as \texttt{7/3/1975} can be read into three numbers:
+
+\example{ch02/read-date}
+
+\noindent prints \code|1975-3-7|.
+
+\section{A complete program}\label{sec-complete}
+
+The last program of this chapter reads a temperature in degrees
+Fahrenheit and converts it to degrees Celsius. The output shown is for the
+input \texttt{98.6}:
+
+\example{ch02/temperature}
+
+Writing \code|(fahrenheit - 32) * (5 / 9)| would also have worked, since
+\code|/| yields a \code|real| even for two \code|int| operands; with
+integer division, \code|5 % 9| would have been 0.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch2]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item Which of the following are \code|int| literals, which are
+  \code|real| literals, and which are neither?
+  \code|12|, \code|-3|, \code|1 000|, \code|1,000|, \code|2.|, \code|.5|,
+  \code|3e2|, \code|0.0|.
+\item What are the values of \code|17 % 5|, \code|-17 % 5|,
+  \code|17 MOD 5|, \code|-17 MOD 5| and \code|17 / 5|?
+\item What are the values of \code|2 + 3 * 4 ** 2| and
+  \code|-3 ** 2|?
+\item Explain the difference between \code|int n = 10| and
+  \code|int n := 10|. What is the type of \code|n| in each case?
+\item Write the declaration \code|real x := 1.5, y| without the short
+  form, using \code|loc|.
+\item Which of the following are correct, given \code|int i := 1| and
+  \code|real r := 2.5|? \quad (a) \code|r := i| \quad (b) \code|i := r|
+  \quad (c) \code|i := ROUND r| \quad (d) \code|r := ROUND i|
+\item After \code|int a := 1, b := 2|, what are the values of \code|a|
+  and \code|b| after \code|a := b := a + b|?
+\item Why does the compiler reject \code|maxCount := 0|, even if a
+  variable \code|max_count| has been declared?
+\item What does \code|int x := 1; ref int r = x; r := r + 1; print (x)|
+  print?
+\item Add parentheses to show how
+  \code|a < b AND x > 0 = y > 0 OR NOT done| is grouped.
+\item What are the values of \code|2.0 ** -2| and \code|ABS (-7 MOD 3)|?
+  Why is \code|NOT n = 0| rejected for an \code|int| \code|n|?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Read a number of seconds and print it as hours, minutes and
+  seconds.
+\item Read the three coefficients of a quadratic equation whose roots
+  are real, and print the roots (\code|sqrt| computes a square root).
+\item Read a character and print its code, the next character, and
+  whether it is a digit (\code|"0" <= c AND c <= "9"|).
+\item Read an amount of money in cents and print the smallest number of
+  coins of 50, 20, 10, 5, 2 and 1 cents that make it up.
+\item \textbf{Easter.} Read a year and print the date of Easter Sunday,
+  computed with the anonymous Gregorian algorithm (Meeus/Jones/Butcher),
+  which needs only \texttt{\%} and \code|MOD|.
+\item \textbf{Day of the week.} Read a date written as
+  \texttt{dd/mm/yyyy} and print the day of the week as a number, using
+  Zeller's congruence. Where does it matter that \code|MOD| never yields
+  a negative result?
+\item \textbf{Clock.} Read an hour from 0 to 23 and print it on a
+  12-hour clock with \texttt{AM} or \texttt{PM}, without \code|if|: the
+  hour is \code|(h + 11) MOD 12 + 1|. (Hint: \code|REPR| and
+  \code|ABS| can compute the letter.)
+\item \textbf{Rounding money.} Read an amount as a \code|real|, round it
+  to cents with \code|ROUND|, and print euros and cents with \texttt{\%}
+  and \code|MOD|. Try a negative amount, and an amount above 100000
+  with the 32-bit \code|real| of ga68 or a68j. What goes wrong, and why
+  should money not be kept in a \code|real|?
+\end{enumerate}

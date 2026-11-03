@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+   print ((ROUND 2.5, ROUND -2.5, ROUND 2.4, newline));
+   print ((ENTIER 2.5, ENTIER -2.5, newline));
+   print ((ABS -7, " ", ABS -2.5, SIGN -7, " ", ODD 7, newline));
+   print ((ABS "A", " ", REPR 66, newline))
+end

@@ -1,0 +1,14 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   union (int, string) u := "text";
+   bool is_int = case u in (int): true out false esac;
+   print ((is_int, newline));
+   u := 5;
+   case u in
+      (int n): print ((n * 2, newline))
+   out
+      print (("not an int", newline))
+   esac
+{ end excerpt }
+end

@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   bits a = 2r1100, b = 16r0a;                  { 12 and 10 }
+   print ((ABS (a AND b), ABS (a OR b), ABS (a SHL 2), ABS (a SHR 2), newline));
+   print ((a, newline));
+   print ((bits_width, " ", bits_width ELEM a, (bits_width - 2) ELEM a, newline));
+   bits c = BIN 37;                             { from int to bits }
+   print ((ABS c, " ", ABS bits_pack ((true, true, false)), newline))
+{ end excerpt }
+end

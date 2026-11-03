@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a, b;
+   (a := 1, b := 2);                  { in either order }
+   print ((a + b, newline))
+{ end excerpt }
+end

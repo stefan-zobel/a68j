@@ -1,0 +1,86 @@
+% Preamble of the book: fonts, the listing style for Algol 68, and the
+% macros of the text.  Everything here must also be understood by the HTML
+% conversion (pandoc, see html/algol68.lua): plain \newcommand macros,
+% listings, tables; no TikZ or other drawing.
+
+\usepackage{fontspec}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+\usepackage[english]{babel}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\usepackage{xcolor}
+\definecolor{LinkBlue}{rgb}{0.10,0.25,0.55}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{makeidx}
+\makeindex
+\usepackage[colorlinks,linkcolor=LinkBlue,urlcolor=LinkBlue,citecolor=LinkBlue,linktoc=all,bookmarksnumbered,pdfusetitle]{hyperref}
+
+\usepackage{listings}
+% Algol 68 in SUPPER stropping: the reserved words of ga68 are printed in
+% bold, as in the publication language of the Report.  Type names that a
+% program declares (Node) and operators (ABS, a user-defined MAX) are
+% printed as they are written.
+\lstdefinelanguage{Algol68}{
+  sensitive=true,
+  morekeywords={access,andth,assert,at,begin,bits,bool,by,bytes,case,channel,char,
+    compl,def,do,egg,elif,else,empty,end,esac,exit,false,fed,fi,file,flex,
+    for,format,from,go,goto,heap,if,in,int,is,isnt,loc,long,mode,module,
+    nest,nil,od,of,op,orel,ouse,out,par,postlude,prio,proc,pub,real,ref,
+    sema,short,skip,string,struct,then,to,true,union,void,while,word},
+  morecomment=[n]{\{}{\}},
+  morestring=[d]{"},
+}
+\lstset{
+  language=Algol68,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{black!70},
+  stringstyle=\color{black},
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  breaklines=true,
+  breakatwhitespace=true,
+  xleftmargin=1.5em,
+  aboveskip=0.6\baselineskip,
+  belowskip=0.6\baselineskip,
+}
+\lstdefinestyle{output}{
+  language={},
+  basicstyle=\ttfamily\small\color{black!80},
+  frame=leftline,
+  framerule=1.5pt,
+  rulecolor=\color{black!30},
+  xleftmargin=1.5em,
+  framexleftmargin=0.6em,
+}
+\lstdefinestyle{shell}{
+  language={},
+  basicstyle=\ttfamily\small,
+  xleftmargin=1.5em,
+}
+
+% \example{ch02/first}: the program book/examples/ch02/first.a68 (its
+% excerpt, see tools/run_examples.py) followed by its recorded output.
+% \program{...}: the program only.  \outputof{...}: the output only.
+\newcommand{\program}[1]{\lstinputlisting[language=Algol68]{build/listings/#1.a68}}
+\newcommand{\cprogram}[1]{\lstinputlisting[language=C,basicstyle=\ttfamily\small]{examples/#1.c}}
+\newcommand{\outputof}[1]{\lstinputlisting[style=output]{examples/#1.out}}
+\newcommand{\example}[1]{\program{#1}\outputof{#1}}
+
+% Inline Algol 68: \code|x := 1|.
+\newcommand{\code}{\lstinline}
+
+% \term{reference}: a term introduced here (italic, in the index).
+% \rr{name}: the term the Revised Report uses for the same thing (in the
+% index, so that a reader of the Report finds it).
+\newcommand{\term}[1]{\emph{#1}\index{#1}}
+\newcommand{\rr}[1]{\textsf{#1}\index{#1@\textsf{#1} (Report)}}
+
+% A note on the implementations (ga68, a68j, Algol 68 Genie).
+\newenvironment{implnote}{\begin{quote}\small\textbf{Implementation note.}\ }{\end{quote}}
+\newenvironment{pitfall}{\begin{quote}\small\textbf{Pitfall.}\ }{\end{quote}}
+% Room for three-digit page numbers in the table of contents
+\DeclareTOCStyleEntries[pagenumberwidth=2.2em]{tocline}{chapter,section}

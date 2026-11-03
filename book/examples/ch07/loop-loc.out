@@ -1,0 +1,3 @@
+6           cells[i] := LOC INT := square
+                        1                
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID loop-clause starting at "FOR" in line 4.

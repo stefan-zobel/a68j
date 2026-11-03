@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int days_per_week = 7;
+   int weeks = 52, extra_days = 1;
+   int days_per_year = days_per_week * weeks + extra_days;
+   real g = 9.81;
+   char separator = ",";
+   bool verbose = false;
+{ end excerpt }
+   print ((days_per_year, separator, fixed (g, 0, 2), separator, verbose, newline))
+end

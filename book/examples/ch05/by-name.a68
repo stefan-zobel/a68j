@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc twice_value = (real x) real: x + x;
+   proc twice_call = (proc real x) real: x + x;
+   int n := 0;
+   proc count = real: n +:= 1;
+   print ((fixed (twice_value (count), 0, 1), newline));
+   print ((fixed (twice_call (count), 0, 1), newline))
+{ end excerpt }
+end

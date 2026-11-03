@@ -1,0 +1,62 @@
+\chapter{Modules}\label{app-modules}
+
+The Revised Report has no modules: a program is a single text, and the
+only library is the standard one. Large programs need a way to divide
+the text into separately compiled parts with defined interfaces. The
+GNU dialect of Algol 68, which ga68 and a68j implement, adds modules for
+this purpose, following a proposal by Lindsey and Boom~\cite{modules};
+outside this appendix, the book uses them only for \code|Genie_Transput|. This
+appendix describes the essentials. Algol 68 Genie has no modules.
+
+\section*{Defining a module}
+
+A module is a separate source file of the form
+\begin{lstlisting}
+module Name =
+def
+   declarations and expressions
+fed
+\end{lstlisting}
+The declarations between \code|def| and \code|fed| are private, unless
+they are marked with \code|pub|; the public ones form the interface of
+the module. Types, constants, variables, functions, operators and
+precedences can be public. The sequence is executed once, before the
+program that uses the module starts, and must end with an expression, as
+every sequence must (often \code|skip|).
+
+The following module implements a stack of integers. The list behind it
+is private; only the three functions are public:
+
+\program{appE/stack}
+
+\section*{Using a module}
+
+A program uses modules by naming them after \code|access|, before its
+block:
+
+\example{appE/use-stack}
+
+The public names of all accessed modules are visible in the block, as if
+they had been declared in a block around it. Two modules that both
+declare the same public name cannot be accessed together, since the name
+would be declared twice; a module that is used by two other modules can
+be accessed by both, and is executed only once. A module can itself
+access other modules, by writing \code|access| before its \code|def|.
+
+\section*{Compiling}
+
+A module is compiled on its own, and the program is compiled with the
+compiled modules. With ga68, a module is compiled to an object file,
+which also contains its interface, and the program is linked with it:
+\begin{lstlisting}[style=shell]
+$ ga68 -c stack.a68
+$ ga68 -I. use-stack.a68 stack.o genietransput.o -o use-stack
+\end{lstlisting}
+With a68j, a module is compiled to a library jar, and the directory of
+the jar is given to the program:
+\begin{lstlisting}[style=shell]
+$ java -jar a68j-backend.jar stack.a68 -d lib/libstack.jar
+$ java -jar a68j-backend.jar -I lib -run use-stack.a68
+\end{lstlisting}
+The modules that come with a68j, such as \code|Genie_Transput|, need no
+such step.

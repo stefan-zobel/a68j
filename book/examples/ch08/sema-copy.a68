@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   sema a = LEVEL 2;
+   sema b = a;                  { the same counter, not a copy of it }
+   par (DOWN b, skip);
+   print ((whole (LEVEL a, 0), newline))
+{ end excerpt }
+end

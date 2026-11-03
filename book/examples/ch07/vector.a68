@@ -1,0 +1,21 @@
+access Genie_Transput
+begin
+   { begin excerpt }
+   mode Vector = struct (flex [1:0] int data, int size);
+   proc push = (ref Vector v, int x) void:
+   begin
+      if size of v = UPB data of v then
+         { full: move the elements into an array twice as large }
+         [(UPB data of v = 0 | 4 | 2 * UPB data of v)] int bigger;
+         bigger[1 : size of v] := (data of v)[1 : size of v];
+         data of v := bigger
+      fi;
+      (data of v)[size of v +:= 1] := x
+   end;
+   { end excerpt }
+   Vector v := ((), 0);
+   for i to 10 do
+      push (v, i * i);
+      print ((whole (size of v, 3), whole (UPB data of v, 4), newline))
+   od
+end

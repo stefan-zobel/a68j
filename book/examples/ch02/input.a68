@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+   int a, b;
+   real c;
+   read ((a, b, c));
+   print ((a + b, " ", c * 2, newline));
+   int d = read_int;
+   print ((d, newline))
+end

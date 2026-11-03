@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc indent = (ref File f) void: put (f, "    ");
+   print (("total:", newline, indent, "12 items", newline));
+   for i to 3 do print (i) od;
+   newline (stand_out);
+   print (("done", newline))
+{ end excerpt }
+end

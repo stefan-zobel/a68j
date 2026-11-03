@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   real sum := 0;
+   to 10 do sum +:= 0.1 od;
+   print ((sum = 1.0, " ", ABS (sum - 1.0) < 1e-6, newline));
+   for i from 0 to 4 do
+      real x = i / 4;                     { 0, 0.25, 0.5, 0.75, 1 }
+      print ((fixed (x, -4, 2), " "))
+   od;
+   print (newline)
+{ end excerpt }
+end

@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   struct (string name, int born, bool alive) p := ("Ada", 1815, false);
+   print ((name of p, " was born in ", whole (born of p, 0), newline));
+   born of p := 1816;                         { assigns to one field }
+   p := ("Grace", 1906, false);               { assigns all fields }
+   print ((name of p, " ", whole (born of p, 0), newline))
+{ end excerpt }
+end

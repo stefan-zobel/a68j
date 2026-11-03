@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc max_elem = (ref [] real a) ref real:
+   begin
+      int k := LWB a;
+      for i from LWB a + 1 to UPB a do
+         if a[i] > a[k] then k := i fi
+      od;
+      a[k]
+   end;
+   [4] real v := (3, 9, 4, 1);
+   max_elem (v) := 0;
+   max_elem (v) *:= 10;
+   for i to 4 do print ((fixed (v[i], 0, 1), " ")) od;
+   print (newline)
+{ end excerpt }
+end

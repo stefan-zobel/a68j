@@ -1,0 +1,28 @@
+access Genie_Transput
+begin
+   { Exact arithmetic with fractions. }
+   mode Rat = struct (int num, den);
+   proc gcd = (int a, b) int: (b = 0 | ABS a | gcd (b, a MOD b));
+   proc rat = (int n, d) Rat:
+   begin
+      int g = gcd (n, d) * SIGN d;
+      (n % g, d % g)
+   end;
+   op + = (Rat a, b) Rat:
+      rat (num of a * den of b + num of b * den of a, den of a * den of b);
+   op - = (Rat a, b) Rat:
+      rat (num of a * den of b - num of b * den of a, den of a * den of b);
+   op * = (Rat a, b) Rat: rat (num of a * num of b, den of a * den of b);
+   op / = (Rat a, b) Rat: rat (num of a * den of b, den of a * num of b);
+   op - = (Rat a) Rat: (-num of a, den of a);
+   op +:= = (ref Rat a, Rat b) ref Rat: a := a + b;
+   op STR = (Rat a) string:
+      whole (num of a, 0) + (den of a = 1 | "" | "/" + whole (den of a, 0));
+   prio // = 7;
+   op // = (int n, d) Rat: rat (n, d);
+   Rat sum := 0 // 1;
+   for k to 6 do sum +:= 1 // k od;
+   print (("1 + 1/2 + ... + 1/6 = ", STR sum, newline));
+   print ((STR (3 // 4 * (2 // 3 - 1 // 6)), " ", STR - (6 // 8), " ",
+           STR (1 // 2 / (1 // 4)), newline))
+end

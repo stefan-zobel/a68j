@@ -1,0 +1,6 @@
+access Genie_Transput
+begin
+   int n = 10;
+   n := 11;
+   print ((n, newline))
+end

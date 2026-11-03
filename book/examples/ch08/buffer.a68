@@ -1,0 +1,31 @@
+access Genie_Transput
+begin
+   { A producer and a consumer that communicate through a bounded buffer. }
+   int size = 4;
+   [0 : size - 1] int buffer;
+   int head := 0, tail := 0;
+   sema free = LEVEL size,     { the number of free places }
+        full = LEVEL 0,        { the number of filled places }
+        mutex = LEVEL 1;
+   proc put = (int value) void:
+   begin
+      DOWN free;
+      DOWN mutex; buffer[tail] := value; tail := (tail + 1) MOD size; UP mutex;
+      UP full
+   end;
+   proc get = int:
+   begin
+      DOWN full;
+      DOWN mutex; int value = buffer[head]; head := (head + 1) MOD size; UP mutex;
+      UP free;
+      value
+   end;
+   int n = 20;
+   int sum := 0;
+   par (
+      for i to n do put (i * i) od,           { the producer }
+      to n do sum +:= get od                  { the consumer }
+   );
+   print (("sum of the first ", whole (n, 0), " squares: ", whole (sum, 0),
+           newline))
+end

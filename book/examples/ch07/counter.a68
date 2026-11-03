@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc make_counter = ref int: heap int := 0;
+   proc next = (ref int counter) int: counter +:= 1;
+   ref int c = make_counter, d = make_counter;
+   for k to 3 do print ((whole (next (c), 0), " ")) od;
+   print ((whole (next (d), 0), newline))
+{ end excerpt }
+end

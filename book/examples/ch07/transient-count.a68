@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   flex [1:10] int count;
+   for i to 10 do count[i] := 0 od;
+   count[3] +:= 1
+{ end excerpt }
+end

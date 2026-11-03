@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+   { Checks of the answers to exercises 6 and 9 of Chapter 9. }
+   printf (($2d "/" 2d l$, 3));
+   printf (($2d, "/" 2d l$, 3, 4));
+   printf (($g(0), " ", c("January", "February", "March", "April", "May",
+        "June", "July", "August", "September", "October", "November",
+        "December"), " ", g(0) l$, 15, 3, 2024))
+end

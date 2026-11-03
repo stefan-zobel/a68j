@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc sum = ([] real v) real:
+   begin
+      real s := 0;
+      for i from LWB v to UPB v do s +:= v[i] od;
+      s
+   end;
+   proc scale = (ref [] real v, real factor) void:
+      for i from LWB v to UPB v do v[i] *:= factor od;
+   [0:3] real w;
+   w[@1] := (1, 2, 3, 4);
+   scale (w, 10);
+   print ((fixed (sum (w), 0, 1), " ", fixed (sum ((0.5, 0.25)), 0, 2), newline))
+{ end excerpt }
+end

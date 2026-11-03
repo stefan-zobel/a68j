@@ -1,0 +1,229 @@
+\chapter{Concurrency}\label{ch-par}
+
+Algol 68 was one of the first languages to include concurrency in its
+definition. A program can ask for several parts of itself to run at the
+same time, and the parts can coordinate with \term{semaphores}, the
+synchronization primitive that Edsger Dijkstra had introduced a few years
+earlier. This chapter presents the two constructs, \code|par| and
+\code|sema|, and uses them to solve three classic problems.
+
+\begin{implnote}
+Concurrency is the part of the language where the implementations differ
+most. Algol 68 Genie runs the units of a \code|par| clause in threads of
+the operating system. ga68 currently runs them one after the other, which
+the Report allows, and does not yet support semaphores. a68j runs them in
+threads when given the option \code|-fpar-threads|, and supports
+semaphores only with that option; without it, a program that uses
+\code|LEVEL| is rejected (``no lowering routine installed''). The
+examples of this chapter were run with Algol 68 Genie and with a68j.
+\end{implnote}
+
+\section{The problems}\label{sec-par-problems}
+
+Two problems arise as soon as parts of a program run at the same time and
+share data. The first is \term{mutual exclusion}. If two parts both
+execute \code|total +:= 1| on the same variable, each reads the old
+value, adds one and stores the result; if both read before either stores,
+one increment is lost. A sequence of operations that must not be
+interleaved with another such sequence is a \term{critical section}, and
+the program needs a way to let only one part at a time enter it.
+
+The second problem is \term{communication}. One part, the producer,
+computes values that another part, the consumer, needs. The consumer must
+wait until a value is available, and if the values are passed through a
+buffer of limited size, the producer must wait until there is room.
+
+\section{Concurrent execution}\label{sec-par}
+
+A list of expressions in parentheses, preceded by \code|par|, is a
+\term{concurrent block} (\rr{parallel clause}). Its expressions may be
+evaluated at the same time:
+
+\example{ch08/par}
+
+The \code|par| clause ends when all its expressions have ended; it has no
+value. The expressions of an ordinary list may also be interleaved
+(Section~\ref{sec-collateral}). What \code|par| adds is that each of its
+expressions is a separate \term{process}: one of them can wait on a
+semaphore while the others go on. Waiting outside a \code|par| clause has
+no other process to wait for; the Report leaves it undefined, and Algol
+68 Genie rejects \code|DOWN| and \code|UP| outside a \code|par| clause
+altogether.
+
+A \code|par| clause has a fixed number of expressions. A variable number
+of processes is started by recursion, each level starting one worker and
+the rest of the range:
+
+\example{ch08/spawn}
+
+\noindent Each worker writes only its own element of \code|squares|, so
+the workers need no coordination, and the program prints
+\code|1 4 9 16 25 36|.
+
+\section{Semaphores}\label{sec-sema}
+
+A semaphore is a counter that is changed only by two indivisible
+operations. The type is \code|sema|, and a semaphore is created with the
+operator \code|LEVEL|, which also gives its initial value:
+\code|sema mutex = LEVEL 1|. The operations are unary operators:
+
+\begin{itemize}
+\item \code|DOWN s| waits until the counter of \code|s| is greater than
+  zero and then decreases it by one. Dijkstra called this operation $P$;
+  in today's libraries it is called \texttt{acquire} or \texttt{wait}.
+\item \code|UP s| increases the counter by one, which may let a waiting
+  part continue. Dijkstra called it $V$; today it is \texttt{release} or
+  \texttt{signal}.
+\end{itemize}
+
+\code|LEVEL s| also gives the current value of the counter. A semaphore
+whose counter is 0 or 1 is a \term{lock} (a mutex); a semaphore with a
+larger counter limits the number of parts that may pass at the same
+time.
+
+The standard library declares \code|sema| as a record with a single field
+that is a reference to an \code|int|, and \code|LEVEL n| allocates the
+counter on the heap. A copy of a semaphore therefore shares the counter,
+like the records with reference fields of Section~\ref{sec-ref-fields}:
+
+\example{ch08/sema-copy}
+
+\noindent prints 1. This is what makes it possible to pass a semaphore to
+a procedure. A semaphore that was declared without \code|LEVEL|, such as
+an element of \code|[5] sema forks|, holds no counter, and using it is a
+run-time error; that is why the programs below initialize every
+semaphore. \code|UP| lets all waiting parts compete for the counter again;
+which one gets it is not specified, so a part may in principle wait
+forever while others pass.
+
+Note that \code|LEVEL|, like every unary operator, binds more tightly than
+any binary operator: \code|LEVEL n - 1| means \code|(LEVEL n) - 1|, which
+is not defined. The initial value \code|n - 1| must be written in
+parentheses, as in the last program of this chapter.
+
+\section{Mutual exclusion}\label{sec-mutex}
+
+The following program lets three concurrent parts each add 100\,000 to a
+shared total. Each increment is a critical section, protected by the
+semaphore \code|mutex|:
+
+\example{ch08/mutex}
+
+Without the \code|DOWN| and \code|UP|, the result would usually be smaller
+than 300\,000, and different from run to run, since increments would be
+lost when two parts interleave. Such an error is called a \term{race
+condition}; it is the classic problem of concurrent programming, and it
+is hard to find precisely because it does not show up on every run.
+
+The program takes the lock 300\,000 times, which costs time and makes the
+parts wait for each other most of the time. Parts that share nothing need
+no lock at all, so the better design lets each part count in a variable
+of its own and takes the lock only once, to add its result:
+
+\example{ch08/mutex-local}
+
+A critical section should be as short as possible and should do no more
+than the shared data require.
+
+\section{Producer and consumer}\label{sec-buffer}
+
+The second program passes values from a producer to a consumer through a
+buffer with room for four values. Three semaphores coordinate the two
+parts: \code|free| counts the free places, \code|full| the filled ones,
+and \code|mutex| protects the buffer and its two positions.
+
+\example{ch08/buffer}
+
+\code|put| waits for a free place, stores the value and signals a filled
+place; \code|get| does the opposite. If the producer is faster, it waits
+in \code|DOWN free| when the buffer is full; if the consumer is faster,
+it waits in \code|DOWN full| when the buffer is empty. Today's languages
+offer the same structure ready-made as a blocking queue or a channel, but
+it is built from exactly these parts.
+
+The order of the two \code|DOWN|s in \code|put| matters. If the producer
+took \code|mutex| first and then waited in \code|DOWN free| for a free
+place, it would wait while holding the lock, and the consumer, which
+needs the lock to make a place free, could never get it: a deadlock. The
+rule is to wait for a resource before taking the lock that protects it,
+and to hold the lock for as short a time as possible.
+
+\section{The dining philosophers}\label{sec-philosophers}
+
+Dijkstra's best-known synchronization problem has five philosophers
+sitting at a round table, with one fork between each two of them. A
+philosopher alternately thinks and eats, and needs both neighboring forks
+to eat. If every philosopher picks up the left fork first and then waits
+for the right one, all five may end up holding one fork each and waiting
+forever, a \term{deadlock}.
+
+One simple solution is a butler who lets at most four philosophers sit
+at the table at the same time. Then at least one of them can always get
+both forks. In the program, each fork is a semaphore with the initial
+value 1, and the butler is a semaphore with the initial value 4:
+
+\example{ch08/philosophers}
+
+Each philosopher eats 1000 times and counts the meals in its own element
+of \code|eaten|, which no other philosopher changes; the counts are
+printed after the \code|par| clause has ended. Without the butler, the
+program could hang.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch8]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What is the difference between \code|(a, b)| and \code|par (a, b)|?
+\item What happens if a program executes \code|DOWN s| on a semaphore
+  declared as \code|sema s = LEVEL 0|, and no other part ever executes
+  \code|UP s|?
+\item Is the semaphore \code|mutex| of the producer and consumer program
+  necessary as long as there is exactly one producer and one consumer?
+  When does it become necessary?
+\item Give another solution of the dining philosophers that needs no
+  butler. (Hint: let one philosopher pick up the forks in the other
+  order.)
+\item What happens to the producer and consumer program if the two
+  \code|DOWN|s in \code|put| are exchanged, when the producer is faster
+  than the consumer?
+\item Why does \code|sema b = a; par (DOWN b, skip)| change
+  \code|LEVEL a|?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Compute the sum of the elements of a large array with four
+  concurrent parts, each summing a quarter.
+\item Build a pipeline of three stages, each a concurrent part connected
+  to the next by a buffer: the first generates numbers, the second
+  squares them, the third prints them.
+\item Implement a semaphore-protected counter as a record with a
+  \code|sema| field and the procedures \code|increment| and \code|value|.
+\item \textbf{A channel type.} Define a record type for a bounded buffer
+  (a reference to an array, references to the two positions, and three
+  semaphores) with procedures \code|send| and \code|receive|, so that
+  several pipelines can be built from one definition.
+\item \textbf{Readers and writers.} Several parts read a shared table
+  and some change it. Readers may read at the same time, but a writer
+  needs the table to itself. Solve it with semaphores, and think about
+  whether a writer can be kept waiting forever.
+\item \textbf{A barrier.} Build a barrier for $n$ processes from
+  semaphores: no process continues past it until all have reached it.
+  Make it reusable.
+\item \textbf{Two transfers.} Two processes move money between the
+  same two accounts in opposite directions, and each protects both
+  accounts with a semaphore before it changes them. Show how they can
+  deadlock, and avoid it by always taking the semaphore of the account
+  with the smaller number first.
+\item \textbf{Parallel merge sort.} Sort an array with merge sort in
+  which the two halves are sorted in a \code|par| clause, down to a given
+  depth, and compare the time with the sequential version.
+\item \textbf{A prime sieve pipeline.} Generate the primes with a
+  pipeline of processes: each process holds one prime, passes on the
+  numbers it does not divide, and starts a new process for the first
+  number that reaches it.
+\end{enumerate}

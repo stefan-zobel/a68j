@@ -1,0 +1,14 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [5] int a := (1, 2, 3, 4, 5);
+   ref [] int r = a;            { another name for a }
+   ref [] int s := a[2:3];      { a pointer to a slice of a }
+   r[1] := 10;
+   s[1] := 20;
+   int x := 7;
+   ref [] int one = x;          { x seen as an array of one element }
+   one[1] := 8;
+   print ((a, newline, x, newline))
+{ end excerpt }
+end

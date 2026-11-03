@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Point = struct (int x, y);
+   [] Point path = ((1, 2), (3, 4));
+   print ((path, newline))
+{ end excerpt }
+end

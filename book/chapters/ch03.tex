@@ -1,0 +1,481 @@
+\chapter{Expressions and control flow}\label{ch-control}
+
+The programs of the previous chapter ran from top to bottom. This chapter
+introduces the constructs that choose between alternatives and repeat
+actions, and the rules that say where a declared name can be used. It
+begins with the idea that makes Algol 68 different from most languages of
+its time and from many of ours: there is no separate category of
+statements. Every construct, including a block, a choice and a loop, is an
+expression.
+
+\section{Everything is an expression}\label{sec-everything}
+
+In C, Java or Python, a program is made of statements, and expressions
+are one kind of statement. Algol 68 has only expressions, which the Report
+calls \rr{units}. Constructs that look like statements, such as an
+assignment or a call of \code|print|, are expressions too; most of them
+simply have a value that nobody uses.
+
+A block, written either \code|begin|\ldots\code|end| or
+\code|(|\ldots\code|)|, contains a sequence of declarations and expressions
+separated by semicolons, and its value is the value of the last
+expression. A block can therefore stand wherever a value is needed:
+
+\example{ch03/block-value}
+
+The two spellings of a block mean exactly the same; \code|begin| and
+\code|end| are usually preferred for long blocks, parentheses for short
+ones. The Report calls a block a \rr{closed clause} and the sequence inside
+it a \rr{serial clause}. Rust and the functional languages work the same
+way; in C, the closest equivalent is the ``statement expression'' of the
+GNU C compiler.
+
+A block must end with an expression, not with a declaration, since it
+must have a value. The block \code|begin int x = 1 end| is an error
+(``clause does not yield a value''), even in a place where its value is
+not used.
+
+The value of a block is computed before the block ends, so a block may
+yield the value of one of its own variables: \code|int n = (int r; read (r); r)|
+reads a number through a local variable and yields it. What a block may
+not yield is the variable itself, a reference to a cell that disappears
+with the block; Chapter~\ref{ch-advanced} explains this rule about
+lifetimes.
+
+\section{Sequences and discarded values}\label{sec-voiding}
+
+When an expression is followed by a semicolon, its value is discarded. The
+Report calls this \rr{voiding}, and it is one of the implicit conversions:
+the value is converted to the type \code|void|, which has a single,
+uninteresting value. Discarding is what happens to the value of every
+assignment and every call of \code|print| in the programs so far:
+
+\example{ch03/voiding}
+
+The value of \code|x := x + 1| is the reference \code|x|
+(Section~\ref{sec-assignment}); it is discarded, and so is the value of
+\code|x + 1| in the line before, which therefore does nothing useful.
+
+\section{Scope}\label{sec-scope}
+
+A name declared in a block can be used anywhere in that block, including
+in blocks nested inside it, but not outside. The part of the program in
+which a declaration is valid is its \term{scope} (the Report says
+\rr{range} for the block, and \rr{reach} for the block without the
+blocks nested in it). A nested block can declare a
+name that is already declared outside; inside the nested block, the new
+declaration hides the outer one:
+
+\example{ch03/scope}
+
+The same name cannot be declared twice in the same block; this is an
+error found by the compiler (``multiple declaration of identifier'').
+
+Strictly speaking, the scope of a declaration is the whole block,
+including the part before the declaration. The name can be mentioned
+there, but its value cannot be used, since the declaration has not been
+carried out yet. A program that uses a name before its declaration is
+therefore wrong, but compilers do not always detect it: ga68 and a68j
+accept such a program and use an undefined value. The rule matters for
+procedures that call each other (Chapter~\ref{ch-procs}); for everything else, a
+declaration should simply come before its uses.
+
+A word about the term: in this book, \emph{scope} means the region of the
+program text in which a name can be used, as in every current language.
+The Report uses the word \rr{scope} for something else, the lifetime of a
+value, which is the subject of Chapter~\ref{ch-advanced}.
+
+\section{Unordered evaluation}\label{sec-collateral}
+
+A list of expressions separated by commas and enclosed in parentheses is
+evaluated in an unspecified order:
+
+\example{ch03/collateral}
+
+Here the two assignments may be carried out in either order, or even
+interleaved; the program must not depend on the order. The Report calls
+this \rr{collateral elaboration}, and the list a \rr{collateral clause}.
+The same holds wherever several expressions separated by commas are all
+evaluated: the operands of an operator, the arguments of a procedure
+call, the items of a list given to \code|print|, the elements of an array
+literal, and the declarations in \code|int a = f, b = g|. (The commas
+between the alternatives of a \code|case| are different: only one
+alternative is evaluated.) A program
+whose result depends on the order in which \code|f| and \code|g| are
+called is wrong, even if it happens to work with a particular compiler.
+Some places without commas have the same freedom: the two sides of an
+assignment, an array and its indexes in \code|a[i]|, and a function and
+its arguments in a call.
+
+A semicolon, by contrast, always means ``first this, then that''.
+
+\begin{pitfall}
+Code that looks harmless can depend on the order. In
+\code|(k +:= 1) * k|, the right operand \code|k| may be read before or
+after the left one has incremented it. In \code|int a = 1, b = a + 1|,
+the two declarations are carried out in an unspecified order, so
+\code|b| may be computed before \code|a| exists; C programmers write this
+all the time, and C defines it, but Algol 68 does not. The same holds for
+two reads in one expression, as in \code|read_int - read_int| with
+Algol 68 Genie's \code|read_int|, and for
+\code|a[i] := (i +:= 1)| with \code|i| = 1, which may store 2 into
+\code|a[1]| or into \code|a[2]|. ga68 and a68j evaluate from left to
+right (here into \code|a[1]|), so testing does not reveal the error. Writing \code|int a = 1; int b = a + 1| with
+a semicolon makes the order definite. The items of a \code|print| list
+are evaluated in an unspecified order, but they are always printed in
+the order in which they are written.
+\end{pitfall}
+
+\section{\textbf{if} expressions}\label{sec-if}
+
+The conditional expression has the form
+\begin{lstlisting}
+if condition then expressions else expressions fi
+\end{lstlisting}
+where \code|fi|, \code|if| spelled backwards, closes the construct. The
+\code|else| part may be omitted, and further conditions may be tested
+with \code|elif|. Like a block, an \code|if| has a value, so it serves
+both as a statement and as the conditional expression \texttt{c ? a : b}
+of C:
+
+\example{ch03/if}
+
+The last line shows the brief form: \code{(c | a | b)} means
+\code|if c then a else b fi|, and \code{|:} stands for \code|elif|. The
+brief form is convenient in short expressions; for anything longer, the
+words are easier to read.
+
+The condition is itself a sequence and may contain declarations, which are
+then visible in all parts of the \code|if|:
+\begin{lstlisting}
+if int k = n * n; k > 100 then print (k) fi
+\end{lstlisting}
+
+If the \code|else| part is omitted and the condition is false, the
+\code|if| does nothing, which is what is wanted in a statement. If such
+an \code|if| is used for its value, the value is undefined. The Report
+calls this undefined value \code|skip| (Section~\ref{sec-skip}).
+
+When the branches have different types, the compiler looks for a common
+type to which all branches can be converted, and converts them. If
+one branch is an \code|int| and the other a \code|real|, the common type is
+\code|real|:
+
+\example{ch03/balancing}
+
+The Report calls this \rr{balancing}. It is what C does for
+\texttt{c ? 1 : 2.5}, and what the type inference of a modern language
+does when it finds the least common type of the branches.
+
+Since an \code|if| yields a value of any type, it can also yield a
+variable, and stand on the left-hand side of an assignment:
+
+\example{ch03/if-target}
+
+\noindent sets \code|b| to 0. Here both branches yield a variable of
+type \code|ref int|. With a \code|real| variable \code|x| and an
+\code|int| variable \code|n|, \code|(c | x | n) := 4| is rejected: the
+branches yield a \code|ref real| and a \code|ref int|, and neither can be
+converted into the other.
+
+\section{\textbf{case} expressions}\label{sec-case}
+
+The \code|case| expression selects one of several alternatives by an
+integer: the first alternative for 1, the second for 2, and so on. If the
+integer is out of range, the \code|out| part is chosen; without an
+\code|out| part, nothing happens (or the value is undefined).
+
+\example{ch03/case}
+
+The alternatives are separated by commas, and each can be a single
+expression or a block. The Report requires at least two alternatives (for
+one, an \code|if| does the job); the three implementations also accept
+one. The brief form is \code{(i | a, b, c | d)}. A second
+selection can follow the \code|out| with \code|ouse|, much as \code|elif|
+follows the \code|then| part of an \code|if|.
+
+This \code|case| corresponds to the \texttt{switch} of C, except that the
+alternatives are numbered from 1 and cannot be labeled with arbitrary
+constants. Chapter~\ref{ch-advanced} introduces a second, more powerful form of
+\code|case| that selects by the type of a value.
+
+\section{Loops}\label{sec-loops}
+
+Algol 68 has a single loop construct with several optional parts:
+\begin{lstlisting}
+for i from first by step to last while condition do expressions od
+\end{lstlisting}
+Every part except \code|do|\ldots\code|od| may be left out. The parts
+have the following meaning:
+\begin{itemize}
+\item \code|for i| names the \term{loop variable}; without it, the loop
+  still counts, but the count has no name.
+\item \code|from first| gives the initial value, 1 if omitted.
+\item \code|by step| gives the increment, 1 if omitted; it may be
+  negative.
+\item \code|to last| gives the final value; without it, there is no limit.
+\item \code|while condition| is tested before each iteration; the loop
+  ends when it is false.
+\end{itemize}
+The values of \code|first|, \code|step| and \code|last| are computed once,
+before the first iteration. The loop variable is an \code|int| constant,
+not a variable: it is declared anew for each iteration, it cannot be
+assigned to, and it does not exist after the loop. The usual forms of the
+loop result from the parts that are present:
+
+\example{ch03/for-loops}
+
+\code|to 3 do| \ldots \code|od| repeats the body three times. A loop with
+only a \code|while| part is the \texttt{while} loop of other languages;
+Euclid's algorithm for the greatest common divisor is a classic example:
+
+\example{ch03/while-loop}
+
+The \code|for| and \code|while| parts can be combined: the loop then ends
+when the counter passes the final value or the condition becomes false,
+whichever comes first. Like the condition of an \code|if|, the
+\code|while| part may contain declarations, which are visible in the
+body. This replaces the \texttt{do}\ldots\texttt{while} loop of C, whose
+body runs before its test: the part of the body that must run first is
+written in the \code|while| part.
+
+\example{ch03/for-while}
+
+Finally, \code|do|\ldots\code|od| alone repeats forever; the loop is left
+with a jump (Section~\ref{sec-jumps}). A loop has no value: its type is
+\code|void|.
+
+Since the loop variable is a constant, an attempt to assign to it fails
+with the message we met in Chapter~\ref{ch-values}:
+
+\example{ch03/loop-variable}
+
+A few details of the loop are worth knowing. Since the final value is
+computed once, changing a variable that appears in the \code|to| part
+inside the body does not change the number of iterations. The
+\code|while| part is not evaluated any more once the counter has passed
+the final value, which matters if it reads input or has other effects.
+With a step of 0 the final value is ignored, and the loop runs forever
+unless the \code|while| part stops it. (ga68 and a68j instead skip such
+a loop if the start value is above the final value.)
+
+The loop variable is always an \code|int|; there is no loop over real
+numbers with a step of 0.1. That is just as well, since real numbers are
+approximations, and adding 0.1 ten times does not give exactly 1.0:
+
+\example{ch03/real-sum}
+
+\noindent prints
+\outputof{ch03/real-sum}
+
+The right way is to count with an integer and compute each real value
+from the counter, as in the second loop, so that the errors do not
+accumulate. For the same reason, real numbers should not be compared with
+\code|=|, but tested for a small difference, as in
+\code|ABS (sum - 1.0) < 1e-6|. With the 32-bit \code|real| of ga68 and
+a68j, which has about 7 decimal digits, the problem appears sooner than
+with the 64-bit \code|double| that most programmers are used to.
+
+The \code|while| part is the place for an iteration that must compute a
+value before it can decide whether to continue. Newton's method for the
+square root improves an approximation until the improvement is small
+relative to the value:
+
+\example{ch03/newton}
+
+\noindent prints \code|1.41421 1000.00 0.50000|. The test is relative,
+\code|1e-6 * x|, because a fixed tolerance such as \code|1e-6| is far too
+coarse for very small roots, and for large ones, with only 7
+significant digits, it is reached only if the iteration happens to
+arrive at an exact fixed point.
+
+\begin{implnote}
+Algol 68 Genie has two extensions that appear in Rosetta Code programs:
+\code|downto| counts downwards (\texttt{FOR i FROM 3 DOWNTO 1}), and an
+\texttt{UNTIL} part before \code|od| ends the loop after the body if its
+condition is true. ga68 and a68j have neither; \code|by -1| and a
+\code|while| part do the same.
+\end{implnote}
+
+\section{\textbf{skip}}\label{sec-skip}
+
+The reserved word \code|skip| stands for an undefined value of whatever
+type is needed. It is used where the syntax requires an expression but
+no particular value is meaningful, for example as an alternative of a
+\code|case| that has nothing to do, or as the body of a loop that does
+all its work in the \code|while| part:
+
+\example{ch03/skip-while}
+
+\noindent The loop finds the smallest \code|n| whose square is at least
+1000, and prints 32. The semicolon in the \code|while| part makes sure
+that \code|n| is incremented before it is squared; the shorter
+\code|(n +:= 1) * n < 1000| would depend on the order of the operands.
+
+\section{Jumps}\label{sec-jumps}
+
+An expression in a sequence can be given a \term{label}, a name followed
+by a colon, and the \code|goto| expression continues the program at the
+labeled expression. \code|go to| may also be written as two words, and in
+many places the label alone is enough. A typical use is to leave a loop
+that runs forever:
+
+\example{ch03/jumps}
+
+A jump can only go to a label in the same block or in an enclosing
+block, never into a block, a loop or a branch, since the label is not
+visible there (Section~\ref{sec-scope}).
+
+A jump never yields a value, so it is acceptable wherever the type is
+determined by the context or by the other branches of an \code|if| or a
+\code|case|. This makes it easy to give up when the data are bad:
+
+\example{ch03/jump-value}
+
+\noindent prints \code|2.00|, \code|1.50| and \code|negative input|. The
+\code|if| has the type \code|real|, and its \code|else| part, a jump, is
+acceptable as a \code|real|. The predefined label \code|stop| ends the
+whole program.
+
+One case is different. Where a function without parameters is expected,
+as for a parameter of type \code|proc void|, a jump is not carried out:
+it becomes a function that carries out the jump when it is called. A
+function can thus be given an exit to take when something goes wrong:
+
+\example{ch03/error-exit}
+
+\noindent The first call returns normally. In the second, \code|mean|
+calls \code|on_empty|, and the jump leaves \code|mean| and continues at
+the label \code|no_data|. In the same way,
+\code|[] proc void switch = (l1, l2, l3)| is an array of functions that jump, and
+\code|switch[i]| jumps to the \code|i|-th label, as the switch of Algol
+60 did.
+
+Labels have two restrictions. In a block, no declaration may follow a
+label, so that a jump can never skip a declaration whose name is used
+after the label; a label before a declaration is rejected with a message
+about an invalid sequence. And the condition of an \code|if|, a
+\code|case| or a \code|while| may not contain labels.
+
+A block may also end before its last expression. The reserved word
+\code|exit| after an expression ends the sequence with that expression's
+value; the part after \code|exit| can only be reached by a jump to a label
+that follows it:
+
+\example{ch03/exit}
+
+Jumps were common in programs of the 1960s, and Algol 68 still has them.
+With its general loop and the value-yielding \code|if| and \code|case|
+they are rarely needed, and the programs in this book use them only to
+leave a loop early. The keyword \code|exit| should not be confused with
+the \texttt{exit} or \texttt{break} of other languages: it does not leave
+a loop.
+
+\section{The structure of a program}\label{sec-program}
+
+A program is a block, or more generally any construct in brackets: an
+\code|if|, a \code|case| or a loop is a program too. Everything it uses
+that it does not declare itself
+comes from the standard library, which can be thought of as a block
+enclosing the program. In this book, a program is preceded by
+\code|access Genie_Transput|, which places the declarations of that module
+around the program as well.
+
+\begin{implnote}
+Algol 68 Genie also accepts a program without the enclosing
+\code|begin| and \code|end|, a convenience that many Rosetta Code
+programs use. ga68 and a68j require the brackets.
+\end{implnote}
+
+\section{A complete program}\label{sec-control-complete}
+
+The program below lists the prime numbers below 60. For each number
+\code|n|, it tries the divisors from 2 upwards while no divisor has been
+found and the divisor squared does not exceed \code|n|. The short-circuit
+\code|andth| (Section~\ref{sec-logic}) is not essential here, but it
+expresses the intent: once \code|prime| is false, the rest of the
+condition does not matter.
+
+\example{ch03/primes}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch3]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What are the values of \code|(int a = 3; a * a + 1)| and of
+  \code{(2 > 1 | 10 | 20) + 1}?
+\item What does the following program print?
+\begin{lstlisting}
+int x = 1;
+begin int y = x + 1; begin int x = y * 10; print (x) end; print (x) end
+\end{lstlisting}
+\item How many times is the body of each loop executed?\\
+  (a) \code|for i from 5 to 1 do skip od|\\
+  (b) \code|for i from 1 by 2 to 10 do skip od|\\
+  (c) \code|for i from 10 by -2 to 1 do skip od|\\
+  (d) \code|to 0 do skip od|
+\item Write \code{(x > 0 | "plus" |: x < 0 | "minus" | "zero")} with
+  reserved words instead of the brief form.
+\item What type has \code{(n > 0 | 1 | 0.5)}, and why?
+\item Why may a program not rely on the order of the two calls in
+  \code|f + g|, if \code|f| and \code|g| print something?
+\item Write a loop that prints the powers of 2 up to 1000 without using a
+  \code|for| part.
+\item What does \code|int k := 3; to k do k *:= 2; print (k) od| print?
+\item What does \code|for i from 1 by 0 to 3 do print (i) od| do?
+\item Is \code|string name = case k in "one", "two", "three" out goto bad esac|
+  a correct declaration, if \code|bad| is a label of the enclosing serial
+  clause? What happens for \code|k = 5|?
+\item With \code|real x := 1.5; int n := 2; bool b = x > n|, the declaration
+  \code{real v = (b | x | n)} is accepted, but
+  \code{ref real r = (b | x | n)} is rejected. Why?
+\item What is wrong with \code|int a = 1, b = a + 1|, and how is it
+  corrected?
+\item The loop \code|int n; while read (n); n < 1 AND n > 9 do ... od| is
+  meant to repeat until a number from 1 to 9 is read. Why does it stop
+  after the first number, whatever it is?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Print a multiplication table for the numbers 1 to 9, with the
+  numbers aligned in columns.
+\item Read numbers until a 0 is read, and print their count, their sum and
+  their largest value.
+\item The Collatz sequence starting at $n$ continues with $n/2$ if $n$ is
+  even and with $3n+1$ if $n$ is odd, until it reaches 1. Print the
+  starting value below 1000 with the longest sequence.
+\item Print the perfect numbers below 10000 (numbers that are equal to
+  the sum of their divisors other than themselves, such as
+  $6 = 1 + 2 + 3$).
+\item Print a calendar for a month, given the number of days and the
+  weekday of the first day.
+\item \textbf{Number bases.} Read a number written in a base between 2
+  and 16 (the base first, then the digits, with \texttt{A} to
+  \texttt{F} for 10 to 15) character by character, and print its value.
+  Report a digit that is not valid for the base and stop with
+  \code|goto stop|.
+\item \textbf{Brackets.} Read a line and decide whether its round
+  brackets are properly nested. Why can the same method not check two
+  kinds of brackets, \texttt{()} and \texttt{[]}, without an array?
+\item \textbf{Arithmetic without brackets.} Read an expression of
+  integers with \texttt{+}, \texttt{-} and \texttt{*}, such as
+  \texttt{2+3*4-5}, and evaluate it with the usual precedence. Keep a
+  running sum and a pending product, without arrays.
+\item \textbf{Fibonacci and overflow.} Print the Fibonacci numbers up
+  to the largest one that fits in an \code|int|, testing before each
+  addition whether it would overflow (\code|a > max_int - b|). How many
+  are there with a 32-bit and with a 64-bit \code|int|?
+\item \textbf{Cube roots.} Compute cube roots with Newton's iteration
+  $x_{n+1} = (2 x_n + a / x_n^2) / 3$, with a relative test for the end,
+  and compare the results with \code|exp (ln (a) / 3)|. What happens for
+  negative \code|a|?
+\item \textbf{Prime factors.} Print the factorization of a number as a
+  product of prime powers, such as \texttt{360 = 2\^{}3 * 3\^{}2 * 5}.
+\item \textbf{Armstrong numbers.} 153 equals the sum of the cubes of its
+  digits. Find all three-digit numbers with this property.
+\end{enumerate}

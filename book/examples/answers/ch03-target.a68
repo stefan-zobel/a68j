@@ -1,0 +1,6 @@
+begin
+   { Exercise 11 of Chapter 3: the second declaration is rejected. }
+   real x := 1.5; int n := 2; bool b = x > n;
+   ref real r = (b | x | n);
+   skip
+end

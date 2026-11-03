@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc counter = (int start) ref int: heap int := start;
+   ref int c = counter (10);
+   c +:= 5;
+   print ((c, newline))
+{ end excerpt }
+end

@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   flex [1:0] int squares;
+   for i to 6 do
+      squares := (squares, i * i)    { not allowed: see the text }
+   od
+{ end excerpt }
+end

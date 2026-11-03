@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   int i = 2.5;
+   print ((i, newline))
+end

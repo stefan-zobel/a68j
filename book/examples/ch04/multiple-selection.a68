@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Point = struct (int x, y);
+   [1:4] Point path := ((0, 0), (3, 4), (6, 0), (9, 4));
+   print ((x of path, newline));            { all x fields: a [] int }
+   y of path[2] := 5;                       { one field of one element }
+   print ((y of path, newline))
+{ end excerpt }
+end

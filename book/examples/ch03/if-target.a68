@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a := 3, b := 7;
+   (a > b | a | b) := 0;           { sets the larger of a and b to 0 }
+   print ((a, b, newline))
+{ end excerpt }
+end

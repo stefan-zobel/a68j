@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   union (int, real) u := 3;
+   case u in
+      (real r): print (("real ", fixed (r, 0, 1), newline))
+      out print (("not a real", newline))
+   esac
+{ end excerpt }
+end

@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   int n = 3;
+   print ((ROUND n, newline))
+end

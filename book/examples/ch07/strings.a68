@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   string s := "Algol";
+   s +:= " 68";                       { append }
+   "The " +=: s;                      { prepend }
+   print ((s, ", length ", whole (UPB s, 0), newline));
+   print ((3 * "ab", " ", "-" * 10, newline));
+   string letters := "";
+   for i to 5 do letters +:= REPR (ABS "a" + i - 1) od;
+   print ((letters, " ", "abc" < "abd", " ", "abc" = "ab" + "c", newline))
+{ end excerpt }
+end

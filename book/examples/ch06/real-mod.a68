@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   op MOD = (real a, b) real: a - b * ENTIER (a / b);
+   print ((fixed (7.5 MOD 2.0, 0, 2), " ", fixed (-7.5 MOD 2.0, 0, 2), newline));
+   print ((7 MOD 2, newline))                   { the standard MOD }
+{ end excerpt }
+end

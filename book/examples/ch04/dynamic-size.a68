@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int n = read_int;
+   [n] real values;                     { the same as [1:n] real values }
+   for i to n do values[i] := read_real od;
+   real sum := 0;
+   for i to n do sum +:= values[i] od;
+   print (("mean of ", whole (n, 0), " values: ", fixed (sum / n, 0, 3), newline))
+{ end excerpt }
+end

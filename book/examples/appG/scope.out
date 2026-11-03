@@ -1,0 +1,3 @@
+3        PROC incr = (REF INT c, INT d) INT: c +:= d;
+                                             1       
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID closed-clause starting at "BEGIN" in line 1.

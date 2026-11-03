@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Fn = proc (real) real;
+   proc compose = (Fn f, g) Fn: (real x) real: f (g (x));
+   proc double = (real x) real: 2 * x;
+   proc inc = (real x) real: x + 1;
+   Fn h = compose (double, inc);
+   print ((fixed (h (1), 0, 1), newline))
+{ end excerpt }
+end

@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   for i from 0 to 3 do
+      real x = i * pi / 8;
+      print ((fixed (x, -6, 4), fixed (sin (x), -8, 4), fixed (cos (x), -8, 4),
+              fixed (exp (x), -8, 4), newline))
+   od;
+   print ((fixed (long_sqrt (long 2), 0, 15), newline))
+{ end excerpt }
+end

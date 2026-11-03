@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   union (int, string) u := "x";
+   skip
+{ end excerpt }
+end

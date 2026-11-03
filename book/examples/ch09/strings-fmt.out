@@ -1,0 +1,5 @@
+J. Smith
+[Algol]
+5        printf (($"[" 5a "]" l$, "Al"))           COMMENT wrong length: a run-time error COMMENT
+                        1                                                                        
+a68g: runtime error: 1: error transputting [] CHAR value, in [] "SIMPLOUT" collateral-clause starting at "(" in this line.

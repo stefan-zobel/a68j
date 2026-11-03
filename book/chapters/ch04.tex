@@ -1,0 +1,386 @@
+\chapter{Arrays and records}\label{ch-data}
+
+The values of the previous chapters were single numbers, characters and
+truth values. Real programs work with collections of values: a list of
+measurements, a matrix, a table of names and dates. Algol 68 provides two
+ways of building such values. An \term{array} holds a number of values of
+the same type, selected by position; a \term{record} holds a fixed set of
+values of possibly different types, selected by name. Both can be
+combined freely: arrays of records, records containing arrays, arrays of
+arrays. This chapter also introduces type declarations, which give a
+name to a type.
+
+\section{Arrays}\label{sec-arrays}
+
+An array variable is declared by giving its bounds in square brackets
+before the element type:
+
+\example{ch04/array-basics}
+
+The declaration \code|[1:5] int squares| allocates five cells for
+\code|int| values, numbered 1 to 5. Unlike in C, Java or Python, the
+numbering need not start at 0 or 1: \code|[0:2] char letters| has the
+indices 0, 1 and 2, and an array of the years 1990 to 2025 could be
+declared as \code|[1990:2025] real|. The lower bound is the first number
+and the upper bound the second; the operators \code|LWB| and \code|UPB|
+give them. A loop over all elements should use them rather than repeat
+the numbers. If the lower bound is 1, it can be left out: \code|[n] real|
+means \code|[1:n] real|.
+
+An element is selected by an \term{index} in square brackets, as in
+\code|squares[3]|. The Report calls an array a \rr{multiple value} or
+\rr{row}, and the selection of an element a \rr{slice}.
+
+The bounds are evaluated when the declaration is carried out, so the size
+of an array can depend on input. The following program reads a count and
+then that many numbers:
+
+\example{ch04/dynamic-size}
+
+\noindent The input was:
+\lstinputlisting[style=output]{examples/ch04/dynamic-size.in}
+
+Once declared, the array keeps its bounds; an array that can grow or
+shrink is the subject of Chapter~\ref{ch-advanced}. Every index is checked: an index
+outside the bounds stops the program with an error.
+
+\example{ch04/out-of-bounds}
+
+\section{Array literals}\label{sec-displays}
+
+A list of values in parentheses, separated by commas, is an \term{array
+literal} (\rr{row display}) wherever an array is expected. A constant
+array can take its bounds from the literal: the declaration
+\code|[] int primes = (2, 3, 5, 7, 11)| gives no bounds, and
+\code|primes| has the bounds 1 to 5. The Report calls a type written
+without bounds, such as \code|[] int|, a \rr{formal declarer}; one with
+bounds, as in the declaration of a variable, an \rr{actual declarer}.
+
+\example{ch04/displays}
+
+The elements of a literal are converted to the element type where
+necessary, so the integers of \code|weights| are widened to \code|real|.
+The empty literal \code|()| gives an array with the bounds 1 to 0, that
+is, with no elements. A literal can also be assigned to an array
+variable, which replaces all its elements. A literal always has the lower
+bound 1, so its bounds match those of the variable only if the variable
+has the lower bound 1 and as many elements as the literal. For a variable
+\code|[0:2] int w|, the assignment \code|w := (1, 2, 3)| fails, but
+\code|w[@1] := (1, 2, 3)| works: \code|w[@1]| is the whole of \code|w|,
+renumbered to start at 1 (Section~\ref{sec-slices}).
+
+\section{Arrays are values}\label{sec-array-values}
+
+An array in Algol 68 is a value, like a number. Assigning one array
+variable to another copies the elements:
+
+\example{ch04/copy}
+
+After the assignment, \code|a| and \code|b| are separate arrays; changing
+\code|b| does not change \code|a|. This is the behavior of arrays in C
+when they are inside a \texttt{struct}, or of the arrays of Fortran, but
+not that of Java, Python or JavaScript, where an assignment makes two
+names refer to the same array. In Algol 68, two names refer to the same
+array only if a reference to it is shared explicitly (Chapter~\ref{ch-advanced}).
+A constant declared with an array value, \code|[] int c = b|, is a copy
+as well: later changes of \code|b| do not show in \code|c|. The same holds
+for a parameter of type \code|[] int| (Chapter~\ref{ch-procs}).
+
+\begin{implnote}
+Algol 68 Genie does not always copy: if a procedure has a \code|[] int|
+parameter and a \code|ref [] int| parameter, and both are given the same
+array, a change through the reference shows in the value parameter during
+the call. ga68 and a68j copy, as the Report requires.
+\end{implnote}
+
+Since an array variable has fixed bounds, an assignment must supply an
+array with the same bounds. A mismatch is detected when the program runs:
+
+\example{ch04/bounds-mismatch}
+
+\section{Multi-dimensional arrays}\label{sec-matrices}
+
+An array can have several dimensions; the bounds of each dimension are
+separated by commas, and so are the indices:
+
+\example{ch04/matrix}
+
+\code|1 UPB m| is the upper bound of the first dimension and
+\code|2 UPB m| that of the second; plain \code|UPB m| means
+\code|1 UPB m|. A literal for a two-dimensional array is a list of rows,
+each of which is a list.
+
+An array of arrays is something different: \code|[] [] int| is an array
+whose elements are themselves arrays, and those may have different
+lengths, as in \code|((1), (2, 3), (4, 5, 6))|. Its elements are selected
+with two pairs of brackets, \code|x[3][2]|. A two-dimensional array, by
+contrast, is always rectangular.
+
+\section{Slices}\label{sec-slices}
+
+An index range in place of an index selects a part of an array, a
+\term{slice}:
+
+\example{ch04/slices}
+
+The slice \code|a[2:4]| consists of the elements 2 to 4 of \code|a|, but
+its own bounds are 1 to 3: a range is renumbered from 1 unless a new lower
+bound is given after \code|@|, as in \code|a[2:4 @ 2]|. Either end of the
+range can be left out; it then defaults to the corresponding bound of the
+array. The Report calls an index range a \rr{trimmer}.
+
+A slice of an array variable is not a copy: it refers to the elements of
+the original array, so an assignment to the slice changes the array, as
+the last line shows. In the terms of Section~\ref{sec-references}, the
+slice of a reference to an array is a reference to part of the array.
+An assignment between overlapping parts of an array is safe, since the
+right-hand side is a value that is complete before anything is stored:
+
+\example{ch04/shift}
+
+\noindent shifts the elements one place to the right, which in C would
+need \texttt{memmove} rather than \texttt{memcpy}.
+
+In a multi-dimensional array, an index can be given for some dimensions
+and left out for others. Leaving out the second index of a matrix selects
+a row, leaving out the first selects a column:
+
+\example{ch04/matrix-slices}
+
+A dimension whose index is left out entirely keeps its bounds; only a
+range with a colon is renumbered:
+
+\example{ch04/slice-bounds}
+
+\noindent For a matrix whose bounds do not start at 1, a loop over a row
+\code|m[i, ]| must therefore run from \code|LWB m[i, ]|, not from 1.
+
+A row or an element that a loop body uses several times can be given a
+name of its own. Inside a loop over \code|i|, the declaration
+\code|ref [] int row = m[i, ]| makes \code|row[j]| the same cell as
+\code|m[i, j]|, so assignments to it change the matrix. For an element
+that is only read, \code|int x = v[i]| names its current value; this is
+a copy, which later assignments to \code|v[i]| do not change.
+
+\section{Strings are arrays}\label{sec-strings}
+
+The type \code|string| is an array of characters. Strings normally have
+the lower bound 1; a string variable takes the bounds of whatever is
+assigned to it, so a slice with \code|@| can give it another, and loops
+should use \code|LWB s|. Everything said about arrays applies to it:
+\code|UPB s| is normally its length,
+\code|s[i]| its \code|i|-th character, and \code|s[2:4]| a part of it:
+
+\example{ch04/strings}
+
+Strings are compared with \code|=| and \code|<| in the order of their
+character codes, which is alphabetical for letters of the same case
+(in ASCII, every capital letter comes before every small letter), and
+joined with \code|+|. A string variable can hold strings of different
+lengths, which an ordinary array cannot; Chapter~\ref{ch-advanced} explains how.
+
+\section{Records}\label{sec-records}
+
+A \term{record} groups values of possibly different types into one value.
+Its type, written with \code|struct|, lists the types and names of its
+\term{fields}:
+
+\example{ch04/records}
+
+The record type of \code|p| has three fields: \code|name|, a
+\code|string|, \code|born|, an \code|int|, and \code|alive|, a
+\code|bool|. A field is selected with \code|of|: \code|name of p| is what
+most languages write as \texttt{p.name}. If \code|p| is a variable,
+\code|born of p| is a reference to the field, so the field can be
+assigned to on its own. The Report calls a record a \rr{structure}, a field
+name a \rr{field selector}, and \code|name of p| a \rr{selection}.
+
+A record value can be written as a list of field values in parentheses,
+in the order of the fields (\rr{structure display}). Such a literal needs at
+least two fields; a record with a single field must be built by
+assigning to the field.
+
+Selection with \code|of| binds less tightly than indexing:
+\code|name of class[i]| means \code|name of (class[i])|, the name of the
+\code|i|-th element of an array of records. If a field is itself an array,
+parentheses are needed to index it: \code|(marks of class[i])[k]|.
+The same holds for a field that is a function: \code|(f of s) (x)|
+calls it, while \code|f of s (x)| selects the field \code|f| of
+\code|s (x)| and is rejected, with a message that \code|s| must yield a function.
+
+\section{Type declarations}\label{sec-modes}
+
+Writing out a record type at each use would be tedious and error-prone.
+A \term{type declaration} (\rr{mode declaration}) gives a type a name:
+
+\example{ch04/modes}
+
+The names of declared types begin with a capital letter
+(Section~\ref{sec-stropping}). A declared type can be used wherever a type
+is expected, including in other type declarations: a \code|Circle|
+contains a \code|Point|. The field \code|x of center of c| is the
+\code|x| of the \code|center| of \code|c|.
+
+A type declaration does not create a new, distinct type; it gives a name
+to a type that is determined by its structure. Two record types with the
+same field types and field names, in the same order, are the same type,
+whatever they are called:
+
+\example{ch04/equivalence}
+
+This \term{structural equivalence} differs from the \term{nominal typing}
+of C, Java, Rust and most current languages, where two separately
+declared \texttt{struct}s are different types even if their fields are
+identical. In Algol 68, a \code|Meters| and a \code|Seconds| as declared
+above are interchangeable, and the type system does not keep them apart.
+Chapter~\ref{ch-advanced} returns to the question of when two types are the same.
+
+A type declaration can also name an array type, such as
+\code|mode Vector = [1:3] real|. It must then give the bounds: a type
+without bounds, such as \code|[] int|, is allowed for a parameter or a
+constant, which take their bounds from a value, but not in a type
+declaration, since a type declaration may be used to declare variables.
+
+\section{Arrays of records}\label{sec-multiple-selection}
+
+When the fields of an array of records are selected with \code|of|, the
+result is an array of fields:
+
+\example{ch04/multiple-selection}
+
+\code|x of path| is an array of the four \code|x| values. If \code|path|
+is a variable, it is even a reference to them, so that
+\code|x of path := (1, 2, 3, 4)| assigns to the \code|x| field of every
+element. The Report calls this \rr{multiple selection}. Few current
+languages have it; the closest analog is selecting a column of a table
+in a data-frame library.
+
+\section{A single value as an array}\label{sec-rowing}
+
+Where an array is required and a single value is given, the value is
+converted into an array with one element, the bounds 1 to 1:
+
+\example{ch04/rowing}
+
+This implicit conversion is called \term{rowing} (\rr{rowing}) in the
+Report, since an array is a \rr{row}. It is why \code|print (newline)|
+needs only one pair of parentheses: \code|print| expects a list, and the
+single item \code|newline| is turned into a list of one. It is also why
+\code|y of ps := 0|, for an array \code|ps| of three points, fails when
+the program runs: \code|0| becomes an array with one element, which does
+not fit the three \code|y| fields.
+
+\section{Printing arrays and records}\label{sec-print-data}
+
+\code|print| accepts arrays of numbers, truth values and characters,
+and prints their elements one after the other, as the examples of this
+chapter show. A matrix is printed row by row, without line breaks
+between the rows. The Report's \code|print| also accepts records,
+which it prints field by field, as long as they contain no references,
+functions or unions. A \code|string| field is printed as its characters,
+and an array of strings as its strings one after the other.
+
+\begin{implnote}
+\code|Genie_Transput| does not accept records in \code|print|; their
+fields must be printed one by one. Algol 68 Genie accepts them. All three
+implementations print arrays of strings.
+\end{implnote}
+
+\section{Two complete programs}\label{sec-data-complete}
+
+The first program sorts an array with \term{insertion sort}: each element
+in turn is moved to the left until the elements before it are not
+greater. The constant array \code|data| is copied into a variable with
+the same bounds, which the program then rearranges.
+
+\example{ch04/sort}
+
+The condition of the inner loop uses \code|andth| (Section~\ref{sec-logic}):
+when \code|j| has passed the lower bound, \code|a[j]| must not be
+evaluated, since the index would be out of range. With \code|AND|, both
+operands would be evaluated and the program would stop with an index
+error.
+
+The second program keeps a table of records, each with a name and three
+marks, and finds the student with the best average:
+
+\example{ch04/students}
+
+The record type \code|Student| has an array field with the bounds 1 to
+3, and the array \code|class| takes its bounds from the literal. Note the
+parentheses in \code|(marks of class[i])[k]|, explained in
+Section~\ref{sec-records}. The
+bounds in a type apply only where a variable is created: they are
+computed anew for each variable, and a constant of type \code|Student|
+takes the bounds of its value. A literal with four marks would be
+accepted in \code|class|, and the error would appear only when such a
+record is assigned to a \code|Student| variable.
+
+\begin{implnote}
+ga68 and a68j do not check the bounds of an array field when a record is
+assigned: a \code|Student| variable then holds four marks. Algol 68 Genie
+reports the error.
+\end{implnote}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch4]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item Declare an array that holds one \code|real| for each year from 1900
+  to 2000, and write a loop that sets all elements to 0.
+\item Given \code|[] int a = (5, 6, 7, 8, 9)|, what are \code|a[2:3]|,
+  \code|LWB a[2:3]|, \code|UPB a[3:]| and \code|a[2:3 @ 0][0]|?
+\item Given \code|[1:3, 1:4] int m|, what are the types and bounds of
+  \code|m[2, ]|, \code|m[, 3]| and \code|m[2:3, 2]|?
+\item After \code|[1:3] int a := (1, 2, 3), b := (4, 5, 6)|, what does
+  \code|a := b; b[1] := 0| leave in \code|a|?
+\item Declare a type \code|Date| with fields \code|day|, \code|month| and
+  \code|year|, and a constant for 3 November 1975.
+\item Why does \code|name of class[1][1]| not give the first character of
+  the first name in an array \code|class| of records with a
+  \code|string| field \code|name|? How must it be written?
+\item Given \code|[1:10] Point ps| with \code|mode Point = struct (real x, y)|,
+  write a single assignment that sets the \code|y| field of all ten points
+  to 0.
+\item For \code|[0:9, 2:11] int m|, what are the bounds of \code|m[1, ]|,
+  \code|m[1, 3:5]| and \code|m[ , 2]|?
+\item What does \code|a[2:5] := a[1:4]| leave in
+  \code|[6] int a := (1, 2, 3, 4, 5, 6)|?
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item Read ten numbers and print them in reverse order.
+\item Read a matrix of $3 \times 3$ integers and print its transpose and
+  the sum of its diagonal.
+\item Multiply two matrices whose sizes are read from the input.
+\item Use the sieve of Eratosthenes, an array of \code|bool|, to print
+  the prime numbers below 1000.
+\item Keep a table of records of the planets (name, distance from the sun,
+  diameter) and print them sorted by diameter.
+\item \textbf{Binary search.} Write a binary search for a value in a
+  sorted array that works for any bounds, using \code|LWB| and
+  \code|UPB|. Test it on arrays with the bounds 1 to 10, 0 to 9 and
+  $-5$ to 4.
+\item \textbf{Merging.} Merge two sorted arrays into one sorted array,
+  so that a value that occurs in both appears only once.
+\item \textbf{Rotation.} Rotate a square matrix by 90 degrees using row
+  and column slices (\code|r[ , n + 1 - i] := m[i, ]|), and rotate an
+  array by $r$ places with slice assignments only.
+\item \textbf{Game of Life.} Play Conway's Game of Life on a
+  \code|[0:n+1, 0:m+1] bool| board whose border stays empty, so that the
+  loop over the neighbors needs no special cases. Compute each generation
+  into a second board and assign it to the first.
+\item \textbf{Generalized Fibonacci.} In the Fibonacci numbers of
+  order $m$, each number is the sum of the $m$ before it, starting with
+  $m - 1$ zeros and a one. Print the first 30 for a given $m$, keeping
+  only the last $m$ numbers in an array \code|[0 : m - 1] int| indexed
+  with \code|MOD|.
+\item \textbf{League table.} Read the results of the games of a
+  league, keep a table of records (team, games, points, goals for and
+  against), and print it sorted by points, then by goal difference.
+\end{enumerate}

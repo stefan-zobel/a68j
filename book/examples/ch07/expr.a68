@@ -1,0 +1,41 @@
+access Genie_Transput
+begin
+   { Arithmetic expressions as trees. }
+   mode Expr = union (real, char, ref Binop),
+        Binop = struct (char sym, Expr left, right);
+
+   proc bin = (char sym, Expr left, right) Expr: heap Binop := (sym, left, right);
+
+   proc show = (Expr e) string:
+      case e in
+         (real r): fixed (r, 0, 1),
+         (char name): name,
+         (ref Binop b): "(" + show (left of b) + " " + sym of b + " "
+                            + show (right of b) + ")"
+      esac;
+
+   proc eval = (Expr e, real x) real:
+      case e in
+         (real r): r,
+         (char name): x,
+         (ref Binop b):
+            begin
+               real l = eval (left of b, x), r = eval (right of b, x);
+               char o = sym of b;
+               if o = "+" then l + r
+               elif o = "-" then l - r
+               elif o = "*" then l * r
+               else l / r
+               fi
+            end
+      esac;
+
+   { 3 x x - 2 x + 1 }
+   Expr e = bin ("+", bin ("-", bin ("*", 3.0, bin ("*", "x", "x")),
+                               bin ("*", 2.0, "x")),
+                      1.0);
+   print ((show (e), newline));
+   for i from 0 to 3 do
+      print (("x = ", whole (i, 0), ": ", fixed (eval (e, i), 0, 1), newline))
+   od
+end

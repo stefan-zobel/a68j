@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   string s = "Algol 68 report";
+   print ((UPB s, " ", s[1], " ", s[7:8], newline));
+   int vowels := 0;
+   for i to UPB s do
+      char c = s[i];
+      if c = "a" OR c = "e" OR c = "i" OR c = "o" OR c = "u" then vowels +:= 1 fi
+   od;
+   print ((vowels, newline))
+{ end excerpt }
+end

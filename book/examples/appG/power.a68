@@ -1,0 +1,16 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode Fn = proc (real) real;
+   proc iterate = (Fn f, int n, real x) real:
+   begin
+      real y := x;
+      to n do y := f (y) od;
+      y
+   end;
+   prio ^ = 8;
+   op ^ = (Fn f, int n) Fn: iterate (f, n, );
+   proc half = (real x) real: x / 2;
+   print ((fixed ((half ^ 3) (1), 0, 3), " ", fixed ((cos ^ 20) (1), 0, 6), newline))
+{ end excerpt }
+end

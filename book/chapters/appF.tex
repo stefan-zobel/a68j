@@ -1,0 +1,135 @@
+\chapter{Calling C}\label{app-nest}
+
+A program sometimes needs a function that exists only in another
+language: a routine of the C library, of the operating system, or of a
+library written in C. ga68 can call such functions directly, and it can
+also use variables of a C program. This appendix describes how. The
+mechanism is a GNU extension; a68j and Algol 68 Genie cannot call C
+(a68j has a similar mechanism for Java methods, described in its own
+documentation).
+
+\section*{Formal holes}
+
+The construct that names a C function or variable is a \term{formal
+hole}:
+\begin{lstlisting}
+nest C "name"
+\end{lstlisting}
+It is written where a value is expected and stands for that value. Its
+type is not written in the hole; it is the type the context requires, so
+a formal hole may only be written in a strong context
+(Section~\ref{sec-contexts}), such as the value of a constant
+declaration, an argument or the right-hand side of an assignment:
+
+\example{appF/libc}
+
+\noindent Each declaration says which type the C function has in Algol 68
+terms. The compiler translates the type into the corresponding C type
+and generates a call of the C function with that name. The name
+\code|C| after \code|nest| is the language; the word \code|C| is not
+reserved and can still name a type, an operator or a module elsewhere in
+the program. The C library and the mathematical library are linked with
+every program by the ga68 command, so their functions need nothing
+else.
+
+The notation goes back to the proposal for modules and separate
+compilation of 1978~\cite{modules} (the same proposal as the modules of
+Appendix~\ref{app-modules}). There, a formal hole marks a place in one
+part of a program that another, separately compiled part fills in, so
+that a program can be developed top-down; the proposal already allowed
+the part to be written in another language, with an example in Fortran.
+ga68 provides only the second use.
+
+\section*{Types}
+
+The types that can cross the border are the simple ones and those
+built from them:
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+Algol 68 & C \\
+\midrule
+\code|void| (as a result) & \texttt{void} \\
+\code|bool| & \texttt{bool} \\
+\code|char| & a 32-bit integer (the character code) \\
+\code|int|, \code|short int|, \code|short short int| & \texttt{int}, \texttt{short}, \texttt{char} \\
+\code|long int|, \code|long long int| & \texttt{long}, \texttt{long long} \\
+\code|bits|, \code|short bits|, \code|short short bits| & \texttt{unsigned int}, \texttt{unsigned short}, \texttt{unsigned char} \\
+\code|long bits|, \code|long long bits| & \texttt{unsigned long}, \texttt{unsigned long long} \\
+\code|real|, \code|long real| & \texttt{float}, \texttt{double} \\
+\code|ref| \emph{T} & a pointer to \emph{T} \\
+\code|proc| with parameters and result of these types & a function, or a pointer to one \\
+a record with fields of these types & the corresponding \texttt{struct} \\
+\code|string|, only as a parameter & three parameters, see below \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Other arrays and unions cannot be passed.
+
+\begin{pitfall}
+Nothing checks that the declared type matches the C function. The
+compiler trusts the declaration, and the C library has no type
+information to compare it with. A wrong type gives wrong results, not an
+error message. The most likely mistake is the floating-point type: since
+\code|real| is a C \texttt{float}, a function of the C library that takes
+and returns \texttt{double}, such as \texttt{cbrt} or \texttt{sin}, must be
+declared with \code|long real|, as in the example above; declared with
+\code|real|, it receives and returns meaningless bit patterns. The
+\texttt{float} variants have an \texttt{f} at the end of their name
+(\texttt{cbrtf}).
+\end{pitfall}
+
+\section*{Variables}
+
+A C variable can be used in two ways. Without further marking, the hole
+stands for the value of the variable at the moment the hole is
+evaluated, here when the declaration is executed; later changes by the C
+program are not seen:
+\begin{lstlisting}
+int limit = nest C "limit";
+\end{lstlisting}
+With an ampersand before the name, it stands for the variable itself,
+and the Algol 68 declaration has a reference type: assignments to it
+change the C variable, and the C program sees them.
+\begin{lstlisting}
+ref int calls = nest C "&calls";
+\end{lstlisting}
+Without the ampersand, a hole of a \code|ref| type stands for the value of
+a C pointer variable, so the Algol 68 name refers to the C object the
+pointer points to.
+
+\section*{Strings and functions as parameters}
+
+A C function that receives an Algol 68 string gets three parameters for
+it: a pointer to the characters, the number of characters, and the
+distance in bytes from one character to the next. The characters are
+32-bit codes, not bytes, and they need not be next to each other, because
+the string may be a column of a two-dimensional array of characters,
+such as \code|m[, 2]|. A C function that counts the
+vowels of a string, a C function that calls a function it receives, and a
+counter variable:
+
+\cprogram{appF/cfun}
+
+\noindent and the Algol 68 program that uses them:
+
+\example{appF/cfun}
+
+\noindent The C file is compiled with a C compiler and linked with the
+program:
+\begin{lstlisting}[style=shell]
+$ cc -c cfun.c
+$ ga68 -I. cfun.a68 cfun.o genietransput.o -o cfun
+\end{lstlisting}
+An Algol 68 function that is passed to C, such as \code|square| above,
+arrives as an ordinary C function pointer. ga68 makes it point to a small
+piece of code that it places in the stack frame of the block in which
+the function is declared. A C library must therefore not keep the
+pointer and call it after that block has ended, even if the function
+uses no names of the block. The same piece of code is the reason why the
+linker warns that such a program ``requires executable stack''; the
+warning is expected, but a system that forbids executable stacks will
+not run the program.

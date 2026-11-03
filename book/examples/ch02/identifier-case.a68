@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   int maxValue = 100;
+   print ((maxValue, newline))
+end

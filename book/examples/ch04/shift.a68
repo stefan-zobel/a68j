@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [6] int a := (1, 2, 3, 4, 5, 6);
+   a[2:6] := a[1:5];               { shift right by one place }
+   print ((a, newline))
+{ end excerpt }
+end

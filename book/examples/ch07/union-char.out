@@ -1,0 +1,1 @@
+union-char.a68:4:24: error: char cannot be coerced to union (int, string) in a strong-unit

@@ -1,0 +1,617 @@
+\chapter{Input and output}\label{ch-transput}
+
+The programs so far used \code|print| and \code|read| on the standard
+output and the standard input. This chapter describes input and output
+in general: how a program reads and writes files, reads from and writes to
+strings, reacts to the end of the input and to bad data, converts numbers
+to text, and lays out its output precisely with formats. The Report
+calls input and output together \rr{transput}.
+
+The transput of the Report is a large part of its standard library, and
+the implementations provide it to different degrees. Algol 68 Genie
+provides nearly all of it; Section~\ref{sec-transput-genie} lists what it
+lacks. For ga68 and a68j, the module \code|Genie_Transput| provides the
+unformatted part used in this chapter; formatted and binary transput
+are not available there, and the examples of those sections were run
+with Algol 68 Genie.
+
+\section{Books, channels and files}\label{sec-books}
+
+The Report distinguishes three things that current languages usually do
+not separate:
+\begin{itemize}
+\item A \rr{book} is the data itself, such as a file on disk, identified
+  by a name. Its text is divided into pages, the pages into lines, and
+  the lines into characters, and a position in a book is given by a page,
+  a line and a character number.
+\item A \rr{channel} describes a kind of device and what can be done with
+  it: \code|stand_in_channel| for reading, \code|stand_out_channel| for
+  writing, \code|stand_back_channel| for both.
+\item A \rr{file} (here of type \code|File|) is what a program uses to
+  read or write a book through a channel: a file handle or stream, in
+  today's terms. It records the current position in the book, the
+  procedures to call when something unusual happens, and a few settings.
+\end{itemize}
+
+The procedure \code|open (f, name, channel)| connects the file
+\code|f| with an existing book; \code|establish (f, name, channel)|
+creates a new one, and \code|create (f, channel)| creates a new book
+without a name, a temporary file. These procedures return 0 on success.
+\code|close (f)| ends the connection, \code|scratch (f)| ends it and
+deletes the book, and \code|reset (f)| returns to the start of the
+book. The files \code|stand_in| and \code|stand_out| are open from the
+start; \code|print (x)| is short for \code|put (stand_out, x)|, and
+\code|read (x)| for \code|get (stand_in, x)|.
+
+\begin{implnote}
+In ga68 and a68j the type is called \code|File| and the channels and
+procedures are those of \code|Genie_Transput|, since the reserved word
+\code|file| of ga68 does not yet denote a usable type. In the Report and
+in Algol 68 Genie, the type is \code|file|. In the Report,
+\code|establish| has three more parameters, the number of pages, lines
+per page and characters per line of the new book; the implementations
+leave them out.
+\end{implnote}
+
+\section{Reading and writing files}\label{sec-get-put}
+
+The procedures \code|put| and \code|get| write and read a list of values,
+like \code|print| and \code|read|, but on a given file. The following
+program writes five lines to a new file and then reads them back:
+
+\example{ch09/files}
+
+The reading loop has no condition: it ends when the input is exhausted.
+The procedure \code|on_logical_file_end| installs a procedure that the
+transput calls when a \code|get| reaches the end of the book; here it
+jumps out of the loop to the label \code|done|. Such procedures are the
+Report's \rr{event routines}; today they would be called callbacks or
+handlers. Section~\ref{sec-events} describes them in general.
+
+The predefined label \code|stop| ends the program; \code|goto stop|, or
+just \code|stop|, can be written anywhere.
+
+\begin{implnote}
+In Algol 68 Genie, \code|establish| returns 0 even if the file already
+exists; the error comes with the first \code|put| (``file exists''). The
+program above therefore fails when it is run a second time in the same
+directory. \code|open| with \code|stand_out_channel| opens an existing
+file for writing and empties it. A program that should work in both cases
+tries \code|open| first and calls \code|establish| only if that fails.
+\end{implnote}
+
+\section{Reading the standard input}\label{sec-stand-in}
+
+The same technique reads all of the standard input, however much there
+is. Numbers are separated by blanks and line breaks. One detail matters
+here: the event routine jumps to a label of the program's block, so it
+lives only as long as that block (Section~\ref{sec-proc-lifetimes}),
+whereas \code|stand_in| lives as long as the whole program. Installing
+the routine in \code|stand_in| itself would break the lifetime rule; the
+Report uses a case like this as its example. The program therefore
+copies \code|stand_in| into a local file variable and reads from that:
+
+\example{ch09/sum-input}
+
+\noindent with the input
+\lstinputlisting[style=output]{examples/ch09/sum-input.in}
+
+The copy \code|input| reads the same data as \code|stand_in|: a
+\code|File| value contains references to the book and to the current
+position, which the copy shares, and its own event routines, which it
+does not share. The copy can therefore be given an event routine that
+lives only as long as the block, while reading continues where
+\code|stand_in| stands.
+
+A number is read up to the first character that cannot belong to it:
+\code|12abc| yields 12 and leaves \code|abc| for the next read, and
+\code|1,024| yields 1. Leading blanks and line breaks are skipped. A
+character is read as it is, a blank included; at the end of a line, the
+line break is skipped and the first character of the next line is read.
+
+A \code|string| is read up to the end of the line; the line break itself
+is not read, and the next \code|get| of a string would yield an empty
+string at once. It is skipped with \code|newline|, which, like
+\code|space|, \code|backspace| and \code|newpage|, can appear in the list
+of \code|get| as well as of \code|put|. On input they skip the rest of
+the line, one character, and so on; on output they start a new line,
+move one position, and start a new page. A program that processes its
+input line by line reads a line, processes it, and then skips the line
+break:
+
+\example{ch09/lines}
+
+\noindent The input was:
+\lstinputlisting[style=output]{examples/ch09/lines.in}
+
+\begin{pitfall}
+The shorter \code|get (input, (line, newline))| looks equivalent, but
+it loses the last line if the input does not end with a line break:
+\code|newline| then reaches the end of the input, the event routine
+jumps away, and the line that was just read is never printed. Text
+editors and programs do not always write a final line break.
+\end{pitfall}
+
+The layout procedures are ordinary procedures of type
+\code|proc (ref File) void|. They can be called directly, as
+\code|newline (stand_out)|, and a program can write its own procedure of
+this type and put it in a list, where \code|put| and \code|get| call it
+with the file:
+
+\example{ch09/layout}
+
+\section{Events}\label{sec-events}
+
+An event routine is installed in a file for one kind of event. It
+receives the file and returns a \code|bool|. If it returns \code|true|,
+it reports that it has dealt with the event and the transput continues;
+if it returns \code|false|, the default action follows. A routine can
+also jump out, as in the examples above.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Installed with & Called when & Default action \\
+\midrule
+\code|on_logical_file_end| & the data of the book are exhausted & error \\
+\code|on_physical_file_end| & the medium is full or exhausted & error \\
+\code|on_line_end| & a line is exhausted & \code|newline| \\
+\code|on_page_end| & a page is exhausted & \code|newpage| \\
+\code|on_format_end| & a format is exhausted (Section~\ref{sec-format-list}) & start it again \\
+\code|on_value_error| & a value cannot be read or written & error \\
+\code|on_char_error| & a character cannot be converted & error \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The Report leaves the program undefined where the table says ``error'';
+the implementations stop it with a message. \code|Genie_Transput|
+provides the logical end of the file and the value error. Algol 68 Genie
+provides all except \code|on_char_error|; a character that cannot be
+converted causes a value error.
+
+A routine that returns \code|true| must really have dealt with the
+event, because the transput then continues at the same place. With
+Algol 68 Genie and \code|Genie_Transput|, a value error on input occurs
+when the text is not a number. (The Report calls the char error routine
+for a character that cannot belong to a number, and the value error
+routine for a number that cannot be converted.) If the routine only
+counts the error, the bad text is still there, and the next number fails
+in the same way:
+
+\example{ch09/value-error-norepair}
+
+\noindent prints \code|12 -1 -1 -1, errors: 3|: one bad word spoiled all the
+following values. The routine must remove the cause, here by reading the
+bad word as a string:
+
+\example{ch09/value-error}
+
+\noindent which prints \code|12 -1 45 67, errors: 1|. In the same way, a
+logical file end routine that returns \code|true| without having made
+more data available is called again, according to the Report; the
+implementations call it once and continue, and the value that was to be
+read is then not meaningful. Such a routine should jump away, as in the examples above, or
+return \code|false|.
+
+\section{Strings as files}\label{sec-associate}
+
+The procedure \code|associate (f, s)| connects a file with a string
+variable instead of a book. Reading then takes the characters from the
+string, and writing adds to it. This converts between numbers and
+their textual form with all the facilities of the transput:
+
+\example{ch09/associate}
+
+\begin{implnote}
+In the Report, \code|associate| connects a file with an array of arrays
+of arrays of characters (pages, lines, characters) of fixed size, and
+writing overwrites it from the start. Algol 68 Genie and
+\code|Genie_Transput| use a \code|ref string| instead and append to it,
+which is what programs need in practice.
+\end{implnote}
+
+\section{Terminators and other settings}\label{sec-make-term}
+
+A string read with \code|get| ends at the end of the line. The
+procedure \code|make_term (f, s)| makes it end also at every character of
+the string \code|s|; the terminating character itself is not read. The
+complete program at the end of this chapter uses it to read a name that
+ends at a blank.
+
+A file can be asked what it allows: \code|get_possible (f)|,
+\code|put_possible (f)|, \code|bin_possible (f)|,
+\code|reset_possible (f)| and \code|set_possible (f)| return a
+\code|bool|. After a file has been written, \code|reset| returns to the
+start so that it can be read; reading and writing cannot simply
+alternate.
+
+The Report provides further procedures, which Algol 68 Genie does not
+have: the current position (\code|char_number|, \code|line_number|,
+\code|page_number|) and the setting of it (\code|set_char_number| and a
+\code|set| with page, line and character), a new name for a book
+(\code|reidf|), and a translation table for characters
+(\code|make_conv|). A program that needs the current line number counts
+the lines itself. \code|Genie_Transput| provides, besides
+\code|make_term|, the functions \code|eof| and \code|eoln| of Algol 68
+Genie, which test for the end of the file and of the line.
+
+\section{Printing arrays and records}\label{sec-straightening}
+
+\code|put| and \code|print| accept arrays and records, not only single
+values, provided that they contain no references, functions or unions. They are broken down into their elements
+and fields,
+which are printed one after the other; the Report calls this
+\rr{straightening}. An array of records thus prints the fields of every
+element:
+
+\example{ch09/straightening}
+
+\code|get| straightens in the same way: \code|get (f, m)| for a
+\code|[2,3] int| variable \code|m| reads six numbers into it, row by row.
+For input the Report is stricter: apart from a \code|string| variable
+itself, the variable may contain no resizable arrays, so a record with a
+\code|string| field or an array of strings cannot be read with one
+\code|get|.
+
+\begin{implnote}
+\code|Genie_Transput| straightens arrays of the primitive types but not
+records (Section~\ref{sec-print-data}), and its \code|get| does not
+accept arrays; this example was run with Algol 68 Genie, whose
+\code|int| has 64 bits and is therefore printed in a wider field. Algol
+68 Genie also reads a record with \code|string| fields with one
+\code|get|.
+\end{implnote}
+
+\section{Converting numbers to text}\label{sec-conversions}
+
+The procedures \code|whole|, \code|fixed| and \code|float| of
+Section~\ref{sec-io} convert a number into a string of a given width,
+which is the usual way to lay out numbers without formats:
+\begin{itemize}
+\item \code|whole (i, w)| writes an integer in a field of width
+  $|w|$. If \code|w| is positive, a sign is always written; if it is
+  negative, only a minus sign. \code|w = 0| gives the shortest string.
+\item \code|fixed (x, w, d)| writes a real with \code|d| digits after
+  the point, in a field of width $|w|$, with the same rules for the sign.
+\item \code|float (x, w, d, e)| writes a real in scientific notation with
+  \code|d| digits after the point and an exponent of \code|e| digits.
+\end{itemize}
+
+\example{ch09/conversions}
+
+\noindent prints
+\outputof{ch09/conversions}
+
+A number that does not fit is not given a wider field, unlike C's
+\texttt{printf}: \code|whole (123456, 3)| yields three asterisks.
+\code|fixed| first gives up digits after the point, so that
+\code|fixed (3.14159, 6, 4)| yields \code|+3.142|; only when the integral
+part does not fit either does it yield asterisks. \code|fixed| writes no
+zero before the point of a number below 1 if the width is 0
+(\code|.0150|). \code|float| chooses the exponent so that as many digits
+as possible stand before the point.
+
+\section{Formatted output}\label{sec-formats}
+
+For complete control over the layout, the Report provides
+\term{formats}, a small language of their own, comparable to the format
+strings of \texttt{printf} in C or of Fortran's \texttt{FORMAT}
+statement. A format text is written between dollar signs. The procedure
+\code|printf| takes a list that begins with a format and continues with
+the values; \code|putf| does the same for a given file, and
+\code|readf| and \code|getf| read according to a format.
+
+\example{ch09/formats}
+
+A format consists of \term{pictures}, each of which describes how one
+value is printed, separated by commas. A picture is made of
+\term{frames}:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Frame & Meaning \\
+\midrule
+\code|d| & a digit \\
+\code|z| & a digit, printed as a blank if it is a leading zero \\
+\code|+|, \code|-| & a sign: always, or only if negative \\
+\code|.| & the decimal point \\
+\code|e| & the exponent marker of a floating-point number \\
+\code|a| & a character \\
+\code|b| & a truth value (\code|T| or \code|F|) \\
+\code|g| & a value in its standard layout, as \code|print| would print it \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A number before a frame repeats it: \code|5d| is five digits and
+\code|3zd| is three suppressible digits followed by one that is always
+printed. Between the frames, \term{insertions} add text: a string in
+quotes is printed as it is, \code|x| prints a blank, \code|l| ends the
+line and \code|p| the page, and \code|k| moves to a given column. They
+too can be repeated, as in \code|2x| or \code|3"-"|.
+
+\subsection*{One picture, one value}
+
+Everything between two commas is one picture, and one picture prints
+one value, however many frames it has:
+
+\example{ch09/pictures}
+
+\noindent prints
+\outputof{ch09/pictures}
+
+In the first format, \code|2d ", b = " 2d| is a single picture of four
+digits with some text in the middle, and it prints the single value 1 as
+\code|0001| with the text inserted. This is easy to get wrong and hard to
+see; when a format prints something strange, the commas are the first
+thing to check.
+
+\subsection*{Where the sign goes}
+
+A sign frame before the digits puts the sign at the left edge of the
+field. A sign frame after the \code|z| frames lets it move to just before
+the first printed digit:
+
+\example{ch09/signs}
+
+\noindent prints
+\outputof{ch09/signs}
+
+A negative value in a picture without a sign frame is a value error.
+
+\subsection*{Choices, general patterns and other kinds of values}
+
+A truth value can be printed with two strings of the program's choice,
+\code|b("yes", "no")|, and an integer between 1 and $n$ can select one of
+$n$ strings with \code|c("one", "two", ...)|. Both make it easy to print
+plurals and names:
+
+\example{ch09/choice}
+
+\noindent prints
+\outputof{ch09/choice}
+
+The general pattern \code|g| prints a value as \code|print| would. With
+parameters, it prints a number like the conversion procedures of
+Section~\ref{sec-conversions}: \code|g(w)| like \code|whole|,
+\code|g(w, d)| like \code|fixed|, and \code|g(w, d, e)| like
+\code|float|. The parameters can be any integer expressions. A
+\code|bits| value is printed in base 2, 4, 8 or 16 with a picture such as
+\code|2r8d| or \code|16r4d|:
+
+\example{ch09/general}
+
+\noindent prints
+\outputof{ch09/general}
+
+The first line shows the standard layout of a \code|real| in Algol 68
+Genie, whose \code|real| has 64 bits.
+
+A string is printed with \code|a| frames, one per character, and the
+number of frames must equal the length of the string; insertions between
+the frames are allowed:
+
+\example{ch09/strings-fmt}
+
+\noindent prints \code|J. Smith| and \code|[Algol]|, and then stops with
+an error, since \code|"Al"| has only two characters for five frames. A
+string of variable length is printed with \code|g| or with the
+computed repetition of the next section.
+
+A part of a format can also be chosen when the program runs. The format pattern
+\code|f(...)| contains an expression that yields a format, and inserts
+that format in its place:
+
+\example{ch09/format-f}
+
+\noindent prints
+\outputof{ch09/format-f}
+
+\begin{pitfall}
+Two string insertions with nothing between them are one string: as in a
+string literal, a doubled quote stands for a quote character, so
+\code|"Smith""Jones"| prints \texttt{Smith"Jones}, as the fourth line
+shows. A repetition count, even \code|1|, keeps them apart. Algol 68
+Genie also accepts a space between them, the Report does not.
+\end{pitfall}
+
+\subsection*{Repetition and columns}
+
+A repetition can be computed while the program runs: in
+\code|n (k) (...)|, the part in parentheses is repeated \code|k| times,
+which suits arrays of any size. An integer value is printed through a
+real picture as a real number:
+
+\example{ch09/format-table}
+
+The insertion \code|k| moves to the column given by its repetition
+count, which can also be computed. That is enough for a simple plot:
+
+\example{ch09/plot}
+
+\noindent prints
+\outputof{ch09/plot}
+
+\subsection*{How the values and the format are matched}\label{sec-format-list}
+
+The values of the list are matched with the pictures of the format one
+by one. When the format is exhausted and values remain, it starts again
+from the beginning: \code|printf (($2d l$, 1, 2, 3))| prints three lines.
+This is the default action of the event \code|on_format_end|. A list may
+contain several formats, each of which applies to the values after it.
+The layout procedures \code|newline| and \code|space| cannot appear in
+the list of \code|printf|; the insertions \code|l| and \code|x| take
+their place.
+
+A format is a value of the type \code|format| and can be stored in a
+variable, passed to a procedure, or chosen at run time: a
+\code|proc (int) format| can return different formats for different
+cases. A format that computes a repetition from a local name,
+\code|n (digits) d|, is subject to the lifetime rule
+(Section~\ref{sec-proc-lifetimes}) like a function, and cannot leave the
+block of \code|digits|.
+
+\begin{implnote}
+In the Report, the rest of a format that is not used up when the list
+ends waits for the next \code|putf| on the same file. Algol 68 Genie
+stops the program instead (``number of pictures does not match number
+of arguments''): the values must use the format up to its end.
+\end{implnote}
+
+\section{Formatted input}\label{sec-readf}
+
+\code|readf| and \code|getf| read according to a format. Every frame
+reads one character position: a picture \code|3zd| reads four
+characters, and a \code|z| frame accepts a blank as a zero. The
+characters of a literal insertion such as \code|"-"| must be present in
+the input and are read over; \code|x| skips one character. This makes it easy to read data in fixed columns, such as
+the records of this file:
+\lstinputlisting[style=output]{examples/ch09/readf.in}
+
+\example{ch09/readf}
+
+\noindent prints
+\outputof{ch09/readf}
+
+The pictures \code|"-" 2d| skip the dash and read the month. The
+\code|10a| reads exactly ten characters, the blanks of a short name
+included. A field that is one character too short or too long shifts
+every field after it: with \code|4zd| for the score, which reads five
+characters, the program stops at the first record with an error.
+
+\section{Binary transput}\label{sec-binary}
+
+The procedures \code|put_bin| and \code|get_bin| write values to a file
+and read them back in an internal, binary form, without conversion into
+characters. A file written this way can only be read back by a program
+that reads the same types in the same order:
+
+\example{ch09/binary}
+
+The channel \code|stand_back_channel| allows both reading and writing,
+and \code|reset| returns to the start of the file before reading. Binary
+and character transput cannot be mixed on one sequential file until it
+is reset; Algol 68 Genie enforces this.
+
+Binary transput was meant for intermediate files that a program writes
+and reads again. Such a file does not need a name, and it should
+disappear when the program no longer needs it. \code|create| and
+\code|scratch| do exactly that:
+
+\example{ch09/temp}
+
+\section{What Algol 68 Genie lacks}\label{sec-transput-genie}
+
+Algol 68 Genie provides nearly all of the Report's transput. The
+exceptions, apart from those already mentioned, are:
+\begin{itemize}
+\item the position enquiries \code|char_number|, \code|line_number| and
+  \code|page_number|, \code|set_char_number|, \code|reidf|,
+  \code|make_conv| and the event \code|on_char_error|;
+\item \code|set| moves relative to the current position, with one
+  parameter, instead of to a given page, line and character;
+\item the insertion \code|k| cannot move back to an earlier column, and
+  \code|backspace| and the insertion \code|y| cannot be used on
+  \code|stand_out|;
+\item a \code|z| frame after a \code|d| frame always prints its digit,
+  where the Report suppresses some zeros in date-like pictures; pictures
+  with only \code|d| frames after the first are printed the same
+  everywhere;
+\item the format is not kept for the next call of \code|putf|
+  (Section~\ref{sec-format-list}).
+\end{itemize}
+
+\section{A complete program}\label{sec-transput-complete}
+
+The final program reads a file of names and marks and prints a report.
+The file \texttt{marks.txt} contains:
+\lstinputlisting[style=output]{examples/ch09/marks.txt}
+
+\example{ch09/report}
+
+\code|make_term (data, " ")| ends a name at the first blank, so that
+\code|get| reads the name and then the three numbers. The \code|newline|
+at the end of the list skips the line break, so that the next name starts
+at the beginning of the next line. The expression
+\code|" " * (10 - UPB name)| pads the name to ten characters.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+The \hyperref[ans-ch9]{answers} are at the end of the book.
+
+\begin{enumerate}
+\item What is the difference between \code|open| and \code|establish|?
+\item What does an event routine that returns \code|true| tell the
+  transput?
+\item Write a procedure \code|int_to_string| that converts an
+  \code|int| into a string by writing it into a string with
+  \code|associate| and \code|put|.
+\item What do the formats \code|$4d$|, \code|$4zd$| and \code|$-3zd$|
+  print for the values 7 and $-7$?
+\item Why does the program of Section~\ref{sec-stand-in} read the line
+  and the line break with two calls of \code|get|?
+\item How many values does each of these formats print, and what do they
+  print for the values 3 and 4?
+  (a) \code|$2d "/" 2d$| (b) \code|$2d, "/" 2d$|
+\item What do \code|whole (-5, 3)|, \code|whole (5, -3)|,
+  \code|fixed (2.5, 0, 2)| and \code|fixed (-0.25, 0, 2)| yield?
+\item A value error routine returns \code|true| without reading anything.
+  What happens when \code|get (f, (a, b))| meets the input
+  \code|x 5|?
+\item Write a format that prints a date given as three integers day,
+  month and year as \code|15 March 2024|.
+\end{enumerate}
+
+\section*{Programming problems}
+\addcontentsline{toc}{section}{Programming problems}
+
+\begin{enumerate}
+\item \textbf{Line numbers.} Copy a text file to another file with a
+  line number in front of each line, and start a new page with a page
+  number after every 50 lines.
+\item \textbf{Word count.} Count the characters, words and lines of the
+  standard input, like the Unix program \texttt{wc}. Make sure that a
+  last line without a line break is counted.
+\item \textbf{Exam results.} Each line of a file holds a student
+  number of 6 digits, a name in 20 columns and three marks of 3 digits.
+  Print a line per student with the name, the average with one decimal,
+  and \texttt{passed} or \texttt{failed} (an average of at least 50 and no
+  mark below 30 passes) chosen with a \code|b(...)| pattern, with one
+  \code|getf| and one \code|printf| per student.
+\item \textbf{Column totals.} Read a table of numbers separated by
+  commas, with an unknown number of rows, and print it with a format,
+  with a total for each column.
+\item \textbf{Bad records.} Read records of a fixed layout with
+  \code|getf|, and install an \code|on_value_error| routine that prints
+  the number of each bad record and skips it.
+\item \textbf{Bank statement.} Read transactions (date, text, amount) and
+  print a statement with a running balance, the amounts in a column with
+  a floating sign or with \code|b("CR", "DR")|, and a heading on every
+  page.
+\item \textbf{A calendar.} Print the calendar of a month, with the name
+  of the month chosen by a \code|c| pattern and the first week indented
+  with a computed repetition.
+\item \textbf{Amounts in words.} Print an amount of money below one
+  million in words, as on a check, using choice patterns for the units,
+  tens and hundreds.
+\item \textbf{Justification.} Read a text and print it with lines of a
+  given width and straight margins on both sides, by distributing extra
+  blanks between the words as evenly as possible. The last line of a
+  paragraph keeps a ragged right margin.
+\item \textbf{The last lines.} Print the last $n$ lines of the standard
+  input, which may be of any length, numbered with \code|whole|.
+\item \textbf{Merging.} Write two sorted sequences of numbers to
+  temporary files made with \code|create|, \code|reset| them, merge them
+  onto the standard output, and \code|scratch| them.
+\item \textbf{Number conversion.} Write a procedure that converts a
+  \code|real| into a string with a given number of significant digits,
+  using \code|associate| or \code|float|.
+\item \textbf{Announcements.} Given the children of a family with
+  their names, sexes and years of birth, print sentences such as ``Ann is the
+  eldest of three children'' or ``Tom is the only son'', choosing the
+  words with \code|b(...)|, \code|c(...)| and \code|f(...)| patterns in a
+  single \code|printf| per child (Algol 68 Genie).
+\end{enumerate}

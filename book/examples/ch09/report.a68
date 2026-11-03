@@ -1,0 +1,25 @@
+access Genie_Transput
+begin
+   { Read names and marks from a file and print a report. }
+   File data;
+   if open (data, "marks.txt", stand_in_channel) /= 0 then
+      print (("cannot open marks.txt", newline)); stop
+   fi;
+   make_term (data, " ");                  { a name ends at a blank }
+   on_logical_file_end (data, (ref File f) bool: goto done);
+   int students := 0;
+   real class_total := 0;
+   print (("name      average", newline));
+   do
+      string name;
+      int a, b, c;
+      get (data, (name, a, b, c, newline));
+      real average = (a + b + c) / 3;
+      print ((name, " " * (10 - UPB name), fixed (average, -7, 2), newline));
+      students +:= 1;
+      class_total +:= average
+   od;
+done:
+   close (data);
+   print (("class     ", fixed (class_total / students, -7, 2), newline))
+end

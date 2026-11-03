@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   printf (($a". "5a l$, "JSmith"));          { one string, split by an insertion }
+   printf (($"[" 5a "]" l$, "Algol"));
+   printf (($"[" 5a "]" l$, "Al"))           { wrong length: a run-time error }
+{ end excerpt }
+end

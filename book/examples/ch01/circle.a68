@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+   { The area and the circumference of a circle. }
+   real r = 2.5;
+   real area = pi * r ** 2;
+   real circumference = 2 * pi * r;
+   print (("radius        ", fixed (r, 0, 2), newline));
+   print (("area          ", fixed (area, 0, 2), newline));
+   print (("circumference ", fixed (circumference, 0, 2), newline))
+end

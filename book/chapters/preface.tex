@@ -1,0 +1,72 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+Algol 68 was designed in the late 1960s, and many of its ideas are now
+everyday features of programming languages: every construct is an
+expression, types can be combined freely, unions are tagged and checked
+at run time, operators can be defined and overloaded, and the program can
+run parts of itself concurrently. What kept many programmers away from the
+language was less its ideas than the way they were described. The defining
+document, the Revised Report on the Algorithmic Language Algol 68, has a
+vocabulary of its own: a type is a \emph{mode}, a variable is a
+\emph{name}, an expression is a \emph{unit}, an implicit conversion is a
+\emph{coercion}. Most textbooks of the time followed the Report.
+
+This book describes the language of the Revised Report in the words a
+programmer uses today. It assumes that the reader can program in some
+current language; it does not assume any particular one. Where a concept
+is hard, such as references and their lifetimes, it is explained as
+carefully as it needs to be, but it is not made harder by an unfamiliar
+name.
+
+The Report's own terms are not hidden, though. Error messages of the
+compilers use them, and so do the Report and the older literature. Where a
+concept is introduced, its name in the Report is given once, set in a
+sans-serif font like \rr{this}; the index lists these names, and
+Appendix~\ref{app-glossary} is a glossary of all of them.
+
+\section*{The implementations}
+
+The programs in this book are written for two implementations:
+\begin{itemize}
+\item \emph{ga68}, the Algol 68 front end of the GNU Compiler
+  Collection~\cite{ga68}, which compiles to native code, and
+\item \emph{a68j}, which compiles the same language to the Java virtual
+  machine.
+\end{itemize}
+Both accept the same language, apart from a few features that only one
+of them provides, and give the same results. Every example program in
+this book was run when the book was built, and the output shown after a
+program is the output of that run. Most examples were run with both
+ga68 and a68j; the few that use a feature one of them lacks (complex
+arithmetic, semaphores, formats, \code|bytes|) were run with Algol 68
+Genie and, where it has the feature, with a68j, and the text says so.
+The examples of Appendix~\ref{app-nest}, which calls C, were run with
+ga68 only, and those of Appendix~\ref{app-partial}, which describes an
+extension that neither implements, with Algol 68 Genie only.
+Where the two implementations, or Algol 68 Genie~\cite{genie}, a widely
+used interpreter, differ from the Report or from each other, a note says so;
+Appendix~\ref{app-impl} collects these notes.
+
+The versions used for this book are ga68 from the development
+version of GCC 17.0.0 of 31 October 2026 (commit 3f35c3d2d116), a68j \bookversion{} on OpenJDK 25, and Algol 68
+Genie 3.1.2.
+
+\section*{How the book is organized}
+
+Chapters~\ref{ch-intro} to~\ref{ch-procs} cover the core of the language: values and variables,
+expressions and control flow, arrays and records, functions and
+operators. They are enough to write substantial programs. Chapters~\ref{ch-moretypes} to~\ref{ch-transput}
+cover the rest: more built-in types, the advanced features of the type
+system, concurrency, and input and output. Each chapter ends with
+exercises, whose answers are at the end of the book, and with programming
+problems, which have no single answer.
+
+The model for this book was Andrew McGettrick's textbook \emph{ALGOL 68:
+A First and Second Course}~\cite{mcgettrick}, written for students in the
+years after the Revised Report appeared. The choice of topics and their
+order follow it closely, and many of the exercises and programming
+problems are modeled on it. The Revised
+Report~\cite{rr} is the authority on every question of the language; the
+bibliography at the end of the book lists it together with the other
+works a reader may want to consult.

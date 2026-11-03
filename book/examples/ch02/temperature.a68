@@ -1,0 +1,9 @@
+access Genie_Transput
+begin
+   { Read a temperature in degrees Fahrenheit and print it in Celsius. }
+   real fahrenheit;
+   read (fahrenheit);
+   real celsius = (fahrenheit - 32) * 5 / 9;
+   print ((fixed (fahrenheit, 0, 1), " F is ",
+           fixed (celsius, 0, 1), " C", newline))
+end

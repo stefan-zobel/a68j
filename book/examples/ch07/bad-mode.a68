@@ -1,0 +1,5 @@
+access Genie_Transput
+begin
+   mode Chain = struct (int value, Chain next);
+   skip
+end

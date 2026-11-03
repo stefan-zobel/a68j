@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc (int) int c_abs = nest C "abs";
+   proc (long real) long real cbrt = nest C "cbrt";
+   proc (real) real cbrtf = nest C "cbrtf";
+   print ((c_abs (-7), newline));
+   print ((fixed (cbrt (long 2.0), 0, 12), newline));
+   print ((fixed (cbrtf (2.0), 0, 12), newline))
+{ end excerpt }
+end

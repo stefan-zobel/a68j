@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   print (("max_int        ", max_int, newline));
+   print (("long_max_int   ", long_max_int, newline));
+   print (("small_real     ", small_real, newline));
+   print (("long_small_real", long_small_real, newline));
+   print (("bits_width     ", bits_width, newline));
+   print (("int_lengths    ", int_lengths, newline));
+   print (("int_shorths    ", int_shorths, newline))
+{ end excerpt }
+end

@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int a := 1, b := 2;
+   ref int p := a;          { p holds a reference to a }
+   p := b;                  { now p refers to b; a and b are unchanged }
+   ref int (p) := 20;       { assigns to what p refers to, that is to b }
+   print ((a, b, newline));
+   print ((p is b, " ", p isnt a, newline))
+{ end excerpt }
+end

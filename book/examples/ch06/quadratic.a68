@@ -1,0 +1,17 @@
+access Genie_Transput
+begin
+   { The roots of a x^2 + b x + c, real or complex. }
+   proc show = (compl z) string:
+      fixed (RE z, 0, 3) + (IM z < 0 | " - " | " + ")
+         + fixed (ABS IM z, 0, 3) + "i";
+   proc roots = (real a, b, c) void:
+   begin
+      real d = b * b - 4 * a * c;
+      compl root = (d >= 0 | sqrt (d) | 0 I sqrt (-d));
+      compl x1 = (-b + root) / (2 * a), x2 = (-b - root) / (2 * a);
+      print ((show (x1), "   ", show (x2), newline))
+   end;
+   roots (1, -3, 2);
+   roots (1, 2, 5);
+   roots (2, 0, 8)
+end

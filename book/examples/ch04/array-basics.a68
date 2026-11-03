@@ -1,0 +1,12 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   [1:5] int squares;
+   for i from LWB squares to UPB squares do squares[i] := i * i od;
+   print ((squares, newline));
+   print ((squares[3], " ", LWB squares, UPB squares, newline));
+   [0:2] char letters;
+   letters[0] := "x"; letters[1] := "y"; letters[2] := "z";
+   print ((letters[0], letters[2], newline))
+{ end excerpt }
+end

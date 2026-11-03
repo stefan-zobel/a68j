@@ -1,0 +1,6 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   print ((UPB [] int (1, 2, 3), newline))
+{ end excerpt }
+end

@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   int n := 1;
+   ref int p := n, q := n;
+   print ((p is q, " ", ref int (p) is ref int (q), " ", ref int (p) is n, newline))
+{ end excerpt }
+end

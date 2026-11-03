@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   { Search for the first multiple of 7 and 11 above 500. }
+   int n := 500;
+   do
+      n +:= 1;
+      if n MOD 7 = 0 andth n MOD 11 = 0 then goto found fi
+   od;
+found:
+   print ((n, newline))
+{ end excerpt }
+end

@@ -1,0 +1,10 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc incr = (ref int c, int d) int: c +:= d;
+   ref int counter = heap int := 0;
+   proc int tick = incr (counter, 1);
+   to 3 do tick od;
+   print ((counter, newline))
+{ end excerpt }
+end

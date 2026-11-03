@@ -1,0 +1,19 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   string text := "12 x3 45 67";
+   File f;
+   associate (f, text);
+   make_term (f, " ");
+   int errors := 0;
+   on_value_error (f, (ref File g) bool:
+      begin
+         errors +:= 1;
+         true                   { the error has been dealt with }
+      end);
+   int a := -1, b := -1, c := -1, d := -1;
+   get (f, (a, b, c, d));
+   print ((whole (a, 0), " ", whole (b, 0), " ", whole (c, 0), " ",
+           whole (d, 0), ", errors: ", whole (errors, 0), newline))
+{ end excerpt }
+end

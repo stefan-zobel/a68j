@@ -1,0 +1,13 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc incr = (ref int c, int d) int: c +:= d;
+   proc make_bump = proc (int) int:
+   begin
+      loc int count := 0;
+      incr (count, )
+   end;
+   proc (int) int bump = make_bump;
+   print ((bump (1), newline))
+{ end excerpt }
+end
