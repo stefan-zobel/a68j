@@ -180,10 +180,10 @@ exception is thrown.
 A Java method can also report an error itself with
 `throw JavaObject.error("…")` (section 5). Its position is found on the
 stack in the same way: the innermost Algol 68 code that called the
-method. The bundled modules `Lists` and `Hashmaps` count as part of the
-runtime here (their classes are in the package `a68j.lib`): a missing key
-in `k ELEM m` is reported at the `ELEM` in the program, not in the source
-of the module. The same holds for a Java exception in a call that one of
+method. The bundled modules such as `Lists`, `Hashmaps` and `Bigints`
+count as part of the runtime here (their classes are in the package
+`a68j.lib`): a missing key in `k ELEM m` is reported at the `ELEM` in the
+program, not in the source of the module. The same holds for a Java exception in a call that one of
 these modules makes.
 
 ## 1a. Procedures and functional interfaces, names of rows, Java objects
@@ -845,8 +845,12 @@ that access them (`-I tests/java/lib`).
 | `texts-hashmaps` | `Hashmaps`, `Genie_Transput` and `Texts` in one access clause ([texts.md](texts.md)) |
 | `regex-a68g` | the module `Regex` on 74 patterns, compared with Algol 68 Genie ([regex.md](regex.md)) |
 | `regex-unicode` | `Regex` with characters beyond U+FFFF, bounds and `nil` positions |
+| `bigints-basic` | the module `Bigints`: every operator for every combination of operand modes, compared with `long int`; `big_whole` compared with `whole`; the procedures ([bigints.md](bigints.md)) |
+| `bigints-big` | `Bigints` on 1000!, fib (1000), 5 ** 4 ** 3 ** 2 (183 231 digits) and the Lucas-Lehmer test |
+| `bigints-error-1` … `-5` | division by zero, a negative exponent, `nil`, `TOINT` beyond the limits, a string that is not an integer: runtime errors with the position in the program |
+| `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
 
-Result on 3 Nov 2026: 49 of 49 with JDK 25 and JDK 28 ea+21.
+Result on 4 Nov 2026: 57 of 57 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 

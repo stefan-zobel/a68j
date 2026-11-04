@@ -1,0 +1,6 @@
+{ A negative exponent of ** is a runtime error. }
+access Bigints (
+   int e := 2;
+   e -:= 3;
+   puts (big_whole (BIG 2 ** e, 0) + "'n")
+)

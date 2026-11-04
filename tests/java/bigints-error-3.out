@@ -1,0 +1,2 @@
+tests/java/bigints-error-3.a68:4: runtime error: attempt to use a NIL Bigint
+exit 134

@@ -1,0 +1,5 @@
+{ BIG of a string that is not an integer is a runtime error. }
+access Bigints (
+   puts (big_whole (BIG " -12 ", 0) + "'n");
+   puts (big_whole (BIG "12x", 0) + "'n")
+)

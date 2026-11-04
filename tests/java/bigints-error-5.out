@@ -1,0 +1,3 @@
+-12
+tests/java/bigints-error-5.a68:4: runtime error: BIG of "12x", which is not an integer
+exit 134

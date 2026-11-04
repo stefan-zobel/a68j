@@ -14,6 +14,7 @@ The generated files are checked in; change the generator, not its output.
 |---|---|
 | `gen_lists.py` | the module `Lists`: `backend/lib/lists.a68` and the classes `backend/src/main/java/a68j/jlib/*List.java` (`docs/java-modules.md`) |
 | `gen_hashmaps.py` | the module `Hashmaps`: `backend/lib/hashmaps.a68` and the classes `backend/src/main/java/a68j/jlib/*Map.java` (`docs/java-modules.md`) |
+| `gen_bignums.py` | the module `Bigints`: `backend/lib/bigints.a68`, the operators of `Bigint` on the hand-written class `backend/src/main/java/a68j/jlib/BigInt.java` (`docs/bigints.md`) |
 | `gen_tmlanguage.py` | the TextMate grammar `editors/vscode-algol68/syntaxes/algol68.tmLanguage.json` (`docs/editor.md`) |
 | `grammar_check.sh` | no output; compares the grammar with the token dump of the a68j scanner for all test programs |
 

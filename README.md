@@ -43,8 +43,10 @@ Hello, world!
   functional interfaces (a comparator for `Arrays.sort`, say) and come
   back as procedures. Constructors, instance methods and fields are bound as
   method references (`nest Java "java.util.ArrayList::new"`), so objects of
-  the JDK can be used directly. Two bundled modules, `Lists` and
-  `Hashmaps`, provide growable lists and hash maps built on it.
+  the JDK can be used directly. The bundled modules `Lists` and
+  `Hashmaps` provide growable lists and hash maps built on it, and
+  `Bigints` integers of any size with the operators of an `int`
+  ([docs/bigints.md](docs/bigints.md)).
 - **Partial parametrization** (an extension of Algol 68 Genie, after
   Lindsey's proposal of 1976): a call that leaves arguments out,
   `add (3, )`, yields a procedure of the missing parameters. ga68 accepts
@@ -59,7 +61,7 @@ Hello, world!
 | a68j's own differential tests (`tests/extra`) | 48 of 48 |
 | Rosetta Code programs that ga68 runs | 608 identical (560 of them end normally), 2 equal up to floating-point rounding, 8 open, of 618 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 49 of 49, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 57 of 57, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
 
@@ -299,6 +301,7 @@ The detailed documentation is in `docs/`:
 - `docs/genie-transput.md`: the bundled module `Genie_Transput` (`print`, `newline`, ...).
 - `docs/texts.md`: the bundled module `Texts` (string functions).
 - `docs/regex.md`: the bundled module `Regex` (regular expressions, a68j only).
+- `docs/bigints.md`: the bundled module `Bigints` (integers of any size, a68j only).
 - `docs/TODO-formats.md`: formats (`printf`), not implemented yet.
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
 - `docs/par-and-sema.md`: parallel clauses.
@@ -316,7 +319,7 @@ python3 tools/run_jvm.py --native tests/ga68/expected $S/*.a68 $S/mcgt/*.a68 $S/
 python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
-sh tools/java_tests.sh            # nest Java, Lists, Hashmaps
+sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 ```

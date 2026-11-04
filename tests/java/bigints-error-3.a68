@@ -1,0 +1,5 @@
+{ A NIL Bigint is a runtime error at its use. }
+access Bigints (
+   Bigint a = nil;
+   puts (big_whole (a + 1, 0) + "'n")
+)
