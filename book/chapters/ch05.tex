@@ -287,21 +287,26 @@ does not accept an \code|int|:
 \example{ch05/no-widening-op}
 
 The standard operators avoid this problem by declaring every combination
-of \code|int| and \code|real| operands.
-
-The precedence belongs to the symbol, not to one of its declarations: all
-the meanings of \code|+| in a block have the same precedence, and a
-\code|prio| declaration changes it for all of them, the standard ones
-included:
-
-\example{ch05/prio-symbol}
-
-\noindent prints 31 and 49. Inside the inner block, \code|3 + 4 * 7| is
-\code|(3 + 4) * 7|. A program that wants the same
+of \code|int| and \code|real| operands. A program that wants the same
 convenience must do the same, or call the operator with a \code|real|
 operand. The Report calls the choice of the declaration the
 \rr{identification} of the operator; current languages call it
 \term{overload resolution}.
+
+The precedence belongs to the symbol, not to one of its declarations: all
+the meanings of \code|+| in a block have the same precedence, and a
+\code|prio| declaration changes it for all of them, the standard ones
+included. Like every other declaration, it holds only in the block that
+contains it:
+
+\example{ch05/prio-symbol}
+
+\noindent Inside the inner block, \code|+| and \code|*| have the same
+precedence and are applied from left to right, so \code|3 + 4 * 7| is
+\code|(3 + 4) * 7| = 49. After the block, \code|+| has its standard
+precedence 6 again. A block may declare the precedence of a symbol only
+once; a second \code|prio| for \code|+| in the same block is an error
+(``multiple declaration of priority'').
 
 \section{A complete program}\label{sec-procs-complete}
 

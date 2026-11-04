@@ -1,0 +1,47 @@
+{ Priority declarations: the priorities of standard operators changed in
+  an inner block and restored after it, operators of the same priority
+  applied from left to right, user operators on references, and the
+  standard priorities of RR 10.2.3.0. }
+begin
+   { The priorities of + and * exchanged in an inner block. }
+   begin
+      prio + = 7, * = 6;
+      puts (whole (2 + 3 * 4, 0) + "'n")
+   end;
+   puts (whole (2 + 3 * 4, 0) + "'n");
+
+   { The same priority: from left to right. }
+   puts (whole (10 - 3 - 2, 0) + " " + whole (100 % 10 % 5, 0) + " "
+         + whole (2 - 3 + 4, 0) + "'n");
+   begin
+      prio + = 7;
+      puts (whole (2 - 3 + 4, 0) + "'n")
+   end;
+
+   { Operators that add to and remove from a list: lll + 5 - 4 is
+     (lll + 5) - 4. }
+   mode List = struct (int value, ref List next);
+   op + = (ref List l, int v) ref List: heap List := (v, l);
+   op - = (ref List l, int v) ref List:
+      (l is nil | nil |: value of l = v | next of l | heap List := (value of l, next of l - v));
+   proc show = (ref List l) string:
+      (l is nil | "" | whole (value of l, 0) + " " + show (next of l));
+   ref List lll := nil;
+   lll := lll + 1 + 2 + 3 + 4;
+   puts (show (lll) + "'n");
+   lll := lll + 5 - 4;
+   puts (show (lll) + "'n");
+   lll := lll - 2 + 6;
+   puts (show (lll) + "'n");
+
+   { A user operator, and the standard priorities of =, AND and OR. }
+   prio MAX = 9;
+   op MAX = (int a, b) int: (a > b | a | b);
+   puts (whole (1 + 2 MAX 3 * 4, 0) + " " + whole (2 ** 3 * 2, 0) + " "
+         + (1 + 1 = 2 AND 3 < 4 OR false | "T" | "F") + "'n");
+   begin
+      prio MAX = 1, ** = 6;
+      puts (whole (1 + 2 MAX 3 * 4, 0) + " " + whole (2 ** 3 * 2, 0) + "'n")
+   end;
+   puts (whole (1 + 2 MAX 3 * 4, 0) + " " + whole (2 ** 3 * 2, 0) + "'n")
+end
