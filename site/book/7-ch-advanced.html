@@ -731,60 +731,60 @@ time. Here they are together:</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Conversion</th>
 <th style="text-align: left;">Report</th>
 <th style="text-align: left;">Effect</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">dereferencing</td>
 <td style="text-align: left;"><span
 class="sans-serif">dereferencing</span></td>
 <td style="text-align: left;">a reference is replaced by the value it
 refers to</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">calling</td>
 <td style="text-align: left;"><span
 class="sans-serif">deproceduring</span></td>
 <td style="text-align: left;">a parameterless function is called</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">uniting</td>
 <td style="text-align: left;"><span
 class="sans-serif">uniting</span></td>
 <td style="text-align: left;">a value becomes a value of a union
 type</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">widening</td>
 <td style="text-align: left;"><span
 class="sans-serif">widening</span></td>
 <td style="text-align: left;"><code><b>int</b></code> to
 <code><b>real</b></code> to <code><b>compl</b></code>;</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"><code><b>bits</b></code> to
 <code>[] <b>bool</b></code>; <code><b>bytes</b></code> to
 <code>[] <b>char</b></code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">rowing</td>
 <td style="text-align: left;"><span
 class="sans-serif">rowing</span></td>
 <td style="text-align: left;">a value becomes an array with one
 element,</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">an array gains a dimension</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">discarding</td>
 <td style="text-align: left;"><span
 class="sans-serif">voiding</span></td>
@@ -804,71 +804,71 @@ permissive:</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Context</th>
 <th style="text-align: left;">Where</th>
 <th style="text-align: left;">Conversions allowed</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">strong</td>
 <td style="text-align: left;">right-hand side of a declaration or</td>
 <td style="text-align: left;">all</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">assignment, argument, cast, function</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">body, element of a literal, one</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">side of an identity relation</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">firm</td>
 <td style="text-align: left;">operand of an operator</td>
 <td style="text-align: left;">dereferencing, calling, uniting</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">meek</td>
 <td style="text-align: left;">condition of <code><b>if</b></code>,
 <code><b>case</b></code>, <code><b>while</b></code>;</td>
 <td style="text-align: left;">dereferencing, calling</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">index, bound, <code><b>from</b></code>,
 <code><b>by</b></code>, <code><b>to</b></code>;</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">the function in a call</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">weak</td>
 <td style="text-align: left;">the array in an indexing, the record</td>
 <td style="text-align: left;">dereferencing (but not of</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">in a selection</td>
 <td style="text-align: left;">the last reference), calling</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">soft</td>
 <td style="text-align: left;">left-hand side of an assignment,</td>
 <td style="text-align: left;">calling</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">one side of an identity relation</td>
 <td style="text-align: left;"></td>
@@ -988,7 +988,7 @@ print ((<b>ref</b> <b>int</b> (cells[2]), newline))</code></pre>
 <p>Algol 68 Genie stops it:</p>
 <pre class="output"><code>6           cells[i] := LOC INT := square
                         1                
-a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID loop-clause starting at "FOR" in line 4.</code></pre>
+a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID long-symbol starting at "FOR" in line 4.</code></pre>
 <p>The loop body declares <code>square</code>, so every
 <code><b>loc</b> <b>int</b></code> belongs to one execution of the body
 and is gone when the next one starts. Without the declaration, writing
@@ -1058,9 +1058,9 @@ functions becomes a procedure
 <code>(Fn f, g, <b>real</b> x) <b>real</b>: f (g (x))</code> that
 receives all three values at each call. Where a function value must be
 kept, a record that holds the state together with a function that takes
-the state as a parameter does the job of a closure. Algol 68 Genie
-offers a further way out, partial parametrization, an extension of the
-language that Appendix <a href="-app-partial.html#app-partial"
+the state as a parameter does the job of a closure. Algol 68 Genie and
+a68j offer a further way out, partial parametrization, an extension of
+the language that Appendix <a href="-app-partial.html#app-partial"
 data-reference-type="ref" data-reference="app-partial">G</a>
 describes.</p>
 <h2 data-number="7.17" id="sec-recursive"><span
@@ -1323,6 +1323,474 @@ needs no cast. The splitting loop uses <code><b>orel</b></code>
 (Section <a href="2-ch-values.html#sec-logic" data-reference-type="ref"
 data-reference="sec-logic">2.9</a>) so that <code>text[i]</code> is not
 evaluated when <code>i</code> is beyond the end.</p>
+<h2 data-number="7.21" id="sec-json"><span
+class="header-section-number">7.21</span> A larger example: a JSON
+parser</h2>
+<p>The programs so far have been short, each one showing a few features.
+This section combines the features of this and the earlier chapters in a
+program of about 230 lines. It has a parser that reads JSON text into a
+tree of values, a printer that writes the tree back with indentation,
+and an operator that selects parts of the tree. Section <a
+href="7-ch-advanced.html#sec-expr" data-reference-type="ref"
+data-reference="sec-expr">7.18</a> mentioned JSON, the data format of
+most web services, as an example of tree-shaped data whose nodes are of
+different kinds. Algol 68 can describe such data directly.</p>
+<h3 class="unnumbered" id="the-types">The types</h3>
+<pre class="algol68"><code><b>mode</b> Json   = <b>union</b> (<b>void</b>, <b>bool</b>, <b>real</b>, <b>string</b>, <b>ref</b> Array, <b>ref</b> Object),
+     Array  = <b>struct</b> (<b>flex</b> [1:0] Json elements),
+     Object = <b>struct</b> (<b>flex</b> [1:0] Member members),
+     Member = <b>struct</b> (<b>string</b> key, Json value),
+     Error  = <b>struct</b> (<b>int</b> position, <b>string</b> message);</code></pre>
+<p>A JSON value is of one of six kinds, and <code>Json</code> is a union
+of six types. <code>null</code> is the value <code><b>empty</b></code>
+of type <code><b>void</b></code> (Section <a
+href="7-ch-advanced.html#sec-union-details" data-reference-type="ref"
+data-reference="sec-union-details">7.8</a>). <code><b>true</b></code>
+and <code><b>false</b></code> are <code><b>bool</b></code> values, and
+numbers are <code><b>real</b></code>. Arrays and objects are references
+to records on the heap. An object is an array of members, each a key
+with a value, kept in the order of the text. <code>Error</code>
+describes a syntax error found by the parser.</p>
+<p>The types are recursive: a <code>Json</code> value can be a reference
+to an <code>Array</code>, which contains <code>Json</code> values. Every
+cycle passes through a reference and through a record, so the types are
+well-formed (Section <a href="7-ch-advanced.html#sec-recursive"
+data-reference-type="ref" data-reference="sec-recursive">7.17</a>). The
+shorter <code><b>union</b> (..., <b>ref</b> [] Json)</code> would be
+rejected. Its cycle passes through a reference but through no record,
+like the cycle of <code><b>union</b> (<b>int</b>, <b>ref</b> U)</code>.
+So the record with its single field is needed to make the type
+well-formed. Since arrays and objects are held by reference, copying a
+<code>Json</code> value copies only the reference, as with the objects
+of Java or Python. Since the field is a resizable array, a record on the
+heap can grow while the parser fills it. In Rust the type would be
+written</p>
+<pre class="algol68"><code>enum Json <span class="comment">{ Null, Bool(bool), Number(f64), String(String),
+            Array(Vec&lt;Json&gt;), Object(Vec&lt;(String, Json)&gt;) }</span></code></pre>
+<p>where <code>Vec</code> is a resizable array on the heap.</p>
+<h3 class="unnumbered" id="growing-an-array">Growing an array</h3>
+<pre class="algol68"><code><b>op</b> +:= = (<b>ref</b> <b>flex</b> [] Json row, Json v) <b>ref</b> <b>flex</b> [] Json:
+<b>begin</b>
+   [UPB row + 1] Json longer;
+   longer[: UPB row] := row;
+   longer[UPB longer] := v;
+   row := longer
+<b>end</b>;
+<b>op</b> +:= = (<b>ref</b> <b>flex</b> [] Member row, Member m) <b>ref</b> <b>flex</b> [] Member:
+<b>begin</b>
+   [UPB row + 1] Member longer;
+   longer[: UPB row] := row;
+   longer[UPB longer] := m;
+   row := longer
+<b>end</b>;</code></pre>
+<p>The operator <code>+:=</code> appends a value to a resizable array,
+like the function <code>append</code> of Section <a
+href="7-ch-advanced.html#sec-flex" data-reference-type="ref"
+data-reference="sec-flex">7.1</a>. As an operator it reads like the
+<code>s +:= c</code> of strings:
+<code>elements <b>of</b> a +:= value</code>. It is declared twice, once
+for each element type, because Algol 68 has no generic functions. The
+standard <code>+:=</code> for strings remains available, since an
+operator is chosen by the types of its operands (Section <a
+href="5-ch-procs.html#sec-op-identification" data-reference-type="ref"
+data-reference="sec-op-identification">5.8</a>). Copying the array for
+every new element takes quadratic time in the number of elements. For
+large documents, the doubling of Section <a
+href="7-ch-advanced.html#sec-vector" data-reference-type="ref"
+data-reference="sec-vector">7.3</a> would avoid that.</p>
+<h3 class="unnumbered" id="the-parser">The parser</h3>
+<p>The parser works by <em>recursive descent</em>: there is one function
+for each kind of value, and it calls the functions for the parts of the
+value. The functions are declared inside <code>parse</code> and share
+the text and the current position <code>pos</code>, as the methods of an
+object share its fields:</p>
+<pre class="algol68"><code><b>proc</b> parse = (<b>string</b> text) <b>union</b> (Json, Error):
+<b>begin</b>
+   <b>int</b> pos := 1;
+   Error error;
+   <b>proc</b> fail = (<b>string</b> message) <b>void</b>: (error := (pos, message); <b>goto</b> failed);
+
+   <b>proc</b> skip_space = <b>void</b>:
+      <b>while</b> pos &lt;= UPB text <b>andth</b> (text[pos] = " " OR text[pos] = REPR 10)
+      <b>do</b> pos +:= 1 <b>od</b>;
+   <b>proc</b> peek = <b>char</b>: (skip_space; (pos &lt;= UPB text | text[pos] | REPR 0));
+   <b>proc</b> expect = (<b>char</b> c) <b>void</b>: (peek = c | pos +:= 1 | fail ("expected " + c));
+   <b>proc</b> literal = (<b>string</b> w) <b>bool</b>:
+      <b>if</b> pos + UPB w - 1 &lt;= UPB text <b>andth</b> text[pos : pos + UPB w - 1] = w
+      <b>then</b> pos +:= UPB w; <b>true</b>
+      <b>else</b> <b>false</b>
+      <b>fi</b>;
+
+   <b>proc</b> value = Json:
+      <b>if</b> <b>char</b> c = peek; c = "{" <b>then</b> object
+      <b>elif</b> c = "[" <b>then</b> array
+      <b>elif</b> c = """" <b>then</b> string_value
+      <b>elif</b> c = "-" OR is_digit (c) <b>then</b> number
+      <b>elif</b> literal ("true") <b>then</b> <b>true</b>
+      <b>elif</b> literal ("false") <b>then</b> <b>false</b>
+      <b>elif</b> literal ("null") <b>then</b> <b>empty</b>
+      <b>else</b> fail ((c = REPR 0 | "unexpected end of text" | "unexpected " + c)); <b>skip</b>
+      <b>fi</b>;</code></pre>
+<p><code>peek</code> skips white space and yields the next character, or
+<code>REPR 0</code> at the end of the text. <code>expect</code> checks
+one character and steps over it. The condition of the
+<code><b>if</b></code> in <code>value</code> declares <code>c</code>,
+which is visible in all branches (Section <a
+href="3-ch-control.html#sec-if" data-reference-type="ref"
+data-reference="sec-if">3.5</a>). The branches yield values of different
+types: a reference to an object or an array, a string, a number, a
+<code><b>bool</b></code> or <code><b>empty</b></code>. The
+<code><b>if</b></code> as a whole has the type <code>Json</code>, the
+result type of <code>value</code>, and each branch is united to it. The
+last branch calls <code>fail</code>, which never returns. Its type is
+<code><b>void</b></code>, so <code><b>skip</b></code> supplies a
+<code>Json</code> value; that value is never used.</p>
+<pre class="algol68"><code><b>proc</b> object = <b>ref</b> Object:
+<b>begin</b>
+   <b>ref</b> Object o = <b>heap</b> Object;
+   expect ("{");
+   <b>if</b> peek /= "}" <b>then</b>
+      members <b>of</b> o +:= member;
+      <b>while</b> peek = "," <b>do</b> pos +:= 1; members <b>of</b> o +:= member <b>od</b>
+   <b>fi</b>;
+   expect ("}");
+   o
+<b>end</b>;
+<b>proc</b> member = Member:
+<b>begin</b>
+   <b>string</b> key = string_value;
+   expect (":");
+   (key, value)
+<b>end</b>;
+
+<b>proc</b> array = <b>ref</b> Array:
+<b>begin</b>
+   <b>ref</b> Array a = <b>heap</b> Array;
+   expect ("[");
+   <b>if</b> peek /= "]" <b>then</b>
+      elements <b>of</b> a +:= value;
+      <b>while</b> peek = "," <b>do</b> pos +:= 1; elements <b>of</b> a +:= value <b>od</b>
+   <b>fi</b>;
+   expect ("]");
+   a
+<b>end</b>;</code></pre>
+<p><code>object</code> and <code>array</code> create a record on the
+heap and append to its field while they read the elements.
+<code>value</code> calls <code>array</code> and <code>array</code> calls
+<code>value</code>. The functions are mutually recursive, and the depth
+of the recursion follows the nesting of the text. <code>object</code>
+and <code>array</code> are declared after <code>value</code>, which uses
+them. That works because a function declared with a function literal
+exists from the start of its block (Section <a
+href="3-ch-control.html#sec-scope" data-reference-type="ref"
+data-reference="sec-scope">3.3</a>).</p>
+<p><code>member</code> reads the key in a declaration of its own and
+checks the colon before the display <code>(key, value)</code> calls
+<code>value</code>. The parts of a display are evaluated in no
+particular order (Section <a href="3-ch-control.html#sec-collateral"
+data-reference-type="ref" data-reference="sec-collateral">3.4</a>). A
+display <code>(string_value, value)</code> might therefore read the
+value before the key.</p>
+<pre class="algol68"><code><b>proc</b> string_value = <b>string</b>:
+<b>begin</b>
+   <b>string</b> s := "";
+   expect ("""");
+   <b>while</b> pos &lt;= UPB text <b>andth</b> text[pos] /= """" <b>do</b>
+      <b>if</b> text[pos] = "\" <b>andth</b> pos &lt; UPB text <b>then</b>
+         pos +:= 1;
+         <b>char</b> e = text[pos];
+         s +:= (e = "n" | REPR 10 |: e = "t" | REPR 9 | e)
+      <b>else</b>
+         s +:= text[pos]
+      <b>fi</b>;
+      pos +:= 1
+   <b>od</b>;
+   (pos &gt; UPB text | fail ("unterminated string"));
+   pos +:= 1;
+   s
+<b>end</b>;
+
+<b>proc</b> number = <b>real</b>:
+<b>begin</b>
+   <b>int</b> start = pos;
+   <b>proc</b> next_is = (<b>string</b> chars) <b>bool</b>:
+      pos &lt;= UPB text <b>andth</b> char_in_string (text[pos], <b>loc</b> <b>int</b>, chars);
+   <b>proc</b> digits = <b>void</b>:
+   <b>begin</b>
+      (NOT next_is ("0123456789") | fail ("digit expected"));
+      <b>while</b> next_is ("0123456789") <b>do</b> pos +:= 1 <b>od</b>
+   <b>end</b>;
+   (next_is ("-") | pos +:= 1);
+   digits;
+   (next_is (".") | pos +:= 1; digits);
+   (next_is ("eE") | pos +:= 1; (next_is ("+-") | pos +:= 1); digits);
+   <b>string</b> s := text[start : pos - 1];
+   File f;
+   <b>real</b> x;
+   associate (f, s);
+   get (f, x);
+   x
+<b>end</b>;</code></pre>
+<p><code>string_value</code> collects the characters up to the closing
+quotation mark. It turns the escapes <code>\n</code> and <code>\t</code>
+into a newline and a tab. Any other character after a backslash stands
+for itself, which covers <code>\"</code> and <code>\\</code>. In an
+Algol 68 string, a quotation mark is written twice, so <code>""""</code>
+is a single quotation mark; the backslash has no special meaning.</p>
+<p><code>number</code> checks the syntax of a JSON number: an optional
+minus sign, digits, optionally a point and more digits, and optionally
+an exponent. Each part is one line of code, so the function reads like
+the grammar. <code>next_is</code> uses the library function
+<code>char_in_string</code> (Appendix <a
+href="-app-library.html#app-library" data-reference-type="ref"
+data-reference="app-library">A</a>). <code><b>loc</b> <b>int</b></code>
+serves as a dummy argument for the position, which is not needed
+(Section <a href="7-ch-advanced.html#sec-lifetimes"
+data-reference-type="ref" data-reference="sec-lifetimes">7.15</a>). The
+transput converts the digits into a <code><b>real</b></code>:
+<code>associate</code> turns the string into a file (Section <a
+href="9-ch-transput.html#sec-associate" data-reference-type="ref"
+data-reference="sec-associate">9.5</a>), and <code>get</code> reads the
+number from it.</p>
+<pre class="algol68"><code>   Json doc = value;
+   (peek /= REPR 0 | fail ("text after the value"));
+   doc <b>exit</b>
+failed:
+   error
+<b>end</b>;</code></pre>
+<p>The body of <code>parse</code> reads one value and checks that
+nothing but white space follows it. If all goes well,
+<code><b>exit</b></code> ends the body with <code>doc</code> (Section <a
+href="3-ch-control.html#sec-jumps" data-reference-type="ref"
+data-reference="sec-jumps">3.9</a>). If anything goes wrong,
+<code>fail</code> records the position and the message and jumps to the
+label <code>failed</code>. The jump leaves all active calls of
+<code>value</code>, <code>array</code>, <code>object</code> and the
+other functions at once, however deep the recursion is, and
+<code>parse</code> yields the error. Other languages use exceptions for
+this. In Algol 68 it is an ordinary jump to a label in an enclosing
+block, and <code>fail</code> can jump there because it is declared in
+that block. The result type <code><b>union</b> (Json, Error)</code> is a
+union of seven types, since a union that contains a union contains its
+members (Section <a href="7-ch-advanced.html#sec-unions"
+data-reference-type="ref" data-reference="sec-unions">7.7</a>).</p>
+<h3 class="unnumbered" id="printing">Printing</h3>
+<pre class="algol68"><code><b>proc</b> scalar = (Json v) <b>bool</b>:
+   <b>case</b> v <b>in</b> (<b>ref</b> Array): <b>false</b>, (<b>ref</b> Object): <b>false</b> <b>out</b> <b>true</b> <b>esac</b>;
+<b>proc</b> indent = (<b>int</b> depth) <b>void</b>: <b>to</b> depth <b>do</b> print ("  ") <b>od</b>;
+
+<b>proc</b> show = (Json v, <b>int</b> depth) <b>void</b>:
+   <b>case</b> v <b>in</b>
+      (<b>void</b>): print ("null"),
+      (<b>bool</b> b): print ((b | "true" | "false")),
+      (<b>real</b> x): print (number_text (x)),
+      (<b>string</b> s): print (quote (s)),
+      (<b>ref</b> Array a):
+         <b>begin</b>
+            [] Json e = elements <b>of</b> a;
+            <b>bool</b> flat := <b>true</b>;
+            <b>for</b> i <b>to</b> UPB e <b>do</b> flat := flat AND scalar (e[i]) <b>od</b>;
+            print ("[");
+            <b>for</b> i <b>to</b> UPB e <b>do</b>
+               (i &gt; 1 | print (","));
+               (flat | (i &gt; 1 | print (" ")) | print (newline); indent (depth + 1));
+               show (e[i], depth + 1)
+            <b>od</b>;
+            (NOT flat | print (newline); indent (depth));
+            print ("]")
+         <b>end</b>,
+      (<b>ref</b> Object o):
+         <b>begin</b>
+            [] Member m = members <b>of</b> o;
+            print ("{");
+            <b>for</b> i <b>to</b> UPB m <b>do</b>
+               (i &gt; 1 | print (","));
+               print (newline); indent (depth + 1);
+               print ((quote (key <b>of</b> m[i]), ": "));
+               show (value <b>of</b> m[i], depth + 1)
+            <b>od</b>;
+            (UPB m &gt; 0 | print (newline); indent (depth));
+            print ("}")
+         <b>end</b>
+   <b>esac</b>;</code></pre>
+<p><code>show</code> is a conformity clause with one alternative for
+each kind of value; <code>(<b>void</b>)</code> is chosen for
+<code>null</code>. For arrays and objects, <code>show</code> calls
+itself for the elements with a deeper indentation. An array whose
+elements are all scalars is printed on one line. The test is
+<code>scalar</code>, a conformity clause without names. Two small
+functions turn numbers and strings into text:</p>
+<pre class="algol68"><code><b>proc</b> number_text = (<b>real</b> x) <b>string</b>:
+   <b>if</b> x = ENTIER x <b>then</b> whole (x, 0)
+   <b>else</b>
+      <b>string</b> s := fixed (x, 0, 6);
+      <b>while</b> s[UPB s] = "0" <b>do</b> s := s[: UPB s - 1] <b>od</b>;
+      <span class="comment">{ JSON wants a digit before the point }</span>
+      (s[1] = "." | "0" + s |: s[1] = "-" <b>andth</b> s[2] = "." | "-0" + s[2 :] | s)
+   <b>fi</b>;
+<b>proc</b> quote = (<b>string</b> s) <b>string</b>:
+<b>begin</b>
+   <b>string</b> q := """";
+   <b>for</b> i <b>to</b> UPB s <b>do</b>
+      <b>char</b> c = s[i];
+      <b>if</b> c = """" <b>then</b> q +:= "\"""
+      <b>elif</b> c = "\" <b>then</b> q +:= "\\"
+      <b>elif</b> c = REPR 10 <b>then</b> q +:= "\n"
+      <b>else</b> q +:= c
+      <b>fi</b>
+   <b>od</b>;
+   q + """"
+<b>end</b>;</code></pre>
+<p><code>number_text</code> writes an integral number without a
+fraction. For other numbers it drops the trailing zeros of
+<code>fixed</code>. JSON requires a digit before the point, which
+<code>fixed</code> leaves out: <code>fixed (0.5, 0, 6)</code> yields
+<code>.500000</code>. <code>quote</code> writes the escapes back.</p>
+<h3 class="unnumbered" id="selecting-parts-of-a-value">Selecting parts
+of a value</h3>
+<pre class="algol68"><code><b>prio</b> SEL = 9;
+<b>op</b> SEL = (Json v, <b>string</b> k) Json:
+   <b>case</b> v <b>in</b>
+      (<b>ref</b> Object o):
+         <b>begin</b>
+            [] Member m = members <b>of</b> o;
+            <b>int</b> i := 1;
+            <b>while</b> i &lt;= UPB m <b>andth</b> key <b>of</b> m[i] /= k <b>do</b> i +:= 1 <b>od</b>;
+            (i &lt;= UPB m | value <b>of</b> m[i] | <b>empty</b>)
+         <b>end</b>
+      <b>out</b> <b>empty</b>
+   <b>esac</b>;
+<b>op</b> SEL = (Json v, <b>int</b> i) Json:
+   <b>case</b> v <b>in</b>
+      (<b>ref</b> Array a): (i &gt;= 1 AND i &lt;= UPB elements <b>of</b> a | (elements <b>of</b> a)[i] | <b>empty</b>)
+      <b>out</b> <b>empty</b>
+   <b>esac</b>;</code></pre>
+<p><code>SEL</code> selects a member of an object by its key or an
+element of an array by its index. It yields <code>null</code> if there
+is none, so that selections can be chained without checks:
+<code>doc SEL "implementations" SEL 3 SEL "name"</code>. Operators of
+the same precedence are applied from left to right (Section <a
+href="2-ch-values.html#sec-precedence" data-reference-type="ref"
+data-reference="sec-precedence">2.8</a>), so the chain is read as
+<code>((doc SEL "implementations") SEL 3) SEL "name"</code>. The
+operator has two declarations, one with a <code><b>string</b></code> and
+one with an <code><b>int</b></code> as the right operand.</p>
+<p><code>SEL</code> needs a name of its own. An operator <code>/</code>
+with the operands <code>Json</code> and <code><b>int</b></code> would
+also be chosen for <code>x / 2</code> with a <code><b>real</b></code>
+<code>x</code>, because the <code><b>real</b></code> operand is united
+to <code>Json</code> (Section <a href="7-ch-advanced.html#sec-expr"
+data-reference-type="ref" data-reference="sec-expr">7.18</a>). A key of
+one letter must be written <code><b>string</b> ("a")</code>:
+<code>"a"</code> alone is a <code><b>char</b></code>, and no
+<code>SEL</code> takes a <code><b>char</b></code> (Section <a
+href="7-ch-advanced.html#sec-union-details" data-reference-type="ref"
+data-reference="sec-union-details">7.8</a>).</p>
+<h3 class="unnumbered" id="the-main-program">The main program</h3>
+<pre class="algol68"><code><b>proc</b> report = (<b>string</b> text) <b>void</b>:
+   <b>case</b> parse (text) <b>in</b>
+      (Json v): (show (v, 0); print (newline)),
+      (Error e): print (("error at position ", whole (position <b>of</b> e, 0), ": ",
+                         message <b>of</b> e, newline))
+   <b>esac</b>;
+
+<b>string</b> algol =
+   "{""language"": ""Algol 68"", ""years"": [1968, 1975], ""orthogonal"": true," +
+   " ""successor"": null, ""implementations"": [" +
+   "   {""name"": ""ga68"", ""target"": ""native code""}," +
+   "   {""name"": ""a68j"", ""target"": ""JVM""}," +
+   "   {""name"": ""Algol 68 Genie"", ""target"": ""interpreter""}]," +
+   " ""authors"": [""van Wijngaarden"", ""Mailloux"", ""Peck"", ""Koster""]}";
+<b>case</b> parse (algol) <b>in</b>
+   (Json doc):
+      <b>begin</b>
+         show (doc, 0); print (newline);
+         show (doc SEL "implementations" SEL 2, 0); print (newline);
+         show (doc SEL "implementations" SEL 3 SEL "name", 0); print (newline);
+         show (doc SEL "successor" SEL "name", 0); print (newline);
+         <b>case</b> doc SEL "authors" SEL 1 <b>in</b>
+            (<b>string</b> s): print (("first author: ", s, newline))
+            <b>out</b> print (("no author", newline))
+         <b>esac</b>
+      <b>end</b>,
+   (Error e): print ((message <b>of</b> e, newline))
+<b>esac</b>;
+report ("[0.5, -2.5e1, ""say \""hello\""""]");
+report ("[1, 2,]");
+report ("{""a"" 1}");
+report ("[1, --2]")</code></pre>
+<p>prints</p>
+<pre class="output"><code>{
+  "language": "Algol 68",
+  "years": [1968, 1975],
+  "orthogonal": true,
+  "successor": null,
+  "implementations": [
+    {
+      "name": "ga68",
+      "target": "native code"
+    },
+    {
+      "name": "a68j",
+      "target": "JVM"
+    },
+    {
+      "name": "Algol 68 Genie",
+      "target": "interpreter"
+    }
+  ],
+  "authors": ["van Wijngaarden", "Mailloux", "Peck", "Koster"]
+}
+{
+  "name": "a68j",
+  "target": "JVM"
+}
+"Algol 68 Genie"
+null
+first author: van Wijngaarden
+[0.5, -25, "say \"hello\""]
+error at position 7: unexpected ]
+error at position 6: expected :
+error at position 6: digit expected</code></pre>
+<p>Since a quotation mark is written twice in a string literal, the JSON
+text contains many of them. The conformity clause on the result of
+<code>parse</code> has an alternative for a union,
+<code>(Json doc)</code>, which is chosen for each of the six kinds of
+values (Section <a href="7-ch-advanced.html#sec-union-details"
+data-reference-type="ref" data-reference="sec-union-details">7.8</a>).
+The number <code>-2.5e1</code> is printed as <code>-25</code>, and error
+positions count characters from 1.</p>
+<h3 class="unnumbered" id="what-the-example-shows">What the example
+shows</h3>
+<p>The parser combines several features:</p>
+<ul>
+<li><p>tagged unions, with conformity clauses that check the type at run
+time;</p></li>
+<li><p>recursive types on a heap whose memory is managed
+automatically;</p></li>
+<li><p>nested functions that share the variables of their
+block;</p></li>
+<li><p>operators with user-defined precedence;</p></li>
+<li><p>a jump out of a deep recursion.</p></li>
+</ul>
+<p>All of them belong to the language of the Revised Report of 1975. The
+program goes beyond it only in the short-circuit
+<code><b>andth</b></code> and in the transput of
+<code>Genie_Transput</code>. In the widely used languages, most of these
+features came decades later: <code>std::variant</code> with C++17, the
+<code>match</code> statement with Python 3.10 in 2021, and pattern
+matching over sealed types with Java 21 in 2023. A C version of the
+program would need a hand-written tag in every value and explicit memory
+management.</p>
+<p>The program also shows the limits of the language. Algol 68 has no
+generic functions, hence the two <code>+:=</code> operators, and it has
+no exceptions, only jumps. A further limit comes from the
+implementations: with ga68 and a68j, <code><b>real</b></code> has single
+precision (Section <a href="2-ch-values.html#sec-types"
+data-reference-type="ref" data-reference="sec-types">2.1</a>), so a
+number with more than about seven significant digits loses its last
+digits. A parser for real use would keep
+<code><b>long</b> <b>real</b></code> values.</p>
 <h2 class="unnumbered" id="exercises-5">Exercises</h2>
 <p>The <a href="-ch-answers.html#ans-ch7">answers</a> are at the end of
 the book.</p>
@@ -1468,12 +1936,17 @@ function that returns
 <code><b>union</b> (<b>int</b>, <b>real</b>)</code>: the exact factorial
 up to that <span class="math inline"><em>n</em></span>, and Stirling’s
 approximation beyond it. How must a caller use the result?</p></li>
-<li><p><strong>A JSON value.</strong> Define a type for JSON values: a
-union of <code><b>void</b></code> (null), <code><b>bool</b></code>,
-<code><b>real</b></code>, <code><b>string</b></code>, and references to
-arrays and objects, where an object is a list of (key, value) pairs.
-Write a procedure that prints such a value in JSON notation with
-indentation. Check that your types are well-formed.</p></li>
+<li><p><strong>More JSON.</strong> Extend the parser of Section <a
+href="7-ch-advanced.html#sec-json" data-reference-type="ref"
+data-reference="sec-json">7.21</a>. (a) Report errors with line and
+column instead of the position. (b) Accept the escape <code>\u</code>
+followed by four hexadecimal digits, using <code>REPR</code>. This works
+with ga68 and a68j; in Algol 68 Genie, <code>max_abs_char</code> is 255.
+(c) Write an operator <code>EQ</code> that compares two JSON values,
+where the members of two objects may be in a different order. (d) Add
+<code><b>int</b></code> to the union, for numbers without a point and an
+exponent. Which conformity clauses must change, and does the compiler
+point them out?</p></li>
 <li><p><strong>Cross-reference.</strong> Read an Algol 68 program and
 build an index of its identifiers: a tree, sorted by name, whose nodes
 hold a list of the line numbers where the name occurs. Print the index

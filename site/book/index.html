@@ -46,7 +46,7 @@
 <header id="title-block-header">
 <h1 class="title">Algol 68 in Modern Terms</h1>
 <p class="subtitle">An Introduction for Programmers</p>
-<p class="date">Version 0.5.0, 3 November 2026</p>
+<p class="date">Version 0.6.0, 4 November 2026</p>
 <div class="abstract">
 <div class="abstract-title">License</div>
 <p>This book is dedicated to the public domain under the <a
@@ -56,14 +56,14 @@ Commons CC0 1.0 Universal Public Domain Dedication</a>.</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="-preface.html" id="toc-preface">Preface</a>
+<li><a href="-preface.html#preface" id="toc-preface">Preface</a>
 <ul>
 <li><a href="-preface.html#the-implementations"
 id="toc-the-implementations">The implementations</a></li>
 <li><a href="-preface.html#how-the-book-is-organized"
 id="toc-how-the-book-is-organized">How the book is organized</a></li>
 </ul></li>
-<li><a href="1-ch-intro.html" id="toc-ch-intro"><span
+<li><a href="1-ch-intro.html#ch-intro" id="toc-ch-intro"><span
 class="toc-section-number">1</span> Introduction</a>
 <ul>
 <li><a href="1-ch-intro.html#algol-68" id="toc-algol-68"><span
@@ -81,7 +81,7 @@ operators</a></li>
 id="toc-a-second-program"><span class="toc-section-number">1.5</span> A
 second program</a></li>
 </ul></li>
-<li><a href="2-ch-values.html" id="toc-ch-values"><span
+<li><a href="2-ch-values.html#ch-values" id="toc-ch-values"><span
 class="toc-section-number">2</span> Values, types and variables</a>
 <ul>
 <li><a href="2-ch-values.html#sec-types" id="toc-sec-types"><span
@@ -128,7 +128,7 @@ id="toc-exercises">Exercises</a></li>
 <li><a href="2-ch-values.html#programming-problems"
 id="toc-programming-problems">Programming problems</a></li>
 </ul></li>
-<li><a href="3-ch-control.html" id="toc-ch-control"><span
+<li><a href="3-ch-control.html#ch-control" id="toc-ch-control"><span
 class="toc-section-number">3</span> Expressions and control flow</a>
 <ul>
 <li><a href="3-ch-control.html#sec-everything"
@@ -165,7 +165,7 @@ id="toc-exercises-1">Exercises</a></li>
 <li><a href="3-ch-control.html#programming-problems-1"
 id="toc-programming-problems-1">Programming problems</a></li>
 </ul></li>
-<li><a href="4-ch-data.html" id="toc-ch-data"><span
+<li><a href="4-ch-data.html#ch-data" id="toc-ch-data"><span
 class="toc-section-number">4</span> Arrays and records</a>
 <ul>
 <li><a href="4-ch-data.html#sec-arrays" id="toc-sec-arrays"><span
@@ -202,7 +202,7 @@ id="toc-exercises-2">Exercises</a></li>
 <li><a href="4-ch-data.html#programming-problems-2"
 id="toc-programming-problems-2">Programming problems</a></li>
 </ul></li>
-<li><a href="5-ch-procs.html" id="toc-ch-procs"><span
+<li><a href="5-ch-procs.html#ch-procs" id="toc-ch-procs"><span
 class="toc-section-number">5</span> Functions and operators</a>
 <ul>
 <li><a href="5-ch-procs.html#sec-proc-decl" id="toc-sec-proc-decl"><span
@@ -232,9 +232,9 @@ id="toc-exercises-3">Exercises</a></li>
 <li><a href="5-ch-procs.html#programming-problems-3"
 id="toc-programming-problems-3">Programming problems</a></li>
 </ul></li>
-<li><a href="6-ch-moretypes.html" id="toc-ch-moretypes"><span
-class="toc-section-number">6</span> More built-in types and the standard
-library</a>
+<li><a href="6-ch-moretypes.html#ch-moretypes"
+id="toc-ch-moretypes"><span class="toc-section-number">6</span> More
+built-in types and the standard library</a>
 <ul>
 <li><a href="6-ch-moretypes.html#sec-complex" id="toc-sec-complex"><span
 class="toc-section-number">6.1</span> Complex numbers</a></li>
@@ -257,7 +257,7 @@ id="toc-exercises-4">Exercises</a></li>
 <li><a href="6-ch-moretypes.html#programming-problems-4"
 id="toc-programming-problems-4">Programming problems</a></li>
 </ul></li>
-<li><a href="7-ch-advanced.html" id="toc-ch-advanced"><span
+<li><a href="7-ch-advanced.html#ch-advanced" id="toc-ch-advanced"><span
 class="toc-section-number">7</span> Advanced types</a>
 <ul>
 <li><a href="7-ch-advanced.html#sec-flex" id="toc-sec-flex"><span
@@ -340,12 +340,31 @@ When two types are the same</a></li>
 <li><a href="7-ch-advanced.html#sec-advanced-complete"
 id="toc-sec-advanced-complete"><span
 class="toc-section-number">7.20</span> A complete program</a></li>
+<li><a href="7-ch-advanced.html#sec-json" id="toc-sec-json"><span
+class="toc-section-number">7.21</span> A larger example: a JSON
+parser</a>
+<ul>
+<li><a href="7-ch-advanced.html#the-types" id="toc-the-types">The
+types</a></li>
+<li><a href="7-ch-advanced.html#growing-an-array"
+id="toc-growing-an-array">Growing an array</a></li>
+<li><a href="7-ch-advanced.html#the-parser" id="toc-the-parser">The
+parser</a></li>
+<li><a href="7-ch-advanced.html#printing"
+id="toc-printing">Printing</a></li>
+<li><a href="7-ch-advanced.html#selecting-parts-of-a-value"
+id="toc-selecting-parts-of-a-value">Selecting parts of a value</a></li>
+<li><a href="7-ch-advanced.html#the-main-program"
+id="toc-the-main-program">The main program</a></li>
+<li><a href="7-ch-advanced.html#what-the-example-shows"
+id="toc-what-the-example-shows">What the example shows</a></li>
+</ul></li>
 <li><a href="7-ch-advanced.html#exercises-5"
 id="toc-exercises-5">Exercises</a></li>
 <li><a href="7-ch-advanced.html#programming-problems-5"
 id="toc-programming-problems-5">Programming problems</a></li>
 </ul></li>
-<li><a href="8-ch-par.html" id="toc-ch-par"><span
+<li><a href="8-ch-par.html#ch-par" id="toc-ch-par"><span
 class="toc-section-number">8</span> Concurrency</a>
 <ul>
 <li><a href="8-ch-par.html#sec-par-problems"
@@ -367,7 +386,7 @@ id="toc-exercises-6">Exercises</a></li>
 <li><a href="8-ch-par.html#programming-problems-6"
 id="toc-programming-problems-6">Programming problems</a></li>
 </ul></li>
-<li><a href="9-ch-transput.html" id="toc-ch-transput"><span
+<li><a href="9-ch-transput.html#ch-transput" id="toc-ch-transput"><span
 class="toc-section-number">9</span> Input and output</a>
 <ul>
 <li><a href="9-ch-transput.html#sec-books" id="toc-sec-books"><span
@@ -423,8 +442,8 @@ id="toc-exercises-7">Exercises</a></li>
 <li><a href="9-ch-transput.html#programming-problems-7"
 id="toc-programming-problems-7">Programming problems</a></li>
 </ul></li>
-<li><a href="-app-library.html" id="toc-app-library">Appendix A: The
-standard library</a>
+<li><a href="-app-library.html#app-library"
+id="toc-app-library">Appendix A: The standard library</a>
 <ul>
 <li><a href="-app-library.html#types" id="toc-types">Types</a></li>
 <li><a href="-app-library.html#operators"
@@ -434,9 +453,9 @@ id="toc-constants">Constants</a></li>
 <li><a href="-app-library.html#procedures"
 id="toc-procedures">Procedures</a></li>
 </ul></li>
-<li><a href="-app-syntax.html" id="toc-app-syntax">Appendix B: The
-syntax in brief</a></li>
-<li><a href="-app-impl.html" id="toc-app-impl">Appendix C:
+<li><a href="-app-syntax.html#app-syntax" id="toc-app-syntax">Appendix
+B: The syntax in brief</a></li>
+<li><a href="-app-impl.html#app-impl" id="toc-app-impl">Appendix C:
 Implementation notes</a>
 <ul>
 <li><a href="-app-impl.html#notation"
@@ -452,10 +471,10 @@ id="toc-printing-numbers">Printing numbers</a></li>
 id="toc-running-rosetta-code-programs">Running Rosetta Code
 programs</a></li>
 </ul></li>
-<li><a href="-app-glossary.html" id="toc-app-glossary">Appendix D:
-Glossary</a></li>
-<li><a href="-app-modules.html" id="toc-app-modules">Appendix E:
-Modules</a>
+<li><a href="-app-glossary.html#app-glossary"
+id="toc-app-glossary">Appendix D: Glossary</a></li>
+<li><a href="-app-modules.html#app-modules"
+id="toc-app-modules">Appendix E: Modules</a>
 <ul>
 <li><a href="-app-modules.html#defining-a-module"
 id="toc-defining-a-module">Defining a module</a></li>
@@ -464,7 +483,8 @@ id="toc-using-a-module">Using a module</a></li>
 <li><a href="-app-modules.html#compiling"
 id="toc-compiling">Compiling</a></li>
 </ul></li>
-<li><a href="-app-nest.html" id="toc-app-nest">Appendix F: Calling C</a>
+<li><a href="-app-nest.html#app-nest" id="toc-app-nest">Appendix F:
+Calling C</a>
 <ul>
 <li><a href="-app-nest.html#formal-holes" id="toc-formal-holes">Formal
 holes</a></li>
@@ -475,8 +495,8 @@ id="toc-variables">Variables</a></li>
 id="toc-strings-and-functions-as-parameters">Strings and functions as
 parameters</a></li>
 </ul></li>
-<li><a href="-app-partial.html" id="toc-app-partial">Appendix G: Partial
-parametrization</a>
+<li><a href="-app-partial.html#app-partial"
+id="toc-app-partial">Appendix G: Partial parametrization</a>
 <ul>
 <li><a href="-app-partial.html#leaving-arguments-out"
 id="toc-leaving-arguments-out">Leaving arguments out</a></li>
@@ -489,8 +509,8 @@ evaluated</a></li>
 <li><a href="-app-partial.html#calls-with-all-arguments"
 id="toc-calls-with-all-arguments">Calls with all arguments</a></li>
 </ul></li>
-<li><a href="-ch-answers.html" id="toc-ch-answers">Answers to the
-exercises</a>
+<li><a href="-ch-answers.html#ch-answers" id="toc-ch-answers">Answers to
+the exercises</a>
 <ul>
 <li><a href="-ch-answers.html#ans-ch2" id="toc-ans-ch2">Chapter
 2</a></li>
@@ -509,7 +529,7 @@ exercises</a>
 <li><a href="-ch-answers.html#ans-ch9" id="toc-ans-ch9">Chapter
 9</a></li>
 </ul></li>
-<li><a href="-bibliography.html"
+<li><a href="-bibliography.html#bibliography"
 id="toc-bibliography">Bibliography</a></li>
 </ul>
 </nav>

@@ -1,0 +1,11 @@
+{ Copy of book/examples/appG/compose.a68, an example of partial
+  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+access Genie_Transput
+begin
+   mode Fn = proc (real) real;
+   proc compose = (Fn f, g) Fn: ((Fn f, g, real x) real: f (g (x))) (f, g, );
+   proc double = (real x) real: 2 * x;
+   proc inc = (real x) real: x + 1;
+   Fn h = compose (double, inc);
+   print ((fixed (h (1), 0, 1), newline))
+end

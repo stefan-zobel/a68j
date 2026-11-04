@@ -454,24 +454,32 @@ not widened to a <code><b>real</b></code>. An operator declared only for
 <pre class="output"><code>no-widening-op.a68:4:12: error: monadic operator HALF int has not been declared</code></pre>
 <p>The standard operators avoid this problem by declaring every
 combination of <code><b>int</b></code> and <code><b>real</b></code>
-operands.</p>
+operands. A program that wants the same convenience must do the same, or
+call the operator with a <code><b>real</b></code> operand. The Report
+calls the choice of the declaration the <span
+class="sans-serif">identification</span> of the operator; current
+languages call it <em>overload resolution</em>.</p>
 <p>The precedence belongs to the symbol, not to one of its declarations:
 all the meanings of <code>+</code> in a block have the same precedence,
 and a <code><b>prio</b></code> declaration changes it for all of them,
-the standard ones included:</p>
+the standard ones included. Like every other declaration, it holds only
+in the block that contains it:</p>
 <pre class="algol68"><code>print ((3 + 4 * 7, newline));
 <b>begin</b>
    <b>prio</b> + = 7;              <span class="comment">{ now + binds as tightly as * }</span>
    print ((3 + 4 * 7, newline))
-<b>end</b></code></pre>
+<b>end</b>;
+print ((3 + 4 * 7, newline))  <span class="comment">{ the standard precedence again }</span></code></pre>
 <pre class="output"><code>        +31
-        +49</code></pre>
-<p>prints 31 and 49. Inside the inner block, <code>3 + 4 * 7</code> is
-<code>(3 + 4) * 7</code>. A program that wants the same convenience must
-do the same, or call the operator with a <code><b>real</b></code>
-operand. The Report calls the choice of the declaration the <span
-class="sans-serif">identification</span> of the operator; current
-languages call it <em>overload resolution</em>.</p>
+        +49
+        +31</code></pre>
+<p>Inside the inner block, <code>+</code> and <code>*</code> have the
+same precedence and are applied from left to right, so
+<code>3 + 4 * 7</code> is <code>(3 + 4) * 7</code> = 49. After the
+block, <code>+</code> has its standard precedence 6 again. A block may
+declare the precedence of a symbol only once; a second
+<code><b>prio</b></code> for <code>+</code> in the same block is an
+error (“multiple declaration of priority”).</p>
 <h2 data-number="5.9" id="sec-procs-complete"><span
 class="header-section-number">5.9</span> A complete program</h2>
 <p>The final program of this chapter defines a type of exact fractions
@@ -608,7 +616,7 @@ separately.</p></li>
 <li><p><strong>The 91 function.</strong> McCarthy’s function is <span
 class="math inline"><em>f</em>(<em>n</em>) = <em>n</em> − 10</span> for
 <span class="math inline"><em>n</em> &gt; 100</span> and <span
-class="math inline"><em>f</em>(<em>f</em>(<em>n</em>+11))</span>
+class="math inline"><em>f</em>(<em>f</em>(<em>n</em> + 11))</span>
 otherwise. Compute it recursively for <span
 class="math inline"><em>n</em></span> from 1 to 110, and find a simple
 formula for its values.</p></li>
@@ -623,7 +631,7 @@ and <code>*:=</code> for <code>[,] <b>real</b></code>, checking that the
 bounds fit.</p></li>
 <li><p><strong>Resistors.</strong> Declare an operator <code>PAR</code>
 that combines two resistances in parallel, <span
-class="math inline"><em>a</em><em>b</em>/(<em>a</em>+<em>b</em>)</span>,
+class="math inline"><em>a</em><em>b</em>/(<em>a</em> + <em>b</em>)</span>,
 choose a precedence for it relative to <code>+</code> (resistances in
 series), and add an assigning form <code>PARAB</code> in the style of
 <code>+:=</code>. Compute a network of several resistors with one

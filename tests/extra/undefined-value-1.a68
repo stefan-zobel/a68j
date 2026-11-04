@@ -1,0 +1,12 @@
+{ A call of a procedure variable that has not been assigned: undefined in
+  the Revised Report. The native program ends with a segmentation fault;
+  a68j with a runtime error and the same status (docs/BACKEND.md,
+  section 6). }
+begin
+   proc (int) bool odd;
+   proc even = (int x) bool: (x = 0 | true | odd (x - 1));
+   puts ((even (0) | "T" | "F") + "'n");
+   puts ((even (4) | "T" | "F") + "'n");
+   odd := (int x) bool: (x = 0 | false | even (x - 1));
+   puts ("not reached'n")
+end

@@ -14,6 +14,7 @@ The generated files are checked in; change the generator, not its output.
 |---|---|
 | `gen_lists.py` | the module `Lists`: `backend/lib/lists.a68` and the classes `backend/src/main/java/a68j/jlib/*List.java` (`docs/java-modules.md`) |
 | `gen_hashmaps.py` | the module `Hashmaps`: `backend/lib/hashmaps.a68` and the classes `backend/src/main/java/a68j/jlib/*Map.java` (`docs/java-modules.md`) |
+| `gen_bignums.py` | the module `Bigints`: `backend/lib/bigints.a68`, the operators of `Bigint` on the hand-written class `backend/src/main/java/a68j/jlib/BigInt.java` (`docs/bigints.md`) |
 | `gen_tmlanguage.py` | the TextMate grammar `editors/vscode-algol68/syntaxes/algol68.tmLanguage.json` (`docs/editor.md`) |
 | `grammar_check.sh` | no output; compares the grammar with the token dump of the a68j scanner for all test programs |
 
@@ -59,6 +60,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 |---|---|
 | `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`) |
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
+| `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
 | `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
 | `compact_access_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |

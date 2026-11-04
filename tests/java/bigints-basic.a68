@@ -1,0 +1,140 @@
+{ The module Bigints: every operator for every operand combination,
+  compared with the same operation on long int, and the procedures. }
+access Bigints (
+   int checks := 0, failures := 0;
+   proc fail = (string what) void: (failures +:= 1; puts ("FAIL " + what + "'n"));
+   proc same = (string what, Bigint got, long int want) void:
+      begin
+         checks +:= 1;
+         if big_whole (got, 0) /= whole (want, 0)
+         then fail (what + ": " + big_whole (got, 0) + ", not " + whole (want, 0))
+         fi
+      end;
+   proc truth = (string what, bool got, want) void:
+      (checks +:= 1; (got /= want | fail (what)));
+   { The seven forms of a dyadic operator: two Bigints, then a Bigint with a
+     long int, an int and a long long int on the right and on the left. }
+   proc seven = (string what, Bigint r1, r2, r3, r4, r5, r6, r7, long int want) void:
+      begin
+         same (what + " B B", r1, want); same (what + " B L", r2, want);
+         same (what + " L B", r3, want); same (what + " B I", r4, want);
+         same (what + " I B", r5, want); same (what + " B LL", r6, want);
+         same (what + " LL B", r7, want)
+      end;
+   proc seven_bool = (string what, bool r1, r2, r3, r4, r5, r6, r7, want) void:
+      begin
+         truth (what + " B B", r1, want); truth (what + " B L", r2, want);
+         truth (what + " L B", r3, want); truth (what + " B I", r4, want);
+         truth (what + " I B", r5, want); truth (what + " B LL", r6, want);
+         truth (what + " LL B", r7, want)
+      end;
+   proc four = (string what, Bigint r1, r2, r3, r4, long int want) void:
+      begin
+         same (what + " B", r1, want); same (what + " L", r2, want);
+         same (what + " I", r3, want); same (what + " LL", r4, want)
+      end;
+
+   [] int values = (17, -17, 5, -5, 1, -1, 0, 1000000007, -999999937);
+   for i to UPB values do
+      for j to UPB values do
+         int ai = values[i], bi = values[j];
+         long int a = LENG ai, b = LENG bi;
+         long long int la = LENG a, lb = LENG b;
+         Bigint x = BIG a, y = BIG b;
+         seven ("+", x + y, x + b, a + y, x + bi, ai + y, x + lb, la + y, a + b);
+         seven ("-", x - y, x - b, a - y, x - bi, ai - y, x - lb, la - y, a - b);
+         seven ("*", x * y, x * b, a * y, x * bi, ai * y, x * lb, la * y, a * b);
+         if b /= long 0 then
+            seven ("%", x % y, x % b, a % y, x % bi, ai % y, x % lb, la % y, a % b);
+            seven ("OVER", x OVER y, x OVER b, a OVER y, x OVER bi, ai OVER y, x OVER lb, la OVER y, a OVER b);
+            seven ("MOD", x MOD y, x MOD b, a MOD y, x MOD bi, ai MOD y, x MOD lb, la MOD y, a MOD b);
+            seven ("%*", x %* y, x %* b, a %* y, x %* bi, ai %* y, x %* lb, la %* y, a %* b);
+            four ("%:=", (Bigint v := x; v %:= y; v), (Bigint v := x; v %:= b; v),
+                  (Bigint v := x; v %:= bi; v), (Bigint v := x; v %:= lb; v), a % b);
+            four ("%*:=", (Bigint v := x; v %*:= y; v), (Bigint v := x; v %*:= b; v),
+                  (Bigint v := x; v %*:= bi; v), (Bigint v := x; v %*:= lb; v), a %* b);
+            four ("OVERAB", (Bigint v := x; v OVERAB y; v), (Bigint v := x; v OVERAB b; v),
+                  (Bigint v := x; v OVERAB bi; v), (Bigint v := x; v OVERAB lb; v), a OVER b);
+            four ("MODAB", (Bigint v := x; v MODAB y; v), (Bigint v := x; v MODAB b; v),
+                  (Bigint v := x; v MODAB bi; v), (Bigint v := x; v MODAB lb; v), a MOD b)
+         fi;
+         seven_bool ("=", x = y, x = b, a = y, x = bi, ai = y, x = lb, la = y, a = b);
+         seven_bool ("/=", x /= y, x /= b, a /= y, x /= bi, ai /= y, x /= lb, la /= y, a /= b);
+         seven_bool ("<", x < y, x < b, a < y, x < bi, ai < y, x < lb, la < y, a < b);
+         seven_bool ("<=", x <= y, x <= b, a <= y, x <= bi, ai <= y, x <= lb, la <= y, a <= b);
+         seven_bool (">", x > y, x > b, a > y, x > bi, ai > y, x > lb, la > y, a > b);
+         seven_bool (">=", x >= y, x >= b, a >= y, x >= bi, ai >= y, x >= lb, la >= y, a >= b);
+         seven_bool ("EQ", x EQ y, x EQ b, a EQ y, x EQ bi, ai EQ y, x EQ lb, la EQ y, a EQ b);
+         seven_bool ("NE", x NE y, x NE b, a NE y, x NE bi, ai NE y, x NE lb, la NE y, a NE b);
+         seven_bool ("LT", x LT y, x LT b, a LT y, x LT bi, ai LT y, x LT lb, la LT y, a LT b);
+         seven_bool ("LE", x LE y, x LE b, a LE y, x LE bi, ai LE y, x LE lb, la LE y, a LE b);
+         seven_bool ("GT", x GT y, x GT b, a GT y, x GT bi, ai GT y, x GT lb, la GT y, a GT b);
+         seven_bool ("GE", x GE y, x GE b, a GE y, x GE bi, ai GE y, x GE lb, la GE y, a GE b);
+         four ("+:=", (Bigint v := x; v +:= y; v), (Bigint v := x; v +:= b; v),
+               (Bigint v := x; v +:= bi; v), (Bigint v := x; v +:= lb; v), a + b);
+         four ("-:=", (Bigint v := x; v -:= y; v), (Bigint v := x; v -:= b; v),
+               (Bigint v := x; v -:= bi; v), (Bigint v := x; v -:= lb; v), a - b);
+         four ("*:=", (Bigint v := x; v *:= y; v), (Bigint v := x; v *:= b; v),
+               (Bigint v := x; v *:= bi; v), (Bigint v := x; v *:= lb; v), a * b);
+         four ("PLUSAB", (Bigint v := x; v PLUSAB y; v), (Bigint v := x; v PLUSAB b; v),
+               (Bigint v := x; v PLUSAB bi; v), (Bigint v := x; v PLUSAB lb; v), a + b);
+         four ("MINUSAB", (Bigint v := x; v MINUSAB y; v), (Bigint v := x; v MINUSAB b; v),
+               (Bigint v := x; v MINUSAB bi; v), (Bigint v := x; v MINUSAB lb; v), a - b);
+         four ("TIMESAB", (Bigint v := x; v TIMESAB y; v), (Bigint v := x; v TIMESAB b; v),
+               (Bigint v := x; v TIMESAB bi; v), (Bigint v := x; v TIMESAB lb; v), a * b)
+      od;
+      { Monadic operators, the power and the conversions. }
+      int ai = values[i];
+      long int a = LENG ai;
+      Bigint x = BIG a;
+      same ("-", - x, - a); same ("+", + x, a); same ("ABS", ABS x, ABS a);
+      truth ("SIGN", SIGN x = SIGN a, true); truth ("ODD", ODD x, ODD a);
+      same ("BIG I", BIG ai, a); same ("BIG LL", BIG LENG a, a);
+      same ("BIG S", BIG whole (a, 0), a);
+      truth ("TOINT", TOINT x = ai, true); truth ("TOLONGINT", TOLONGINT x = a, true);
+      for e from 0 to 2 do
+         same ("**", x ** e, a ** e); same ("UP", x UP e, a ** e); same ("^", x ^ e, a ** e)
+      od;
+      for w from -12 to 12 do
+         checks +:= 1;
+         if big_whole (x, w) /= whole (a, w)
+         then fail ("big_whole (" + whole (a, 0) + ", " + whole (w, 0) + "): """ +
+                    big_whole (x, w) + """, not """ + whole (a, w) + """")
+         fi
+      od
+   od;
+   puts (whole (checks, 0) + " checks, " + whole (failures, 0) + " failures'n");
+
+   { Results beyond long int. }
+   Bigint f := BIG 1;
+   for i to 30 do f *:= i od;
+   puts ("30! = " + big_whole (f, 0) + "'n");
+   puts ("2 ** 100 = " + big_whole (BIG 2 ** 100, 0) + "'n");
+   puts ("-3 ** 3 = " + big_whole (BIG -3 ** 3, 0) + ", 0 ** 0 = " + big_whole (BIG 0 ** 0, 0) + "'n");
+   puts ("priorities: " + big_whole (BIG 2 + BIG 3 * BIG 4 ** 2, 0) + " " +
+         big_whole (- BIG 2 ** 2, 0) + "'n");
+   puts ("long_max_int + 1 = " + big_whole (BIG long_max_int + 1, 0) + "'n");
+   puts ("TOLONGINT -(long_max_int + 1) = " + whole (TOLONGINT (- BIG long_max_int - 1), 0) + "'n");
+   puts ("TOINT min_int = " + whole (TOINT BIG min_int, 0) + "'n");
+   puts ("big_whole widths: [" + big_whole (f, 40) + "] [" + big_whole (f, -40) + "] [" +
+         big_whole (f, 10) + "]'n");
+   puts ("BIG ""7"" = " + big_whole (BIG "7", 0) + ", BIG "" +12 "" = " + big_whole (BIG " +12 'n", 0) + "'n");
+   puts ("big_text: " + big_text (BIG 255, 16) + " " + big_text (BIG -10, 2) + " " +
+         big_text (f, 36) + "'n");
+   puts ("big_from_text: " + big_whole (big_from_text ("FF", 16), 0) + " " +
+         big_whole (big_from_text (" -zz ", 36), 0) + " " +
+         big_whole (big_from_text (big_text (f, 7), 7), 0) + "'n");
+   puts ("big_gcd: " + big_whole (big_gcd (f, BIG 1001 * 17 ** 3), 0) + "'n");
+   puts ("big_sqrt: " + big_whole (big_sqrt (BIG 10 ** 41), 0) + " " +
+         big_whole (big_sqrt (BIG 0), 0) + "'n");
+   puts ("big_mod_pow: " + big_whole (big_mod_pow (BIG 4, BIG 13, BIG 497), 0) + "'n");
+   Bigint m127 = BIG 2 ** 127 - 1, f128 = BIG 2 ** 128 + 1;
+   puts ("big_probable_prime: " + (big_probable_prime (m127) | "T" | "F") +
+         (big_probable_prime (f128) | "T" | "F") + "'n");
+   Bigint p = BIG 5;
+   puts ("= and IS: " + (BIG 5 = BIG 5 | "T" | "F") + (BIG 5 is BIG 5 | "T" | "F") +
+         (p is p | "T" | "F") + "'n");
+   Bigint v := BIG 1;
+   ref Bigint r = (v +:= 1);
+   puts ("+:= yields the variable: " + (r is v | "T" | "F") + " " + big_whole (v, 0) + "'n")
+)

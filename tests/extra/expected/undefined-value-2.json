@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/x86_64-linux-gnu-ld.bfd: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": -11,
+ "file": "undefined-value-2.a68",
+ "stderr": "",
+ "stdout": "T\n"
+}

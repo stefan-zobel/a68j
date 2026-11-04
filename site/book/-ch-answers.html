@@ -61,7 +61,7 @@ an expression: the unary operator <code>-</code> applied to the literal
 <code>000</code>, separated by a comma. <code>2.</code> is not a
 literal, since a digit must follow the point.</p></li>
 <li><p><code>17 % 5</code> is 3, <code>-17 % 5</code> is <span
-class="math inline"> − 3</span> (the unary minus binds first, and
+class="math inline">−3</span> (the unary minus binds first, and
 <code>%</code> truncates toward zero), <code>17 MOD 5</code> is 2,
 <code>-17 MOD 5</code> is 3 (the remainder is never negative), and
 <code>17 / 5</code> is the <code><b>real</b></code> 3.4.</p></li>
@@ -254,8 +254,8 @@ The function literal is called by <code>sum</code> for each
 <h2 class="unnumbered" id="ans-ch6">Chapter 6</h2>
 <ol>
 <li><p><span
-class="math inline">(1+<em>i</em>)(1−<em>i</em>) = 2</span>, so the real
-part is 2.0; <code>ABS (0 I 2)</code> is 2.0.</p></li>
+class="math inline">(1 + <em>i</em>)(1 − <em>i</em>) = 2</span>, so the
+real part is 2.0; <code>ABS (0 I 2)</code> is 2.0.</p></li>
 <li><p>There is no implicit conversion from <code><b>int</b></code> to
 <code><b>long</b> <b>int</b></code>. Correct is
 <code><b>long</b> <b>int</b> n := <b>long</b> 5</code> or
@@ -409,11 +409,11 @@ error.</p></li>
 <p>The result has the standard layout of <code>print</code>, with the
 sign and leading blanks.</p></li>
 <li><p><code>$4d$</code> prints <code>0007</code> for 7; for <span
-class="math inline"> − 7</span> it is an error, since the picture has no
+class="math inline">−7</span> it is an error, since the picture has no
 sign frame. <code>$4zd$</code> prints four blanks and 7 for 7, and is
-also an error for <span class="math inline"> − 7</span>.
+also an error for <span class="math inline">−7</span>.
 <code>$-3zd$</code> prints four blanks and 7 for 7, and a minus sign,
-three blanks and 7 for <span class="math inline"> − 7</span>: the sign
+three blanks and 7 for <span class="math inline">−7</span>: the sign
 frame <code>-</code> prints a blank for a positive value.</p></li>
 <li><p>Reading a string stops before the line break and does not skip
 it, so the line break must be skipped with <code>newline</code>. If both

@@ -1,0 +1,2 @@
+tests/java/bigints-error-2.a68:5: runtime error: Bigint ** with the negative exponent -1
+exit 134

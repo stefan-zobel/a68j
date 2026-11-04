@@ -332,6 +332,21 @@ and the JVM's default stack is small. A `StackOverflowError` ends the
 program like the segmentation fault of a native program: no message, status
 139 (128 + 11).
 
+The use of a value that has not been given yet is undefined in the Report:
+calling a procedure variable that has not been assigned, or using an
+identifier before its identity declaration has been elaborated (`x` before
+`int x = 5` gives 0 in ga68 and a68j; a procedure declared with a routine
+text exists from the start of its range, so that it can be called before
+its declaration). Where the generated code has null for such a value,
+such as a procedure, ga68 ends with a segmentation fault and
+the JVM with a `NullPointerException`. `Rt.start` turns that exception into
+the message `FILE:LINE: runtime error: attempt to use an undefined value`,
+at the innermost frame of Algol 68 code in its stack trace, and status 139
+as the native program; the Java stack trace follows if `A68J_JAVA_TRACE` is
+set. Tests: `tests/extra/undefined-value-1.a68` and `-2`;
+`tests/extra/forward-reference-1.a68` has the uses before the declaration
+that are defined.
+
 Standard identifiers and operators that ga68 declares without a lowering
 routine (`LOWERER_UNIMPL` in a68-parser-prelude.cc: the SEMA operators
 `LEVEL`, `UP`, `DOWN`, BYTES, `next random`, `first random`, `rnd`,
@@ -408,9 +423,22 @@ the compiler copies the export data to a cache directory
 shared, or to a private temporary directory if that one cannot be
 written).
 
-Not supported (`Gen.Unsupported`, the compiler stops): partial
-parametrisation (`f (3, )`, an Algol 68 Genie extension), which ga68 compiles
-into calls with missing arguments.
+**Partial parametrization** (`f (3, )`; C. H. Lindsey, ALGOL Bulletin 39,
+AB39.3.1, 1976; an Algol 68 Genie extension, which ga68 compiles into calls
+with missing arguments and crashes): the front end gives the call the mode
+of a procedure of the missing parameters. `GenUnits.partialCall` evaluates
+the procedure and then the given arguments from left to right, boxed and
+copied as for an ordinary call, and `Partial.make` stores them with the
+procedure; a bit mask tells which arguments are given (at most 64
+parameters, otherwise `Gen.Unsupported`). Calling the `Partial` puts the
+new arguments into the missing places and calls the procedure. A partial
+parametrization of a `Partial` is flattened into one. Ordinary calls do
+not take this path, so their code is unchanged. As in Algol 68 Genie, a
+call that supplies all arguments is executed at once (the front end
+rejects `proc int tick = incr (counter, 1)`, which the proposal allows),
+and as everywhere in a68j the lifetime of stored references is not
+checked. Tests: `tests/partial`, compared with Algol 68 Genie
+(`tools/partial_tests.py`).
 
 A method with more than the 65 535 bytes of code that the JVM allows, which
 ga68 has no counterpart for, is a compile-time error of a68j

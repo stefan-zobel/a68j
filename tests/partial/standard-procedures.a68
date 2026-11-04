@@ -1,0 +1,25 @@
+{ Partial parametrization of procedures of the standard prelude, of a
+  procedure variable, and with every argument left out; the expected
+  output was recorded with Algol 68 Genie. }
+access Genie_Transput
+begin
+   { A procedure of the standard prelude with its only argument left out. }
+   proc (real) real s = sin ();
+   print ((fixed (s (0.5), 0, 4), newline));
+   { The first two arguments given, the string left out. }
+   int pos;
+   proc (string) bool has_b = char_in_string ("b", pos, );
+   print ((has_b ("abc"), " ", pos, " ", has_b ("xyz"), newline));
+   { A procedure variable as the primary, and every argument left out. }
+   proc (real, real) real f := (real x, y) real: x - y;
+   proc (real, real) real g = f ( , );
+   proc (real) real minus1 = g ( , 1);
+   f := (real x, y) real: x * y;
+   print ((fixed (g (10, 4), 0, 1), " ", fixed (minus1 (5), 0, 1), newline));
+   { The arguments are evaluated once, when the call is made. }
+   int calls := 0;
+   proc next = int: calls +:= 1;
+   proc add = (int a, b) int: a + b;
+   proc (int) int add_next = add (next, );
+   print ((add_next (10), " ", add_next (20), " ", calls, newline))
+end

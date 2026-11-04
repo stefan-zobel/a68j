@@ -1,0 +1,6 @@
+{ A division of Bigints by zero is a runtime error with the position. }
+access Bigints (
+   Bigint a = BIG 10;
+   int zero = 0;
+   puts (big_whole (a % zero, 0) + "'n")
+)

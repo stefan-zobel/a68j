@@ -1,0 +1,3 @@
+2147483648
+tests/java/bigints-error-4.a68:5: runtime error: TOINT of a Bigint beyond the limits of int
+exit 134

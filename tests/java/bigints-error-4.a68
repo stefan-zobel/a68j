@@ -1,0 +1,6 @@
+{ TOINT of a Bigint beyond the limits of int is a runtime error. }
+access Bigints (
+   Bigint a = BIG max_int + 1;
+   puts (whole (TOLONGINT a, 0) + "'n");
+   puts (whole (TOINT a, 0) + "'n")
+)

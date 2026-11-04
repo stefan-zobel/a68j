@@ -544,9 +544,8 @@ final class GenUnits {
             params++;
         }
         if (args.size() < params) {
-            // A call with empty arguments (f (3, )) is a partial parametrisation
-            // (an Algol 68 Genie extension); ga68 does not lower it either.
-            throw new Gen.Unsupported(p, "partial parametrisation");
+            partialCall(g, p, prim, params);
+            return;
         }
         Node id = strip(prim);
         g.line(p);
@@ -560,6 +559,63 @@ final class GenUnits {
             invokeProc(g, procMode.sub, p);
         }
         g.adjust(procMode.sub, p.type, p);
+    }
+
+    /**
+     * A CALL with empty arguments, f (3, ): partial parametrization (C. H.
+     * Lindsey, ALGOL Bulletin 39, AB39.3.1, 1976; an Algol 68 Genie extension
+     * that ga68 does not lower). Yields a procedure of the missing parameters
+     * (a68j.rt.Partial). The procedure is evaluated first, then the given
+     * arguments from left to right, as in an ordinary call; their values are
+     * stored in the new procedure, copied as an ordinary call copies them.
+     * Ordinary calls do not come here, so their code is unchanged.
+     */
+    private static void partialCall(Gen g, Node p, Node prim, int params) {
+        if (params > 64) {
+            throw new Gen.Unsupported(p, "partial parametrization of a procedure with more than 64 parameters");
+        }
+        List<Node> slots = new ArrayList<>();
+        collectArgumentSlots(prim.next, slots);
+        g.line(p);
+        g.unit(prim);
+        Gen.constant(g.cb, params);
+        g.cb.anewarray(CD_Object);
+        long present = 0;
+        for (int i = 0; i < slots.size(); i++) {
+            Node a = slots.get(i);
+            if (a == null) {
+                continue;
+            }
+            present |= 1L << i;
+            g.cb.dup();
+            Gen.constant(g.cb, i);
+            g.unit(a);
+            copyIfValue(g, a, a.type);
+            g.box(a.type);
+            g.cb.aastore();
+        }
+        Gen.constant(g.cb, present);
+        // The mode of the call (p.type) is that of the new procedure, a Proc.
+        g.cb.invokestatic(CD_PARTIAL, "make", MethodTypeDesc.of(Gen.CD_PROC, Gen.CD_PROC, Gen.CD_OBJECTS, CD_long));
+    }
+
+    private static final java.lang.constant.ClassDesc CD_PARTIAL = java.lang.constant.ClassDesc.of("a68j.rt.Partial");
+
+    /**
+     * The arguments of a call in their order: the UNIT of each argument, or
+     * null for an empty argument (a TRIMMER without a unit, as the front end
+     * leaves it in a partial parametrization).
+     */
+    private static void collectArgumentSlots(Node p, List<Node> slots) {
+        for (; p != null; p = p.next) {
+            if (p.attribute == Attribute.UNIT) {
+                slots.add(p);
+            } else if (p.attribute == Attribute.TRIMMER) {
+                slots.add(null);
+            } else {
+                collectArgumentSlots(p.sub, slots);
+            }
+        }
     }
 
     static void generator(Gen g, Node p) {

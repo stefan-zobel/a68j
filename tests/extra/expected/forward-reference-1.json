@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/x86_64-linux-gnu-ld.bfd: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 0,
+ "file": "forward-reference-1.a68",
+ "stderr": "",
+ "stdout": "TFFT\nTFFT\n  1  1  2  2  3  3  4  5  5  6  6  7  8  8  9  9 10 11 11 12\n  0  0  1  2  2  3  4  4  5  6  6  7  7  8  9  9 10 11 11 12\n  1  1  2  2  3  3  4  5  5  6  6  7  8  8  9  9 10 11 11 12\n  0  0  1  2  2  3  4  4  5  6  6  7  7  8  9  9 10 11 11 12\nT\nT\nF\nT\n7 -3\n"
+}

@@ -1,0 +1,34 @@
+{ dg-modules "genietransput" }
+{ Rosetta Code, task "First-class functions", ALGOL 68 solution first-class-functions.alg.
+  https://rosettacode.org/wiki/First-class_functions#ALGOL_68
+  The text of Rosetta Code is available under the GNU Free Documentation
+  License 1.3 (see README.md).  The solution is unchanged in orig/first-class-functions.a68;
+  this copy was prepared for ga68 and converted to SUPPER stropping by
+  tools/rosetta_prep.py. }
+access Genie_Transput (
+mode F = proc (real)real;
+op ** = (real x, power)real: exp(ln(x)*power);
+
+{ Add a user defined function and its inverse }
+proc cube = (real x)real: x * x * x;
+proc cube_root = (real x)real: x ** (1/3);
+
+{ First class functions allow run-time creation of functions from functions }
+{ return function compose(f,g)(x) == f(g(x)) }
+proc non_standard_compose = (F f1, f2)F: (real x)real: f1(f2(x)); { eg ELLA ALGOL 68RS }
+proc compose = (F f, g)F: ((F f2, g2, real x)real: f2(g2(x)))(f, g, );
+
+{ Or the classic "o" functional operator }
+prio O = 5;
+op (F,F)F O = compose;
+
+{ first class functions should be able to be members of collection types }
+[]F func_list = (sin, cos, cube);
+[]F arc_func_list = (arc_sin, arc_cos, cube_root);
+
+{ Apply functions from lists as easily as integers }
+for index to UPB func_list do
+  struct(F f, inverse_f) this := (func_list[index], arc_func_list[index]);
+  print(((inverse_f of this O f of this)(.5), new_line))
+od
+)

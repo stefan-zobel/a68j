@@ -31,8 +31,8 @@ The programs in this book are written for two implementations:
 \begin{itemize}
 \item \emph{ga68}, the Algol 68 front end of the GNU Compiler
   Collection~\cite{ga68}, which compiles to native code, and
-\item \emph{a68j}, which compiles the same language to the Java virtual
-  machine.
+\item \emph{a68j}~\cite{a68j}, which compiles the same language to the
+  Java virtual machine.
 \end{itemize}
 Both accept the same language, apart from a few features that only one
 of them provides, and give the same results. Every example program in
@@ -43,14 +43,14 @@ ga68 and a68j; the few that use a feature one of them lacks
 Genie and, where it has the feature, with a68j, and the text says so.
 The examples of Appendix~\ref{app-nest}, which calls C, were run with
 ga68 only, and those of Appendix~\ref{app-partial}, which describes an
-extension that neither implements, with Algol 68 Genie only.
+extension that ga68 does not implement, with Algol 68 Genie and a68j.
 Where the two implementations, or Algol 68 Genie~\cite{genie}, a widely
 used interpreter, differ from the Report or from each other, a note says so;
 Appendix~\ref{app-impl} collects these notes.
 
 The versions used for this book are ga68 from the development
-version of GCC 17.0.0 of 31 October 2026 (commit 3f35c3d2d116), a68j \bookversion{} on OpenJDK 25, and Algol 68
-Genie 3.1.2.
+version of GCC 17.0.0 of 4 November 2026 (commit 7ced41f4d438), a68j \bookversion{} on OpenJDK 25, and Algol 68
+Genie 3.13.4.
 
 \section*{How the book is organized}
 

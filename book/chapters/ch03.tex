@@ -75,9 +75,17 @@ Strictly speaking, the scope of a declaration is the whole block,
 including the part before the declaration. The name can be mentioned
 there, but its value cannot be used, since the declaration has not been
 carried out yet. A program that uses a name before its declaration is
-therefore wrong, but compilers do not always detect it: ga68 and a68j
-accept such a program and use an undefined value. The rule matters for
-procedures that call each other (Chapter~\ref{ch-procs}); for everything else, a
+therefore wrong, but the compilers do not detect it. What happens at run
+time depends on the value. An \code|int| constant used before its
+declaration is 0 in ga68 and a68j; Algol 68 Genie stops the program with
+a message. A function that has no value yet, such as a variable for
+functions (Chapter~\ref{ch-procs}) before its first assignment, makes the
+ga68 program crash; a68j and Algol 68 Genie stop with a message, a68j with
+``attempt to use an undefined value''. A function declared with a
+function literal, the usual form of Chapter~\ref{ch-procs}, is an
+exception: in all three it exists from the start of the block and can be
+called even before its declaration. The rule matters for functions that
+call each other (Chapter~\ref{ch-procs}); for everything else, a
 declaration should simply come before its uses.
 
 A word about the term: in this book, \emph{scope} means the region of the

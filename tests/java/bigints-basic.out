@@ -1,0 +1,19 @@
+14013 checks, 0 failures
+30! = 265252859812191058636308480000000
+2 ** 100 = 1267650600228229401496703205376
+-3 ** 3 = -27, 0 ** 0 = 1
+priorities: 50 4
+long_max_int + 1 = 9223372036854775808
+TOLONGINT -(long_max_int + 1) = -9223372036854775808
+TOINT min_int = -2147483648
+big_whole widths: [      +265252859812191058636308480000000] [       265252859812191058636308480000000] [**********]
+BIG "7" = 7, BIG " +12 " = 12
+big_text: ff -1010 jucotkuo7qe0hs0000000
+big_from_text: 255 -1295 265252859812191058636308480000000
+big_gcd: 17017
+big_sqrt: 316227766016837933199 0
+big_mod_pow: 445
+big_probable_prime: TF
+= and IS: TFT
++:= yields the variable: T 2
+exit 0

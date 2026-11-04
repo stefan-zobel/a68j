@@ -1,0 +1,21 @@
+{ The module Bigints with Lists, Texts and Genie_Transput in one access
+  clause: Bigints declares no priority, and its TOINT and +:= take other
+  operand modes than those of Texts and Lists. }
+access Bigints, Lists, Texts, Genie_Transput (
+   Intlist l = new_intlist;
+   l +:= 3;
+   Bigint b := BIG 3;
+   b +:= 4;
+   int n = TOINT " 42 " + TOINT b;
+   print (("TOINT: ", whole (n, 0), newline));
+   Stringlist parts = new_stringlist;
+   for i to 3 do parts +:= big_whole (BIG 10 ** (10 * i) + i, 0) od;
+   Bigint sum := BIG 0;
+   for i to UPB parts do sum +:= BIG (i ELEM parts) od;
+   print (("sum: ", big_whole (sum, 0), newline));
+   [] string fields = "123456789012345678901234567890, -5" SPLIT ",";
+   Bigint product := BIG 1;
+   for i to UPB fields do product *:= BIG TRIM fields[i] od;
+   print (("product: ", big_whole (product, 0), newline));
+   print (("RJUST: [", big_whole (product, 0) RJUST 40, "]", newline))
+)

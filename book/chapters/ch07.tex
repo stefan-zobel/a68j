@@ -715,8 +715,8 @@ functions becomes a procedure \code|(Fn f, g, real x) real: f (g (x))|
 that receives all three values at each call. Where a function value must
 be kept, a record that holds the state together with a function that
 takes the state as a parameter does the job of a closure. Algol 68 Genie
-offers a further way out, partial parametrization, an extension of the
-language that Appendix~\ref{app-partial} describes.
+and a68j offer a further way out, partial parametrization, an extension of
+the language that Appendix~\ref{app-partial} describes.
 
 \section{Recursive types}\label{sec-recursive}
 
@@ -867,6 +867,213 @@ parameter is the tree itself, so \code|t isnt no_tree| needs no cast.
 The splitting loop uses \code|orel| (Section~\ref{sec-logic}) so that
 \code|text[i]| is not evaluated when \code|i| is beyond the end.
 
+\section{A larger example: a JSON parser}\label{sec-json}
+
+The programs so far have been short, each one showing a few features.
+This section combines the features of this and the earlier chapters in a
+program of about 230 lines. It has a parser that reads JSON text into a
+tree of values, a printer that writes the tree back with indentation,
+and an operator that selects parts of the tree. Section~\ref{sec-expr}
+mentioned JSON, the data format of most web services, as an example of
+tree-shaped data whose nodes are of different kinds. Algol 68 can
+describe such data directly.
+
+\subsection*{The types}
+
+\programpart{ch07/json}{types}
+
+A JSON value is of one of six kinds, and \code|Json| is a union of six
+types. \code|null| is the value \code|empty| of type \code|void|
+(Section~\ref{sec-union-details}). \code|true| and \code|false| are
+\code|bool| values, and numbers are \code|real|. Arrays and objects are
+references to records on the heap. An object is an array of members,
+each a key with a value, kept in the order of the text. \code|Error|
+describes a syntax error found by the parser.
+
+The types are recursive: a \code|Json| value can be a reference to an
+\code|Array|, which contains \code|Json| values. Every cycle passes
+through a reference and through a record, so the types are well-formed
+(Section~\ref{sec-recursive}). The shorter \code|union (..., ref [] Json)|
+would be rejected. Its cycle passes through a reference but through no
+record, like the cycle of \code|union (int, ref U)|. So the record with
+its single field is needed to make the type well-formed. Since arrays and
+objects are held by reference, copying a \code|Json| value copies only
+the reference, as with the objects of Java or Python. Since the field is
+a resizable array, a record on the heap can grow while the parser fills
+it. In Rust the type would be written
+\begin{lstlisting}[language={}]
+enum Json { Null, Bool(bool), Number(f64), String(String),
+            Array(Vec<Json>), Object(Vec<(String, Json)>) }
+\end{lstlisting}
+\noindent where \texttt{Vec} is a resizable array on the heap.
+
+\subsection*{Growing an array}
+
+\programpart{ch07/json}{append}
+
+The operator \code|+:=| appends a value to a resizable array, like the
+function \code|append| of Section~\ref{sec-flex}. As an operator it
+reads like the \code|s +:= c| of strings: \code|elements of a +:= value|.
+It is declared twice, once for each element type, because Algol 68 has
+no generic functions. The standard \code|+:=| for strings remains
+available, since an operator is chosen by the types of its operands
+(Section~\ref{sec-op-identification}). Copying the array for every new
+element takes quadratic time in the number of elements. For large
+documents, the doubling of Section~\ref{sec-vector} would avoid that.
+
+\subsection*{The parser}
+
+The parser works by \term{recursive descent}: there is one function for
+each kind of value, and it calls the functions for the parts of the
+value. The functions are declared inside \code|parse| and share the text
+and the current position \code|pos|, as the methods of an object share
+its fields:
+
+\programpart{ch07/json}{parse}
+
+\code|peek| skips white space and yields the next character, or
+\code|REPR 0| at the end of the text. \code|expect| checks one character
+and steps over it. The condition of the \code|if| in \code|value|
+declares \code|c|, which is visible in all branches
+(Section~\ref{sec-if}). The branches yield values of different types: a
+reference to an object or an array, a string, a number, a \code|bool|
+or \code|empty|. The \code|if| as a whole has the type \code|Json|, the
+result type of \code|value|, and each branch is united to it. The last
+branch calls \code|fail|, which never returns. Its type is \code|void|,
+so \code|skip| supplies a \code|Json| value; that value is never used.
+
+\programpart{ch07/json}{containers}
+
+\code|object| and \code|array| create a record on the heap and append to
+its field while they read the elements. \code|value| calls \code|array|
+and \code|array| calls \code|value|. The functions are mutually
+recursive, and the depth of the recursion follows the nesting of the
+text. \code|object| and \code|array| are declared after \code|value|,
+which uses them. That works because a function declared with a function
+literal exists from the start of its block (Section~\ref{sec-scope}).
+
+\code|member| reads the key in a declaration of its own and checks the
+colon before the display \code|(key, value)| calls \code|value|. The
+parts of a display are evaluated in no particular order
+(Section~\ref{sec-collateral}). A display \code|(string_value, value)|
+might therefore read the value before the key.
+
+\programpart{ch07/json}{scalars}
+
+\code|string_value| collects the characters up to the closing quotation
+mark. It turns the escapes \texttt{\textbackslash n} and
+\texttt{\textbackslash t} into a newline and a tab. Any other character
+after a backslash stands for itself, which covers \texttt{\textbackslash"}
+and \texttt{\textbackslash\textbackslash}. In an Algol 68 string, a
+quotation mark is written twice, so \code|""""| is a single quotation
+mark; the backslash has no special meaning.
+
+\code|number| checks the syntax of a JSON number: an optional minus
+sign, digits, optionally a point and more digits, and optionally an
+exponent. Each part is one line of code, so the function reads like the
+grammar. \code|next_is| uses the library function
+\code|char_in_string| (Appendix~\ref{app-library}). \code|loc int|
+serves as a dummy argument for the position, which is not needed
+(Section~\ref{sec-lifetimes}). The transput converts the digits into a
+\code|real|: \code|associate| turns the string into a file
+(Section~\ref{sec-associate}), and \code|get| reads the number from it.
+
+\programpart{ch07/json}{parse-end}
+
+The body of \code|parse| reads one value and checks that nothing but
+white space follows it. If all goes well, \code|exit| ends the body with
+\code|doc| (Section~\ref{sec-jumps}). If anything goes wrong,
+\code|fail| records the position and the message and jumps to the label
+\code|failed|. The jump leaves all active calls of \code|value|,
+\code|array|, \code|object| and the other functions at once, however
+deep the recursion is, and \code|parse| yields the error. Other languages
+use exceptions for this. In Algol 68 it is an ordinary jump to a label in
+an enclosing block, and \code|fail| can jump there because it is declared
+in that block. The result type \code|union (Json, Error)| is a union of
+seven types, since a union that contains a union contains its members
+(Section~\ref{sec-unions}).
+
+\subsection*{Printing}
+
+\programpart{ch07/json}{show}
+
+\code|show| is a conformity clause with one alternative for each kind of
+value; \code|(void)| is chosen for \code|null|. For arrays and objects,
+\code|show| calls itself for the elements with a deeper indentation. An
+array whose elements are all scalars is printed on one line. The test is
+\code|scalar|, a conformity clause without names. Two small functions
+turn numbers and strings into text:
+
+\programpart{ch07/json}{text}
+
+\code|number_text| writes an integral number without a fraction. For
+other numbers it drops the trailing zeros of \code|fixed|. JSON requires
+a digit before the point, which \code|fixed| leaves out:
+\code|fixed (0.5, 0, 6)| yields \code|.500000|. \code|quote| writes the
+escapes back.
+
+\subsection*{Selecting parts of a value}
+
+\programpart{ch07/json}{select}
+
+\code|SEL| selects a member of an object by its key or an element of an
+array by its index. It yields \code|null| if there is none, so that
+selections can be chained without checks:
+\code|doc SEL "implementations" SEL 3 SEL "name"|. Operators of the same
+precedence are applied from left to right (Section~\ref{sec-precedence}),
+so the chain is read as
+\code|((doc SEL "implementations") SEL 3) SEL "name"|. The operator has
+two declarations, one with a \code|string| and one with an \code|int|
+as the right operand.
+
+\code|SEL| needs a name of its own. An operator \code|/| with the
+operands \code|Json| and \code|int| would also be chosen for \code|x / 2|
+with a \code|real| \code|x|, because the \code|real| operand is united
+to \code|Json| (Section~\ref{sec-expr}). A key of one letter must be
+written \code|string ("a")|: \code|"a"| alone is a \code|char|, and no
+\code|SEL| takes a \code|char| (Section~\ref{sec-union-details}).
+
+\subsection*{The main program}
+
+\programpart{ch07/json}{main}
+
+\noindent prints
+\outputof{ch07/json}
+
+Since a quotation mark is written twice in a string literal, the JSON
+text contains many of them. The conformity clause on the result of
+\code|parse| has an alternative for a union, \code|(Json doc)|, which is
+chosen for each of the six kinds of values
+(Section~\ref{sec-union-details}). The number \code|-2.5e1| is printed
+as \code|-25|, and error positions count characters from 1.
+
+\subsection*{What the example shows}
+
+The parser combines several features:
+\begin{itemize}
+\item tagged unions, with conformity clauses that check the type at run
+  time;
+\item recursive types on a heap whose memory is managed automatically;
+\item nested functions that share the variables of their block;
+\item operators with user-defined precedence;
+\item a jump out of a deep recursion.
+\end{itemize}
+All of them belong to the language of the Revised Report of 1975. The
+program goes beyond it only in the short-circuit \code|andth| and in the
+transput of \code|Genie_Transput|. In the widely used languages, most of these
+features came decades later: \texttt{std::variant} with C++17, the
+\texttt{match} statement with Python~3.10 in 2021, and pattern matching
+over sealed types with Java~21 in 2023. A C version of the program would
+need a hand-written tag in every value and explicit memory management.
+
+The program also shows the limits of the language. Algol 68 has no
+generic functions, hence the two \code|+:=| operators, and it has no
+exceptions, only jumps. A further limit comes from the implementations:
+with ga68 and a68j, \code|real| has single precision
+(Section~\ref{sec-types}), so a number with more than about seven
+significant digits loses its last digits. A parser for real use would
+keep \code|long real| values.
+
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
 
@@ -982,12 +1189,15 @@ proc adder = (int n) proc (int) int: (int x) int: x + n
   write a function that returns \code|union (int, real)|: the exact
   factorial up to that $n$, and Stirling's approximation beyond it. How
   must a caller use the result?
-\item \textbf{A JSON value.} Define a type for JSON values: a union of
-  \code|void| (null), \code|bool|, \code|real|, \code|string|, and
-  references to arrays and objects, where an object is a list of
-  (key, value) pairs. Write a procedure that prints such a value in
-  JSON notation with indentation. Check that your types are
-  well-formed.
+\item \textbf{More JSON.} Extend the parser of
+  Section~\ref{sec-json}. (a) Report errors with line and column instead
+  of the position. (b) Accept the escape \texttt{\textbackslash u}
+  followed by four hexadecimal digits, using \code|REPR|. This works
+  with ga68 and a68j; in Algol 68 Genie, \code|max_abs_char| is 255.
+  (c) Write an operator \code|EQ| that compares two JSON values, where the
+  members of two objects may be in a different order. (d) Add \code|int|
+  to the union, for numbers without a point and an exponent. Which
+  conformity clauses must change, and does the compiler point them out?
 \item \textbf{Cross-reference.} Read an Algol 68 program and build an
   index of its identifiers: a tree, sorted by name, whose nodes hold a
   list of the line numbers where the name occurs. Print the index in

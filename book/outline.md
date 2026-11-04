@@ -132,7 +132,7 @@ Appendices:
 - F. Calling C (a GNU extension): formal holes `nest C`, the mapping of
   types, strings and functions as parameters.
 - G. Partial parametrization (Lindsey's proposal, AB 39.3.1; Algol 68
-  Genie only).
+  Genie and a68j).
 - Answers to the exercises; index.
 
 ## Terminology

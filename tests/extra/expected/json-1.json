@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "json-1.a68",
+ "stderr": "",
+ "stdout": "{\n  \"language\": \"Algol 68\",\n  \"years\": [1968, 1975],\n  \"orthogonal\": true,\n  \"successor\": null,\n  \"implementations\": [\n    {\n      \"name\": \"ga68\",\n      \"target\": \"native code\"\n    },\n    {\n      \"name\": \"a68j\",\n      \"target\": \"JVM\"\n    },\n    {\n      \"name\": \"Algol 68 Genie\",\n      \"target\": \"interpreter\"\n    }\n  ],\n  \"editors\": [\"van Wijngaarden\", \"Mailloux\", \"Peck\", \"Koster\"]\n}\n{\n  \"name\": \"a68j\",\n  \"target\": \"JVM\"\n}\n\"Algol 68 Genie\"\n[1968, 1975]\nnull\nfirst editor: van Wijngaarden\n42\n-25\n[0.125, -0.5, -3, 1000, 7.75]\n\"a \\\"quoted\\\" word\\nand a back\\\\slash\"\n[\n  [],\n  {},\n  [\n    [1, 2],\n    [3]\n  ],\n  {\n    \"a\": {\n      \"b\": [true, false, null]\n    }\n  }\n]\nerror at position 7: unexpected ]\nerror at position 6: expected :\nerror at position 9: expected \"\nerror at position 5: unterminated string\nerror at position 8: text after the value\nerror at position 6: digit expected\nerror at position 4: digit expected\nerror at position 3: digit expected\nerror at position 1: unexpected n\nerror at position 1: unexpected end of text\n"
+}

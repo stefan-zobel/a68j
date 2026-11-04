@@ -65,30 +65,30 @@ types</em>:</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Values</th>
 <th style="text-align: left;">Examples</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>int</b></code></td>
 <td style="text-align: left;">whole numbers</td>
 <td style="text-align: left;"><code>0</code>, <code>42</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>real</b></code></td>
 <td style="text-align: left;">floating-point numbers</td>
 <td style="text-align: left;"><code>3.5</code>, <code>1e6</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>bool</b></code></td>
 <td style="text-align: left;">truth values</td>
 <td style="text-align: left;"><code><b>true</b></code>,
 <code><b>false</b></code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>char</b></code></td>
 <td style="text-align: left;">single characters</td>
 <td style="text-align: left;"><code>"a"</code>, <code>"7"</code></td>
@@ -336,44 +336,44 @@ class="header-section-number">2.7</span> Arithmetic</h2>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Operator</th>
 <th style="text-align: left;">Meaning</th>
 <th style="text-align: left;">Operand types</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>+</code> <code>-</code>
 <code>*</code></td>
 <td style="text-align: left;">addition, subtraction, multiplication</td>
 <td style="text-align: left;"><code><b>int</b></code>,
 <code><b>real</b></code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>/</code></td>
 <td style="text-align: left;">division</td>
 <td style="text-align: left;"><code><b>int</b></code>,
 <code><b>real</b></code>; the result is <code><b>real</b></code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>%</code></td>
 <td style="text-align: left;">integer division, truncating toward
 zero</td>
 <td style="text-align: left;"><code><b>int</b></code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>MOD</code></td>
 <td style="text-align: left;">remainder, never negative</td>
 <td style="text-align: left;"><code><b>int</b></code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>**</code></td>
 <td style="text-align: left;">power</td>
 <td style="text-align: left;"><code><b>int</b></code> or
 <code><b>real</b></code> base, <code><b>int</b></code> exponent</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>-</code> (unary)</td>
 <td style="text-align: left;">negation</td>
 <td style="text-align: left;"><code><b>int</b></code>,
@@ -415,7 +415,7 @@ data-reference="ch-moretypes">6</a> describes.</p>
 result that does not fit into an <code><b>int</b></code> is undefined by
 the Report. In ga68 and a68j, it wraps around silently:
 <code>max_int + 1</code> gives <span
-class="math inline"> − 2147483648</span>. The result of an
+class="math inline">−2147483648</span>. The result of an
 <code><b>int</b></code> raised to a negative power, such as
 <code>2 ** -1</code>, is undefined as well.</p>
 </blockquote>
@@ -430,50 +430,50 @@ standard operators have the following precedences:</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: center;">Precedence</th>
 <th style="text-align: left;">Operators</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">9</td>
 <td style="text-align: left;"><code>I</code> (complex numbers,
 Chapter <a href="6-ch-moretypes.html#ch-moretypes"
 data-reference-type="ref" data-reference="ch-moretypes">6</a>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">8</td>
 <td style="text-align: left;"><code>**</code>, <code>UP</code>,
 <code>LWB</code>, <code>UPB</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">7</td>
 <td style="text-align: left;"><code>*</code>, <code>/</code>,
 <code>%</code>, <code>MOD</code>, <code>ELEM</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">6</td>
 <td style="text-align: left;"><code>+</code>, <code>-</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">5</td>
 <td style="text-align: left;"><code>&lt;</code>, <code>&lt;=</code>,
 <code>&gt;=</code>, <code>&gt;</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">4</td>
 <td style="text-align: left;"><code>=</code>, <code>/=</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">3</td>
 <td style="text-align: left;"><code>AND</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">2</td>
 <td style="text-align: left;"><code>OR</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">1</td>
 <td style="text-align: left;"><code>+:=</code>, <code>-:=</code>,
 <code>*:=</code>, <code>/:=</code>, <code>%:=</code>, …</td>
@@ -701,43 +701,43 @@ the set used in this chapter:</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Operator</th>
 <th style="text-align: left;">Result</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>ENTIER x</code></td>
 <td style="text-align: left;">the largest <code><b>int</b></code> not
 greater than the <code><b>real</b></code> <code>x</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>ROUND x</code></td>
 <td style="text-align: left;">the <code><b>int</b></code> nearest to the
 <code><b>real</b></code> <code>x</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>ABS x</code></td>
 <td style="text-align: left;">the absolute value of an
 <code><b>int</b></code> or <code><b>real</b></code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>SIGN x</code></td>
-<td style="text-align: left;"><span class="math inline"> − 1</span>, 0
-or 1, according to the sign of <code>x</code></td>
+<td style="text-align: left;"><span class="math inline">−1</span>, 0 or
+1, according to the sign of <code>x</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>ODD n</code></td>
 <td style="text-align: left;"><code><b>true</b></code> if the
 <code><b>int</b></code> <code>n</code> is odd</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>ABS c</code></td>
 <td style="text-align: left;">the character code of the
 <code><b>char</b></code> <code>c</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>REPR n</code></td>
 <td style="text-align: left;">the character with the code
 <code>n</code></td>
@@ -761,7 +761,7 @@ or 1, according to the sign of <code>x</code></td>
 whether a number exactly halfway between two integers, such as 2.5, is
 rounded up or down. ga68 and a68j round it away from zero:
 <code>ROUND 2.5</code> is 3 and <code>ROUND -2.5</code> is <span
-class="math inline"> − 3</span>.</p>
+class="math inline">−3</span>.</p>
 </blockquote>
 <h2 data-number="2.13" id="sec-comments"><span
 class="header-section-number">2.13</span> Comments and layout</h2>

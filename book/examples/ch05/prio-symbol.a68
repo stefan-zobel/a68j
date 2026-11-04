@@ -5,6 +5,7 @@ begin
    begin
       prio + = 7;              { now + binds as tightly as * }
       print ((3 + 4 * 7, newline))
-   end
+   end;
+   print ((3 + 4 * 7, newline))  { the standard precedence again }
 { end excerpt }
 end

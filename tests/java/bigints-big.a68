@@ -1,0 +1,42 @@
+{ The module Bigints on numbers far beyond long int: factorials,
+  Fibonacci numbers, the Rosetta Code task Arbitrary-precision integers
+  (included) and the Lucas-Lehmer test for Mersenne primes. }
+access Bigints (
+   proc digits = (Bigint a) string: big_whole (a, 0);
+   proc summary = (string name, Bigint a) void:
+      begin
+         string d = digits (a);
+         puts (name + ": " + whole (UPB d, 0) + " digits");
+         (UPB d > 40 | puts (", " + d[: 20] + "..." + d[UPB d - 19 :]) | puts (", " + d));
+         puts ("'n")
+      end;
+
+   Bigint f := BIG 1;
+   for i to 1000 do f *:= i od;
+   summary ("1000!", f);
+   int zeros := 0;
+   while f MOD 10 = 0 do f %:= 10; zeros +:= 1 od;
+   puts ("trailing zeros of 1000!: " + whole (zeros, 0) + "'n");
+
+   Bigint a := BIG 0, b := BIG 1;
+   to 1000 do Bigint t = a + b; a := b; b := t od;
+   summary ("fib (1000)", a);
+   { fib (n) divides fib (k n) }
+   Bigint f50 := BIG 0, g := BIG 1;
+   to 50 do Bigint t = f50 + g; f50 := g; g := t od;
+   puts ("fib (50) divides fib (1000): " + (a MOD f50 = 0 | "yes" | "no") + "'n");
+
+   Bigint y = BIG 5 ** (4 ** (3 ** 2));
+   summary ("5 ** 4 ** 3 ** 2", y);
+
+   puts ("Mersenne primes 2 ** p - 1 for p < 300:");
+   for p from 3 to 299 do
+      if big_probable_prime (BIG p) then
+         Bigint m = BIG 2 ** p - 1;
+         Bigint s := BIG 4;
+         to p - 2 do s := (s * s - 2) MOD m od;
+         if s = 0 then puts (" " + whole (p, 0)) fi
+      fi
+   od;
+   puts ("'n")
+)
