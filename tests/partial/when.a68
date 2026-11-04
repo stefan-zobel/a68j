@@ -1,0 +1,16 @@
+{ Copy of book/examples/appG/when.a68, an example of partial
+  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+access Genie_Transput
+begin
+   proc add = (int a, b) int: a + b;
+   proc incr = (ref int c, int d) int: c +:= d;
+   int n := 1;
+   proc (int) int add_n = add (n, );
+   ref int counter = heap int := 0;
+   proc (int) int bump = incr (counter, );
+   n := 10;
+   print ((add_n (5), newline));
+   bump (1); bump (2);
+   counter +:= 100;
+   print ((bump (3), newline))
+end

@@ -45,6 +45,10 @@ Hello, world!
   method references (`nest Java "java.util.ArrayList::new"`), so objects of
   the JDK can be used directly. Two bundled modules, `Lists` and
   `Hashmaps`, provide growable lists and hash maps built on it.
+- **Partial parametrization** (an extension of Algol 68 Genie, after
+  Lindsey's proposal of 1976): a call that leaves arguments out,
+  `add (3, )`, yields a procedure of the missing parameters. ga68 accepts
+  such a call but cannot compile it.
 
 ## Status
 
@@ -57,6 +61,7 @@ Hello, world!
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 49 of 49, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
+| Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
@@ -278,7 +283,8 @@ Techniques used:
 ```
 src/main/java/a68j/front/   the ported ga68 front end (one class per C file)
 backend/                    code generator (a68j.jvm), runtime (a68j.rt), bundled modules
-tests/extra, java, par      a68j's own tests, with expected output
+tests/extra, java, par,     a68j's own tests, with expected output
+  partial
 tests/rosetta/              Rosetta Code programs prepared for ga68 and a68j
 tools/                      test runners (differential tests against ga68) and generators
 docs/                       documentation
@@ -312,6 +318,7 @@ python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tm
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 sh tools/java_tests.sh            # nest Java, Lists, Hashmaps
 sh tools/par_tests.sh java 3      # -fpar-threads
+python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 ```
 
 ## License

@@ -408,9 +408,22 @@ the compiler copies the export data to a cache directory
 shared, or to a private temporary directory if that one cannot be
 written).
 
-Not supported (`Gen.Unsupported`, the compiler stops): partial
-parametrisation (`f (3, )`, an Algol 68 Genie extension), which ga68 compiles
-into calls with missing arguments.
+**Partial parametrization** (`f (3, )`; C. H. Lindsey, ALGOL Bulletin 39,
+AB39.3.1, 1976; an Algol 68 Genie extension, which ga68 compiles into calls
+with missing arguments and crashes): the front end gives the call the mode
+of a procedure of the missing parameters. `GenUnits.partialCall` evaluates
+the procedure and then the given arguments from left to right, boxed and
+copied as for an ordinary call, and `Partial.make` stores them with the
+procedure; a bit mask tells which arguments are given (at most 64
+parameters, otherwise `Gen.Unsupported`). Calling the `Partial` puts the
+new arguments into the missing places and calls the procedure. A partial
+parametrization of a `Partial` is flattened into one. Ordinary calls do
+not take this path, so their code is unchanged. As in Algol 68 Genie, a
+call that supplies all arguments is executed at once (the front end
+rejects `proc int tick = incr (counter, 1)`, which the proposal allows),
+and as everywhere in a68j the lifetime of stored references is not
+checked. Tests: `tests/partial`, compared with Algol 68 Genie
+(`tools/partial_tests.py`).
 
 A method with more than the 65 535 bytes of code that the JVM allows, which
 ga68 has no counterpart for, is a compile-time error of a68j

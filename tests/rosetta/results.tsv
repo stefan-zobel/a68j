@@ -1321,7 +1321,7 @@ xml-output-2	XML-Output	compile error: error: indicant C has not been declared p
 y-combinator-1	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
 y-combinator-2	Y-combinator	compile error: error: construct beginning with '(' in line 80 followed by '$' and then '  ' and ',' and a specification and '$' and ','	-	
 yellowstone-sequence	Yellowstone-sequence	exit 0	pass	
-yin-and-yang	Yin-and-yang	exit -11	unsupported: partial parametrisation	partial parametrisation (in circle (0, 0, radius, , )), an Algol 68 Genie extension: ga68 compiles the calls with missing arguments and crashes; a68j reports it as unsupported
+yin-and-yang	Yin-and-yang	exit -11	fail: exit 0 (native -11); stdout differs	partial parametrization (in circle (0, 0, radius, , )), an Algol 68 Genie extension: ga68 compiles the calls with missing arguments and crashes; a68j runs it and prints what Algol 68 Genie prints (tests/partial)
 zebra-puzzle	Zebra-puzzle	exit 0	pass	
 zeckendorf-number-representation	Zeckendorf-number-representation	exit 0	pass	
 zero-to-the-zero-power	Zero-to-the-zero-power	exit 0	pass	

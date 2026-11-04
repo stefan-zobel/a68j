@@ -132,9 +132,9 @@ The remaining differences (details in `notes.tsv`):
   `compiler-simple-file-inclusion-pre-processor`: procedures that outlive
   the procedure in which they were created;
   `successive-prime-differences`: ga68 needs more than 4.7 GB and is
-  killed).
-- **Both fail** (`yin-and-yang`: partial parametrization;
-  `self-numbers`: a row with 2·10⁹ elements).
+  killed; `yin-and-yang`: partial parametrization, which a68j implements
+  as Algol 68 Genie does, see `tests/partial`).
+- **Both fail** (`self-numbers`: a row with 2·10⁹ elements).
 - **Not reproducible natively** (`amb`): the solution yields routines that
   use the parameters of an operator after the operator has returned. The
   source marks this as a scope violation, and Algol 68 Genie stops with

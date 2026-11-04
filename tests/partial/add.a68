@@ -1,0 +1,8 @@
+{ Copy of book/examples/appG/add.a68, an example of partial
+  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+access Genie_Transput
+begin
+   proc add = (real x, y) real: x + y;
+   proc (real) real add3 = add (3, );
+   print ((fixed (add3 (4), 0, 1), " ", fixed (add (3, ) (10), 0, 1), newline))
+end

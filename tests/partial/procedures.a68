@@ -1,0 +1,63 @@
+{ Algol 68 Genie 3.13.4, src/test-set/27-procedures.a68 (part of the Algol 68
+  Genie test set; Algol 68 Genie is licensed under the GNU General Public
+  License, version 3 or later).  Changes for a68j and ga68:
+  * converted to SUPPER stropping by tools/a68supper.py and run inside an
+    access clause of the module Genie_Transput;
+  * the pragmat "PR quiet regression PR" of Algol 68 Genie is removed;
+  * long long real is long real (Genie_Transput does not print long long
+    values);
+  * the integer operands of long real operators are long real denotations
+    (Algol 68 Genie has operators of mixed modes, such as long real / int,
+    that ga68 does not have);
+  * US spelling in the comments. }
+access Genie_Transput (
+{
+
+This program is part of the Algol 68 Genie test set.
+
+A small selection of the Algol 68 Genie regression test set is distributed 
+with Algol 68 Genie. The purpose of those programs is to perform some checks 
+to judge whether A68G behaves as expected.
+None of these programs should end ungraciously with for instance an 
+addressing fault.
+
+}
+
+
+{
+Partial parametrization.
+}
+
+begin { Raising a routine to a power }
+      mode Fun = proc (long real) long real;
+      proc pow = (Fun f, int n, long real x) long real: f (x) ** n;
+      op ** = (Fun f, int n) Fun: pow (f, n, );
+      { Example: sin (3 x) = 3 sin (x) - 4 sin ** 3 (x), from DeMoivre's theorem  }
+      long real x = long_pi / long 4.0;
+      print ((long_sin (long 3.0 * x), new_line, long 3.0 *  long_sin (x) - long 4.0 * (long_sin ** 3) (x), new_line));
+end;
+
+{ Simple backtracking.
+  How many ways are there to split 5 euros in
+  2 euro, 1 euro, 50 ct, 20 ct, 10 ct, 5 ct?
+}
+
+begin [] int values = (5, 10, 20, 50, 100, 200);
+      
+      proc count = (int rest, max) int:
+         if rest = 0
+         then 1 { Just right, combination found }
+         elif rest < 0
+         then 0 { Invalid, subtracted too much }
+         else int combinations := 0;
+              for i to UPB values
+              while values[i] <= max
+              do combinations +:= count (rest - values[i], values[i])
+              od;
+              combinations
+         fi;
+      
+      int amount = 500 { cts };
+      print (("Number of ways to split ", whole (amount, 0), " into coins: ", whole (count (amount, amount), 0), new_line))
+end
+)

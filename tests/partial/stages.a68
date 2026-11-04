@@ -1,0 +1,9 @@
+{ Copy of book/examples/appG/stages.a68, an example of partial
+  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+access Genie_Transput
+begin
+   proc volume = (real l, w, h) real: l * w * h;
+   proc (real, real) real base2 = volume (2, , );
+   proc (real) real base6 = base2 (3, );
+   print ((fixed (base6 (4), 0, 1), " ", fixed (base2 (1, 1), 0, 1), newline))
+end

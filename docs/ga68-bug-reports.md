@@ -46,7 +46,7 @@ where ga68 crashes or reads uninitialized memory.
 | 16 | ga68 `a68-low.cc` | a row display assigned to a row variable whose mode is a mode indicant (`Vec v := (1.0, 2.0, 3.0)`): internal compiler error in `a68_low_assignation` | correct |
 | 17 | ga68 | a procedure of the standard prelude (`sin`) as an argument or in a row display: internal compiler error in `a68_type_moid` | correct |
 | 18 | ga68 | assigning a `[] [] int` to a `flex [] flex [] int`: internal compiler error in `fold_convert_loc` | correct |
-| 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end | message "not supported yet" |
+| 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end | correct (as Algol 68 Genie) |
 | 20 | libga68 `ga68.map` | the operators on `compl` are not exported from the shared libga68 | correct |
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | reproduces |
