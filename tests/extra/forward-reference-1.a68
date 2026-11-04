@@ -1,0 +1,60 @@
+{ Identifiers, operators, priorities and modes used before their
+  declarations, as the Revised Report allows: mutually recursive
+  procedures in separate and in joined declarations, and calls of
+  procedures declared with routine texts before their declarations are
+  elaborated, which work because such a procedure exists from the start of
+  its range (also when it uses a parameter of an enclosing procedure). }
+begin
+   proc b = (bool v) string: (v | "T" | "F");
+
+   { Each procedure calls the other one, declared after it. }
+   proc even = (int x) bool: (x = 0 | true | odd (x - 1));
+   proc odd = (int x) bool: (x = 0 | false | even (x - 1));
+   puts (b (even (10)) + b (odd (10)) + b (even (7)) + b (odd (7)) + "'n");
+
+   { The same in one joined declaration. }
+   proc even2 = (int x) bool: (x = 0 | true | odd2 (ABS (x - 1))),
+        odd2 = (int x) bool: (x = 0 | false | even2 (ABS (x - 1)));
+   puts (b (even2 (10)) + b (odd2 (10)) + b (even2 (7)) + b (odd2 (7)) + "'n");
+
+   { Hofstadter's female and male sequences, first with a procedure
+     variable for m (as needed by one-pass compilers such as Algol 68-R),
+     then with m used before its declaration. }
+   proc (int) int mv;
+   proc fv = (int n) int: (n = 0 | 1 | n - mv (fv (n - 1)));
+   mv := (int n) int: (n = 0 | 0 | n - fv (mv (n - 1)));
+   proc f = (int n) int: (n = 0 | 1 | n - m (f (n - 1)));
+   proc m = (int n) int: (n = 0 | 0 | n - f (m (n - 1)));
+   for i from 0 to 19 do puts (whole (fv (i), -3)) od; puts ("'n");
+   for i from 0 to 19 do puts (whole (mv (i), -3)) od; puts ("'n");
+   for i from 0 to 19 do puts (whole (f (i), -3)) od; puts ("'n");
+   for i from 0 to 19 do puts (whole (m (i), -3)) od; puts ("'n");
+
+   { A mode, an operator and its priority used before their declarations. }
+   begin
+      A a; b of a := nil;
+      puts (b (a IS_NIL 0) + "'n");
+      op IS_NIL = (A x, int dummy) bool: b of x is nil;
+      prio IS_NIL = 3;
+      mode A = struct (ref B b);
+      mode B = [1 : 10] ref A;
+      skip
+   end;
+
+   { Calls before the declarations are elaborated. }
+   begin
+      puts (b (ev3 (4)) + "'n");
+      proc ev3 = (int x) bool: (x = 0 | true | od3 (x - 1));
+      puts (b (ev3 (5)) + "'n");
+      proc od3 = (int x) bool: (x = 0 | false | ev3 (x - 1));
+      puts (b (ev3 (6)) + "'n")
+   end;
+   proc outer = (int k) int:
+   begin
+      int r = ev3 (4);
+      proc ev3 = (int x) int: (x = 0 | k | od3 (x - 1));
+      proc od3 = (int x) int: (x = 0 | -k | ev3 (x - 1));
+      r
+   end;
+   puts (whole (outer (7), 0) + " " + whole (outer (-3), 0) + "'n")
+end

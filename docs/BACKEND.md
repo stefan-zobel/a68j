@@ -332,6 +332,21 @@ and the JVM's default stack is small. A `StackOverflowError` ends the
 program like the segmentation fault of a native program: no message, status
 139 (128 + 11).
 
+The use of a value that has not been given yet is undefined in the Report:
+calling a procedure variable that has not been assigned, or using an
+identifier before its identity declaration has been elaborated (`x` before
+`int x = 5` gives 0 in ga68 and a68j; a procedure declared with a routine
+text exists from the start of its range, so that it can be called before
+its declaration). Where the generated code has null for such a value,
+such as a procedure, ga68 ends with a segmentation fault and
+the JVM with a `NullPointerException`. `Rt.start` turns that exception into
+the message `FILE:LINE: runtime error: attempt to use an undefined value`,
+at the innermost frame of Algol 68 code in its stack trace, and status 139
+as the native program; the Java stack trace follows if `A68J_JAVA_TRACE` is
+set. Tests: `tests/extra/undefined-value-1.a68` and `-2`;
+`tests/extra/forward-reference-1.a68` has the uses before the declaration
+that are defined.
+
 Standard identifiers and operators that ga68 declares without a lowering
 routine (`LOWERER_UNIMPL` in a68-parser-prelude.cc: the SEMA operators
 `LEVEL`, `UP`, `DOWN`, BYTES, `next random`, `first random`, `rnd`,

@@ -612,9 +612,11 @@ public final class Rt {
     /**
      * Run the program (the class's run0) in a thread with a large stack.
      * A stack overflow ends the program like the segmentation fault of a
-     * native ga68 program (status 139, no message).
+     * native ga68 program (status 139, no message); so does the use of an
+     * undefined value, with a message ({@link #undefinedValue}).
      */
     public static void start(java.lang.invoke.MethodHandle run0) throws Throwable {
+        ClassLoader loader = WALKER.getCallerClass().getClassLoader();
         Throwable[] failure = new Throwable[1];
         Thread t = new Thread(null, () -> {
             try {
@@ -629,8 +631,77 @@ public final class Rt {
         t.start();
         t.join();
         if (failure[0] != null) {
+            undefinedValue(failure[0], loader);
             throw failure[0];
         }
+    }
+
+    /**
+     * The generated code represents some values that have not been given
+     * yet by null: that of a procedure variable that has not been assigned,
+     * and that of an identifier whose identity declaration has not been
+     * elaborated yet (but not a procedure declared with a routine text,
+     * which exists from the start of its range, as in ga68). Using such a
+     * value is undefined in the Report; the native ga68 program ends with a
+     * segmentation fault. If the exception T (or one of its causes, for a failure in the
+     * prelude of a module) is the NullPointerException of such a use in
+     * Algol 68 code, the program ends with the runtime error
+     * {@code FILE:LINE: runtime error: attempt to use an undefined value}
+     * at the innermost activation of Algol 68 code ({@link #algolFrame(StackTraceElement[], ClassLoader)},
+     * the classes resolved by LOADER, that of the program class) and, as
+     * the native program, status 139. The Java stack trace follows if
+     * A68J_JAVA_TRACE is set. Returns if T is no such exception.
+     */
+    private static void undefinedValue(Throwable t, ClassLoader loader) {
+        java.util.Set<Throwable> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Throwable c = t; c != null && seen.add(c); c = c.getCause()) {
+            if (c instanceof NullPointerException) {
+                String where = algolFrame(c.getStackTrace(), loader);
+                if (where == null) {
+                    return;
+                }
+                OUT.flush();
+                System.err.print(where + ": runtime error: attempt to use an undefined value\n");
+                if (JAVA_TRACE) {
+                    t.printStackTrace(System.err);
+                }
+                System.err.flush();
+                Runtime.getRuntime().halt(139);
+            }
+        }
+    }
+
+    /**
+     * FILE:LINE of the innermost frame of Algol 68 code in TRACE, the stack
+     * trace of an exception, as {@link #algolFrame(int)} for the current
+     * stack: frames of the bundled modules only if there is no other.
+     * LOADER resolves the class names. Null if there is no such frame.
+     */
+    private static String algolFrame(StackTraceElement[] trace, ClassLoader loader) {
+        String bundled = null;
+        for (StackTraceElement e : trace) {
+            if (e.getLineNumber() <= 0) {
+                continue;
+            }
+            Class<?> c;
+            try {
+                c = Class.forName(e.getClassName(), false, loader);
+            } catch (ClassNotFoundException | LinkageError x) {
+                continue;
+            }
+            String file = SOURCE.get(c);
+            if (file == null) {
+                continue;
+            }
+            String at = file + ":" + e.getLineNumber();
+            if (!c.getPackageName().equals("a68j.lib")) {
+                return at;
+            }
+            if (bundled == null) {
+                bundled = at;
+            }
+        }
+        return bundled;
     }
 
     /** Normal end of the program. */

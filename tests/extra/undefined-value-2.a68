@@ -1,0 +1,11 @@
+{ A call through an identifier before its identity declaration (not a
+  routine text) has been elaborated: undefined in the Revised Report. The
+  native program ends with a segmentation fault; a68j with a runtime error
+  and the same status (docs/BACKEND.md, section 6). }
+begin
+   proc even = (int x) bool: x MOD 2 = 0;
+   puts ((even (4) | "T" | "F") + "'n");
+   puts ((e2 (4) | "T" | "F") + "'n");
+   proc (int) bool e2 = even;
+   puts ("not reached'n")
+end
