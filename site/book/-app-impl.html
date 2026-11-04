@@ -58,37 +58,37 @@ describes the versions used for this book, which the preface lists.</p>
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;"></th>
 <th style="text-align: left;">ga68 and a68j</th>
 <th style="text-align: left;">Algol 68 Genie</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">reserved words</td>
 <td style="text-align: left;">lower case:
 <code><b>begin</b> <b>int</b></code></td>
 <td style="text-align: left;">upper case: <code>BEGIN INT</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">declared type names</td>
 <td style="text-align: left;">capitalized: <code>Node</code></td>
 <td style="text-align: left;">upper case: <code>NODE</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">word operators</td>
 <td style="text-align: left;">upper case: <code>ABS</code></td>
 <td style="text-align: left;">upper case: <code>ABS</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">names</td>
 <td style="text-align: left;">lower case, underscores:
 <code>max_int</code></td>
 <td style="text-align: left;">lower case, blanks allowed:
 <code>max <b>int</b></code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">comments</td>
 <td
 style="text-align: left;"><code><span class="comment">{ ... }</span></code>
@@ -96,7 +96,7 @@ style="text-align: left;"><code><span class="comment">{ ... }</span></code>
 <td style="text-align: left;"><code># ... #</code>,
 <code>CO ... CO</code>, <code>COMMENT ... COMMENT</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">program</td>
 <td style="text-align: left;">a block or other enclosed construct</td>
 <td style="text-align: left;">the same, or a sequence without
@@ -116,46 +116,46 @@ a reserved word in ga68 but not in Algol 68 Genie, such as
 <div class="center">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;"></th>
 <th style="text-align: center;">ga68 and a68j</th>
 <th style="text-align: center;">Algol 68 Genie</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>int</b></code></td>
 <td style="text-align: center;">32 bits</td>
 <td style="text-align: center;">64 bits</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>long</b> <b>int</b></code></td>
 <td style="text-align: center;">64 bits</td>
 <td style="text-align: center;">128 bits</td>
 </tr>
-<tr class="odd">
+<tr>
 <td
 style="text-align: left;"><code><b>long</b> <b>long</b> <b>int</b></code></td>
 <td style="text-align: center;">64 bits</td>
 <td style="text-align: center;">72 decimal digits</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>real</b></code></td>
 <td style="text-align: center;">32 bits</td>
 <td style="text-align: center;">64 bits</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>long</b> <b>real</b></code></td>
 <td style="text-align: center;">64 bits</td>
 <td style="text-align: center;">128 bits</td>
 </tr>
-<tr class="even">
+<tr>
 <td
 style="text-align: left;"><code><b>long</b> <b>long</b> <b>real</b></code></td>
 <td style="text-align: center;">80 bits (ga68), 64 bits (a68j)</td>
 <td style="text-align: center;">63 decimal digits</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>bits</b></code></td>
 <td style="text-align: center;">32</td>
 <td style="text-align: center;">64</td>
@@ -187,85 +187,85 @@ lists what it lacks.</p>
 <h2 class="unnumbered" id="other-features">Other features</h2>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: left;">Feature</th>
 <th style="text-align: left;">ga68 and a68j</th>
 <th style="text-align: left;">Algol 68 Genie</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>par</b></code></td>
 <td style="text-align: left;">ga68: one unit after the other; a68j:
 threads with the option <code>-fpar-threads</code></td>
 <td style="text-align: left;">threads</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>sema</b></code></td>
 <td style="text-align: left;">not in ga68; a68j with
 <code>-fpar-threads</code></td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>compl</b></code> operators</td>
 <td style="text-align: left;">a68j only</td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code><b>bytes</b></code></td>
 <td style="text-align: left;">no</td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">formats</td>
 <td style="text-align: left;">no</td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">lifetime rule (references, procedures,
 <code><b>loc</b></code> cells)</td>
 <td style="text-align: left;">not checked</td>
 <td style="text-align: left;">checked at run time</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">bounds of an array field when a record is
 assigned</td>
 <td style="text-align: left;">not checked</td>
 <td style="text-align: left;">checked</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">initial value of a variable</td>
 <td style="text-align: left;">zero, <code><b>false</b></code>, blank,
 empty</td>
 <td style="text-align: left;">undefined (an error when used)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code><b>andth</b></code>,
 <code><b>orel</b></code></td>
 <td style="text-align: left;">yes (GNU extension)</td>
 <td style="text-align: left;">yes (also <code>ANDF</code>,
 <code>ORF</code>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;"><code>XOR</code> for
 <code><b>bits</b></code></td>
 <td style="text-align: left;">yes</td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;"><code>downto</code>, <code>until</code> in
 loops</td>
 <td style="text-align: left;">no</td>
 <td style="text-align: left;">yes</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">modules</td>
 <td style="text-align: left;">yes (GNU extension, Appendix <a
 href="-app-modules.html#app-modules" data-reference-type="ref"
 data-reference="app-modules">E</a>)</td>
 <td style="text-align: left;">no</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: left;">calling C
 (<code><b>nest</b> C</code>)</td>
 <td style="text-align: left;">ga68 only (Appendix <a
@@ -273,12 +273,12 @@ href="-app-nest.html#app-nest" data-reference-type="ref"
 data-reference="app-nest">F</a>)</td>
 <td style="text-align: left;">no</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: left;">partial parametrization</td>
-<td style="text-align: left;">no</td>
-<td style="text-align: left;">yes (Appendix <a
+<td style="text-align: left;">a68j only (Appendix <a
 href="-app-partial.html#app-partial" data-reference-type="ref"
 data-reference="app-partial">G</a>)</td>
+<td style="text-align: left;">yes</td>
 </tr>
 </tbody>
 </table>

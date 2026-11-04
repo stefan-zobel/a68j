@@ -59,11 +59,12 @@ href="-bibliography.html#bib-partial">6</a>]. The subcommittee of IFIP
 Working Group 2.1 that looked after Algol 68 released it in 1976, so
 that implementations that experimented with such a facility would all
 provide it in the same form; it is not part of the Revised Report. Algol
-68 Genie implements it; ga68 and a68j do not (Appendix <a
+68 Genie and a68j implement it; ga68 does not (Appendix <a
 href="-app-impl.html#app-impl" data-reference-type="ref"
-data-reference="app-impl">C</a>): a68j rejects such a call with a
-message, and ga68 currently stops with an internal compiler error. The
-programs of this appendix were run with Algol 68 Genie.</p>
+data-reference="app-impl">C</a>): it currently stops with an internal
+compiler error. The outputs shown are those of Algol 68 Genie; a68j
+prints the same values, in the narrower columns of its 32-bit
+<code><b>int</b></code>.</p>
 <h2 class="unnumbered" id="leaving-arguments-out">Leaving arguments
 out</h2>
 <p>With partial parametrization, a call may leave arguments out, by
@@ -181,7 +182,10 @@ a68g: runtime error: 1: REF INT value is exported out of its scope, in VOID clos
 it. By the rules of the proposal, returning the function from the block
 is the error. Algol 68 Genie does not check it there; it stops the
 program only when the function is used, here in <code>incr</code>, whose
-result is the cell that no longer exists. The counter must be a
+result is the cell that no longer exists. a68j does not check the
+lifetime rule at all (Section <a href="7-ch-advanced.html#sec-lifetimes"
+data-reference-type="ref" data-reference="sec-lifetimes">7.15</a>) and
+runs the program to the end, without a message. The counter must be a
 <code><b>heap</b></code> cell, as in the previous example.</p>
 </blockquote>
 <h2 class="unnumbered" id="calls-with-all-arguments">Calls with all
@@ -195,15 +199,15 @@ not executed but kept:
 declare a function that increases <code>counter</code> by 1 each time it
 is called.</p>
 <blockquote>
-<p><strong>Implementation note.</strong>  Algol 68 Genie does not
-implement this part of the proposal. It runs a call as soon as all
-arguments are given, and rejects the declaration of
-<code>tick</code>:</p>
+<p><strong>Implementation note.</strong>  Algol 68 Genie and a68j do not
+implement this part of the proposal. They run a call as soon as all
+arguments are given, and reject the declaration of <code>tick</code>;
+Algol 68 Genie says:</p>
 <pre class="output"><code>5        PROC INT tick = incr (counter, 1);
                          1                 
 a68g: error: 1: INT cannot be coerced to PROC INT in a strong-unit, in closed-clause starting at "BEGIN" in line 1.</code></pre>
 <p>Leaving out at least one argument, as <code>bump</code> does above,
-works in Algol 68 Genie.</p>
+works in both.</p>
 </blockquote>
 </body>
 </html>

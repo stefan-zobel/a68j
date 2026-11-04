@@ -141,10 +141,20 @@ error found by the compiler (“multiple declaration of identifier”).</p>
 including the part before the declaration. The name can be mentioned
 there, but its value cannot be used, since the declaration has not been
 carried out yet. A program that uses a name before its declaration is
-therefore wrong, but compilers do not always detect it: ga68 and a68j
-accept such a program and use an undefined value. The rule matters for
-procedures that call each other (Chapter <a
+therefore wrong, but the compilers do not detect it. What happens at run
+time depends on the value. An <code><b>int</b></code> constant used
+before its declaration is 0 in ga68 and a68j; Algol 68 Genie stops the
+program with a message. A function that has no value yet, such as a
+variable for functions (Chapter <a href="5-ch-procs.html#ch-procs"
+data-reference-type="ref" data-reference="ch-procs">5</a>) before its
+first assignment, makes the ga68 program crash; a68j and Algol 68 Genie
+stop with a message, a68j with “attempt to use an undefined value”. A
+function declared with a function literal, the usual form of Chapter <a
 href="5-ch-procs.html#ch-procs" data-reference-type="ref"
+data-reference="ch-procs">5</a>, is an exception: in all three it exists
+from the start of the block and can be called even before its
+declaration. The rule matters for functions that call each other
+(Chapter <a href="5-ch-procs.html#ch-procs" data-reference-type="ref"
 data-reference="ch-procs">5</a>); for everything else, a declaration
 should simply come before its uses.</p>
 <p>A word about the term: in this book, <em>scope</em> means the region
@@ -677,7 +687,7 @@ testing before each addition whether it would overflow
 with a 64-bit <code><b>int</b></code>?</p></li>
 <li><p><strong>Cube roots.</strong> Compute cube roots with Newton’s
 iteration <span
-class="math inline"><em>x</em><sub><em>n</em> + 1</sub> = (2<em>x</em><sub><em>n</em></sub>+<em>a</em>/<em>x</em><sub><em>n</em></sub><sup>2</sup>)/3</span>,
+class="math inline"><em>x</em><sub><em>n</em> + 1</sub> = (2<em>x</em><sub><em>n</em></sub> + <em>a</em>/<em>x</em><sub><em>n</em></sub><sup>2</sup>)/3</span>,
 with a relative test for the end, and compare the results with
 <code>exp (ln (a) / 3)</code>. What happens for negative
 <code>a</code>?</p></li>
