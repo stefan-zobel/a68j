@@ -76,8 +76,12 @@ ga68 alike
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
 of Algol 68 Genie (`grep in string`, `sub in string`) on top of
-`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)). 80-bit
-`long long real` is out of scope.
+`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)).
+`long long int` has 64 bits, as in ga68, where Algol 68 Genie has 72
+digits; for larger integers `Bigints` offers the mode `Bigint`, with the
+operators of an `int`, on top of `java.math.BigInteger`, for a68j only
+([docs/bigints.md](docs/bigints.md)). 80-bit `long long real` is out of
+scope.
 
 ## Requirements
 
@@ -217,6 +221,19 @@ to: 2
 be: 2
 or: 1
 not: 1
+```
+
+`Bigints` offers integers of any size (`Bigint`, on top of
+`java.math.BigInteger`) with the operators of an `int`; each operand may
+also be an `int`, `long int` or `long long int`. It needs no option either
+([docs/bigints.md](docs/bigints.md)):
+
+[![bigints.a68](images/bigints.svg)](examples/bigints.a68)
+
+```sh
+java -jar a68j-backend.jar -run bigints.a68
+30! = 265252859812191058636308480000000
+170141183460469231731687303715884105727 is prime
 ```
 
 ## Performance

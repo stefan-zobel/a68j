@@ -1,0 +1,8 @@
+access Bigints (
+   Bigint f := BIG 1;
+   for i to 30 do f *:= i od;
+   puts ("30! = " + big_whole (f, 0) + "'n");
+   Bigint m = BIG 2 ** 127 - 1;
+   puts (big_whole (m, 0) +
+         (big_probable_prime (m) | " is prime" | " is composite") + "'n")
+)
