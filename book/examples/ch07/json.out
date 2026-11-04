@@ -1,0 +1,32 @@
+{
+  "language": "Algol 68",
+  "years": [1968, 1975],
+  "orthogonal": true,
+  "successor": null,
+  "implementations": [
+    {
+      "name": "ga68",
+      "target": "native code"
+    },
+    {
+      "name": "a68j",
+      "target": "JVM"
+    },
+    {
+      "name": "Algol 68 Genie",
+      "target": "interpreter"
+    }
+  ],
+  "authors": ["van Wijngaarden", "Mailloux", "Peck", "Koster"]
+}
+{
+  "name": "a68j",
+  "target": "JVM"
+}
+"Algol 68 Genie"
+null
+first author: van Wijngaarden
+[0.5, -25, "say \"hello\""]
+error at position 7: unexpected ]
+error at position 6: expected :
+error at position 6: digit expected

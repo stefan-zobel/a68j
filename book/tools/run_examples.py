@@ -56,7 +56,11 @@ module; for ga68 its source in backend/lib is compiled once.
 path).  The listing is the whole program, or, if the program contains
 lines "{ begin excerpt }" and "{ end excerpt }", only the lines between
 them (several excerpts are separated by an empty line), with the common
-indentation removed.
+indentation removed.  A named excerpt, between "{ begin excerpt NAME }"
+and "{ end excerpt }", is written to a listing of its own, NAME after the
+name of the program (json.types.a68 for the excerpt "types" of
+json.a68), which the text shows with the macro programpart (preamble.tex);
+several excerpts with the same name are joined as above.
 """
 import argparse, concurrent.futures, os, re, shutil, subprocess, sys, tempfile
 
@@ -202,28 +206,38 @@ def run_a68g(path, cfg, a68g, work):
     return result(path, cfg, p.returncode, p.stdout.decode("utf-8", "replace"), p.stderr.decode("utf-8", "replace"))
 
 
+EXCERPT = re.compile(r"\{ (begin|end) excerpt(?: ([A-Za-z0-9_-]+))? \}$")
+
+
 def extract(path):
+    """The listing of a program and its named excerpts: (listing, {name: text})."""
     lines = open(path, encoding="utf-8").read().splitlines()
-    marks = [i for i, l in enumerate(lines) if l.strip() in ("{ begin excerpt }", "{ end excerpt }")]
-    if not marks:
-        return "\n".join(lines).rstrip("\n") + "\n"
-    parts, inside, cur = [], False, []
+
+    def join(parts):
+        out = []
+        for part in parts:
+            ind = min((len(l) - len(l.lstrip()) for l in part if l.strip()), default=0)
+            if out:
+                out.append("")
+            out += [l[ind:] for l in part]
+        return "\n".join(out) + "\n"
+
+    plain, named, cur, name = [], {}, None, None
     for l in lines:
-        s = l.strip()
-        if s == "{ begin excerpt }":
-            inside, cur = True, []
-        elif s == "{ end excerpt }":
-            inside = False
-            parts.append(cur)
-        elif inside:
+        m = EXCERPT.match(l.strip())
+        if m and m.group(1) == "begin":
+            cur, name = [], m.group(2)
+        elif m:
+            if cur is not None:
+                (named.setdefault(name, []) if name else plain).append(cur)
+            cur = None
+        elif cur is not None:
             cur.append(l)
-    out = []
-    for part in parts:
-        ind = min((len(l) - len(l.lstrip()) for l in part if l.strip()), default=0)
-        if out:
-            out.append("")
-        out += [l[ind:] for l in part]
-    return "\n".join(out) + "\n"
+    if plain:
+        listing = join(plain)
+    else:   # the whole program, without the marks of named excerpts
+        listing = "\n".join(l for l in lines if not EXCERPT.match(l.strip())).rstrip("\n") + "\n"
+    return listing, {k: join(v) for k, v in named.items()}
 
 
 def main():
@@ -245,7 +259,10 @@ def main():
         for f in files:
             dst = os.path.join(a.extract, os.path.relpath(f, EXAMPLES))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            open(dst, "w", encoding="utf-8").write(extract(f))
+            listing, named = extract(f)
+            open(dst, "w", encoding="utf-8").write(listing)
+            for k, text in named.items():
+                open(dst[:-4] + "." + k + ".a68", "w", encoding="utf-8").write(text)
         return 0
 
     if bool(a.ga68) != bool(a.libdir):

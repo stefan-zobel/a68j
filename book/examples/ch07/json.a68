@@ -1,0 +1,261 @@
+access Genie_Transput
+begin
+   { begin excerpt types }
+   mode Json   = union (void, bool, real, string, ref Array, ref Object),
+        Array  = struct (flex [1:0] Json elements),
+        Object = struct (flex [1:0] Member members),
+        Member = struct (string key, Json value),
+        Error  = struct (int position, string message);
+   { end excerpt }
+
+   { begin excerpt append }
+   op +:= = (ref flex [] Json row, Json v) ref flex [] Json:
+   begin
+      [UPB row + 1] Json longer;
+      longer[: UPB row] := row;
+      longer[UPB longer] := v;
+      row := longer
+   end;
+   op +:= = (ref flex [] Member row, Member m) ref flex [] Member:
+   begin
+      [UPB row + 1] Member longer;
+      longer[: UPB row] := row;
+      longer[UPB longer] := m;
+      row := longer
+   end;
+   { end excerpt }
+
+   { begin excerpt parse }
+   proc parse = (string text) union (Json, Error):
+   begin
+      int pos := 1;
+      Error error;
+      proc fail = (string message) void: (error := (pos, message); goto failed);
+
+      proc skip_space = void:
+         while pos <= UPB text andth (text[pos] = " " OR text[pos] = REPR 10)
+         do pos +:= 1 od;
+      proc peek = char: (skip_space; (pos <= UPB text | text[pos] | REPR 0));
+      proc expect = (char c) void: (peek = c | pos +:= 1 | fail ("expected " + c));
+      proc literal = (string w) bool:
+         if pos + UPB w - 1 <= UPB text andth text[pos : pos + UPB w - 1] = w
+         then pos +:= UPB w; true
+         else false
+         fi;
+
+      proc value = Json:
+         if char c = peek; c = "{" then object
+         elif c = "[" then array
+         elif c = """" then string_value
+         elif c = "-" OR is_digit (c) then number
+         elif literal ("true") then true
+         elif literal ("false") then false
+         elif literal ("null") then empty
+         else fail ((c = REPR 0 | "unexpected end of text" | "unexpected " + c)); skip
+         fi;
+      { end excerpt }
+
+      { begin excerpt containers }
+      proc object = ref Object:
+      begin
+         ref Object o = heap Object;
+         expect ("{");
+         if peek /= "}" then
+            members of o +:= member;
+            while peek = "," do pos +:= 1; members of o +:= member od
+         fi;
+         expect ("}");
+         o
+      end;
+      proc member = Member:
+      begin
+         string key = string_value;
+         expect (":");
+         (key, value)
+      end;
+
+      proc array = ref Array:
+      begin
+         ref Array a = heap Array;
+         expect ("[");
+         if peek /= "]" then
+            elements of a +:= value;
+            while peek = "," do pos +:= 1; elements of a +:= value od
+         fi;
+         expect ("]");
+         a
+      end;
+      { end excerpt }
+
+      { begin excerpt scalars }
+      proc string_value = string:
+      begin
+         string s := "";
+         expect ("""");
+         while pos <= UPB text andth text[pos] /= """" do
+            if text[pos] = "\" andth pos < UPB text then
+               pos +:= 1;
+               char e = text[pos];
+               s +:= (e = "n" | REPR 10 |: e = "t" | REPR 9 | e)
+            else
+               s +:= text[pos]
+            fi;
+            pos +:= 1
+         od;
+         (pos > UPB text | fail ("unterminated string"));
+         pos +:= 1;
+         s
+      end;
+
+      proc number = real:
+      begin
+         int start = pos;
+         proc next_is = (string chars) bool:
+            pos <= UPB text andth char_in_string (text[pos], loc int, chars);
+         proc digits = void:
+         begin
+            (NOT next_is ("0123456789") | fail ("digit expected"));
+            while next_is ("0123456789") do pos +:= 1 od
+         end;
+         (next_is ("-") | pos +:= 1);
+         digits;
+         (next_is (".") | pos +:= 1; digits);
+         (next_is ("eE") | pos +:= 1; (next_is ("+-") | pos +:= 1); digits);
+         string s := text[start : pos - 1];
+         File f;
+         real x;
+         associate (f, s);
+         get (f, x);
+         x
+      end;
+      { end excerpt }
+
+      { begin excerpt parse-end }
+      Json doc = value;
+      (peek /= REPR 0 | fail ("text after the value"));
+      doc exit
+   failed:
+      error
+   end;
+   { end excerpt }
+
+   { begin excerpt text }
+   proc number_text = (real x) string:
+      if x = ENTIER x then whole (x, 0)
+      else
+         string s := fixed (x, 0, 6);
+         while s[UPB s] = "0" do s := s[: UPB s - 1] od;
+         { JSON wants a digit before the point }
+         (s[1] = "." | "0" + s |: s[1] = "-" andth s[2] = "." | "-0" + s[2 :] | s)
+      fi;
+   proc quote = (string s) string:
+   begin
+      string q := """";
+      for i to UPB s do
+         char c = s[i];
+         if c = """" then q +:= "\"""
+         elif c = "\" then q +:= "\\"
+         elif c = REPR 10 then q +:= "\n"
+         else q +:= c
+         fi
+      od;
+      q + """"
+   end;
+   { end excerpt }
+
+   { begin excerpt show }
+   proc scalar = (Json v) bool:
+      case v in (ref Array): false, (ref Object): false out true esac;
+   proc indent = (int depth) void: to depth do print ("  ") od;
+
+   proc show = (Json v, int depth) void:
+      case v in
+         (void): print ("null"),
+         (bool b): print ((b | "true" | "false")),
+         (real x): print (number_text (x)),
+         (string s): print (quote (s)),
+         (ref Array a):
+            begin
+               [] Json e = elements of a;
+               bool flat := true;
+               for i to UPB e do flat := flat AND scalar (e[i]) od;
+               print ("[");
+               for i to UPB e do
+                  (i > 1 | print (","));
+                  (flat | (i > 1 | print (" ")) | print (newline); indent (depth + 1));
+                  show (e[i], depth + 1)
+               od;
+               (NOT flat | print (newline); indent (depth));
+               print ("]")
+            end,
+         (ref Object o):
+            begin
+               [] Member m = members of o;
+               print ("{");
+               for i to UPB m do
+                  (i > 1 | print (","));
+                  print (newline); indent (depth + 1);
+                  print ((quote (key of m[i]), ": "));
+                  show (value of m[i], depth + 1)
+               od;
+               (UPB m > 0 | print (newline); indent (depth));
+               print ("}")
+            end
+      esac;
+   { end excerpt }
+
+   { begin excerpt select }
+   prio SEL = 9;
+   op SEL = (Json v, string k) Json:
+      case v in
+         (ref Object o):
+            begin
+               [] Member m = members of o;
+               int i := 1;
+               while i <= UPB m andth key of m[i] /= k do i +:= 1 od;
+               (i <= UPB m | value of m[i] | empty)
+            end
+         out empty
+      esac;
+   op SEL = (Json v, int i) Json:
+      case v in
+         (ref Array a): (i >= 1 AND i <= UPB elements of a | (elements of a)[i] | empty)
+         out empty
+      esac;
+   { end excerpt }
+
+   { begin excerpt main }
+   proc report = (string text) void:
+      case parse (text) in
+         (Json v): (show (v, 0); print (newline)),
+         (Error e): print (("error at position ", whole (position of e, 0), ": ",
+                            message of e, newline))
+      esac;
+
+   string algol =
+      "{""language"": ""Algol 68"", ""years"": [1968, 1975], ""orthogonal"": true," +
+      " ""successor"": null, ""implementations"": [" +
+      "   {""name"": ""ga68"", ""target"": ""native code""}," +
+      "   {""name"": ""a68j"", ""target"": ""JVM""}," +
+      "   {""name"": ""Algol 68 Genie"", ""target"": ""interpreter""}]," +
+      " ""authors"": [""van Wijngaarden"", ""Mailloux"", ""Peck"", ""Koster""]}";
+   case parse (algol) in
+      (Json doc):
+         begin
+            show (doc, 0); print (newline);
+            show (doc SEL "implementations" SEL 2, 0); print (newline);
+            show (doc SEL "implementations" SEL 3 SEL "name", 0); print (newline);
+            show (doc SEL "successor" SEL "name", 0); print (newline);
+            case doc SEL "authors" SEL 1 in
+               (string s): print (("first author: ", s, newline))
+               out print (("no author", newline))
+            esac
+         end,
+      (Error e): print ((message of e, newline))
+   esac;
+   report ("[0.5, -2.5e1, ""say \""hello\""""]");
+   report ("[1, 2,]");
+   report ("{""a"" 1}");
+   report ("[1, --2]")
+   { end excerpt }
+end

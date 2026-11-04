@@ -8,6 +8,12 @@
 \usepackage[english]{babel}
 \usepackage{microtype}
 \setlength{\emergencystretch}{3em}
+% Subsections (\subsection*), the headings within a section: in the size of
+% the text, with at least one empty line above them.
+\RedeclareSectionCommand[
+  font=\normalsize\sffamily\bfseries,
+  beforeskip=1.5\baselineskip plus 0.5\baselineskip minus 0.2\baselineskip,
+  afterskip=0.5\baselineskip]{subsection}
 \usepackage{xcolor}
 \definecolor{LinkBlue}{rgb}{0.10,0.25,0.55}
 \usepackage{booktabs}
@@ -17,6 +23,13 @@
 \usepackage[colorlinks,linkcolor=LinkBlue,urlcolor=LinkBlue,citecolor=LinkBlue,linktoc=all,bookmarksnumbered,pdfusetitle]{hyperref}
 
 \usepackage{listings}
+% A heading sets the flag @nobreak, which the first paragraph after it
+% clears.  A listing directly after a heading empties \everypar, so the
+% flag would stay set, and the next heading would omit its space above as
+% if it followed the first one directly.  The end of a listing clears it.
+\makeatletter
+\lst@AddToHook{DeInit}{\global\@nobreakfalse}
+\makeatother
 % Algol 68 in SUPPER stropping: the reserved words of ga68 are printed in
 % bold, as in the publication language of the Report.  Type names that a
 % program declares (Node) and operators (ABS, a user-defined MAX) are
@@ -65,7 +78,9 @@
 % \example{ch02/first}: the program book/examples/ch02/first.a68 (its
 % excerpt, see tools/run_examples.py) followed by its recorded output.
 % \program{...}: the program only.  \outputof{...}: the output only.
+% \programpart{ch07/json}{types}: the excerpt named types of the program.
 \newcommand{\program}[1]{\lstinputlisting[language=Algol68]{build/listings/#1.a68}}
+\newcommand{\programpart}[2]{\lstinputlisting[language=Algol68]{build/listings/#1.#2.a68}}
 \newcommand{\cprogram}[1]{\lstinputlisting[language=C,basicstyle=\ttfamily\small]{examples/#1.c}}
 \newcommand{\outputof}[1]{\lstinputlisting[style=output]{examples/#1.out}}
 \newcommand{\example}[1]{\program{#1}\outputof{#1}}
