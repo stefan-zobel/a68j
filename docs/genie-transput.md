@@ -42,6 +42,60 @@ ga68 -c genietransput.a68
 ga68 -I. prog.a68 genietransput.o
 ```
 
+## In UPPER stropping
+
+In UPPER stropping the module name is a bold word, written in capitals.
+`GENIETRANSPUT` works too, because module names are compared without case
+and without underscores. The procedures and values of the module stay in
+lower case:
+
+```
+ACCESS GENIE_TRANSPUT
+BEGIN
+   INT n = 42;
+   print (("n = ", n, newline))
+END
+```
+
+```sh
+java -jar a68j-backend.jar -fstropping=upper -run prog.a68
+```
+
+The modes `Outitem` and `Initem` are written `OUTITEM` and `INITEM`. The
+modes `File` and `Channel` cannot be named, however: in UPPER stropping
+`FILE` and `CHANNEL` denote the standard modes of the same name, not
+those of the module, and a declaration such as `REF FILE f = stand_out`
+fails with "cannot be coerced to REF FILE". Calls such as `print (...)`
+or `put (stand_out, ...)` do not need these names. A program that does
+need them can access a small module in SUPPER stropping that gives the
+modes other names:
+
+```
+module Upper_Files =
+access pub Genie_Transput
+def
+   pub mode Gfile = File;
+   pub mode Gchannel = Channel;
+   skip
+fed
+```
+
+```sh
+java -jar a68j-backend.jar upperfiles.a68 -d lib/libupperfiles.jar
+java -jar a68j-backend.jar -fstropping=upper -I lib -run prog.a68
+```
+
+```
+ACCESS UPPER_FILES (
+   REF GFILE f = stand_out;
+   GCHANNEL c = stand_out_channel;
+   put (f, ("put possible: ", put_possible OF c, newline))
+)
+```
+
+Because of `access pub`, the program sees all of `Genie_Transput` through
+`UPPER_FILES` as well.
+
 ## What it provides
 
 | Name | Meaning |
