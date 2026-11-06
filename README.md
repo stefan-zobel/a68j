@@ -33,7 +33,7 @@ Hello, world!
   because scanner, parser, mode checker and the other passes are the ported
   ga68 code.
 - **Runs wherever Java runs.** One jar, no native toolchain.
-- **Reasonably fast.** About as fast as ga68 without optimisation, about
+- **Reasonably fast.** About as fast as ga68 without optimization, about
   half as fast as ga68 `-O2` (plus the JVM's start-up). Values of the
   primitive modes are kept unboxed, calls are direct, and the generated
   code is shaped for the JIT. See [Performance](#performance).
@@ -67,7 +67,7 @@ Hello, world!
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
-prelude (`puts`, `putchar`, `fputs` ...). The bundled module
+prelude (`puts`, `putchar`, `fputs` ...). The bundled Algol 68 module
 `Genie_Transput` provides `print`, `newline`, `put`, `read`, `get`, `open`,
 `associate` and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
 ga68 alike
@@ -78,7 +78,7 @@ splitting, joining, replacing, padding, and strings to numbers
 of Algol 68 Genie (`grep in string`, `sub in string`) on top of
 `java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)).
 `long long int` has 64 bits, as in ga68, where Algol 68 Genie has 72
-digits; for larger integers `Bigints` offers the mode `Bigint`, with the
+digits; for larger integers the `Bigints` module offers the mode `Bigint`, with the
 operators of an `int`, on top of `java.math.BigInteger`, for a68j only
 ([docs/bigints.md](docs/bigints.md)). 80-bit `long long real` is out of
 scope.
@@ -86,8 +86,7 @@ scope.
 ## Requirements
 
 - **JDK 25** or later to build and run. JDK 28 is optional: with it the jar
-  also contains a version of the PAR runtime based on structured
-  concurrency.
+  also contains a version of the PAR runtime based on [structured concurrency](https://openjdk.org/jeps/543).
 - A POSIX shell to build (Linux, macOS, WSL or Git Bash on Windows).
 - For the differential tests only: a build of GCC with Algol 68 (`ga68`)
   and Python 3.
@@ -124,7 +123,7 @@ Compile to class files, then run them:
 
 ```sh
 java -jar a68j-backend.jar program.a68 -d out
-java -cp a68j-backend.jar:out Program      # class named after the file
+java -cp a68j-backend.jar:out Program     # class named after the file
 ```
 
 To ship a compiled program, `a68j-runtime.jar` is enough in place of
@@ -159,12 +158,12 @@ Common options (as in ga68 where ga68 has them):
 | `-d dir` | output directory; `-d libX.jar` adds a module to a library jar, `-d prog.jar` makes an executable jar of a program |
 | `-run` | compile in memory and run |
 | `--version` | the version of a68j |
-| `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` formal holes (a68j extension) |
+| `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
 
 ### Modules
 
-A module packet compiles to a class and an interface file `x.m68`. The
+A [module](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Modules.html) packet compiles to a class and an interface file `x.m68`. The
 interface file is byte-identical with the `.a68_exports` section that ga68
 writes for the same module. Several modules can go into one library jar:
 
