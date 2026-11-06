@@ -50,7 +50,7 @@ Hello, world!
 - **Partial parametrization** (an extension of Algol 68 Genie, after
   Lindsey's proposal of 1976): a call that leaves arguments out,
   `add (3, )`, yields a procedure of the missing parameters. ga68 accepts
-  such a call but cannot compile it.
+  such a call but cannot compile it yet whereas a68j can.
 
 ## Status
 
@@ -322,7 +322,7 @@ The detailed documentation is in `docs/`:
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
 - `docs/par-and-sema.md`: parallel clauses.
 - `docs/editor.md`: grammar and HTML renderer.
-- [`docs/algol68-modern-terms.pdf`](docs/algol68-modern-terms.pdf): the book *Algol 68 in Modern Terms* (PDF).
+- [`docs/algol68-modern-terms.pdf`](docs/algol68-modern-terms.pdf): the book ***Algol 68 in Modern Terms*** (PDF).
 
 ## Testing
 
