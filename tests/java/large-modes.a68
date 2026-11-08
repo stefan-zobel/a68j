@@ -1,0 +1,29 @@
+{ a68j-options: -I tests/java/lib }
+{ Procedures, operators and a constant of a module on large mutually
+  recursive modes (tests/java/modules/largemodes.a68), used from another
+  compilation unit: called, used as a value, and the two operators WEIGHT
+  whose keys differ only in the digest of the mode. }
+access Largemodes (
+   proc show = (int n) void: puts (whole (n, 0) + "'n");
+
+   ref Alpha a = heap Alpha := (empty, empty);
+   ref Beta b = heap Beta := (a, empty);
+   a1 of a := b;
+   Item cycle = a;
+
+   Item chain = heap Theta := (heap Eta := (heap Zeta := (heap Epsilon :=
+                (heap Delta := (heap Gamma := (b, empty), empty), empty), empty), empty), empty);
+
+   show (weight (seed, 3));
+   show (weight (cycle, 6));
+   show (WEIGHT cycle);
+   show (weight (chain, 8));
+
+   proc (Item, int) int w = weight;
+   show (w (cycle, 4));
+
+   Left l = (heap Inner_left := (5, 0), empty, empty, empty, empty);
+   Right r = (heap Inner_right := (7, 0), empty, empty, empty, empty);
+   show (WEIGHT l);
+   show (WEIGHT r)
+)

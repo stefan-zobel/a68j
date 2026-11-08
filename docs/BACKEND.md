@@ -229,7 +229,9 @@ module (`module X = def ... fed`) compiles to a class whose `program`
 method elaborates the DEF part; every identifier declared there lives in the
 module's frame, which is kept in a static field. `pubKeys()` gives the keys
 of the public tags (mangled name plus a structural description of the mode,
-`Intrinsics.moduleKey`, independent of the order of union members), `pub()`
+`Intrinsics.moduleKey`, independent of the order of union members; at every
+level a description of more than 256 characters is replaced by its SHA-256,
+so that a key stays short for a large recursive mode), `pub()`
 elaborates the module once and gives their boxed values. Code using a tag of
 a compiled module loads it with `ldc` of a dynamic constant bootstrapped by
 `a68j.rt.Modules.bsm(cls, key)` (resolved once per use site) and calls the

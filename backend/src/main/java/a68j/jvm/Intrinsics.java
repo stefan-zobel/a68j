@@ -80,7 +80,18 @@ final class Intrinsics {
         };
     }
 
-    /** Key of a public tag: mangled name and a structural description of its mode. */
+    /** The depth to which a key describes a mode; further down a mode is "?". */
+    private static final int KEY_DEPTH = 12;
+
+    /** A description of a mode longer than this is replaced by its digest. */
+    private static final int KEY_LIMIT = 256;
+
+    /**
+     * Key of a public tag: mangled name and a structural description of its
+     * mode. At every level of the mode a description longer than KEY_LIMIT
+     * is replaced by its digest, so the key stays short for a large
+     * recursive mode, whose description grows exponentially with the depth.
+     */
     static String moduleKey(Gen g, Tag t) {
         return mangle(name(t)) + " " + modeKey(g, t.type, 0);
     }
@@ -90,9 +101,29 @@ final class Intrinsics {
         if (m == null) {
             return "void";
         }
-        if (depth > 12) {
+        if (depth > KEY_DEPTH) {
             return "?";
         }
+        String[] known = g.modeKeys.computeIfAbsent(m, k -> new String[KEY_DEPTH + 1]);
+        if (known[depth] == null) {
+            String d = describeMode(g, m, depth);
+            known[depth] = d.length() > KEY_LIMIT ? digest(d) : d;
+        }
+        return known[depth];
+    }
+
+    /** "#" and the SHA-256 of the description D in hexadecimal. */
+    private static String digest(String d) {
+        try {
+            byte[] sha = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(d.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return "#" + java.util.HexFormat.of().formatHex(sha);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static String describeMode(Gen g, Moid m, int depth) {
         if (m.attribute == a68j.front.Attribute.FLEX_SYMBOL) {
             m = JType.base(m.sub);
         }

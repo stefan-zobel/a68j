@@ -1,0 +1,48 @@
+{ A module whose public identifiers have large mutually recursive modes,
+  for the test large-modes: spelled out to the depth of a module key, the
+  description of Item has far more than the 65535 bytes of a class file
+  constant, so the keys must be reduced to digests.  Left and Right differ
+  only in the name of a nested field, so that the keys of the two operators
+  WEIGHT on them differ only in the digest. }
+module Largemodes =
+def
+    pub mode Item = union (void, ref Alpha, ref Beta, ref Gamma, ref Delta,
+                           ref Epsilon, ref Zeta, ref Eta, ref Theta);
+    pub mode Alpha = struct (Item a1, Item a2);
+    pub mode Beta = struct (Item b1, Item b2);
+    pub mode Gamma = struct (Item c1, Item c2);
+    pub mode Delta = struct (Item d1, Item d2);
+    pub mode Epsilon = struct (Item e1, Item e2);
+    pub mode Zeta = struct (Item f1, Item f2);
+    pub mode Eta = struct (Item g1, Item g2);
+    pub mode Theta = struct (Item h1, Item h2);
+
+    pub mode Inner_left = struct (int p, int tag);
+    pub mode Inner_right = struct (int q, int tag);
+    pub mode Left = struct (ref Inner_left inner, Item i1, Item i2, Item i3, Item i4);
+    pub mode Right = struct (ref Inner_right inner, Item i1, Item i2, Item i3, Item i4);
+
+    { The sum of the numbers of the alternatives met down to the given depth. }
+    pub proc weight = (Item x, int depth) int:
+        if depth = 0
+        then 0
+        else case x in
+                 (void): 0,
+                 (ref Alpha s): 1 + weight (a1 of s, depth - 1) + weight (a2 of s, depth - 1),
+                 (ref Beta s): 2 + weight (b1 of s, depth - 1) + weight (b2 of s, depth - 1),
+                 (ref Gamma s): 3 + weight (c1 of s, depth - 1) + weight (c2 of s, depth - 1),
+                 (ref Delta s): 4 + weight (d1 of s, depth - 1) + weight (d2 of s, depth - 1),
+                 (ref Epsilon s): 5 + weight (e1 of s, depth - 1) + weight (e2 of s, depth - 1),
+                 (ref Zeta s): 6 + weight (f1 of s, depth - 1) + weight (f2 of s, depth - 1),
+                 (ref Eta s): 7 + weight (g1 of s, depth - 1) + weight (g2 of s, depth - 1),
+                 (ref Theta s): 8 + weight (h1 of s, depth - 1) + weight (h2 of s, depth - 1)
+             esac
+        fi;
+
+    pub op WEIGHT = (Item x) int: weight (x, 8);
+    pub op WEIGHT = (Left x) int: p of inner of x + 100;
+    pub op WEIGHT = (Right x) int: q of inner of x + 200;
+
+    pub Item seed = heap Alpha := (empty, empty);
+    skip
+fed

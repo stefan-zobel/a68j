@@ -225,6 +225,8 @@ public final class Gen {
     public final String sourceFile;
 
     // Capture analysis results.
+    /** The descriptions of modes in module keys, per depth (Intrinsics#moduleKey). */
+    final Map<Moid, String[]> modeKeys = new IdentityHashMap<>();
     final Map<Table, Routine> tableOwner = new IdentityHashMap<>();
     final Map<Node, Routine> routineOf = new IdentityHashMap<>();
     /**

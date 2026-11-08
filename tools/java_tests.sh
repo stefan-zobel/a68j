@@ -26,6 +26,12 @@ for m in tests/java/modules/*.a68; do
     -d "tests/java/lib/lib$n.jar" 2>&1 | grep -v '^Picked up'
   [ -f "tests/java/lib/lib$n.jar" ] || { echo "cannot compile $m"; exit 1; }
 done
+# The keys of the large recursive modes of largemodes.a68 must stay short: the
+# size of the class, not of the jar, whose compression would hide them.
+"$JAVA" -cp $JAR a68j.jvm.Compile tests/java/modules/largemodes.a68 \
+  -d tests/java/classes/largemodes 2>&1 | grep -v '^Picked up'
+size=$(wc -c < tests/java/classes/largemodes/Largemodes.class) || exit 1
+[ "$size" -le 65536 ] || { echo "Largemodes.class has $size bytes"; exit 1; }
 for f in tests/java/*.a68; do
   b=${f%.a68}
   opts=$(sed -n '1s/^{ a68j-options: \(.*\) }$/\1/p' "$f")
