@@ -1,0 +1,73 @@
+{ Every relation on a NaN is false, except /=. }
+begin
+   proc show = (string name, bool b) void:
+      puts (name + (b | " true" | " false") + "'n");
+
+   real z := 0.0, one := 1.0, two := 2.0;
+   real nan := z / z, inf := one / z;
+   long real lz := long 0.0, lone := long 1.0, ltwo := long 2.0;
+   long real lnan := lz / lz, linf := lone / lz;
+   long long real llz := long long 0.0, llone := long long 1.0;
+   long long real llnan := llz / llz;
+
+   show ("nan < 1", nan < one);
+   show ("nan <= 1", nan <= one);
+   show ("nan = 1", nan = one);
+   show ("nan /= 1", nan /= one);
+   show ("nan >= 1", nan >= one);
+   show ("nan > 1", nan > one);
+   show ("1 < nan", one < nan);
+   show ("1 <= nan", one <= nan);
+   show ("1 = nan", one = nan);
+   show ("1 /= nan", one /= nan);
+   show ("1 >= nan", one >= nan);
+   show ("1 > nan", one > nan);
+   show ("nan GT 1", nan GT one);
+   show ("nan GE 1", nan GE one);
+   show ("nan > nan", nan > nan);
+   show ("nan >= nan", nan >= nan);
+   show ("nan = nan", nan = nan);
+   show ("nan /= nan", nan /= nan);
+   show ("nan > inf", nan > inf);
+   show ("inf > nan", inf > nan);
+
+   show ("long nan < 1", lnan < lone);
+   show ("long nan <= 1", lnan <= lone);
+   show ("long nan = 1", lnan = lone);
+   show ("long nan /= 1", lnan /= lone);
+   show ("long nan >= 1", lnan >= lone);
+   show ("long nan > 1", lnan > lone);
+   show ("long 1 >= nan", lone >= lnan);
+   show ("long 1 > nan", lone > lnan);
+   show ("long nan GT 1", lnan GT lone);
+   show ("long nan GE 1", lnan GE lone);
+   show ("long nan > inf", lnan > linf);
+   show ("long inf >= nan", linf >= lnan);
+
+   show ("long long nan >= 1", llnan >= llone);
+   show ("long long nan > 1", llnan > llone);
+   show ("long long 1 >= nan", llone >= llnan);
+   show ("long long 1 > nan", llone > llnan);
+
+   { The relations as conditions. }
+   puts ((nan > one | "taken" | "not taken") + "'n");
+   puts ((lnan >= lone | "taken" | "not taken") + "'n");
+   if nan >= one orel one > nan then puts ("taken'n") else puts ("not taken'n") fi;
+   int n := 0;
+   while lnan > lone andth n < 3 do n +:= 1 od;
+   puts (whole (n, 0) + "'n");
+
+   { Ordinary values and infinities are not affected. }
+   show ("2 > 1", two > one);
+   show ("1 > 2", one > two);
+   show ("1 >= 1", one >= one);
+   show ("1 >= 2", one >= two);
+   show ("inf > 2", inf > two);
+   show ("inf >= inf", inf >= inf);
+   show ("-inf > 2", -inf > two);
+   show ("long 2 > 1", ltwo > lone);
+   show ("long 1 > 2", lone > ltwo);
+   show ("long 1 >= 1", lone >= lone);
+   show ("long 1 >= 2", lone >= ltwo);
+   show ("long inf >= inf", linf >= linf)
+end

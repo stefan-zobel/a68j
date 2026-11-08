@@ -943,8 +943,23 @@ final class Intrinsics {
                     cb.lcmp();
                 }
             }
-            case FLOAT -> cb.fcmpg();
-            case DOUBLE -> cb.dcmpg();
+            // With a NaN operand only "ne" holds, as in ga68: the instruction
+            // must yield the value that the relation rejects, 1 for lt and
+            // le, -1 for gt and ge.
+            case FLOAT -> {
+                if (rel.equals("gt") || rel.equals("ge")) {
+                    cb.fcmpl();
+                } else {
+                    cb.fcmpg();
+                }
+            }
+            case DOUBLE -> {
+                if (rel.equals("gt") || rel.equals("ge")) {
+                    cb.dcmpl();
+                } else {
+                    cb.dcmpg();
+                }
+            }
             default -> throw new IllegalStateException();
         }
         Label yes = cb.newLabel();

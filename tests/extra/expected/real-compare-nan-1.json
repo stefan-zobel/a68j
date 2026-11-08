@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "real-compare-nan-1.a68",
+ "stderr": "",
+ "stdout": "nan < 1 false\nnan <= 1 false\nnan = 1 false\nnan /= 1 true\nnan >= 1 false\nnan > 1 false\n1 < nan false\n1 <= nan false\n1 = nan false\n1 /= nan true\n1 >= nan false\n1 > nan false\nnan GT 1 false\nnan GE 1 false\nnan > nan false\nnan >= nan false\nnan = nan false\nnan /= nan true\nnan > inf false\ninf > nan false\nlong nan < 1 false\nlong nan <= 1 false\nlong nan = 1 false\nlong nan /= 1 true\nlong nan >= 1 false\nlong nan > 1 false\nlong 1 >= nan false\nlong 1 > nan false\nlong nan GT 1 false\nlong nan GE 1 false\nlong nan > inf false\nlong inf >= nan false\nlong long nan >= 1 false\nlong long nan > 1 false\nlong long 1 >= nan false\nlong long 1 > nan false\nnot taken\nnot taken\nnot taken\n0\n2 > 1 true\n1 > 2 false\n1 >= 1 true\n1 >= 2 false\ninf > 2 true\ninf >= inf true\n-inf > 2 false\nlong 2 > 1 true\nlong 1 > 2 false\nlong 1 >= 1 true\nlong 1 >= 2 false\nlong inf >= inf true\n"
+}
