@@ -30,7 +30,7 @@ where ga68 crashes or reads uninitialized memory.
 |---|---|---|---|
 | 1 | libga68 `ga68.map` | `POSIX_fileodefault` is misspelled, so a program that uses `file_o_default` does not link against the shared libga68 | links |
 | 2 | libga68 `standard.a68.in` | `string_to_real` ignores the exponent part | reproduces |
-| 3 | libga68 `standard.a68.in` | `fixed` with width 0 loops forever for values of 1e10 and above | reproduces |
+| 3 | libga68 `standard.a68.in` | `fixed` with width 0 loops forever for values of 1e10 and above, and with any width for an infinite value | reproduces |
 | 4 | libga68 `standard.a68.in` | `fixed` on `real` gives wrong digits, e.g. "15999999.0" for 1.6e7 | reproduces |
 | 5 | libga68 `standard.a68.in` | `float` on `long real` is wrong in the last digits for large exponents | reproduces |
 | 6 | libga68 `ga68-posix.c` | `fputs`, `perror`, `fopen`, `fcreate`, `getenv` and `fconnect` use the result of `_libga68_u32_to_u8` without checking it for NULL | defined result |
@@ -165,6 +165,33 @@ The second line shows that a width other than 0 avoids the loop. With
 
 Fix: compare with a real power, `{L} 10.0 ** length`, as the other powers
 of ten in `fixed`, `subfixed` and `standardize` already do.
+
+An infinite value also makes `fixed` loop forever, whatever the width, and
+this fix does not help it. This case is not part of PR 128382.
+
+```
+begin
+    long real z := long 0.0;
+    long real inf := long 1.0 / z;
+    puts (fixed (inf, 14, 1) + "'n")
+end
+```
+
+The program does not end (`timeout 8`, exit status 124; GCC trunk 17.0.0
+20261104), and neither does it with width 0. `subfixed` contains
+
+```
+while y >= {L} 10.0 ** before do before +:= 1 od;
+```
+
+`y` stays infinite, the power of ten becomes infinite after some passes,
+and `inf >= inf` holds, so the loop never ends. The loop in `fixed` behaves
+the same way once it compares with a real power: limited to 5000 passes,
+it ran all of them with `long 10.0 ** length`.
+
+A possible fix, not tried: add `ABS x <= {L} max_real` to the first
+condition of `fixed`, so that such a value reaches the `else` part, which
+yields `ABS width * errorchar`.
 
 ## 4. `fixed` on `real` gives wrong digits
 
