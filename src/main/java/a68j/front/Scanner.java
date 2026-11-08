@@ -663,7 +663,8 @@ public final class Scanner {
     private String findIncludeFile(String curfile, String filename) {
         String fnbdir = ldirname(filename);
         String incfile = lbasename(filename);
-        if (!filename.startsWith("/")) {
+        // isAbsolute instead of a test for a leading '/', for Windows paths.
+        if (!Paths.get(filename).isAbsolute()) {
             String sourcedir = ldirname(curfile);
             if (sourcedir.isEmpty() && fnbdir.isEmpty()) {
                 sourcedir = ".";
@@ -674,7 +675,7 @@ public final class Scanner {
             }
             for (String includeDir : a68.includePaths) {
                 tmpfpath = relpath(includeDir, fnbdir, incfile);
-                if (tmpfpath == null || !tmpfpath.startsWith("/")) {
+                if (tmpfpath == null || !Paths.get(tmpfpath).isAbsolute()) {
                     tmpfpath = relpath(sourcedir, fnbdir, incfile);
                 }
                 if (fileReadP(tmpfpath)) {
