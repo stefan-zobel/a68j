@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """perf_ab.py NAME...: compare compiled versions program by program,
 alternating runs (5 each, the minimum counts), so that drift of the machine
 load hits all alike.  Environment: A_JAR, A_DIR, B_JAR, B_DIR (directories

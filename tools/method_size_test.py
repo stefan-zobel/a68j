@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """method_size_test.py [--jar JAR] [--java JAVA]: methods near and above the
 limit of 65 535 bytes of code that the JVM allows in one method
 (docs/TODO-method-size.md).

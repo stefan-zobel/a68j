@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """perf_run.py JAR OUTDIR RESULT.json [LIST]: run the programs compiled by
 tools/perf_compile.sh one after the other (never in parallel: parallel JVMs
 distort the times badly) and write {name: [seconds, exit code]}.  LIST is a
