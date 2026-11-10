@@ -16,8 +16,10 @@ const path = require('path');
 const vsctm = require('vscode-textmate');
 const onig = require('vscode-oniguruma');
 
-const GRAMMAR_FILE = path.join(__dirname, '..', 'vscode-algol68', 'syntaxes',
-    'algol68.tmLanguage.json');
+// Another grammar with the scope source.algol68 can be given in the
+// environment variable A68_GRAMMAR (e.g. the one in ../textmate-algol68).
+const GRAMMAR_FILE = process.env.A68_GRAMMAR ||
+    path.join(__dirname, '..', 'vscode-algol68', 'syntaxes', 'algol68.tmLanguage.json');
 
 let grammarPromise = null;
 

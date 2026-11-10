@@ -14,6 +14,7 @@
 //     takes a comment for code.
 //
 // Usage: node check_grammar.js DUMPDIR file.a68 ...
+//        node check_grammar.js DUMPDIR @LIST    (LIST: one file name per line)
 //   The dump of a/b/c.a68 is DUMPDIR/a_b_c.a68.tok.
 
 'use strict';
@@ -65,7 +66,7 @@ function byteToChar(line, byteOff) {
 function lexemeRanges(lines, ln, col, attr, sym) {
     const rest = lines[ln].slice(col);
     let m;
-    if (attr === 'GOTO_SYMBOL' && (m = /^go\s*to/.exec(rest))) {
+    if (attr === 'GOTO_SYMBOL' && (m = /^go\s*to/i.exec(rest))) {
         return [[ln, col, col + m[0].length]];
     }
     if (attr === 'ROW_CHAR_DENOTATION') {
@@ -163,7 +164,8 @@ async function checkFile(file, dumpDir) {
             ok = has(t, ['constant.numeric']);
         } else if (attr === 'ROW_CHAR_DENOTATION') {
             ok = has(t, ['punctuation.definition.string.begin']) && t.start === col;
-        } else if (/^[a-z]/.test(src.slice(col))) {
+        } else if (/^[A-Za-z]/.test(src.slice(col))) {
+            // A reserved word: begin in SUPPER, BEGIN in UPPER.
             ok = has(t, KW);
         } else {
             ok = !has(t, NOCODE) && !has(t, ['invalid']);
@@ -189,7 +191,10 @@ async function checkFile(file, dumpDir) {
 }
 
 async function main() {
-    const [dumpDir, ...files] = process.argv.slice(2);
+    const [dumpDir, ...args] = process.argv.slice(2);
+    // @LIST: the names of the files, one per line (for long lists).
+    const files = args.flatMap((a) => a.startsWith('@') ?
+        fs.readFileSync(a.slice(1), 'utf8').split(/\r?\n/).filter((l) => l !== '') : [a]);
     if (!dumpDir || files.length === 0) {
         process.stderr.write('Usage: node check_grammar.js DUMPDIR file.a68 ...\n');
         process.exit(2);

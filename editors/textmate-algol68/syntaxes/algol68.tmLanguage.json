@@ -1,0 +1,1172 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Algol 68",
+  "scopeName": "source.algol68",
+  "fileTypes": [
+    "a68"
+  ],
+  "comment": "Algol 68 in UPPER stropping (Revised Report, Algol 68 Genie, ga68) and in SUPPER stropping (ga68); the first reserved word decides.",
+  "patterns": [
+    {
+      "include": "#s-comment"
+    },
+    {
+      "include": "#upper"
+    },
+    {
+      "include": "#supper"
+    },
+    {
+      "include": "#u-string"
+    },
+    {
+      "include": "#u-number"
+    },
+    {
+      "include": "#u-standard"
+    },
+    {
+      "include": "#s-bold"
+    },
+    {
+      "include": "#u-identifier"
+    },
+    {
+      "include": "#u-operator"
+    },
+    {
+      "include": "#u-punctuation"
+    }
+  ],
+  "repository": {
+    "upper": {
+      "comment": "UPPER stropping: from the first reserved word in capitals or # to the end of the file",
+      "begin": "(?=#|(?<![A-Z_])(?:POSTLUDE|CHANNEL|COMMENT|COMPLEX|PRAGMAT|ACCESS|ASSERT|DOWNTO|FORMAT|MODULE|STRING|STRUCT|ANDTH|BEGIN|BYTES|COMPL|EMPTY|FALSE|SHORT|SOUND|UNION|UNTIL|WHILE|ANDF|BITS|BOOL|CASE|CHAR|ELIF|ELSE|ESAC|EXIT|FILE|FLEX|FROM|GOTO|HEAP|ISNT|LONG|MODE|NOTE|OREL|OUSE|PIPE|PRIO|PROC|REAL|SEMA|SKIP|THEN|TRUE|VOID|WORD|DEF|EGG|END|FED|FOR|INT|LOC|NEW|NIL|ORF|OUT|PAR|PUB|REF|AT|BY|CO|DO|FI|GO|IF|IN|IS|OD|OF|OP|PR|TO)(?![A-Z_]))",
+      "end": "(?!)",
+      "patterns": [
+        {
+          "include": "#u-comment"
+        },
+        {
+          "include": "#u-pragmat"
+        },
+        {
+          "include": "#u-string"
+        },
+        {
+          "include": "#u-format"
+        },
+        {
+          "include": "#u-number"
+        },
+        {
+          "include": "#u-module"
+        },
+        {
+          "include": "#u-declaration"
+        },
+        {
+          "include": "#u-label"
+        },
+        {
+          "include": "#u-keyword"
+        },
+        {
+          "include": "#u-standard"
+        },
+        {
+          "include": "#u-bold"
+        },
+        {
+          "include": "#u-identifier"
+        },
+        {
+          "include": "#u-operator"
+        },
+        {
+          "include": "#u-punctuation"
+        }
+      ]
+    },
+    "supper": {
+      "comment": "SUPPER stropping: from the first reserved word in lower case or [[ to the end of the file",
+      "begin": "(?=\\[\\[|\\b(?:postlude|access|assert|module|struct|andth|begin|false|union|while|bool|case|elif|else|esac|flex|goto|heap|isnt|mode|orel|ouse|prio|proc|skip|then|true|void|end|for|int|loc|nil|par|pub|ref|do|fi|if|od|op)\\b)",
+      "end": "(?!)",
+      "patterns": [
+        {
+          "include": "#s-comment"
+        },
+        {
+          "include": "#s-pragmat"
+        },
+        {
+          "include": "#s-string"
+        },
+        {
+          "include": "#s-format"
+        },
+        {
+          "include": "#s-number"
+        },
+        {
+          "include": "#s-module"
+        },
+        {
+          "include": "#s-mixed"
+        },
+        {
+          "include": "#s-declaration"
+        },
+        {
+          "include": "#s-label"
+        },
+        {
+          "include": "#s-keyword"
+        },
+        {
+          "include": "#s-standard"
+        },
+        {
+          "include": "#s-bold"
+        },
+        {
+          "include": "#s-identifier"
+        },
+        {
+          "include": "#s-operator"
+        },
+        {
+          "include": "#s-punctuation"
+        }
+      ]
+    },
+    "u-comment": {
+      "patterns": [
+        {
+          "include": "#s-comment"
+        },
+        {
+          "comment": "NOTE ... ETON (GNU): nestable, a \"...\" inside is skipped",
+          "name": "comment.block.note.algol68",
+          "begin": "\\bNOTE\\b",
+          "end": "ETON",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-note"
+            },
+            {
+              "include": "#u-comment-content"
+            }
+          ]
+        },
+        {
+          "name": "comment.block.bold.algol68",
+          "begin": "\\bCOMMENT\\b",
+          "end": "COMMENT",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-todo"
+            }
+          ]
+        },
+        {
+          "name": "comment.block.co.algol68",
+          "begin": "\\bCO\\b",
+          "end": "CO",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-todo"
+            }
+          ]
+        },
+        {
+          "name": "comment.block.hash.algol68",
+          "begin": "#",
+          "end": "#",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-todo"
+            }
+          ]
+        }
+      ]
+    },
+    "u-note": {
+      "begin": "\\bNOTE\\b",
+      "end": "ETON",
+      "patterns": [
+        {
+          "include": "#u-note"
+        },
+        {
+          "include": "#u-comment-content"
+        }
+      ]
+    },
+    "u-comment-content": {
+      "patterns": [
+        {
+          "comment": "a string in a nestable comment: its end delimiter does not count",
+          "begin": "\"",
+          "end": "\"",
+          "name": "comment.block.string.algol68"
+        },
+        {
+          "include": "#u-todo"
+        }
+      ]
+    },
+    "u-todo": {
+      "match": "\\b(?:TODO|FIXME|XXX)\\b",
+      "name": "keyword.other.todo.algol68"
+    },
+    "u-pragmat": {
+      "comment": "PR ... PR, PRAGMAT ... PRAGMAT and ORDER ... REDRO (GNU)",
+      "patterns": [
+        {
+          "name": "meta.preprocessor.pragmat.algol68",
+          "begin": "\\bPRAGMAT\\b",
+          "end": "PRAGMAT",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-pragmat-content"
+            }
+          ]
+        },
+        {
+          "name": "meta.preprocessor.pragmat.algol68",
+          "begin": "\\bPR\\b",
+          "end": "PR",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-pragmat-content"
+            }
+          ]
+        },
+        {
+          "name": "meta.preprocessor.pragmat.algol68",
+          "begin": "\\bORDER\\b",
+          "end": "REDRO",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.begin.algol68"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.pragmat.end.algol68"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#u-pragmat-content"
+            }
+          ]
+        }
+      ]
+    },
+    "u-pragmat-content": {
+      "patterns": [
+        {
+          "match": "\\b(?:include|read|access)\\b",
+          "name": "keyword.control.directive.algol68"
+        },
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.algol68"
+        },
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.algol68"
+        }
+      ]
+    },
+    "u-string": {
+      "name": "string.quoted.double.algol68",
+      "begin": "\"",
+      "end": "\"(?!\")",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\"\"",
+          "name": "constant.character.escape.quote.algol68"
+        },
+        {
+          "comment": "characters by their code (GNU): '(u00e4, U0001F600)",
+          "match": "'\\(\\s*[uU][0-9A-Fa-f]+(?:\\s*,\\s*[uU][0-9A-Fa-f]+)*\\s*\\)",
+          "name": "constant.character.escape.unicode.algol68"
+        }
+      ]
+    },
+    "u-format": {
+      "comment": "format text $...$",
+      "name": "meta.format.algol68",
+      "begin": "\\$",
+      "end": "\\$",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.format.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.format.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#u-comment"
+        },
+        {
+          "include": "#u-string"
+        },
+        {
+          "match": "\\d+",
+          "name": "constant.numeric.format.algol68"
+        },
+        {
+          "match": "[A-Za-z]",
+          "name": "constant.other.format-item.algol68"
+        },
+        {
+          "match": "[(),]",
+          "name": "punctuation.format.algol68"
+        }
+      ]
+    },
+    "u-number": {
+      "patterns": [
+        {
+          "comment": "bits denotation: radix 2, 4, 8, 10 (GNU) or 16",
+          "match": "(?<![a-z0-9_.])(?:2[ \\t]*r[ \\t]*[01](?:[ \\t]*[01])*|4[ \\t]*r[ \\t]*[0-3](?:[ \\t]*[0-3])*|8[ \\t]*r[ \\t]*[0-7](?:[ \\t]*[0-7])*|10[ \\t]*r[ \\t]*[0-9](?:[ \\t]*[0-9])*|16[ \\t]*r[ \\t]*[0-9a-f](?:[ \\t]*[0-9a-f])*)(?![0-9a-z_])",
+          "name": "constant.numeric.bits.algol68"
+        },
+        {
+          "comment": "a wrong digit for the radix (2r03, 16rfg) or a wrong radix",
+          "match": "(?<![a-z0-9_.])\\d+[ \\t]*r[ \\t]*[0-9a-z_]+",
+          "name": "invalid.illegal.bits.algol68"
+        },
+        {
+          "comment": "1.5, 1 .5, .5, 1e3, 1.e3, 1.5e-3 (also with spaces)",
+          "match": "(?<![a-z0-9_.])(?:\\d(?:[ \\t]*\\d)*[ \\t]*\\.[ \\t]*\\d(?:[ \\t]*\\d)*(?:[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*)?|\\d(?:[ \\t]*\\d)*(?:[ \\t]*\\.)?[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*|\\.[ \\t]*\\d(?:[ \\t]*\\d)*(?:[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*)?)",
+          "name": "constant.numeric.real.algol68"
+        },
+        {
+          "match": "(?<![a-z0-9_.])\\d(?:[ \\t]*\\d)*",
+          "name": "constant.numeric.integer.algol68"
+        }
+      ]
+    },
+    "u-module": {
+      "patterns": [
+        {
+          "comment": "MODULE NAME = ...",
+          "match": "\\b(MODULE)\\s+([A-Z][A-Z_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.module.algol68"
+            },
+            "2": {
+              "name": "entity.name.namespace.algol68"
+            }
+          }
+        },
+        {
+          "comment": "ACCESS [PUB] A, [PUB] B",
+          "match": "\\b(ACCESS)\\s+((?:PUB\\s+)?[A-Z][A-Z_]*(?:\\s*,\\s*(?:PUB\\s+)?[A-Z][A-Z_]*)*)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import.algol68"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "match": "\\bPUB\\b",
+                  "name": "storage.modifier.pub.algol68"
+                },
+                {
+                  "match": "[A-Z][A-Z_]*",
+                  "name": "entity.name.namespace.algol68"
+                },
+                {
+                  "match": ",",
+                  "name": "punctuation.separator.comma.algol68"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "\\bACCESS\\b",
+          "name": "keyword.control.import.algol68"
+        },
+        {
+          "match": "\\bPUB\\b",
+          "name": "storage.modifier.pub.algol68"
+        },
+        {
+          "comment": "formal hole: NEST C \"name\"",
+          "match": "\\b(NEST)\\s+([A-Z][A-Z_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.nest.algol68"
+            },
+            "2": {
+              "name": "support.constant.formal-hole.language.algol68"
+            }
+          }
+        },
+        {
+          "match": "\\bNEST\\b",
+          "name": "keyword.other.nest.algol68"
+        }
+      ]
+    },
+    "u-declaration": {
+      "patterns": [
+        {
+          "comment": "MODE NAME = ...",
+          "match": "\\b(MODE)\\s+([A-Z][A-Z_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "storage.type.mode.algol68"
+            },
+            "2": {
+              "name": "entity.name.type.algol68"
+            }
+          }
+        },
+        {
+          "comment": "OP NAME = ..., OP + = ..., OP +:= = ...",
+          "match": "\\b(OP)\\s+([A-Z][A-Z_]*|[-+*/%^&~<>=!?×÷≤≥≠¬∧∨↑↓]+(?::=|=:)?)(?=\\s*:?=)",
+          "captures": {
+            "1": {
+              "name": "storage.type.op.algol68"
+            },
+            "2": {
+              "name": "entity.name.function.operator.algol68"
+            }
+          }
+        },
+        {
+          "comment": "PRIO NAME = 5, PRIO + = 6",
+          "match": "\\b(PRIO)\\s+([A-Z][A-Z_]*|[-+*/%^&~<>=!?×÷≤≥≠¬∧∨↑↓]+(?::=|=:)?)(?=\\s*=)",
+          "captures": {
+            "1": {
+              "name": "storage.type.prio.algol68"
+            },
+            "2": {
+              "name": "entity.name.function.operator.algol68"
+            }
+          }
+        },
+        {
+          "comment": "PROC name = ... and PROC name := ...",
+          "match": "\\b(PROC)\\s+([a-z][a-z0-9_]*+(?:[ \\t]++[a-z0-9][a-z0-9_]*+)*+)(?=\\s*:?=)",
+          "captures": {
+            "1": {
+              "name": "storage.type.proc.algol68"
+            },
+            "2": {
+              "name": "entity.name.function.algol68"
+            }
+          }
+        },
+        {
+          "comment": "name = (INT a) INT: ... (a routine text, e.g. after PROC (INT) INT)",
+          "match": "(?<![a-z0-9_])([a-z][a-z0-9_]*+(?:[ \\t]++[a-z0-9][a-z0-9_]*+)*+)(?=\\s*=(?!=)\\s*(?>\\s*\\([^()]*+\\))?(?>\\s*+(?:\\[[^\\]]*+\\]|[A-Z][A-Z_]*+))*+\\s*:(?!=))",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.algol68"
+            }
+          }
+        }
+      ]
+    },
+    "u-label": {
+      "patterns": [
+        {
+          "comment": "a label at the start of a line or after ';': stop: SKIP",
+          "match": "(?:^|(?<=;))\\s*([a-z][a-z0-9_]*+(?:[ \\t]++[a-z0-9][a-z0-9_]*+)*+)\\s*(:)(?![=/])",
+          "captures": {
+            "1": {
+              "name": "entity.name.label.algol68"
+            },
+            "2": {
+              "name": "punctuation.separator.label.algol68"
+            }
+          }
+        },
+        {
+          "match": "\\b(GOTO|GO\\s+TO)\\s+([a-z][a-z0-9_]*+(?:[ \\t]++[a-z0-9][a-z0-9_]*+)*+)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.goto.algol68"
+            },
+            "2": {
+              "name": "entity.name.label.algol68"
+            }
+          }
+        }
+      ]
+    },
+    "u-keyword": {
+      "patterns": [
+        {
+          "match": "(?<![A-Z_])(?:ASSERT|DOWNTO|BEGIN|UNTIL|WHILE|CASE|ELIF|ELSE|ESAC|EXIT|FROM|GOTO|OUSE|THEN|END|FOR|OUT|PAR|BY|DO|FI|GO|IF|IN|OD|TO)(?![A-Z_])",
+          "name": "keyword.control.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:POSTLUDE|MODULE|DEF|EGG|FED)(?![A-Z_])",
+          "name": "keyword.other.module.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:MODE|PRIO|PROC|OP)(?![A-Z_])",
+          "name": "storage.type.declaration.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:CHANNEL|COMPLEX|FORMAT|STRING|BYTES|COMPL|SOUND|BITS|BOOL|CHAR|FILE|PIPE|REAL|SEMA|VOID|INT)(?![A-Z_])",
+          "name": "storage.type.primitive.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:STRUCT|SHORT|UNION|FLEX|HEAP|LONG|WORD|LOC|NEW|REF)(?![A-Z_])",
+          "name": "storage.modifier.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:EMPTY|FALSE|SKIP|TRUE|NIL)(?![A-Z_])",
+          "name": "constant.language.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:ANDTH|TRNSP|ANDF|DIAG|ELSF|ISNT|OREL|THEF|COL|ORF|ROW|AT|IS|OF)(?![A-Z_])",
+          "name": "keyword.operator.wordlike.algol68"
+        },
+        {
+          "match": "(?<![A-Z_])(?:ENVIRON|CLASS|ALIF|CODE|EDOC)(?![A-Z_])",
+          "name": "keyword.other.algol68"
+        }
+      ]
+    },
+    "u-standard": {
+      "patterns": [
+        {
+          "match": "(?<![a-z0-9_])(?:(?:long|short)[ \\t_]*)*(?:minus[ \\t_]*infinity|bytes[ \\t_]*width|bits[ \\t_]*width|real[ \\t_]*width|small[ \\t_]*real|exp[ \\t_]*width|int[ \\t_]*width|infinity|max[ \\t_]*bits|max[ \\t_]*real|min[ \\t_]*real|max[ \\t_]*int|min[ \\t_]*inf|min[ \\t_]*int|inf|pi)(?![a-z0-9_]|[ \\t]*[a-z0-9])",
+          "name": "support.constant.algol68"
+        },
+        {
+          "match": "(?<![a-z0-9_])(?:(?:long|short)[ \\t_]*)*(?:string[ \\t_]*to[ \\t_]*real|inverse[ \\t_]*erfc|inverse[ \\t_]*erf|last[ \\t_]*random|next[ \\t_]*random|bytes[ \\t_]*pack|bits[ \\t_]*pack|inv[ \\t_]*erfc|ln[ \\t_]*gamma|arc[ \\t_]*cos|arc[ \\t_]*sin|arc[ \\t_]*tan|inv[ \\t_]*erf|ln[ \\t_]*beta|cos[ \\t_]*dg|cos[ \\t_]*pi|cot[ \\t_]*dg|cot[ \\t_]*pi|csc[ \\t_]*dg|random|sec[ \\t_]*dg|sin[ \\t_]*dg|sin[ \\t_]*pi|tan[ \\t_]*dg|tan[ \\t_]*pi|gamma|ln[ \\t_]*1p|beta|cbrt|cosh|curt|erfc|sinh|sqrt|tanh|cos|cot|csc|erf|exp|log|sec|sin|tan|ln)(?![a-z0-9_]|[ \\t]*[a-z0-9])",
+          "name": "support.function.algol68"
+        },
+        {
+          "match": "(?<![a-z0-9_])(?:form[ \\t_]*feed[ \\t_]*character|stand[ \\t_]*error[ \\t_]*channel|new[ \\t_]*line[ \\t_]*character|stand[ \\t_]*back[ \\t_]*channel|stand[ \\t_]*draw[ \\t_]*channel|stand[ \\t_]*out[ \\t_]*channel|replacement[ \\t_]*char|stand[ \\t_]*in[ \\t_]*channel|blank[ \\t_]*character|file[ \\t_]*o[ \\t_]*default|form[ \\t_]*feed[ \\t_]*char|null[ \\t_]*character|bytes[ \\t_]*lengths|bytes[ \\t_]*shorths|compl[ \\t_]*lengths|compl[ \\t_]*shorths|file[ \\t_]*o[ \\t_]*rdonly|file[ \\t_]*o[ \\t_]*wronly|new[ \\t_]*line[ \\t_]*char|tab[ \\t_]*character|bits[ \\t_]*lengths|bits[ \\t_]*shorths|file[ \\t_]*o[ \\t_]*trunc|max[ \\t_]*abs[ \\t_]*char|real[ \\t_]*lengths|real[ \\t_]*shorths|file[ \\t_]*o[ \\t_]*rdwr|int[ \\t_]*lengths|int[ \\t_]*shorths|stand[ \\t_]*error|blank[ \\t_]*char|error[ \\t_]*char|stand[ \\t_]*back|null[ \\t_]*char|stand[ \\t_]*out|eof[ \\t_]*char|exp[ \\t_]*char|mp[ \\t_]*radix|seek[ \\t_]*cur|seek[ \\t_]*end|seek[ \\t_]*set|stand[ \\t_]*in|tab[ \\t_]*char|stderr|stdout|blank|stdin|flip|flop)(?![a-z0-9_]|[ \\t]*[a-z0-9])",
+          "name": "support.constant.algol68"
+        },
+        {
+          "match": "(?<![a-z0-9_])(?:draw[ \\t_]*background[ \\t_]*colour[ \\t_]*name|draw[ \\t_]*background[ \\t_]*color[ \\t_]*name|pq[ \\t_]*result[ \\t_]*error[ \\t_]*message|curses[ \\t_]*magenta[ \\t_]*inverse|draw[ \\t_]*background[ \\t_]*colour|curses[ \\t_]*yellow[ \\t_]*inverse|draw[ \\t_]*background[ \\t_]*color|preemptive[ \\t_]*sweep[ \\t_]*heap|curses[ \\t_]*green[ \\t_]*inverse|curses[ \\t_]*white[ \\t_]*inverse|draw[ \\t_]*get[ \\t_]*colour[ \\t_]*name|file[ \\t_]*is[ \\t_]*block[ \\t_]*device|on[ \\t_]*physical[ \\t_]*file[ \\t_]*end|system[ \\t_]*stack[ \\t_]*pointer|curses[ \\t_]*blue[ \\t_]*inverse|curses[ \\t_]*cyan[ \\t_]*inverse|draw[ \\t_]*get[ \\t_]*color[ \\t_]*name|file[ \\t_]*is[ \\t_]*char[ \\t_]*device|garbage[ \\t_]*collections|last[ \\t_]*char[ \\t_]*in[ \\t_]*string|on[ \\t_]*logical[ \\t_]*file[ \\t_]*end|pq[ \\t_]*parameter[ \\t_]*status|pq[ \\t_]*protocol[ \\t_]*version|system[ \\t_]*heap[ \\t_]*pointer|curses[ \\t_]*red[ \\t_]*inverse|exec[ \\t_]*ve[ \\t_]*child[ \\t_]*pipe|actual[ \\t_]*stack[ \\t_]*size|exec[ \\t_]*sub[ \\t_]*pipeline|file[ \\t_]*is[ \\t_]*directory|grep[ \\t_]*in[ \\t_]*substring|on[ \\t_]*transput[ \\t_]*error|pq[ \\t_]*server[ \\t_]*version|system[ \\t_]*stack[ \\t_]*size|draw[ \\t_]*colour[ \\t_]*name|pq[ \\t_]*error[ \\t_]*message|preemptive[ \\t_]*sweep|string[ \\t_]*in[ \\t_]*string|collect[ \\t_]*seconds|curses[ \\t_]*del[ \\t_]*char|curses[ \\t_]*get[ \\t_]*char|curses[ \\t_]*put[ \\t_]*char|draw[ \\t_]*color[ \\t_]*name|draw[ \\t_]*fill[ \\t_]*style|draw[ \\t_]*line[ \\t_]*style|draw[ \\t_]*line[ \\t_]*width|draw[ \\t_]*text[ \\t_]*angle|exec[ \\t_]*sub[ \\t_]*output|file[ \\t_]*is[ \\t_]*regular|garbage[ \\t_]*refused|garbage[ \\t_]*seconds|on[ \\t_]*format[ \\t_]*error|rewind[ \\t_]*possible|char[ \\t_]*in[ \\t_]*string|curses[ \\t_]*columns|curses[ \\t_]*magenta|curses[ \\t_]*refresh|draw[ \\t_]*font[ \\t_]*name|draw[ \\t_]*font[ \\t_]*size|exec[ \\t_]*ve[ \\t_]*output|grep[ \\t_]*in[ \\t_]*string|on[ \\t_]*value[ \\t_]*error|pq[ \\t_]*backend[ \\t_]*pid|pq[ \\t_]*get[ \\t_]*is[ \\t_]*null|reidf[ \\t_]*possible|reset[ \\t_]*possible|sweeps[ \\t_]*refused|curses[ \\t_]*yellow|draw[ \\t_]*possible|exec[ \\t_]*ve[ \\t_]*child|garbage[ \\t_]*freed|get[ \\t_]*directory|https[ \\t_]*content|on[ \\t_]*char[ \\t_]*error|on[ \\t_]*format[ \\t_]*end|on[ \\t_]*open[ \\t_]*error|pq[ \\t_]*cmd[ \\t_]*status|pq[ \\t_]*cmd[ \\t_]*tuples|pq[ \\t_]*connect[ \\t_]*db|preemptive[ \\t_]*gc|stack[ \\t_]*pointer|sub[ \\t_]*in[ \\t_]*string|bin[ \\t_]*possible|compressible|curses[ \\t_]*clear|curses[ \\t_]*green|curses[ \\t_]*lines|curses[ \\t_]*start|curses[ \\t_]*white|file[ \\t_]*is[ \\t_]*fifo|file[ \\t_]*is[ \\t_]*link|first[ \\t_]*random|gamma[ \\t_]*inc[ \\t_]*gf|get[ \\t_]*possible|heap[ \\t_]*pointer|http[ \\t_]*content|pq[ \\t_]*get[ \\t_]*value|put[ \\t_]*possible|set[ \\t_]*possible|char[ \\t_]*number|collections|create[ \\t_]*pipe|curses[ \\t_]*blue|curses[ \\t_]*cyan|curses[ \\t_]*move|draw[ \\t_]*aspect|draw[ \\t_]*circle|draw[ \\t_]*colour|draw[ \\t_]*device|end[ \\t_]*of[ \\t_]*file|end[ \\t_]*of[ \\t_]*line|gamma[ \\t_]*inc[ \\t_]*f|gamma[ \\t_]*inc[ \\t_]*g|line[ \\t_]*number|make[ \\t_]*device|on[ \\t_]*file[ \\t_]*end|on[ \\t_]*gc[ \\t_]*event|on[ \\t_]*line[ \\t_]*end|on[ \\t_]*page[ \\t_]*end|page[ \\t_]*number|pq[ \\t_]*f[ \\t_]*format|pq[ \\t_]*f[ \\t_]*number|pq[ \\t_]*n[ \\t_]*fields|pq[ \\t_]*n[ \\t_]*tuples|program[ \\t_]*idf|reset[ \\t_]*errno|back[ \\t_]*space|curses[ \\t_]*end|curses[ \\t_]*red|draw[ \\t_]*clear|draw[ \\t_]*color|draw[ \\t_]*erase|draw[ \\t_]*flush|draw[ \\t_]*point|local[ \\t_]*time|posix[ \\t_]*exit|pq[ \\t_]*options|stand[ \\t_]*conv|sweep[ \\t_]*heap|a68g[ \\t_]*argc|a68g[ \\t_]*argv|associate|backtrace|draw[ \\t_]*ball|draw[ \\t_]*line|draw[ \\t_]*move|draw[ \\t_]*rect|draw[ \\t_]*show|draw[ \\t_]*star|draw[ \\t_]*text|establish|file[ \\t_]*mode|gamma[ \\t_]*inc|get[ \\t_]*sound|is[ \\t_]*xdigit|ln[ \\t_]*choose|make[ \\t_]*conv|make[ \\t_]*term|new[ \\t_]*sound|pq[ \\t_]*f[ \\t_]*name|pq[ \\t_]*finish|pq[ \\t_]*socket|print[ \\t_]*bin|read[ \\t_]*line|real[ \\t_]*path|set[ \\t_]*sound|str[ \\t_]*error|write[ \\t_]*bin|beta[ \\t_]*inc|cpu[ \\t_]*time|evaluate|exec[ \\t_]*sub|fconnect|is[ \\t_]*alnum|is[ \\t_]*alpha|is[ \\t_]*cntrl|is[ \\t_]*digit|is[ \\t_]*graph|is[ \\t_]*lower|is[ \\t_]*print|is[ \\t_]*punct|is[ \\t_]*space|is[ \\t_]*upper|new[ \\t_]*line|new[ \\t_]*page|pq[ \\t_]*reset|read[ \\t_]*bin|strerror|string[ \\t_]*f|to[ \\t_]*lower|to[ \\t_]*upper|utc[ \\t_]*time|wait[ \\t_]*pid|columns|exec[ \\t_]*ve|fcreate|garbage|gc[ \\t_]*heap|get[ \\t_]*bin|get[ \\t_]*env|get[ \\t_]*pwd|getchar|ln[ \\t_]*fact|monitor|pq[ \\t_]*exec|pq[ \\t_]*host|pq[ \\t_]*pass|pq[ \\t_]*port|pq[ \\t_]*user|print[ \\t_]*f|put[ \\t_]*bin|putchar|scratch|seconds|set[ \\t_]*pwd|sigsegv|write[ \\t_]*f|blocks|choose|create|fclose|getenv|gets[ \\t_]*f|perror|pq[ \\t_]*tty|puts[ \\t_]*f|read[ \\t_]*f|rewind|string|sweeps|system|abend|break|clock|close|debug|erase|errno|fgetc|fgets|fixed|float|fopen|fputc|fputs|fsize|get[ \\t_]*f|lseek|pq[ \\t_]*db|print|put[ \\t_]*f|reidf|reset|sleep|space|whole|write|argc|argv|chan|eoln|exec|fact|fork|gets|lock|open|puts|read|rows|seek|term|cas|eof|get|idf|put|rnd|set)(?![a-z0-9_]|[ \\t]*[a-z0-9])",
+          "name": "support.function.algol68"
+        }
+      ]
+    },
+    "u-bold": {
+      "patterns": [
+        {
+          "match": "(?<![A-Z_])(?:RESOLUTION|CHANNELS|MINUSAB|SAMPLES|SHORTEN|TIMESAB|BEFORE|ENTIER|OVERAB|PLUSAB|PLUSTO|ABOVE|CLEAR|DIVAB|ELEMS|FLOOR|LEVEL|MODAB|ROUND|TRACE|CONJ|DOWN|DYAD|ELEM|LENG|MEAN|NORM|OVER|PINV|RATE|REPR|SIGN|SORT|TEST|ABS|AND|ARG|BIN|DET|INV|LWB|MOD|NOT|ODD|ROL|ROR|SET|SHL|SHR|UPB|XOR|CV|EQ|GE|GT|IM|LE|LT|NE|OR|RE|RV|UP|I|T)(?![A-Z_])",
+          "name": "support.function.operator.algol68"
+        },
+        {
+          "comment": "a bold word right after an operand: a dyadic operator (a MAX b)",
+          "match": "(?<=[a-z0-9\\\"])[ \\t]*+(?!(?<![A-Z_])(?:RESOLUTION|CHANNELS|POSTLUDE|CHANNEL|COMMENT|COMPLEX|ENVIRON|MINUSAB|PRAGMAT|SAMPLES|SHORTEN|TIMESAB|ACCESS|ASSERT|BEFORE|DOWNTO|ENTIER|FORMAT|MODULE|OVERAB|PLUSAB|PLUSTO|STRING|STRUCT|ABOVE|ANDTH|BEGIN|BYTES|CLASS|CLEAR|COMPL|DIVAB|ELEMS|EMPTY|FALSE|FLOOR|LEVEL|MODAB|ORDER|REDRO|ROUND|SHORT|SOUND|TRACE|TRNSP|UNION|UNTIL|WHILE|ALIF|ANDF|BITS|BOOL|CASE|CHAR|CODE|CONJ|DIAG|DOWN|DYAD|EDOC|ELEM|ELIF|ELSE|ELSF|ESAC|ETON|EXIT|FILE|FLEX|FROM|GOTO|HEAP|ISNT|LENG|LONG|MEAN|MODE|NEST|NORM|NOTE|OREL|OUSE|OVER|PINV|PIPE|PRIO|PROC|RATE|REAL|REPR|SEMA|SIGN|SKIP|SORT|TEST|THEF|THEN|TRUE|VOID|WORD|ABS|AND|ARG|BIN|COL|DEF|DET|EGG|END|FED|FOR|INT|INV|LOC|LWB|MOD|NEW|NIL|NOT|ODD|ORF|OUT|PAR|PUB|REF|ROL|ROR|ROW|SET|SHL|SHR|UPB|XOR|AT|BY|CO|CV|DO|EQ|FI|GE|GO|GT|IF|IM|IN|IS|LE|LT|NE|OD|OF|OP|OR|PR|RE|RV|TO|UP|I|T)(?![A-Z_]))([A-Z][A-Z_]*)(?![A-Z_])",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.operator.algol68"
+            }
+          }
+        },
+        {
+          "comment": "otherwise: a mode indicant (NODE, LIST)",
+          "match": "(?<![A-Z_])[A-Z][A-Z_]*(?![A-Z_])",
+          "name": "entity.name.type.algol68"
+        }
+      ]
+    },
+    "u-identifier": {
+      "comment": "An identifier, with the blanks between its words (max int).",
+      "match": "(?<![a-z0-9_])[a-z][a-z0-9_]*+(?:[ \\t]++[a-z0-9][a-z0-9_]*+)*+",
+      "name": "variable.other.algol68"
+    },
+    "u-operator": {
+      "patterns": [
+        {
+          "match": ":/=:|:=:",
+          "name": "keyword.operator.identity.algol68"
+        },
+        {
+          "match": "[-+*/%^&~<>=!?×÷≤≥≠¬∧∨↑↓]+(?::=|=:)",
+          "name": "keyword.operator.assignment.compound.algol68"
+        },
+        {
+          "match": ":=|=:",
+          "name": "keyword.operator.assignment.algol68"
+        },
+        {
+          "match": "[-+*/%^&~<>=!?×÷≤≥≠¬∧∨↑↓]+",
+          "name": "keyword.operator.algol68"
+        },
+        {
+          "match": "@",
+          "name": "keyword.operator.at.algol68"
+        }
+      ]
+    },
+    "u-punctuation": {
+      "patterns": [
+        {
+          "match": "\\|:|\\|",
+          "name": "keyword.control.brief.algol68"
+        },
+        {
+          "match": ";",
+          "name": "punctuation.separator.semicolon.algol68"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.algol68"
+        },
+        {
+          "comment": "Genie: a trimmer [a..b]",
+          "match": "\\.\\.",
+          "name": "punctuation.separator.range.algol68"
+        },
+        {
+          "match": ":",
+          "name": "punctuation.separator.colon.algol68"
+        },
+        {
+          "match": "[()]",
+          "name": "punctuation.parenthesis.algol68"
+        },
+        {
+          "match": "[\\[\\]]",
+          "name": "punctuation.brackets.algol68"
+        },
+        {
+          "match": "\\.",
+          "name": "punctuation.accessor.algol68"
+        }
+      ]
+    },
+    "s-comment": {
+      "comment": "{ ... } is the only comment in SUPPER; nestable, a \"...\" inside it is skipped (Scanner.pragment).",
+      "name": "comment.block.algol68",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#s-comment"
+        },
+        {
+          "comment": "a string in a comment: a } inside it does not count",
+          "begin": "\"",
+          "end": "\"",
+          "name": "comment.block.string.algol68"
+        },
+        {
+          "match": "\\b(?:TODO|FIXME|XXX)\\b",
+          "name": "keyword.other.todo.algol68"
+        }
+      ]
+    },
+    "s-pragmat": {
+      "comment": "[[ ... ]] is the only pragmat in SUPPER (GNU).",
+      "name": "meta.preprocessor.pragmat.algol68",
+      "begin": "\\[\\[",
+      "end": "\\]\\]",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.pragmat.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.pragmat.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\b(?:include|access|in)\\b",
+          "name": "keyword.control.directive.algol68"
+        },
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.algol68"
+        },
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.algol68"
+        }
+      ]
+    },
+    "s-string": {
+      "name": "string.quoted.double.algol68",
+      "begin": "\"",
+      "end": "\"(?!\")",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\"\"",
+          "name": "constant.character.escape.quote.algol68"
+        },
+        {
+          "match": "'[nfrt']",
+          "name": "constant.character.escape.algol68"
+        },
+        {
+          "comment": "characters by their code: '(u00e4, U0001F600)",
+          "match": "'\\(\\s*[uU][0-9A-Fa-f]+(?:\\s*,\\s*[uU][0-9A-Fa-f]+)*\\s*\\)",
+          "name": "constant.character.escape.unicode.algol68"
+        },
+        {
+          "match": "'.?",
+          "name": "invalid.illegal.escape.algol68"
+        }
+      ]
+    },
+    "s-format": {
+      "comment": "format text $...$",
+      "name": "meta.format.algol68",
+      "begin": "\\$",
+      "end": "\\$",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.format.begin.algol68"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.format.end.algol68"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#s-comment"
+        },
+        {
+          "include": "#s-string"
+        },
+        {
+          "match": "\\d+",
+          "name": "constant.numeric.format.algol68"
+        },
+        {
+          "match": "[A-Za-z]",
+          "name": "constant.other.format-item.algol68"
+        },
+        {
+          "match": "[(),]",
+          "name": "punctuation.format.algol68"
+        }
+      ]
+    },
+    "s-number": {
+      "patterns": [
+        {
+          "comment": "bits denotation: radix 2, 4, 8, 10 (GNU) or 16",
+          "match": "\\b(?:2[ \\t]*r[ \\t]*[01](?:[ \\t]*[01])*|4[ \\t]*r[ \\t]*[0-3](?:[ \\t]*[0-3])*|8[ \\t]*r[ \\t]*[0-7](?:[ \\t]*[0-7])*|10[ \\t]*r[ \\t]*[0-9](?:[ \\t]*[0-9])*|16[ \\t]*r[ \\t]*[0-9a-f]+)(?![0-9A-Za-z_])",
+          "name": "constant.numeric.bits.algol68"
+        },
+        {
+          "comment": "a wrong digit for the radix (2r03, 16rfg) or a wrong radix",
+          "match": "\\b\\d+[ \\t]*r[ \\t]*[0-9A-Za-z_]+",
+          "name": "invalid.illegal.bits.algol68"
+        },
+        {
+          "comment": "1.5, 1 .5, .5, 1e3, 1.e3, 1.5e-3 (also with spaces)",
+          "match": "(?<![\\w.])(?:\\d(?:[ \\t]*\\d)*[ \\t]*\\.[ \\t]*\\d(?:[ \\t]*\\d)*(?:[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*)?|\\d(?:[ \\t]*\\d)*(?:[ \\t]*\\.)?[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*|\\.[ \\t]*\\d(?:[ \\t]*\\d)*(?:[ \\t]*[eE][ \\t]*[+-]?[ \\t]*\\d(?:[ \\t]*\\d)*)?)",
+          "name": "constant.numeric.real.algol68"
+        },
+        {
+          "match": "\\b\\d(?:[ \\t]*\\d)*\\b",
+          "name": "constant.numeric.integer.algol68"
+        }
+      ]
+    },
+    "s-module": {
+      "patterns": [
+        {
+          "comment": "module Name = ...",
+          "match": "\\b(module)\\s+([A-Z][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.module.algol68"
+            },
+            "2": {
+              "name": "entity.name.namespace.algol68"
+            }
+          }
+        },
+        {
+          "comment": "access [pub] A, [pub] B",
+          "match": "\\b(access)\\s+((?:pub\\s+)?[A-Z][A-Za-z0-9_]*(?:\\s*,\\s*(?:pub\\s+)?[A-Z][A-Za-z0-9_]*)*)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.import.algol68"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "match": "\\bpub\\b",
+                  "name": "storage.modifier.pub.algol68"
+                },
+                {
+                  "match": "[A-Z][A-Za-z0-9_]*",
+                  "name": "entity.name.namespace.algol68"
+                },
+                {
+                  "match": ",",
+                  "name": "punctuation.separator.comma.algol68"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "\\baccess\\b",
+          "name": "keyword.control.import.algol68"
+        },
+        {
+          "match": "\\bpub\\b",
+          "name": "storage.modifier.pub.algol68"
+        },
+        {
+          "comment": "formal hole: nest C \"name\", nest Java \"Class.method\"",
+          "match": "\\b(nest)\\s+([A-Z][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.nest.algol68"
+            },
+            "2": {
+              "name": "support.constant.formal-hole.language.algol68"
+            }
+          }
+        },
+        {
+          "match": "\\bnest\\b",
+          "name": "keyword.other.nest.algol68"
+        }
+      ]
+    },
+    "s-declaration": {
+      "patterns": [
+        {
+          "comment": "mode Name = ...",
+          "match": "\\b(mode)\\s+([A-Z][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "storage.type.mode.algol68"
+            },
+            "2": {
+              "name": "entity.name.type.algol68"
+            }
+          }
+        },
+        {
+          "comment": "op NAME = ..., op + = ..., op +:= = ...",
+          "match": "\\b(op)\\s+([A-Z][A-Za-z0-9_]*|[-+*/%^&~<>=!?]+(?::=|=:)?)(?=\\s*:?=)",
+          "captures": {
+            "1": {
+              "name": "storage.type.op.algol68"
+            },
+            "2": {
+              "name": "entity.name.function.operator.algol68"
+            }
+          }
+        },
+        {
+          "comment": "proc name = ... and proc name := ...",
+          "match": "\\b(proc)\\s+((?!\\b(?:postlude|channel|access|assert|module|string|struct|andth|begin|bytes|compl|empty|false|short|union|while|bits|bool|case|char|elif|else|esac|exit|file|flex|from|goto|heap|isnt|long|mode|nest|orel|ouse|prio|proc|real|sema|skip|then|true|void|word|def|egg|end|fed|for|int|loc|nil|out|par|pub|ref|at|by|do|fi|go|if|in|is|od|of|op|to)\\b)[a-z][a-z0-9_]*)(?=\\s*:?=)",
+          "captures": {
+            "1": {
+              "name": "storage.type.proc.algol68"
+            },
+            "2": {
+              "name": "entity.name.function.algol68"
+            }
+          }
+        },
+        {
+          "comment": "name = (int a) int: ... (a routine text, e.g. after proc (int) int)",
+          "match": "\\b((?!\\b(?:postlude|channel|access|assert|module|string|struct|andth|begin|bytes|compl|empty|false|short|union|while|bits|bool|case|char|elif|else|esac|exit|file|flex|from|goto|heap|isnt|long|mode|nest|orel|ouse|prio|proc|real|sema|skip|then|true|void|word|def|egg|end|fed|for|int|loc|nil|out|par|pub|ref|at|by|do|fi|go|if|in|is|od|of|op|to)\\b)[a-z][a-z0-9_]*)(?=\\s*=(?!=)\\s*(?>\\s*\\([^()]*+\\))?(?>\\s*+(?:(?:int|real|bool|char|string|void|bits|bytes|compl|sema|file|channel|ref|flex|heap|loc|long|short|struct|union|proc)\\b|\\[[^\\]]*+\\]|[A-Z][A-Za-z0-9_]*+))*+\\s*:(?!=))",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.algol68"
+            }
+          }
+        }
+      ]
+    },
+    "s-label": {
+      "patterns": [
+        {
+          "comment": "a label at the start of a line or after ';': stop: skip",
+          "match": "(?:^|(?<=;))\\s*((?!\\b(?:postlude|channel|access|assert|module|string|struct|andth|begin|bytes|compl|empty|false|short|union|while|bits|bool|case|char|elif|else|esac|exit|file|flex|from|goto|heap|isnt|long|mode|nest|orel|ouse|prio|proc|real|sema|skip|then|true|void|word|def|egg|end|fed|for|int|loc|nil|out|par|pub|ref|at|by|do|fi|go|if|in|is|od|of|op|to)\\b)[a-z][a-z0-9_]*)\\s*(:)(?![=/])",
+          "captures": {
+            "1": {
+              "name": "entity.name.label.algol68"
+            },
+            "2": {
+              "name": "punctuation.separator.label.algol68"
+            }
+          }
+        },
+        {
+          "match": "\\b(goto|go\\s+to)\\s+((?!\\b(?:postlude|channel|access|assert|module|string|struct|andth|begin|bytes|compl|empty|false|short|union|while|bits|bool|case|char|elif|else|esac|exit|file|flex|from|goto|heap|isnt|long|mode|nest|orel|ouse|prio|proc|real|sema|skip|then|true|void|word|def|egg|end|fed|for|int|loc|nil|out|par|pub|ref|at|by|do|fi|go|if|in|is|od|of|op|to)\\b)[a-z][a-z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.goto.algol68"
+            },
+            "2": {
+              "name": "entity.name.label.algol68"
+            }
+          }
+        }
+      ]
+    },
+    "s-keyword": {
+      "patterns": [
+        {
+          "match": "\\b(?:assert|begin|while|case|elif|else|esac|exit|from|goto|ouse|then|end|for|out|par|by|do|fi|go|if|in|od|to)\\b",
+          "name": "keyword.control.algol68"
+        },
+        {
+          "match": "\\b(?:postlude|module|def|egg|fed)\\b",
+          "name": "keyword.other.module.algol68"
+        },
+        {
+          "match": "\\b(?:mode|prio|proc|op)\\b",
+          "name": "storage.type.declaration.algol68"
+        },
+        {
+          "match": "\\b(?:channel|string|bytes|compl|bits|bool|char|file|real|sema|void|int)\\b",
+          "name": "storage.type.primitive.algol68"
+        },
+        {
+          "match": "\\b(?:struct|short|union|flex|heap|long|word|loc|ref)\\b",
+          "name": "storage.modifier.algol68"
+        },
+        {
+          "match": "\\b(?:empty|false|skip|true|nil)\\b",
+          "name": "constant.language.algol68"
+        },
+        {
+          "match": "\\b(?:andth|isnt|orel|at|is|of)\\b",
+          "name": "keyword.operator.wordlike.algol68"
+        }
+      ]
+    },
+    "s-standard": {
+      "patterns": [
+        {
+          "match": "\\b(?:(?:long|short|word)_?)*(?:minus_?infinity|bytes_?width|bits_?width|real_?width|small_?real|exp_?width|int_?width|infinity|max_?bits|max_?real|min_?real|max_?int|min_?int|pi)\\b",
+          "name": "support.constant.algol68"
+        },
+        {
+          "match": "\\b(?:(?:long|short|word)_?)*(?:string_?to_?real|next_?random|bytes_?pack|bits_?pack|arccos|arcsin|arctan|random|sqrt|cos|exp|log|sin|tan|ln)\\b",
+          "name": "support.function.algol68"
+        },
+        {
+          "match": "\\b(?:replacement_?char|file_?o_?default|null_?character|bytes_?lengths|bytes_?shorths|compl_?lengths|compl_?shorths|file_?o_?rdonly|file_?o_?wronly|bits_?lengths|bits_?shorths|file_?o_?trunc|max_?abs_?char|real_?lengths|real_?shorths|file_?o_?rdwr|int_?lengths|int_?shorths|error_?char|eof_?char|seek_?cur|seek_?end|seek_?set|stderr|stdout|blank|stdin|flip|flop)\\b",
+          "name": "support.constant.algol68"
+        },
+        {
+          "match": "\\b(?:char_?in_?string|first_?random|posix_?exit|fconnect|strerror|fcreate|getchar|putchar|fclose|getenv|perror|errno|fgetc|fgets|fixed|float|fopen|fputc|fputs|fsize|lseek|print|whole|argc|argv|gets|puts|read|get|put|rnd)\\b",
+          "name": "support.function.algol68"
+        }
+      ]
+    },
+    "s-bold": {
+      "patterns": [
+        {
+          "match": "\\b(?:MINUSAB|SHORTEN|TIMESAB|ENTIER|OVERAB|PLUSAB|PLUSTO|CLEAR|DIVAB|ELEMS|FLOOR|LEVEL|MODAB|ROUND|CONJ|DOWN|ELEM|LENG|OVER|REPR|SIGN|TEST|ABS|AND|ARG|BIN|LWB|MOD|NOT|ODD|SET|SHL|SHR|UPB|XOR|EQ|GE|GT|IM|LE|LT|NE|OR|RE|UP|I)\\b",
+          "name": "support.function.operator.algol68"
+        },
+        {
+          "comment": "capitals, digits and _ only (at least two characters): operator",
+          "match": "\\b[A-Z][A-Z0-9_]*[A-Z0-9]\\b",
+          "name": "entity.name.function.operator.algol68"
+        },
+        {
+          "comment": "otherwise: mode indicant (Int_list, Node, F)",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b",
+          "name": "entity.name.type.algol68"
+        }
+      ]
+    },
+    "s-mixed": {
+      "comment": "an identifier that runs into a bold word (foo_Bar, fooBar): in SUPPER two tokens and almost always a mistake",
+      "match": "\\b[a-z][a-z0-9_]*[A-Z][A-Za-z0-9_]*\\b",
+      "name": "invalid.illegal.mixed-tag.algol68"
+    },
+    "s-identifier": {
+      "comment": "Ordinary identifiers stay without color, but are consumed as a whole, so that no part of them counts as a number or the like.",
+      "match": "\\b[a-z][a-z0-9_]*\\b",
+      "name": "variable.other.algol68"
+    },
+    "s-operator": {
+      "patterns": [
+        {
+          "match": ":/=:|:=:",
+          "name": "keyword.operator.identity.algol68"
+        },
+        {
+          "comment": "+:=, -:=, *:=, /:=, %:=, %*:= and +=: (PLUSTO)",
+          "match": "[-+*/%^&~<>=!?]+(?::=|=:)",
+          "name": "keyword.operator.assignment.compound.algol68"
+        },
+        {
+          "match": ":=",
+          "name": "keyword.operator.assignment.algol68"
+        },
+        {
+          "match": "=:",
+          "name": "keyword.operator.assignment.algol68"
+        },
+        {
+          "match": "[-+*/%^&~<>=!?]+",
+          "name": "keyword.operator.algol68"
+        },
+        {
+          "match": "@",
+          "name": "keyword.operator.at.algol68"
+        }
+      ]
+    },
+    "s-punctuation": {
+      "patterns": [
+        {
+          "comment": "characters that ga68 rejects outside strings and comments (unworthy character), e.g. ×, ¬, ≠, \\ and `",
+          "match": "[^\\x00-\\x7F]|[\\\\`]",
+          "name": "invalid.illegal.unworthy.algol68"
+        },
+        {
+          "match": "\\|:|\\|",
+          "name": "keyword.control.brief.algol68"
+        },
+        {
+          "match": ";",
+          "name": "punctuation.separator.semicolon.algol68"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.algol68"
+        },
+        {
+          "match": ":",
+          "name": "punctuation.separator.colon.algol68"
+        },
+        {
+          "match": "[()]",
+          "name": "punctuation.parenthesis.algol68"
+        },
+        {
+          "match": "[\\[\\]]",
+          "name": "punctuation.brackets.algol68"
+        },
+        {
+          "match": "\\.",
+          "name": "punctuation.accessor.algol68"
+        }
+      ]
+    }
+  }
+}
