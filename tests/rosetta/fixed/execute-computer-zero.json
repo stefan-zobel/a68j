@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "execute-computer-zero.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 11 (MODAB)",
+ "stderr": "",
+ "stdout": "         2+2:   4\n         7*8:  56\n   fibonacci:  55\n  linkedList:   6\n    prisoner:   0\n       0-255:   1\n         0-1: 255\n       1+255:   0\n"
+}

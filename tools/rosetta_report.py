@@ -8,7 +8,9 @@ For every solution in DIR/index.tsv one line: name, task, ga68 (what
 the native ga68 run did), jvm (the result of run_jvm.py) and a note.
 Later --native/--jvm directories take precedence (e.g. a rerun with a
 longer time limit).  NOTES.tsv (name<TAB>note) explains the known
-differences.  Prints a summary.
+differences.  A program that run_jvm.py compared with a fixed result
+(--fixed, a defect of ga68 that a68j does not reproduce) is listed as
+"fixed".  Prints a summary.
 """
 import argparse, collections, json, os, re, sys
 
@@ -62,7 +64,10 @@ def main():
                 ga68 = "exit %s" % nat["exit"]
                 j = load(a.jvm, name)
                 jvm = "not run" if j is None else j["status"] + (": " + j["reason"] if j["reason"] else "")
-        key = "same as ga68" if jvm.startswith("pass") else "same as ga68 up to rounding" if jvm.startswith("approx") else (jvm.split(":")[0] if jvm != "-" else
+                if j is not None and j.get("fixes") and j["status"] in ("pass", "approx"):
+                    # Compared with the fixed result (run_jvm.py --fixed).
+                    jvm = "fixed: " + j["fixes"]
+        key = "ga68 defect not reproduced" if jvm.startswith("fixed") else "same as ga68" if jvm.startswith("pass") else "same as ga68 up to rounding" if jvm.startswith("approx") else (jvm.split(":")[0] if jvm != "-" else
               ("ga68 rejects it" if ga68.startswith(("compile error", "missing include")) else ga68))
         count[key] += 1
         # Paths of the machine the tests ran on are not of interest.

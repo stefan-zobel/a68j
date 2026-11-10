@@ -26,6 +26,12 @@ directory. The programs that ga68 did not compile or that timed out are
 not compared. `tests/extra/expected` holds the results of ga68 for the
 programs in `tests/extra` in the same way.
 
+Where a68j corrects a defect of ga68 (`docs/ga68-bug-reports.md`), the
+expected result of a68j is in `fixed/<name>.json` next to `expected`
+(`tests/extra/fixed`), with the field `fixes` naming the entry.
+`tools/run_jvm.py` compares with it instead of the result of ga68, which
+stays in `expected` as recorded, and reports when the two agree again.
+
 ## Running the tests
 
 ```

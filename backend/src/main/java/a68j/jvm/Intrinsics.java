@@ -524,7 +524,7 @@ final class Intrinsics {
                 && (mt == JType.INT || mt == JType.LONG) && !isBits(g, m)) {
             long c = positiveDenotation(g, rhs, rm);
             if (c > 0) {
-                constantDivision(g, n.equals("%") ? Division.OVER : Division.REM, mt, c);
+                constantDivision(g, n.equals("%") ? Division.OVER : Division.MOD, mt, c);
                 if (mt == JType.INT) {
                     narrow(g, m);
                 }
@@ -540,13 +540,10 @@ final class Intrinsics {
     private static void applyAssigning(Gen g, String n, Moid m, Moid rm) {
         JType mt = JType.of(g.a68, m);
         JType rt = JType.of(g.a68, rm);
-        if (n.equals("%*") && mt == rt && JType.base(m) == JType.base(rm) && (mt == JType.INT || mt == JType.LONG)
-                && !isBits(g, m)) {
-            // As ga68 (a68_lower_modab3, TRUNC_MOD_EXPR): MODAB is the C remainder,
-            // negative for a negative left operand, unlike MOD.
-            g.cb.invokestatic(Gen.CD_RT, "rem", MethodTypeDesc.of(mt.desc, mt.desc, mt.desc));
-            return;
-        }
+        // MODAB is MOD followed by the assignment. ga68 computes the remainder
+        // of C instead (a68_lower_modab3, TRUNC_MOD_EXPR), which is negative
+        // for a negative left operand; a68j does not reproduce this
+        // (docs/ga68-bug-reports.md, entry 11).
         if (n.equals("+") && mt == JType.ROW && code(g, m).equals("s") && (code(g, rm).equals("s") || code(g, rm).equals("c"))) {
             // STRING +:= STRING or CHAR: append with spare room (Std.append_s_s),
             // amortised constant time per appended character.
@@ -602,8 +599,8 @@ final class Intrinsics {
         GenUnits.assignBoxed(g, refMode, p);
     }
 
-    /** The integral divisions: OVER (%), MOD (%*) and the C remainder of MODAB (%*:=). */
-    enum Division { OVER, MOD, REM }
+    /** The integral divisions: OVER (%, and OVERAB) and MOD (%*, and MODAB). */
+    enum Division { OVER, MOD }
 
     /**
      * The value of the unit P if it is an integral denotation (of mode M,
@@ -641,13 +638,12 @@ final class Intrinsics {
     }
 
     /**
-     * Stack: a (int or long, T) -> a OVER c, a MOD c or the remainder of
-     * MODAB, for a constant c greater than 0. The divisor is neither 0 nor
-     * -1, so none of the checks of {@link #intDivision} (and Rt.over,
-     * Rt.mod, Rt.rem) is needed, and the code is a third of the size: about
-     * 12 bytes instead of 50 to 70 for MOD on INT (see
-     * docs/TODO-method-size.md). The results are those of Rt.over, Rt.mod
-     * and Rt.rem with b = c: the JVM's idiv/ldiv truncate and irem/lrem have
+     * Stack: a (int or long, T) -> a OVER c or a MOD c, for a constant c
+     * greater than 0. The divisor is neither 0 nor -1, so none of the checks
+     * of {@link #intDivision} (and Rt.over, Rt.mod) is needed, and the code
+     * is a third of the size: about 12 bytes instead of 50 to 70 for MOD on
+     * INT (see docs/TODO-method-size.md). The results are those of Rt.over
+     * and Rt.mod with b = c: the JVM's idiv/ldiv truncate and irem/lrem have
      * the sign of a, as in C; MOD adds c to a negative remainder.
      */
     static void constantDivision(Gen g, Division d, JType t, long c) {
@@ -666,9 +662,6 @@ final class Intrinsics {
             cb.lrem();
         } else {
             cb.irem();
-        }
-        if (d == Division.REM) {
-            return;
         }
         Label end = cb.newLabel();
         if (l) {

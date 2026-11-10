@@ -1,5 +1,6 @@
 { MODAB (%*:=) is the remainder of C in ga68: negative for a negative
-  left operand, unlike MOD, which is never negative. }
+  left operand, unlike MOD, which is never negative. a68j computes MOD
+  (docs/ga68-bug-reports.md, entry 11; its result is in tests/extra/fixed). }
 begin int a := -255, b := 7, c := -7, d := 0;
       a MODAB 256; b %*:= -3; c %*:= 3;
       puts (whole (a, 0) + " " + whole (b, 0) + " " + whole (c, 0) + "'n");

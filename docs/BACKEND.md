@@ -326,7 +326,8 @@ instead. Normal end: exit status 0.
 
 `MODAB` (`%*:=`) is lowered by ga68 with `TRUNC_MOD_EXPR`, the remainder of
 C, which is negative for a negative left operand (`-255 %*:= 256` gives
--255, while `-255 %* 256` is 1); `Rt.rem` does the same.
+-255, while `-255 %* 256` is 1). a68j does not reproduce this defect
+(`docs/ga68-bug-reports.md`, entry 11): `x %*:= y` is `x := x MOD y`.
 
 The generated `main` runs the program (`run0`) in a thread with a stack of
 128 MB (`Rt.start`), because deep recursion is common in Algol 68 programs

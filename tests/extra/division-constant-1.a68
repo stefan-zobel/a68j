@@ -2,7 +2,9 @@
   MODAB with a positive constant divisor, which a68j compiles without the
   checks for 0 and -1 (Intrinsics#constantDivision): the same results as
   with ga68 for negative operands, the most negative INT, a divisor of
-  max int, LONG INT, SHORT INT, elements of rows and direct variables. }
+  max int, LONG INT, SHORT INT, elements of rows and direct variables.
+  Except for MODAB, which a68j computes as MOD (docs/ga68-bug-reports.md,
+  entry 11; the result is in tests/extra/fixed). }
 begin
   proc p = (int x) void: puts (whole (x, 0) + " ");
   proc pl = (long int x) void: puts (whole (x, 0) + " ");

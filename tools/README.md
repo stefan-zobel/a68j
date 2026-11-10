@@ -27,7 +27,7 @@ and first runtime error line on the JVM as the native ga68 executable.
 | Tool | Purpose |
 |---|---|
 | `run_native.py` | compiles and runs programs with ga68 and records the results, one `DIR/<name>.json` per program; `--reference` for the results kept in the repository (no run time, no directories of the machine) |
-| `run_jvm.py` | compiles and runs the same programs with `backend/a68j-backend.jar` and compares them with the results of `run_native.py` (`--native DIR` is required) |
+| `run_jvm.py` | compiles and runs the same programs with `backend/a68j-backend.jar` and compares them with the results of `run_native.py` (`--native DIR` is required); where a68j corrects a defect of ga68, with the result in `--fixed DIR` (default: `fixed` next to the `--native` directory, e.g. `tests/extra/fixed`) |
 | `update_ga68_suite.sh GCC [XGCC LIBGA68]` | copies the ga68 test suite of a GCC checkout to `tests/ga68/execute` and, with a ga68 build, records `tests/ga68/expected` and `tests/extra/expected` again (`tests/ga68/README.md`) |
 | `modtest.py` | helper module of both runners: module packets (`dg-modules`, including the bundled modules `genietransput` and `texts` from `backend/lib`), module map options of the multi-packet tests, and the `-I` options of `dg-options` (directories of the include pragmat, relative to the program) |
 | `compare.py` | compares the token stream, the syntax tree or the tree after semantic analysis of the front end with ga68, for every `.a68` file below a directory |
@@ -41,7 +41,7 @@ or recorded again:
 ```sh
 python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
-python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
+python3 tools/run_jvm.py --native /tmp/native --fixed tests/extra/fixed tests/extra/*.a68
 ```
 
 ## Rosetta Code

@@ -801,9 +801,10 @@ and the messages stay as before.
   of the general case is needed: `idiv`, or `irem` and for `MOD` the
   correction of a negative remainder (`dup`, `ifge`, add the divisor).
   About 12 bytes instead of 50 to 70, and fewer instructions in hot loops.
-  The results are those of `Rt.over`, `Rt.mod` and `Rt.rem`; the test
-  compares them with ga68 for negative operands, the most negative INT, a
-  divisor of `max int`, LONG INT and SHORT INT.
+  The results are those of `Rt.over` and `Rt.mod`; the test compares
+  them with ga68 for negative operands, the most negative INT, a divisor
+  of `max int`, LONG INT and SHORT INT (for `MODAB` with the fixed result,
+  `docs/ga68-bug-reports.md`, entry 11).
 - **No check for NIL where a variable cannot be NIL** (`Gen#loadOwnCell`).
   A LOC variable without rows (`GenDecls#cellAtEntry`) gets its location
   in the prologue of its serial clause, which runs before every phrase of

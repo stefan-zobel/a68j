@@ -5,7 +5,7 @@ results of the native ga68 executables (recorded by run_native.py).
 Usage: run_jvm.py --native DIR [--java JAVA] [--jar a68j-backend.jar]
                   [--out DIR] [-j N] [-v] [--timeout SEC] [--jit c1|tiered]
                   [--rel-eps E] [--abs-eps E] [--aot auto|none|FILE] [--modules-as-jars]
-                  [--default-opts OPTS] FILES...
+                  [--default-opts OPTS] [--fixed DIR|none] FILES...
 
 For each FILE with a native result DIR/<name>.json whose compilation
 succeeded, compiles and runs FILE with `java -jar a68j-backend.jar -run`
@@ -29,6 +29,15 @@ Each program is classified as one of
   timeout      did not finish in time
   fail         ran but differs from the native result
 and a summary with the most frequent unsupported constructs is printed.
+
+Where ga68 has a defect that a68j does not reproduce (docs/ga68-bug-reports.md),
+the expected result of a68j is in the directory of --fixed, by default
+`fixed` next to the directory of --native (tests/extra/fixed for
+tests/extra/expected): FIXED/<name>.json has the fields of a native result
+(exit, stdout, stderr) and `fixes`, the entry of the defect. It takes the
+place of the native result, which stays as ga68 recorded it.  When the
+native result equals the fixed one (ga68 has been corrected), this is
+reported, and the fixed result can be removed.
 Details per program go to OUT/<name>.json when --out is given.
 """
 import argparse, collections, json, os, re, shutil, subprocess, sys, tempfile, time
@@ -161,7 +170,14 @@ def main():
                          "(-d libX.jar) instead of X.m68 and a class directory")
     ap.add_argument("--default-opts", default="",
                     help="options for programs without a dg-options line, e.g. -fstropping=upper")
+    ap.add_argument("--fixed",
+                    help="directory with the expected results of programs for which a68j does not "
+                         "reproduce a defect of ga68 (default: 'fixed' next to --native), or 'none'")
     a = ap.parse_args()
+    if a.fixed is None:
+        a.fixed = os.path.join(os.path.dirname(os.path.abspath(a.native)), "fixed")
+    elif a.fixed == "none":
+        a.fixed = None
     DEFAULT_OPTS[:] = a.default_opts.split()
     EPS["rel"], EPS["abs"] = a.rel_eps, a.abs_eps
     a.jar = os.path.abspath(a.jar)
@@ -182,6 +198,12 @@ def main():
         nat = json.load(open(npath))
         if nat.get("compile") != 0 or nat.get("exit") == "timeout" or nat.get("nondeterministic"):
             return None
+        fixed = None
+        fpath = os.path.join(a.fixed, name + ".json") if a.fixed else None
+        if fpath and os.path.exists(fpath):
+            fixed = json.load(open(fpath))
+            same = all(fixed.get(k, "") == nat.get(k, "") for k in ("exit", "stdout", "stderr"))
+            nat = fixed
         jvm = [a.java, "-XX:+UseSerialGC"] + (["-XX:TieredStopAtLevel=1"] if a.jit == "c1" else []) + aot_opts
         cmd = jvm + ["-jar", a.jar] + opts_for(f) + ["-run", f]
         # Module packets ({ dg-modules }): compiled to classes and .m68 export
@@ -225,6 +247,9 @@ def main():
         status, reason = classify(nat, rc, out, err, os.path.dirname(f))
         r = {"file": f, "status": status, "reason": reason, "exit": rc, "stdout": out, "stderr": err,
              "time": round(time.monotonic() - t0, 3)}
+        if fixed is not None:
+            r["fixes"] = fixed.get("fixes", "")
+            r["native_agrees"] = same
         if a.out:
             json.dump(r, open(os.path.join(a.out, name + ".json"), "w"))
         return r
@@ -246,6 +271,12 @@ def main():
         print("crashes:")
         for what, n in crashes.most_common(15):
             print(f"  {n:4d}  {what}")
+    fixed = [r for r in rs if "fixes" in r]
+    if fixed:
+        print(f"{len(fixed)} compared with the fixed result instead of the native one ({a.fixed})")
+        for r in sorted(fixed, key=lambda r: r["file"]):
+            if r["native_agrees"]:
+                print(f"  the native result now equals the fixed one: {os.path.basename(r['file'])}")
     if a.v:
         for r in sorted(rs, key=lambda r: r["file"]):
             if r["status"] != "pass":

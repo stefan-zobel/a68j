@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "modab-negative-1.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 11 (MODAB)",
+ "stderr": "",
+ "stdout": "1 1 2\n1 2\n2\n255\n"
+}

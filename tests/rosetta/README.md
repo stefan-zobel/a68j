@@ -161,7 +161,10 @@ again with ga68 of 31 Oct 2026.
 - `FLEX [1 : n] CHAR x` has the bounds `[1 : 0]` instead of `[1 : n]`
   (a68j reproduces this).
 - `MODAB` (`%*:=`) computes with the C remainder (negative for a negative
-  left operand), whereas `MOD` is correct (a68j reproduces this).
+  left operand), whereas `MOD` is correct. a68j reproduced this until
+  version 0.6.0 and computes `MOD` since version 0.7.0;
+  `subtractive-generator` and `execute-computer-zero` now give the right
+  result, which is in `fixed/` (see below).
 - Partial parametrization (`f (3, )`) is compiled, and the program
   crashes.
 - `NIL` accesses and procedures used outside their scope crash without a
@@ -181,7 +184,8 @@ python3 tools/rosetta_prep.py --data rcd --out tests/rosetta
 # reference with ga68, then comparison on the JVM
 python3 tools/run_native.py --ga68 .../xgcc --libdir .../libga68/.libs --out /tmp/native-rc \
     --timeout 10 --runs 2 --stack 1048576 tests/rosetta/*.a68
-python3 tools/run_jvm.py --native /tmp/native-rc --out /tmp/jvm-rc --jit tiered tests/rosetta/*.a68
+python3 tools/run_jvm.py --native /tmp/native-rc --fixed tests/rosetta/fixed --out /tmp/jvm-rc \
+    --jit tiered tests/rosetta/*.a68
 python3 tools/rosetta_report.py --dir tests/rosetta --native /tmp/native-rc --jvm /tmp/jvm-rc \
     --notes tests/rosetta/notes.tsv
 ```

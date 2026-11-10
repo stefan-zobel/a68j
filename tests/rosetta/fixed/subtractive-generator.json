@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "subtractive-generator.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 11 (MODAB)",
+ "stderr": "",
+ "stdout": "467478574\n512932792\n539453717\n20349702\n615542081\n378707948\n933204586\n824858649\n506003769\n380969305\n"
+}

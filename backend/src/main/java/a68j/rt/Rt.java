@@ -523,21 +523,6 @@ public final class Rt {
         return a / b;
     }
 
-    /** MODAB as in ga68: the remainder of C (sign of the left operand). */
-    public static int rem(int a, int b) {
-        if (b == 0 || (b == -1 && a == Integer.MIN_VALUE)) {
-            sigfpe();
-        }
-        return a % b;
-    }
-
-    public static long rem(long a, long b) {
-        if (b == 0 || (b == -1 && a == Long.MIN_VALUE)) {
-            sigfpe();
-        }
-        return a % b;
-    }
-
     /** MOD as in ga68: the result is non-negative. */
     public static int mod(int a, int b) {
         if (b == 0 || (b == -1 && a == Integer.MIN_VALUE)) {

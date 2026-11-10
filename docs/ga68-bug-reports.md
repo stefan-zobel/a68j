@@ -24,7 +24,11 @@ examples of the book were checked (3 November 2026); the causes of 16 to
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
-where ga68 crashes or reads uninitialized memory.
+where ga68 crashes or reads uninitialized memory. Since version 0.7.0
+a68j corrects some of the defects it used to reproduce ("fixed" in the
+last column). The expected results of the tests whose output changes
+with that are in `tests/extra/fixed` and `tests/rosetta/fixed`; they take
+the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 
 | # | Component | Summary | a68j |
 |---|---|---|---|
@@ -38,7 +42,7 @@ where ga68 crashes or reads uninitialized memory.
 | 8 | ga68 `a68-low-strings.cc` | `a68_string_from_char` allocates 1 byte for a 4-byte character | not affected |
 | 9 | ga68 | a routine text that is called after the procedure that yielded it has returned jumps into a dead stack frame | correct |
 | 10 | ga68 | `flex [1 : n] char x` gets the bounds `[1 : 0]` | reproduces |
-| 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | reproduces |
+| 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | fixed |
 | 12 | ga68 | a conformity clause on a union of `string` and `[,] char`: internal compiler error in `verify_gimple` | correct |
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
 | 14 | ga68 `a68-low-clauses.cc` | a row display whose rows differ in bounds is not checked, and a longer later row is written past the allocated elements | run-time error |
@@ -459,7 +463,15 @@ end
 
 ga68 prints `-1 2`: `MOD` is correct (the result is never negative), but
 `a %*:= b`, which is `a := a MOD b`, gives the remainder of the C `%`
-operator. a68g prints 2 for both. The cause has not been examined.
+operator. a68g prints 2 for both. ga68 lowers `MODAB` in
+`a68_lower_modab3` with `TRUNC_MOD_EXPR`, without the correction of a
+negative remainder that `MOD` has.
+
+The Rosetta Code solutions `subtractive-generator` (`sgi -:= 1 MODAB
+max_state` gives -1, then a bound error) and `execute-computer-zero` (an
+8-bit machine, `0-1` gives -1 instead of 255) fail because of this.
+
+a68j computes `MOD` here (fixed).
 
 ## 12. Internal compiler error for a union of `string` and `[,] char`
 
