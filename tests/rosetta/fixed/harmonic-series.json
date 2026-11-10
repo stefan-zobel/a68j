@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "harmonic-series.a68",
+ "fixes": "docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL",
+ "stderr": "",
+ "stdout": " 1:    1.00000000\n 2:    1.50000000\n 3:    1.83333337\n 4:    2.08333349\n 5:    2.28333354\n 6:    2.45000029\n 7:    2.59285736\n 8:    2.71785736\n 9:    2.82896852\n10:    2.92896843\n11:    3.01987743\n12:    3.10321069\n13:    3.18013382\n14:    3.25156236\n15:    3.31822896\n16:    3.38072896\n17:    3.43955255\n18:    3.49510813\n19:    3.54773974\n20:    3.59773970\nPosition of the first harmonic number >  1: 2\nPosition of the first harmonic number >  2: 4\nPosition of the first harmonic number >  3: 11\nPosition of the first harmonic number >  4: 31\nPosition of the first harmonic number >  5: 83\nPosition of the first harmonic number >  6: 227\nPosition of the first harmonic number >  7: 616\nPosition of the first harmonic number >  8: 1674\nPosition of the first harmonic number >  9: 4550\nPosition of the first harmonic number > 10: 12367\n"
+}

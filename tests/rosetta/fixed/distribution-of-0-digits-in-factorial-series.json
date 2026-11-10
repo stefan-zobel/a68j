@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "distribution-of-0-digits-in-factorial-series.a68",
+ "fixes": "docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL",
+ "stderr": "",
+ "stdout": "Mean proportion of zero digits in factorials to   100 is 0.2467531413, factorial has 158 digits\nMean proportion of zero digits in factorials to  1000 is 0.2035446614, factorial has 2568 digits\nMean proportion of zero digits in factorials to 10000 is 0.1730039865, factorial has 35660 digits\nMean proportion of zero digits in factorials to 20000 is 0.1666173637, factorial has 77338 digits\nMean proportion of zero digits in factorials to 30000 is 0.1633403152, factorial has 121288 digits\nMean proportion of zero digits in factorials to 40000 is 0.1611923724, factorial has 166714 digits\nMean proportion of zero digits in factorials to 50000 is 0.1596199274, factorial has 213237 digits\n\nThe mean proportion dips permanently below 0.16 at 47332\n"
+}

@@ -100,9 +100,10 @@ that of Algol 68 Genie. A \code|real| is written in floating-point
 notation with \code|real_width| digits. Programs whose output should not
 depend on the implementation use \code|whole| and \code|fixed|.
 
-When ga68 and a68j convert a \code|real| to a string, the last of its
-seven digits is sometimes wrong (9.81 is printed as \texttt{9.810001});
-the examples of this book avoid such values.
+When ga68 converts a \code|real| to a string, the last of its seven
+digits is sometimes wrong (9.81 is printed as \texttt{9.810001}); a68j
+did the same until version 0.6.0. The examples of this book avoid such
+values.
 
 \section*{Running Rosetta Code programs}
 

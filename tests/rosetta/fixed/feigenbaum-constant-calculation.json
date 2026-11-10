@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "feigenbaum-constant-calculation.a68",
+ "fixes": "docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL",
+ "stderr": "",
+ "stdout": "Feigenbaum constant calculation:\ni  d\n2  3.21851230\n3  4.38565874\n4  4.60099411\n5  4.65546942\n6  4.66380882\n7  4.69164038\n8  4.78490543\n9  1.44021738\n10 1.43750000\n11 1.31958759\n12 1.31081080\n13 1.32142854\n"
+}

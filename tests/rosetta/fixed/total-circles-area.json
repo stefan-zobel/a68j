@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "total-circles-area.a68",
+ "fixes": "docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL",
+ "stderr": "",
+ "stdout": "Approximated area: 21.5615596771240\n"
+}

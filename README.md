@@ -57,8 +57,8 @@ Hello, world!
 | Check | Result |
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
-| ga68 test suite (execution tests) | 471 of 472 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 48 of 48 |
+| ga68 test suite (execution tests) | 521 of 522 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
+| a68j's own differential tests (`tests/extra`) | 49 of 49 |
 | Rosetta Code programs that ga68 runs | 608 identical (560 of them end normally), 2 equal up to floating-point rounding, 8 open, of 618 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 57 of 57, JDK 25 and JDK 28 |
@@ -355,8 +355,9 @@ under the **GNU General Public License, version 3 or later** (`COPYING`).
   `COPYING.RUNTIME`. The compiler itself (front end and code generator)
   remains under the GPL without this exception.
 - `backend/lib/standard.a68` is libga68's standard prelude, with
-  corrections in `fixed`, `float` and `string_to_real` that are marked in
-  the file (GPL 3 with the GCC Runtime Library Exception 3.1).
+  corrections in `fixed`, `float`, `string_to_real` and the procedures
+  they use, which are marked in the file (GPL 3 with the GCC Runtime
+  Library Exception 3.1).
 - The VS Code extension in `editors/vscode-algol68` is under the ISC
   license. It started from https://github.com/jlguenego/vscode-algol68.
 - The Rosetta Code programs in `tests/rosetta` are under the GNU Free

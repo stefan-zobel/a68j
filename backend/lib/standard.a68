@@ -24,8 +24,9 @@
   If not, see <http://www.gnu.org/licenses/>. }
 
 { a68j: this copy differs from the one generated for libga68 in fixed,
-  float and string_to_real (and their long variants), where libga68 has
-  defects; each change is marked "a68j:".  }
+  float and string_to_real (and their long variants) and in
+  long_standardize and long_long_standardize, where libga68 has defects;
+  each change is marked "a68j:".  }
 
 module Standard =
 def
@@ -444,31 +445,15 @@ def
     { a68j: fixed yields errorchars for an infinite value or a NaN, and
       with width 0 it compares with a real power of ten (10.0 ** length):
       in libga68 the integer power overflows, and the loop does not end
-      for large values (docs/ga68-bug-reports.md, entry 3).  }
+      for large values (docs/ga68-bug-reports.md, entry 3).
+
+      a68j: fixed converts a real as a long real, which it represents
+      exactly: in real arithmetic, the rounding term and the scaling by a
+      power of ten are inexact, and libga68 gives wrong digits from about
+      the seventh one on (entry 4).  }
     pub proc fixed = (Number v, int width, after) string:
        case v in
-          ( real x):
-             if int length := ABS width - (x <  0 OR width > 0 | 1 | 0);
-                after >= 0 AND (length > after OR width = 0) AND ABS x <= max_real
-             then  real y = ABS x;
-                  if width = 0
-                  then length := (after = 0 | 1 | 0);
-                       while y +  .5 *  .1 ** after >=  10.0 ** length
-                       do length +:= 1 od;
-                       length +:= (after = 0 | 0 | after + 1)
-                  fi;
-                  string s := subfixed (y, length, after);
-                  if ~char_in_string (errorchar, loc int, s)
-                  then (length > UPB s AND y <  1.0 | "0" +=: s);
-                       (x <  0 | "-" |: width > 0 | "+" | "") +=: s;
-                       (width /= 0 | (ABS width - UPB s) * " " +=: s);
-                       s
-                  elif after > 0
-                  then fixed (v, width, after - 1)
-                  else ABS width * errorchar
-                  fi
-             else { XXX undefined } skip; ABS width * errorchar
-             fi,
+          ( real x): fixed (LENG x, width, after),
           ( int x): fixed ( real (x), width, after),
           (long real x):
              if int length := ABS width - (x < long 0 OR width > 0 | 1 | 0);
@@ -520,23 +505,12 @@ def
 
     { a68j: float yields errorchars for an infinite value or a NaN, for
       which standardize does not end in libga68 (docs/ga68-bug-reports.md,
-      entry 3).  }
+      entry 3).
+
+      a68j: float converts a real as a long real, as fixed does (entry 4).  }
     pub proc float = (Number v, int width, after, exp) string:
         case v in
-           ( real x):
-              if int before = ABS width - ABS exp - (after /= 0 | after+1 | 0) - 2;
-                 SIGN before + SIGN after > 0 AND ABS x <= max_real
-              then string s,  real y := ABS x, int p := 0;
-                   standardize (y, before, after, p);
-                   s := fixed ( SIGN x * y, SIGN width * (ABS width - ABS exp - 1),
-                               after) + "e" + whole (p, exp);
-                   if exp = 0 OR char_in_string (errorchar, loc int, s)
-                   then float (x, width, (after /= 0 | after-1 | 0),
-                               (exp > 0 | exp+1 | exp-1))
-                   else s
-                   fi
-              else { XXX undefined } skip; ABS width * errorchar
-              fi,
+           ( real x): float (LENG x, width, after, exp),
            (long real x):
               if int before = ABS width - ABS exp - (after /= 0 | after+1 | 0) - 2;
                  SIGN before + SIGN after > 0 AND ABS x <= long_max_real
@@ -708,18 +682,47 @@ def
           (y /=  0.0 | while y  < h do y *:=  10.0; p -:= 1 od);
           (y +  .5 *  .1 ** after >= g | y := h; p +:= 1)
     end;
+    { a68j: long_standardize and long_long_standardize scale y with one
+      division or multiplication by a power of ten, whose exponent q is
+      estimated with the decimal logarithm and corrected by at most a few
+      steps; libga68 multiplies by .1 or 10.0 once per decimal digit, up
+      to some 300 times, and the rounding errors add up to wrong last
+      digits (docs/ga68-bug-reports.md, entry 5).  A power of ten beyond
+      10.0 ** 300 is applied in two parts, as it may overflow.  }
     proc long_standardize = (ref long real y, int before, after, ref int p) void:
     begin
           long real g = long 10.0 ** before; long real h = g * long .1;
-          while y >= g do y *:= long .1; p +:= 1 od;
-          (y /= long 0.0 | while y  < h do y *:= long 10.0; p -:= 1 od);
+          if y /= long 0.0
+          then long real x = y;
+               int q := SHORTEN ENTIER long_log (x) - before + 1;
+               proc scale = void:
+                  y := (q > 300 | x / long 10.0 ** 300 / long 10.0 ** (q - 300)
+                       |: q >= 0 | x / long 10.0 ** q
+                       |: q >= -300 | x * long 10.0 ** -q
+                       | x * long 10.0 ** 300 * long 10.0 ** (-q - 300));
+               scale;
+               while y >= g do q +:= 1; scale od;
+               while y < h do q -:= 1; scale od;
+               p +:= q
+          fi;
           (y + long .5 * long .1 ** after >= g | y := h; p +:= 1)
     end;
     proc long_long_standardize = (ref long long real y, int before, after, ref int p) void:
     begin
           long long real g = long long 10.0 ** before; long long real h = g * long long .1;
-          while y >= g do y *:= long long .1; p +:= 1 od;
-          (y /= long long 0.0 | while y  < h do y *:= long long 10.0; p -:= 1 od);
+          if y /= long long 0.0
+          then long long real x = y;
+               int q := SHORTEN SHORTEN ENTIER long_long_log (x) - before + 1;
+               proc scale = void:
+                  y := (q > 300 | x / long long 10.0 ** 300 / long long 10.0 ** (q - 300)
+                       |: q >= 0 | x / long long 10.0 ** q
+                       |: q >= -300 | x * long long 10.0 ** -q
+                       | x * long long 10.0 ** 300 * long long 10.0 ** (-q - 300));
+               scale;
+               while y >= g do q +:= 1; scale od;
+               while y < h do q -:= 1; scale od;
+               p +:= q
+          fi;
           (y + long long .5 * long long .1 ** after >= g | y := h; p +:= 1)
     end;
 

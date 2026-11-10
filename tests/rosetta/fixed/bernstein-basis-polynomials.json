@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "bernstein-basis-polynomials.a68",
+ "fixes": "docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL",
+ "stderr": "",
+ "stdout": "Subprogram (1) examples:\n  mono ( 1, 0, 0 ) --> bern ( 1, 1, 1 )\n  mono ( 1, 2, 3 ) --> bern ( 1, 2, 6 )\nSubprogram (2) examples:\n  p ( 0.25 ) = 1\n  p ( 7.5 ) = 1\n  q ( 0.25 ) = 1.6875\n  q ( 7.5 ) = 184.75\nSubprogram (3) examples:\n  mono ( 1, 0, 0, 0 ) --> bern ( 1, 1, 1, 1 )\n  mono ( 1, 2, 3, 0 ) --> bern ( 1, 1.66666674614, 3.33333349228, 6 )\n  mono ( 1, 2, 3, 4 ) --> bern ( 1, 1.66666674614, 3.33333349228, 10 )\nSubprogram (4) examples:\n  p ( 0.25 ) = 1\n  p ( 7.5 ) = 1\n  q ( 0.25 ) = 1.68750011921\n  q ( 7.5 ) = 184.7498168945\n  r ( 0.25 ) = 1.75000011921\n  r ( 7.5 ) = 1872.25\nSubprogram (5) examples:\n  bern ( 1, 1, 1 ) --> bern ( 1, 1, 1, 1 )\n  bern ( 1, 2, 6 ) --> bern ( 1, 1.66666674614, 3.33333349228, 6 )\n"
+}

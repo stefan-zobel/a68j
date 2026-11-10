@@ -37,8 +37,8 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 |---|---|---|---|
 | 2 | libga68 `standard.a68.in` | `string_to_real` ignores the exponent part | fixed |
 | 3 | libga68 `standard.a68.in` | `fixed` with width 0 loops forever for large values, and `fixed` and `float` with any width for an infinite value | fixed |
-| 4 | libga68 `standard.a68.in` | `fixed` on `real` gives wrong digits, e.g. "15999999.0" for 1.6e7 | reproduces |
-| 5 | libga68 `standard.a68.in` | `float` on `long real` is wrong in the last digits for large exponents | reproduces |
+| 4 | libga68 `standard.a68.in` | `fixed` on `real` gives wrong digits, e.g. "15999999.0" for 1.6e7 | fixed |
+| 5 | libga68 `standard.a68.in` | `float` on `long real` is wrong in the last digits for large and small exponents | fixed |
 | 6 | libga68 `ga68-posix.c` | `fputs`, `perror`, `fopen`, `fcreate`, `getenv` and `fconnect` use the result of `_libga68_u32_to_u8` without checking it for NULL | defined result |
 | 7 | libga68 `ga68-posix.c` | `argv (0)` reads `argv[-1]` and crashes | returns "" |
 | 8 | ga68 `a68-low-strings.cc` | `a68_string_from_char` allocates 1 byte for a 4-byte character | not affected |
@@ -196,9 +196,8 @@ Since version 0.7.0 its copy of the standard prelude
 (`backend/lib/standard.a68`) compares with `{L} 10.0 ** length` and has
 the condition `ABS x <= {L} max_real` in `fixed` and `float` (fixed). An
 infinite value, and a NaN, for which the condition is false too, give
-`ABS width * errorchar`, which is the empty string for width 0. The digits
-of a large value are still those of entry 4 (`fixed (9.9e9, 0, 0)` gives
-`9899999618`). `tests/java/standard-prelude-defects.a68` checks the fix.
+`ABS width * errorchar`, which is the empty string for width 0.
+`tests/java/standard-prelude-defects.a68` checks the fix.
 The Rosetta Code solution
 `experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset`
 prints an infinite `real` with `float`. It times out with ga68, and did
@@ -248,6 +247,20 @@ correctly rounded binary-to-decimal conversion (such as the C library's
 `snprintf` with `%.*f`/`%.*e` and a precision large enough for the
 significand) and do the Algol 68 formatting on the resulting digits.
 
+a68j reproduced the defect until version 0.6.0. Since version 0.7.0
+`fixed` and `float` in its copy of the standard prelude
+(`backend/lib/standard.a68`) convert a `real` as a `long real`, which
+holds it exactly (fixed). The digits are then those of the exact value of
+the `real`, up to about the sixteenth significant digit, where the
+arithmetic of `long real` ends; `float` also gets the correction of entry
+5. Digits that only looked right change too: `fixed (0.1, 0, 10)` gives
+`.1000000015`, the value of the 32-bit `real` nearest to 0.1, instead of
+`.1000000000`, and `print (9.81)` through `Genie_Transput`, which calls
+`float`, gives `+9.810000e +0` instead of `+9.810001e +0`. The
+conversion is not measurably slower. `tests/java/standard-prelude-defects.a68`
+checks the fix; the Rosetta Code solutions whose output changes are
+listed in `tests/rosetta/README.md`.
+
 ## 5. `float` on `long real` is wrong in the last digits
 
 ```
@@ -278,9 +291,27 @@ while y >= g do y *:= {L} .1; p +:= 1 od;
 For 1e308 that is about 290 multiplications by the inexact 0.1, and
 every one of them can add half a unit in the last place.
 
+Small exponents are affected in the same way, by the multiplications by
+10.0. With a68j until version 0.6.0, which has the same `standardize`,
+`float (long 1e-300, 22, 14, 4)` gives `+9.99999999999999e-301`. The
+long variants of `string_to_real` call `standardize` to compare with
+`{L} max_real`, and there a68j until version 0.6.0 accepted
+`"+1.79769313486232^+308"`, which is larger than `long_max_real`, and
+yielded an infinite value. Neither has been run with ga68.
+
 Fix: scale with one division by a power of ten computed at once (or in
 higher precision), or use a correctly rounded conversion as in
 report 4.
+
+a68j reproduced the defect until version 0.6.0. Since version 0.7.0
+`long_standardize` and `long_long_standardize` in its copy of the
+standard prelude (`backend/lib/standard.a68`) estimate the exponent with
+the decimal logarithm and scale with one division or multiplication by a
+power of ten, corrected by a few steps where the estimate is off (fixed).
+The four values above give the expected results of the table, `long
+1e-300` gives `+1.00000000000000e-300`, and `"+1.79769313486232^+308"`
+is rejected. `tests/java/standard-prelude-defects.a68`
+checks the fix.
 
 ## 6. The POSIX procedures do not check the result of `_libga68_u32_to_u8`
 

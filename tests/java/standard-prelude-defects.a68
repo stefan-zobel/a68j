@@ -1,7 +1,5 @@
 { Defects of libga68's standard prelude that a68j corrects
-  (docs/ga68-bug-reports.md, entries 2 and 3).  Values are compared rather
-  than printed where the digits of fixed and float would show entries 4
-  and 5, which a68j still reproduces. }
+  (docs/ga68-bug-reports.md, entries 2 to 5). }
 begin
     proc b = (bool x) string: (x | "T" | "F");
     { Whether x is v, but for the rounding of the last digits. }
@@ -52,5 +50,33 @@ begin
     puts ("[" + fixed (linf, 10, 2) + "] [" + fixed (-lnan, 0, 2) + "] [" + float (linf, 22, 14, 4) + "] ["
           + float (lnan, 12, 4, 3) + "]'n");
     puts ("[" + fixed (llinf, 8, 2) + "] [" + float (-llinf, 12, 4, 3) + "]'n");
-    access Genie_Transput (print ((inf, newline, linf, newline)))
+    access Genie_Transput (print ((inf, newline, linf, newline)));
+
+    { Entry 4: the digits of fixed and float on a real, which are those of
+      its exact value.  34.6875 is exact, and rounds up. }
+    puts (fixed (1.6e7, 0, 1) + " " + fixed (123456.0, 0, 2) + " " + fixed (1234567.125, 0, 6) + " "
+          + fixed (34.6875, 0, 3) + " " + fixed (1.0 / 3.0, 0, 10) + " " + whole (1.6e7, 0) + "'n");
+    puts (float (9.81, 13, 6, 2) + " " + float (6.02e23, 14, 6, 3) + " " + float (max_real, 13, 6, 2) + " "
+          + float (-1.5e-30, 12, 4, 3) + "'n");
+    access Genie_Transput (print ((9.81, newline)));
+
+    { Entry 5: float on a long real with a large or a small exponent;
+      1.0e-320 is subnormal. }
+    for i to 7
+    do long real x = case i in long 1.0e308, long 1.0e300, long 1.0e100, long 1.0e22,
+                               long 1.0e-300, long 1.0e-300 * long 1.0e-20, long_max_real esac;
+       puts (float (x, 22, 14, 4) + " " + float (LENG x, 22, 14, 4) + "'n")
+    od;
+    puts (fixed (long 1.0e22, 0, 0) + " " + float (- long 2.5e-7, 12, 4, 2) + "'n");
+
+    { The long variants of string_to_real use long_standardize near the
+      largest value. }
+    puts ("string_to_long_real near long max real:");
+    for i to 3
+    do string s = case i in "+1.7976931348623157^+308", "+1.79769313486232^+308", "+1.8^+308" esac;
+       lr := long 7.0; llr := long long 7.0;
+       bool ok = string_to_long_real (s, lr), lok = string_to_long_long_real (s, llr);
+       puts (" " + b (ok) + b (near (LENG lr, LENG long_max_real)) + b (lok) + b (near (llr, long_long_max_real)))
+    od;
+    puts ("'n")
 end

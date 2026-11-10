@@ -165,6 +165,20 @@ again with ga68 of 31 Oct 2026.
   version 0.6.0 and computes `MOD` since version 0.7.0;
   `subtractive-generator` and `execute-computer-zero` now give the right
   result, which is in `fixed/` (see below).
+- `fixed` and `float` on a `REAL` give wrong digits from about the seventh
+  one on, and `float` on a `LONG REAL` wrong last digits for large and
+  small exponents (entries 4 and 5 of the bug reports). a68j reproduced
+  this until version 0.6.0 and gives the digits of the exact value since
+  version 0.7.0. 23 solutions that were identical to ga68 print other
+  digits now, mostly in the last place; their results are in `fixed/`.
+  In 20 of them the difference is within the tolerance of `run_jvm.py`;
+  `monty-hall-problem` (`49.99%` instead of `50.00%` for 49.99499…),
+  `percolation-mean-run-density` (`0.0899` for 0.08994999…) and
+  `pythagoras-tree` (`34.688` for 34.6875) differ more. Five more
+  solutions change without a result in `fixed/`: ga68 does not compile
+  `chebyshev-coefficients`, `multiple-regression` and
+  `numerical-integration-romberg-integration`, and `cordic` and
+  `particle-swarm-optimization` differ from ga68 anyway (libm, above).
 - Partial parametrization (`f (3, )`) is compiled, and the program
   crashes.
 - `NIL` accesses and procedures used outside their scope crash without a
