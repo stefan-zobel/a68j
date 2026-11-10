@@ -20,7 +20,8 @@ have not. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet. Entries 16 to 22 were found while the
 examples of the book were checked (3 November 2026); the causes of 16 to
-19 have been examined only as far as their entries say.
+19 have been examined only as far as their entries say. Entry 23 was
+found in the source; what ga68 does with it has not been measured.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -54,6 +55,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 20 | libga68 `ga68.map` | the operators on `compl` are not exported from the shared libga68 | correct |
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | reproduces |
+| 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
 
@@ -749,6 +751,50 @@ modules it accesses and of the standard postludes, is skipped.
 
 Suggested fix: use `POSTDECREMENT_EXPR` there. The fix has not been
 tested by rebuilding ga68.
+
+## 23. A syntax error message uses the program text as a format string
+
+```
+begin
+  op (ref int, int) ref int f = %*:=;
+  skip
+end
+```
+
+The program is invalid, and ga68 should report
+
+```
+error: construct beginning with 'begin' in line 1 followed by an
+operator plan in line 2 and then 'f' and '=' and '%*:=' and ';' and a
+skip unit in line 3 and 'end' in line 4 is an invalid serial clause
+```
+
+`recover_from_error` (a68-parser-bottom-up.cc) builds this message from
+the text of `a68_phrase_to_text`, which puts each symbol in `%<...%>`,
+and passes it to `a68_error` as the format string:
+
+```
+const char *seq = a68_phrase_to_text (p, &w);
+...
+std::string fmt = seq;
+fmt += " is an invalid %e";
+a68_error (w, fmt.c_str (), &a);
+```
+
+The symbols are inserted unchanged, so a `%` in an operator becomes a
+directive of the format: `%*` and `%:` in `%*`, `%*:=` and `%:=` are not
+valid directives, and in `%<%%>` for the operator `%` the `%%` is a
+literal `%` and the closing quote is lost. What GCC's pretty printer
+does with the unknown directives has not been measured; it is not a
+correct message in either case.
+
+Suggested fix: double every `%` of a symbol in `a68_phrase_to_text`
+before it goes into the text, or pass the text as an argument of `%s`
+and let `a68_phrase_to_text` produce plain quotes.
+
+a68j used to stop with an uncaught `IllegalArgumentException` for `%*`,
+`%*:=` and `%:=`, and to print `'%>` for `%`. It doubles the `%` of a symbol in `TopDown.phraseToText` and reports the
+error as above (fixed); messages for symbols without `%` are unchanged.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

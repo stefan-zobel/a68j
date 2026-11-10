@@ -60,6 +60,18 @@ public final class TopDown {
         return s.length() > size - 1 ? s.substring(0, size - 1) : s;
     }
 
+    /**
+     * A symbol of the program as part of the text of phraseToText, which
+     * recover_from_error uses as a format string: a '%' is doubled. ga68
+     * inserts the symbol unchanged, so that an operator such as %*:= makes
+     * the format string invalid (docs/ga68-bug-reports.md, entry 23).
+     * a68j does not reproduce this; the text is the same for every symbol
+     * without a '%'.
+     */
+    private static String asFormatText(String symbol) {
+        return symbol.replace("%", "%%");
+    }
+
     // A few forward prototypes of functions defined below.
     // C: static NODE_T *top_down_loop (NODE_T *p);
     // C: static NODE_T *top_down_skip_unit (NODE_T *p);
@@ -135,7 +147,7 @@ public final class TopDown {
             // Attribute or symbol.
             if (z != null && p.sub != null) {
                 if (gatt == IDENTIFIER || gatt == OPERATOR || gatt == DENOTATION) {
-                    String stropSymbol = Keywords.stropKeyword(a68, p.info.symbol);
+                    String stropSymbol = asFormatText(Keywords.stropKeyword(a68, p.info.symbol));
                     // C: if (snprintf (...) < 0) gcc_unreachable ();
                     editLine = snprintf(a68, SNPRINTF_SIZE, " %%<%s%%>", stropSymbol);
                     bufcat(a68, buffer, editLine, BUFFER_SIZE);
@@ -151,12 +163,12 @@ public final class TopDown {
                     bufcat(a68, buffer, editLine, BUFFER_SIZE);
                 }
             } else if (z != null && p.sub == null) {
-                String stropSymbol = Keywords.stropKeyword(a68, p.info.symbol);
+                String stropSymbol = asFormatText(Keywords.stropKeyword(a68, p.info.symbol));
                 // C: if (snprintf (...) < 0) gcc_unreachable ();
                 editLine = snprintf(a68, SNPRINTF_SIZE, " %%<%s%%>", stropSymbol);
                 bufcat(a68, buffer, editLine, BUFFER_SIZE);
             } else if (p.info.symbol != null) {
-                String stropSymbol = Keywords.stropKeyword(a68, p.info.symbol);
+                String stropSymbol = asFormatText(Keywords.stropKeyword(a68, p.info.symbol));
                 // C: if (snprintf (...) < 0) gcc_unreachable ();
                 editLine = snprintf(a68, SNPRINTF_SIZE, " %%<%s%%>", stropSymbol);
                 bufcat(a68, buffer, editLine, BUFFER_SIZE);
