@@ -1,0 +1,17 @@
+{ a68j-options: -I tests/java/lib }
+{ Activation and revocation of a module (tests/java/modules/activation.a68):
+  the prelude runs at the first ACCESS clause and again at every ACCESS
+  clause after the module was revoked, with new storage; the postlude runs
+  when the outermost ACCESS clause ends, not at the end of a nested one.
+  The program reads and assigns the public variable count, and calls set,
+  in the current activation. }
+begin
+   access Activation (bump; bump; show);
+   access Activation (show; count := 5; show; set (7);
+                      puts ("read " + whole (count, 0) + "'n"));
+   access Activation
+   begin bump;
+         access Activation (bump; show);
+         puts ("outer " + whole (count, 0) + "'n")
+   end
+end

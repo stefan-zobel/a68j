@@ -79,10 +79,12 @@ unboxed. The bootstrap `Modules.bsmCall` links the call site the first
 time it runs:
 - to `pub$i` if the module has an entry method of exactly this type;
 - otherwise to the boxed procedure value, for which the arguments are
-  packed into an `Object[]`. This concerns module classes of an older
-  a68j and tags declared neither in a procedure declaration with a routine
-  text nor with a Java formal hole, such as the identity declaration
-  `pub proc (int) int f = (int n) int: …`.
+  packed into an `Object[]`. This concerns tags declared neither in a
+  procedure declaration with a routine text nor with a Java formal hole,
+  such as the identity declaration `pub proc (int) int f = (int n) int:
+  …`. Since version 0.7.0 the value is read from the module at every
+  call (`pub$v`), as a module accessed again after its postlude has a new
+  frame (`docs/BACKEND.md`, compiled modules).
 
 After that a call costs only two `invokestatic`. `A68J_DEBUG_LINK=1`
 shows how each call site was linked.

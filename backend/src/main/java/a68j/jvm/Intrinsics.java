@@ -168,10 +168,17 @@ final class Intrinsics {
         }
     }
 
-    /** Push the (boxed) value of the module tag T. */
+    /**
+     * Push the (boxed) value of the module tag T: an invokedynamic call site
+     * whose bootstrap ({@code Modules.bsmValue}) links it to {@code pub$v}
+     * of the module class, so that every use reads the value of the current
+     * activation of the module (Gen#emitPubValue).
+     */
     static void loadModuleTag(Gen g, Tag t) {
-        var bsm = java.lang.constant.ConstantDescs.ofConstantBootstrap(CD_MODULES, "bsm", CD_Object, CD_String, CD_String);
-        Gen.constant(g.cb, java.lang.constant.DynamicConstantDesc.ofNamed(bsm, "m", CD_Object,
+        var bsm = java.lang.constant.MethodHandleDesc.ofMethod(
+                java.lang.constant.DirectMethodHandleDesc.Kind.STATIC, CD_MODULES, "bsmValue",
+                MethodTypeDesc.of(CD_CallSite, CD_MethodHandles_Lookup, CD_String, CD_MethodType, CD_String, CD_String));
+        g.cb.invokedynamic(java.lang.constant.DynamicCallSiteDesc.of(bsm, "value", MethodTypeDesc.of(CD_Object),
                 moduleClass(t.moif.name), moduleKey(g, t)));
     }
 
@@ -181,9 +188,9 @@ final class Intrinsics {
      * bootstrap ({@code Modules.bsmCall}) links it to the typed entry
      * {@code pub$i} of the module class (Gen#emitTypedPubEntries), or, if
      * the module has none for T (declared neither with a routine text nor
-     * with a Java formal hole, or compiled by an older a68j), to the boxed
-     * procedure value. Either way the
-     * module is elaborated before the first call, as with the value.
+     * with a Java formal hole), to the boxed procedure value, read anew at
+     * every call. Either way the module is elaborated before the first
+     * call, as with the value.
      */
     static void callModuleTag(Gen g, Tag t, List<Node> args, Node p) {
         Moid proc = JType.base(t.type);

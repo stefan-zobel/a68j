@@ -43,6 +43,22 @@ final class Capture {
     private static void walk(Gen g, Node p, Gen.Routine cur, List<Use> uses, boolean top) {
         for (; p != null; p = p.next) {
             Gen.Routine in = cur;
+            if (p.attribute == Attribute.POSTLUDE_PART && p.sub != null && p.sub.next != null) {
+                // POSTLUDE_PART: postlude symbol, serial clause. The serial
+                // clause runs when the module is revoked, long after its DEF
+                // part: a method of its own, called with the frame of the
+                // module (Gen#emitModuleAccess).
+                Node serial = p.sub.next;
+                Gen.Routine r = new Gen.Routine(g.routines.size(), serial, cur, "r" + g.routines.size());
+                r.want = g.a68.modes.VOID;
+                g.routines.add(r);
+                g.routineOf.put(serial, r);
+                if (serial.symbolTable != null) {
+                    g.tableOwner.put(serial.symbolTable, r);
+                }
+                walk(g, serial.sub, r, uses, true);
+                continue;
+            }
             if (!top && p.attribute == Attribute.SERIAL_CLAUSE && hasLabels(p)) {
                 in = new Gen.Routine(g.routines.size(), p, cur, "r" + g.routines.size());
                 g.routines.add(in);

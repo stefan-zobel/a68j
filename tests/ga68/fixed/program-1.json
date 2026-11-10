@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "program-1.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 22 (module postlude)",
+ "stderr": "",
+ "stdout": "Hello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\nHello from module\nBye from module\n"
+}

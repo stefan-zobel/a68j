@@ -26,55 +26,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A compiled module class has {@code static String pubKeys()} (the keys of
- * its public tags, one per line) and {@code static Object[] pub()} (their
- * values, elaborating the module on first use). Code using a module tag
- * loads its value with a dynamic constant bootstrapped by {@link #bsm}.
+ * its public tags, one per line), {@code static Object pub$v(int i)} (the
+ * value of the tag i in the current activation of the module, elaborating
+ * the module on first use) and typed entries {@code pub$i} of procedures.
+ * Code using a module tag reads its value through a call site
+ * bootstrapped by {@link #bsmValue} and calls a module procedure through
+ * one bootstrapped by {@link #bsmCall}. Neither keeps a value: a module
+ * accessed again after its postlude is elaborated again with new storage.
  */
 public final class Modules {
     private Modules() {}
-
-    private static final Map<String, Map<String, Object>> CACHE = new ConcurrentHashMap<>();
-
-    private static Map<String, Object> load(String cls, ClassLoader loader) {
-        try {
-            // The loader of the class using the module: with -run that is
-            // the loader of the program, which sees the library jars.
-            Class<?> c = Class.forName(cls, true, loader);
-            String keys = (String) c.getMethod("pubKeys").invoke(null);
-            Object[] vals = (Object[]) c.getMethod("pub").invoke(null);
-            Map<String, Object> m = new HashMap<>();
-            String[] ks = keys.split("\n");
-            for (int i = 0; i < vals.length; i++) {
-                m.put(ks[i], vals[i]);
-            }
-            return m;
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException r) {
-                throw r;
-            }
-            throw new IllegalStateException(e.getCause());
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("a68j: cannot load module class " + cls, e);
-        }
-    }
-
-    /** The value of the public tag KEY of the module class CLS. */
-    public static Object get(String cls, String key) {
-        return get(cls, key, Modules.class.getClassLoader());
-    }
-
-    /** The value of the public tag KEY of the module class CLS, loaded by LOADER. */
-    public static Object get(String cls, String key, ClassLoader loader) {
-        Map<String, Object> m = CACHE.get(cls);
-        if (m == null) {
-            m = load(cls, loader);
-            CACHE.putIfAbsent(cls, m);
-        }
-        if (!m.containsKey(key)) {
-            throw new IllegalStateException("a68j: module " + cls + " has no public " + key);
-        }
-        return m.get(key);
-    }
 
     /** Index of each public key of the module class CLS (the order of pubKeys()). */
     private static final Map<String, Map<String, Integer>> INDEX = new ConcurrentHashMap<>();
@@ -90,6 +51,28 @@ public final class Modules {
             INDEX.putIfAbsent(c.getName(), m);
         }
         return m;
+    }
+
+    /** The module class CLS, loaded by the loader of the class using it. */
+    private static Class<?> moduleClass(MethodHandles.Lookup lookup, String cls) {
+        try {
+            // With -run that is the loader of the program, which sees the
+            // library jars.
+            return Class.forName(cls, true, lookup.lookupClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("a68j: cannot load module class " + cls, e);
+        }
+    }
+
+    /** A handle () Object reading the value of the public tag KEY of the module class C. */
+    private static MethodHandle value(MethodHandles.Lookup lookup, Class<?> c, String key)
+            throws ReflectiveOperationException {
+        Integer i = index(c).get(key);
+        if (i == null) {
+            throw new IllegalStateException("a68j: module " + c.getName() + " has no public " + key);
+        }
+        MethodHandle v = lookup.findStatic(c, "pub$v", MethodType.methodType(Object.class, int.class));
+        return MethodHandles.insertArguments(v, 0, i);
     }
 
     /** A68J_DEBUG_LINK=1: report how each call site of a module tag is linked. */
@@ -111,14 +94,12 @@ public final class Modules {
      * (invokedynamic, see a68j.jvm.Intrinsics#callModuleTag). TYPE has the
      * parameters and the result unboxed. Links to the typed entry
      * {@code pub$i} of the module class if it has one of exactly this type,
-     * otherwise to the boxed procedure value: the arguments are boxed into
-     * an Object[] and the result unboxed, as code compiled without typed
-     * entries does it.
+     * otherwise to the boxed procedure value, read at every call: the
+     * arguments are boxed into an Object[] and the result unboxed.
      */
     public static CallSite bsmCall(MethodHandles.Lookup lookup, String name, MethodType type, String cls, String key)
             throws ReflectiveOperationException {
-        ClassLoader loader = lookup.lookupClass().getClassLoader();
-        Class<?> c = Class.forName(cls, true, loader);
+        Class<?> c = moduleClass(lookup, cls);
         Integer i = index(c).get(key);
         if (i != null) {
             try {
@@ -134,13 +115,18 @@ public final class Modules {
         if (DEBUG) {
             System.err.println("a68j: " + cls + " " + key + ": boxed procedure value");
         }
-        Object proc = get(cls, key, loader);
-        MethodHandle h = PROC_CALL.bindTo(proc).asCollector(Object[].class, type.parameterCount()).asType(type);
+        MethodHandle proc = value(lookup, c, key).asType(MethodType.methodType(Proc.class));
+        MethodHandle h = MethodHandles.collectArguments(PROC_CALL, 0, proc)
+                .asCollector(Object[].class, type.parameterCount()).asType(type);
         return new ConstantCallSite(h);
     }
 
-    /** Bootstrap of the dynamic constants for module tags. */
-    public static Object bsm(MethodHandles.Lookup lookup, String name, Class<?> type, String cls, String key) {
-        return get(cls, key, lookup.lookupClass().getClassLoader());
+    /**
+     * Bootstrap of the call sites that read the value of a module tag
+     * (invokedynamic of type () Object, see a68j.jvm.Intrinsics#loadModuleTag).
+     */
+    public static CallSite bsmValue(MethodHandles.Lookup lookup, String name, MethodType type, String cls, String key)
+            throws ReflectiveOperationException {
+        return new ConstantCallSite(value(lookup, moduleClass(lookup, cls), key).asType(type));
     }
 }

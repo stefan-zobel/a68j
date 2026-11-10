@@ -179,9 +179,9 @@ not make the name of the element or field at all (§1).
   (`Intrinsics.callModuleTag`) are an invokedynamic with the arguments
   unboxed; the bootstrap `Modules.bsmCall` links it to `pub$i` if the
   module has one of exactly that type, otherwise to the boxed procedure
-  value (`Proc.call` with an `Object[]`, adapted with `asType`), so module
-  classes of older a68j versions still work. `A68J_DEBUG_LINK=1` reports
-  each linkage.
+  value, read from the module at every call (`Proc.call` with an
+  `Object[]`, adapted with `asType`). `A68J_DEBUG_LINK=1` reports each
+  linkage.
 - **Values shared without a copy:** identities and parameters of a ROW,
   STRUCT or UNION mode (`Gen.valueConsts`) hold values that no name refers
   to and that cannot change. A value taken from one of them (the identifier,
@@ -232,10 +232,13 @@ of the public tags (mangled name plus a structural description of the mode,
 `Intrinsics.moduleKey`, independent of the order of union members; at every
 level a description of more than 256 characters is replaced by its SHA-256,
 so that a key stays short for a large recursive mode), `pub()`
-elaborates the module once and gives their boxed values. Code using a tag of
-a compiled module loads it with `ldc` of a dynamic constant bootstrapped by
-`a68j.rt.Modules.bsm(cls, key)` (resolved once per use site) and calls the
-`Proc`.
+elaborates the module if that has not happened yet and gives their boxed
+values, `pub$v(i)` the value of one of them in the module's current frame.
+Code using a tag of a compiled module reads it with an invokedynamic call
+site that `a68j.rt.Modules.bsmValue(cls, key)` links to `pub$v(i)`, so
+every use sees the current activation of the module (see below); a call
+of a module procedure goes through `Modules.bsmCall` (typed entries,
+above).
 
 **Separate compilation of modules** (prelude packets, `module X = ...
 fed`). Compiling `x.a68` writes the class (named after the module:
@@ -245,10 +248,16 @@ byte-identical with ga68 for all module packets of the testsuite). A program
 or module accessing `X` finds `x.m68` through `-I` (or `-fmodules-map`,
 `-fmodules-map-file`) with the ported `Imports`; the classes must be on the
 class path when running. As `lower_module_text`, the class has `prelude()`
-(increments a sentinel; the first call runs the preludes of the modules of
-its revelation part and then elaborates the DEF part) and `postlude()` (Sic:
-increments the sentinel too and would run only at 0, i.e. never, so the
-postlude code is not compiled). An ACCESS clause calls the preludes, the
+(increments a sentinel; when it becomes 1 it runs the preludes of the
+modules of its revelation part and then elaborates the DEF part in a new frame) and
+`postlude()` (decrements the sentinel; at 0 it runs the serial clause of
+the postlude part, a method of its own called with the module's frame, and
+then the postludes of the modules of the revelation part). So the
+outermost ACCESS clause activates the module and revokes it at its end,
+and a later ACCESS clause activates it again with new storage. ga68
+increments the sentinel in the postlude too, so that its postlude never
+runs (`docs/ga68-bug-reports.md`, entry 22); a68j did the same until
+version 0.6.0. An ACCESS clause calls the preludes, the
 controlled clause and the postludes (`GenClauses.accessClause`; Sic as
 `a68_lower_revelation_ludes`: modules of nested ACCESS clauses are included).
 
@@ -267,7 +276,7 @@ entries is an error ("exists but does not contain any export data") and
 ends the search, as for an object file. `-run` puts the jars it read
 (`A68.libraryJars`) and the other `lib*.jar` of the -I/-L directories (for
 the modules accessed by those modules: with ga68 all would be linked) on the
-class path of the program; `Modules.bsm` loads module classes through the
+class path of the program; `Modules` loads module classes through the
 loader of the program. A separately compiled program needs the jars on its
 class path (`java -cp a68j-backend.jar:lib/libX.jar:out Prog`).
 `run_jvm.py --modules-as-jars` compiles every module packet of the

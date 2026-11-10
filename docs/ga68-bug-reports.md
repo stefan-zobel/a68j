@@ -28,7 +28,8 @@ behavior of ga68 where the output is still deterministic, and is correct
 where ga68 crashes or reads uninitialized memory. Since version 0.7.0
 a68j corrects some of the defects it used to reproduce ("fixed" in the
 last column). The expected results of the tests whose output changes
-with that are in `tests/extra/fixed` and `tests/rosetta/fixed`; they take
+with that are in `tests/ga68/fixed`, `tests/extra/fixed` and
+`tests/rosetta/fixed`; they take
 the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 
 | # | Component | Summary | a68j |
@@ -54,7 +55,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end | correct (as Algol 68 Genie) |
 | 20 | libga68 `ga68.map` | the operators on `compl` are not exported from the shared libga68 | correct |
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
-| 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | reproduces |
+| 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
 
 ## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
@@ -751,6 +752,24 @@ modules it accesses and of the standard postludes, is skipped.
 
 Suggested fix: use `POSTDECREMENT_EXPR` there. The fix has not been
 tested by rebuilding ga68.
+
+With the fix, the outermost access clause activates the module and
+revokes it at its end, as the section "Module activation" of the ga68
+manual describes, and an access clause after that activates it again:
+its prelude runs again, with new storage. The modules testsuite of ga68
+expects this: the postlude of `module16.a68` checks a value that
+`program-16.a68` assigns, and `program-1.a68`, which accesses `Module1`
+eleven times one after the other, then prints `Hello from module` and
+`Bye from module` eleven times each.
+
+a68j reproduced the defect until version 0.6.0. Since version 0.7.0 it
+decrements the sentinel (fixed). As a module can be activated more than
+once, code using a module reads each of its public tags from the
+module's current activation at every use, instead of once. The
+programs `program-1`, `program-2`, `program-8` and `program-11` of the
+modules testsuite print `Bye from module` after each activation; their
+results are in `tests/ga68/fixed`. `tests/java/module-activation.a68`
+checks repeated and nested activation.
 
 ## 23. A syntax error message uses the program text as a format string
 

@@ -28,7 +28,10 @@ programs in `tests/extra` in the same way.
 
 Where a68j corrects a defect of ga68 (`docs/ga68-bug-reports.md`), the
 expected result of a68j is in `fixed/<name>.json` next to `expected`
-(`tests/extra/fixed`), with the field `fixes` naming the entry.
+(`tests/ga68/fixed`, `tests/extra/fixed`), with the field `fixes` naming
+the entry. In `tests/ga68/fixed` these are the module programs that
+access a module with a postlude (entry 22): a68j runs the postlude, ga68
+does not.
 `tools/run_jvm.py` compares with it instead of the result of ga68, which
 stays in `expected` as recorded, and reports when the two agree again.
 

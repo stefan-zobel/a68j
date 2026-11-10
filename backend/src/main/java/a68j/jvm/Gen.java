@@ -831,8 +831,10 @@ public final class Gen {
     /**
      * The access methods of a module class: {@code pubKeys()} gives the keys
      * of the public tags (see {@link Intrinsics#moduleKey}) separated by
-     * newlines, {@code pub()} elaborates the module once and gives their
-     * values (boxed) in the same order.
+     * newlines, {@code pub()} elaborates the module if it has not been
+     * elaborated yet and gives their values (boxed) in the same order,
+     * {@code pub$v(i)} the value of one of them. {@code prelude()} and
+     * {@code postlude()} activate and revoke the module (ACCESS clauses).
      */
     private void emitModuleAccess(ClassBuilder clb) {
         clb.withField("frame", CD_FRAME, ClassFile.ACC_PRIVATE | ClassFile.ACC_STATIC);
@@ -855,9 +857,10 @@ public final class Gen {
             code.areturn();
         });
         Routine program = routines.get(0);
-        // lower_module_text: the prelude elaborates the module the first
-        // time it is called (sentinel 1), after the preludes of the modules
-        // of its revelation part.
+        // lower_module_text: the prelude elaborates the module whenever the
+        // sentinel becomes 1 (the first access, and every access after the
+        // module was revoked), after the preludes of the modules of its
+        // revelation part. Each elaboration makes a new frame.
         clb.withField("sentinel", CD_long, ClassFile.ACC_PRIVATE | ClassFile.ACC_STATIC);
         Node revelation = moduleDef.sub != null && moduleText != null
                 && moduleText.sub.attribute == Attribute.REVELATION_PART ? moduleText.sub : null;
@@ -888,16 +891,47 @@ public final class Gen {
                     code.return_();
                     cb = save;
                 });
-        // Sic: the postlude increments the sentinel too ("Decrease sentinel"),
-        // and runs only when it is 0, i.e. never; so only the increment is kept.
+        // The postlude revokes the module when the sentinel is back at 0: the
+        // serial clause of its postlude part (a method of its own, see
+        // Capture#walk, called with the module's frame), then the postludes
+        // of the modules of its revelation part. ga68 increments the sentinel
+        // here instead of decrementing it, so that its postlude never runs
+        // (docs/ga68-bug-reports.md, entry 22); a68j decrements it.
+        Node postludeSerial = null;
+        for (Node q = moduleText == null ? null : moduleText.sub; q != null; q = q.next) {
+            if (q.attribute == Attribute.POSTLUDE_PART && q.sub != null) {
+                postludeSerial = q.sub.next;
+            }
+        }
+        Routine postlude = postludeSerial == null ? null : routineFor(postludeSerial);
         clb.withMethodBody("postlude", MethodTypeDesc.of(CD_void),
                 ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC | ClassFile.ACC_SYNCHRONIZED, code -> {
+                    CodeBuilder save = cb;
+                    cb = code;
+                    java.lang.classfile.Label skip = code.newLabel();
                     code.getstatic(thisClass, "sentinel", CD_long);
                     code.lconst_1();
-                    code.ladd();
+                    code.lsub();
+                    code.dup2();
                     code.putstatic(thisClass, "sentinel", CD_long);
+                    code.lconst_0();
+                    code.lcmp();
+                    code.ifne(skip);
+                    if (postlude != null) {
+                        code.getstatic(thisClass, "frame", CD_FRAME);
+                        code.iconst_0();
+                        code.anewarray(CD_Object);
+                        code.invokestatic(thisClass, postlude.method, MT_ROUTINE);
+                        code.pop();
+                    }
+                    if (revelation != null) {
+                        GenClauses.revelationLudes(this, revelation, false);
+                    }
+                    code.labelBinding(skip);
                     code.return_();
+                    cb = save;
                 });
+        emitPubValue(clb, program);
         emitTypedPubEntries(clb, program);
         clb.withMethodBody("pub", MethodTypeDesc.of(CD_OBJECTS),
                 ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC | ClassFile.ACC_SYNCHRONIZED, code -> {
@@ -977,6 +1011,47 @@ public final class Gen {
                 code.return_(TypeKind.from(entry.returnType()));
             });
         }
+    }
+
+    /**
+     * {@code public static Object pub$v(int i)}: the value (boxed) of the
+     * public tag i of pubKeys() in the frame of the current activation of
+     * the module, which it elaborates if that has not happened yet. Code
+     * using a module tag reads it through this method at every use
+     * (Intrinsics#loadModuleTag, Modules#bsmValue), as a module accessed
+     * again after its postlude is elaborated again with new storage.
+     */
+    private void emitPubValue(ClassBuilder clb, Routine program) {
+        if (pubTags.isEmpty()) {
+            return;
+        }
+        clb.withMethodBody("pub$v", MethodTypeDesc.of(CD_Object, CD_int),
+                ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC, code -> {
+                    elaborateModule(code);
+                    code.getstatic(thisClass, "frame", CD_FRAME);
+                    code.getfield(CD_FRAME, "s", CD_OBJECTS);
+                    java.lang.classfile.Label load = code.newLabel();
+                    java.lang.classfile.Label none = code.newLabel();
+                    List<java.lang.classfile.instruction.SwitchCase> cases = new ArrayList<>();
+                    for (int i = 0; i < pubTags.size(); i++) {
+                        cases.add(java.lang.classfile.instruction.SwitchCase.of(i, code.newLabel()));
+                    }
+                    code.iload(0);
+                    code.tableswitch(0, pubTags.size() - 1, none, cases);
+                    for (int i = 0; i < pubTags.size(); i++) {
+                        code.labelBinding(cases.get(i).target());
+                        Gen.constant(code, program.frameSlots.get(pubTags.get(i)));
+                        code.goto_(load);
+                    }
+                    code.labelBinding(none);
+                    code.new_(ClassDesc.of("java.lang.IllegalArgumentException"));
+                    code.dup();
+                    code.invokespecial(ClassDesc.of("java.lang.IllegalArgumentException"), "<init>", MethodTypeDesc.of(CD_void));
+                    code.athrow();
+                    code.labelBinding(load);
+                    code.aaload();
+                    code.areturn();
+                });
     }
 
     /**

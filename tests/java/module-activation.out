@@ -1,0 +1,13 @@
+activated
+count 2
+revoked with count 2
+activated
+count 0
+count 5
+read 7
+revoked with count 7
+activated
+count 2
+outer 2
+revoked with count 2
+exit 0

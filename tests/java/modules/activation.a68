@@ -1,0 +1,14 @@
+{ A module with state and a postlude, for module-activation.a68: every
+  activation prints a line and starts with count 0, the postlude prints
+  the count it ends with. set is an identity declaration, so a call of it
+  goes through the procedure value instead of a typed entry. }
+module Activation =
+def
+    pub int count := 0;
+    pub proc show = void: puts ("count " + whole (count, 0) + "'n");
+    pub proc bump = void: count +:= 1;
+    pub proc (int) void set = (int n) void: count := n;
+    puts ("activated'n")
+postlude
+    puts ("revoked with count " + whole (count, 0) + "'n")
+fed
