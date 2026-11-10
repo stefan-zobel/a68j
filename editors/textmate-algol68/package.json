@@ -1,0 +1,44 @@
+{
+  "name": "algol68",
+  "displayName": "Algol 68 (UPPER and SUPPER stropping)",
+  "description": "Syntax highlighting for Algol 68 in UPPER stropping (Revised Report, Algol 68 Genie, ga68) and SUPPER stropping (ga68, a68j)",
+  "version": "0.3.0",
+  "publisher": "a68j",
+  "license": "ISC",
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "algol",
+    "algol68",
+    "a68g",
+    "ga68",
+    "upper",
+    "supper"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "algol68",
+        "aliases": [
+          "Algol 68",
+          "algol68"
+        ],
+        "extensions": [
+          ".a68"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "algol68",
+        "scopeName": "source.algol68",
+        "path": "./syntaxes/algol68.tmLanguage.json"
+      }
+    ]
+  }
+}

@@ -15,7 +15,7 @@ second grammar of its own, for UPPER and SUPPER stropping in one file.
 | `editors/a68html/a68tokens.js` | the shared tokenizer (vscode-textmate + Oniguruma) |
 | `editors/a68html/check_grammar.js` | compares grammar ↔ scanner |
 | `tools/grammar_check.sh` | the comparison over all test programs |
-| `editors/textmate-algol68/` | the grammar for UPPER and SUPPER stropping (section 8) |
+| `editors/textmate-algol68/` | the grammar for UPPER and SUPPER stropping, also as a VS Code extension (`algol68-0.3.0.vsix`, section 8) |
 
 ## 1. Origin
 
