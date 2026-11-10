@@ -354,8 +354,9 @@ under the **GNU General Public License, version 3 or later** (`COPYING`).
   choice; the exact terms are in the header of each file and in
   `COPYING.RUNTIME`. The compiler itself (front end and code generator)
   remains under the GPL without this exception.
-- `backend/lib/standard.a68` is libga68's standard prelude, unchanged
-  (GPL 3 with the GCC Runtime Library Exception 3.1).
+- `backend/lib/standard.a68` is libga68's standard prelude, with
+  corrections in `fixed`, `float` and `string_to_real` that are marked in
+  the file (GPL 3 with the GCC Runtime Library Exception 3.1).
 - The VS Code extension in `editors/vscode-algol68` is under the ISC
   license. It started from https://github.com/jlguenego/vscode-algol68.
 - The Rosetta Code programs in `tests/rosetta` are under the GNU Free

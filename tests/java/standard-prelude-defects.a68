@@ -1,0 +1,56 @@
+{ Defects of libga68's standard prelude that a68j corrects
+  (docs/ga68-bug-reports.md, entries 2 and 3).  Values are compared rather
+  than printed where the digits of fixed and float would show entries 4
+  and 5, which a68j still reproduces. }
+begin
+    proc b = (bool x) string: (x | "T" | "F");
+    { Whether x is v, but for the rounding of the last digits. }
+    proc near = (long long real x, v) bool: ABS (x - v) <= ABS v * long long 1.0e-6;
+
+    { Entry 2: the exponent part of string_to_real.  The exponent has a
+      sign, as the mantissa. }
+    real r := 7.0;
+    long real lr := long 7.0;
+    long long real llr := long long 7.0;
+    puts ("string_to_real:");
+    for i to 7
+    do string s = case i in "+1.5^+2", "+1.5^-2", "-25^+3", "+3^+38", "+4^-50", "+1^+39",
+                             "+1^+2147483647" esac;
+       real v = case i in 150.0, 0.015, -25000.0, 3.0e38, 0.0, 7.0, 7.0 esac;
+       r := 7.0;
+       bool ok = string_to_real (s, r);
+       puts (" " + b (ok) + b (near (LENG LENG r, LENG LENG v)))
+    od;
+    puts ("'nstring_to_long_real:");
+    for i to 5
+    do string s = case i in "+1.5^+2", "-2.5^-3", "+1^+308", "+1^+309", "+1^+99999999999" esac;
+       long real v = case i in long 150.0, - long 0.0025, long 1.0e308, long 7.0, long 7.0 esac;
+       lr := long 7.0; llr := long long 7.0;
+       bool ok = string_to_long_real (s, lr), lok = string_to_long_long_real (s, llr);
+       puts (" " + b (ok) + b (near (LENG lr, LENG v)) + b (lok) + b (near (llr, LENG v)))
+    od;
+    puts ("'n");
+
+    { Entry 3: fixed with width 0 ends for large values. }
+    puts (whole (UPB fixed (9.9e9, 0, 0), 0) + " " + whole (UPB fixed (1.0e10, 0, 1), 0) + " "
+          + whole (UPB fixed (1.0e30, 0, 2), 0) + " " + whole (UPB fixed (long 9.9e18, 0, 0), 0) + " "
+          + whole (UPB fixed (long 1.0e19, 0, 1), 0) + " " + whole (UPB fixed (long 1.0e300, 0, 0), 0) + " "
+          + whole (UPB fixed (long long 1.0e19, 0, 1), 0) + "'n");
+    puts (fixed (1.0e9, 0, 1) + " " + fixed (long 1.0e18, 0, 1) + " " + fixed (2.5, 0, 2) + "'n");
+
+    { Entry 3: an infinite value and a NaN give errorchars, whatever the
+      width; with width 0 that is the empty string. }
+    real z := 0.0;
+    real inf = 1.0 / z, nan = z / z;
+    long real lz := long 0.0;
+    long real linf = long 1.0 / lz, lnan = lz / lz;
+    long long real llz := long long 0.0;
+    long long real llinf = long long 1.0 / llz;
+    puts ("[" + fixed (inf, 10, 2) + "] [" + fixed (-inf, -8, 1) + "] [" + fixed (inf, 0, 2) + "] ["
+          + fixed (nan, 6, 2) + "] [" + whole (inf, 5) + "]'n");
+    puts ("[" + float (inf, 14, 6, 3) + "] [" + float (-inf, -12, 4, 2) + "] [" + float (nan, 10, 3, 2) + "]'n");
+    puts ("[" + fixed (linf, 10, 2) + "] [" + fixed (-lnan, 0, 2) + "] [" + float (linf, 22, 14, 4) + "] ["
+          + float (lnan, 12, 4, 3) + "]'n");
+    puts ("[" + fixed (llinf, 8, 2) + "] [" + float (-llinf, 12, 4, 3) + "]'n");
+    access Genie_Transput (print ((inf, newline, linf, newline)))
+end

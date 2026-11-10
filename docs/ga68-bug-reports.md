@@ -14,12 +14,13 @@ glibc. The programs use SUPPER stropping and are compiled with
 Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
 has an obvious expected result. Line numbers refer to the commit above.
 
-As of 2 November 2026 entries 1 to 4 have been filed in the GCC
-Bugzilla (PR 128378, PR 128380, PR 128382 and PR 128383, linked at the entries); the others
-have not. Entries 10
+Entries 2 to 4 have been filed in the GCC Bugzilla (PR 128380, PR 128382
+and PR 128383, linked at the entries); the others have not. Entry 1 was
+filed as PR 128378 and has been fixed in GCC; it has been removed, and
+the other entries keep their numbers. Entries 10
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet. Entries 16 to 22 were found while the
-examples of the book were checked (3 November 2026); the causes of 16 to
+examples of the book were checked; the causes of 16 to
 19 have been examined only as far as their entries say. Entry 23 was
 found in the source; what ga68 does with it has not been measured.
 
@@ -34,9 +35,8 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 
 | # | Component | Summary | a68j |
 |---|---|---|---|
-| 1 | libga68 `ga68.map` | `POSIX_fileodefault` is misspelled, so a program that uses `file_o_default` does not link against the shared libga68 | links |
-| 2 | libga68 `standard.a68.in` | `string_to_real` ignores the exponent part | reproduces |
-| 3 | libga68 `standard.a68.in` | `fixed` with width 0 loops forever for values of 1e10 and above, and with any width for an infinite value | reproduces |
+| 2 | libga68 `standard.a68.in` | `string_to_real` ignores the exponent part | fixed |
+| 3 | libga68 `standard.a68.in` | `fixed` with width 0 loops forever for large values, and `fixed` and `float` with any width for an infinite value | fixed |
 | 4 | libga68 `standard.a68.in` | `fixed` on `real` gives wrong digits, e.g. "15999999.0" for 1.6e7 | reproduces |
 | 5 | libga68 `standard.a68.in` | `float` on `long real` is wrong in the last digits for large exponents | reproduces |
 | 6 | libga68 `ga68-posix.c` | `fputs`, `perror`, `fopen`, `fcreate`, `getenv` and `fconnect` use the result of `_libga68_u32_to_u8` without checking it for NULL | defined result |
@@ -57,37 +57,6 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
-
-## 1. `ga68.map` exports `POSIX_fileodeault` instead of `POSIX_fileodefault`
-
-Filed as [PR 128378](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128378).
-
-The version script `libga68/ga68.map` (line 45) lists `POSIX_fileodeault`.
-The variable in `ga68-posix.c` is `_libga68_file_o_default`, and the
-symbol that ga68 emits for the POSIX prelude constant `file_o_default` is
-`POSIX_fileodefault`. Because the version script names a symbol that does
-not exist, `POSIX_fileodefault` stays local in `libga68.so`.
-
-```
-begin
-    int fd = fopen ("/etc/hostname", file_o_default);
-    puts (whole (fd, 0) + "'n")
-end
-```
-
-With the default (static) libga68 the program links and prints 3. With
-`-shared-libga68`:
-
-```
-fod.a68:(.text+0xf8): undefined reference to `POSIX_fileodefault'
-collect2: error: ld returned 1 exit status
-```
-
-`nm -D libga68.so | grep fileo` shows `POSIX_fileordonly`,
-`POSIX_fileordwr`, `POSIX_fileotrunc` and `POSIX_fileowronly`, but no
-`POSIX_fileodefault`.
-
-Fix: spell the entry `POSIX_fileodefault` in `ga68.map`.
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -131,6 +100,15 @@ Expected: 150, i.e. `+15.0000e +1` and `+15.000000e +1`.
 
 Fix: `expart := {S} tmp;`.
 
+a68j reproduced the defect until version 0.6.0. Since version 0.7.0 its
+copy of the standard prelude (`backend/lib/standard.a68`) has this fix
+(fixed). The exponent is read as `string_to_int` reads an integer, so it
+needs a sign: in `"+1.5^2"` the 2 is taken for the sign, and the result
+is 1.5. The procedures `string_to_real` and `string_to_long_real` of the
+module `Texts` and `get` of `Genie_Transput` have their own scanner and
+were not affected. `tests/java/standard-prelude-defects.a68` checks the
+fix.
+
 ## 3. `fixed` with width 0 loops forever for large values
 
 Filed as [PR 128382](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=128382).
@@ -145,8 +123,12 @@ do length +:= 1 od;
 `{L} 10` is an integer denotation, so `{L} 10 ** length` is computed in
 `{L} int`. For `real` this is a 32-bit `int`, so `10 ** 10` already
 overflows (ga68 gives 1410065408), and from `10 ** 32` on the wrapped
-value is 0, so the condition stays true and the loop never ends. For
-`long real` the same happens from 1e19 on.
+value is 0, so the condition stays true and the loop never ends. A
+value above `max_int` (about 2.1e9) is larger than every wrapped power,
+so the loop already does not end for `fixed (9.9e9, 0, 0)`; below that
+it may end at a wrapped power that happens to be larger. For `long real`
+the same happens above `long_max_int` (about 9.2e18), for example with
+`long 9.9e18`.
 
 ```
 begin
@@ -196,9 +178,32 @@ and `inf >= inf` holds, so the loop never ends. The loop in `fixed` behaves
 the same way once it compares with a real power: limited to 5000 passes,
 it ran all of them with `long 10.0 ** length`.
 
-A possible fix, not tried: add `ABS x <= {L} max_real` to the first
-condition of `fixed`, so that such a value reaches the `else` part, which
-yields `ABS width * errorchar`.
+`float` does not end for an infinite value either: `standardize` contains
+
+```
+while y >= g do y *:= {L} .1; p +:= 1 od;
+```
+
+and an infinite `y` stays infinite.
+
+A possible fix: add `ABS x <= {L} max_real` to the first condition of
+`fixed` and of `float`, so that such a value reaches the `else` part,
+which yields `ABS width * errorchar`.
+
+a68j reproduced both defects until version 0.6.0; `print` of an infinite
+value through `Genie_Transput`, which calls `float`, did not end either.
+Since version 0.7.0 its copy of the standard prelude
+(`backend/lib/standard.a68`) compares with `{L} 10.0 ** length` and has
+the condition `ABS x <= {L} max_real` in `fixed` and `float` (fixed). An
+infinite value, and a NaN, for which the condition is false too, give
+`ABS width * errorchar`, which is the empty string for width 0. The digits
+of a large value are still those of entry 4 (`fixed (9.9e9, 0, 0)` gives
+`9899999618`). `tests/java/standard-prelude-defects.a68` checks the fix.
+The Rosetta Code solution
+`experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset`
+prints an infinite `real` with `float`. It times out with ga68, and did
+so with a68j until version 0.6.0; a68j now prints asterisks for that value
+(`tests/rosetta/notes.tsv`).
 
 ## 4. `fixed` on `real` gives wrong digits
 

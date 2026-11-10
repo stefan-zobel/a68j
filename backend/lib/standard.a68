@@ -23,6 +23,10 @@
   program; see the files COPYING3 and COPYING.RUNTIME respectively.
   If not, see <http://www.gnu.org/licenses/>. }
 
+{ a68j: this copy differs from the one generated for libga68 in fixed,
+  float and string_to_real (and their long variants), where libga68 has
+  defects; each change is marked "a68j:".  }
+
 module Standard =
 def
     { 10.2.1 Environment enquiries. }
@@ -437,15 +441,19 @@ def
        esac { whole };
 
 
+    { a68j: fixed yields errorchars for an infinite value or a NaN, and
+      with width 0 it compares with a real power of ten (10.0 ** length):
+      in libga68 the integer power overflows, and the loop does not end
+      for large values (docs/ga68-bug-reports.md, entry 3).  }
     pub proc fixed = (Number v, int width, after) string:
        case v in
           ( real x):
              if int length := ABS width - (x <  0 OR width > 0 | 1 | 0);
-                after >= 0 AND (length > after OR width = 0)
+                after >= 0 AND (length > after OR width = 0) AND ABS x <= max_real
              then  real y = ABS x;
                   if width = 0
                   then length := (after = 0 | 1 | 0);
-                       while y +  .5 *  .1 ** after >=  10 ** length
+                       while y +  .5 *  .1 ** after >=  10.0 ** length
                        do length +:= 1 od;
                        length +:= (after = 0 | 0 | after + 1)
                   fi;
@@ -464,11 +472,11 @@ def
           ( int x): fixed ( real (x), width, after),
           (long real x):
              if int length := ABS width - (x < long 0 OR width > 0 | 1 | 0);
-                after >= 0 AND (length > after OR width = 0)
+                after >= 0 AND (length > after OR width = 0) AND ABS x <= long_max_real
              then long real y = ABS x;
                   if width = 0
                   then length := (after = 0 | 1 | 0);
-                       while y + long .5 * long .1 ** after >= long 10 ** length
+                       while y + long .5 * long .1 ** after >= long 10.0 ** length
                        do length +:= 1 od;
                        length +:= (after = 0 | 0 | after + 1)
                   fi;
@@ -487,11 +495,11 @@ def
           (long int x): fixed (long real (x), width, after),
           (long long real x):
              if int length := ABS width - (x < long long 0 OR width > 0 | 1 | 0);
-                after >= 0 AND (length > after OR width = 0)
+                after >= 0 AND (length > after OR width = 0) AND ABS x <= long_long_max_real
              then long long real y = ABS x;
                   if width = 0
                   then length := (after = 0 | 1 | 0);
-                       while y + long long .5 * long long .1 ** after >= long long 10 ** length
+                       while y + long long .5 * long long .1 ** after >= long long 10.0 ** length
                        do length +:= 1 od;
                        length +:= (after = 0 | 0 | after + 1)
                   fi;
@@ -510,11 +518,14 @@ def
           (long long int x): fixed (long long real (x), width, after)
        esac;
 
+    { a68j: float yields errorchars for an infinite value or a NaN, for
+      which standardize does not end in libga68 (docs/ga68-bug-reports.md,
+      entry 3).  }
     pub proc float = (Number v, int width, after, exp) string:
         case v in
            ( real x):
               if int before = ABS width - ABS exp - (after /= 0 | after+1 | 0) - 2;
-                 SIGN before + SIGN after > 0
+                 SIGN before + SIGN after > 0 AND ABS x <= max_real
               then string s,  real y := ABS x, int p := 0;
                    standardize (y, before, after, p);
                    s := fixed ( SIGN x * y, SIGN width * (ABS width - ABS exp - 1),
@@ -528,7 +539,7 @@ def
               fi,
            (long real x):
               if int before = ABS width - ABS exp - (after /= 0 | after+1 | 0) - 2;
-                 SIGN before + SIGN after > 0
+                 SIGN before + SIGN after > 0 AND ABS x <= long_max_real
               then string s, long real y := ABS x, int p := 0;
                    long_standardize (y, before, after, p);
                    s := fixed (LENG SIGN x * y, SIGN width * (ABS width - ABS exp - 1),
@@ -542,7 +553,7 @@ def
               fi,
            (long long real x):
               if int before = ABS width - ABS exp - (after /= 0 | after+1 | 0) - 2;
-                 SIGN before + SIGN after > 0
+                 SIGN before + SIGN after > 0 AND ABS x <= long_long_max_real
               then string s, long long real y := ABS x, int p := 0;
                    long_long_standardize (y, before, after, p);
                    s := fixed (LENG LENG SIGN x * y, SIGN width * (ABS width - ABS exp - 1),
@@ -773,6 +784,10 @@ def
           if safe then i := (s[1] = "+" | n | -n); true else false fi
     end;
 
+    { a68j: string_to_real, string_to_long_real and string_to_long_long_real
+      assign the exponent part to expart (":="); libga68 compares it
+      ("=") and ignores it (docs/ga68-bug-reports.md, entry 2).  }
+
     { Returns true if the absolute value of the result is <= L max
       real.  }
 
@@ -798,7 +813,7 @@ def
           bool safe := if e < UPB s
                        then  int tmp :=  expart;
                             bool b = string_to_int (s[e+1:], 10, tmp);
-                            expart =  tmp;
+                            expart :=  tmp;
                             b
                        else true
                        fi;
@@ -833,7 +848,7 @@ def
           bool safe := if e < UPB s
                        then long int tmp := LENG expart;
                             bool b = string_to_long_int (s[e+1:], 10, tmp);
-                            expart = SHORTEN tmp;
+                            expart := SHORTEN tmp;
                             b
                        else true
                        fi;
@@ -868,7 +883,7 @@ def
           bool safe := if e < UPB s
                        then long long int tmp := LENG LENG expart;
                             bool b = string_to_long_long_int (s[e+1:], 10, tmp);
-                            expart = SHORTEN SHORTEN tmp;
+                            expart := SHORTEN SHORTEN tmp;
                             b
                        else true
                        fi;
