@@ -6,6 +6,9 @@
 # with CR LF would also shift the columns in the compiler's messages.
 * text=auto eol=lf
 
+*.tex linguist-documentation
+*.html linguist-documentation
+
 # Binary files: never converted and never diffed as text.
 *.jar   binary
 *.class binary
