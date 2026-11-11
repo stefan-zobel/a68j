@@ -8,6 +8,8 @@
 
 *.tex linguist-documentation
 *.html linguist-documentation
+*.js linguist-documentation
+*.css linguist-documentation
 
 # Binary files: never converted and never diffed as text.
 *.jar   binary
