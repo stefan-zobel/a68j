@@ -88,9 +88,9 @@ block, the function must not outlive that block:
 the rules of the proposal, returning the function from the block is the
 error. Algol 68 Genie does not check it there; it stops the program only
 when the function is used, here in \code|incr|, whose result is the cell
-that no longer exists. a68j does not check the lifetime rule at all
-(Section~\ref{sec-lifetimes}) and runs the program to the end, without a
-message. The counter must be a \code|heap| cell, as in the
+that no longer exists. a68j does not check the lifetime rule while the
+program runs (Section~\ref{sec-lifetimes}) and runs the program to the
+end, without a message. The counter must be a \code|heap| cell, as in the
 previous example.
 \end{pitfall}
 

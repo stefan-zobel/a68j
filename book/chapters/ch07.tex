@@ -624,9 +624,13 @@ The Report says that a program that breaks the lifetime rule is wrong and
 that its further behavior is undefined, which allows but does not
 require an implementation to check it. Algol 68 Genie checks: it warns at
 compile time and stops the program with the error ``value is exported out
-of its scope''. ga68 and a68j do not check, and such a program may even
-appear to work, which makes the error all the more dangerous. Use
-\code|heap| for anything that must outlive its block.
+of its scope''. ga68 and a68j do not check it while the program runs,
+and such a program may even appear to work, which makes the error all
+the more dangerous. With the option \code|-Wscope|, both warn at compile
+time about values that may outlive their lifetime; a68j also warns by
+default about the functions that give wrong results in a68j itself
+(Section~\ref{sec-proc-lifetimes}). Use \code|heap| for anything that
+must outlive its block.
 \end{implnote}
 
 \subsection*{The lifetime of a \textbf{loc} cell}
@@ -717,6 +721,32 @@ be kept, a record that holds the state together with a function that
 takes the state as a parameter does the job of a closure. Algol 68 Genie
 and a68j offer a further way out, partial parametrization, an extension of
 the language that Appendix~\ref{app-partial} describes.
+
+\begin{implnote}
+With the option \code|-Wscope|, ga68 and a68j warn at compile time about
+a function that may outlive the names it uses, \code|compose| included;
+the warning is off by default. a68j keeps the cells of a function call
+as long as a function made in the call uses them, so the function
+returned by \code|compose| gives the expected result in a68j. This does not hold for
+loops: a loop body gets no new cells in each round, and a function made
+in the body that is called after the loop sees the values of the last
+round:
+\begin{lstlisting}
+[3] proc int fs;
+for i to 3 do fs[i] := int: i od;
+for i to 3 do print (fs[i]) od    { prints 3 three times }
+\end{lstlisting}
+Since such a program gives wrong results in a68j itself, a68j warns
+about it by default:
+\begin{lstlisting}[style=output]
+warning: routine text captures 'i', which is shared by all iterations
+  of the loop, and may outlive its iteration [-Wframe-scope]
+\end{lstlisting}
+\noindent a68j warns in the same way about a function that jumps to a
+label and may be called after the block of the label has ended. The
+option \code|-Wno-frame-scope| turns the warning off. The ways out above
+avoid the problem.
+\end{implnote}
 
 \section{Recursive types}\label{sec-recursive}
 

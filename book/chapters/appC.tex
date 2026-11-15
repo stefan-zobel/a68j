@@ -80,7 +80,7 @@ Feature & ga68 and a68j & Algol 68 Genie \\
 \code|compl| operators & a68j only & yes \\
 \code|bytes| & no & yes \\
 formats & no & yes \\
-lifetime rule (references, procedures, \code|loc| cells) & not checked & checked at run time \\
+lifetime rule (references, procedures, \code|loc| cells) & not checked at run time; warnings with \code|-Wscope|; a68j: warnings where its results are wrong (Section~\ref{sec-proc-lifetimes}) & checked at run time \\
 bounds of an array field when a record is assigned & not checked & checked \\
 initial value of a variable & zero, \code|false|, blank, empty & undefined (an error when used) \\
 \code|andth|, \code|orel| & yes (GNU extension) & yes (also \texttt{ANDF}, \texttt{ORF}) \\
