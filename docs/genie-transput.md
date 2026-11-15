@@ -94,7 +94,10 @@ ACCESS UPPER_FILES (
 ```
 
 Because of `access pub`, the program sees all of `Genie_Transput` through
-`UPPER_FILES` as well.
+`UPPER_FILES` as well. The bundled module `Genie_Formats`
+([genie-formats.md](genie-formats.md)) exports the same two names, so a
+program that accesses `GENIE_TRANSPUT, GENIE_FORMATS` can write `GFILE`
+and `GCHANNEL` without a module of its own.
 
 ## What it provides
 
@@ -258,8 +261,9 @@ reads as a string), and for the first `eoln` there.
 
 ## Not provided
 
-- formats (`$...$`, `printf`): ga68 does not compile format texts, see
-  [`TODO-formats.md`](TODO-formats.md);
+- formats (`$...$`, `printf`): ga68 does not compile format texts; the
+  rewrite tool and the bundled module `Genie_Formats` provide them, see
+  [`genie-formats.md`](genie-formats.md);
 - `create`, the events other than
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above

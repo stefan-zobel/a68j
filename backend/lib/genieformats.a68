@@ -1,0 +1,495 @@
+{ dg-options "-fstropping=supper" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ genieformats.a68 - the module Genie_Formats of a68j: formatted output in
+  the manner of Algol 68 Genie (printf, putf, writef), on top of the module
+  Genie_Transput.
+
+  ga68, and a68j with it, has no format texts ($ ... $) and no mode
+  format.  The rewrite tool tools/formats/rewrite.a68 turns each format
+  text of a program into a call of gfmt or gfmtd, and the mode format
+  into Gformat:
+
+      format f = $n(k)(g(0)" "), l$;         becomes
+      Gformat f = gfmtd ("n(@1)(g(0)"" ""), l",
+                         (int gfindex) int: case gfindex in k esac, skip);
+
+  The string is the format text itself.  A unit of the format text inside
+  n(...), g(...) and h(...) that is an integer denotation stays in the
+  string; any other unit there and the unit of f(...) is replaced by @ and
+  its index.  The procedures after the string yield the unit of an index
+  (skip if there is none), so that it is elaborated when the format is
+  used, as in Algol 68 Genie.  The rewritten program
+  accesses this module besides Genie_Transput:
+
+      access Genie_Transput, Genie_Formats ( ... )
+
+  It is bundled with a68j-backend.jar, and it is written in plain Algol 68
+  without Java, so the same source compiles with ga68 as an ordinary
+  module.
+
+  What it provides:
+
+      Gformat           the mode of formats
+      gfmt, gfmtd       a format from the text of a format text, and the
+                        procedures of its dynamic parts
+      Gfout             the values putf accepts: those of Outitem of
+                        Genie_Transput, and formats
+      putf (f, items), printf (items), writef (items)
+                        formatted output
+      Gfile, Gchannel   other names of File and Channel of Genie_Transput,
+                        for programs in UPPER stropping, where FILE and
+                        CHANNEL are reserved words of ga68
+
+  The semantics follow Algol 68 Genie:
+  - The items are straightened: a row gives its elements, one by one.
+  - A value is edited by the next pattern of the format; the insertions
+    before and after it are written.  When the format ends and values are
+    left, it starts again.  The program ends with the error
+      "patterns exhausted in format"
+    if a value finds no pattern at all, and with
+      "number of pictures does not match number of arguments"
+    if patterns of the format are left when its values end.
+  - A format item starts a new format; the old one must be used up.
+  - Replicators n(...), the parameters of g and the format of f(...) are
+    elaborated each time they are reached.
+  - g edits a value as print does; g(w) as whole (x, w), g(w, d) as
+    fixed (x, w, d) and g(w, d, e) as float (x, w, d, e), for numbers only.
+  - The procedures newline, space ... of Genie_Transput may be items of
+    putf (Algol 68 Genie does not allow them); they are called and use no
+    pattern.
+
+  Not provided yet: the patterns of pictures (d z s e i . + -), choices
+  (b, c), the string pattern (a), radix patterns (r), the patterns h and
+  k, and formatted input (getf, readf).  A format text that uses them is
+  accepted by the rewrite tool and ends the program with an error
+  "format item ... is not supported yet" when the format is elaborated.
+
+  Restrictions, so that tools/formats_tests.py can make an Algol 68 Genie
+  version of this module (in UPPER stropping, without the module frame)
+  and compare it with the formats of Algol 68 Genie itself: no string
+  breaks, only those names of Genie_Transput that Algol 68 Genie has with
+  the same meaning, and no other module. }
+
+module Genie_Formats =
+access Genie_Transput
+def
+    pub mode Gfile = File, Gchannel = Channel;
+
+    { A replicator or a parameter: a constant, or (dyn > 0) the index of a
+      dynamic part, the argument of ints of the format. }
+    mode Gfrep = struct (int value, dyn);
+
+    { The kinds of the items of a format. }
+    int gf_insertion = 1,   { a string, rep times }
+        gf_alignment = 2,   { x y l p q, rep times }
+        gf_general = 3,     { g with its parameters args }
+        gf_collection = 4,  { the items sub, rep times }
+        gf_format = 5;      { f: the format with the index dyn of rep }
+
+    mode Gfitem = struct (int kind, char letter, Gfrep rep, string text,
+                          ref [] Gfitem sub, ref [] Gfrep args);
+
+    { A format: its items, and the procedures that yield the dynamic
+      parts of a given index. }
+    pub mode Gformat = struct (ref [] Gfitem items,
+                               proc (int) int ints,
+                               proc (int) Gformat formats);
+
+    pub mode Gfout = union (int, long int, long long int,
+                            real, long real,
+                            bool, char, string, bits, long bits,
+                            [] int, [] long int, [] real, [] long real,
+                            [] bool, [] string, [] bits,
+                            [,] int, [,] real, [,] bool,
+                            proc (ref File) void,
+                            Gformat);
+
+    { A format error ends the program, as in Genie_Transput. }
+    proc gf_error = (string message) void:
+       begin put (stand_error, ("runtime error: ", message, newline));
+             posix_exit (1)
+       end;
+
+    proc gf_blank = (char c) bool: c = " " OR c = REPR 10 OR c = REPR 9 OR c = REPR 13;
+    proc gf_digit = (char c) bool: c >= "0" AND c <= "9";
+    proc gf_lower = (char c) char: (c >= "A" AND c <= "Z" | REPR (ABS c + 32) | c);
+
+    proc gf_member = (char c, string s) bool:
+       begin bool found := false;
+             for i from LWB s to UPB s do if s[i] = c then found := true fi od;
+             found
+       end;
+
+    { Parsing.  The text is that of a format text; the units of its
+      dynamic parts are replaced by @ and their indices. }
+
+    proc gf_skip_blanks = (string t, ref int pos) void:
+       while if pos <= UPB t then gf_blank (t[pos]) else false fi do pos +:= 1 od;
+
+    proc gf_expect = (string t, ref int pos, char c) void:
+       begin gf_skip_blanks (t, pos);
+             if if pos <= UPB t then t[pos] = c else false fi
+             then pos +:= 1
+             else gf_error ("""" + c + """ expected in format text " + t)
+             fi
+       end;
+
+    proc gf_number = (string t, ref int pos) int:
+       begin gf_skip_blanks (t, pos);
+             if if pos <= UPB t then NOT gf_digit (t[pos]) else true fi
+             then gf_error ("number expected in format text " + t)
+             fi;
+             int v := 0;
+             while if pos <= UPB t then gf_digit (t[pos]) else false fi
+             do v := 10 * v + (ABS t[pos] - ABS "0"); pos +:= 1 od;
+             v
+       end;
+
+    { The string of a literal insertion starting at pos; a doubled quote
+      stands for one quote. }
+    proc gf_literal = (string t, ref int pos) string:
+       begin string s;
+             bool done := false;
+             pos +:= 1;
+             while NOT done
+             do if pos > UPB t
+                then gf_error ("unterminated string in format text " + t)
+                elif t[pos] /= """"
+                then s +:= t[pos]; pos +:= 1
+                elif if pos < UPB t then t[pos + 1] = """" else false fi
+                then s +:= """"; pos +:= 2
+                else pos +:= 1; done := true
+                fi
+             od;
+             s
+       end;
+
+    { A parameter or a dynamic replicator: @i, the index of a dynamic
+      part, or an integer with an optional sign. }
+    proc gf_param = (string t, ref int pos) Gfrep:
+       begin gf_skip_blanks (t, pos);
+             if if pos <= UPB t then t[pos] = "@" else false fi
+             then pos +:= 1;
+                  (0, gf_number (t, pos))
+             elif if pos <= UPB t then t[pos] = "-" else false fi
+             then pos +:= 1;
+                  (-gf_number (t, pos), 0)
+             else if if pos <= UPB t then t[pos] = "+" else false fi then pos +:= 1 fi;
+                  (gf_number (t, pos), 0)
+             fi
+       end;
+
+    { The parameters (p, ...) of g or f. }
+    proc gf_args = (string t, ref int pos) ref [] Gfrep:
+       begin flex [1 : 0] Gfrep args;
+             gf_skip_blanks (t, pos);
+             if if pos <= UPB t then t[pos] = "(" else false fi
+             then pos +:= 1;
+                  bool more := true;
+                  while more
+                  do Gfrep p = gf_param (t, pos);
+                     [UPB args + 1] Gfrep a;
+                     a[: UPB args] := args;
+                     a[UPB args + 1] := p;
+                     args := a;
+                     gf_skip_blanks (t, pos);
+                     if if pos <= UPB t then t[pos] = "," else false fi
+                     then pos +:= 1
+                     else more := false
+                     fi
+                  od;
+                  gf_expect (t, pos, ")")
+             fi;
+             heap [UPB args] Gfrep := args
+       end;
+
+    proc gf_one = (Gfitem it) ref [] Gfitem:
+       begin ref [] Gfitem r = heap [1 : 1] Gfitem;
+             r[1] := it;
+             r
+       end;
+
+    proc gf_parse_item = (string t, ref int pos) Gfitem:
+       begin Gfrep rep := (1, 0);
+             bool replicated := false;
+             char c0 = t[pos];
+             if gf_digit (c0)
+             then rep := (gf_number (t, pos), 0); replicated := true
+             elif gf_lower (c0) = "n"
+             then pos +:= 1;
+                  gf_expect (t, pos, "(");
+                  rep := gf_param (t, pos);
+                  gf_expect (t, pos, ")");
+                  replicated := true
+             fi;
+             gf_skip_blanks (t, pos);
+             if pos > UPB t then gf_error ("replicator without an item in format text " + t) fi;
+             char c = gf_lower (t[pos]);
+             { A pattern with a replicator is a collection of that pattern. }
+             proc replicate = (Gfitem it) Gfitem:
+                (replicated | (gf_collection, " ", rep, "", gf_one (it), heap [1 : 0] Gfrep) | it);
+             if c = "("
+             then pos +:= 1;
+                  (gf_collection, " ", rep, "", gf_parse_list (t, pos, true), heap [1 : 0] Gfrep)
+             elif c = """"
+             then (gf_insertion, " ", rep, gf_literal (t, pos), heap [1 : 0] Gfitem, heap [1 : 0] Gfrep)
+             elif gf_member (c, "xylpq")
+             then pos +:= 1;
+                  (gf_alignment, c, rep, "", heap [1 : 0] Gfitem, heap [1 : 0] Gfrep)
+             elif c = "g"
+             then pos +:= 1;
+                  ref [] Gfrep args = gf_args (t, pos);
+                  if UPB args > 3 then gf_error ("too many parameters of g in format text " + t) fi;
+                  replicate ((gf_general, c, (1, 0), "", heap [1 : 0] Gfitem, args))
+             elif c = "f"
+             then pos +:= 1;
+                  ref [] Gfrep args = gf_args (t, pos);
+                  if UPB args /= 1 then gf_error ("f needs one format in format text " + t)
+                  elif dyn of args[1] = 0 then gf_error ("f needs a format in format text " + t)
+                  fi;
+                  replicate ((gf_format, c, args[1], "", heap [1 : 0] Gfitem, heap [1 : 0] Gfrep))
+             elif gf_member (c, "dzse.+-iabcrhk")
+             then gf_error ("format item " + c + " is not supported yet (format text " + t + ")"); skip
+             else gf_error ("error in format text " + t + " at """ + c + """"); skip
+             fi
+       end;
+
+    { The items up to the end of the text, or (nested) up to the closing
+      parenthesis of a collection. }
+    proc gf_parse_list = (string t, ref int pos, bool nested) ref [] Gfitem:
+       begin flex [1 : 0] Gfitem list;
+             bool done := false;
+             while NOT done
+             do while if pos <= UPB t then gf_blank (t[pos]) OR t[pos] = "," else false fi
+                do pos +:= 1 od;
+                if pos > UPB t
+                then if nested then gf_error ("missing "")"" in format text " + t) fi;
+                     done := true
+                elif t[pos] = ")"
+                then if NOT nested then gf_error ("unexpected "")"" in format text " + t) fi;
+                     pos +:= 1;
+                     done := true
+                else Gfitem it = gf_parse_item (t, pos);
+                     [UPB list + 1] Gfitem l;
+                     l[: UPB list] := list;
+                     l[UPB list + 1] := it;
+                     list := l
+                fi
+             od;
+             heap [UPB list] Gfitem := list
+       end;
+
+    { The parsed format texts, in a small cache, so that a format text in
+      a loop is parsed once.  The items have no procedures, so they may
+      live in the heap.  Each entry is one name, so that a parallel clause
+      never sees half an entry. }
+    mode Gfparsed = struct (string text, ref [] Gfitem items);
+    int gf_cache_size = 64;
+    ref [] ref Gfparsed gf_cache = heap [0 : gf_cache_size - 1] ref Gfparsed;
+    for i from 0 to gf_cache_size - 1 do gf_cache[i] := nil od;
+
+    proc gf_parsed = (string text) ref [] Gfitem:
+       begin int h := 0;
+             for i from LWB text to UPB text do h := (31 * h + ABS text[i]) MOD gf_cache_size od;
+             ref Gfparsed e = gf_cache[h];
+             if if e isnt nil then text of e = text else false fi
+             then items of e
+             else int pos := LWB text;
+                  ref [] Gfitem items = gf_parse_list (text, pos, false);
+                  gf_cache[h] := heap Gfparsed := (text, items);
+                  items
+             fi
+       end;
+
+    pub proc gfmtd = (string text, proc (int) int ints, proc (int) Gformat formats) Gformat:
+       Gformat (gf_parsed (text), ints, formats);
+
+    proc gf_no_ints = (int i) int: (gf_error ("no dynamic part @" + whole (i, 0) + " in format"); 0);
+    proc gf_no_formats = (int i) Gformat: (gf_error ("no format @" + whole (i, 0) + " in format"); skip);
+
+    pub proc gfmt = (string text) Gformat: gfmtd (text, gf_no_ints, gf_no_formats);
+
+    { Output. }
+
+    proc gf_rep = (Gfrep r, Gformat ctx) int:
+       if dyn of r = 0 then value of r
+       else (ints of ctx) (dyn of r)
+       fi;
+
+    proc gf_not_general = (string mode_name) void:
+       gf_error ("cannot transput " + mode_name + " value with general-pattern");
+
+    { The value V edited by the general pattern IT. }
+    proc gf_general_out = (ref File f, Gfitem it, Gformat ctx, Gfout v) void:
+       begin int n = UPB args of it;
+             [n] int a;
+             for i to n do a[i] := gf_rep ((args of it)[i], ctx) od;
+             case v
+             in (int x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (long int x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (long long int x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (real x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (long real x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (bool x): (n = 0 | put (f, x) | gf_not_general ("BOOL")),
+                (char x): (n = 0 | put (f, x) | gf_not_general ("CHAR")),
+                (string x): (n = 0 | put (f, x) | gf_not_general ("[] CHAR")),
+                (bits x): (n = 0 | put (f, x) | gf_not_general ("BITS")),
+                (long bits x): (n = 0 | put (f, x) | gf_not_general ("LONG BITS"))
+             out gf_error ("cannot transput this value with general-pattern")
+             esac
+       end;
+
+    { The state of a format being used: the collections and formats it is
+      in.  The current item is items[index] of the last frame; reps is
+      the number of times the items of the frame are still to be used. }
+    mode Gfframe = struct (ref [] Gfitem items, int index, reps, Gformat ctx);
+
+    pub proc putf = (ref File f, [] Gfout items) void:
+       begin { The frames are stack[1 : depth]. }
+             { A local row, not the heap: the frames hold the procedures
+               of the formats, whose scope is that of their format texts
+               (Algol 68 Genie checks it). }
+             [1 : 8] Gfframe stack;
+             int depth := 0;
+             Gformat current;
+             bool have_format := false;
+
+             proc push = (ref [] Gfitem its, int reps, Gformat ctx) void:
+                begin if depth = UPB stack
+                      then gf_error ("formats and collections nested too deeply")
+                      fi;
+                      depth +:= 1;
+                      stack[depth] := (its, 1, reps, ctx)
+                end;
+
+             proc pop = void: depth -:= 1;
+
+             proc next = void:
+                if depth > 0 then index of stack[depth] +:= 1 fi;
+
+             { Writes the insertions up to the next pattern; true if there
+               is one (it is then the current item), false at the end of
+               the format. }
+             proc seek = bool:
+                begin bool found := false, finished := false;
+                      while NOT found AND NOT finished
+                      do if depth = 0
+                         then finished := true
+                         elif index of stack[depth] > UPB items of stack[depth]
+                         then if reps of stack[depth] > 1
+                              then reps of stack[depth] -:= 1;
+                                   index of stack[depth] := 1
+                              else pop; next
+                              fi
+                         else Gfframe top = stack[depth];
+                              Gfitem it = (items of top)[index of top];
+                              int kind = kind of it;
+                              if kind = gf_insertion
+                              then to gf_rep (rep of it, ctx of top) do put (f, text of it) od;
+                                   next
+                              elif kind = gf_alignment
+                              then to gf_rep (rep of it, ctx of top)
+                                   do char c = letter of it;
+                                      if c = "x" OR c = "q" then space (f)
+                                      elif c = "y" then backspace (f)
+                                      elif c = "l" then newline (f)
+                                      elif c = "p" then newpage (f)
+                                      fi
+                                   od;
+                                   next
+                              elif kind = gf_collection
+                              then int r = gf_rep (rep of it, ctx of top);
+                                   if r > 0 then push (sub of it, r, ctx of top) else next fi
+                              elif kind = gf_format
+                              then Gformat g = (formats of ctx of top) (dyn of rep of it);
+                                   push (items of g, 1, g)
+                              else found := true
+                              fi
+                         fi
+                      od;
+                      found
+                end;
+
+             { The current format must be used up. }
+             proc finish = void:
+                if have_format
+                then if seek then gf_error ("number of pictures does not match number of arguments") fi
+                fi;
+
+             proc start = (Gformat g) void:
+                begin finish;
+                      current := g;
+                      have_format := true;
+                      depth := 0;
+                      push (items of g, 1, g)
+                end;
+
+             proc out_value = (Gfout v) void:
+                begin bool found := if have_format then seek else false fi;
+                      if NOT found AND have_format
+                      then push (items of current, 1, current);
+                           found := seek
+                      fi;
+                      if NOT found then gf_error ("patterns exhausted in format") fi;
+                      Gfframe top = stack[depth];
+                      Gfitem it = (items of top)[index of top];
+                      next;
+                      gf_general_out (f, it, ctx of top, v);
+                      seek
+                end;
+
+             for k from LWB items to UPB items
+             do case items[k]
+                in (Gformat g): start (g),
+                   (proc (ref File) void p): p (f),
+                   ([] int r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] long int r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] real r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] long real r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] bool r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] string r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([] bits r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   ([,] int r):
+                      for i from 1 LWB r to 1 UPB r
+                      do for j from 2 LWB r to 2 UPB r do out_value (r[i, j]) od od,
+                   ([,] real r):
+                      for i from 1 LWB r to 1 UPB r
+                      do for j from 2 LWB r to 2 UPB r do out_value (r[i, j]) od od,
+                   ([,] bool r):
+                      for i from 1 LWB r to 1 UPB r
+                      do for j from 2 LWB r to 2 UPB r do out_value (r[i, j]) od od
+                out out_value (items[k])
+                esac
+             od;
+             finish
+       end;
+
+    pub proc printf = ([] Gfout items) void: putf (stand_out, items);
+    pub proc writef = ([] Gfout items) void: putf (stand_out, items);
+
+    skip
+fed

@@ -1,0 +1,29 @@
+# rewrite-a68j.a68 - the format rewrite tool on a68j and ga68 (UPPER
+  stropping):
+
+      java -jar a68j-backend.jar -fstropping=upper -I tools/formats \
+           -run tools/formats/rewrite-a68j.a68 [--upper | --supper] [--ga68] < in > out
+
+  The tool itself is the included file rewrite.a68; this prologue provides
+  its transput through the module Genie_Transput. #
+ACCESS GENIE_TRANSPUT
+BEGIN
+   PROC next line = (REF STRING line) BOOL:
+      IF eof (stand in)
+      THEN FALSE
+      ELSE line := "";
+           IF NOT eoln (stand in) THEN read (line) FI;
+           IF NOT eof (stand in) THEN read (newline) FI;
+           TRUE
+      FI;
+
+   INT first arg = 2;
+
+   PROC fail = (STRING msg) VOID:
+      BEGIN
+         put (stand error, ("rewrite: ", msg, newline));
+         posix exit (1)
+      END;
+
+   PR include "rewrite.a68" PR
+END

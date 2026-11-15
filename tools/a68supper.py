@@ -16,6 +16,9 @@ The conversion follows the lexical rules of the ga68 scanner
     Genie_Transput (backend/lib/genietransput.a68): the reserved words
     file and channel of ga68 denote modes that ga68 does not provide yet
     (a declaration file f; fails with "cannot compute SKIP for mode file");
+  * GFORMAT, GFILE and GCHANNEL, written by the format rewrite tool
+    (tools/formats), become Gformat, Gfile and Gchannel, the modes of the
+    module Genie_Formats (backend/lib/genieformats.a68);
   * all other bold words (operators and priorities) stay in upper case:
     ABS, UPB, ELEM, PLUSAB, a user-defined OP DIVISORSUM;
   * a tag whose taggles are separated by blanks gets underscores instead,
@@ -51,8 +54,9 @@ HEAP INT BYTES SEMA ELIF
 COMMENT_WORDS = {"CO": "CO", "COMMENT": "COMMENT", "NOTE": "ETON"}
 PRAGMAT_WORDS = {"PR", "PRAGMAT", "ORDER"}
 SUPPER_RESERVED = {k.lower() for k in KEYWORDS}
-# Bold words that become the modes of Genie_Transput instead.
-GENIE_MODES = {"FILE": "File", "CHANNEL": "Channel"}
+# Bold words that become the modes of Genie_Transput and Genie_Formats instead.
+GENIE_MODES = {"FILE": "File", "CHANNEL": "Channel",
+               "GFORMAT": "Gformat", "GFILE": "Gfile", "GCHANNEL": "Gchannel"}
 
 BOLD = re.compile(r"[A-Z]+(?:_[A-Z]+)*")
 # A tag: lower-case letters and digits; in UPPER stropping blanks (and one

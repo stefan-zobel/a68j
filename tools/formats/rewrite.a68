@@ -1,0 +1,618 @@
+# rewrite.a68 - the format rewrite tool: turns the format texts of an
+  Algol 68 program into calls of the module Genie_Formats, so that ga68 and
+  a68j can compile the program.
+
+  This is the body of the tool.  It is included by a prologue that provides
+  the transput of the system it runs on:
+
+      rewrite-a68g.a68   Algol 68 Genie
+      rewrite-a68j.a68   ga68 and a68j (access to Genie_Transput)
+
+  The prologue declares
+      next line   (REF STRING) BOOL: reads the next line of standard input
+                  without its end of line, false at the end of the input;
+      first arg   the index of the first argument of the tool in argv;
+      fail        (STRING) VOID: writes a message to standard error and
+                  ends the program with a non-zero exit status.
+
+  The body is written in UPPER stropping in the common part of Algol 68
+  Genie and ga68, without the mode of files and without underscores in
+  tags, so that the same text runs on all three systems.
+
+  The tool reads a program in UPPER or SUPPER stropping from standard input
+  and writes it to standard output with these changes, and only these; the
+  number of lines stays the same:
+
+    * a format text $ ... $ becomes gfmt ("...") or, when it has dynamic
+      parts, gfmtd ("...", ints, formats).  The string is the format text
+      itself.  A unit inside n(...), g(...) and h(...) that is an integer
+      denotation (with an optional sign) stays in the string; any other
+      unit there and the unit of f(...) is replaced by @ and its index.
+      ints and formats are procedures that yield the unit of an index:
+          (INT gfindex) INT: CASE gfindex IN unit1, unit2 ESAC
+          (INT gfindex) GFORMAT: CASE gfindex IN unit1 ESAC
+      or SKIP if there is no such unit.  Genie_Formats parses the string
+      and calls the procedures when the format is used;
+    * the mode FORMAT becomes GFORMAT (Gformat in SUPPER);
+    * an access list that contains Genie_Transput gets Genie_Formats when
+      the program uses formats.
+
+  With the option --ga68 it also prepares a program written for Algol 68
+  Genie for ga68 and a68j: a program without an access clause is wrapped in
+  ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... ), an apostrophe in a string
+  denotation is doubled (in ga68 it starts a string break), and in UPPER
+  stropping FILE and CHANNEL become GFILE and GCHANNEL (in ga68 FILE and
+  CHANNEL are reserved words; Genie_Formats exports GFILE and GCHANNEL as
+  the modes of Genie_Transput).
+
+  The stropping is taken from the options --upper and --supper, else from a
+  first line with dg-options and -fstropping=..., else the text is read in
+  both ways and the one that finds more reserved words wins (UPPER on a
+  tie). #
+
+# Growing character buffers. #
+
+MODE BUF = STRUCT (REF [] CHAR chars, INT len);
+
+PROC new buf = REF BUF: HEAP BUF := (HEAP [1 : 256] CHAR, 0);
+
+PROC add = (REF BUF b, CHAR c) VOID:
+   BEGIN
+      IF len OF b = UPB chars OF b
+      THEN REF [] CHAR more = HEAP [1 : 2 * UPB chars OF b] CHAR;
+           more[1 : len OF b] := (chars OF b)[1 : len OF b];
+           chars OF b := more
+      FI;
+      len OF b +:= 1;
+      (chars OF b)[len OF b] := c
+   END;
+
+PROC adds = (REF BUF b, STRING t) VOID:
+   FOR k FROM LWB t TO UPB t DO add (b, t[k]) OD;
+
+PROC contents = (REF BUF b) STRING: (chars OF b)[1 : len OF b];
+
+# The input, as one row of characters with a newline after every line. #
+
+REF BUF input = new buf;
+BEGIN
+   STRING line;
+   WHILE next line (line) DO adds (input, line); add (input, REPR 10) OD
+END;
+[] CHAR s = contents (input);
+INT n = UPB s;
+
+# Characters. #
+
+CHAR nl = REPR 10, quote = REPR 34, hash = REPR 35, dollar = REPR 36,
+     apostrophe = REPR 39, lbrace = REPR 123, rbrace = REPR 125;
+
+PROC capital = (CHAR c) BOOL: c >= "A" AND c <= "Z";
+PROC small = (CHAR c) BOOL: c >= "a" AND c <= "z";
+PROC digit = (CHAR c) BOOL: c >= "0" AND c <= "9";
+PROC letter = (CHAR c) BOOL: capital (c) OR small (c);
+PROC white = (CHAR c) BOOL:
+   c = " " OR c = nl OR c = REPR 9 OR c = REPR 12 OR c = REPR 13;
+PROC lower case = (CHAR c) CHAR: IF capital (c) THEN REPR (ABS c + 32) ELSE c FI;
+PROC upper case = (CHAR c) CHAR: IF small (c) THEN REPR (ABS c - 32) ELSE c FI;
+
+PROC contains = (STRING hay, needle) BOOL:
+   BEGIN
+      BOOL found := FALSE;
+      FOR k TO UPB hay - UPB needle + 1 WHILE NOT found
+      DO STRING part = hay[k : k + UPB needle - 1];
+         found := part = needle
+      OD;
+      found
+   END;
+
+PROC member = (STRING w, [] STRING list) BOOL:
+   BEGIN
+      BOOL found := FALSE;
+      FOR k FROM LWB list TO UPB list WHILE NOT found DO found := w = list[k] OD;
+      found
+   END;
+
+# State.  upper: the stropping of the input; dry: a trial run whose
+  output is thrown away and whose errors are ignored. #
+
+BOOL upper := TRUE, for ga68 := FALSE, dry := TRUE;
+INT reserved := 0;
+BOOL uses formats := FALSE, has access := FALSE;
+
+[] STRING reserved words = ("BEGIN", "END", "PROC", "MODE", "INT", "REAL",
+   "BOOL", "CHAR", "STRING", "STRUCT", "UNION", "THEN", "ELSE", "FI", "OD",
+   "ESAC", "WHILE", "REF", "VOID", "LOC", "HEAP");
+[] STRING format procs = ("printf", "putf", "readf", "getf", "writef");
+
+PROC line of = (INT pos) INT:
+   BEGIN
+      INT l := 1;
+      FOR k TO pos - 1 DO IF s[k] = nl THEN l +:= 1 FI OD;
+      l
+   END;
+
+PROC error = (STRING msg, INT pos) VOID:
+   IF NOT dry THEN fail ("line " + whole (line of (pos), 0) + ": " + msg) FI;
+
+# Words.  A bold word in UPPER stropping is a capital letter followed by
+  capital letters, digits and underscores; a word in SUPPER stropping and
+  a tag in UPPER stropping are letters, digits and underscores. #
+
+PROC bold char = (CHAR c) BOOL: capital (c) OR digit (c) OR c = "_";
+PROC word char = (CHAR c) BOOL: letter (c) OR digit (c) OR c = "_";
+PROC tag char = (CHAR c) BOOL: small (c) OR digit (c) OR c = "_";
+
+PROC bold end = (INT i, lim) INT:
+   BEGIN INT j := i; WHILE IF j < lim THEN bold char (s[j + 1]) ELSE FALSE FI DO j +:= 1 OD; j END;
+PROC word end = (INT i, lim) INT:
+   BEGIN INT j := i; WHILE IF j < lim THEN word char (s[j + 1]) ELSE FALSE FI DO j +:= 1 OD; j END;
+PROC tag end = (INT i, lim) INT:
+   BEGIN INT j := i; WHILE IF j < lim THEN tag char (s[j + 1]) ELSE FALSE FI DO j +:= 1 OD; j END;
+
+# Whether an UPPER bold word starts at k. #
+PROC bold start = (INT k) BOOL:
+   IF NOT capital (s[k]) THEN FALSE
+   ELIF k = 1 THEN TRUE
+   ELSE NOT bold char (s[k - 1])
+   FI;
+
+# The reserved word that w is in the current stropping, in capitals, or
+  the empty string: in SUPPER stropping reserved words are written in
+  small letters. #
+PROC keyword = (STRING w) STRING:
+   IF upper THEN w
+   ELSE BOOL all small := TRUE;
+        STRING k := "";
+        FOR i FROM LWB w TO UPB w
+        DO IF capital (w[i]) THEN all small := FALSE FI;
+           k +:= upper case (w[i])
+        OD;
+        IF all small THEN k ELSE "" FI
+   FI;
+
+# A module name in capitals, without underscores. #
+PROC normal = (STRING w) STRING:
+   BEGIN
+      STRING k := "";
+      FOR i FROM LWB w TO UPB w DO IF w[i] /= "_" THEN k +:= upper case (w[i]) FI OD;
+      k
+   END;
+
+# Strings, comments and pragmats.  Each procedure is given the position
+  where the construct starts and yields the position of its last
+  character. #
+
+PROC string end = (INT i, lim) INT:
+   BEGIN
+      INT j := i + 1, result := 0;
+      WHILE result = 0 AND j <= lim
+      DO IF s[j] /= quote THEN j +:= 1
+         ELIF IF j < lim THEN s[j + 1] = quote ELSE FALSE FI THEN j +:= 2
+         ELSE result := j
+         FI
+      OD;
+      IF result = 0 THEN error ("unterminated string", i); lim ELSE result FI
+   END;
+
+PROC brace end = (INT i, lim) INT:
+   BEGIN
+      INT depth := 0, j := i, result := 0;
+      WHILE result = 0 AND j <= lim
+      DO CHAR c = s[j];
+         IF c = lbrace THEN depth +:= 1; j +:= 1
+         ELIF c = rbrace
+         THEN depth -:= 1;
+              IF depth = 0 THEN result := j ELSE j +:= 1 FI
+         ELIF c = quote THEN j := string end (j, lim) + 1
+         ELSE j +:= 1
+         FI
+      OD;
+      IF result = 0 THEN error ("unterminated comment", i); lim ELSE result FI
+   END;
+
+PROC char end = (INT i, lim, CHAR c) INT:
+   BEGIN
+      INT j := i + 1;
+      WHILE IF j <= lim THEN s[j] /= c ELSE FALSE FI DO j +:= 1 OD;
+      IF j > lim THEN error ("unterminated comment", i); lim ELSE j FI
+   END;
+
+PROC brackets end = (INT i, lim) INT:
+   BEGIN
+      INT j := i + 2, result := 0;
+      WHILE result = 0 AND j < lim
+      DO IF s[j] = "]" AND s[j + 1] = "]" THEN result := j + 1 ELSE j +:= 1 FI OD;
+      IF result = 0 THEN error ("unterminated pragmat", i); lim ELSE result FI
+   END;
+
+# The end of the next UPPER bold word w after position i. #
+PROC bold match = (INT i, lim, STRING w) INT:
+   BEGIN
+      INT k := i, result := 0;
+      WHILE result = 0 AND k <= lim
+      DO IF bold start (k)
+         THEN INT e = bold end (k, lim);
+              STRING b = s[k : e];
+              IF b = w THEN result := e FI;
+              k := e + 1
+         ELSE k +:= 1
+         FI
+      OD;
+      IF result = 0 THEN error ("unterminated comment or pragmat", i); lim ELSE result FI
+   END;
+
+# If a comment or a pragmat starts at i, the position of its last
+  character, else 0. #
+PROC comment end = (INT i, lim) INT:
+   BEGIN
+      CHAR c = s[i];
+      IF c = lbrace THEN brace end (i, lim)
+      ELIF c = "[" AND IF i < lim THEN s[i + 1] = "[" ELSE FALSE FI THEN brackets end (i, lim)
+      ELIF upper AND c = hash THEN char end (i, lim, hash)
+      ELIF IF upper THEN bold start (i) ELSE FALSE FI
+      THEN INT e = bold end (i, lim);
+           STRING w = s[i : e];
+           IF w = "CO" OR w = "COMMENT" OR w = "PR" OR w = "PRAGMAT" THEN bold match (e + 1, lim, w)
+           ELIF w = "NOTE" THEN bold match (e + 1, lim, "ETON")
+           ELIF w = "ORDER" THEN bold match (e + 1, lim, "REDRO")
+           ELSE 0
+           FI
+      ELSE 0
+      FI
+   END;
+
+# Row of strings. #
+
+PROC append = (REF FLEX [] STRING r, STRING x) VOID:
+   BEGIN
+      [1 : UPB r + 1] STRING m;
+      m[1 : UPB r] := r;
+      m[UPB r + 1] := x;
+      r := m
+   END;
+
+# The change of a bracket depth by the word w: BEGIN, IF, CASE and DO open
+  a range, END, FI, ESAC and OD close it. #
+PROC bracket = (STRING w) INT:
+   BEGIN
+      STRING k = keyword (w);
+      IF k = "BEGIN" OR k = "IF" OR k = "CASE" OR k = "DO" THEN 1
+      ELIF k = "END" OR k = "FI" OR k = "ESAC" OR k = "OD" THEN -1
+      ELSE 0
+      FI
+   END;
+
+# Copying.  rewrite copies the characters from position from to lim to
+  out and makes the changes. #
+
+PROC copy string = (INT i, e, REF BUF out) VOID:
+   FOR k FROM i TO e
+   DO add (out, s[k]);
+      IF s[k] = apostrophe AND for ga68 AND upper THEN add (out, apostrophe) FI
+   OD;
+
+# The end of a unit inside n(...), g(...), h(...) or f(...) that starts at
+  i: the position of the comma or the closing parenthesis after it.  The
+  parentheses also enclose a clause, as in f(i = 1 | f1 | f2) or
+  n(INT k = 2; k): compound is set if the text has a bar or a semicolon
+  outside brackets. #
+PROC unit end = (INT i, lim, REF BOOL compound) INT:
+   BEGIN
+      INT depth := 0, j := i, result := 0;
+      compound := FALSE;
+      WHILE result = 0 AND j <= lim
+      DO CHAR c = s[j];
+         INT e;
+         IF c = quote THEN j := string end (j, lim) + 1
+         ELIF (e := comment end (j, lim)) > 0 THEN j := e + 1
+         ELIF c = dollar THEN j := format text (j, lim, new buf) + 1
+         ELIF c = "(" OR c = "[" THEN depth +:= 1; j +:= 1
+         ELIF c = ")" OR c = "]"
+         THEN IF depth = 0 THEN result := j ELSE depth -:= 1; j +:= 1 FI
+         ELIF c = "," AND depth = 0 THEN result := j
+         ELIF (c = "|" OR c = ";") AND depth = 0 THEN compound := TRUE; j +:= 1
+         ELIF IF upper THEN bold start (j) ELSE letter (c) FI
+         THEN INT f = IF upper THEN bold end (j, lim) ELSE word end (j, lim) FI;
+              STRING w = s[j : f];
+              depth +:= bracket (w);
+              j := f + 1
+         ELIF upper AND small (c) THEN j := tag end (j, lim) + 1
+         ELSE j +:= 1
+         FI
+      OD;
+      IF result = 0 THEN error ("unterminated format text", i); lim ELSE result FI
+   END;
+
+# If the unit u is an integer denotation, possibly with a sign, on one
+  line, the denotation without blanks, else the empty string. #
+PROC integer constant = (STRING u) STRING:
+   BEGIN
+      STRING k := "";
+      BOOL ok := TRUE;
+      FOR i FROM LWB u TO UPB u
+      DO CHAR c = u[i];
+         IF c = " " THEN SKIP
+         ELIF digit (c) THEN k +:= c
+         ELIF (c = "-" OR c = "+") AND k = "" THEN k +:= c
+         ELSE ok := FALSE
+         FI
+      OD;
+      IF NOT ok THEN ""
+      ELIF UPB k = 0 THEN ""
+      ELIF digit (k[UPB k]) THEN k
+      ELSE ""
+      FI
+   END;
+
+PROC emit format = (REF BUF out, STRING text, [] STRING ints, formats) VOID:
+   BEGIN
+      BOOL dynamic = UPB ints >= LWB ints OR UPB formats >= LWB formats;
+      adds (out, IF dynamic THEN "gfmtd (" ELSE "gfmt (" FI);
+      add (out, quote);
+      FOR k FROM LWB text TO UPB text
+      DO CHAR c = text[k];
+         IF c = nl
+         THEN add (out, quote); adds (out, " +"); add (out, nl); add (out, quote)
+         ELIF c = quote THEN add (out, quote); add (out, quote)
+         ELIF c = apostrophe AND for ga68 AND upper THEN add (out, apostrophe); add (out, apostrophe)
+         ELSE add (out, c)
+         FI
+      OD;
+      add (out, quote);
+      IF dynamic
+      THEN adds (out, ", ");
+           dynamic parts (out, ints, IF upper THEN "INT" ELSE "int" FI);
+           adds (out, ", ");
+           dynamic parts (out, formats, IF upper THEN "GFORMAT" ELSE "Gformat" FI)
+      FI;
+      add (out, ")")
+   END;
+
+# The procedure of the dynamic parts r of one mode m: it yields the unit
+  of the given index, (INT gfindex) INT: CASE gfindex IN u1, u2 ESAC, or
+  SKIP if there is none. #
+PROC dynamic parts = (REF BUF out, [] STRING r, STRING m) VOID:
+   IF UPB r < LWB r
+   THEN adds (out, IF upper THEN "SKIP" ELSE "skip" FI)
+   ELSE adds (out, IF upper THEN "(INT gfindex) " ELSE "(int gfindex) " FI);
+        adds (out, m + IF upper THEN ": CASE gfindex IN" ELSE ": case gfindex in" FI);
+        # Each unit starts with a blank. #
+        FOR k FROM LWB r TO UPB r DO IF k > LWB r THEN add (out, ",") FI; adds (out, r[k]) OD;
+        adds (out, IF upper THEN " ESAC" ELSE " esac" FI)
+   FI;
+
+# The format text whose opening dollar is at i: writes the call that
+  replaces it to out and yields the position of the closing dollar. #
+PROC format text = (INT i, lim, REF BUF out) INT:
+   BEGIN
+      REF BUF text = new buf;
+      FLEX [1 : 0] STRING ints, formats;
+      INT j := i + 1, result := 0;
+      uses formats := TRUE;
+      WHILE result = 0 AND j <= lim
+      DO CHAR c = s[j];
+         CHAR l = lower case (c);
+         INT e;
+         IF c = dollar THEN result := j
+         ELIF c = quote
+         THEN e := string end (j, lim);
+              FOR k FROM j TO e DO add (text, s[k]) OD;
+              j := e + 1
+         ELIF (e := comment end (j, lim)) > 0
+         THEN add (text, " ");
+              FOR k FROM j TO e DO IF s[k] = nl THEN add (text, nl) FI OD;
+              j := e + 1
+         ELIF l = "n" OR l = "g" OR l = "h" OR l = "f"
+         THEN INT k := j + 1;
+              WHILE IF k <= lim THEN white (s[k]) ELSE FALSE FI DO k +:= 1 OD;
+              IF IF k <= lim THEN s[k] = "(" ELSE FALSE FI
+              THEN FOR m FROM j TO k DO add (text, s[m]) OD;
+                   j := k + 1;
+                   BOOL done := FALSE;
+                   WHILE NOT done
+                   DO BOOL compound;
+                      INT u = unit end (j, lim, compound);
+                      REF BUF ub = new buf;
+                      rewrite (j, u - 1, ub);
+                      STRING unit = IF compound THEN "(" + contents (ub) + ")" ELSE contents (ub) FI;
+                      STRING sep = IF UPB unit >= 1 THEN (white (unit[1]) | "" | " ") ELSE " " FI;
+                      STRING constant = integer constant (unit);
+                      IF l = "f"
+                      THEN append (formats, sep + unit);
+                           add (text, "@");
+                           adds (text, whole (UPB formats, 0))
+                      ELIF UPB constant >= 1
+                      THEN adds (text, constant)
+                      ELSE append (ints, sep + unit);
+                           add (text, "@");
+                           adds (text, whole (UPB ints, 0))
+                      FI;
+                      add (text, s[u]);
+                      done := s[u] /= "," OR u >= lim;
+                      j := u + 1
+                   OD
+              ELSE add (text, c); j +:= 1
+              FI
+         ELSE add (text, c); j +:= 1
+         FI
+      OD;
+      IF result = 0 THEN error ("unterminated format text", i); result := lim FI;
+      emit format (out, contents (text), ints, formats);
+      result
+   END;
+
+# The access list after the word ACCESS that ends at e0: copies it to out
+  and adds Genie_Formats if needed; yields the position of its last
+  character. #
+PROC access list = (INT e0, lim, REF BUF out) INT:
+   BEGIN
+      INT k := e0 + 1, last := e0;
+      BOOL more := TRUE, transput := FALSE, formats := FALSE;
+      WHILE more
+      DO WHILE IF k <= lim THEN white (s[k]) ELSE FALSE FI DO k +:= 1 OD;
+         IF k > lim THEN more := FALSE
+         ELIF NOT letter (s[k]) THEN more := FALSE
+         ELSE INT e = IF NOT upper THEN word end (k, lim)
+                      ELIF capital (s[k]) THEN bold end (k, lim)
+                      ELSE k - 1
+                      FI;
+              IF e < k THEN more := FALSE
+              ELSE STRING w = s[k : e];
+                   IF keyword (w) = "PUB" THEN k := e + 1
+                   ELIF NOT capital (w[1]) THEN more := FALSE
+                   ELSE STRING m = normal (w);
+                        IF m = "GENIETRANSPUT" THEN transput := TRUE FI;
+                        IF m = "GENIEFORMATS" THEN formats := TRUE FI;
+                        last := e;
+                        k := e + 1;
+                        WHILE IF k <= lim THEN white (s[k]) ELSE FALSE FI DO k +:= 1 OD;
+                        IF IF k <= lim THEN s[k] = "," ELSE FALSE FI THEN k +:= 1 ELSE more := FALSE FI
+                   FI
+              FI
+         FI
+      OD;
+      FOR p FROM e0 + 1 TO last DO add (out, s[p]) OD;
+      IF transput AND NOT formats AND uses formats
+      THEN adds (out, IF upper THEN ", GENIE_FORMATS" ELSE ", Genie_Formats" FI)
+      FI;
+      last
+   END;
+
+# A bold word (UPPER) or a word (SUPPER) at i: writes it, changed if
+  needed, and yields its end. #
+PROC bold word = (INT i, lim, REF BUF out) INT:
+   BEGIN
+      INT e = IF upper THEN bold end (i, lim) ELSE word end (i, lim) FI;
+      STRING w = s[i : e];
+      STRING k = keyword (w);
+      IF w = "FORMAT"
+      THEN adds (out, IF upper THEN "GFORMAT" ELSE "Gformat" FI);
+           uses formats := TRUE;
+           e
+      ELIF for ga68 AND upper AND (w = "FILE" OR w = "CHANNEL")
+      THEN adds (out, "G" + w);
+           e
+      ELIF k = "ACCESS"
+      THEN has access := TRUE;
+           adds (out, w);
+           access list (e, lim, out)
+      ELSE IF member (k, reserved words) THEN reserved +:= 1 FI;
+           IF member (w, format procs) THEN uses formats := TRUE FI;
+           adds (out, w);
+           e
+      FI
+   END;
+
+PROC rewrite = (INT from, lim, REF BUF out) VOID:
+   BEGIN
+      INT i := from;
+      WHILE i <= lim
+      DO CHAR c = s[i];
+         INT e;
+         IF c = quote
+         THEN e := string end (i, lim);
+              copy string (i, e, out);
+              i := e + 1
+         ELIF (e := comment end (i, lim)) > 0
+         THEN FOR k FROM i TO e DO add (out, s[k]) OD;
+              i := e + 1
+         ELIF c = dollar
+         THEN i := format text (i, lim, out) + 1
+         ELIF IF upper THEN capital (c) ELSE letter (c) FI
+         THEN i := bold word (i, lim, out) + 1
+         ELIF upper AND small (c)
+         THEN e := tag end (i, lim);
+              STRING w = s[i : e];
+              IF member (w, format procs) THEN uses formats := TRUE FI;
+              adds (out, w);
+              i := e + 1
+         ELIF digit (c)
+         THEN e := i;
+              WHILE IF e < lim THEN digit (s[e + 1]) OR small (s[e + 1]) ELSE FALSE FI DO e +:= 1 OD;
+              FOR k FROM i TO e DO add (out, s[k]) OD;
+              i := e + 1
+         ELSE add (out, c);
+              i +:= 1
+         FI
+      OD
+   END;
+
+# Options. #
+
+INT forced := 0;
+FOR a FROM first arg TO argc
+DO STRING o = argv (a);
+   IF o = "--upper" THEN forced := 1
+   ELIF o = "--supper" THEN forced := 2
+   ELIF o = "--ga68" THEN for ga68 := TRUE
+   ELIF o = "--" THEN SKIP
+   ELSE fail ("unknown option " + o + " (usage: rewrite [--upper | --supper] [--ga68] < in > out)")
+   FI
+OD;
+
+# The stropping. #
+
+IF forced = 0
+THEN INT k := 1;
+     WHILE IF k <= n THEN s[k] /= nl ELSE FALSE FI DO k +:= 1 OD;
+     STRING first line = s[1 : k - 1];
+     IF contains (first line, "dg-options")
+     THEN IF contains (first line, "-fstropping=supper") THEN forced := 2
+          ELIF contains (first line, "-fstropping=upper") THEN forced := 1
+          FI
+     FI
+FI;
+
+PROC scan = (BOOL as upper) INT:
+   BEGIN
+      upper := as upper;
+      dry := TRUE;
+      reserved := 0;
+      uses formats := FALSE;
+      has access := FALSE;
+      rewrite (1, n, new buf);
+      reserved
+   END;
+
+upper := CASE forced
+         IN TRUE, FALSE
+         OUT INT u = scan (TRUE);
+             INT su = scan (FALSE);
+             u >= su
+         ESAC;
+scan (upper);
+
+# The rewrite. #
+
+dry := FALSE;
+REF BUF out = new buf;
+BOOL wrap = for ga68 AND NOT has access;
+IF wrap
+THEN adds (out, IF upper THEN "ACCESS GENIE_TRANSPUT" ELSE "access Genie_Transput" FI);
+     IF uses formats
+     THEN adds (out, IF upper THEN ", GENIE_FORMATS" ELSE ", Genie_Formats" FI)
+     FI;
+     adds (out, " (")
+FI;
+rewrite (1, n, out);
+IF wrap
+THEN IF IF len OF out > 0 THEN (chars OF out)[len OF out] = nl ELSE FALSE FI
+     THEN len OF out -:= 1; adds (out, " )"); add (out, nl)
+     ELSE adds (out, " )")
+     FI
+FI;
+
+STRING output = contents (out);
+INT line start := 1;
+FOR k FROM 1 TO UPB output
+DO IF output[k] = nl
+   THEN STRING line = output[line start : k - 1];
+        print ((line, newline));
+        line start := k + 1
+   FI
+OD;
+IF line start <= UPB output
+THEN STRING line = output[line start : UPB output];
+     print (line)
+FI

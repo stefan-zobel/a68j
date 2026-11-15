@@ -75,7 +75,11 @@ prelude (`puts`, `putchar`, `fputs` ...). The bundled Algol 68 module
 `Genie_Transput` provides `print`, `newline`, `put`, `read`, `get`, `open`,
 `associate` and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
 ga68 alike
-([docs/genie-transput.md](docs/genie-transput.md)). The bundled module
+([docs/genie-transput.md](docs/genie-transput.md)). Format texts
+(`$...$`, `printf`) are turned by a rewrite tool, written in Algol 68,
+into calls of the bundled module `Genie_Formats`, again for a68j and ga68
+alike; so far with insertions, replicators, `g` and `f`, without pictures
+and formatted input ([docs/genie-formats.md](docs/genie-formats.md)). The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
@@ -325,7 +329,8 @@ The detailed documentation is in `docs/`:
 - `docs/texts.md`: the bundled module `Texts` (string functions).
 - `docs/regex.md`: the bundled module `Regex` (regular expressions, a68j only).
 - `docs/bigints.md`: the bundled module `Bigints` (integers of any size, a68j only).
-- `docs/TODO-formats.md`: formats (`printf`), not implemented yet.
+- `docs/genie-formats.md`: formats (`$...$`, `printf`): the rewrite tool and the bundled module `Genie_Formats`.
+- `docs/TODO-formats.md`: the roadmap for formats in stages.
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
 - `docs/par-and-sema.md`: parallel clauses.
 - `docs/editor.md`: grammar and HTML renderer.
@@ -346,6 +351,7 @@ sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 sh tools/options_tests.sh         # -W options, -fno-assert, unknown options, -Wframe-scope
+python3 tools/formats_tests.py    # formats: the rewrite tool and Genie_Formats (--a68g, --ga68)
 ```
 
 ## License

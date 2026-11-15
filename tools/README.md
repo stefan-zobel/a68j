@@ -50,10 +50,16 @@ See `tests/rosetta/README.md` for the whole procedure.
 
 | Tool | Purpose |
 |---|---|
-| `rosetta_prep.py` | prepares the ALGOL 68 solutions of a RosettaCodeData checkout for ga68 and a68j (`tests/rosetta/`) |
+| `rosetta_prep.py` | prepares the ALGOL 68 solutions of a RosettaCodeData checkout for ga68 and a68j (`tests/rosetta/`), with the format rewrite tool for the solutions with formats; `--again` prepares given files again from `orig/` |
 | `a68supper.py` | converts an UPPER-stropped program to SUPPER stropping; used by `rosetta_prep.py` |
 | `rosetta_report.py` | summarizes the runs of ga68 and a68j in `tests/rosetta/results.tsv` |
 | `rosetta_list.py` | writes `tests/rosetta/passing.md` and `passing.txt` from `results.tsv` |
+
+## Formats
+
+| Tool | Purpose |
+|---|---|
+| `formats/rewrite.a68`, with the prologue `formats/rewrite-a68j.a68` (a68j, ga68) or `formats/rewrite-a68g.a68` (Algol 68 Genie) | the format rewrite tool, written in Algol 68: turns the format texts of a program (UPPER or SUPPER stropping) into calls of the module `Genie_Formats` (`docs/genie-formats.md`) |
 
 ## Test scripts
 
@@ -63,6 +69,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
 | `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3) |
 | `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
+| `formats_tests.py [--java JAVA] [--a68g A68G] [--ga68 XGCC --libdir DIR]` | formats (`docs/genie-formats.md`): the rewrite tool on a68j, Algol 68 Genie and ga68 with the same output (`tests/formats/rewrite`), and programs with format texts rewritten and run with `Genie_Formats`, against outputs recorded with Algol 68 Genie (`tests/formats`) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
 | `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
 | `compact_access_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |

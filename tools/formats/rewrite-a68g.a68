@@ -1,0 +1,35 @@
+# rewrite-a68g.a68 - the format rewrite tool on Algol 68 Genie:
+
+      a68g rewrite-a68g.a68 -- [--upper | --supper] [--ga68] < in > out
+
+  The options of the tool come after --.  The tool itself is the included
+  file rewrite.a68; this prologue provides its transput. #
+BEGIN
+   BOOL input ended := FALSE;
+   on logical file end (stand in, (REF FILE f) BOOL: (input ended := TRUE; TRUE));
+
+   PROC next line = (REF STRING line) BOOL:
+      BEGIN
+         line := "";
+         IF NOT input ended THEN read ((line, newline)) FI;
+         NOT input ended OR line /= ""
+      END;
+
+   INT first arg =
+      BEGIN
+         INT k := argc + 1;
+         FOR i TO argc DO IF argv (i) = "--" AND k > argc THEN k := i + 1 FI OD;
+         k
+      END;
+
+   PROC fail = (STRING msg) VOID:
+      BEGIN
+         put (stand error, ("rewrite: ", msg, newline));
+         # Algol 68 Genie has no exit procedure; a division by zero ends the
+           program with a non-zero exit status. #
+         INT zero = 0;
+         print (1 OVER zero)
+      END;
+
+   PR include "rewrite.a68" PR
+END
