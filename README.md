@@ -1,3 +1,7 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.stefan-zobel/a68j.svg)](https://central.sonatype.com/artifact/io.github.stefan-zobel/a68j)
+[![javadoc.io](https://javadoc.io/badge2/io.github.stefan-zobel/a68j/javadoc.svg)](https://javadoc.io/doc/io.github.stefan-zobel/a68j)
+[![license](https://img.shields.io/badge/License-GPL--3.0--or--later--WITH--GCC--exception--3.1-blue.svg)](LICENSE)
+
 # a68j - Algol 68 on the JVM
 
 Algol 68 anticipated by decades much of what modern languages take for
