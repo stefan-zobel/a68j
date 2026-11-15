@@ -1,0 +1,9 @@
+tests/scope/jumps.a68:9:19: warning: procedure of this jump to 'l' may be called after the serial clause of 'l' has been left [-Wframe-scope]
+tests/scope/jumps.a68:9:5: note: 'l' is declared here
+tests/scope/jumps.a68:12:19: warning: routine text jumps to 'm' and may be called after the serial clause of 'm' has been left [-Wframe-scope]
+tests/scope/jumps.a68:12:5: note: 'm' is declared here
+tests/scope/jumps.a68:18:35: warning: routine text captures 'k', which is shared by all elaborations after a jump back to 'again', and may outlive its elaboration [-Wframe-scope]
+tests/scope/jumps.a68:18:9: note: 'k' is declared here
+1
+2
+exit 0

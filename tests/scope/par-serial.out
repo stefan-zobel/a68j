@@ -1,0 +1,4 @@
+tests/scope/par-serial.a68:5:44: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/par-serial.a68:5:28: note: 'k' is declared here
+3 3 3 
+exit 0

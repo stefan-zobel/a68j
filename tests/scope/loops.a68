@@ -1,0 +1,32 @@
+{ Routine texts that capture a declaration of a loop and outlive the
+  iteration: all iterations share the frame slot of the declaration, so
+  each routine sees the values of the last iteration (-Wframe-scope). }
+begin
+   [3] proc int fs;
+   proc show = void: (for i to 3 do puts (whole (fs[i], 0) + " ") od; puts ("'n"));
+   { The FOR identifier. }
+   for i to 3 do fs[i] := int: i od;
+   show;
+   { An identity of the loop body. }
+   for i to 3 do int k = i * 10; fs[i] := int: k od;
+   show;
+   { Through a procedure identity of the loop body. }
+   for i to 3 do int k = i * 100; proc int g = int: k; fs[i] := g od;
+   show;
+   { Through a procedure variable of the loop body, copied out. }
+   for i to 3 do int k = i + 1000; proc int h := int: k; fs[i] := h od;
+   show;
+   { A WHILE loop. }
+   int n := 0;
+   while n < 3 do n +:= 1; int k = n; fs[n] := int: k od;
+   show;
+   { A routine text in a procedure called in the loop. }
+   for i to 3 do int k = -i; proc set = void: fs[i] := int: k; set od;
+   show;
+   { In a structure display. }
+   mode P = struct (proc int f, int x);
+   [3] P ps;
+   for i to 3 do int k = 7 * i; ps[i] := (int: k, i) od;
+   for i to 3 do fs[i] := f of ps[i] od;
+   show
+end

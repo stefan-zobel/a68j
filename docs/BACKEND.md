@@ -199,6 +199,40 @@ not make the name of the element or field at all (§1).
   routines that have a frame, so the static chain stays correct. Jumps need
   the frame of the routine that declares the label, so such routines keep
   theirs.
+- **Scope of routine texts (`-Wframe-scope`):** as frames are heap objects,
+  a routine text that outlives its range (returned by its procedure,
+  assigned to an outer variable) keeps the values it uses and gives the
+  right result, unlike in ga68, where this is undefined and `-Wscope` warns
+  about it. Two cases are wrong in a68j too:
+  - A range that is elaborated more than once in one activation of a
+    routine — the FOR identifier and the ranges in the WHILE and DO parts of
+    a loop, the ranges after the first label of a serial clause when a jump
+    goes back — keeps its captured identifiers in the same frame slots each
+    time. A routine text made in one iteration that is called after the
+    next sees the values of the latest iteration (`for i to 3 do fs[i] :=
+    int: i od` gives 3 3 3); one that calls a procedure of the loop body can
+    call itself without end and stop with status 139.
+  - A procedure that jumps to a label (a procedured jump, or a routine text
+    with a jump out of it) cannot be called after the serial clause of the
+    label has been left: no handler catches the `Jump` any more.
+
+  `FrameScope`, after `Capture`, warns about both (on by default,
+  `-Wno-frame-scope`). Every value whose mode can hold a procedure gets a
+  danger level, a symbol table level: storing the value in a name whose
+  scope (as in `a68j.front.Scope`) is at most that level is wrong. A loop
+  has as home level that of the range it stands in, a serial clause with
+  labels its own; a routine text gets the highest home level of the
+  repeaters of the identifiers it captures (counted only within the frame
+  that holds them) and the level outside the serial clause of each label
+  it jumps to. The level passes to identities and variables (repeated until
+  it no longer changes; not past a store that is reported itself) and
+  through calls, unitings, displays, selections, slices and the values of
+  clauses; assignations and initial values are checked. Not seen are a
+  procedure passed as an argument that the callee stores, parameters, and
+  the name of a variable of a loop that escapes and is dereferenced later;
+  the routine text of the last iteration is right, but is reported too.
+  Remedies: make the routine text in a procedure called from the loop, or
+  pass the values by partial parametrization (`tests/scope`).
 
 ## 4. Standard environment and modules
 
@@ -318,6 +352,7 @@ current routine, label maps) and dispatches on the node attribute like
 | `GenRows` | a68-low-multiples.cc, -ranges, -structs, -unions | descriptors, bounds checks, trimmers, struct/union helpers |
 | `GenClauses.accessClause`, `Gen.emitModuleAccess` | a68-low-clauses.cc, a68-low.cc (`lower_module_text`) | ACCESS clauses, module classes (prelude, postlude, public tags) |
 | `Capture`, `Direct` | — | pre-passes: frame slots of captured identifiers; direct (unboxed) variables |
+| `FrameScope` | — | the warning `-Wframe-scope` (section 3); generates nothing |
 
 Contract: `g.unit(p)` evaluates `p` and leaves a value of `JType.of(p.type)`
 on the operand stack (nothing for VOID). Line numbers: `g.line(p)` emits a

@@ -61,7 +61,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 |---|---|
 | `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`) |
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
-| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, and the error for an unknown option |
+| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3) |
 | `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
 | `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |

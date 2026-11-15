@@ -650,6 +650,9 @@ public final class Gen {
         moduleDef = findModuleDef(top);
         moduleText = findModuleText(top);
         Capture.analyse(this, top, program);
+        if (a68.options().warnings.contains(a68j.front.Warn.FRAME_SCOPE)) {
+            FrameScope.check(this, top);
+        }
         if (moduleDef != null) {
             // Every identifier and operator declared in the DEF part lives in
             // the module's frame, which survives the elaboration of the module.

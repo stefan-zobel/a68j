@@ -1,0 +1,9 @@
+{ a68j-options: -fpar-threads }
+{ With -fpar-threads every unit of a parallel clause has a frame of its own,
+  made at each elaboration: no -Wframe-scope warning (see par-serial.a68). }
+begin
+   [3] proc int fs;
+   for i to 3 do par ((int k = i; fs[i] := int: k), skip) od;
+   for i to 3 do puts (whole (fs[i], 0) + " ") od;
+   puts ("'n")
+end

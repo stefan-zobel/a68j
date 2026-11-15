@@ -1,0 +1,22 @@
+{ A range elaborated again after a jump back shares its frame slots with
+  the elaborations before; a jump cannot be made once the serial clause of
+  its label has been left (-Wframe-scope). }
+begin
+   proc int f;
+   proc void j := skip;
+   int n := 0;
+   { A procedured jump that outlives the serial clause of its label. }
+   (l: skip; j := l);
+   { A routine text with a jump out of it that outlives the serial clause
+     of the label. }
+   (m: skip; j := void: goto m);
+   { A label after the range and a jump forward: no warning. }
+   (int k = 1; f := int: k; goto done; skip; done: skip);
+   puts (whole (f, 0) + "'n");
+   { The routine text of the first elaboration sees k of the last. }
+   again:
+   (int k = n; if n = 0 then f := int: k fi);
+   n +:= 1;
+   if n < 3 then goto again fi;
+   puts (whole (f, 0) + "'n")
+end

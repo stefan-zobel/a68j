@@ -21,8 +21,12 @@ public final class Options {
     public boolean assertions = true;
     public boolean boundsChecking = true;
     public boolean nilChecking = false;
-    /** Enabled optional warnings (-W...); all off by default, as in a68_init_options_struct. */
-    public final EnumSet<Warn> warnings = EnumSet.noneOf(Warn.class);
+    /**
+     * Enabled optional warnings (-W...); those of ga68 are off by default, as
+     * in a68_init_options_struct. a68j: -Wframe-scope is on by default
+     * (WarningOptions).
+     */
+    public final EnumSet<Warn> warnings = EnumSet.of(Warn.FRAME_SCOPE);
     /** Level for -Whidden-declarations: 0 = none, 1 = prelude, 2 = all (warn_algol68_hidden_declarations). */
     public int hiddenDeclarations = 0;
     /** Whether we are building libga68 itself (flag_building_libga68). */

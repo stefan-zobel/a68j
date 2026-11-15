@@ -22,10 +22,13 @@ import java.util.Map;
  * {@code -Wextra} switches on {@code -Wextensions}, {@code -Wvoiding} and
  * {@code -Wuninitialized}. A warning given by name keeps its setting,
  * whatever the order of the options.</li>
+ * <li>{@code -Wframe-scope}, a warning of a68j that ga68 does not have, is
+ * on by default; {@code -Wno-frame-scope} switches it off. {@code -Wall}
+ * and {@code -Wextra} do not change it.</li>
  * </ul>
  *
- * Within each kind of option the last one wins. All warnings are off
- * without options, as in ga68.
+ * Within each kind of option the last one wins. Without options all
+ * warnings of ga68 are off, as in ga68.
  */
 public final class WarningOptions {
 
@@ -83,6 +86,7 @@ public final class WarningOptions {
                 case "extensions" -> named.put(Warn.EXTENSIONS, on);
                 case "unused" -> named.put(Warn.UNUSED, on);
                 case "uninitialized" -> named.put(Warn.UNINITIALIZED, on);
+                case "frame-scope" -> named.put(Warn.FRAME_SCOPE, on);
                 case "hidden-declarations" -> hidden = on ? 1 : 0;
                 default -> {
                     return "unrecognized command-line option '" + arg + "'";
@@ -94,6 +98,7 @@ public final class WarningOptions {
         set(options, Warn.EXTENSIONS, named.getOrDefault(Warn.EXTENSIONS, extra));
         set(options, Warn.VOIDING, named.getOrDefault(Warn.VOIDING, extra));
         set(options, Warn.UNINITIALIZED, named.getOrDefault(Warn.UNINITIALIZED, extra));
+        set(options, Warn.FRAME_SCOPE, named.getOrDefault(Warn.FRAME_SCOPE, true));
         int level = hidden != null ? hidden : all ? 1 : 0;
         options.hiddenDeclarations = level;
         set(options, Warn.HIDDEN_DECLARATIONS, level > 0);

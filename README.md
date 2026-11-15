@@ -161,6 +161,7 @@ Common options (as in ga68 where ga68 has them):
 | `-fmodules-map=…`, `-fmodules-map-file=…` | map module names to files, as in ga68 |
 | `-fno-assert` | do not elaborate the assertions (`assert`) of the program (default: `-fassert`) |
 | `-Wscope`, `-Wvoiding`, `-Wextensions`, `-Wunused`, `-Wuninitialized`, `-Whidden-declarations[=none\|prelude\|all]` | optional warnings of ga68, all off by default; `-Wno-…` turns one off, `-Wall` and `-Wextra` turn on groups of them as in ga68 |
+| `-Wframe-scope` | warn about a procedure that outlives the elaboration it belongs to where a68j gives wrong results: a routine text of a loop that captures a declaration of the loop, or a jump to a label whose serial clause has been left (a68j warning, on by default; `-Wno-frame-scope` turns it off) |
 | `-d dir` | output directory; `-d libX.jar` adds a module to a library jar, `-d prog.jar` makes an executable jar of a program |
 | `-run` | compile in memory and run |
 | `--version` | the version of a68j |
@@ -344,7 +345,7 @@ python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
-sh tools/options_tests.sh         # -W options, -fno-assert, unknown options
+sh tools/options_tests.sh         # -W options, -fno-assert, unknown options, -Wframe-scope
 ```
 
 ## License

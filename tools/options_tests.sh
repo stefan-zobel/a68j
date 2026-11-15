@@ -1,16 +1,17 @@
 #!/bin/sh
-# Tests of the command-line options of the compiler (tests/options): the
-# -W options of ga68, -fassert/-fno-assert and the error for an unknown
-# option. Every program X.a68 is compiled and run with the options of its
-# first line "{ a68j-options: ... }", and the messages of the compiler, the
-# output of the program and the exit status are compared with X.out.
+# Tests of the command-line options and the messages of the compiler:
+# tests/options (the -W options of ga68, -fassert/-fno-assert and the error
+# for an unknown option) and tests/scope (the warning -Wframe-scope). Every
+# program X.a68 is compiled and run with the options of its first line
+# "{ a68j-options: ... }", and the messages of the compiler, the output of
+# the program and the exit status are compared with X.out.
 # Usage: tools/options_tests.sh [JAVA].
 cd "$(dirname "$0")/.."
 JAVA=${1:-java}
 JAR=backend/a68j-backend.jar
 pass=0; fail=0
 tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
-for f in tests/options/*.a68; do
+for f in tests/options/*.a68 tests/scope/*.a68; do
   b=${f%.a68}
   opts=$(sed -n '1s/^{ a68j-options: \(.*\) }$/\1/p' "$f")
   timeout 60 "$JAVA" -cp $JAR a68j.jvm.Compile $opts -run "$f" > "$tmp" 2>&1; st=$?

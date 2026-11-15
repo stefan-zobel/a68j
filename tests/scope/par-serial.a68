@@ -1,0 +1,8 @@
+{ Without -fpar-threads the units of a parallel clause are elaborated in the
+  frame of the loop, whose slots all iterations share (see par-threads.a68). }
+begin
+   [3] proc int fs;
+   for i to 3 do par ((int k = i; fs[i] := int: k), skip) od;
+   for i to 3 do puts (whole (fs[i], 0) + " ") od;
+   puts ("'n")
+end

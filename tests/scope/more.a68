@@ -1,0 +1,24 @@
+{ More ways for a routine text that captures a declaration of a loop to
+  outlive the iteration (-Wframe-scope). }
+begin
+   mode U = union (proc int, real);
+   [3] U us;
+   [3] proc int fs;
+   proc show = void: (for i to 3 do puts (whole (fs[i], 0) + " ") od; puts ("'n"));
+   { A united value. }
+   for i to 3 do int k = i; us[i] := int: k od;
+   for i to 3 do case us[i] in (proc int f): fs[i] := f esac od;
+   show;
+   { The result of a procedure of the loop body. }
+   for i to 3 do int k = i * 2; proc mk = proc int: int: k; fs[i] := mk od;
+   show;
+   { The result of an operator of the loop body. }
+   for i to 3 do int k = i * 3; op GET = (int x) proc int: int: x + k; fs[i] := GET 0 od;
+   show;
+   { A heap generator. }
+   for i to 3 do int k = i; ref proc int r = heap proc int := int: k; skip od;
+   { Each routine calls the one before it, which is always the same: the
+     last but one. Calling c would not end. }
+   proc (int) int c := (int x) int: x;
+   to 3 do proc (int) int g = c; c := (int x) int: g (x) + 1 od
+end

@@ -286,6 +286,7 @@ public final class Compile {
                 GenJava.loader = new java.net.URLClassLoader(urls, Compile.class.getClassLoader());
             }
             byte[] bytes = Gen.compileClass(a68, name, file, loopMethods);
+            print(a68); // the warnings of the back end (-Wframe-scope)
             if (run) {
                 runClass(name, bytes, progArgs, jars);
                 return;
@@ -498,9 +499,14 @@ public final class Compile {
         return null;
     }
 
+    /** The number of diagnostics printed so far. */
+    private static int printed;
+
+    /** Prints the diagnostics not printed yet. */
     private static void print(A68 a68) {
-        for (Diagnostics.Diagnostic d : a68.diagnostics.messages()) {
-            System.err.println(d);
+        List<Diagnostics.Diagnostic> all = a68.diagnostics.messages();
+        for (; printed < all.size(); printed++) {
+            System.err.println(all.get(printed));
         }
     }
 

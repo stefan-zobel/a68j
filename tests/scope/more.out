@@ -1,0 +1,14 @@
+tests/scope/more.a68:9:38: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/more.a68:9:22: note: 'k' is declared here
+tests/scope/more.a68:13:70: warning: value of 'mk' captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/more.a68:13:22: note: 'k' is declared here
+tests/scope/more.a68:16:81: warning: value of 'GET' captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/more.a68:16:22: note: 'k' is declared here
+tests/scope/more.a68:19:63: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/more.a68:19:22: note: 'k' is declared here
+tests/scope/more.a68:23:39: warning: routine text captures 'g', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/more.a68:23:27: note: 'g' is declared here
+3 3 3 
+6 6 6 
+9 9 9 
+exit 0

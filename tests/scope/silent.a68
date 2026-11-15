@@ -1,0 +1,36 @@
+{ a68j-options: -Wscope }
+{ Escapes that -Wscope of ga68 reports but that are right in a68j, where
+  every activation of a routine has a frame of its own, and routine texts
+  of loops that do not outlive the iteration: no -Wframe-scope warning. }
+begin
+   mode Fn = proc (int) int;
+   [3] proc int fs;
+   proc show = void: (for i to 3 do puts (whole (fs[i], 0) + " ") od; puts ("'n"));
+   { Out of a procedure. }
+   proc adder = (int k) Fn: (int x) int: x + k;
+   proc k1 = (int v) Fn: (int c = v; (int x) int: x + c);
+   proc k2 = (int v) Fn: (int c := v; (int x) int: x + c);
+   proc k3 = (union (int, real) u) Fn:
+      case u in (int r): (int c = r; (int x) int: x + c) out (int x) int: x esac;
+   Fn f6;
+   (int c = 6; f6 := (int x) int: x + c);
+   puts (whole (adder (1) (1) + k1 (2) (1) + k2 (3) (1) + k3 (4) (1) + f6 (1), 0) + "'n");
+   { Made by a procedure called in the loop. }
+   proc mk = (int k) proc int: int: k;
+   for i to 3 do fs[i] := mk (i) od;
+   show;
+   { Partial parametrization. }
+   [3] Fn ts;
+   for i to 3 do ts[i] := ((int k, x) int: k * x) (i, ) od;
+   puts (whole (ts[2] (5), 0) + "'n");
+   { Only identifiers declared outside the loop. }
+   int m = 5;
+   for i to 3 do fs[i] := int: m od;
+   show;
+   { The destination is declared in the loop body. }
+   for i to 3 do int k = i; proc int h := int: k; puts (whole (h, 0)) od;
+   { Used within the iteration only. }
+   proc apply = (proc int f) int: f;
+   for i to 3 do int k = i; puts (whole (apply (int: k), 0)) od;
+   puts ("'n")
+end

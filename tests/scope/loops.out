@@ -1,0 +1,22 @@
+tests/scope/loops.a68:8:27: warning: routine text captures 'i', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:8:8: note: 'i' is declared here
+tests/scope/loops.a68:11:43: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:11:22: note: 'k' is declared here
+tests/scope/loops.a68:14:65: warning: value of 'g' captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:14:22: note: 'k' is declared here
+tests/scope/loops.a68:17:67: warning: value of 'h' captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:17:22: note: 'k' is declared here
+tests/scope/loops.a68:21:48: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:21:32: note: 'k' is declared here
+tests/scope/loops.a68:24:56: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:24:22: note: 'k' is declared here
+tests/scope/loops.a68:29:43: warning: routine text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/loops.a68:29:22: note: 'k' is declared here
+3 3 3 
+30 30 30 
+300 300 300 
+1003 1003 1003 
+3 3 3 
+-3 -3 -3 
+21 21 21 
+exit 0

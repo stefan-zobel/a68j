@@ -1,0 +1,12 @@
+tests/scope/silent.a68:10:29: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+tests/scope/silent.a68:11:38: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+tests/scope/silent.a68:12:39: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+tests/scope/silent.a68:14:38: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+tests/scope/silent.a68:16:22: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+tests/scope/silent.a68:19:32: warning: proc int routine text is a potential scope violation [-Wscope]
+21
+1 2 3 
+10
+5 5 5 
+123123
+exit 0
