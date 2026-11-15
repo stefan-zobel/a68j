@@ -6,3 +6,4 @@ out28/
 backend/*.jar
 backend/*.aot
 /a68j-*-bundle.zip
+*.Random.seed
