@@ -1,13 +1,13 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Arithmetic/Rational", ALGOL 68 solution arithmetic-rational.alg.
   https://rosettacode.org/wiki/Arithmetic/Rational#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/arithmetic-rational.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
  mode Frac = struct( int num {erator},  den {ominator});
- FORMAT frac_repr = $g(-0)"//"g(-0)$;
+ Gformat frac_repr = gfmt ("g(-0)""//""g(-0)");
 
  proc gcd = (int a, b) int: { greatest common divisor }
    (a = 0 | b |: b = 0 | a |: ABS a > ABS b  | gcd(b, a MOD b) | gcd(a, b MOD a));
@@ -120,7 +120,7 @@ access Genie_Transput (
 END }
 E xample: searching_for P erfect N umbers.
  Frac sum:= FRACINIT 0;
- FORMAT perfect = $b(" perfect!","")$;
+ Gformat perfect = gfmt ("b("" perfect!"","""")");
 
  for i from 2 to 2**19 do
    int candidate := i;
@@ -133,7 +133,7 @@ E xample: searching_for P erfect N umbers.
      fi
    od;
    if den of sum  = 1 then
-     printf(($"Sum of reciprocal factors of "g(-0)" = "g(-0)" exactly, about "g(0,real width) f(perfect)l$,
+     printf((gfmtd ("""Sum of reciprocal factors of ""g(-0)"" = ""g(-0)"" exactly, about ""g(0,@1) f(@1)l", (int gfindex) int: case gfindex in real_width esac, (int gfindex) Gformat: case gfindex in perfect esac),
              candidate, ENTIER sum, real_sum, ENTIER sum = 1))
    fi
  od

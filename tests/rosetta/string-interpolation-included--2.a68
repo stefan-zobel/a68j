@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "String interpolation (included)", ALGOL 68 solution string-interpolation-included--2.alg.
   https://rosettacode.org/wiki/String_interpolation_(included)#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/string-interpolation-included--2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
     File str_file;
     string mhl;
@@ -13,18 +13,18 @@ begin
 
     string extra := "little";
     to 2 do
-        putf( str_file, ( $"Mary had a "g" lamb."$, extra ) );
+        putf( str_file, ( gfmt ("""Mary had a ""g"" lamb."""), extra ) );
         print( ( "1 result is: {{", mhl, "}}", newline ) );
         mhl := "";
         "supposedlly-" +=: extra
     od;
 
-    FORMAT extraf := $"little"$;
+    Gformat extraf := gfmt ("""little""");
     to 2 do
-        putf( str_file, ( $"Mary had a "f(extraf)" lamb."$ ) );
+        putf( str_file, ( gfmtd ("""Mary had a ""f(@1)"" lamb.""", skip, (int gfindex) Gformat: case gfindex in extraf esac) ) );
         print( ( "2 result is: {{", mhl, "}}", newline ) );
         mhl := "";
-        extraf := $"medium-sized"$
+        extraf := gfmt ("""medium-sized""")
     od
 end
 )

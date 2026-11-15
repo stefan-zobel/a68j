@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Averages/Simple moving average", ALGOL 68 solution averages-simple-moving-average.alg.
   https://rosettacode.org/wiki/Averages/Simple_moving_average#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/averages-simple-moving-average.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Smaobj  = struct(
   long real sma,
   long real sum,
@@ -85,7 +85,7 @@ main: (
   ref Smaobj h5 := ( sma(Smanew(5)) | (ref Smaobj obj):obj );
 
   for i from LWB v to UPB v do
-    printf(($"next number "g(0,6)", SMA_3 = "g(0,6)", SMA_5 = "g(0,6)l$,
+    printf((gfmt ("""next number ""g(0,6)"", SMA_3 = ""g(0,6)"", SMA_5 = ""g(0,6)l"),
            v[i], (sma(Smaadd(h3, v[i]))|(long real r):r), ( sma(Smaadd(h5, v[i])) | (long real r):r )
     ))
   od{;

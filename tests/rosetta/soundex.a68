@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Soundex", ALGOL 68 solution soundex.alg.
   https://rosettacode.org/wiki/Soundex#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/soundex.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
     proc soundex = (string s) string:
     begin
         proc encode = (char c) char:
@@ -67,8 +67,8 @@ access Genie_Transput (
     for i from LWB soundex_test to UPB soundex_test
     do
         string output = soundex(input of soundex_test[i]);
-        printf(($g, n (12 - UPB input OF soundex test[i]) x$, input of soundex_test[i]));
-        printf(($g, 1x, g, 1x$, expected_output of soundex_test[i], output));
-        printf(($b("ok", "not ok"), 1l$, output = expected_output of soundex_test[i]))
+        printf((gfmtd ("g, n (@1) x", (int gfindex) int: case gfindex in 12 - UPB input of soundex_test[i] esac, skip), input of soundex_test[i]));
+        printf((gfmt ("g, 1x, g, 1x"), expected_output of soundex_test[i], output));
+        printf((gfmt ("b(""ok"", ""not ok""), 1l"), output = expected_output of soundex_test[i]))
     od
 )

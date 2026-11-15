@@ -1,0 +1,10 @@
+CO a comment with $g$ and FORMAT CO
+COMMENT another one: $ "unbalanced COMMENT
+BEGIN NOTE $ not a format ETON
+   { a brief comment { nested } with "}" and $ }
+   PR some pragmat with $ PR
+   PRAGMAT $ PRAGMAT
+   [[ a brief pragmat with $ ]]
+   # COUNT and CODE are not CO #
+   printf (($g # a comment inside # x CO and another CO g l$, 1, 2))
+END

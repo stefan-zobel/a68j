@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Longest string challenge", ALGOL 68 solution longest-string-challenge-1.alg.
   https://rosettacode.org/wiki/Longest_string_challenge#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/longest-string-challenge-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
    int bound = 1000000;			 { Arbitrary upper limit on string lengths }
    int max;				 { Length of longest string }
@@ -37,7 +37,7 @@ finished:
       do						{ Null loop if len < max }
 	 for i from 1 to max
 	 do
-	    printf (($a$, buffer[i]))			{ Print string and newline }
+	    printf ((gfmt ("a"), buffer[i]))			{ Print string and newline }
 	 od
       od;
       buffer := buffer[len : UPB buffer];		{ Step over string }

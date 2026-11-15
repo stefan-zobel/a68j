@@ -1,17 +1,17 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Wireworld", ALGOL 68 solution wireworld.alg.
   https://rosettacode.org/wiki/Wireworld#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/wireworld.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {
 Wireworld implementation.
 }
 
 proc exception = ([]string args)void:(
-  putf(stand_error, ($"Exception"$, $", "g$, args, $l$));
+  putf(stand_error, (gfmt ("""Exception"""), gfmt (""", ""g"), args, gfmt ("l")));
   stop
 );
 
@@ -124,7 +124,7 @@ World ww := read_file(in_file);
 close(in_file);
 
 for gen to 10 do
-    printf ( ($lg(-3)" "$, gen-1,  $g$,"="* (2 UPB ww-4), $l$));
+    printf ( (gfmt ("lg(-3)"" """), gen-1,  gfmt ("g"),"="* (2 UPB ww-4), gfmt ("l")));
     print ( world2string(ww) );
     ww := next_gen(ww)
 od

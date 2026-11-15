@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Lucas-Lehmer test", ALGOL 68 solution lucas-lehmer-test.alg.
   https://rosettacode.org/wiki/Lucas-Lehmer_test#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/lucas-lehmer-test.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
  
 
 proc is_prime = ( int p )bool:
@@ -32,13 +32,13 @@ test:(
   int upb_prime = ( long_long_bits_width - 1 ) OVER 2; { no unsigned }
   int upb_count = 45; { find 45 mprimes if INT has enough bits }
 
-  printf(($" Finding Mersenne primes in M[2.."g(0)"]: "l$,upb_prime));
+  printf((gfmt (""" Finding Mersenne primes in M[2..""g(0)""]: ""l"),upb_prime));
 
   int count:=0;
   for p from 2 to upb_prime while
     if is_prime(p) then
       if is_mersenne_prime(p) then
-        printf (($" M"g(0)$,p));
+        printf ((gfmt (""" M""g(0)"),p));
         count +:= 1
       fi
     fi;

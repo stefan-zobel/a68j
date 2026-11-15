@@ -1,0 +1,2 @@
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS
+BEGIN printf ((gfmt ("""don''t""l"))) END

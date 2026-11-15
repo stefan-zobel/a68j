@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Matrix transposition", ALGOL 68 solution matrix-transposition.alg.
   https://rosettacode.org/wiki/Matrix_transposition#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/matrix-transposition.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main:(
 
   [,]real m=((1,  1,  1,   1),
@@ -23,14 +23,14 @@ main:(
   );
 
   proc pprint = ([,]real m)void:(
-    FORMAT real_fmt = $g(-6,2)$; { width of 6, with no '+' sign, 2 decimals }
-     FORMAT vec_fmt = $"("n(2 UPB m-1)(f(real fmt)",")f(real fmt)")"$;
-    FORMAT matrix_fmt = $x"("n(UPB m-1)(f(vec fmt)","lxx)f(vec fmt)");"$;
+    Gformat real_fmt = gfmt ("g(-6,2)"); { width of 6, with no '+' sign, 2 decimals }
+     Gformat vec_fmt = gfmtd ("""(""n(@1)(f(@1)"","")f(@2)"")""", (int gfindex) int: case gfindex in 2 UPB m-1 esac, (int gfindex) Gformat: case gfindex in real_fmt, real_fmt esac);
+    Gformat matrix_fmt = gfmtd ("x""(""n(@1)(f(@1)"",""lxx)f(@2)"");""", (int gfindex) int: case gfindex in UPB m-1 esac, (int gfindex) Gformat: case gfindex in vec_fmt, vec_fmt esac);
     { finally print the result }
     printf((matrix_fmt,m))
   );
 
-  printf(($x"Transpose:"l$));
+  printf((gfmt ("x""Transpose:""l")));
   pprint((ZIP m))
 )
 )

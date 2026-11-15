@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Multifactorial", ALGOL 68 solution multifactorial.alg.
   https://rosettacode.org/wiki/Multifactorial#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/multifactorial.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
    int highest_degree = 5;
    int largest_number = 10;
@@ -24,9 +24,9 @@ begin
    end;
 { Print out multifactorials }
    for i to highest_degree do
-      printf (($l, "Degree ", g(0), ":"$, i));
+      printf ((gfmt ("l, ""Degree "", g(0), "":"""), i));
       for j to largest_number do
-	 printf (($xg(0)$, multi_fact (j, i)))
+	 printf ((gfmt ("xg(0)"), multi_fact (j, i)))
       od
    od
 end

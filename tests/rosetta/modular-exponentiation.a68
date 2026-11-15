@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Modular exponentiation", ALGOL 68 solution modular-exponentiation.alg.
   https://rosettacode.org/wiki/Modular_exponentiation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/modular-exponentiation.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
     
    mode Lli = long long int;	{ For brevity }
@@ -27,6 +27,6 @@ begin
    Lli a = 2988348162058574136915891421498819466320163312926952423791023078876139;
    Lli b = 2351399303373464486466122544523690094744975233415544072992656881240319;
    Lli m = 10000000000000000000000000000000000000000;
-   printf (($"Last 40 digits = ", 40dl$, mod_power (a, b, m)))
+   printf ((gfmt ("""Last 40 digits = "", 40dl"), mod_power (a, b, m)))
 end
 )

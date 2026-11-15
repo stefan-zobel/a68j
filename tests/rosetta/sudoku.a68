@@ -1,17 +1,17 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Sudoku", ALGOL 68 solution sudoku.alg.
   https://rosettacode.org/wiki/Sudoku#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/sudoku.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Avail = [9]bool;
 mode Box = [3, 3]char;
 
-FORMAT row_fmt = $"|"3(" "3(g" ")"|")l$;
-FORMAT line = $"+"3(7"-","+")l$;
-FORMAT puzzle_fmt = $f(line)3(3(f(row fmt))f(line))$;
+Gformat row_fmt = gfmt ("""|""3("" ""3(g"" "")""|"")l");
+Gformat line = gfmt ("""+""3(7""-"",""+"")l");
+Gformat puzzle_fmt = gfmtd ("f(@1)3(3(f(@2))f(@3))", skip, (int gfindex) Gformat: case gfindex in line, row_fmt, line esac);
 
 Avail gen_full = (true, true, true, true, true, true, true, true, true);
 
@@ -76,7 +76,7 @@ proc solve = ([,]char in_puzzle)void:(
         od;
 break:
         {  write out completed puzzle }
-        printf(($gl$, "Completed puzzle:"));
+        printf((gfmt ("gl"), "Completed puzzle:"));
         printf((puzzle_fmt, puzzle))
 );
 main:(

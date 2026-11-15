@@ -1,0 +1,7 @@
+BEGIN
+   BOOL food := TRUE; INT k := 2; FORMAT a = $g$, b = $g(4)$;
+   printf (($"Food: "f(food|a|b)l$, 1));
+   printf (($n(INT m = k + 1; m)(g)l$, 1, 2, 3));
+   printf (($g(k|1|2)l$, 5));
+   printf (($g((food|3|4), 2)l$, 1.5))
+END

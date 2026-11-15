@@ -1,0 +1,9 @@
+BEGIN
+   MODE FORMATTER = STRUCT (GFORMAT f, INT n);
+   PROC choose = (INT i) GFORMAT: (i = 1 | gfmt ("g") | gfmt ("g(4)"));
+   [] GFORMAT row = (gfmt ("g"), gfmt ("l"));
+   REF GFORMAT r = LOC GFORMAT := gfmt ("x");
+   UNION (INT, GFORMAT) u = gfmt ("p");
+   FORMATTER fr = (gfmt ("g"), 1);
+   FORMATFORMAT := 1
+END

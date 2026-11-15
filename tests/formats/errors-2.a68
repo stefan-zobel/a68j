@@ -1,0 +1,4 @@
+# Patterns left over when the values end the program. #
+BEGIN
+   printf (($"a="g(0)l"b="g(0)l$, 1, 2, 3))
+END

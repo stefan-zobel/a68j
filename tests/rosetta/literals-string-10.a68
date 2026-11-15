@@ -1,15 +1,15 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Literals/String", ALGOL 68 solution literals-string-10.alg.
   https://rosettacode.org/wiki/Literals/String#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/literals-string-10.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 int pages=100, lines=25, characters=80;
 File bookf; flex[pages]flex[lines]flex[characters]char book;
 associate(bookf, book);
 
 { following putf inserts the string "    Line 4 indented 5" on page 3 }
-putf(bookf, $3p"Page 3"4l5x"Line 4 indented 5"$)
+putf(bookf, gfmt ("3p""Page 3""4l5x""Line 4 indented 5"""))
 )

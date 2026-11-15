@@ -1,14 +1,14 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Special characters", ALGOL 68 solution special-characters-1.alg.
   https://rosettacode.org/wiki/Special_characters#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/special-characters-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
-printf(($"flip:"g"!"l$,flip));
-printf(($"flop:"g"!"l$,flop));
-printf(($"blank:"g"!"l$,blank));
-printf(($"error char:"g"!"l$,error_char));
-printf(($"null character:"g"!"l$,null_character))
+access Genie_Transput, Genie_Formats (
+printf((gfmt ("""flip:""g""!""l"),flip));
+printf((gfmt ("""flop:""g""!""l"),flop));
+printf((gfmt ("""blank:""g""!""l"),blank));
+printf((gfmt ("""error char:""g""!""l"),error_char));
+printf((gfmt ("""null character:""g""!""l"),null_character))
 )

@@ -1,0 +1,5 @@
+# A value without a pattern ends the program. #
+BEGIN
+   printf (($"a="g(0)l$, 1));
+   printf (($"no pattern"l$, 2))
+END

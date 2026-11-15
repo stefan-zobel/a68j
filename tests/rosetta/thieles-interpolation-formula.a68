@@ -1,12 +1,12 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Thiele's interpolation formula", ALGOL 68 solution thieles-interpolation-formula.alg.
   https://rosettacode.org/wiki/Thiele's_interpolation_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/thieles-interpolation-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
-proc raise_exception = ([]string msg)void: ( putf(stand_error,("Exception:", $" "g$, msg, $l$)); stop );
+access Genie_Transput, Genie_Formats (
+proc raise_exception = ([]string msg)void: ( putf(stand_error,("Exception:", gfmt (""" ""g"), msg, gfmt ("l"))); stop );
 
 { The MODE of lx and ly here should really be a UNION of "something REAL",
 "something COMPLex", and "something SYMBOLIC" ... }
@@ -34,7 +34,7 @@ begin
 end;
 
 test:(
-  FORMAT real_fmt = $g(0,real width-2)$;
+  Gformat real_fmt = gfmtd ("g(0,@1)", (int gfindex) int: case gfindex in real_width-2 esac, skip);
 
   real lwb_x=0, upb_x=1.55, delta_x = 0.05;
 
@@ -53,7 +53,7 @@ test:(
                   inv_cos = thiele(cos_x of trig_table, x of trig_table,),
                   inv_tan = thiele(tan_x of trig_table, x of trig_table,);
 
-  printf(($"pi estimate using "g" interpolation: "f(real fmt)l$,
+  printf((gfmtd ("""pi estimate using ""g"" interpolation: ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in real_fmt esac),
     "sin", 6*inv_sin(1/2),
     "cos", 3*inv_cos(1/2),
     "tan", 4*inv_tan(1)

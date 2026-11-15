@@ -1,0 +1,7 @@
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS (# a program for Algol 68 Genie #
+BEGIN
+   GFILE f; GCHANNEL c = stand out channel;
+   print (("it''s ", "a ""quote"" and ''", newline));
+   printf ((gfmt ("""it''s ""g l"), 1));
+   FILENAME := 1; GFILE := 2
+END )

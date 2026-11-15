@@ -55,13 +55,21 @@ turns them into programs for ga68 and changes only the following:
   placed in `include/`, `rosetta_prep.py` turns the pragmat into
   `PR include "include/..." PR`.
 
+- A solution with formatted transput (`$ ... $`, `FORMAT`, `printf` ...)
+  is given to the format rewrite tool (`tools/formats`, see
+  `docs/genie-formats.md`). It turns the format texts into calls of the
+  bundled module `Genie_Formats`, which the program then accesses as well
+  (`access Genie_Transput, Genie_Formats (...)`), and keeps the lines. The
+  tool rewrites 175 solutions; it rejects 3 that are not valid programs
+  for Algol 68 Genie either, and these stay as they are.
 - Finally the program is converted from UPPER to SUPPER stropping, the
   notation of GNU Algol 68 and the default of ga68 (`tools/a68supper.py`,
   see below).
 
-Every prepared file starts with `{ dg-modules "genietransput" }`; for
-ga68 the test scripts then compile the module from `backend/lib` first,
-a68j has it built in (`tools/modtest.py`). Line n of the solution is line
+Every prepared file starts with `{ dg-modules "genietransput" }`, or
+`{ dg-modules "genietransput genieformats" }` for a solution with formats; for
+ga68 the test scripts then compile the modules from `backend/lib` first,
+a68j has them built in (`tools/modtest.py`). Line n of the solution is line
 n + 8 of the prepared file.
 
 ### GNU notation (SUPPER)
@@ -107,6 +115,17 @@ a format for which ga68 reports the errors in a different order).
 | **of these identical to ga68 on the JVM** | **608** |
 | of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 560 |
 | of these the same up to rounding (`approx`) | 2 |
+
+These results, `results.tsv` and `passing.md` were measured before the
+solutions with formats were rewritten. Measured on the 175 rewritten
+solutions alone: ga68 compiles 81 and 76 of them end within the time
+limit; of these, 70 give the same result on the JVM and 3 the same up to
+rounding, and 23 stop on both sides at a format item that `Genie_Formats`
+does not support yet (pictures, choices, radix). The other three:
+`command-line-arguments` prints the path of the program,
+`y-combinator-2` crashes natively only, and `csv-to-html-translation-1`
+makes the a68j back end fail (a jump out of a routine text to a label in a
+loop body, not related to formats).
 
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol

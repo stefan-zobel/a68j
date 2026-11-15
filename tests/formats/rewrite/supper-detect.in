@@ -1,0 +1,4 @@
+access Genie_Transput (
+   int k := 3;
+   printf (($g(k)l$, 42))
+)

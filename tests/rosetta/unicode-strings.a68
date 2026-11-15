@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Unicode strings", ALGOL 68 solution unicode-strings.alg.
   https://rosettacode.org/wiki/Unicode_strings#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/unicode-strings.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 { -*- coding: utf-8 -*- }
 
@@ -18,7 +18,7 @@ op INITUNICHAR = (bits bits_)Unichar: (Unichar out_; bits_ of out_ := {ABS} bits
 op INITUNICHAR = (char char_)Unichar: (Unichar out_; bits_ of out_ := BIN ABS char_; out_);
 op INITBITS = (Unichar unichar)bits: {BIN} bits_ of unichar;
 
-proc raise_value_error = ([]union(FORMAT,bits,string)argv )void: (
+proc raise_value_error = ([]union(Gformat,bits,string)argv )void: (
   putf(stand_error, argv); stop
 );
 
@@ -285,17 +285,17 @@ END }
 test:(
 
   Unichar aircraft := U 16r 2708;
-  printf(($"aircraft: "$, $"16r"16rdddd$, Unicode(aircraft), $g$, " => ", REPR Unicode(aircraft), $l$));
+  printf((gfmt ("""aircraft: """), gfmt ("""16r""16rdddd"), Unicode(aircraft), gfmt ("g"), " => ", REPR Unicode(aircraft), gfmt ("l")));
 
   Unicode chinese_forty_two = U 16r 56db + U 16r 5341 + U 16r 4e8c;
-  printf(($"chinese forty two: "$, $g$, REPR chinese_forty_two, ", length string = ", UPB chinese_forty_two, $l$));
+  printf((gfmt ("""chinese forty two: """), gfmt ("g"), REPR chinese_forty_two, ", length string = ", UPB chinese_forty_two, gfmt ("l")));
 
   Unicode poker = U "A123456789♥♦♣♠JQK";
-  printf(($"poker: "$, $g$, REPR poker, ", length string = ", UPB poker, $l$));
+  printf((gfmt ("""poker: """), gfmt ("g"), REPR poker, ", length string = ", UPB poker, gfmt ("l")));
 
   Unicode selectric := U"×÷≤≥≠¬∨∧⏨→↓↑□⌊⌈⎩⎧○⊥¢";
-  printf(($"selectric: "$, $g$, REPR selectric, $l$));
-  printf(($"selectric*4: "$, $g$, REPR(selectric*4), $l$));
+  printf((gfmt ("""selectric: """), gfmt ("g"), REPR selectric, gfmt ("l")));
+  printf((gfmt ("""selectric*4: """), gfmt ("g"), REPR(selectric*4), gfmt ("l")));
 
   print((
     "1 < 2 is ",  U"1" < U"2", ", ",

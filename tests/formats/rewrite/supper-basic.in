@@ -1,0 +1,10 @@
+{ dg-options "-fstropping=supper" }
+access Genie_Transput (
+   int k := 3; { a comment with $ }
+   FORMAT f = $n(k)d, " it''s" l$;
+   printf ((f, 42));
+   printf (($g(case k in 1, 2 out 3 esac)f($g$)l$, 1, 2));
+   proc choose = (int i) FORMAT: $g(if i > 0 then i else 0 fi)$;
+   mode Format = struct (int x);
+   Format own = (1); FORMAT := 1
+)

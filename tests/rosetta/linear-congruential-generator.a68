@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Linear congruential generator", ALGOL 68 solution linear-congruential-generator.alg.
   https://rosettacode.org/wiki/Linear_congruential_generator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/linear-congruential-generator.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
 {
    Algol 68 Genie checks for integer overflow whereas the reference
@@ -79,10 +79,10 @@ begin
       esac
    end;
    srand (0);
-   to 10 do printf (($g(0)l$, bsd_rand)) od;
+   to 10 do printf ((gfmt ("g(0)l"), bsd_rand)) od;
    print (newline);
    srand (0);
-   to 10 do printf (($g(0)l$, ms_rand)) od;
+   to 10 do printf ((gfmt ("g(0)l"), ms_rand)) od;
    srand (0)
 end
 )

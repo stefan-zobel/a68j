@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Pi", ALGOL 68 solution pi.alg.
   https://rosettacode.org/wiki/Pi#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pi.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 
 int base := 10;
@@ -52,7 +52,7 @@ main:(
 { iterate throught the digits as they are being found }
 { FOR INT digit IN } gen_pi_digits(test_decimal_places{) DO ( },
   {} (int digit)void: (
-    printf(($n(width)d$,digit))
+    printf((gfmtd ("n(@1)d", (int gfindex) int: case gfindex in width esac, skip),digit))
   )
 { OD });
   print(new_line)

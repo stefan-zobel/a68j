@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Bitwise operations", ALGOL 68 solution bitwise-operations-1.alg.
   https://rosettacode.org/wiki/Bitwise_operations#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/bitwise-operations-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
 
   bits all_bits_mask = NOT 16r0;
@@ -23,40 +23,40 @@ begin
   { XOR is non-standard, but a version is built in to ALGOL 68G's standard prelude }
 
   { ALGOL 68 has 5 different ways of representing a BINary BITS - Bases: 2, 4, 8, 16 and flip/flop }
-  FORMAT b5 = if bits_width > 32
-              then $"2r"2r64d," 4r"4r32d,l"          8r"8r22d," 16r"16r16d,l"          "gl$
-              else $"2r"2r32d," 4r"4r16d," 8r"8r11d," 16r"16r8d,l"          "gl$
+  Gformat b5 = if bits_width > 32
+              then gfmt ("""2r""2r64d,"" 4r""4r32d,l""          8r""8r22d,"" 16r""16r16d,l""          ""gl")
+              else gfmt ("""2r""2r32d,"" 4r""4r16d,"" 8r""8r11d,"" 16r""16r8d,l""          ""gl")
               fi;
   op BBBBB = (bits b)[]bits: (b,b,b,b,b);
 
   proc bitwise = (bits a, bits b, int shift)void:
   (
     printf((
-      $"         bits shorths: "gxgl$, bits_shorths, "1 plus the number of extra SHORT BITS types",
-      $"         bits lengths: "gxgl$, bits_lengths, "1 plus the number of extra LONG BITS types",
-      $"             max bits: "gl$, max_bits,
-      $"        long max bits: "gl$, long_max_bits,
-      $"   long long max bits: "gl$, long_long_max_bits,
-      $"           bits width: "gxgl$, bits_width, "The number of CHAR required to display BITS",
-      $"      long bits width: "gxgl$, long_bits_width, "The number of CHAR required to display LONG BITS",
-      $" long long bits width: "gxgl$, long_long_bits_width, "The number of CHAR required to display LONG LONG BITS",
-      $"         bytes shorths: "gxgl$, bytes_shorths, "1 plus the number of extra SHORT BYTES types",
-      $"         bytes lengths: "gxgl$, bits_lengths, "1 plus the number of extra LONG BYTES types",
-      $"          bytes width: "gxgl$, bytes_width, "The number of CHAR required to display BYTES",
-      $"     long bytes width: "gxgl$, long_bytes_width, "The number of CHAR required to display LONG BYTES"
+      gfmt ("""         bits shorths: ""gxgl"), bits_shorths, "1 plus the number of extra SHORT BITS types",
+      gfmt ("""         bits lengths: ""gxgl"), bits_lengths, "1 plus the number of extra LONG BITS types",
+      gfmt ("""             max bits: ""gl"), max_bits,
+      gfmt ("""        long max bits: ""gl"), long_max_bits,
+      gfmt ("""   long long max bits: ""gl"), long_long_max_bits,
+      gfmt ("""           bits width: ""gxgl"), bits_width, "The number of CHAR required to display BITS",
+      gfmt ("""      long bits width: ""gxgl"), long_bits_width, "The number of CHAR required to display LONG BITS",
+      gfmt (""" long long bits width: ""gxgl"), long_long_bits_width, "The number of CHAR required to display LONG LONG BITS",
+      gfmt ("""         bytes shorths: ""gxgl"), bytes_shorths, "1 plus the number of extra SHORT BYTES types",
+      gfmt ("""         bytes lengths: ""gxgl"), bits_lengths, "1 plus the number of extra LONG BYTES types",
+      gfmt ("""          bytes width: ""gxgl"), bytes_width, "The number of CHAR required to display BYTES",
+      gfmt ("""     long bytes width: ""gxgl"), long_bytes_width, "The number of CHAR required to display LONG BYTES"
     ));
 
-    printf(($" a:       "f(b5)$, BBBBB a));
-    printf(($" b:       "f(b5)$, BBBBB b));
-    printf(($" a AND b: "f(b5)$, BBBBB(a AND b)));
-    printf(($" a OR b:  "f(b5)$, BBBBB(a OR b)));
-    printf(($" a XOR b: "f(b5)$, BBBBB(a XOR b)));
-    printf(($" NOT b:   "f(b5)$, BBBBB NOT a));
-    printf(($" a SHL "d": "f(b5)$, shift, BBBBB(a SHL shift)));
-    printf(($" a SHR "d": "f(b5)$, shift, BBBBB(a SHR shift)));
+    printf((gfmtd (""" a:       ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB a));
+    printf((gfmtd (""" b:       ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB b));
+    printf((gfmtd (""" a AND b: ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB(a AND b)));
+    printf((gfmtd (""" a OR b:  ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB(a OR b)));
+    printf((gfmtd (""" a XOR b: ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB(a XOR b)));
+    printf((gfmtd (""" NOT b:   ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), BBBBB NOT a));
+    printf((gfmtd (""" a SHL ""d"": ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), shift, BBBBB(a SHL shift)));
+    printf((gfmtd (""" a SHR ""d"": ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), shift, BBBBB(a SHR shift)));
 
-    printf(($" a SLC "d": "f(b5)$, shift, BBBBB(a SLC shift)));
-    printf(($" a SRC "d": "f(b5)$, shift, BBBBB(a SRC shift)))
+    printf((gfmtd (""" a SLC ""d"": ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), shift, BBBBB(a SLC shift)));
+    printf((gfmtd (""" a SRC ""d"": ""f(@1)", skip, (int gfindex) Gformat: case gfindex in b5 esac), shift, BBBBB(a SRC shift)))
 { with original ALGOL 68 character set;
     printf(($" a AND b: "f(b5)$, BBBBB(a ∧ b)));
     printf(($" a OR b:  "f(b5)$, BBBBB(a ∨ b)));

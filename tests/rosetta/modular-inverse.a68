@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Modular inverse", ALGOL 68 solution modular-inverse.alg.
   https://rosettacode.org/wiki/Modular_inverse#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/modular-inverse.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
    proc modular_inverse = (int a, m) int :
    begin
@@ -31,7 +31,7 @@ begin
       [] int egcd = extended_gcd (a, m);
       (egcd[3] > 1 | 0 | egcd[1] MOD m)
    end;
-   printf (($"42 ^ -1 (mod 2017) = ", g(0)$, modular_inverse (42, 2017)))
+   printf ((gfmt ("""42 ^ -1 (mod 2017) = "", g(0)"), modular_inverse (42, 2017)))
 {
    Note that if ϕ(m) is known, then a^-1 = a^(ϕ(m)-1) mod m which
    allows an alternative implementation in terms of modular

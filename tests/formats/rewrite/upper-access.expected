@@ -1,0 +1,9 @@
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS (
+   printf ((gfmt ("gl"), 1))
+);
+ACCESS LISTS, GENIE_TRANSPUT, GENIE_FORMATS
+BEGIN
+   GFORMAT f = gfmt ("g"); SKIP
+END;
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS (printf ((gfmt ("gl"), 2)));
+ACCESS PUB GENIE_TRANSPUT, GENIE_FORMATS (printf ((gfmt ("gl"), 3)))

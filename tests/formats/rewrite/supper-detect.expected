@@ -1,0 +1,4 @@
+access Genie_Transput, Genie_Formats (
+   int k := 3;
+   printf ((gfmtd ("g(@1)l", (int gfindex) int: case gfindex in k esac, skip), 42))
+)

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Forward difference", ALGOL 68 solution forward-difference.alg.
   https://rosettacode.org/wiki/Forward_difference#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/forward-difference.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main:(
   mode Listreal = [1:0]real;
 
@@ -15,16 +15,16 @@ main:(
     out_
   );
 
-  FORMAT real_fmt=$zzz-d.d$;
-  FORMAT repeat_fmt = $n(UPB s-1)(f(real fmt)",")f(real fmt)$;
-  FORMAT list_fmt = $"("f(UPB s=1|real fmt|repeat fmt)")"$;
+  Gformat real_fmt=gfmt ("zzz-d.d");
+  Gformat repeat_fmt = gfmtd ("n(@1)(f(@1)"","")f(@2)", (int gfindex) int: case gfindex in UPB s-1 esac, (int gfindex) Gformat: case gfindex in real_fmt, real_fmt esac);
+  Gformat list_fmt = gfmtd ("""(""f(@1)"")""", skip, (int gfindex) Gformat: case gfindex in (UPB s=1|real_fmt|repeat_fmt) esac);
 
   flex [1:0] real s := (90, 47, 58, 29, 22, 32, 55, 5, 55, 73);
 
-  printf((list_fmt,s,$";"l$));
+  printf((list_fmt,s,gfmt (""";""l")));
   to UPB s-1 do
     s := s[2:] - s[:UPB s-1];
-    printf((list_fmt,s,$";"l$))
+    printf((list_fmt,s,gfmt (""";""l")))
   od
 )
 )

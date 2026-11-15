@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Pascal's triangle/Puzzle", ALGOL 68 solution pascals-triangle-puzzle.alg.
   https://rosettacode.org/wiki/Pascal's_triangle/Puzzle#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/pascals-triangle-puzzle.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode
   Field = real,
   Vec = [0]real,
@@ -75,7 +75,7 @@ mat[known_row, col_x] := 1;
 mat[known_row, col_y] := -1;
 mat[known_row, col_z] := 1;
 
-FORMAT real_repr = $g(-5,2)$;
+Gformat real_repr = gfmt ("g(-5,2)");
 
 { # print details of the simultaneous equation being solved #
 FORMAT
@@ -96,10 +96,10 @@ for row from LWB puzzle to UPB puzzle do
   for col from LWB puzzle[row] to UPB puzzle[row] do
     solution[row][col] := solution_vec[mat_col(row, col)]
   od;
-  printf(($n(UPB puzzle-row)(4x)$, $x"("f(real repr)")"$, solution[row], $l$))
+  printf((gfmtd ("n(@1)(4x)", (int gfindex) int: case gfindex in UPB puzzle-row esac, skip), gfmtd ("x""(""f(@1)"")""", skip, (int gfindex) Gformat: case gfindex in real_repr esac), solution[row], gfmt ("l")))
 od;
 
 for var from 1 by 2 to 5 do
-  printf(($5x$,$g$,puzzle[UPB puzzle][var],"=", real_repr, solution[UPB puzzle][var]))
+  printf((gfmt ("5x"),gfmt ("g"),puzzle[UPB puzzle][var],"=", real_repr, solution[UPB puzzle][var]))
 od
 )

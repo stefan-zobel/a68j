@@ -1,18 +1,18 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Compound data type", ALGOL 68 solution compound-data-type-2.alg.
   https://rosettacode.org/wiki/Compound_data_type#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/compound-data-type-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 UNIONX data := 6.6;
 case data in
-   (int i): printf(($"r: "gl$,i)),
-   (real r): printf(($"r: "gl$,r)),
-   (struct(real r, int i) s): printf(($"r&i: "2(g)l$,s)),
-   (struct([]real r) s): printf(($"r: "n(UPB r OF s)(g)l$,s))
+   (int i): printf((gfmt ("""r: ""gl"),i)),
+   (real r): printf((gfmt ("""r: ""gl"),r)),
+   (struct(real r, int i) s): printf((gfmt ("""r&i: ""2(g)l"),s)),
+   (struct([]real r) s): printf((gfmtd ("""r: ""n(@1)(g)l", (int gfindex) int: case gfindex in UPB r of s esac, skip),s))
 out
-  printf($"Other cases"l$)
+  printf(gfmt ("""Other cases""l"))
 esac;
 )

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Flow-control structures", ALGOL 68 solution flow-control-structures-4.alg.
   https://rosettacode.org/wiki/Flow-control_structures#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/flow-control-structures-4.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 { example from: http://www.xs4all.nl/~jmvdveer/algol.html - GPL }
 determine_first_generation;
 while can_represent_next_generation
@@ -25,7 +25,7 @@ calculate_next_generation:
    current := new.
 
 print_next_generation:
-   printf (($lz","3z","3z","2z-d$, current,
-            $xz","3z","3z","2z-d$, previous,
-            $xd.n(real width - 1)d$, current / previous)).
+   printf ((gfmt ("lz"",""3z"",""3z"",""2z-d"), current,
+            gfmt ("xz"",""3z"",""3z"",""2z-d"), previous,
+            gfmtd ("xd.n(@1)d", (int gfindex) int: case gfindex in real_width - 1 esac, skip), current / previous)).
 )

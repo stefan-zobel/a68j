@@ -1,0 +1,4 @@
+BEGIN
+   INT k := 3;
+   printf ((gfmtd ("g(@1)l", (INT gfindex) INT: CASE gfindex IN k ESAC, SKIP), 42))
+END

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Y combinator", ALGOL 68 solution y-combinator-2.alg.
   https://rosettacode.org/wiki/Y_combinator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/y-combinator-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
 
 { This version needs partial parameterisation in order to work }
@@ -74,10 +74,10 @@ for ( i = 1 ; i <= 12 ; i++) { process.stdout.write( " " + factorial( i ) ) }
 }
 
 int nofacs = 12 ;
-printf( ( $ l , "Here are the first " , g( 0 ) , " factorials." , l $ , nofacs ) ) ;
+printf( ( gfmt (" l , ""Here are the first "" , g(0) , "" factorials."" , l ") , nofacs ) ) ;
 for i to nofacs
 do
-  printf( ( $ "  " , g( 0 ) $ , factorial( i ) ) )
+  printf( ( gfmt (" ""  "" , g(0) ") , factorial( i ) ) )
 od ;
 print( newline ) ;
 
@@ -88,13 +88,13 @@ for ( i = 1 ; i <= 12 ; i++) { process.stdout.write( " " + fibonacci( i ) ) }
 
 int nofibs = 12 ;
 printf( (
-  $ l , "Here are the first " , g( 0 ) , " fibonacci numbers." , l $
+  gfmt (" l , ""Here are the first "" , g(0) , "" fibonacci numbers."" , l ")
 , nofibs
       ) )
 ;
 for i to nofibs
 do
-  printf( ( $ "  " , g( 0 ) $ , fibonacci( i ) ) )
+  printf( ( gfmt (" ""  "" , g(0) ") , fibonacci( i ) ) )
 od ;
 print( newline )
 

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Gaussian elimination", ALGOL 68 solution gaussian-elimination-2.alg.
   https://rosettacode.org/wiki/Gaussian_elimination#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/gaussian-elimination-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 { -*- coding: utf-8 -*- }
 { PRELUDE REQUIRES
   MODE SCAL = REAL;
@@ -28,9 +28,9 @@ int {ℵ}lwb_mat := 1, {ℵ}upb_mat := 0;
 mode Vec = [lwb_vec:upb_vec]SCAL,
      Mat = [lwb_mat:upb_mat,lwb_vec:upb_vec]SCAL;
 
-FORMAT sub := $"( "$, sep := $", "$, bus := $")"$, nl:=$lxx$;
-FORMAT vec_repr := $f(sub)n(upb vec - lwb vec)(f(scal repr)f(sep))f(scal repr)f(bus)$;
-FORMAT mat_repr := $f(sub)n(upb mat - lwb mat)(f( vec repr)f(nl))f( vec repr)f(bus)$;
+Gformat sub := gfmt ("""( """), sep := gfmt (""", """), bus := gfmt (""")"""), nl:=gfmt ("lxx");
+Gformat vec_repr := gfmtd ("f(@1)n(@1)(f(@2)f(@3))f(@4)f(@5)", (int gfindex) int: case gfindex in upb_vec - lwb_vec esac, (int gfindex) Gformat: case gfindex in sub, scal_repr, sep, scal_repr, bus esac);
+Gformat mat_repr := gfmtd ("f(@1)n(@1)(f(@2)f(@3))f(@4)f(@5)", (int gfindex) int: case gfindex in upb_mat - lwb_mat esac, (int gfindex) Gformat: case gfindex in sub, vec_repr, nl, vec_repr, bus esac);
 
 { OPerators to swap the contents of two VECtors }
 prio =:= = 1;

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "CSV to HTML translation", ALGOL 68 solution csv-to-html-translation-1.alg.
   https://rosettacode.org/wiki/CSV_to_HTML_translation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/csv-to-html-translation-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 
 [6]string rows := []string(
@@ -31,13 +31,13 @@ op ENCODE = (string s)string: (
 
 proc head = (string title)void: (
   printf((
-    $"<HEAD>"l$,
-      $"<TITLE>"g"</TITLE>"l$, title,
-      $"<STYLE type=""text/css"">"l$,
-        $"TD {background-color:#ddddff; }"l$,
-        $"thead TD {background-color:#ddffdd; text-align:center; }"l$,
-      $"</STYLE>"l$,
-    $"</HEAD>"l$
+    gfmt ("""<HEAD>""l"),
+      gfmt ("""<TITLE>""g""</TITLE>""l"), title,
+      gfmt ("""<STYLE type=""""text/css"""">""l"),
+        gfmt ("""TD {background-color:#ddddff; }""l"),
+        gfmt ("""thead TD {background-color:#ddffdd; text-align:center; }""l"),
+      gfmt ("""</STYLE>""l"),
+    gfmt ("""</HEAD>""l")
   ))
 );
 
@@ -46,8 +46,8 @@ proc html = void: print(("<HTML>", new_line)),
        body = void: print(("<BODY>", new_line)),
          table = void: print(("<TABLE>", new_line)),
            table_row = void: print(("<TR>")),
-             th = (string s)void: printf(($"<TH>"g"</TH>"$, s)),
-             td = (string s)void: printf(($"<TD>"g"</TD>"$, s)),
+             th = (string s)void: printf((gfmt ("""<TH>""g""</TH>"""), s)),
+             td = (string s)void: printf((gfmt ("""<TD>""g""</TD>"""), s)),
            elbat_row = void: print(("</TR>", new_line)),
          elbat = void: print(("</TABLE>", new_line)),
        ydob = void: print(("</BODY>", new_line)),

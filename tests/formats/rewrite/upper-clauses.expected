@@ -1,0 +1,7 @@
+BEGIN
+   BOOL food := TRUE; INT k := 2; GFORMAT a = gfmt ("g"), b = gfmt ("g(4)");
+   printf ((gfmtd ("""Food: ""f(@1)l", SKIP, (INT gfindex) GFORMAT: CASE gfindex IN (food|a|b) ESAC), 1));
+   printf ((gfmtd ("n(@1)(g)l", (INT gfindex) INT: CASE gfindex IN (INT m = k + 1; m) ESAC, SKIP), 1, 2, 3));
+   printf ((gfmtd ("g(@1)l", (INT gfindex) INT: CASE gfindex IN (k|1|2) ESAC, SKIP), 5));
+   printf ((gfmtd ("g(@1,2)l", (INT gfindex) INT: CASE gfindex IN (food|3|4) ESAC, SKIP), 1.5))
+END

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Birthday problem", ALGOL 68 solution birthday-problem.alg.
   https://rosettacode.org/wiki/Birthday_problem#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/birthday-problem.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/bin/a68g --script }
 { -*- coding: utf-8 -*- }
 
@@ -15,9 +15,9 @@ real upb_year = 365 + 1/4 { - 3/400 but alive, ignore those born prior to 1901 }
 int upb_sample_size = 100 000,
     upb_common = 5 ;
 
-FORMAT name_int_fmt = $g": "g(-0)"; "$,
-       name_real_fmt = $g": "g(-0,4)"; "$,
-       name_percent_fmt = $g": "g(-0,2)"%; "$;
+Gformat name_int_fmt = gfmt ("g"": ""g(-0)""; """),
+       name_real_fmt = gfmt ("g"": ""g(-0,4)""; """),
+       name_percent_fmt = gfmt ("g"": ""g(-0,2)""%; """);
 
 printf((
   name_real_fmt,
@@ -25,7 +25,7 @@ printf((
   name_int_fmt,
   "upb common",upb_common,
   "upb sample size",upb_sample_size,
-  $l$
+  gfmt ("l")
 ));
 
 int required_common := 1; { initial value }
@@ -59,14 +59,14 @@ for group_size from required_common while required_common <= upb_common do
   print(".");
   if portion_of_years_with_required_common_birthdays > desired_probability then
     printf((
-      $l$,
+      gfmt ("l"),
       name_int_fmt,
       "required common",required_common,
       "group size",group_size,
       { "sample with no required common",sample with no required common, }
       name_percent_fmt,
       "%age of years with required common birthdays",portion_of_years_with_required_common_birthdays*100,
-      $l$
+      gfmt ("l")
     ));
     required_common +:= 1
   fi

@@ -1,0 +1,4 @@
+# The general pattern with parameters takes numbers only. #
+BEGIN
+   printf (($g(5)l$, TRUE))
+END

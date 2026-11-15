@@ -1,15 +1,15 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Associative array/Creation", ALGOL 68 solution associative-array-creation.alg.
   https://rosettacode.org/wiki/Associative_array/Creation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/associative-array-creation.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main:(
 
   mode Color = bits;
-  FORMAT color_repr = $"16r"16r6d$;
+  Gformat color_repr = gfmt ("""16r""16r6d");
 
   { This is an associative array which maps strings to ints }
   mode Item = struct(string key, Color value);
@@ -55,7 +55,7 @@ main:(
   if value :=: ref Color(nil) then
     put(stand_error, ("color not found!", new_line))
   else
-    printf(($"green: "f(color repr)l$, value))
+    printf((gfmtd ("""green: ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in color_repr esac), value))
   fi;
 
   { Now I changed my mind about my favourite color, so change it }
@@ -64,16 +64,16 @@ main:(
   { print out all defined colors }
   for index from LWB color_map_items to UPB color_map_items do
     Item item = color_map_items[index];
-    putf(stand_error, ($"color map("""g""") = "f(color repr)l$, item))
+    putf(stand_error, (gfmtd ("""color map(""""""g"""""") = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in color_repr esac), item))
   od;
 
-  FORMAT fmt;
-  FORMAT comma_sep = $"("n(UPB color map items-1)(f(fmt)", ")f(fmt)")"$;
+  Gformat fmt;
+  Gformat comma_sep = gfmtd ("""(""n(@1)(f(@1)"", "")f(@2)"")""", (int gfindex) int: case gfindex in UPB color_map_items-1 esac, (int gfindex) Gformat: case gfindex in fmt, fmt esac);
 
-  fmt := $""""g""""$;
-  printf(($g$,"keys: ", comma_sep, key of color_map_items, $l$));
+  fmt := gfmt ("""""""""g""""""""");
+  printf((gfmt ("g"),"keys: ", comma_sep, key of color_map_items, gfmt ("l")));
   fmt := color_repr;
-  printf(($g$,"values: ", comma_sep, value of color_map_items, $l$))
+  printf((gfmt ("g"),"values: ", comma_sep, value of color_map_items, gfmt ("l")))
 
 )
 )

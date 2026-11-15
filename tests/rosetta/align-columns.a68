@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Align columns", ALGOL 68 solution align-columns.alg.
   https://rosettacode.org/wiki/Align_columns#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/align-columns.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 string nl = REPR 10;
 string text_in_list := "Given$a$text$file$of$many$lines,$where$fields$within$a$line$"+nl+
   "are$delineated$by$a$single$''dollar''$character,$write$a$program"+nl+
@@ -41,7 +41,7 @@ for row do
   at_eol := false;
   for col while NOT at_eol do
     string tok := "";
-    getf(text_in_file, ($gx$,tok));
+    getf(text_in_file, (gfmt ("gx"),tok));
     if tok NE "" OR NOT at_eol then
       if row > 1 UPB page then page := flex_page(page, row, 2 UPB page) fi;
       if col > 2 UPB page then page := flex_page(page, 1 UPB page, col) fi;
@@ -59,7 +59,7 @@ begin
       int max_len:=0; for row to UPB al_page do if UPB al_page[row,col]>max_len then max_len:=UPB al_page[row,col] fi od;
       for row to UPB al_page do al_page[row,col] := alignf(page[row,col], maxlen) od
     od;
-    printf(($n(UPB page)(n(2 UPB page -1)(gx)gl)$,al_page))
+    printf((gfmtd ("n(@1)(n(@2)(gx)gl)", (int gfindex) int: case gfindex in UPB page, 2 UPB page -1 esac, skip),al_page))
   );
 
   proc left = (string in_, int len)string: in_ + " "*(len - UPB in_),

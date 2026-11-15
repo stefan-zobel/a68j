@@ -1,0 +1,12 @@
+BEGIN
+   [] INT a = (1, 2, 3); INT i := 2;
+   printf (($n((a[1] + a[2]) * 2)d l$, 7));
+   printf (($g(a[i], UPB a)l$, 1.5));
+   printf (($g(CASE i IN 1, 2 OUT 3 ESAC, IF i > 1 THEN 4 ELSE 5 FI)l$, 2.5));
+   printf (($g(BEGIN INT w = 6; w END)l$, 3));
+   printf (($g(UPB ")," # a comment ), #)l$, 4));
+   printf (($f($g(i)$)l$, 5));
+   printf (($f(IF i = 1 THEN $g$ ELSE $"<"g">"$ FI)l$, 6));
+   printf (($N(i)D L$, 7));
+   printf (($n (i) (g" ") l$, 8, 9))
+END

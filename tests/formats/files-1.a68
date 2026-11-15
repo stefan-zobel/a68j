@@ -1,0 +1,18 @@
+# putf on a file of the program (FILE becomes GFILE for ga68 and a68j),
+  read back with get. #
+BEGIN
+   FILE f;
+   IF establish (f, "formats-files-1.txt", stand out channel) /= 0
+   THEN print (("cannot establish", newline)); stop
+   FI;
+   putf (f, ($"line "g(0)l$, 1, 2));
+   putf (f, ($n(2)(g(-4))l$, 10, 20));
+   close (f);
+   FILE g;
+   IF open (g, "formats-files-1.txt", stand in channel) /= 0
+   THEN print (("cannot open", newline)); stop
+   FI;
+   STRING s;
+   TO 3 DO get (g, (s, newline)); print ((s, "|", newline)) OD;
+   close (g)
+END

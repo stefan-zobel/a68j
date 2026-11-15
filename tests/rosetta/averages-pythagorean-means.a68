@@ -1,16 +1,16 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Averages/Pythagorean means", ALGOL 68 solution averages-pythagorean-means.alg.
   https://rosettacode.org/wiki/Averages/Pythagorean_means#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/averages-pythagorean-means.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main: (
   int count:=0;
   long real f, sum:=0, prod:=1, resum:=0;
 
-  FORMAT real_ = $g(0,4)$; { preferred real format }
+  Gformat real_ = gfmt ("g(0,4)"); { preferred real format }
 
   File fbuf; string sbuf; associate(fbuf,sbuf);
 
@@ -27,9 +27,9 @@ main: (
       resum +:= 1/f
     fi
   od;
-  printf(($"c: "f(real)l"s: "f(real)l"p: "f(real)l"r: "f(real)l$,count,sum,prod,resum));
-  printf(($"Arithmetic mean = "f(real)l$,sum/count));
-  printf(($"Geometric mean = "f(real)l$,prod**(1/count)));
-  printf(($"Harmonic mean = "f(real)l$,count/resum))
+  printf((gfmtd ("""c: ""f(@1)l""s: ""f(@2)l""p: ""f(@3)l""r: ""f(@4)l", skip, (int gfindex) Gformat: case gfindex in real_, real_, real_, real_ esac),count,sum,prod,resum));
+  printf((gfmtd ("""Arithmetic mean = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in real_ esac),sum/count));
+  printf((gfmtd ("""Geometric mean = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in real_ esac),prod**(1/count)));
+  printf((gfmtd ("""Harmonic mean = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in real_ esac),count/resum))
 )
 )

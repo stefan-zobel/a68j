@@ -1,12 +1,12 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Regular expressions", ALGOL 68 solution regular-expressions-2.alg.
   https://rosettacode.org/wiki/Regular_expressions#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/regular-expressions-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
-FORMAT pattern = $ddd" "c("cats","dogs")$;
+access Genie_Transput, Genie_Formats (
+Gformat pattern = gfmt ("ddd"" ""c(""cats"",""dogs"")");
 File file_; string book; associate(file_, book);
 on_value_error(file_, (ref File f)bool: stop);
 on_format_error(file_, (ref File f)bool: stop);
@@ -17,5 +17,5 @@ struct(int count, type) dalmatians;
 getf(file_, (pattern, dalmatians));
 print(("Dalmatians: ", dalmatians, new_line));
 count of dalmatians +:=1;
-printf(($"Gives: "$, pattern, dalmatians, $l$))
+printf((gfmt ("""Gives: """), pattern, dalmatians, gfmt ("l")))
 )

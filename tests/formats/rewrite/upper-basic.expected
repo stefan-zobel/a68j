@@ -1,0 +1,11 @@
+BEGIN # a "comment" with $ #
+   INT k := 3; REAL x = 2.5;
+   GFORMAT f = gfmtd ("n(@1)d, "" items"" l", (INT gfindex) INT: CASE gfindex IN k + 1 ESAC, SKIP);
+   printf ((gfmtd ("""x = ""g(-8,2)"" and ""f(@1)l", SKIP, (INT gfindex) GFORMAT: CASE gfindex IN f ESAC), x, 42));
+   printf ((gfmtd ("""multi""" +
+"             g(@1)" +
+"             l", (INT gfindex) INT: CASE gfindex IN k ESAC, SKIP), 7));
+   printf ((gfmt ("")));
+   printf ((gfmt ("""only insertions""l")));
+   print (("$ not a format", "say ""$"" here", newline))
+END

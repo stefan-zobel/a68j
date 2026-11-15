@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Old lady swallowed a fly", ALGOL 68 solution old-lady-swallowed-a-fly-1.alg.
   https://rosettacode.org/wiki/Old_lady_swallowed_a_fly#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/old-lady-swallowed-a-fly-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 
 string sw=" swallow ",swd=sw[:UPB sw-1]+"ed ", tsa=". To"+sw+"a";
@@ -14,19 +14,19 @@ int count_prev := 0; [9]string prev;
 
 proc vs = (string in_wot,[]string co)void: (
   string wot = " "+in_wot;
-  printf(($g$,"I know an old lady who",swd,"a",wot,".",$l$));
+  printf((gfmt ("g"),"I know an old lady who",swd,"a",wot,".",gfmt ("l")));
   if UPB co = 1 then
-    printf(($gl$,co))
+    printf((gfmt ("gl"),co))
   elif UPB co > 1 then
-    printf(($g$,co,wot+".",$l$))
+    printf((gfmt ("g"),co,wot+".",gfmt ("l")))
   fi;
   if count_prev NE UPB prev then
     prev[count_prev+:=1]:=wot;
     for i from count_prev by -1 to 2 do
-      printf(($gl$,"She"+swd+"the"+prev[i]+" to catch the"+prev[i-1]+"."))
+      printf((gfmt ("gl"),"She"+swd+"the"+prev[i]+" to catch the"+prev[i-1]+"."))
     od;
-    printf(($gl$,"I don''t know why she"+swd+"the fly.",
-                 "Perhaps she''ll die.", $l$))
+    printf((gfmt ("gl"),"I don''t know why she"+swd+"the fly.",
+                 "Perhaps she''ll die.", gfmt ("l")))
   fi
 );
 

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Roman numerals/Decode", ALGOL 68 solution roman-numerals-decode.alg.
   https://rosettacode.org/wiki/Roman_numerals/Decode#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/roman-numerals-decode.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
     proc roman_to_int = (string roman) int:
     begin
         proc roman_digit_value = (char roman_digit) int:
@@ -50,8 +50,8 @@ access Genie_Transput (
     for i from LWB roman_test to UPB roman_test
     do
         int output = roman_to_int(input of roman_test[i]);
-        printf(($g, n (12 - UPB input OF roman test[i]) x$, input of roman_test[i]));
-        printf(($g(5), 1x, g(5), 1x$, expected_output of roman_test[i], output));
-        printf(($b("ok", "not ok"), 1l$, output = expected_output of roman_test[i]))
+        printf((gfmtd ("g, n (@1) x", (int gfindex) int: case gfindex in 12 - UPB input of roman_test[i] esac, skip), input of roman_test[i]));
+        printf((gfmt ("g(5), 1x, g(5), 1x"), expected_output of roman_test[i], output));
+        printf((gfmt ("b(""ok"", ""not ok""), 1l"), output = expected_output of roman_test[i]))
     od
 )

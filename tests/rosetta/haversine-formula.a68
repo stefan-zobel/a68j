@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Haversine formula", ALGOL 68 solution haversine-formula.alg.
   https://rosettacode.org/wiki/Haversine_formula#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/haversine-formula.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 
 real r = 20 000/pi + 6.6 { km },
@@ -26,6 +26,6 @@ main:
 (
         real d = dist(36.12, -86.67, 33.94, -118.4);
         { Americans don't know kilometers }
-        printf(($"dist: "g(0,1)" km ("g(0,1)" mi.)"l$, d, d / 1.609344))
+        printf((gfmt ("""dist: ""g(0,1)"" km (""g(0,1)"" mi.)""l"), d, d / 1.609344))
 )
 )

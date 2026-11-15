@@ -1,0 +1,9 @@
+ACCESS GENIE_TRANSPUT (
+   printf (($gl$, 1))
+);
+ACCESS LISTS, GENIE_TRANSPUT
+BEGIN
+   FORMAT f = $g$; SKIP
+END;
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS (printf (($gl$, 2)));
+ACCESS PUB GENIE_TRANSPUT (printf (($gl$, 3)))

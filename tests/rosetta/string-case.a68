@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "String case", ALGOL 68 solution string-case.alg.
   https://rosettacode.org/wiki/String_case#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/string-case.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 {!/usr/local/bin/a68g --script }
 
 { Demonstrate toupper and tolower for standard ALGOL 68
@@ -33,8 +33,8 @@ proc string_to_lower = (ref string s)void:
 main: (
     string t := "alphaBETA";
     string_to_upper(t);
-    printf(($"uppercase: "gl$, t));
+    printf((gfmt ("""uppercase: ""gl"), t));
     string_to_lower(t);
-    printf(($"lowercase: "gl$, t))
+    printf((gfmt ("""lowercase: ""gl"), t))
 )
 )

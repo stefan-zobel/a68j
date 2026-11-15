@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Gaussian elimination", ALGOL 68 solution gaussian-elimination-1.alg.
   https://rosettacode.org/wiki/Gaussian_elimination#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/gaussian-elimination-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 { -*- coding: utf-8 -*- }
 { PROVIDES
   MODE FIXED; INT fixed exception, unfixed exception;
@@ -24,7 +24,7 @@ mode {ℵ}Simpleoutt = [0]{ℵ}Simpleoutm;
 mode Simpleout  = [0]{ℵ}Simpleoutt;
 
 proc raise = ({ℵ}Simpleout message)Fixed: (
-  putf(stand_error, ($"Exception:"$, $xg$, message, $l$));
+  putf(stand_error, (gfmt ("""Exception:"""), gfmt ("xg"), message, gfmt ("l")));
   stop
 );
 

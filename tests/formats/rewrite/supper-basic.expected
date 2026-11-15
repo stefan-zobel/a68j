@@ -1,0 +1,10 @@
+{ dg-options "-fstropping=supper" }
+access Genie_Transput, Genie_Formats (
+   int k := 3; { a comment with $ }
+   Gformat f = gfmtd ("n(@1)d, "" it''s"" l", (int gfindex) int: case gfindex in k esac, skip);
+   printf ((f, 42));
+   printf ((gfmtd ("g(@1)f(@1)l", (int gfindex) int: case gfindex in case k in 1, 2 out 3 esac esac, (int gfindex) Gformat: case gfindex in gfmt ("g") esac), 1, 2));
+   proc choose = (int i) Gformat: gfmtd ("g(@1)", (int gfindex) int: case gfindex in if i > 0 then i else 0 fi esac, skip);
+   mode Format = struct (int x);
+   Format own = (1); Gformat := 1
+)

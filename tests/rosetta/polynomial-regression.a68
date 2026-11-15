@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Polynomial regression", ALGOL 68 solution polynomial-regression.alg.
   https://rosettacode.org/wiki/Polynomial_regression#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/polynomial-regression.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Field = real;
 
 mode
@@ -66,8 +66,8 @@ op / = (Mat a, Mat b)Mat:( { matrix division }
   out_
 );
 
-FORMAT int_repr = $g(0)$,
-       real_repr = $g(-7,4)$;
+Gformat int_repr = gfmt ("g(0)"),
+       real_repr = gfmt ("g(-7,4)");
 
 proc fit =  (Vec x, y, int order)Vec:
 begin
@@ -96,7 +96,7 @@ proc print_polynomial = (Vec x)void: (
        case i+1 in
          skip,print(("x"))
        out
-         printf(($"x**"g(0)$,i))
+         printf((gfmt ("""x**""g(0)"),i))
        esac
      fi
    od;

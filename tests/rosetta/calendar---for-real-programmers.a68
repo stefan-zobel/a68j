@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Calendar - for "REAL" programmers", ALGOL 68 solution calendar---for-real-programmers.alg.
   https://rosettacode.org/wiki/Calendar_-_for_%22REAL%22_programmers#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/calendar---for-real-programmers.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 ' '
 
 'proc' PRINT CALENDAR = ('int' YEAR, PAGE WIDTH)'void': 'begin'
@@ -14,7 +14,7 @@ access Genie_Transput (
       "JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE",
       "JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"),
     WEEKDAY NAMES = ("SU","MO","TU","WE","TH","FR","SA");
-  'FORMAT' WEEKDAY FMT = $G,N('UPB' WEEKDAY NAMES - 'LWB' WEEKDAY NAMES)(" "G)$;
+  'Gformat' WEEKDAY FMT = gfmtd ("G,N(@1)("" ""G)", (int gfindex) int: case gfindex in 'UPB' WEEKDAY NAMES - 'LWB' WEEKDAY NAMES esac, skip);
 
   { 'JUGGLE' THE CALENDAR FORMAT TO FIT THE PRINTER/SCREEN WIDTH }
   'int' DAY WIDTH = 'UPB' WEEKDAY NAMES(1), DAY GAP=1;
@@ -49,7 +49,7 @@ access Genie_Transput (
 
   'mode' 'SIMPLEOUT' = 'union'('string', ()'string', 'int');
 
-  'proc' CPUTF = ('ref'()'char' out, 'FORMAT' FMT, 'SIMPLEOUT' ARGV)'void':'begin'
+  'proc' CPUTF = ('ref'()'char' out, 'Gformat' FMT, 'SIMPLEOUT' ARGV)'void':'begin'
     'File' F; 'string' S; ASSOCIATE(F,S);
     PUTF(F, (FMT, ARGV));
     out(:'UPB' S):=S;
@@ -61,14 +61,14 @@ access Genie_Transput (
     'string' MONTH NAME = MONTH NAMES(MONTH);
 
   { CENTER THE TITLE }
-    CPUTF(MONTH BOX(1,(MONTH WIDTH - 'UPB' MONTH NAME ) 'OVER' 2+1:), $G$, MONTH NAME);
+    CPUTF(MONTH BOX(1,(MONTH WIDTH - 'UPB' MONTH NAME ) 'OVER' 2+1:), gfmt ("G"), MONTH NAME);
     CPUTF(MONTH BOX(2,), WEEKDAY FMT, WEEKDAY NAMES);
 
     'int' FIRST DAY := DAY of WEEK(YEAR, MONTH, 1);
     'for' DAY 'to' DAYS in MONTH(YEAR, MONTH) 'do'
       'int' LINE = (DAY+FIRST DAY-WEEK START) 'OVER' 'UPB' WEEKDAY NAMES + MONTH HEADING LINES + 1;
       'int' char =((DAY+FIRST DAY-WEEK START) 'MOD' 'UPB' WEEKDAY NAMES)*(DAY WIDTH+DAY GAP) + 1;
-      CPUTF(MONTH BOX(LINE,char:char+DAY WIDTH-1),$G(-DAY WIDTH)$, DAY)
+      CPUTF(MONTH BOX(LINE,char:char+DAY WIDTH-1),gfmtd ("G(@1)", (int gfindex) int: case gfindex in -DAY WIDTH esac, skip), DAY)
     'od';
     MONTH BOX
   'end';
@@ -97,9 +97,9 @@ access Genie_Transput (
   'int' INDENT = (PAGE WIDTH - YEAR WIDTH) 'OVER' 2;
 
   PRINTF((
-    $N(INDENT + CENTER - 9)K  G L$, "(INSERT SNOOPY HERE)",
-    $N(INDENT + CENTER - 1)K 4D L$, YEAR, $L$,
-    $N(INDENT)K N(YEAR WIDTH)(G)  L$, YEAR REPR(YEAR)
+    gfmtd ("N(@1)K  G L", (int gfindex) int: case gfindex in INDENT + CENTER - 9 esac, skip), "(INSERT SNOOPY HERE)",
+    gfmtd ("N(@1)K 4D L", (int gfindex) int: case gfindex in INDENT + CENTER - 1 esac, skip), YEAR, gfmt ("L"),
+    gfmtd ("N(@1)K N(@2)(G)  L", (int gfindex) int: case gfindex in INDENT, YEAR WIDTH esac, skip), YEAR REPR(YEAR)
   ))
 'end';
 

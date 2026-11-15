@@ -1,0 +1,26 @@
+# Dynamic replicators, parameters of g and the format pattern f, which
+  are elaborated each time they are reached. #
+BEGIN
+   INT k := 2;
+   FORMAT row = $n(k)(g(0)" ")l$;
+   printf ((row, 1, 2));
+   k := 3;
+   printf ((row, 1, 2, 3));
+   INT w := 6;
+   printf (($g(w)"|"g(w + 2, k - 1)"|"l$, 42, 2.5));
+   PROC choose = (INT i) FORMAT: (i = 1 | $"one "g(0)l$ | $"other "g(0)l$);
+   printf ((choose (1), 1, choose (2), 2));
+   FORMAT inner = $"<"g(0)">"$;
+   printf (($f(inner)l$, 1, 2));
+   printf (($"<"f($g(0)"|"$)">"l$, 1, 2));
+   printf (($"<"f($g(0)$)">"f($g(0)$)l$, 1, 2));
+   FORMAT var := row;
+   k := 1;
+   printf ((var, 9));
+   var := $"var "g(0)l$;
+   printf ((var, 10));
+   INT calls := 0;
+   PROC count = INT: (calls +:= 1; 1);
+   printf (($n(count)(g(0))l$, 5, 6));
+   printf (($g(0)l$, calls))
+END

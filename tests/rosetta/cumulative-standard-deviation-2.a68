@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Cumulative standard deviation", ALGOL 68 solution cumulative-standard-deviation-2.alg.
   https://rosettacode.org/wiki/Cumulative_standard_deviation#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/cumulative-standard-deviation-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Stat = struct(
   long real sum,
   long real sum2,
@@ -68,7 +68,7 @@ init of class_stat := (ref Stat self)ref Stat:(
   ref Stat stat = INIT loc Stat;
   for i from LWB value to UPB value do
     stat +:= value[i];
-    printf(($"value: "g(0,6)," standard dev := "g(0,6)l$, value[i], (stddev of class_stat)(stat)))
+    printf((gfmt ("""value: ""g(0,6),"" standard dev := ""g(0,6)l"), value[i], (stddev of class_stat)(stat)))
   od;
 {
   printf(($"standard deviation = "g(0,6)l$, (stddev OF class stat)(stat)));

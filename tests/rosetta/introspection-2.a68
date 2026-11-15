@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Introspection", ALGOL 68 solution introspection-2.alg.
   https://rosettacode.org/wiki/Introspection#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/introspection-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 begin
     mode Ssmodes = union(short short bits, short short bytes, {SHORT SHORT CHAR,}
                          short short int, short short real, short short compl);
@@ -16,7 +16,7 @@ begin
                          long int, long real, long compl);
     mode Llmodes = union(long long bits, long long bytes, {LONG LONG CHAR,}
                          long long int, long long real, long long compl);
-    mode  Xmodes = union(bool, sema, string, void, Channel, File, FORMAT);
+    mode  Xmodes = union(bool, sema, string, void, Channel, File, Gformat);
 
     mode Modes = union(Ssmodes, Smodes, Nmodes, Llmodes, Lmodes, Xmodes);
 
@@ -40,14 +40,14 @@ begin
         (sema):"SEMA",
         (Channel):"CHANNEL",
         (File):"FILE",
-        (FORMAT):"FORMAT"
+        (Gformat):"FORMAT"
       out
         "ARRAY, PROC or STRUCT"
       esac;
 
     []Modes x = (empty, 1, 2.0, 3 I 4, short short 5, short 6, long 7, long long 8,
                  8r666, bytes_pack("abc"), true, "xyz", LEVEL 1,
-                 stand_in_channel, stand_in, $ddd$);
+                 stand_in_channel, stand_in, gfmt ("ddd"));
 
     string sep := "";
     print(("Array member types: "));

@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Knapsack problem/Unbounded", ALGOL 68 solution knapsack-problem-unbounded.alg.
   https://rosettacode.org/wiki/Knapsack_problem/Unbounded#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/knapsack-problem-unbounded.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Bounty = struct(string name, int value, weight, volume);
 
 []Bounty items = (
@@ -109,11 +109,11 @@ proc knapsack_dp = ([]Bounty items, Bounty sack)[]int:(
 struct (int value, weight, volume) max :=  total_value(max_items, items, sack);
 max := (value of max, -weight of max, -volume of max);
 
-FORMAT d = $zz-d$;
+Gformat d = gfmt ("zz-d");
 
-printf(($"The maximum value achievable (by dynamic programming) is "gl$, value of max));
-printf(($"  The number of ("n(UPB items-1)(g", ")g") items to achieve this is: ("n(UPB items-1)(f(d)",")f(d)") respectively"l$,
+printf((gfmt ("""The maximum value achievable (by dynamic programming) is ""gl"), value of max));
+printf((gfmtd ("""  The number of (""n(@1)(g"", "")g"") items to achieve this is: (""n(@2)(f(@1)"","")f(@2)"") respectively""l", (int gfindex) int: case gfindex in UPB items-1, UPB items-1 esac, (int gfindex) Gformat: case gfindex in d, d esac),
     name of items, max_items));
-printf(($"  The weight to carry is "f(d)", and the volume used is "f(d)l$,
+printf((gfmtd ("""  The weight to carry is ""f(@1)"", and the volume used is ""f(@2)l", skip, (int gfindex) Gformat: case gfindex in d, d esac),
     weight of max, volume of max))
 )

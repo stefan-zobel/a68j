@@ -1,0 +1,7 @@
+# a program for Algol 68 Genie #
+BEGIN
+   FILE f; CHANNEL c = stand out channel;
+   print (("it's ", "a ""quote"" and '", newline));
+   printf (($"it's "g l$, 1));
+   FILENAME := 1; GFILE := 2
+END

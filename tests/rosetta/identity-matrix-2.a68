@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Identity matrix", ALGOL 68 solution identity-matrix-2.alg.
   https://rosettacode.org/wiki/Identity_matrix#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/identity-matrix-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 { -*- coding: utf-8 -*- }
 
 { Define some generic matrix initialisation and printing operations }
@@ -19,7 +19,7 @@ END }
 
 int mat_lwb := 1, mat_upb := 0;
 mode Matnew = [mat_lwb:mat_upb, vec_lwb: vec_upb]SCAL; mode Mat = ref Matnew;
-FORMAT mat_fmt = $"("n(vec upb-vec lwb)(f(vec fmt)","lx)f(vec fmt)")"l$;
+Gformat mat_fmt = gfmtd ("""(""n(@1)(f(@1)"",""lx)f(@2)"")""l", (int gfindex) int: case gfindex in vec_upb-vec_lwb esac, (int gfindex) Gformat: case gfindex in vec_fmt, vec_fmt esac);
 
 prio DIAGINIT = 1;
 

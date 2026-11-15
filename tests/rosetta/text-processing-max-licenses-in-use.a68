@@ -1,16 +1,16 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Text processing/Max licenses in use", ALGOL 68 solution text-processing-max-licenses-in-use.alg.
   https://rosettacode.org/wiki/Text_processing/Max_licenses_in_use#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/text-processing-max-licenses-in-use.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 proc report = (ref File file_in)int: (
 
   mode Time = [19]char;
   struct ([3]char inout, Time time, int jobnum) record;
-  FORMAT record_fmt = $"License "g" @ "g" for job "g(0)l$;
+  Gformat record_fmt = gfmt ("""License ""g"" @ ""g"" for job ""g(0)l");
 
   flex[1]Time max_time;
 
@@ -41,9 +41,9 @@ proc report = (ref File file_in)int: (
     fi
   od;
 
-  printf(($"Maximum simultaneous license use is "g(0)" at the following times:"l$, max_out));
+  printf((gfmt ("""Maximum simultaneous license use is ""g(0)"" at the following times:""l"), max_out));
   for lic_out from LWB max_time to max_count do
-    printf(($gl$, max_time[lic_out]))
+    printf((gfmt ("gl"), max_time[lic_out]))
   od;
 
   0 exit
@@ -66,7 +66,7 @@ main:
       File file_in;
       errno := open(file_in, argv(i), stand_in_channel);
       if errno /= 0 then
-        putf(stand_error, ($"cannot read "gl$, argv(1)));
+        putf(stand_error, (gfmt ("""cannot read ""gl"), argv(1)));
         exit_main_error
       else
         report(file_in)

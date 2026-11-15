@@ -1,0 +1,24 @@
+# Formatted output with insertions, alignments, replicators and the
+  general pattern g, as in Algol 68 Genie. #
+BEGIN
+   printf (($"a"x"b"2x"c"q"d"l$));
+   printf (($g(0)"|"g(5)"|"g(-5)"|"l$, 42, 42, 42));
+   printf (($g(8,2)"|"g(-9,3)"|"g(10,2,1)"|"l$, 3.14159, 3.14159, 7));
+   printf (($g(5)"|"g(5)"|"g(8,2)"|"l$, 3.7, -2, 7));
+   printf (($g"|"g"|"g"|"g"|"l$, TRUE, "x", "str", "a ""q"" b"));
+   printf (($3l$));
+   printf (($"x="g(0)l$, 1, 2, 3));
+   printf (($"a="g(0)l"b="g(0)l$, 1, 2, 3, 4));
+   printf (($l"a="g(0)$, 1, 2)); print (newline);
+   printf (($g(0)", "$, 1, 2, 3)); print (newline);
+   printf (($"a"$, $"b"g(0)l$, 1));
+   FORMAT f = $g(0)", "$;
+   printf ((f, 1, f, 2)); print (newline);
+   printf (($3(g(0)" ")l$, 1, 2, 3));
+   printf (($2(2(g(0)",")";")l$, 1, 2, 3, 4));
+   [] INT a = (1, 2, 3);
+   printf (($g(0)" "$, a)); print (newline);
+   printf (($g(0)" "g(0)l$, a, 4));
+   [,] INT m = ((1, 2), (3, 4));
+   printf (($n(2)(g(0)" ")l$, m))
+END

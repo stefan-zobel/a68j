@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Power set", ALGOL 68 solution power-set.alg.
   https://rosettacode.org/wiki/Power_set#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/power-set.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Member = int;
 
 proc power_set = ([]Member s)[][]Member:(
@@ -29,8 +29,8 @@ test:(
   [][]Member set = power_set((1, 2, 4));
   for member to UPB set do
     int upb = UPB set[member];
-    FORMAT repr_set = $"("f( upb=0 | $$ | $n(upb-1)(d", ")d$ )");"$;
-    printf(($"set["d"] = "$,member, repr_set, set[member],$l$))
+    Gformat repr_set = gfmtd ("""(""f(@1)"");""", skip, (int gfindex) Gformat: case gfindex in ( upb=0 | gfmt ("") | gfmtd ("n(@1)(d"", "")d", (int gfindex) int: case gfindex in upb-1 esac, skip) ) esac);
+    printf((gfmt ("""set[""d""] = """),member, repr_set, set[member],gfmt ("l")))
   od
 )
 )

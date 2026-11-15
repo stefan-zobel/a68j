@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Exponentiation operator", ALGOL 68 solution exponentiation-operator-2.alg.
   https://rosettacode.org/wiki/Exponentiation_operator#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/exponentiation-operator-2.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main:(
   int two=2, thirty=30; { test constants }
   proc void undefined;
@@ -18,8 +18,8 @@ main:(
     out_
   );
 
-  printf(($" One Gibi-unit is: int pow("g(0)","g(0)")="g(0)" - (cost: "g(0)
-           " INT multiplications)"l$,two, thirty, int_pow(two,thirty),thirty-1));
+  printf((gfmt (""" One Gibi-unit is: int pow(""g(0)"",""g(0)"")=""g(0)"" - (cost: ""g(0)" +
+"           "" INT multiplications)""l"),two, thirty, int_pow(two,thirty),thirty-1));
 
 { implement exponentiation using a faster binary technique and WHILE LOOP }
   op ** = (int base, exponent)int:
@@ -31,8 +31,8 @@ main:(
       (base*base) ** (exponent OVER 2)
     fi;
 
-  printf(($" One Gibi-unit is: "g(0)"**"g(0)"="g(0)" - (cost: "g(0)
-           " INT multiplications)"l$,two, thirty, two ** thirty,8));
+  printf((gfmt (""" One Gibi-unit is: ""g(0)""**""g(0)""=""g(0)"" - (cost: ""g(0)" +
+"           "" INT multiplications)""l"),two, thirty, two ** thirty,8));
 
   op ** = (real in_base, int in_exponent)real: ( { ** INT Operator can be overloaded }
     real base := ( in_exponent<0 | 1/in_base | in_base);
@@ -46,14 +46,14 @@ main:(
     fi
   );
 
-  printf(($" One Gibi-unit is: "g(0,1)"**"g(0)"="g(0,1)" - (cost: "g(0)
-           " REAL multiplications)"l$, 2.0, thirty, 2.0 ** thirty,8));
+  printf((gfmt (""" One Gibi-unit is: ""g(0,1)""**""g(0)""=""g(0,1)"" - (cost: ""g(0)" +
+"           "" REAL multiplications)""l"), 2.0, thirty, 2.0 ** thirty,8));
 
   op ** = (real base, real exponent)real: ( { ** REAL Operator can be overloaded }
     exp(ln(base)*exponent)
   );
 
-  printf(($" One Gibi-unit is: "g(0,1)"**"g(0,1)"="g(0,1)" - (cost: "
-           "depends on precision)"l$, 2.0, 30.0, 2.0 ** 30.0))
+  printf((gfmt (""" One Gibi-unit is: ""g(0,1)""**""g(0,1)""=""g(0,1)"" - (cost: """ +
+"           ""depends on precision)""l"), 2.0, 30.0, 2.0 ** 30.0))
 )
 )

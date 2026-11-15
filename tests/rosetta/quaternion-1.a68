@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Quaternion", ALGOL 68 solution quaternion-1.alg.
   https://rosettacode.org/wiki/Quaternion#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/quaternion-1.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 { -*- coding: utf-8 -*- }
 
 { REQUIRES:
@@ -14,11 +14,11 @@ access Genie_Transput (
 END }
 
 { PROVIDES: }
-FORMAT quat_scal_fmt := $g(-0, 4)$;
-FORMAT signed_fmt = $b("+", "")f(quat scal fmt)$;
+Gformat quat_scal_fmt := gfmt ("g(-0,4)");
+Gformat signed_fmt = gfmtd ("b(""+"", """")f(@1)", skip, (int gfindex) Gformat: case gfindex in quat_scal_fmt esac);
 
-FORMAT quat_fmt = $f(quat scal fmt)"+"f(quat scal fmt)"i+"f(quat scal fmt)"j+"f(quat scal fmt)"k"$;
-FORMAT squat_fmt = $f(signed fmt)f(signed fmt)"i"f(signed fmt)"j"f(signed fmt)"k"$;
+Gformat quat_fmt = gfmtd ("f(@1)""+""f(@2)""i+""f(@3)""j+""f(@4)""k""", skip, (int gfindex) Gformat: case gfindex in quat_scal_fmt, quat_scal_fmt, quat_scal_fmt, quat_scal_fmt esac);
+Gformat squat_fmt = gfmtd ("f(@1)f(@2)""i""f(@3)""j""f(@4)""k""", skip, (int gfindex) Gformat: case gfindex in signed_fmt, signed_fmt, signed_fmt, signed_fmt esac);
 
 mode Quat = struct(QUATSCAL r, i, j, k);
 Quat i=(0, 1, 0, 0),
@@ -37,7 +37,7 @@ mode Subquat = union(Coquat, Quat); { subset is itself }
 mode Quaternion = Quat;
 
 proc quat_fix_type_error = (Quat quat, []string msg)bool: (
-  putf(stand_error, ($"Type error:"$,$" "g$, msg, quat_fmt, quat, $l$));
+  putf(stand_error, (gfmt ("""Type error:"""),gfmt (""" ""g"), msg, quat_fmt, quat, gfmt ("l")));
   stop
 );
 

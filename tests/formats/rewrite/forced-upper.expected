@@ -1,0 +1,2 @@
+{ dg-options "-fstropping=supper" }
+GFORMAT f = gfmtd ("f(@1)", SKIP, (INT gfindex) GFORMAT: CASE gfindex IN g ESAC)

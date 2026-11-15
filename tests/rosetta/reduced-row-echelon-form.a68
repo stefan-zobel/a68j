@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Reduced row echelon form", ALGOL 68 solution reduced-row-echelon-form.alg.
   https://rosettacode.org/wiki/Reduced_row_echelon_form#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/reduced-row-echelon-form.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Field = real; { FIELD can be REAL, LONG REAL etc, or COMPL, FRAC etc }
 mode Vec = [0]Field;
 mode Mat = [0,0]Field;
@@ -54,10 +54,10 @@ proc to_reduced_row_echelon_form = (ref Mat m)void: (
 
 to_reduced_row_echelon_form( mat );
 
-FORMAT
-  real_repr = $g(-7,4)$,
-  vec_repr = $"("n(2 UPB mat-1)(f(real repr)", ")f(real repr)")"$,
-  mat_repr = $"("n(1 UPB mat-1)(f(vec repr)", "lx)f(vec repr)")"$;
+Gformat
+  real_repr = gfmt ("g(-7,4)"),
+  vec_repr = gfmtd ("""(""n(@1)(f(@1)"", "")f(@2)"")""", (int gfindex) int: case gfindex in 2 UPB mat-1 esac, (int gfindex) Gformat: case gfindex in real_repr, real_repr esac),
+  mat_repr = gfmtd ("""(""n(@1)(f(@1)"", ""lx)f(@2)"")""", (int gfindex) int: case gfindex in 1 UPB mat-1 esac, (int gfindex) Gformat: case gfindex in vec_repr, vec_repr esac);
 
-printf((mat_repr, mat, $l$))
+printf((mat_repr, mat, gfmt ("l")))
 )

@@ -1,0 +1,9 @@
+BEGIN
+   MODE FORMATTER = STRUCT (FORMAT f, INT n);
+   PROC choose = (INT i) FORMAT: (i = 1 | $g$ | $g(4)$);
+   [] FORMAT row = ($g$, $l$);
+   REF FORMAT r = LOC FORMAT := $x$;
+   UNION (INT, FORMAT) u = $p$;
+   FORMATTER fr = ($g$, 1);
+   FORMATFORMAT := 1
+END

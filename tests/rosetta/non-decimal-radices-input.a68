@@ -1,11 +1,11 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Non-decimal radices/Input", ALGOL 68 solution non-decimal-radices-input.alg.
   https://rosettacode.org/wiki/Non-decimal_radices/Input#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/non-decimal-radices-input.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 main:
 (
   File fbuf; string sbuf;
@@ -18,17 +18,17 @@ main:
 
   bits num;
 
-  getf(FBUF("0123459"), ($10r7d$, num));
-  printf(($gl$, ABS num)); { prints 123459 }
+  getf(FBUF("0123459"), (gfmt ("10r7d"), num));
+  printf((gfmt ("gl"), ABS num)); { prints 123459 }
 
-  getf(FBUF("abcf123"), ($16r7d$, num));
-  printf(($gl$, ABS num)); { prints 180154659 }
+  getf(FBUF("abcf123"), (gfmt ("16r7d"), num));
+  printf((gfmt ("gl"), ABS num)); { prints 180154659 }
 
-  getf(FBUF("7651"), ($8r4d$, num));
-  printf(($gl$, ABS num)); { prints 4009 }
+  getf(FBUF("7651"), (gfmt ("8r4d"), num));
+  printf((gfmt ("gl"), ABS num)); { prints 4009 }
 
-  getf(FBUF("1010011010"), ($2r10d$, num));
-  printf(($gl$, ABS num)) { prints 666 }
+  getf(FBUF("1010011010"), (gfmt ("2r10d"), num));
+  printf((gfmt ("gl"), ABS num)) { prints 666 }
 
 )
 )

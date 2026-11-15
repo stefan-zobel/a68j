@@ -1,0 +1,2 @@
+{ dg-options "-fstropping=supper" }
+FORMAT f = $f(g)$

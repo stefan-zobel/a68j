@@ -1,0 +1,12 @@
+BEGIN
+   [] INT a = (1, 2, 3); INT i := 2;
+   printf ((gfmtd ("n(@1)d l", (INT gfindex) INT: CASE gfindex IN (a[1] + a[2]) * 2 ESAC, SKIP), 7));
+   printf ((gfmtd ("g(@1,@2)l", (INT gfindex) INT: CASE gfindex IN a[i], UPB a ESAC, SKIP), 1.5));
+   printf ((gfmtd ("g(@1,@2)l", (INT gfindex) INT: CASE gfindex IN CASE i IN 1, 2 OUT 3 ESAC, IF i > 1 THEN 4 ELSE 5 FI ESAC, SKIP), 2.5));
+   printf ((gfmtd ("g(@1)l", (INT gfindex) INT: CASE gfindex IN BEGIN INT w = 6; w END ESAC, SKIP), 3));
+   printf ((gfmtd ("g(@1)l", (INT gfindex) INT: CASE gfindex IN UPB ")," # a comment ), # ESAC, SKIP), 4));
+   printf ((gfmtd ("f(@1)l", SKIP, (INT gfindex) GFORMAT: CASE gfindex IN gfmtd ("g(@1)", (INT gfindex) INT: CASE gfindex IN i ESAC, SKIP) ESAC), 5));
+   printf ((gfmtd ("f(@1)l", SKIP, (INT gfindex) GFORMAT: CASE gfindex IN IF i = 1 THEN gfmt ("g") ELSE gfmt ("""<""g"">""") FI ESAC), 6));
+   printf ((gfmtd ("N(@1)D L", (INT gfindex) INT: CASE gfindex IN i ESAC, SKIP), 7));
+   printf ((gfmtd ("n (@1) (g"" "") l", (INT gfindex) INT: CASE gfindex IN i ESAC, SKIP), 8, 9))
+END

@@ -1,0 +1,11 @@
+BEGIN # a "comment" with $ #
+   INT k := 3; REAL x = 2.5;
+   FORMAT f = $n(k + 1)d, " items" l$;
+   printf (($"x = "g(-8, 2)" and "f(f)l$, x, 42));
+   printf (($"multi"
+             g(k)
+             l$, 7));
+   printf (($$));
+   printf (($"only insertions"l$));
+   print (("$ not a format", "say ""$"" here", newline))
+END

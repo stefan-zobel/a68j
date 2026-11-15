@@ -1,16 +1,16 @@
-{ dg-modules "genietransput" }
+{ dg-modules "genietransput genieformats" }
 { Rosetta Code, task "Vector products", ALGOL 68 solution vector-products.alg.
   https://rosettacode.org/wiki/Vector_products#ALGOL_68
   The text of Rosetta Code is available under the GNU Free Documentation
   License 1.3 (see README.md).  The solution is unchanged in orig/vector-products.a68;
   this copy was prepared for ga68 and converted to SUPPER stropping by
   tools/rosetta_prep.py. }
-access Genie_Transput (
+access Genie_Transput, Genie_Formats (
 mode Field = int;
-FORMAT field_fmt = $g(-0)$;
+Gformat field_fmt = gfmt ("g(-0)");
 
 mode Vec = [3]Field;
-FORMAT vec_fmt = $"("f(field fmt)", "f(field fmt)", "f(field fmt)")"$;
+Gformat vec_fmt = gfmtd ("""(""f(@1)"", ""f(@2)"", ""f(@3)"")""", skip, (int gfindex) Gformat: case gfindex in field_fmt, field_fmt, field_fmt esac);
 
 proc crossp = (Vec a, b)Vec:(
     {Cross product of two 3D vectors}
@@ -47,16 +47,16 @@ op (Vec, Vec)Vec X = crossp;
 
 main:(
     Vec a=(3, 4, 5), b=(4, 3, 5), c=(-5, -12, -13);
-    printf(($"a = "f(vec fmt)";  b = "f(vec fmt)";  c = "f(vec fmt)l$ , a, b, c));
-    printf($"Using PROCedures:"l$);
-    printf(($"a . b = "f(field fmt)l$, dotp(a,b)));
-    printf(($"a x b = "f(vec fmt)l$, crossp(a,b)));
-    printf(($"a . (b x c) = "f(field fmt)l$, scalartriplep(a, b, c)));
-    printf(($"a x (b x c) = "f(vec fmt)l$, vectortriplep(a, b, c)));
-    printf($"Using OPerators:"l$);
-    printf(($"a . b = "f(field fmt)l$, a DOT b));
-    printf(($"a x b = "f(vec fmt)l$, a X b));
-    printf(($"a . (b x c) = "f(field fmt)l$, a DOT (b X c)));
-    printf(($"a x (b x c) = "f(vec fmt)l$, a X (b X c)))
+    printf((gfmtd ("""a = ""f(@1)"";  b = ""f(@2)"";  c = ""f(@3)l", skip, (int gfindex) Gformat: case gfindex in vec_fmt, vec_fmt, vec_fmt esac) , a, b, c));
+    printf(gfmt ("""Using PROCedures:""l"));
+    printf((gfmtd ("""a . b = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in field_fmt esac), dotp(a,b)));
+    printf((gfmtd ("""a x b = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in vec_fmt esac), crossp(a,b)));
+    printf((gfmtd ("""a . (b x c) = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in field_fmt esac), scalartriplep(a, b, c)));
+    printf((gfmtd ("""a x (b x c) = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in vec_fmt esac), vectortriplep(a, b, c)));
+    printf(gfmt ("""Using OPerators:""l"));
+    printf((gfmtd ("""a . b = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in field_fmt esac), a DOT b));
+    printf((gfmtd ("""a x b = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in vec_fmt esac), a X b));
+    printf((gfmtd ("""a . (b x c) = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in field_fmt esac), a DOT (b X c)));
+    printf((gfmtd ("""a x (b x c) = ""f(@1)l", skip, (int gfindex) Gformat: case gfindex in vec_fmt esac), a X (b X c)))
 )
 )
