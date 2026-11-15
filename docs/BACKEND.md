@@ -573,8 +573,12 @@ tracks whether each node is evaluated at stack depth 0 of its routine
 (phrases, clause parts, identity declarations, coercions of those); a
 labeled serial clause anywhere else (an operand, an assignation source, a
 variable initialiser) becomes a pseudo-routine: a separate method without
-parameters whose frame links to the enclosing one, called at its place. A
-jump used as a `PROC VOID` (proceduring) is a `Proc` throwing the `Jump`.
+parameters whose frame links to the enclosing one, called at its place.
+Such a clause can be the body of a loop: the front end puts the FOR
+identifier into the range of the DO part, but the counter belongs to the
+routine of the loop clause, which sets it before each call (`Gen.tagOwner`,
+`Gen.owner`). A jump used as a `PROC VOID` (proceduring) is a `Proc`
+throwing the `Jump`.
 
 ## 9. Testing
 
@@ -596,7 +600,8 @@ with its output, its reading and files and `associate`, the file
 procedures of the POSIX module and errno, `fsize` and `lseek` on the
 standard descriptors, `<=` and `>=` on BITS, mode declarations with
 bounds from variables, the include pragmat with the directories of `-I`
-in `dg-options`); their native
+in `dg-options`, loops whose body with labels is a pseudo-routine); their
+native
 results are recorded the same way (`tests/extra/expected`).
 
 `tests/rosetta/` holds the ALGOL 68 solutions of Rosetta Code, prepared for

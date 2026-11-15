@@ -273,13 +273,10 @@ complete with stage 1; stages 2 and 3 extend the module only.
      to the tool. It rewrites 175 of the 178; the other three are not
      valid programs for Algol 68 Genie either.
    - ga68 compiles 81 of the 175, and 76 of them end within the time limit.
-     Of these, 70 give the same result on the JVM, and 3 the same up to
+     Of these, 71 give the same result on the JVM, and 3 the same up to
      rounding. The others: `command-line-arguments` prints the path of
-     the program, `y-combinator-2` crashes natively only (a procedure that
-     outlives the procedure that created it), and
-     `csv-to-html-translation-1` shows a defect of the a68j back end that
-     has nothing to do with formats (a jump out of a routine text to a
-     label in a loop body).
+     the program, and `y-combinator-2` crashes natively only (a procedure
+     that outlives the procedure that created it).
    - 23 of the 76 stop with `format item ... is not supported yet`, on
      both sides: they need stage 2.
    - Most of the 94 solutions that ga68 does not compile fail for reasons

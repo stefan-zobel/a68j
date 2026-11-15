@@ -1,0 +1,28 @@
+{ dg-modules "genietransput" }
+{ Loops in an access clause, whose body has labels: the body is a method
+  of its own (a pseudo-routine, Capture), the FOR identifier belongs to the
+  routine of the loop clause (Gen#tagOwner). As in the Rosetta solution
+  csv-to-html-translation-1: the event routine of on_logical_file_end
+  jumps to the label at the end of the body, and a loop without TO part
+  inside the body reads the fields of a line. }
+access Genie_Transput (
+   File row_input; string row; char ifs = ",";
+   associate (row_input, row); make_term (row_input, ifs);
+   for nr to 3 do
+      row := (nr | "a,b", "c", "d,e,f");
+      on_logical_file_end (row_input, (ref File f) bool: row_end);
+      print (("row", whole (nr, 0), ":"));
+      for nf do
+         string field; get (row_input, field);
+         print ((" ", whole (nf, 0), "=", field));
+         get (row_input, space)
+      od;
+      row_end: print (newline); reset (row_input)
+   od;
+   int s := 0;
+   for i by 3 to 10 do
+      s +:= i; goto l;
+      l: print ((whole (i, 0), " "))
+   od;
+   print ((whole (s, 0), newline))
+)

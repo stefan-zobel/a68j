@@ -85,7 +85,7 @@ final class Hoist {
         walk(g, p, candidates, escaped);
         candidates.removeAll(escaped);
         candidates.removeIf(t -> {
-            Gen.Routine owner = g.tableOwner.get(t.symbolTable);
+            Gen.Routine owner = g.owner(t);
             return owner == null || owner.frameSlots.containsKey(t);
         });
         if (System.getenv("A68J_DEBUG_HOIST") != null) {
@@ -203,7 +203,7 @@ final class Hoist {
         }
         // An identity of a row mode, in a local of this method.
         if (!t.variable && JType.of(g.a68, t.type) == JType.ROW && rowElem(g, t.type) != null) {
-            Gen.Routine owner = g.tableOwner.get(t.symbolTable);
+            Gen.Routine owner = g.owner(t);
             if (owner != null && !owner.frameSlots.containsKey(t)) {
                 return t;
             }

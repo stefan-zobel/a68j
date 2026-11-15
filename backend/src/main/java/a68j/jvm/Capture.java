@@ -26,7 +26,7 @@ final class Capture {
         List<Use> uses = new ArrayList<>();
         walk(g, top, program, uses, true);
         for (Use u : uses) {
-            Gen.Routine owner = g.tableOwner.get(u.tag.symbolTable);
+            Gen.Routine owner = g.owner(u.tag);
             if (owner != null && owner != u.in && u.tag.moif == null && !owner.frameSlots.containsKey(u.tag)) {
                 owner.frameSlots.put(u.tag, owner.frameSlots.size());
             }
@@ -72,6 +72,15 @@ final class Capture {
                 }
                 if (p.attribute == Attribute.SERIAL_CLAUSE && hasLabels(p)) {
                     cur.ownsLabels = true;
+                }
+            }
+            if (p.attribute == Attribute.LOOP_CLAUSE) {
+                // The counter belongs to the routine of the loop clause, not
+                // to the owner of the DO range it is in (Gen#tagOwner).
+                Node forPart = Gen.son(p, Attribute.FOR_PART);
+                Node id = forPart == null ? null : Gen.son(forPart, Attribute.DEFINING_IDENTIFIER);
+                if (id != null && id.tag != null) {
+                    g.tagOwner.put(id.tag, in);
                 }
             }
             if (p.tag != null) {

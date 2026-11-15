@@ -1,0 +1,48 @@
+{ Loops whose body has labels and is not evaluated at stack depth 0 (an
+  operand): the body is a method of its own (a pseudo-routine, Capture),
+  but the FOR identifier, which the front end puts into the range of the
+  DO part, belongs to the routine of the loop clause (Gen#tagOwner).
+  Counted and general loops, with the counter used in the body or not, a
+  procedure of the body using the counter, a jump out of the loop, WHILE,
+  and a loop nested in such a body. }
+begin
+   proc show = (int k) void: puts (whole (k, 0) + " ");
+
+   { Counted loop, counter used and not used. }
+   show (10 + (int s := 0; for i to 3 do s +:= i; goto l; l: skip od; s));
+   show (10 + (int s := 0; for i to 3 do s +:= 1; goto l; l: skip od; s));
+
+   { General loops: step 2, and no TO part, left by a jump. }
+   show (10 + (int s := 0; for i by 2 to 5 do s +:= i; goto l; l: skip od; s));
+   show (10 + (int s := 0;
+               for i do s +:= i; if i = 4 then goto done fi; l: skip od;
+               done: s));
+
+   { FOR with WHILE: the counter is in the range of the WHILE part. }
+   show (10 + (int s := 0; for i while s < 5 do s +:= i; goto l; l: skip od; s));
+
+   { A procedure of the body that uses the counter. }
+   show (10 + (int s := 0;
+               for i from 2 to 4 do
+                  proc p = int: i * 100;
+                  s +:= p; goto l; l: skip
+               od; s));
+
+   { A loop nested in the body, with a counter of its own. }
+   show (10 + (int s := 0;
+               for i to 3 do
+                  for j to i do s +:= i * j od;
+                  if i = 2 then goto l fi;
+                  s +:= 1000;
+                  l: skip
+               od; s));
+
+   { A label reached again by a jump back, in each pass. }
+   show (10 + (int s := 0;
+               for i to 3 do
+                  int n := 0;
+                  again: n +:= 1; s +:= i;
+                  if n < 2 then goto again fi
+               od; s));
+   puts ("'n")
+end

@@ -108,7 +108,7 @@ final class GenCoercions {
             throw new Gen.Unsupported(p, "proceduring");
         }
         a68j.front.Tag t = Gen.son(j, Attribute.IDENTIFIER).tag;
-        g.loadFrame(g.tableOwner.get(t.symbolTable));
+        g.loadFrame(g.owner(t));
         Gen.constant(g.cb, g.labelNumber(t));
         g.cb.invokestatic(Gen.CD_RT, "jumper", MethodTypeDesc.of(Gen.CD_PROC, Gen.CD_FRAME, CD_int));
     }

@@ -213,7 +213,7 @@ final class GenDecls {
         if (t != JType.ROW && t != JType.STRUCT && t != JType.UNION) {
             return false;
         }
-        Gen.Routine owner = g.tableOwner.get(q.tag.symbolTable);
+        Gen.Routine owner = g.owner(q.tag);
         return g.rangeWithoutLabels && owner != null && !owner.frameSlots.containsKey(q.tag)
                 && !g.usedBeforeDeclaration(q);
     }

@@ -228,6 +228,16 @@ public final class Gen {
     /** The descriptions of modes in module keys, per depth (Intrinsics#moduleKey). */
     final Map<Moid, String[]> modeKeys = new IdentityHashMap<>();
     final Map<Table, Routine> tableOwner = new IdentityHashMap<>();
+    /**
+     * Tags that belong to another routine than the owner of their symbol
+     * table (see {@link #owner}): the FOR identifiers. The front end puts a
+     * FOR identifier into the range of the DO part (or of the WHILE part),
+     * but the routine of the loop clause stores the counter before each
+     * pass through the body. Where the body is a pseudo-routine (a serial
+     * clause with labels not evaluated at stack depth 0, see Capture), the
+     * pseudo-routine owns the table of the DO part, not the counter.
+     */
+    final Map<Tag, Routine> tagOwner = new IdentityHashMap<>();
     final Map<Node, Routine> routineOf = new IdentityHashMap<>();
     /**
      * The routine texts of the procedures and brief operators declared in
@@ -1353,9 +1363,19 @@ public final class Gen {
     // Identifier storage (docs/BACKEND.md section 3).
     // ------------------------------------------------------------------
 
+    /**
+     * The routine that holds TAG: the owner of its symbol table, or for a
+     * FOR identifier the routine of its loop clause ({@link #tagOwner});
+     * null for a tag of the standard environment or of an imported module.
+     */
+    Routine owner(Tag t) {
+        Routine r = tagOwner.get(t);
+        return r != null ? r : tableOwner.get(t.symbolTable);
+    }
+
     /** Whether TAG is defined by the standard environment or an imported module. */
     public boolean isIntrinsic(Tag t) {
-        return t.moif != null || tableOwner.get(t.symbolTable) == null;
+        return t.moif != null || owner(t) == null;
     }
 
     /** Declare TAG in the current routine; the value to store is on the stack (JType of tag mode). */
@@ -1369,7 +1389,7 @@ public final class Gen {
 
     /** Store the value on the stack into TAG's storage. */
     public void store(Tag t) {
-        Routine owner = tableOwner.get(t.symbolTable);
+        Routine owner = owner(t);
         Integer fs = owner == null ? null : owner.frameSlots.get(t);
         JType jt = JType.of(a68, t.type);
         if (fs != null) {
@@ -1396,7 +1416,7 @@ public final class Gen {
 
     /** Load TAG's value (JType of tag mode). */
     public void load(Tag t, Node at) {
-        Routine owner = tableOwner.get(t.symbolTable);
+        Routine owner = owner(t);
         Integer fs = owner == null ? null : owner.frameSlots.get(t);
         JType jt = JType.of(a68, t.type);
         if (fs != null) {
@@ -1427,7 +1447,7 @@ public final class Gen {
      */
     ClassDesc ownCell(Tag x) {
         if (x == null || !x.variable || direct.contains(x) || isIntrinsic(x) || Intrinsics.isModuleTag(x)
-                || tableOwner.get(x.symbolTable) == null) {
+                || owner(x) == null) {
             return null;
         }
         Moid m = JType.base(x.type);
@@ -1458,7 +1478,7 @@ public final class Gen {
      * cost 12 bytes of code at each use (docs/TODO-method-size.md).
      */
     void loadOwnCell(Tag x, ClassDesc c, Node at) {
-        Routine owner = tableOwner.get(x.symbolTable);
+        Routine owner = owner(x);
         Integer fs = owner == null ? null : owner.frameSlots.get(x);
         if (fs != null && GenDecls.cellAtEntry(x)) {
             // As load, without the cast to Ref that the cast to C makes redundant.

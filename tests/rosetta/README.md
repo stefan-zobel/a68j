@@ -119,13 +119,11 @@ a format for which ga68 reports the errors in a different order).
 These results, `results.tsv` and `passing.md` were measured before the
 solutions with formats were rewritten. Measured on the 175 rewritten
 solutions alone: ga68 compiles 81 and 76 of them end within the time
-limit; of these, 70 give the same result on the JVM and 3 the same up to
+limit; of these, 71 give the same result on the JVM and 3 the same up to
 rounding, and 23 stop on both sides at a format item that `Genie_Formats`
-does not support yet (pictures, choices, radix). The other three:
-`command-line-arguments` prints the path of the program,
-`y-combinator-2` crashes natively only, and `csv-to-html-translation-1`
-makes the a68j back end fail (a jump out of a routine text to a label in a
-loop body, not related to formats).
+does not support yet (pictures, choices, radix). The other two:
+`command-line-arguments` prints the path of the program, and
+`y-combinator-2` crashes natively only.
 
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol

@@ -197,7 +197,7 @@ final class FrameScope {
         if (t.moif != null) {
             return false;
         }
-        Gen.Routine owner = g.tableOwner.get(t.symbolTable);
+        Gen.Routine owner = g.owner(t);
         return owner != null && owner.frameSlots.containsKey(t);
     }
 

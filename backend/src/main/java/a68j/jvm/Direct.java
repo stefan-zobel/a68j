@@ -38,7 +38,7 @@ final class Direct {
         walk(g, p, candidates, escaped);
         candidates.removeAll(escaped);
         candidates.removeIf(t -> {
-            Gen.Routine owner = g.tableOwner.get(t.symbolTable);
+            Gen.Routine owner = g.owner(t);
             return owner == null || owner.frameSlots.containsKey(t);
         });
         if (System.getenv("A68J_DEBUG_DIRECT") != null) {

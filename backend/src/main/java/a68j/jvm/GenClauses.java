@@ -723,7 +723,7 @@ final class GenClauses {
     static void jump(Gen g, Node p) {
         Node id = Gen.son(p, Attribute.IDENTIFIER);
         a68j.front.Tag t = id.tag;
-        Gen.Routine owner = g.tableOwner.get(t.symbolTable);
+        Gen.Routine owner = g.owner(t);
         ClassDesc cdJump = ClassDesc.of("a68j.rt.Jump");
         g.cb.new_(cdJump);
         g.cb.dup();
