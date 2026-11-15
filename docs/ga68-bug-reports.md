@@ -22,7 +22,9 @@ to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet. Entries 16 to 22 were found while the
 examples of the book were checked; the causes of 16 to
 19 have been examined only as far as their entries say. Entry 23 was
-found in the source; what ga68 does with it has not been measured.
+found in the source; what ga68 does with it has not been measured. Entry
+24 was found while the module `Genie_Formats` was written; its cause has
+not been examined.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -57,6 +59,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
+| 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -850,6 +853,47 @@ and let `a68_phrase_to_text` produce plain quotes.
 a68j used to stop with an uncaught `IllegalArgumentException` for `%*`,
 `%*:=` and `%:=`, and to print `'%>` for `%`. It doubles the `%` of a symbol in `TopDown.phraseToText` and reports the
 error as above (fixed); messages for symbols without `%` are unchanged.
+
+## 24. A variable of a flexible row mode exported by a module: internal compiler error
+
+`rows.a68`:
+
+```
+module Rows =
+def
+   pub mode Vec = flex [1 : 0] int;
+   skip
+fed
+```
+
+`use-rows.a68`:
+
+```
+access Rows
+begin
+   Vec v;
+   v := (1, 2, 3);
+   puts (whole (UPB v, 0) + "'n")
+end
+```
+
+```
+ga68 -fstropping=supper -c rows.a68
+ga68 -fstropping=supper use-rows.a68 rows.o -o use-rows
+```
+
+The second command stops with `internal compiler error: Segmentation
+fault` in `fill_in_buffer` (a68-low-generator.cc:147, called from
+`a68_low_generator`, line 510, and `a68_lower_variable_declaration`,
+a68-low-decls.cc:334). The expected output is `3`. The same happens for
+`ref Vec v = heap Vec` and for a structure exported by a module with a
+field `flex [1 : 0] int` or `flex [1 : 0] proc int`; a field `string`
+works, and so do all these modes when they are declared in the program
+itself. Measured with GCC trunk 17.0.0 20261104; the cause in the
+sources has not been examined.
+
+The module `Genie_Formats` (`backend/lib/genieformats.a68`) avoids
+flexible rows in its exported mode `Gformat` for this reason.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 
