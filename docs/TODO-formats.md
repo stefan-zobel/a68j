@@ -1,8 +1,8 @@
 # TODO: formatted transput (`printf`, `readf`, format texts)
 
 Status: not started. This note records how much formats matter, what ga68
-provides, the options, and a possible roadmap in stages. It is the basis
-for a design to be agreed on before any work starts.
+provides, the options, and the intended roadmap in stages. It is the
+basis for a design to be agreed on before any work starts.
 
 ## Why formats
 
@@ -58,7 +58,8 @@ So far a68j is tested by running every program natively with ga68 and on
 the JVM and comparing the results. ga68 cannot compile a program with
 formats, so this comparison is impossible for them. Measured against
 Algol 68 Genie, the reference would be `a68g` alone, as in the
-measurements for the reading part of `Genie_Transput`.
+measurements for the reading part of `Genie_Transput`. The rewrite tool of
+the roadmap below makes the native comparison possible again.
 
 ## Options
 
@@ -81,9 +82,12 @@ measurements for the reading part of `Genie_Transput`.
      `printf (($g(0)l$, x))` → `print ((whole (x, 0), newline))`).
    - Both ga68 and a68j compile the result, so the native comparison
      stays.
-   - Only static format texts can be rewritten. Formats in variables,
-     dynamic replicators and choice patterns (`b`, `c`) generally cannot,
-     and the rewrite would be a Rosetta tool, not a language feature.
+   - Rewritten into calls of `print` and the conversion procedures, only
+     static format texts can be handled. Formats in variables, dynamic
+     replicators and choice patterns (`b`, `c`) generally cannot.
+   - Rewritten into calls of a format library instead (option 4, with a
+     format as a value of an ordinary mode), nearly every format can be
+     handled; see the roadmap below.
 4. **Formats as a library without compiler support.**
    - `Genie_Transput` gets `printf (string, []Simplout)` that interprets a
      format given as a string at run time, e.g.
@@ -93,14 +97,16 @@ measurements for the reading part of `Genie_Transput`.
      Dynamic replicators that refer to identifiers then need another
      form.
 
-Option 4 together with the simple rewrite of option 3 is the smallest
-step that keeps the native comparison. Option 1 is the complete solution
-for a68j. The choice needs a decision.
+The intended roadmap combines options 4 and 3: a format library in plain
+Algol 68 and a rewrite tool that turns format texts into calls of it.
+Both ga68 and a68j compile the result. Compiler support in a68j
+(option 1) comes last and is optional.
 
-## Scope of a complete implementation (option 1)
+## Scope of a complete implementation
 
 Following the Revised Report, section 10.3.4, and what Algol 68 Genie
-accepts:
+accepts. In the roadmap, `Genie_Formats` and the rewrite tool provide
+this, and the mode `FORMAT` becomes the mode `Format` of the module:
 
 - **Format texts and the mode `FORMAT`:** format texts as units;
   identifiers and variables of mode `FORMAT`; format texts nested with
@@ -140,7 +146,7 @@ The format code of the front end is complete up to three missing pieces:
   with them for format texts.
 
 This code has never run in ga68, so defects in it are likely and must be
-expected while the stages below are tested.
+expected. It matters only for stage 4 of the roadmap.
 
 ## Which features the Rosetta solutions need
 
@@ -172,145 +178,221 @@ recorded, so they make a ready-made test set.
 
 ## Roadmap
 
-The roadmap follows option 1. It keeps the program's transput and the
-format runtime apart, and it puts the new syntax behind a compiler option.
+The intended roadmap puts all the format logic into a library in plain
+Algol 68. A rewrite tool, also written in Algol 68, turns the format texts
+of a program into calls of this library. The rewritten program compiles
+with ga68 and with a68j alike. Compiler support in a68j comes last and is
+optional.
+
+This order puts the parts without risk for the compiler first. Each stage
+is useful on its own, and the native comparison with ga68 stays possible
+for programs with formats.
 
 ### Structure
 
-**The module `Genie_Formats`, for a68j only.**
+**The module `Genie_Formats`.**
 
-- It accesses `Genie_Transput` and provides `printf`, `putf`, `readf` and
-  `getf`. Their row of items is `Outitem` or `Initem` extended with the mode
-  `FORMAT`.
-- `Genie_Transput` stays unchanged. It can still be compiled with ga68, as
-  `docs/genie-transput.md` and the book state; `FORMAT` must not enter its
-  `Outitem`.
-
-**The core, inside the module.**
-
-- The core edits a value according to a picture, or reads one. It also
-  walks a format with its replicators and matches the items with the
-  pictures.
-- It works on a descriptor of ordinary Algol 68 modes: rows of pieces,
-  `proc int` for dynamic replicators and parameters, and `proc` yielding a
-  format for `f(...)`.
-- So the core can be compiled and tested with ga68 natively, with
-  descriptors written by hand.
+- It is written in plain Algol 68 without Java, like `Genie_Transput`, so
+  it compiles with ga68 as an ordinary module. It accesses `Genie_Transput`
+  and is bundled with a68j.
+- It provides the mode `Format`. A `Format` is a descriptor made of
+  ordinary modes:
+  - rows of pieces;
+  - `proc int` for dynamic replicators and for the parameters of `g`;
+  - `proc Format` for the format pattern `f(...)`.
+- It provides constructors for these descriptors.
+- It provides `printf`, `putf`, `readf` and `getf`. Their row of items is
+  `Outitem` or `Initem` of `Genie_Transput` extended with `Format`.
+- It edits a value according to a picture, or reads one. It walks a format
+  with its replicators and matches the items with the pictures.
 - The general pattern `g` maps to the prelude's `whole`, `fixed` and
   `float`. `g(w, d)` therefore gives the same result as `fixed (x, w, d)`.
 - The editing of pictures follows the Revised Report, sections 10.3.4
   and 10.3.5, which define it in Algol 68.
+- `Genie_Transput` stays unchanged.
 
-**The compiler part.**
+**The rewrite tool, a program in Algol 68.**
 
-- The front end recognizes `$`, `format` and the prelude modes only with
-  the option `-fformats`.
-- The back end lowers a format text into a descriptor that is built once,
-  plus closures for its dynamic parts.
-- Other needs:
-  - `FORMAT` in `JType` and in unions;
-  - a mode code for `FORMAT` in the module interfaces, since the ga68
-    export format has none;
-  - a rule for format texts in `FrameScope` (`-Wframe-scope`).
-- `-Wscope` needs no change, because `Scope` already handles format texts.
+- It reads a program and copies it to its output, character by character.
+  It recognizes comments, string denotations and bold words.
+- It replaces three things:
+  - each format text by an expression that builds a `Format` with the
+    constructors of `Genie_Formats`;
+  - the mode `FORMAT` by `Format`;
+  - `access Genie_Transput` by `access Genie_Formats`, or it adds the
+    access.
+- `printf` and the other procedures keep their names.
+- The tool does not need to understand the units inside a format, as in
+  `n(k + 1)` or `g(w, d)`. It finds the matching closing parenthesis,
+  skipping strings and comments, and turns the unit into a routine text,
+  such as `(int: k + 1)`.
+- A nested format text inside `f(...)` is rewritten recursively.
+- The tool needs no mode information. Whether an item of `printf` is a
+  format or a value is decided by the compiler, through the modes of the
+  item union.
+- It runs on a68j, ga68 and Algol 68 Genie, and it is itself a test
+  program for a68j.
+- The pre-processor on the Rosetta Code page about a68j
+  (<https://rosettacode.org/wiki/A68j>, section "A pre-processor") has the
+  same structure. It leaves formatted transput out.
+- The Python tools of the repository (`rosetta_prep.py`, the test runners)
+  call it through a68j instead of a second implementation in Python. Two
+  rewriters for the same task would have to be kept equal.
+
+An example of the rewrite. The constructor names are not decided yet.
+
+```
+format f = $n(k) d, " items" l$;
+printf ((f, x))
+```
+
+becomes
+
+```
+Format f = fmt ((fmt_rep ((int: k), fmt_d), fmt_lit (" items"), fmt_l));
+printf ((f, x))
+```
 
 ### Stages
 
-0. **The core alone (optional as a stage of its own).**
-   - The core as an ordinary module, tested against ga68.
-   - Without compiler support, a user could only reach it through a
-     replacement notation, such as `edit ("zzd.dd", x)`. Programs with
-     `$...$` still do not compile.
-   - So this stage is a foundation rather than a feature. It is only worth
-     releasing on its own together with a source rewrite (option 3) that
-     keeps the native comparison with ga68 for static formats.
-1. **Compiler part and output of stage 1 above.**
-   - All the compiler risk is in this stage. The runtime is small, because
-     `g` uses the existing conversion procedures.
-   - This stage covers about 60 % of the Rosetta solutions with formats.
-2. **Pictures, choice patterns, radix.** This is library work in Algol 68
-   only, without compiler changes. It covers about 92 % of the solutions,
-   and nearly all format examples of the book become testable.
-3. **Formatted input (`readf`, `getf`).** It is rarely needed and is again
-   library work only. It completes the set, including the book example
-   `ch09/readf`.
+The feature stages are those of the table above. Each of stages 1 to 3
+extends both the module and the rewrite tool.
+
+1. **`Genie_Formats` and the rewrite tool, output with insertions,
+   replicators, `g` and `f(...)`.**
+   - This stage covers about 60 % of the Rosetta solutions with formats
+     (105 of 178), with ga68 as well.
+   - The runtime is small, because `g` uses the existing conversion
+     procedures.
+   - The first step is a small program that checks whether ga68 can
+     compile the item union of `printf`, which contains a struct with
+     procedures. ga68 has failed on large unions before (see the note on
+     `[,] char` in `genietransput.a68`).
+2. **Pictures, choice patterns, radix.**
+   - This stage covers about 92 % of the solutions (164 of 178), and
+     nearly all format examples of the book become testable.
+3. **Formatted input (`readf`, `getf`).**
+   - Input is rarely needed. This stage completes the set (178 of 178),
+     including the book example `ch09/readf`.
+4. **Compiler support in a68j, behind the option `-fformats` (optional).**
+   - With it, a68j compiles programs with format texts directly, without
+     running the rewrite tool first. ga68 does not compile such programs,
+     so this stage adds convenience, not reach.
+   - It starts only once stages 1 to 3 have proved themselves. It reuses
+     the descriptor of `Genie_Formats`.
+
+### Stage 4 in detail
+
+**The front end.** It recognizes `$`, `format` and the prelude modes only
+with `-fformats` (see "What is missing in the a68j front end").
+
+**How a format text becomes a `Format` is an open design question.** The
+prelude mode `FORMAT` of the front end is not the mode `Format` of the
+module. There are two candidates:
+
+- **Lowering in the back end.**
+  - The back end lowers a format text into the same descriptor that the
+    rewrite tool produces: a part that is built once, plus closures for the
+    dynamic parts.
+  - It needs `FORMAT` in `JType` and in unions, a way to make `FORMAT` and
+    `Format` agree, a mode code for `FORMAT` in the module interfaces (the
+    ga68 export format has none), and a rule for format texts in
+    `FrameScope` (`-Wframe-scope`).
+  - The dynamic parts are elaborated later, in the environment of the
+    format text, so they are closures. They must pass through every
+    pre-pass: `Capture`, `Direct`, `Hoist`, `Cut`, `Outline` and
+    `FrameScope`. Mitigation: lower each of them as an ordinary routine
+    text, which the existing, well-tested handling of routine texts then
+    covers.
+  - `-Wscope` needs no change, because `Scope` already handles format
+    texts.
+- **Rewriting before the scanner.**
+  - With `-fformats`, a68j applies the rewrite of the tool to the source
+    before scanning and accesses `Genie_Formats` implicitly.
+  - The back end does not change at all.
+  - The rewrite must keep the lines of the source, so that diagnostics
+    point to the right line. Diagnostics name the mode `Format`, not
+    `FORMAT`.
 
 ### Risks
 
-**The back end (stage 1).**
+**The library and the tool (stages 1 to 3).**
 
-- The dynamic parts of a format text (`n(...)`, `g(...)`, `f(...)`) are
-  elaborated later, in the environment of the format text, so they are
-  closures.
-- They must pass through every pre-pass: `Capture`, `Direct`, `Hoist`,
-  `Cut`, `Outline` and `FrameScope`.
-- Mitigation: lower each dynamic part as an ordinary routine text, so that
-  `n(k)` becomes the equivalent of `(int: k)`. The existing, well-tested
-  handling of routine texts then applies.
+- They are ordinary Algol 68 programs and change neither the compiler nor
+  existing programs.
+- The risk is in ga68: it may fail on the item union (see stage 1).
 
-**The front end.**
-
-- The format code is untested, as described above.
-- Recognizing `$` departs from the 1:1 port, and the diagnostics for
-  programs with `$` then differ from ga68's.
-- In SUPPER stropping, `format` becomes a reserved word. No test, Rosetta
-  solution or book example uses it as an identifier.
-
-**The option `-fformats` contains the risk.**
+**The option `-fformats` contains the risk of stage 4.**
 
 - Without the option, a68j does not recognize `$`. Existing programs are
   compiled exactly as before, and the front end stays identical to ga68,
   diagnostics included.
 - Only programs compiled with the option can be affected by defects of the
   new code.
-- The option can become the default once formats have proved themselves.
+- Recognizing `$` departs from the 1:1 port, and the format code of the
+  front end has never run in ga68.
+- In SUPPER stropping, `format` becomes a reserved word. No test, Rosetta
+  solution or book example uses it as an identifier.
 
 **Semantics.**
 
-- Where the Revised Report and Algol 68 Genie differ, a68j follows Algol 68
-  Genie, because the programs to run (Rosetta Code, the book) are written
-  for it.
+- Where the Revised Report and Algol 68 Genie differ, `Genie_Formats`
+  follows Algol 68 Genie, because the programs to run (Rosetta Code, the
+  book) are written for it.
 - An example is a format that is not used up when the items end. In the
   Report, the rest waits for the next `putf` on the same file; Algol 68
   Genie stops the program instead.
 
-**The reference.**
+**Lifetimes.** A rewritten format with a routine text such as `(int: k)`
+must not outlive the block of `k`. The same holds for the original format
+text by the lifetime rule of the Report.
 
-- The only reference is Algol 68 Genie.
-- Pictures (`d`, `z`, ...) give output that does not depend on the
-  implementation, so it compares directly.
-- `g` without parameters differs in the widths and digits, because of the
-  32-bit `int` and `real` of a68j, as `print` already does.
+**Stropping.**
+
+- The tool works first on UPPER stropping, the notation of the Rosetta
+  Code solutions and of Algol 68 Genie. a68j compiles the result with
+  `-fstropping=upper`, and `rosetta_prep.py` converts it to SUPPER.
+- SUPPER can follow.
 
 ### Run-time performance
 
 - A constant format is built once.
 - Each item costs a union dispatch and the editing of its picture. The
-  editing costs about what `whole`, `fixed` and `float` cost, and the output
-  itself through `emit` dominates.
+  editing costs about what `whole`, `fixed` and `float` cost, and the
+  output itself through `emit` dominates.
 - So formatted output is expected to run at about the speed of `print`.
 - Programs without formats pay nothing.
-- A later optimization could compile a constant format with items of
-  statically known modes directly into calls, without the interpreter.
+- A later optimization in stage 4 could compile a constant format with
+  items of statically known modes directly into calls, without the
+  interpreter.
 
 ### ga68
 
-- Programs with format texts compile with ga68 in none of the stages, until
-  ga68 itself provides formats. The transput of libga68 is being rewritten
-  in Algol 68 (`libga68/transput.a68.in`), and formats have not been part
-  of that discussion so far.
-- The core, being plain Algol 68, also compiles with ga68.
-- If ga68 adds formats later, a68j should follow its representation. The
-  compiler part should therefore stay small, with the logic in the module.
+- Rewritten programs compile with ga68, as do `Genie_Formats` and the
+  tool. So the native comparison with ga68 works for programs with
+  formats too.
+- Programs with format texts themselves compile with ga68 only when ga68
+  provides formats. The transput of libga68 is being rewritten in Algol 68
+  (`libga68/transput.a68.in`), and formats have not been part of that
+  discussion so far.
+- If ga68 adds formats later, stage 4 should follow its representation.
+  This is one more reason to keep the logic in the module.
 
 ### Tests
 
-- A test directory, run like `tests/partial`, with outputs recorded with
-  Algol 68 Genie:
-  - the 11 book examples;
+- **`Genie_Formats`:** a test directory with outputs recorded with Algol
+  68 Genie, run natively with ga68 and on the JVM. It contains:
+  - the 11 book examples, after the rewrite;
   - small programs for each feature, including the dynamic parts and
-    formats stored in variables;
-  - format texts in loops, for `-Wframe-scope`.
-- The Rosetta solutions that use formats, run against Algol 68 Genie.
-- With and without `-fformats`, all existing test suites must stay
-  unchanged.
+    formats stored in variables.
+- **The rewrite tool:** pairs of input and expected output, and a check
+  that every rewritten program compiles with ga68 and a68j.
+- **Rosetta Code:** the solutions that use formats, rewritten and compared
+  natively with ga68 like the others. The output is also checked against
+  Algol 68 Genie.
+  - Pictures (`d`, `z`, ...) give output that does not depend on the
+    implementation.
+  - `g` without parameters differs in the widths and digits, because of the
+    32-bit `int` and `real` of ga68 and a68j, as `print` already does.
+- **Stage 4:** format texts in loops, for `-Wframe-scope`. With and without
+  `-fformats`, all existing test suites must stay unchanged.
