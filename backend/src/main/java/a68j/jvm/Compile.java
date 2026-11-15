@@ -28,7 +28,11 @@ import java.util.List;
  *
  * <p>Options as ga68: -fstropping=upper|supper, -std=algol68|gnu68,
  * -fbrackets, -I DIR, -L DIR, -fmodules-map=..., -fmodules-map-file=FILE,
- * --version.
+ * -fassert|-fno-assert (whether assertions are elaborated, by default yes),
+ * the warnings -Wscope, -Wvoiding, -Wextensions, -Wunused, -Wuninitialized,
+ * -Whidden-declarations[=none|prelude|all] with their -Wno- forms, -Wall
+ * and -Wextra (see WarningOptions), --version. Any other argument that
+ * begins with '-' is an error.
  * a68j only: -run (compile and run, the rest of the arguments go to the
  * program), -fclass=NAME, -d DIR|JAR, -fpar-threads (the units of a
  * parallel clause run in threads and the SEMA operators are available, see
@@ -153,6 +157,8 @@ public final class Compile {
         String className = null;
         List<String> progArgs = new ArrayList<>();
         List<String> javaClassPath = new ArrayList<>();
+        List<String> warningOptions = new ArrayList<>();
+        List<String> badOptions = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
             if (file != null && run) {
                 progArgs.add(args[i]);
@@ -165,6 +171,8 @@ public final class Compile {
                 case "-std=algol68" -> a68.options().strict = true;
                 case "-std=gnu68" -> a68.options().strict = false;
                 case "-fbrackets" -> a68.options().brackets = true;
+                case "-fassert" -> a68.options().assertions = true;
+                case "-fno-assert" -> a68.options().assertions = false;
                 case "-fpar-threads" -> a68.options().parThreads = true;
                 case "-fno-par-threads" -> a68.options().parThreads = false;
                 case "-fnest-java" -> a68.options().nestJava = true;
@@ -208,11 +216,27 @@ public final class Compile {
                         a68.includePaths.add(arg.substring(2));
                     } else if (arg.startsWith("-L")) {
                         libDirs.add(arg.substring(2));
+                    } else if (arg.startsWith("-W")) {
+                        String error = a68j.front.WarningOptions.check(arg);
+                        if (error != null) {
+                            badOptions.add(error);
+                        } else {
+                            warningOptions.add(arg);
+                        }
+                    } else if (arg.startsWith("-") && arg.length() > 1) {
+                        badOptions.add("unrecognized command-line option '" + arg + "'");
                     } else {
                         file = arg;
                     }
                 }
             }
+        }
+        a68j.front.WarningOptions.apply(a68.options(), warningOptions);
+        if (!badOptions.isEmpty()) {
+            for (String m : badOptions) {
+                System.err.println("a68j: error: " + m);
+            }
+            System.exit(1);
         }
         a68.importPaths.addAll(a68.includePaths);
         a68.importPaths.addAll(libDirs);

@@ -1,0 +1,2 @@
+tests/options/assert-on.a68:5: runtime error: ASSERT failure
+exit 134

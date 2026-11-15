@@ -1,0 +1,21 @@
+{ a68j-options: -Wno-voiding -Wextra -Wscope -Wunused -Whidden-declarations=all }
+{ Triggers every optional warning of ga68; the options decide which are given. }
+begin
+   int i := 1;
+   { -Whidden-declarations=prelude (and -Wall): hides pi of the prelude }
+   real pi = 3.0;
+   { -Whidden-declarations=all: hides the i above }
+   (int i = 2; puts (whole (i, 0) + "'n"));
+   { -Wextensions (and -Wextra): partial parametrization }
+   proc add = (int a, b) int: a + b;
+   proc (int) int add1 = add (1, );
+   { -Wvoiding (and -Wextra): the value of the formula is voided }
+   i + 1;
+   { -Wuninitialized (and -Wextra): n is used in its own declaration }
+   proc never = int: (int n = n + 1; n);
+   { -Wunused: unused is never used }
+   int unused = 0;
+   { -Wscope: the routine text uses k after adder has returned }
+   proc adder = (int k) proc (int) int: (int x) int: x + k;
+   puts (whole (add1 (i), 0) + " " + whole (adder (3) (4), 0) + " " + fixed (pi, 0, 1) + "'n")
+end

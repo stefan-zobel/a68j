@@ -22,7 +22,8 @@ import java.nio.charset.StandardCharsets;
  * The format is identical to ga68 with tools/ga68-token-dump.patch applied and
  * A68J_DUMP_SYNTAX set. Diagnostics go to stderr in GCC's plain format.
  *
- * <p>Usage: {@code SyntaxDump [-fstropping=upper|supper] [-std=algol68|gnu68] [-fbrackets] [-Idir] [-Ldir] file.a68}
+ * <p>Usage: {@code SyntaxDump [-semantic] [-fstropping=upper|supper] [-std=algol68|gnu68] [-fbrackets] [-Idir] [-Ldir] [-W...] file.a68},
+ * with the -W options of ga68 ({@link a68j.front.WarningOptions}).
  */
 public final class SyntaxDump {
 
@@ -31,11 +32,11 @@ public final class SyntaxDump {
         String file = null;
         java.util.List<String> libDirs = new java.util.ArrayList<>();
         boolean semantic = false;
+        java.util.List<String> warningOptions = new java.util.ArrayList<>();
         for (String arg : args) {
-            if (arg.startsWith("-W") && warningOption(a68, arg)) {
-                continue;
-            }
-            if (arg.equals("-semantic")) {
+            if (arg.startsWith("-W")) {
+                warningOptions.add(arg);
+            } else if (arg.equals("-semantic")) {
                 semantic = true;
             } else if (arg.equals("-fstropping=upper")) {
                 a68.options().stropping = Stropping.UPPER;
@@ -56,6 +57,11 @@ public final class SyntaxDump {
             } else {
                 file = arg;
             }
+        }
+        String warningError = a68j.front.WarningOptions.apply(a68.options(), warningOptions);
+        if (warningError != null) {
+            System.err.println("a68j: error: " + warningError);
+            System.exit(1);
         }
         // The gcc spec passes %{I*} %{L*} to a681: all -I directories, then all -L.
         a68.importPaths.addAll(a68.includePaths);
@@ -127,34 +133,6 @@ public final class SyntaxDump {
             f.print('\n');
             dump(f, p.sub, depth + 1);
         }
-    }
-
-    /** The -W options of ga68 that the front end knows; returns false if ARG is not one of them. */
-    static boolean warningOption(A68 a68, String arg) {
-        var w = a68.options().warnings;
-        switch (arg) {
-            case "-Wvoiding" -> w.add(a68j.front.Warn.VOIDING);
-            case "-Wextensions" -> w.add(a68j.front.Warn.EXTENSIONS);
-            case "-Wscope" -> w.add(a68j.front.Warn.SCOPE);
-            case "-Wuninitialized" -> w.add(a68j.front.Warn.UNINITIALIZED);
-            case "-Wunused" -> w.add(a68j.front.Warn.UNUSED);
-            case "-Whidden-declarations", "-Whidden-declarations=prelude" -> {
-                w.add(a68j.front.Warn.HIDDEN_DECLARATIONS);
-                a68.options().hiddenDeclarations = 1;
-            }
-            case "-Whidden-declarations=all" -> {
-                w.add(a68j.front.Warn.HIDDEN_DECLARATIONS);
-                a68.options().hiddenDeclarations = 2;
-            }
-            case "-Whidden-declarations=none" -> {
-                w.remove(a68j.front.Warn.HIDDEN_DECLARATIONS);
-                a68.options().hiddenDeclarations = 0;
-            }
-            default -> {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static void moidRef(StringBuilder f, String what, a68j.front.Moid m) {

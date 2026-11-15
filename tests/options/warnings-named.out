@@ -1,0 +1,12 @@
+tests/options/warnings-named.a68:6:9: warning: 'pi' hides a declaration with larger reach [-Whidden-declarations=]
+a68j: note: real 'pi' defined in the standard prelude
+tests/options/warnings-named.a68:8:9: warning: 'i' hides a declaration with larger reach [-Whidden-declarations=]
+tests/options/warnings-named.a68:4:8: note: previous hidden declaration of 'i' declared here
+tests/options/warnings-named.a68:11:30: warning: generic argument is an extension [-Wextensions]
+tests/options/warnings-named.a68:15:9: warning: tag 'never' is not used [-Wunused]
+tests/options/warnings-named.a68:17:8: warning: tag 'unused' is not used [-Wunused]
+tests/options/warnings-named.a68:15:31: warning: identifier n might be used uninitialised [-Wuninitialized]
+tests/options/warnings-named.a68:19:41: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+2
+2 7 3.0
+exit 0

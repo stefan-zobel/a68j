@@ -1,0 +1,6 @@
+tests/options/warnings-group-off.a68:15:9: warning: tag 'never' is not used [-Wunused]
+tests/options/warnings-group-off.a68:17:8: warning: tag 'unused' is not used [-Wunused]
+tests/options/warnings-group-off.a68:19:41: warning: proc (int) int routine text is a potential scope violation [-Wscope]
+2
+2 7 3.0
+exit 0

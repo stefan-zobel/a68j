@@ -1,0 +1,8 @@
+{ a68j-options: -fno-assert -fassert }
+{ With -fno-assert the enclosed clause of an assertion is not elaborated. }
+begin
+   int count := 0;
+   assert ((count +:= 1; false));
+   to 3 do assert ((int i := 1; proc p = int: i; p = 2)) od;
+   puts ("count " + whole (count, 0) + "'n")
+end

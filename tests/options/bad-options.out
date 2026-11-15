@@ -1,0 +1,6 @@
+a68j: error: unrecognized command-line option '-Wfoo'
+a68j: error: unrecognized command-line option '-fcheck=nil'
+a68j: error: argument 'most' to '-Whidden-declaration' not recognized
+a68j: error: unrecognized command-line option '-Wno-hidden-declarations=all'
+a68j: error: unrecognized command-line option '-x'
+exit 1

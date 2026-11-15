@@ -742,8 +742,14 @@ final class GenClauses {
         g.adjust(u.type, p.type, p);
     }
 
-    /** ASSERT (enclosed clause). */
+    /**
+     * ASSERT (enclosed clause). With -fno-assert nothing is generated, and
+     * the enclosed clause is not elaborated (a68_lower_assertion).
+     */
     static void assertion(Gen g, Node p) {
+        if (!g.a68.options().assertions) {
+            return;
+        }
         Node e = p.sub.next;
         Label ok = g.cb.newLabel();
         g.unit(e);

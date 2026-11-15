@@ -1,0 +1,5 @@
+{ a68j-options: -Wfoo -fcheck=nil -Whidden-declarations=most -Wno-hidden-declarations=all -x }
+{ Options that a68j does not know are errors; nothing is compiled. }
+begin
+   puts ("not run'n")
+end
