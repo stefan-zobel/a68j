@@ -507,7 +507,7 @@ public final class Imports {
 
     /**
      * Prefix of the entries of a library jar that hold export data, one per
-     * compiled module packet (see {@link #tryLibraryJar}).
+     * compiled module packet (see {@link #readLibraryJar}).
      */
     public static final String LIBRARY_JAR_EXPORTS = "a68j/exports/";
 

@@ -94,7 +94,7 @@ public final class PosixRegex {
     }
 
     /**
-     * The first match of PATTERN in S: (start << 32) | end, in characters
+     * The first match of PATTERN in S: {@code (start << 32) | end}, in characters
      * from the start of S, with the end exclusive; NO_MATCH, or INVALID if
      * the pattern is invalid. With NOT_BOL "^" does not match at the start
      * of S (REG_NOTBOL, grep in substring): the matcher works on a region

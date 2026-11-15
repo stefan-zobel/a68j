@@ -601,7 +601,7 @@ public final class Posix {
         fputs(1, s);
     }
 
-    /** fgets: NCHARS characters (or up to EOF), or a line including its newline if NCHARS <= 0. */
+    /** fgets: NCHARS characters (or up to EOF), or a line including its newline if {@code NCHARS <= 0}. */
     public static Ref fgets(int fd, int nchars) {
         StringBuilder sb = new StringBuilder();
         if (nchars > 0) {

@@ -44,7 +44,7 @@ public final class A68 {
     public final List<String> importPaths = new ArrayList<>();
     /**
      * a68j (JVM): the library jars (libX.jar) whose export data was read
-     * (Imports#tryLibraryJar); a program accessing their modules needs them
+     * ({@link Imports#readLibraryJar}); a program accessing their modules needs them
      * on the class path.
      */
     public final List<String> libraryJars = new ArrayList<>();
