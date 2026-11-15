@@ -264,10 +264,11 @@ extends both the module and the rewrite tool.
      (105 of 178), with ga68 as well.
    - The runtime is small, because `g` uses the existing conversion
      procedures.
-   - The first step is a small program that checks whether ga68 can
-     compile the item union of `printf`, which contains a struct with
-     procedures. ga68 has failed on large unions before (see the note on
-     `[,] char` in `genietransput.a68`).
+   - Checked in advance: ga68 compiles the item union of `printf` and
+     the procedures inside `Format`. A probe module had all of
+     `Outitem` plus `Format`, `proc int` and `proc Format` inside the
+     struct, routine texts such as `(int: k)`, and these modes exported.
+     It gives the same output with ga68 and a68j.
 2. **Pictures, choice patterns, radix.**
    - This stage covers about 92 % of the solutions (164 of 178), and
      nearly all format examples of the book become testable.
@@ -320,7 +321,7 @@ module. There are two candidates:
 
 - They are ordinary Algol 68 programs and change neither the compiler nor
   existing programs.
-- The risk is in ga68: it may fail on the item union (see stage 1).
+- ga68 compiles the item union (see stage 1).
 
 **The option `-fformats` contains the risk of stage 4.**
 
