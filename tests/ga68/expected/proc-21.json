@@ -1,5 +1,5 @@
 {
- "cerr": "/usr/bin/ld: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "cerr": "/usr/bin/x86_64-linux-gnu-ld.bfd: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
  "compile": 0,
  "exit": 0,
  "file": "proc-21.a68",
