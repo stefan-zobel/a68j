@@ -84,9 +84,11 @@
   Not provided: formats ($...$, printf), create, the events
   other than logical file end and value error, reading rows, binary
   transput, and the channels other than the three above.
-  [,] char is not among the printable modes: a union with both string and
-  [,] char makes ga68 crash in a conformity clause (internal compiler
-  error in verify_gimple).
+  [,] char is not among the printable modes: in a union with both string
+  (or [] char) and [,] char, ga68 crashes when a string yielded by a call
+  is united into it (internal compiler error in verify_gimple), and takes
+  the result of + on strings for the [,] char component
+  (docs/ga68-bug-reports.md, entry 12).
 
   The Rosetta Code tests (tests/rosetta) run every program inside an
   access clause of this module. }

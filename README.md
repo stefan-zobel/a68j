@@ -62,14 +62,14 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 51 of 51 |
-| Rosetta Code programs that ga68 runs | 680 identical (627 of them end normally), 5 equal up to floating-point rounding, 10 open, of 695 |
+| a68j's own differential tests (`tests/extra`) | 52 of 52 |
+| Rosetta Code programs that ga68 runs | 680 identical (627 of them end normally), 5 equal up to floating-point rounding, 11 open, of 696 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
-| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 21 of 21, JDK 25 and JDK 28 |
-| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 57 of 57 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (4 deliberate differences from Algol 68 Genie excepted) |
+| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 23 of 23, JDK 25 and JDK 28 |
+| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 58 of 58 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (4 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
@@ -177,7 +177,7 @@ Common options (as in ga68 where ga68 has them):
 | `--version` | the version of a68j |
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
-| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
+| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 | `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
 ### Modules
