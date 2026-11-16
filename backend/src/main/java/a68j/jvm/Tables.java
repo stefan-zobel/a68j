@@ -253,7 +253,17 @@ final class Tables {
                 return GenUnits.denotationValue(g, s);
             }
             case WIDENING -> {
-                return widened(constant(g, s.sub), JType.of(g.a68, s.sub.type), JType.of(g.a68, s.type));
+                Object exact = widenedDenotation(g, s);
+                if (exact != null) {
+                    return exact;
+                }
+                Object v = constant(g, s.sub);
+                if (v instanceof Integer i && s.sub.type == g.a68.modes.BITS
+                        && JType.of(g.a68, s.type) == JType.LONG) {
+                    // -fgenie: BITS to LONG BITS, without sign extension.
+                    return Integer.toUnsignedLong(i);
+                }
+                return widened(v, JType.of(g.a68, s.sub.type), JType.of(g.a68, s.type));
             }
             case MONADIC_FORMULA -> {
                 return monadic(g, s);
@@ -269,7 +279,13 @@ final class Tables {
         if (v == null) {
             return null;
         }
-        if (f == JType.INT && t == JType.FLOAT) {
+        if (f == t && f.isPrimitive()) {
+            // -fgenie: LONG INT to LONG LONG INT and the like.
+            return v;
+        } else if (f == JType.INT && t == JType.LONG) {
+            // -fgenie: INT to LONG INT.
+            return (long) (Integer) v;
+        } else if (f == JType.INT && t == JType.FLOAT) {
             return (float) (Integer) v;
         } else if (f == JType.INT && t == JType.DOUBLE) {
             return (double) (Integer) v;
@@ -281,6 +297,97 @@ final class Tables {
             return (double) (Float) v;
         }
         return null;
+    }
+
+    /**
+     * -fgenie: the value of the widening P to a LONG or DOUBLE representation
+     * if its operand is an INT, BITS or REAL denotation, or the standard
+     * monadic - or + applied to one, through further widenings: the value is
+     * taken from the text of the denotation at the wider length, as Algol 68
+     * Genie gives it (its INT and REAL have 64 bits). So `LONG INT n :=
+     * 3000000000` does not wrap at 32 bits and `LONG REAL r := 0.1` is the
+     * double nearest to 0.1, not a float widened. Null otherwise. Without
+     * -fgenie no widening leads from such a denotation to a wider
+     * representation, so the code is the same as before.
+     */
+    static Object widenedDenotation(Gen g, Node p) {
+        if (!g.a68.options().genie) {
+            return null;
+        }
+        JType t = JType.of(g.a68, p.type);
+        if (t != JType.LONG && t != JType.DOUBLE) {
+            return null;
+        }
+        Node s = skipWidenings(p.sub);
+        boolean negate = false;
+        if (s.attribute == Attribute.MONADIC_FORMULA) {
+            Node op = s.sub;
+            if (op.tag == null || !g.isIntrinsic(op.tag) || Intrinsics.isModuleTag(op.tag)) {
+                return null;
+            }
+            String n = Intrinsics.name(op.tag);
+            if (!n.equals("-") && !n.equals("+")) {
+                return null;
+            }
+            negate = n.equals("-");
+            s = skipWidenings(op.next);
+        }
+        if (s.attribute != Attribute.DENOTATION && s.attribute != Attribute.INT_DENOTATION
+                && s.attribute != Attribute.REAL_DENOTATION && s.attribute != Attribute.BITS_DENOTATION) {
+            return null;
+        }
+        Node d = s;
+        if (s.attribute == Attribute.DENOTATION) {
+            d = s.sub;
+            while (d.next != null) {
+                d = d.next;
+            }
+        }
+        Moid dm = s.type != null ? s.type : d.type;
+        JType f = JType.of(g.a68, dm);
+        if (f != JType.INT && f != JType.FLOAT) {
+            return null;
+        }
+        String x = d.info.symbol.replace(" ", "");
+        switch (d.attribute) {
+            case INT_DENOTATION -> {
+                long v = Long.parseUnsignedLong(x);
+                if (negate) {
+                    v = -v;
+                }
+                return t == JType.LONG ? (Object) v : (Object) (double) v;
+            }
+            case BITS_DENOTATION -> {
+                if (negate || t != JType.LONG) {
+                    return null;
+                }
+                int r = x.toLowerCase().indexOf('r');
+                return Long.parseUnsignedLong(x.substring(r + 1), Integer.parseInt(x.substring(0, r)));
+            }
+            case REAL_DENOTATION -> {
+                if (t != JType.DOUBLE) {
+                    return null;
+                }
+                x = x.replace('\\', 'e').replace('E', 'e');
+                if (x.startsWith(".")) {
+                    x = "0" + x;
+                }
+                double v = Double.parseDouble(x);
+                return negate ? -v : v;
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
+
+    /** P without the wrappers and widenings above it (single sons only). */
+    private static Node skipWidenings(Node p) {
+        Node s = p;
+        while (s.sub != null && s.sub.next == null && (isWrapper(s) || s.attribute == Attribute.WIDENING)) {
+            s = s.sub;
+        }
+        return s;
     }
 
     /** The monadic formula P (GenUnits#monadicFormula) as a constant, or null. */

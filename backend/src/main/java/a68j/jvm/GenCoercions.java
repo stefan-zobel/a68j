@@ -9,7 +9,9 @@ import a68j.front.Attribute;
 import a68j.front.Moid;
 import a68j.front.Node;
 
+import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDesc;
 import java.lang.constant.MethodTypeDesc;
 
 /** Coercions inserted by the coercion inserter (stage 2). */
@@ -166,10 +168,53 @@ final class GenCoercions {
     /** WIDENING: INT -> REAL, REAL -> COMPL, BITS -> [] BOOL etc. (a68_lower_widening). */
     static void widening(Gen g, Node p) {
         Node s = p.sub;
+        Object exact = Tables.widenedDenotation(g, p);
+        if (exact != null) {
+            Gen.constant(g.cb, (ConstantDesc) exact);
+            return;
+        }
         g.unit(s);
         JType f = JType.of(g.a68, s.type);
         JType t = JType.of(g.a68, p.type);
         var md = g.a68.modes;
+        if (s.type == md.BITS && (p.type == md.LONG_BITS || p.type == md.LONG_LONG_BITS)) {
+            // -fgenie: BITS to LONG BITS, without sign extension.
+            g.cb.invokestatic(CD_Integer, "toUnsignedLong", MethodTypeDesc.of(CD_long, CD_int));
+            return;
+        }
+        if (t == f && t != JType.STRUCT && t != JType.ROW) {
+            // -fgenie: LONG INT to LONG LONG INT and the like, the same representation.
+            return;
+        }
+        if (t == JType.STRUCT && f == JType.STRUCT) {
+            // -fgenie: COMPL to LONG COMPL, both parts from float to double
+            // (LONG COMPL to LONG LONG COMPL keeps the representation).
+            Moid fr = s.type == md.COMPLEX ? md.REAL : md.LONG_REAL;
+            Moid tr = p.type == md.LONG_COMPLEX ? md.LONG_REAL : md.LONG_LONG_REAL;
+            if (JType.of(g.a68, fr) == JType.of(g.a68, tr)) {
+                return;
+            }
+            int v = g.cb.allocateLocal(TypeKind.REFERENCE);
+            g.cb.astore(v);
+            g.cb.new_(Gen.CD_STRUCT);
+            g.cb.dup();
+            g.cb.iconst_2();
+            g.cb.anewarray(CD_Object);
+            for (int i = 0; i < 2; i++) {
+                g.cb.dup();
+                Gen.constant(g.cb, i);
+                g.cb.aload(v);
+                g.cb.getfield(Gen.CD_STRUCT, "f", Gen.CD_OBJECTS);
+                Gen.constant(g.cb, i);
+                g.cb.aaload();
+                g.unbox(fr);
+                g.cb.f2d();
+                g.box(tr);
+                g.cb.aastore();
+            }
+            g.cb.invokespecial(Gen.CD_STRUCT, "<init>", MethodTypeDesc.of(CD_void, Gen.CD_OBJECTS));
+            return;
+        }
         if (t == JType.ROW) {
             Moid b = JType.base(s.type);
             int width = b == md.SHORT_SHORT_BITS ? 8 : b == md.SHORT_BITS ? 16 : f == JType.LONG ? 64 : 32;
@@ -201,6 +246,9 @@ final class GenCoercions {
             g.box(s.type);
             g.cb.aastore();
             g.cb.invokespecial(Gen.CD_STRUCT, "<init>", MethodTypeDesc.of(CD_void, Gen.CD_OBJECTS));
+        } else if (f == JType.INT && t == JType.LONG) {
+            // -fgenie: INT to LONG INT.
+            g.cb.i2l();
         } else if (f == JType.INT && t == JType.FLOAT) {
             g.cb.i2f();
         } else if (f == JType.INT && t == JType.DOUBLE) {

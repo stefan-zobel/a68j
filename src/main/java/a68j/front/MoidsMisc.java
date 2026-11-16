@@ -728,6 +728,14 @@ public final class MoidsMisc {
      */
     public static Moid widensTo(A68 a68, Moid p, Moid q) {
         Modes m = a68.modes;
+        // a68j: with -fgenie, the widenings of Algol 68 Genie between lengths
+        // come first (genieWidensTo).
+        if (a68.options().genie) {
+            Moid z = genieWidensTo(a68, p, q);
+            if (z != null) {
+                return z;
+            }
+        }
         if (p == m.INT) {
             if (q == m.REAL || q == m.COMPLEX) {
                 return m.REAL;
@@ -838,6 +846,92 @@ public final class MoidsMisc {
         } else if (p == m.WORD_BYTES && q == m.FLEX_ROW_CHAR) {
             return m.FLEX_ROW_CHAR;
         } else {
+            return null;
+        }
+    }
+
+    /**
+     * a68j addition for -fgenie: widens_to of Algol 68 Genie (moids-misc.c),
+     * which also widens between lengths: INT to LONG INT to LONG LONG INT,
+     * REAL to LONG REAL, COMPLEX to LONG COMPLEX, BITS to LONG BITS and so
+     * on (Genie's LONGER is LONG LONG here). With these widenings, the
+     * cross-terms of find_operator also identify mixed formulas such as
+     * LONG INT + INT. Null if Algol 68 Genie does not widen P towards Q.
+     */
+    private static Moid genieWidensTo(A68 a68, Moid p, Moid q) {
+        Modes m = a68.modes;
+        if (p == m.INT) {
+            if (q == m.LONG_INT || q == m.LONG_LONG_INT || q == m.LONG_REAL || q == m.LONG_LONG_REAL
+                    || q == m.LONG_COMPLEX || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_INT;
+            } else if (q == m.REAL || q == m.COMPLEX) {
+                return m.REAL;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_INT) {
+            if (q == m.LONG_LONG_INT) {
+                return m.LONG_LONG_INT;
+            } else if (q == m.LONG_REAL || q == m.LONG_LONG_REAL || q == m.LONG_COMPLEX
+                    || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_REAL;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_LONG_INT) {
+            if (q == m.LONG_LONG_REAL || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_LONG_REAL;
+            } else {
+                return null;
+            }
+        } else if (p == m.REAL) {
+            if (q == m.LONG_REAL || q == m.LONG_LONG_REAL || q == m.LONG_COMPLEX || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_REAL;
+            } else if (q == m.COMPLEX) {
+                return m.COMPLEX;
+            } else {
+                return null;
+            }
+        } else if (p == m.COMPLEX) {
+            if (q == m.LONG_COMPLEX || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_COMPLEX;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_REAL) {
+            if (q == m.LONG_LONG_REAL || q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_LONG_REAL;
+            } else if (q == m.LONG_COMPLEX) {
+                return m.LONG_COMPLEX;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_COMPLEX) {
+            if (q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_LONG_COMPLEX;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_LONG_REAL) {
+            if (q == m.LONG_LONG_COMPLEX) {
+                return m.LONG_LONG_COMPLEX;
+            } else {
+                return null;
+            }
+        } else if (p == m.BITS) {
+            if (q == m.LONG_BITS || q == m.LONG_LONG_BITS) {
+                return m.LONG_BITS;
+            } else {
+                return null;
+            }
+        } else if (p == m.LONG_BITS) {
+            if (q == m.LONG_LONG_BITS) {
+                return m.LONG_LONG_BITS;
+            } else {
+                return null;
+            }
+        } else {
+            // The widenings to rows (BITS, BYTES) are those of ga68.
             return null;
         }
     }
