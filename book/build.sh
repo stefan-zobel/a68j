@@ -30,5 +30,11 @@ if [ "$what" = html ] || [ "$what" = all ]; then
     --metadata title="Algol 68 in Modern Terms" \
     --metadata date="Version $version, $date" -o build/html
   cp html/style.css build/html/
+  # The start page (title and contents) ends with the footer of the site,
+  # html/footer.html (privacy policy and visit counter), which the LaTeX
+  # source does not have.
+  awk 'FNR == NR { f = f $0 "\n"; next } /^<\/body>/ { printf "%s", f } { print }' \
+    html/footer.html build/html/index.html > build/html/index.tmp
+  mv build/html/index.tmp build/html/index.html
   echo "build/html/index.html"
 fi

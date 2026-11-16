@@ -16,7 +16,7 @@ the examples were checked.
 | `chapters/` | one file per chapter |
 | `examples/chNN/`, `examples/appE/` | the example programs; `NAME.out` is the recorded output shown in the book, `NAME.in` its input, `NAME.cfg` how it is run (implementations, options, modules, files; see `tools/run_examples.py`) |
 | `examples/answers/` | programs that check the answers to the exercises |
-| `html/` | the pandoc filter and the style sheet of the HTML version |
+| `html/` | the pandoc filter, the style sheet and the footer of the start page (`footer.html`: privacy policy, visit counter) of the HTML version |
 | `tools/run_examples.py` | runs the examples with ga68, a68j and Algol 68 Genie and checks or records their output |
 | `tools/supper_to_upper.py` | converts an example to UPPER stropping for Algol 68 Genie |
 
