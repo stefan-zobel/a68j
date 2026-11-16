@@ -291,9 +291,20 @@ def
             mood of f := put_mood
        fi;
 
-    { Writes S to F: to its descriptor, or at the end of its string. }
+    { Writes S to F: to its descriptor, or at the end of its string.  col
+      of F counts the characters written since the last newline, for the
+      alignment k of the module Genie_Formats. }
     proc emit = (ref File f, string s) void:
-       if state of f = associated then text of f +:= s else fputs (fd of f, s) fi;
+       begin if state of f = associated then text of f +:= s else fputs (fd of f, s) fi;
+             int c := col of f;
+             for i from LWB s to UPB s
+             do if s[i] = "'n" then c := 0
+                elif s[i] = REPR 8 then (c > 0 | c -:= 1)
+                else c +:= 1
+                fi
+             od;
+             col of f := c
+       end;
 
     { Environment enquiries of the transput (RR 10.3.1.1). }
 

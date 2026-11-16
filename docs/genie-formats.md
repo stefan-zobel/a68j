@@ -10,17 +10,17 @@ no mode `format`. Formatted output in the style of Algol 68 Genie
 - **The module `Genie_Formats`** (`backend/lib/genieformats.a68`) parses
   the format text at run time and edits the values. It is bundled with
   a68j, and it compiles with ga68 as an ordinary module. It accesses
-  `Genie_Transput` ([genie-transput.md](genie-transput.md)), which stays
-  unchanged.
+  `Genie_Transput` ([genie-transput.md](genie-transput.md)).
 
 With the option `-fgenie`, a68j runs the tool itself, inside the compiler,
 on each source file of a program written for Algol 68 Genie (see "The
 option `-fgenie`" below).
 
-This is stage 1 of the roadmap in [TODO-formats.md](TODO-formats.md):
+This is stages 1 and 2 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
-pattern `g` and the format pattern `f`. The patterns of pictures, choices
-and formatted input follow in later stages.
+pattern `g`, the format pattern `f` (stage 1), pictures, the choice
+patterns `b` and `c`, radix pictures and the alignment `k` (stage 2).
+Formatted input follows in stage 3.
 
 ## Example
 
@@ -220,16 +220,19 @@ starts afresh, and turns an error into a result instead of an exit.
 | `putf (f, items)`, `printf (items)`, `writef (items)` | formatted output to `f`, or to `stand_out` |
 | `Gfile`, `Gchannel` | `File` and `Channel` of `Genie_Transput`, under names that UPPER stropping can use |
 
-The format items of stage 1:
+The format items:
 
 - insertions: strings, and the alignments `x` and `q` (a space), `y`
-  (backspace), `l` (newline) and `p` (newpage), with replicators;
+  (backspace), `l` (newline), `p` (newpage) and `k` (see "Pictures,
+  choices, radix, `k`"), with replicators;
 - replicators: constants and `n(...)`, for insertions, alignments,
   patterns and collections `(...)`;
 - the general pattern `g`: `g` edits a value as `print` does, `g(w)` as
   `whole (x, w)`, `g(w, d)` as `fixed (x, w, d)`, `g(w, d, e)` as
   `float (x, w, d, e)`; the forms with parameters take numbers only;
-- the format pattern `f(...)`: the format it yields is used in place.
+- the format pattern `f(...)`: the format it yields is used in place;
+- pictures, the choice patterns `b` and `c`, and radix pictures (see
+  below).
 
 The semantics follow Algol 68 Genie, checked against it:
 
@@ -246,6 +249,81 @@ The semantics follow Algol 68 Genie, checked against it:
 - A format error prints `runtime error: ...` to standard error and ends
   the program with exit status 1, as errors of `Genie_Transput` do.
 
+## Pictures, choices, radix, `k`
+
+The rules were measured with Algol 68 Genie 3.1.2; the tests in
+`tests/formats` (`pictures-1` to `pictures-3`, `choice-1`, `bits-1`,
+`strings-1`, `align-1`, `errors-4` to `errors-13`) record them.
+
+**One picture.** Frames without a comma between them form one picture,
+which takes one value; insertions between its frames belong to it.
+`$3d 2d$` writes 12345 as `12345`, `$3d"-"2d$` as `123-45`, `$3d l 2d$`
+as `123`, a newline and `45`. A pattern of another kind starts a new
+pattern (`g 3d`, `3d b`), and `3(d)` is a collection of three pictures.
+
+| Picture | Frames | Values |
+|---|---|---|
+| integral | `d`, `z`, one sign `+` or `-` | `int`, `long int`, `long long int` |
+| real | as integral, then `.` and `d`, `z`; `e` and an integral part for the exponent | the integers and `real`, `long real` |
+| radix | `2r` to `16r`, then `d`, `z` | `bits`, `long bits` |
+| string | `a` | `char` for one frame, a `string` of exactly as many characters |
+
+Any frame may have a replicator (`3d`, `n(k)d`) and `s` before it, which
+suppresses the frame: it takes its digit or character but writes nothing
+(`3sd` writes 123 as nothing).
+
+**Digits.**
+
+- The value must fit the digit frames; leading zeros fill the rest.
+- In an integral part, `z` writes a blank for a zero as long as no other
+  digit and no `d` has been written: `zdz` writes 5 as ` 05`, `3z.dd`
+  writes 0.0 as `   .00`.
+- After the point, `z` writes the digit, like `d`.
+- An insertion among such blanks is written as blanks: `zz","zzd`
+  writes 12 as `    12` and 1234 as ` 1,234`.
+- A real is rounded to its fraction frames (`d.d` writes 0.96 as `1.0`).
+  With `e`, the mantissa gets exactly as many integral digits as it has
+  frames (`zd.de+2d` writes 0.5 as `50.0e-02`, `.3de2d` 12.5 as
+  `.125e02`).
+
+**Signs.** A `-` frame writes `-` or a blank, a `+` frame `+` or `-`.
+
+| Picture | -5 | 5 |
+|---|---|---|
+| `-zzd` | `-  5` | `   5` |
+| `"x"` after the sign: `-"x"2d` | `x-05` | `x 05` |
+| `zz-d` (floating: `z` before the sign) | `  -5` | `   5` |
+| `-zzd.dd` (a real: the sign always floats) | `  -5.00` | `   5.00` |
+| `zzz+d` | `   -5` | `   +5` |
+
+- In an integral picture and in an exponent, a sign frame without `z`
+  before it is written before the next frame.
+- `z` frames before the sign frame are digit positions: `zz-d` writes
+  -123 as `-123`.
+
+**Errors**, as in Algol 68 Genie:
+
+- a value that does not fit gives `error transputting INT value` (with
+  the mode of the value);
+- a negative value without a sign frame gives
+  `error transputting sign in INT value`;
+- a string of another length gives `error transputting [] CHAR value`;
+- a value of a mode that the pattern does not take gives
+  `cannot transput REAL value with integral-pattern` (`real`, `bits`,
+  `string`, `boolean`, `choice`, `general`).
+
+**Choices.**
+
+- `b("yes", "no")` writes the first string for true and the second for
+  false; `b` alone writes `T` or `F`.
+- `c("a", "bb", "ccc")` writes the string of the integer 1, 2 or 3, and
+  nothing for any other integer.
+
+**`k`.** `nk` writes blanks up to the character position `n` of the line,
+counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
+10. `Genie_Transput` counts the characters of each line that it writes
+(`col` of a `File`).
+
 ## Differences and limits
 
 - The layout procedures (`newline` ...) may be items of `putf`; they are
@@ -254,11 +332,27 @@ The semantics follow Algol 68 Genie, checked against it:
   not when the program is compiled.
 - Plain `g` writes numbers with the widths of `print`, which depend on
   the 32-bit `int` and `real` of ga68 and a68j.
-- Not supported yet: the patterns of pictures (`d z s e i . + -`),
-  choices (`b`, `c`), the string pattern `a`, the radix pattern `r`, `h`,
-  the alignment `k`, and formatted input (`getf`, `readf`). A format text
-  that uses them passes the tool and ends the program with
+- Not supported yet: the complex pattern `i`, the pattern `h`, and
+  formatted input (`getf`, `readf`). A format text that uses `i` or `h`
+  passes the tool and ends the program with
   `format item ... is not supported yet`.
+- **Where Algol 68 Genie is defective, `Genie_Formats` differs from
+  it.** The tests with a file `NAME.fixed` record this:
+  - `-zz.dd` writes -0.5 as `  -.50`; Algol 68 Genie drops the sign and a
+    column (`  .50`) (`fixed-1`);
+  - a number 0 with only `z` frames is written as blanks; Algol 68 Genie
+    drops the rest of the line (`fixed-1`);
+  - a negative real without a sign frame gives
+    `error transputting sign in REAL value`; Algol 68 Genie crashes with
+    `memory access violation` (`fixed-2`);
+  - `c(...)` with a `long int` gives
+    `cannot transput LONG INT value with choice-pattern`; Algol 68 Genie
+    says `VOID value out of bounds` (`fixed-3`);
+  - `k` counts the position from the start of the line; Algol 68 Genie
+    counts it from where `printf` starts, as if `print` had written
+    nothing before on the line (`fixed-4`, `align-1`).
+- Radix pictures take the radixes 2 to 16, as Algol 68 Genie does; the
+  Revised Report has 2, 4, 8 and 16.
 - **ga68: procedures that yield a format with dynamic parts.** The
   procedure `ints` of the format is a routine text, created where the
   format text is elaborated. In ga68 a routine text lives only as long as
@@ -300,6 +394,19 @@ Formatted output therefore takes a little more than twice the time of
 `print`. Most of the difference is the state of `putf`, a local row of
 frames that every call creates.
 
+Pictures cost a little more than `g`, measured with `-fgenie` on the
+same machine as each other, one million lines each:
+
+| | Time |
+|---|---|
+| `printf (($g(0)l$, i))` | 7.4 s |
+| `printf (($7zd l$, i))` | 9.8 s |
+| `printf (($g(0,2) l$, i / 7))` | 9.3 s |
+| `printf (($-6zd.2d l$, i / 7))` | 11.8 s |
+
+A picture is edited in one string, which is written with one `put` up to
+each alignment in it.
+
 ## Tests
 
 `tools/formats_tests.py` runs the tests on every system given: a68j and
@@ -316,7 +423,11 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   program as well, with the module turned into declarations in UPPER
   stropping (`book/tools/supper_to_upper.py`): this compares the module
   with the formats of Algol 68 Genie itself, with the same widths of
-  numbers. a68j also compiles the original program with `-fgenie`.
+  numbers. a68j also compiles the original program with `-fgenie`. A
+  file `NAME.fixed` marks a deliberate difference to Algol 68 Genie (see
+  "Differences and limits"): `NAME.out` or `NAME.err` is written by hand,
+  and the test does not run on Algol 68 Genie, whose version of the
+  module cannot do `k`.
 - `tests/formats/genie/NAME.a68`: programs for what `-fgenie` does
   besides formats (`PR read` on the first line, in the middle and nested,
   `FILE`, other pragmats), run as they are with `-fgenie` and with Algol

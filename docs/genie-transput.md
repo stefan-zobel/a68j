@@ -123,7 +123,9 @@ and `GCHANNEL` without a module of its own.
 `long real`, `bool`, `char`, `string`, `bits` and `long bits`; rows
 `[] int`, `[] long int`, `[] real`, `[] long real`, `[] bool`,
 `[] string` and `[] bits`; `[,] int`, `[,] real` and `[,] bool`; and the
-layout procedures. `newline` counts the lines of a `File` in `line of f`.
+layout procedures. `newline` counts the lines of a `File` in `line of f`,
+and output counts the characters written since the last newline in
+`col of f`, which the alignment `k` of `Genie_Formats` uses.
 
 ## Layout
 

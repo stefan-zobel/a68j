@@ -62,7 +62,7 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 521 of 522 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 49 of 49 |
+| a68j's own differential tests (`tests/extra`) | 51 of 51 |
 | Rosetta Code programs that ga68 runs | 608 identical (560 of them end normally), 2 equal up to floating-point rounding, 8 open, of 618 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
@@ -78,8 +78,9 @@ ga68 alike
 ([docs/genie-transput.md](docs/genie-transput.md)). Format texts
 (`$...$`, `printf`) are turned by a rewrite tool, written in Algol 68,
 into calls of the bundled module `Genie_Formats`, again for a68j and ga68
-alike; so far with insertions, replicators, `g` and `f`, without pictures
-and formatted input ([docs/genie-formats.md](docs/genie-formats.md)).
+alike; with insertions, replicators, `g`, `f`, pictures, choices, radix
+and `k`, so far without formatted input
+([docs/genie-formats.md](docs/genie-formats.md)).
 The option `-fgenie` does all this in the compiler, so that a program
 written for Algol 68 Genie runs as it is. The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,

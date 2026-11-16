@@ -1,11 +1,11 @@
 # TODO: formatted transput (`printf`, `readf`, format texts)
 
-Status: stage 1 of the roadmap below is implemented, the rewrite tool
-and the module `Genie_Formats` ([genie-formats.md](genie-formats.md)),
-and so is the option `-fgenie`, which runs programs written for Algol 68
-Genie as they are; stages 2 to 4 are not. This note records how much
-formats matter, what ga68 provides, the options, and the roadmap in
-stages.
+Status: stages 1 and 2 of the roadmap below are implemented, the
+rewrite tool and the module `Genie_Formats` with pictures, choices, radix
+and `k` ([genie-formats.md](genie-formats.md)), and so is the option
+`-fgenie`, which runs programs written for Algol 68 Genie as they are;
+stages 3 and 4 are not. This note records how much formats matter, what
+ga68 provides, the options, and the roadmap in stages.
 
 ## Why formats
 
@@ -167,7 +167,9 @@ that ga68 reports concerns formats.
 | 3 | adds `readf` and `getf` | 178 | 155 |
 
 These are upper bounds. Some of these solutions fail for other reasons as
-well, such as the widening of `INT` to `LONG INT`.
+well, such as the widening of `INT` to `LONG INT`. The scan counted `k`
+and `h` with stage 1; `Genie_Formats` provides `k` with stage 2, and no
+solution uses `h`, which is not provided yet.
 
 The most frequent features are:
 
@@ -202,7 +204,8 @@ them in full.
 
 - It is written in plain Algol 68 without Java, like `Genie_Transput`, so
   it compiles with ga68 as an ordinary module. It accesses `Genie_Transput`
-  and is bundled with a68j. `Genie_Transput` stays unchanged.
+  and is bundled with a68j. `Genie_Transput` changed only once for it:
+  since stage 2 it counts the column of each line it writes, for `k`.
 - It provides the mode `Gformat`, not `Format`: in Algol 68 Genie `FORMAT`
   is a reserved word, and a rewritten program must be able to run there
   too (for the tests). A `Gformat` holds the parsed format text and two
@@ -218,8 +221,10 @@ them in full.
   patterns, with the semantics of Algol 68 Genie.
 - The general pattern `g` maps to `whole`, `fixed` and `float`.
   `g(w, d)` therefore gives the same result as `fixed (x, w, d)`.
-- The editing of pictures (stage 2) follows the Revised Report, sections
-  10.3.4 and 10.3.5, which define it in Algol 68.
+- The editing of pictures (stage 2) follows Algol 68 Genie, measured
+  rule by rule; where Algol 68 Genie is defective, it follows the Revised
+  Report, sections 10.3.4 and 10.3.5 (see genie-formats.md, "Differences
+  and limits").
 
 **The rewrite tool, a program in Algol 68** (`tools/formats/`).
 
@@ -228,7 +233,8 @@ them in full.
   pragmats, string denotations and bold words.
 - It replaces each format text by a call of `gfmt` or `gfmtd`. The string
   is the format text itself, so the grammar of formats is in the module
-  only, and the tool does not change in stages 2 and 3.
+  only, and the tool did not change for stage 2 (only a defect was
+  fixed: in SUPPER stropping it now also replaces the mode `format`).
 - A unit inside `n(...)`, `g(...)` or `h(...)` that is an integer
   denotation stays in the string. Any other unit there, and the unit of
   `f(...)`, becomes `@` and an index, and an alternative of a procedure
@@ -282,17 +288,33 @@ stages do not depend on it, nor it on them.
      rounding. The others: `command-line-arguments` prints the path of
      the program, and `y-combinator-2` crashes natively only (a procedure
      that outlives the procedure that created it).
-   - 23 of the 76 stop with `format item ... is not supported yet`, on
-     both sides: they need stage 2.
+   - 23 of the 76 stopped with `format item ... is not supported yet`, on
+     both sides: they needed stage 2.
    - Most of the 94 solutions that ga68 does not compile fail for reasons
      that have nothing to do with formats: the widening `INT` to
      `LONG INT` of Algol 68 Genie, Genie procedures that `Genie_Transput`
      does not provide, constructs that ga68 does not lower. Structures as
      items of `printf` (Algol 68 Genie prints their fields) are not
      possible with a union of modes, as with `print`.
-2. **Pictures, choice patterns, radix.**
+2. **Pictures, choice patterns, radix.** Implemented, with the alignment
+   `k`.
    - This stage covers about 92 % of the solutions (164 of 178), and
      nearly all format examples of the book become testable.
+   - The rules were measured with Algol 68 Genie first and recorded as
+     tests (`tests/formats`); five defects of Algol 68 Genie are not
+     followed (tests with `NAME.fixed`).
+   - Of the 175 rewritten solutions, ga68 compiles 81, and 76 end within
+     the time limit; none stops with `format item ... is not supported
+     yet` any more. 71 give the same result on the JVM, 3 the same up to
+     rounding, and the two others are those of stage 1.
+     `knapsack-problem-unbounded` now runs further and crashes natively
+     (entry 26 of [ga68-bug-reports.md](ga68-bug-reports.md)); it is
+     compared with its result in `tests/rosetta/fixed`.
+   - With `-fgenie`, all 175 give the same result as their rewritten
+     versions.
+   - The format examples of the book, chapter 9, run on a68j through the
+     tool (except `readf`): all give the output of Algol 68 Genie, up to
+     the widths of `g` without parameters.
 3. **Formatted input (`readf`, `getf`).**
    - Input is rarely needed. This stage completes the set (178 of 178),
      including the book example `ch09/readf`.
@@ -407,13 +429,13 @@ Genie, as with the pre-processor:
   `bits` and `long bits` for `r`, `string` and `char` for `a`.
 - The tool already recognizes `readf` and `getf` for stage 3.
 - `Genie_Formats` is bundled, so a release contains the stage it has
-  reached. Programs that stop today with
-  `format item ... is not supported yet` then run without a change to the
-  compiler.
+  reached. Programs that stop with `format item ... is not supported yet`
+  run without a change to the compiler once the module provides the item;
+  this held for stage 2.
 
-**Order.** `-fgenie` first, then stage 2, then chapter 9 of the book. Its
-format examples rely on pictures, so it is updated only once they run on
-a68j.
+**Order.** `-fgenie` first, then stage 2 (both done), then chapter 9 of
+the book. Its format examples rely on pictures, so it is updated only now
+that they run on a68j.
 
 **Relation to stage 4.** `-fgenie` already does the second candidate of
 stage 4, "Rewriting before the scanner", for programs written for Algol
@@ -539,8 +561,11 @@ the format texts are converted as well.
   68 Genie, run by `tools/formats_tests.py` natively with ga68, on the JVM,
   and with Algol 68 Genie itself (with the module as declarations in UPPER
   stropping). It contains small programs for each feature, including the
-  dynamic parts and formats stored in variables; the 11 book examples
-  follow with stage 2.
+  dynamic parts and formats stored in variables, and the pictures,
+  choices, radix pictures and `k` of stage 2. A file `NAME.fixed` marks a
+  deliberate difference to Algol 68 Genie, whose output there is
+  defective; such a test does not run on Algol 68 Genie. The book
+  examples of chapter 9 follow with the update of the chapter.
 - **The rewrite tool:** `tests/formats/rewrite`, pairs of input and
   expected output in both stroppings, the same on all three systems.
 - **Rosetta Code:** the solutions that use formats, rewritten and compared

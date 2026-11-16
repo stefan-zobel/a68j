@@ -32,8 +32,11 @@ format texts, as written for Algol 68 Genie.  NAME.out is its output,
 recorded with Algol 68 Genie (--record --a68g A68G); standard input is
 NAME.in if it exists.  If NAME.err exists instead, the program must end
 with a non-zero exit status and an error message that contains the text of
-NAME.err.  The tool rewrites the program on each system, which then runs
-it:
+NAME.err.  If NAME.fixed exists, Genie_Formats deliberately differs from
+Algol 68 Genie for this program (NAME.fixed says how): NAME.out or NAME.err
+is written by hand, --record leaves it alone, and the test does not run on
+Algol 68 Genie.  The tool rewrites the program on each system, which then
+runs it:
 
   a68j, ga68  the program rewritten with --ga68, with the module
               Genie_Formats; the output must be NAME.out, or differ only in
@@ -62,7 +65,8 @@ NAME.err must appear in standard error.
 
   --record   writes NAME.expected (or NAME.err) of the rewrite tests from
              the first system, and NAME.out of the program and Genie
-             tests with Algol 68 Genie (needs --a68g).
+             tests with Algol 68 Genie (needs --a68g), except for a
+             program test with NAME.fixed.
 
 Without NAME, all tests are run; NAME is the name of a rewrite test, a
 program test or a Genie test.  The exit status is 1 if a test fails.
@@ -121,6 +125,11 @@ def a68g_library():
     # program with a non-zero exit status.
     assert "posix_exit (1)" in body
     body = body.replace("posix_exit (1)", "(int gf_zero := 0; print (1 OVER gf_zero))")
+    # Algol 68 Genie has no column of a file, so the alignment k does
+    # nothing; its tests (with NAME.fixed) do not run on Algol 68 Genie.
+    column = "proc gf_column = (ref File f, int c) void: while col of f + 1 < c do space (f) od;"
+    assert column in body
+    body = body.replace(column, "proc gf_column = (ref File f, int c) void: skip;")
     return supper_to_upper.convert(body) + "\n"
 
 
@@ -279,6 +288,12 @@ def program_test(name, systems, record, tests=TESTS):
     stdin = open(os.path.join(tests, name + ".in"), "rb").read() if os.path.exists(os.path.join(tests, name + ".in")) else b""
     out_file = os.path.join(tests, name + ".out")
     err_file = os.path.join(tests, name + ".err")
+    fixed = os.path.exists(os.path.join(tests, name + ".fixed"))
+    if fixed:
+        # The alignment k does nothing in the Algol 68 Genie version of
+        # the library, and the deliberate differences are those of Algol 68
+        # Genie itself.
+        systems = [s for s in systems if s.name != "a68g"]
     msgs = []
     if os.path.exists(err_file):
         # The program must end with an error that contains the text of
@@ -290,7 +305,7 @@ def program_test(name, systems, record, tests=TESTS):
             if r.status == 0 or want not in text:
                 msgs.append(f"{s.name}: exit status {r.status}, expected an error {want!r}\n{text}")
         return msgs
-    if record:
+    if record and not fixed:
         a68g = next(s for s in systems if s.name == "a68g")
         r = a68g.run_original(path, stdin)
         if r.status != 0:

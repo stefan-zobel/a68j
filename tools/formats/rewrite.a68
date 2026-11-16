@@ -36,7 +36,8 @@
           (INT gfindex) GFORMAT: CASE gfindex IN unit1 ESAC
       or SKIP if there is no such unit.  Genie_Formats parses the string
       and calls the procedures when the format is used;
-    * the mode FORMAT becomes GFORMAT (Gformat in SUPPER);
+    * the mode FORMAT becomes GFORMAT (format or FORMAT becomes Gformat in
+      SUPPER);
     * an access list that contains Genie_Transput gets Genie_Formats when
       the program needs it.
 
@@ -524,7 +525,7 @@ PROC bold word = (INT i, lim, REF BUF out) INT:
       INT e = IF upper THEN bold end (i, lim) ELSE word end (i, lim) FI;
       STRING w = s[i : e];
       STRING k = keyword (w);
-      IF w = "FORMAT"
+      IF w = "FORMAT" OR k = "FORMAT"
       THEN adds (out, IF upper THEN "GFORMAT" ELSE "Gformat" FI);
            needs formats := TRUE;
            e
