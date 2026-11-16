@@ -958,9 +958,14 @@ that breaks the lifetime rule is wrong and that its further behavior is
 undefined, which allows but does not require an implementation to check
 it. Algol 68 Genie checks: it warns at compile time and stops the
 program with the error “value is exported out of its scope”. ga68 and
-a68j do not check, and such a program may even appear to work, which
-makes the error all the more dangerous. Use <code><b>heap</b></code> for
-anything that must outlive its block.</p>
+a68j do not check it while the program runs, and such a program may even
+appear to work, which makes the error all the more dangerous. With the
+option <code>-Wscope</code>, both warn at compile time about values that
+may outlive their lifetime; a68j also warns by default about the
+functions that give wrong results in a68j itself (Section <a
+href="7-ch-advanced.html#sec-proc-lifetimes" data-reference-type="ref"
+data-reference="sec-proc-lifetimes">7.16</a>). Use
+<code><b>heap</b></code> for anything that must outlive its block.</p>
 </blockquote>
 <h3 class="unnumbered" id="the-lifetime-of-a-loc-cell">The lifetime of a
 <strong>loc</strong> cell</h3>
@@ -1063,6 +1068,28 @@ a68j offer a further way out, partial parametrization, an extension of
 the language that Appendix <a href="-app-partial.html#app-partial"
 data-reference-type="ref" data-reference="app-partial">G</a>
 describes.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  With the option
+<code>-Wscope</code>, ga68 and a68j warn at compile time about a
+function that may outlive the names it uses, <code>compose</code>
+included; the warning is off by default. a68j keeps the cells of a
+function call as long as a function made in the call uses them, so the
+function returned by <code>compose</code> gives the expected result in
+a68j. This does not hold for loops: a loop body gets no new cells in
+each round, and a function made in the body that is called after the
+loop sees the values of the last round:</p>
+<pre class="algol68"><code>[3] <b>proc</b> <b>int</b> fs;
+<b>for</b> i <b>to</b> 3 <b>do</b> fs[i] := <b>int</b>: i <b>od</b>;
+<b>for</b> i <b>to</b> 3 <b>do</b> print (fs[i]) <b>od</b>    <span class="comment">{ prints 3 three times }</span></code></pre>
+<p>Since such a program gives wrong results in a68j itself, a68j warns
+about it by default:</p>
+<pre class="output"><code>warning: routine text captures 'i', which is shared by all iterations
+  of the loop, and may outlive its iteration [-Wframe-scope]</code></pre>
+<p>a68j warns in the same way about a function that jumps to a label and
+may be called after the block of the label has ended. The option
+<code>-Wno-frame-scope</code> turns the warning off. The ways out above
+avoid the problem.</p>
+</blockquote>
 <h2 data-number="7.17" id="sec-recursive"><span
 class="header-section-number">7.17</span> Recursive types</h2>
 <p>A type declaration may refer to the type it declares, which allows

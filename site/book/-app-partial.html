@@ -183,10 +183,11 @@ it. By the rules of the proposal, returning the function from the block
 is the error. Algol 68 Genie does not check it there; it stops the
 program only when the function is used, here in <code>incr</code>, whose
 result is the cell that no longer exists. a68j does not check the
-lifetime rule at all (Section <a href="7-ch-advanced.html#sec-lifetimes"
-data-reference-type="ref" data-reference="sec-lifetimes">7.15</a>) and
-runs the program to the end, without a message. The counter must be a
-<code><b>heap</b></code> cell, as in the previous example.</p>
+lifetime rule while the program runs (Section <a
+href="7-ch-advanced.html#sec-lifetimes" data-reference-type="ref"
+data-reference="sec-lifetimes">7.15</a>) and runs the program to the
+end, without a message. The counter must be a <code><b>heap</b></code>
+cell, as in the previous example.</p>
 </blockquote>
 <h2 class="unnumbered" id="calls-with-all-arguments">Calls with all
 arguments</h2>

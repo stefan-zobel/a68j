@@ -178,12 +178,19 @@ and can be compiled with ga68, provides unformatted transput:
 layout procedures and the events for the end of the file and for value
 errors. It does not provide formats, binary transput, or the printing of
 records, <code><b>compl</b></code>, <code><b>short</b></code> and
-<code><b>long</b> <b>long</b></code> values. Algol 68 Genie provides the
-transput of the Report almost completely, and adds <code>eof</code> and
-<code>eoln</code>, which <code>Genie_Transput</code> also has;
-Section <a href="9-ch-transput.html#sec-transput-genie"
-data-reference-type="ref" data-reference="sec-transput-genie">9.12</a>
-lists what it lacks.</p>
+<code><b>long</b> <b>long</b></code> values. The module
+<code>Genie_Formats</code>, which also comes with a68j, adds formatted
+output (<code>printf</code>, <code>putf</code>) in the manner of Algol
+68 Genie: a68j compiles format texts with the option
+<code>-fformats</code>, and for ga68 a rewrite tool turns them into
+calls of the module first (Section <a
+href="9-ch-transput.html#sec-formats" data-reference-type="ref"
+data-reference="sec-formats">9.9</a>). Formatted input is not available.
+Algol 68 Genie provides the transput of the Report almost completely,
+and adds <code>eof</code> and <code>eoln</code>, which
+<code>Genie_Transput</code> also has; Section <a
+href="9-ch-transput.html#sec-transput-genie" data-reference-type="ref"
+data-reference="sec-transput-genie">9.12</a> lists what it lacks.</p>
 <h2 class="unnumbered" id="other-features">Other features</h2>
 <table>
 <thead>
@@ -208,7 +215,9 @@ threads with the option <code>-fpar-threads</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code><b>compl</b></code> operators</td>
-<td style="text-align: left;">a68j only</td>
+<td style="text-align: left;">yes; ga68 only with the static libga68
+(Section <a href="6-ch-moretypes.html#sec-complex"
+data-reference-type="ref" data-reference="sec-complex">6.1</a>)</td>
 <td style="text-align: left;">yes</td>
 </tr>
 <tr>
@@ -218,13 +227,19 @@ threads with the option <code>-fpar-threads</code></td>
 </tr>
 <tr>
 <td style="text-align: left;">formats</td>
-<td style="text-align: left;">no</td>
+<td style="text-align: left;">output only, with
+<code>Genie_Formats</code> (a68j: <code>-fformats</code>; ga68: rewrite
+tool)</td>
 <td style="text-align: left;">yes</td>
 </tr>
 <tr>
 <td style="text-align: left;">lifetime rule (references, procedures,
 <code><b>loc</b></code> cells)</td>
-<td style="text-align: left;">not checked</td>
+<td style="text-align: left;">not checked at run time; warnings with
+<code>-Wscope</code>; a68j: warnings where its results are wrong
+(Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
+data-reference-type="ref"
+data-reference="sec-proc-lifetimes">7.16</a>)</td>
 <td style="text-align: left;">checked at run time</td>
 </tr>
 <tr>
@@ -296,10 +311,15 @@ examples of this book avoid such values.</p>
 <h2 class="unnumbered" id="running-rosetta-code-programs">Running
 Rosetta Code programs</h2>
 <p>Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie
-in upper-case notation. To run one with ga68 or a68j, convert the
-notation as above, add <code><b>access</b> Genie_Transput</code> and an
-enclosing block if the program has none, and check whether it relies on
-64-bit integers, on formats or on the other features in the table
-above.</p>
+in upper-case notation. a68j runs such a program as it is with the
+option <code>-fgenie</code>, which also handles its format texts. For
+ga68, the format rewrite tool of a68j with the option
+<code>--ga68</code> prepares it: it adds
+<code><b>access</b> Genie_Transput</code> and <code>Genie_Formats</code>
+with an enclosing block if the program has none, and rewrites the format
+texts; ga68 then compiles it in upper-case notation with the option
+<code>-fstropping=upper</code>. Either way, check whether the program
+relies on 64-bit integers, on formatted input or on the other features
+in the table above.</p>
 </body>
 </html>

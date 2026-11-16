@@ -61,9 +61,12 @@ provides nearly all of it; Section <a
 href="9-ch-transput.html#sec-transput-genie" data-reference-type="ref"
 data-reference="sec-transput-genie">9.12</a> lists what it lacks. For
 ga68 and a68j, the module <code>Genie_Transput</code> provides the
-unformatted part used in this chapter; formatted and binary transput are
-not available there, and the examples of those sections were run with
-Algol 68 Genie.</p>
+unformatted part used in this chapter, and the module
+<code>Genie_Formats</code> formatted output (Section <a
+href="9-ch-transput.html#sec-formats" data-reference-type="ref"
+data-reference="sec-formats">9.9</a>). Formatted input, binary transput
+and the printing of records are not available there, and the examples of
+those sections were run with Algol 68 Genie.</p>
 <h2 data-number="9.1" id="sec-books"><span
 class="header-section-number">9.1</span> Books, channels and files</h2>
 <p>The Report distinguishes three things that current languages usually
@@ -510,6 +513,29 @@ printf (($"[" 3a "]" x b l$, "abc", <b>true</b>))</code></pre>
 [  3.14]
 [3.142e+03]
 [abc] T</code></pre>
+<blockquote>
+<p><strong>Implementation note.</strong>  ga68 and a68j do not compile
+format texts themselves. A rewrite tool, written in Algol 68, turns each
+format text into a call of the module <code>Genie_Formats</code>, which
+lays out the values when the program runs, in the manner of Algol 68
+Genie; the program needs only <code><b>access</b> Genie_Transput</code>,
+and the tool adds the access to <code>Genie_Formats</code>. a68j runs
+the tool itself with the option <code>-fformats</code>:</p>
+<pre class="shell"><code>$ java -jar a68j-backend.jar -fformats -run formats.a68</code></pre>
+<p>For ga68, the module <code>genieformats.a68</code> and the tool
+(<code>rewrite-a68j.a68</code> and <code>rewrite.a68</code>, in UPPER
+stropping), which come with a68j, are compiled once; the tool then
+rewrites the program before it is compiled:</p>
+<pre class="shell"><code>$ ga68 -I. -c genieformats.a68
+$ ga68 -I. -fstropping=upper rewrite-a68j.a68 genietransput.o -o rewrite
+$ ./rewrite &lt; formats.a68 &gt; formats-r.a68
+$ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats</code></pre>
+<p>The lines of the program stay the same, so messages refer to the
+right line. An error inside a format text, such as an unknown frame,
+shows only when the program runs. Formatted input (Section <a
+href="9-ch-transput.html#sec-readf" data-reference-type="ref"
+data-reference="sec-readf">9.10</a>) is not available yet.</p>
+</blockquote>
 <p>A format consists of <em>pictures</em>, each of which describes how
 one value is printed, separated by commas. A picture is made of
 <em>frames</em>:</p>
@@ -638,13 +664,14 @@ printf (($g(w, w - 6) l$, x));            <span class="comment">{ the parameters
 <b>bits</b> b = 2r1011;
 printf (($2r8d, " " 16r4d l$, b, 16rbeef))</code></pre>
 <p>prints</p>
-<pre class="output"><code>+1.23456780000000e  +3
+<pre class="output"><code>+1.234568e +3
        +42|   1234.57| 1234.568e+0
 +1234.568
 00001011 beef</code></pre>
 <p>The first line shows the standard layout of a
-<code><b>real</b></code> in Algol 68 Genie, whose
-<code><b>real</b></code> has 64 bits.</p>
+<code><b>real</b></code> in ga68 and a68j, with about seven digits;
+Algol 68 Genie, whose <code><b>real</b></code> has 64 bits, prints
+<code>+1.23456780000000e  +3</code>.</p>
 <p>A string is printed with <code>a</code> frames, one per character,
 and the number of frames must equal the length of the string; insertions
 between the frames are allowed:</p>
@@ -653,9 +680,7 @@ printf (($"[" 5a "]" l$, "Algol"));
 printf (($"[" 5a "]" l$, "Al"))           <span class="comment">{ wrong length: a run-time error }</span></code></pre>
 <pre class="output"><code>J. Smith
 [Algol]
-5        printf (($"[" 5a "]" l$, "Al"))           COMMENT wrong length: a run-time error COMMENT
-                        1                                                                        
-a68g: runtime error: 1: error transputting [] CHAR value, in [] "SIMPLOUT" collateral-clause starting at "(" in this line.</code></pre>
+[runtime error: error transputting [] CHAR value</code></pre>
 <p>prints <code>J. Smith</code> and <code>[Algol]</code>, and then stops
 with an error, since <code>"Al"</code> has only two characters for five
 frames. A string of variable length is printed with <code>g</code> or
@@ -740,9 +765,10 @@ like a function, and cannot leave the block of <code>digits</code>.</p>
 <blockquote>
 <p><strong>Implementation note.</strong>  In the Report, the rest of a
 format that is not used up when the list ends waits for the next
-<code>putf</code> on the same file. Algol 68 Genie stops the program
-instead (“number of pictures does not match number of arguments”): the
-values must use the format up to its end.</p>
+<code>putf</code> on the same file. Algol 68 Genie and
+<code>Genie_Formats</code> stop the program instead (“number of pictures
+does not match number of arguments”): the values must use the format up
+to its end.</p>
 </blockquote>
 <h2 data-number="9.10" id="sec-readf"><span
 class="header-section-number">9.10</span> Formatted input</h2>
@@ -831,6 +857,10 @@ same everywhere;</p></li>
 data-reference-type="ref"
 data-reference="sec-format-list">[sec-format-list]</a>).</p></li>
 </ul>
+<p><code>Genie_Formats</code> follows Algol 68 Genie in <code>k</code>,
+in the <code>z</code> frames and in the end of the format; its insertion
+<code>y</code>, like <code>backspace</code> of
+<code>Genie_Transput</code>, can be used on <code>stand_out</code>.</p>
 <h2 data-number="9.13" id="sec-transput-complete"><span
 class="header-section-number">9.13</span> A complete program</h2>
 <p>The final program reads a file of names and marks and prints a
@@ -957,8 +987,8 @@ significant digits, using <code>associate</code> or
 with their names, sexes and years of birth, print sentences such as “Ann
 is the eldest of three children” or “Tom is the only son”, choosing the
 words with <code>b(...)</code>, <code>c(...)</code> and
-<code>f(...)</code> patterns in a single <code>printf</code> per child
-(Algol 68 Genie).</p></li>
+<code>f(...)</code> patterns in a single <code>printf</code> per
+child.</p></li>
 </ol>
 </body>
 </html>
