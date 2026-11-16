@@ -50,7 +50,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 9 | ga68 | a routine text that is called after the procedure that yielded it has returned jumps into a dead stack frame | correct |
 | 10 | ga68 | `flex [1 : n] char x` gets the bounds `[1 : 0]` | reproduces |
 | 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | fixed |
-| 12 | ga68 | a conformity clause on a union of `string` and `[,] char`: internal compiler error in `verify_gimple` | correct |
+| 12 | ga68 | a `string` value that is not a variable, united into a union of `string` or `[] char` and `[,] char`: internal compiler error in `verify_gimple`, or the value becomes the `[,] char` component | correct |
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
 | 14 | ga68 `a68-low-clauses.cc` | a row display whose rows differ in bounds is not checked, and a longer later row is written past the allocated elements | run-time error |
 | 15 | ga68 `a68-low-clauses.cc` | a row display copies a row with a stride (`m[, 1]`) as if it were contiguous | correct |
@@ -520,7 +520,7 @@ max_state` gives -1, then a bound error) and `execute-computer-zero` (an
 
 a68j computes `MOD` here (fixed).
 
-## 12. Internal compiler error for a union of `string` and `[,] char`
+## 12. A union of `string` and `[,] char`: internal compiler error or the wrong component
 
 ```
 begin union (string, [,] char) u := "abc";
@@ -531,6 +531,53 @@ end
 ga68 stops with `error: non-trivial conversion in 'component_ref'` and
 `internal compiler error: 'verify_gimple' failed`. The cause has not
 been examined.
+
+Measured again with ga68 at commit bb5c3bfcb28b, the defect is not in
+the conformity clause but in uniting: a union that has a one-dimensional
+and a two-dimensional row of `char` as components (`string` or `[] char`
+together with `[,] char`) goes wrong when a `string` value that is not
+held by a variable is united into it. It does not matter whether the
+one-dimensional component is `string` or `[] char`:
+
+```
+begin mode U = union (int, [] char, [,] char);
+      proc f = string: "abc";
+      U u = f;
+      case u in ([] char s): puts (s + "'n") out puts ("other'n") esac
+end
+```
+
+`error: invalid conversion in gimple call` and `internal compiler
+error: 'verify_gimple' failed`. With `[] string r = ("abc", "de"); U u =
+r[2]` in place of the call: `error: non-trivial conversion in 'mem_ref'`
+and the same internal compiler error.
+
+```
+begin mode U = union (int, [] char, [,] char);
+      string v := "ab";
+      U u = v + "c";
+      case u
+      in ([] char s): puts ("[] char " + s + "'n"),
+         ([,] char m): puts ("[,] char " + whole (1 UPB m, 0) + " " + whole (2 UPB m, 0) + "'n"),
+         (int i): puts ("int " + whole (i, 0) + "'n")
+      esac
+end
+```
+
+This compiles, and the program prints `[,] char 3 12`: the value is
+united as the `[,] char` component, with bounds made up from its
+descriptor. With `out` in place of the other branches, the program
+printed `other` in some runs and stopped with `Virtual memory exhausted`
+in others. The expected output is `[] char abc`.
+
+The other values of a `string` or `[] char` mode unite correctly into
+the same union: a variable, a slice (`t[3 : 5]`), a denotation, and a
+call of a procedure that yields `[] char`. A union of the same shape for
+`int`, `real` or `bool` (`[] int` and `[,] int`) is not affected, also
+not for `flex` values yielded by calls or selected from rows.
+
+For this reason the modules `Genie_Transput` and `Genie_Formats` have no
+`[,] char` among their items.
 
 ## 13. Internal compiler errors for clauses with statements in a subscript or a selection
 

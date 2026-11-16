@@ -285,8 +285,11 @@ reads as a string), and for the first `eoln` there.
   union `OUTITEM` has rows of the plain modes only, and a union cannot
   cover rows of any depth; a68g straightens them (Rosetta
   `flatten-a-list-2` fails to compile for this reason);
-- `[,] char`: a union with both `string` and `[,] char` makes ga68 crash
-  in a conformity clause (internal compiler error in `verify_gimple`).
+- `[,] char`: in a union with both `string` (or `[] char`) and `[,] char`,
+  ga68 crashes when a `string` yielded by a call is united into it
+  (internal compiler error in `verify_gimple`), and silently takes the
+  result of `+` on strings for the `[,] char` component (entry 12 of
+  [`ga68-bug-reports.md`](ga68-bug-reports.md)).
 
 ## The name
 

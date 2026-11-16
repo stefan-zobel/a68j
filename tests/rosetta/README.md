@@ -185,8 +185,9 @@ These four are entries 10 to 13 of
 [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md), checked
 again with ga68 of 31 Oct 2026.
 
-- A union with `string` and `[,] char` in a conformity clause causes an
-  internal compiler error (`verify_gimple`).
+- A `string` value that is not a variable, united into a union of
+  `string` (or `[] char`) and `[,] char`, causes an internal compiler
+  error (`verify_gimple`) or becomes the `[,] char` component.
 - A subscript that is a clause with statements (`v[(puts ("x"); i)]`)
   causes an internal compiler error in `a68_lower_slice`; a field
   selection on such a clause as the destination of an assignation causes
