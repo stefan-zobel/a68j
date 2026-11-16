@@ -25,7 +25,9 @@ examples of the book were checked; the causes of 16 to
 found in the source; what ga68 does with it has not been measured. Entry
 24 was found while the module `Genie_Formats` was written; its cause has
 not been examined. Entry 25 was found while the option `-fgenie` was
-written.
+written. Entry 26 was found with a Rosetta Code solution that stage 2 of
+`Genie_Formats` lets run further; its cause has been narrowed down by
+measurement only.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -62,6 +64,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
 | 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
 | 25 | ga68 `a68-parser-scanner.cc` | `PR include "dir/file" PR` in a file given without a directory looks for `/dir/file` | reproduces; correct with `-fgenie` |
+| 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -944,6 +947,39 @@ Suggested fix: use `.` whenever `sourcedir` is empty.
 a68j reproduces the error, except with the option `-fgenie`, which runs
 programs written for Algol 68 Genie; there the file is found as Algol 68
 Genie finds it (`tests/formats/genie/read-first.a68`).
+
+## 26. A row of strings selected from a row of structures crashes the program
+
+```
+begin mode Item = struct (string name, int value);
+      [] Item items = (("panacea", 1), ("ichor", 2), ("gold", 3));
+      [] string n = name of items;
+      puts ("declared'n");
+      puts (n[2] + "'n")
+end
+```
+
+The program ends with a segmentation fault before it writes anything.
+The expected output, which a68g gives, is `declared` and `ichor`.
+Measured with GCC trunk 17.0.0 20261104:
+
+- The same happens when `items` is a variable (`[3] Item items := ...`),
+  when `name` is the second field, when the selection is passed as an
+  argument of mode `[] string` or of a union with it, and when it is
+  taken from a slice (`name of items[2 : 3]`).
+- Indexing the selection directly works: `(name of items)[2]` and
+  `name of items[2]` give `ichor`.
+- A field of mode `int` works in all of these places
+  (`[] int n = value of items`).
+
+`a68_lower_selection` (a68-low-units.cc, line 871) makes the selection a
+descriptor with the bounds and strides of the row of structures and an
+elements pointer offset to the field. The crash therefore probably lies
+where such a descriptor is copied or bound when its elements are rows
+themselves (`string`); this has not been examined in the sources.
+
+The Rosetta Code solution `knapsack-problem-unbounded` crashes in this
+way (`printf` of `name OF items`). a68j gives the expected result.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 
