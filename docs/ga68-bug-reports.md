@@ -11,8 +11,8 @@ glibc. The programs use SUPPER stropping and are compiled with
 
     ga68 -fstropping=supper prog.a68 -o prog
 
-Algol 68 Genie 3.1.2 (`a68g`) served as the reference where a program
-has an obvious expected result. Line numbers refer to the commit above.
+Algol 68 Genie 3.13.4 (`a68g`) is the reference where a program has an
+obvious expected result. Line numbers refer to the commit above.
 
 Entries 2 to 4 have been filed in the GCC Bugzilla (PR 128380, PR 128382
 and PR 128383, linked at the entries); the others have not. Entry 1 was

@@ -3,6 +3,6 @@
  "compile": 0,
  "exit": 1,
  "file": "genie-transput-read-1.a68",
- "stderr": "runtime error: file is in undetermined mood\n",
- "stdout": "open for writing: T\nopen existing:          +0\n"
+ "stderr": "runtime error: cannot open \"/tmp/a68j-genie-transput-read-1.txt\" for putting, file exists\n",
+ "stdout": "open for writing: T\nopen existing:          +0\nints:        +12        -34         +5 eof: F eoln: T\nint range:+2147483647-2147483648        +77 value errors 1\nlong long int: 9223372036854775807\nlong long int: -9223372036854775808\noverflow keeps 5, value errors 2\nreals:\n+3.250000e +0\n-1.500000e +2\n+5.000000e -2\n+5.000000e +0\n+1.000000e +5\n+1.000000e -1\n-1.000000e +0\n+0.000000e +0\nvalue errors 3\nlong reals: TTTT\nvalue errors 4\nbools: TFF value errors 5\nstring <a string with spaces> eoln T\nempty line <>\nchars <abc> line 10\nterminated <d> <,> <ef> <;> <gh>\n12abc:         +12 then <a>\nrest <bc 7e2 1.5e+x -x>\nlast <last line without newline> eof T eoln F\nat end <> T\nafter reset:        +12 < -0034 +5>\nlines: 12\nstand in eof: T\nread at eof:         +42 T\nread_line at eof <>\nopen missing:          +2\nopen directory:          +2\nopen back channel:          +0\nback channel get:        +12\nafter rewrite <rewritten>\nestablish:          +0\n"
 }

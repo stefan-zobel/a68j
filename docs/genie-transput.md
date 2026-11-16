@@ -262,8 +262,9 @@ reads as a string), and for the first `eoln` there.
   68 Genie consumes it and gives 0, without a value error.
 - `open` of a file without read permission gives its `errno` (13); Algol
   68 Genie gives 0, since it only looks at the file with `stat`.
-- `reset` is allowed on every opened file; Algol 68 Genie refuses it for
-  `stand_out_channel` ("cannot reset file").
+- `reset` is allowed on every opened file; Algol 68 Genie allows it only
+  on `stand_back_channel` and for a string (`associate`), and stops with
+  "cannot reset file" on `stand_in_channel` and `stand_out_channel`.
 - Reading with `getchar` or `fgetc` on the same file loses the character
   that `get` has read ahead.
 

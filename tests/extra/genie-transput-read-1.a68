@@ -34,10 +34,10 @@ access Genie_Transput (
     { Reading it back. }
     File f;
     print (("open existing: ", open (f, data, stand_in_channel), newline));
-    print (("eof: ", eof (f), " eoln: ", eoln (f), newline));
+    { eof and eoln before the first get: "file is in undetermined mood". }
     int i, j, k;
     get (f, (i, j, k));
-    print (("ints:", i, j, k, " eoln: ", eoln (f), newline));
+    print (("ints:", i, j, k, " eof: ", eof (f), " eoln: ", eoln (f), newline));
     int bad_count := 0;
     on_value_error (f, (ref File g) bool: (bad_count +:= 1; true));
     int lo, hi, over := 77;
