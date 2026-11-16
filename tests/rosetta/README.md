@@ -130,7 +130,12 @@ rounding, because ga68 writes wrong digits of a `REAL` (entries 4 and 5),
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol
 68 Genie, constructs that ga68 does not lower yet, and Genie procedures
-that `Genie_Transput` does not provide (`system`, `on line end` ...). The list is in `results.tsv`. Since `Genie_Transput` provides
+that `Genie_Transput` does not provide (`system`, `on line end` ...). a68j
+with `-fgenie` does the widening between lengths as Algol 68 Genie does
+(since version 0.8.1): of the 420 originals, it compiles 137 (25 before),
+and 47 of the 112 new ones give the output of Algol 68 Genie 3.13.4. Most
+of the others rely on the multiple precision of `LONG LONG INT` or on the
+64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give
 the same result on the JVM. With `associate` (transput to a string), 6
 more compile, and all 6 give the same result.

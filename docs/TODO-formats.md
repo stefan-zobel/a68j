@@ -357,6 +357,7 @@ program.
 | `FILE`, `CHANNEL` | `GFILE`, `GCHANNEL`, from a module of its own | `GFILE`, `GCHANNEL` by the tool, from `Genie_Formats` |
 | a program needs `ACCESS` to `Genie_Transput` | wrapped in `ACCESS ... BEGIN ... END` | wrapped by the compiler (see below) |
 | format texts | not handled | rewritten by the tool, as far as the stages go |
+| widening between lengths (`LONG INT x := 1`, `x +:= 1`) | not handled | as in Algol 68 Genie, by the front end (since version 0.8.1; see below) |
 
 **How the tool is called.** In the compiler, the tool runs in the same
 JVM, without a second process:
@@ -406,6 +407,39 @@ marked as such.
   into the string that replaces a format text over several lines.
 - An error found by the tool is reported by the scanner at its line of
   the file.
+
+**Widening between lengths (since version 0.8.1).** Algol 68 Genie widens
+`INT` to `LONG INT` to `LONG LONG INT`, `REAL` to `LONG REAL`, `COMPL` to
+`LONG COMPL` and `BITS` to `LONG BITS` (`widens_to` in its
+`moids-misc.c`). ga68 follows the Revised Report, which has no such
+widenings.
+
+- **Front end.** With `-fgenie`, `MoidsMisc.widensTo` asks
+  `genieWidensTo`, a port of Genie's table, first. Like the hooks above,
+  this is an a68j addition to the 1:1 port and is marked as such.
+- **Mixed formulas need nothing more.** Operator identification
+  (`MoidsCheck.findOperator`, steps C.3 and C.4, ported from ga68, which
+  has them from Genie) looks among the standard operators for one whose
+  operands are the balanced mode of the two operands. With the widening,
+  the balanced mode of `LONG INT` and `INT` is `LONG INT`, so `x + 1`,
+  `x < 10` and `x +:= 1` are found.
+  - Programs that compiled before keep their operators: a balanced mode
+    is always one of the operand modes.
+- **Back end.** `GenCoercions.widening` adds `INT` to `LONG INT` (`i2l`),
+  `BITS` to `LONG BITS` (without sign extension) and `COMPL` to `LONG
+  COMPL` (both parts to double). The other new steps keep the
+  representation.
+- **Denotations keep their value.** A widened denotation, or `-`/`+` of
+  one, takes the value of its text at the longer length
+  (`Tables.widenedDenotation`). This avoids the 32-bit wrap of
+  `3000000000` and the float digits of `0.1`.
+- Of the 420 prepared Rosetta solutions that ga68 rejects, a68j with
+  `-fgenie` compiled 25 before and compiles 137 now. Of the 112 new ones,
+  47 give the same output as Algol 68 Genie 3.13.4.
+  - 14 do not end normally within a minute in Algol 68 Genie either.
+  - Most others rely on the multiple precision of `LONG LONG INT`, the
+    128-bit `LONG INT` or the 64-bit `INT` and `REAL` of Algol 68 Genie;
+    there they overflow or print other widths and digits.
 
 **A defect fixed on the way.** With `--ga68`, the tool turned `FILE` into
 `GFILE`, but it added `Genie_Formats`, which exports `GFILE`, to the access

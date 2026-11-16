@@ -207,6 +207,23 @@ the tool with `--ga68` does by hand:
   directory from a program given without one (entry 25 of
   [ga68-bug-reports.md](ga68-bug-reports.md)); with `-fgenie` a68j finds
   it, as Algol 68 Genie does.
+- Values widen between lengths, as in Algol 68 Genie (since version
+  0.8.1):
+  - `int` to `long int` to `long long int`, `real` to `long real`, `compl`
+    to `long compl`, `bits` to `long bits`, and on to the `real` and
+    `compl` modes of the longer length (`long real q := 1`).
+  - ga68 follows the Revised Report here, so without `-fgenie` this is an
+    error. With it, `long int x := 1` is accepted, and so is an `int`
+    argument for a `long int` parameter.
+  - Formulas with operands of different lengths need no operators of
+    their own: `x + 1`, `x < 10` and `x +:= 1` use the operator of the
+    longer mode. As in Algol 68 Genie, the front end looks for it among
+    the standard operators when no operator fits the operands as they
+    are.
+  - A denotation that is widened has the value of its text at the longer
+    length. `long int n := 3000000000` does not wrap at 32 bits, and
+    `long real r := 0.1` is the `long real` nearest to 0.1, not a widened
+    `real`.
 
 Messages of the compiler and run-time errors give the lines of the source
 files. Their columns can differ where the tool changed a line (a format
@@ -214,7 +231,9 @@ text, a doubled apostrophe, `GFILE`). An error that the tool finds, such
 as an unterminated format text, is an error of the compiler at its line.
 
 These remain differences to Algol 68 Genie, with or without `-fgenie`:
-`long long` modes without multiple precision, the 32-bit `int`, `_` in
+`long long` modes without multiple precision, the 32-bit `int` and
+`real` (a `real` variable widened to `long real` keeps the precision of
+its 32 bits), `_` in
 tags (not significant in ga68), no QUOTE stropping, structures as items
 of `print` and `printf`, and the parts of formats that are not supported
 yet (see "Differences and limits").

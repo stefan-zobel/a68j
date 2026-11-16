@@ -1,0 +1,28 @@
+{ a68j-options: -fgenie }
+# -fgenie: the widenings of Algol 68 Genie between lengths, and formulas with operands of different lengths. #
+LONG INT x := 1;
+x +:= 1;
+x *:= 3;
+LONG INT y = x + 2;
+LONG LONG INT z := x;
+PROC sq = (LONG INT n) LONG INT: n * n;
+[] LONG INT a = (1, 2, 3);
+LONG INT v = (x < 10 | 7 | x);
+print ((whole (x, 0), " ", whole (y, 0), " ", whole (z, 0), " ", whole (sq (5), 0), newline));
+print ((whole (a[3], 0), " ", whole (v, 0), " ", whole (x MOD 4, 0), " ", (x = 6 | "eq" | "ne"), newline));
+LONG INT big := 3000000000;
+LONG INT neg = -3000000000;
+print ((whole (big, 0), " ", whole (neg, 0), " ", whole (big * 3, 0), newline));
+LONG REAL r := 0.1;
+LONG REAL q := 1;
+REAL s = 0.5;
+LONG REAL t := s;
+print ((fixed (r, 0, 15), " ", fixed (q + 1, 0, 3), " ", fixed (t * 2, 0, 3), newline));
+LONG COMPL c := 1;
+COMPL w = 1.5 I 2;
+LONG COMPL lw := w;
+print ((fixed (re OF c, 0, 3), " ", fixed (re OF lw, 0, 3), " ", fixed (im OF lw, 0, 3), newline));
+BITS bt = 16r80000000;
+LONG BITS b := bt;
+LONG BITS lb := 16r80000000;
+print ((whole (ABS b, 0), " ", whole (ABS lb, 0), newline))

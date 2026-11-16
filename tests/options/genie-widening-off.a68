@@ -1,0 +1,8 @@
+{ a68j-options: -fstropping=upper }
+{ Without -fgenie, a68j follows ga68: no widening between lengths, so these lines are errors. }
+BEGIN
+   LONG INT x := 1;
+   x +:= 1;
+   LONG REAL r := 0.1;
+   SKIP
+END
