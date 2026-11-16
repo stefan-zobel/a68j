@@ -387,6 +387,11 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
   formatted input (`getf`, `readf`). A format text that uses `i` or `h`
   passes the tool and ends the program with
   `format item ... is not supported yet`.
+- A complex value (`compl`, `long compl`, `long long compl`) is two
+  values, its parts, each edited by its own pattern, as in Algol 68 Genie
+  without `i` (since version 0.8.1). `long long real` and `long long bits`
+  are items as well; a picture edits a `long long real` with the
+  precision of a `long real`.
 - **Where Algol 68 Genie is defective, `Genie_Formats` differs from
   it.** The tests with a file `NAME.fixed` record this:
   - `-zz.dd` writes -0.5 as `  -.50`; Algol 68 Genie drops the sign and a
@@ -418,8 +423,7 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
 - Structures are not items: Algol 68 Genie prints the fields of a
   structure, but the union `Gfout` cannot cover the structures of a
   program (`print` of `Genie_Transput` has the same limit). Neither can
-  it cover rows of rows, `[] char` or the `short` and `long long` modes
-  other than `long long int`.
+  it cover rows of rows, `[] char` or the `short` modes.
 - Algol 68 Genie checks the scope of procedures at run time and refuses to
   put a routine text of the program into the heap. `putf` therefore keeps
   its state in a local row: formats and collections may be nested 8

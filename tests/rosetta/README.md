@@ -103,23 +103,23 @@ if ga68 rejects a program, it rejects both versions, almost always with
 the first error on the same line (exception: `flow-control-structures-4`,
 a format for which ga68 reports the errors in a different order).
 
-## Results (a68j 0.8.0, programs in SUPPER)
+## Results (a68j 0.8.1, programs in SUPPER)
 
 | | Solutions |
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 420 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 419 |
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
-| ga68 compiles and runs them | 695 |
+| ga68 compiles and runs them | 696 |
 | **of these identical to ga68 on the JVM** | **680** |
 | of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 26 |
 | of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 627 |
 | of these the same up to rounding (`approx`) | 5 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
-Preparation): of the 175, ga68 compiles 81. Among them is
+Preparation): of the 175, ga68 compiles 82. Among them is
 `knapsack-problem-unbounded`, which crashes natively (entry 26 of
 [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
 compared with its result in `fixed`. Three of them are the same only up to
@@ -132,8 +132,14 @@ The most common reasons why ga68 does not compile a solution: formats
 68 Genie, constructs that ga68 does not lower yet, and Genie procedures
 that `Genie_Transput` does not provide (`system`, `on line end` ...). a68j
 with `-fgenie` does the widening between lengths as Algol 68 Genie does
-(since version 0.8.1): of the 420 originals, it compiles 137 (25 before),
-and 47 of the 112 new ones give the output of Algol 68 Genie 3.13.4. Most
+(since version 0.8.1): of the 420 originals that ga68 rejected with
+version 0.8.0, it compiles 137 (25 before), and 47 of the 112 new ones
+give the output of Algol 68 Genie 3.13.4. With `long long real`, `long
+long bits` and the complex modes as items of `print` and `printf` (also
+since version 0.8.1), 3 more compile: `accumulator-factory` (which Algol
+68 Genie stops with a scope error), `infinity` and `sylvesters-sequence`
+(both print `LONG LONG` values with the precision of Algol 68 Genie
+there). ga68 now compiles `infinity` as well. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give
@@ -159,6 +165,9 @@ The remaining differences (details in `notes.tsv`):
   killed; `yin-and-yang`: partial parametrization, which a68j implements
   as Algol 68 Genie does, see `tests/partial`).
 - **Both fail** (`self-numbers`: a row with 2·10⁹ elements).
+- **80-bit `long long real`** (`infinity`): ga68 prints
+  `long long max real` of its 80-bit `long long real`, a68j that of a
+  double.
 - **Not reproducible natively** (`amb`): the solution yields routines that
   use the parameters of an operator after the operator has returned. The
   source marks this as a scope violation, and Algol 68 Genie stops with

@@ -17,3 +17,4 @@ exponentiation-operator-1	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5
 exponentiation-operator-2	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5): a format writes wrong digits of a REAL (2.0**30, exactly 1073741824, as 1073741793.6); a68j writes the digits of the exact value, within the tolerance of run_jvm.py
 formatted-numeric-output-1	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5): a format writes wrong digits of a REAL; a68j writes the digits of the exact value, within the tolerance of run_jvm.py
 y-combinator-2	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
+infinity	long long real has 80 bits in ga68 and 64 bits in a68j, so long long max real differs; ga68 also prints wrong last digits of max real and long max real (docs/ga68-bug-reports.md, entries 4 and 5)

@@ -75,15 +75,15 @@
 
   The layout of printed values follows Algol 68 Genie: integers are
   right-aligned with a sign in a field of int width + 1 characters, reals
-  are printed in floating-point style, booleans and bits as T and F.
+  are printed in floating-point style, booleans and bits as T and F, a
+  complex number as its two parts.
 
   Reading follows Algol 68 Genie as well (see "Reading" below).  It reads
   with fgetc, one character at a time, so it is simple rather than fast.
 
   Not provided: formats ($...$, printf), create, the events
   other than logical file end and value error, reading rows, binary
-  transput, the channels other than the three above, and values of mode
-  long long real (80-bit long long real is out of scope for a68j).
+  transput, and the channels other than the three above.
   [,] char is not among the printable modes: a union with both string and
   [,] char makes ga68 crash in a conformity clause (internal compiler
   error in verify_gimple).
@@ -433,8 +433,9 @@ def
     { The values print and put accept. }
 
     pub mode Outitem = union (int, long int, long long int,
-                              real, long real,
-                              bool, char, string, bits, long bits,
+                              real, long real, long long real,
+                              compl, long compl, long long compl,
+                              bool, char, string, bits, long bits, long long bits,
                               [] int, [] long int, [] real, [] long real,
                               [] bool, [] string, [] bits,
                               [,] int, [,] real, [,] bool,
@@ -454,12 +455,22 @@ def
              s
        end;
 
+    proc long_long_bits_repr = (long long bits b) string:
+       begin string s;
+             for i to long_long_bits_width do s +:= (i ELEM b | "T" | "F") od;
+             s
+       end;
+
     proc real_repr = (real r) string:
        float (r, real_width + exp_width + 4, real_width - 1, exp_width + 1);
 
     proc long_real_repr = (long real r) string:
        float (r, long_real_width + long_exp_width + 4, long_real_width - 1,
               long_exp_width + 1);
+
+    proc long_long_real_repr = (long long real r) string:
+       float (r, long_long_real_width + long_long_exp_width + 4,
+              long_long_real_width - 1, long_long_exp_width + 1);
 
     pub proc put = (ref File f, [] Outitem items) void:
        begin ensure_put (f);
@@ -471,11 +482,21 @@ def
              (long long int i): emit (f, whole (i, long_long_int_width + 1)),
              (real r): emit (f, real_repr (r)),
              (long real r): emit (f, long_real_repr (r)),
+             (long long real r): emit (f, long_long_real_repr (r)),
+             { A complex number is printed as its two parts, as in Algol
+               68 Genie. }
+             (compl z): (emit (f, real_repr (re of z)); emit (f, real_repr (im of z))),
+             (long compl z):
+                (emit (f, long_real_repr (re of z)); emit (f, long_real_repr (im of z))),
+             (long long compl z):
+                (emit (f, long_long_real_repr (re of z));
+                 emit (f, long_long_real_repr (im of z))),
              (bool b): emit (f, bool_repr (b)),
              (char c): emit (f, c),
              (string s): emit (f, s),
              (bits b): emit (f, bits_repr (b)),
              (long bits b): emit (f, long_bits_repr (b)),
+             (long long bits b): emit (f, long_long_bits_repr (b)),
              ([] int r):
                 for i from LWB r to UPB r
                 do emit (f, whole (r[i], int_width + 1)) od,

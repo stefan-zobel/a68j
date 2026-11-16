@@ -93,7 +93,8 @@
   line, not from the start of printf.
 
   Not provided yet: the complex pattern i, the pattern h, and formatted
-  input (getf, readf).  A format text that uses i or h is accepted by
+  input (getf, readf).  Without i, a complex number is two values, its
+  parts, each edited by its own pattern, as in Algol 68 Genie.  A format text that uses i or h is accepted by
   the rewrite tool and ends the program with the error
     "format item ... is not supported yet"
   when the format is elaborated.
@@ -139,8 +140,9 @@ def
                                proc (int) Gformat formats);
 
     pub mode Gfout = union (int, long int, long long int,
-                            real, long real,
-                            bool, char, string, bits, long bits,
+                            real, long real, long long real,
+                            compl, long compl, long long compl,
+                            bool, char, string, bits, long bits, long long bits,
                             [] int, [] long int, [] real, [] long real,
                             [] bool, [] string, [] bits,
                             [,] int, [,] real, [,] bool,
@@ -508,11 +510,13 @@ def
           (long long int x): "LONG LONG INT",
           (real x): "REAL",
           (long real x): "LONG REAL",
+          (long long real x): "LONG LONG REAL",
           (bool x): "BOOL",
           (char x): "CHAR",
           (string x): "[] CHAR",
           (bits x): "BITS",
-          (long bits x): "LONG BITS"
+          (long bits x): "LONG BITS",
+          (long long bits x): "LONG LONG BITS"
        out "this"
        esac;
 
@@ -558,11 +562,15 @@ def
                 (long real x):
                    (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
                     |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
+                (long long real x):
+                   (n = 0 | put (f, x) |: n = 1 | put (f, whole (x, a[1]))
+                    |: n = 2 | put (f, fixed (x, a[1], a[2])) | put (f, float (x, a[1], a[2], a[3]))),
                 (bool x): (n = 0 | put (f, x) | gf_cannot (v, "general")),
                 (char x): (n = 0 | put (f, x) | gf_cannot (v, "general")),
                 (string x): (n = 0 | put (f, x) | gf_cannot (v, "general")),
                 (bits x): (n = 0 | put (f, x) | gf_cannot (v, "general")),
-                (long bits x): (n = 0 | put (f, x) | gf_cannot (v, "general"))
+                (long bits x): (n = 0 | put (f, x) | gf_cannot (v, "general")),
+                (long long bits x): (n = 0 | put (f, x) | gf_cannot (v, "general"))
              out gf_cannot (v, "general")
              esac
        end;
@@ -602,7 +610,7 @@ def
       SHR: in Algol 68 Genie, ELEM of a long bits value does not yield its
       bits in order. }
     proc gf_radix_digits = (Gfout v, int r) string:
-       begin [1 : long_bits_width + 1] int d;  { the digits, the lowest first }
+       begin [1 : long_long_bits_width + 1] int d;  { the digits, the lowest first }
              int nd := 0;
              proc add = (bool bit) void:
                 begin int carry := (bit | 1 | 0);
@@ -619,7 +627,10 @@ def
                    do add (((b SHR i) AND 16r1) /= 16r0) od,
                 (long bits b):
                    for i from long_bits_width - 1 by -1 to 0
-                   do add (((b SHR i) AND long 16r1) /= long 16r0) od
+                   do add (((b SHR i) AND long 16r1) /= long 16r0) od,
+                (long long bits b):
+                   for i from long_long_bits_width - 1 by -1 to 0
+                   do add (((b SHR i) AND long long 16r1) /= long long 16r0) od
              esac;
              string s;
              string hex = "0123456789abcdef";
@@ -727,7 +738,8 @@ def
              elif class = "r"
              then case v
                   in (bits x): skip,
-                     (long bits x): skip
+                     (long bits x): skip,
+                     (long long bits x): skip
                   out gf_cannot (v, "bits")
                   esac;
                   string d = gf_strip (gf_radix_digits (v, value of rep of it));
@@ -752,7 +764,8 @@ def
                                    (long int x): long real (x),
                                    (long long int x): long real (SHORTEN x),
                                    (real x): LENG x,
-                                   (long real x): x
+                                   (long real x): x,
+                                   (long long real x): SHORTEN x
                                 out gf_cannot (v, "real"); long 0.0
                                 esac;
                   int point := 0, ex := 0;
@@ -937,6 +950,11 @@ def
                    ([] bool r): for i from LWB r to UPB r do out_value (r[i]) od,
                    ([] string r): for i from LWB r to UPB r do out_value (r[i]) od,
                    ([] bits r): for i from LWB r to UPB r do out_value (r[i]) od,
+                   { A complex number is two values, as in Algol 68 Genie
+                     without the pattern i. }
+                   (compl z): (out_value (re of z); out_value (im of z)),
+                   (long compl z): (out_value (re of z); out_value (im of z)),
+                   (long long compl z): (out_value (re of z); out_value (im of z)),
                    ([,] int r):
                       for i from 1 LWB r to 1 UPB r
                       do for j from 2 LWB r to 2 UPB r do out_value (r[i, j]) od od,

@@ -120,10 +120,12 @@ and `GCHANNEL` without a module of its own.
 | `is_upper`, `is_lower`, `is_alpha`, `is_digit`, `is_alnum`, `is_space`, `is_xdigit`, `to_upper`, `to_lower` | character classes of Algol 68 Genie; they consider ASCII letters and digits only |
 
 `print` and `put` accept `int`, `long int`, `long long int`, `real`,
-`long real`, `bool`, `char`, `string`, `bits` and `long bits`; rows
-`[] int`, `[] long int`, `[] real`, `[] long real`, `[] bool`,
-`[] string` and `[] bits`; `[,] int`, `[,] real` and `[,] bool`; and the
-layout procedures. `newline` counts the lines of a `File` in `line of f`,
+`long real`, `long long real`, `compl`, `long compl`, `long long compl`,
+`bool`, `char`, `string`, `bits`, `long bits` and `long long bits`
+(`long long real`, `long long bits` and the complex modes since version
+0.8.1); rows `[] int`, `[] long int`, `[] real`, `[] long real`,
+`[] bool`, `[] string` and `[] bits`; `[,] int`, `[,] real` and
+`[,] bool`; and the layout procedures. `newline` counts the lines of a `File` in `line of f`,
 and output counts the characters written since the last newline in
 `col of f`, which the alignment `k` of `Genie_Formats` uses.
 
@@ -137,6 +139,8 @@ The layout follows Algol 68 Genie:
 | `long 1234567890123` | `      +1234567890123` (field of `long_int_width + 1`) |
 | `3.25`, `1e10` | `+3.250000e +0`, `+1.000000e+10` |
 | `long 2.5` | `+2.50000000000000e  +0` |
+| `long long 2.5` | `+2.50000000000000000e   +0` (18 digits, as in ga68; a68j computes with the 64-bit `long long real`, so the last digits may differ from ga68) |
+| `compl` `(1.5, -2)` | `+1.500000e +0-2.000000e +0` (its two parts, as in Algol 68 Genie) |
 | `true`, `false` | `T`, `F` |
 | `16r5` (`bits`) | 32 characters `T` and `F` |
 | a row | its elements one after the other, each in its own layout |
@@ -281,8 +285,6 @@ reads as a string), and for the first `eoln` there.
   union `OUTITEM` has rows of the plain modes only, and a union cannot
   cover rows of any depth; a68g straightens them (Rosetta
   `flatten-a-list-2` fails to compile for this reason);
-- values of mode `long long real` (80-bit `long long real` is out of scope
-  for a68j);
 - `[,] char`: a union with both `string` and `[,] char` makes ga68 crash
   in a conformity clause (internal compiler error in `verify_gimple`).
 

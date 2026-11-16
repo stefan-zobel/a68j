@@ -434,12 +434,29 @@ widenings.
   (`Tables.widenedDenotation`). This avoids the 32-bit wrap of
   `3000000000` and the float digits of `0.1`.
 - Of the 420 prepared Rosetta solutions that ga68 rejects, a68j with
-  `-fgenie` compiled 25 before and compiles 137 now. Of the 112 new ones,
+  `-fgenie` compiled 25 before and compiles 137 with the widening (140
+  with the new modes of `print` and `printf`, below). Of the 112 new ones,
   47 give the same output as Algol 68 Genie 3.13.4.
   - 14 do not end normally within a minute in Algol 68 Genie either.
   - Most others rely on the multiple precision of `LONG LONG INT`, the
     128-bit `LONG INT` or the 64-bit `INT` and `REAL` of Algol 68 Genie;
     there they overflow or print other widths and digits.
+
+**More modes for `print` and `printf` (since version 0.8.1).** Rosetta
+solutions failed with "cannot be coerced to `[] GFOUT`" (or `OUTITEM`)
+for values that Algol 68 Genie prints but `Genie_Transput` and
+`Genie_Formats` did not. `long long real`, `long long bits`, `compl`,
+`long compl` and `long long compl` are now in `Outitem` and `Gfout`. This
+holds for ga68 and for a68j with or without `-fgenie`.
+
+- As in Algol 68 Genie, a complex number is printed as its two parts. A
+  format edits each part with its own pattern; the pattern `i` is still
+  missing.
+- `long long real` is printed with 18 digits, as in ga68. The `long long
+  real` of a68j has 64 bits, so the last digits come from double
+  arithmetic and may differ from ga68.
+- Structures of the program, rows of rows, `[] char` and the `short`
+  modes remain outside the unions.
 
 **A defect fixed on the way.** With `--ga68`, the tool turned `FILE` into
 `GFILE`, but it added `Genie_Formats`, which exports `GFILE`, to the access

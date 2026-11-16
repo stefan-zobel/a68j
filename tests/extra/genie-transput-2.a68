@@ -1,0 +1,20 @@
+{ dg-modules "genietransput" }
+{ The bundled module Genie_Transput: print of long long real, long long
+  bits and the complex modes, which are printed as their two parts, as in
+  Algol 68 Genie.  The long long real values and their scaling by powers
+  of ten are exact in binary, so that the 80-bit long long real of ga68
+  and the 64-bit one of a68j print the same 18 digits. }
+access Genie_Transput (
+    print (("long long real:", long long 2.5, - long long 0.375, newline));
+    print (("long long real:", long long 0.0, long long 12.5, newline));
+    print (("long long bits:", long long 16rff, newline));
+    print (("long long bits:", NOT long long 16r0, newline));
+    compl z = (1.5, -2.0);
+    print (("compl:", z, newline));
+    long compl lz = (long 0.25, long 3.0);
+    print (("long compl:", lz, newline));
+    long long compl llz = (- long long 0.5, long long 8.0);
+    print (("long long compl:", llz, newline));
+    compl w := (0.0, 1.0);
+    print (("mixed:", 1, z, w, long long 0.5, long 16r1, newline))
+)

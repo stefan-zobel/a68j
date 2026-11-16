@@ -537,7 +537,7 @@ implicit-type-conversion	Implicit-type-conversion	compile error: error: indicant
 inconsummate-numbers-in-base-10	Inconsummate-numbers-in-base-10	exit 0	pass	
 increasing-gaps-between-consecutive-niven-numbers	Increasing-gaps-between-consecutive-Niven-numbers	exit 0	pass	
 increment-a-numerical-string	Increment-a-numerical-string	exit 0	pass	
-infinity	Infinity	compile error: error: '(GFORMAT, long long real)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
+infinity	Infinity	exit 0	fail: stdout differs	long long real has 80 bits in ga68 and 64 bits in a68j, so long long max real differs; ga68 also prints wrong last digits of max real and long max real (docs/ga68-bug-reports.md, entries 4 and 5)
 inner-classes	Inner-classes	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): a routine text stored in a heap structure uses a parameter of a procedure that has already returned (no scope check in ga68); a68j keeps the frame alive
 input-output-for-lines-of-text	Input-Output-for-lines-of-text	exit 1	pass	
 input-output-for-pairs-of-numbers-1	Input-Output-for-pairs-of-numbers	exit 1	pass	

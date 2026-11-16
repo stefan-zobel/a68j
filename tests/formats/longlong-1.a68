@@ -1,0 +1,26 @@
+# LONG LONG REAL, LONG LONG BITS and the complex modes with formats, as in
+  Algol 68 Genie.  Without the pattern i, a complex number is two values,
+  each edited by its own pattern.  No plain g on LONG LONG values: Algol
+  68 Genie writes them with its own widths. #
+BEGIN
+   LONG LONG REAL x = LONG LONG 2.5, y = - LONG LONG 0.375;
+   printf (($"<"g(0, 4)"> <"g(0, 4)">"l$, x, y));
+   printf (($"<"g(10, 3)">"l$, x));
+   printf (($"<"g(12, 3, 3)">"l$, y));
+   printf (($"<"-d.ddd">"l$, y));
+   printf (($"<"zzd.dd">"l$, LONG LONG 12.5));
+   printf (($"<"d.dde+dd">"l$, LONG LONG 1250.0));
+   LONG LONG BITS b = LONG LONG 16rff;
+   printf (($"<"16r16d">"l$, b));
+   printf (($"<"2r12d">"l$, b));
+   printf (($"<"8r4z">"l$, b));
+   COMPL z = (1.5, -2.0);
+   printf (($"<"g(0, 2)" "g(0, 2)">"l$, z));
+   printf (($"<"-d.d,", "-d.d">"l$, z));
+   LONG COMPL lz = (LONG 0.25, LONG 3.0);
+   printf (($"<"g(0, 3)" "g(0, 3)">"l$, lz));
+   LONG LONG COMPL llz = (- LONG LONG 0.5, LONG LONG 8.0);
+   printf (($"<"-d.d," "-d.d">"l$, llz));
+   [] COMPL zs = ((1.0, 2.0), (3.0, 4.0));
+   printf (($2("("d.d,","d.d")")l$, zs[1], zs[2]))
+END
