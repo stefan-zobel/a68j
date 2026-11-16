@@ -177,8 +177,7 @@ and can be compiled with ga68, provides unformatted transput:
 <code>get</code>, files on disk, files associated with strings, the
 layout procedures and the events for the end of the file and for value
 errors. It does not provide formats, binary transput, or the printing of
-records, <code><b>compl</b></code>, <code><b>short</b></code> and
-<code><b>long</b> <b>long</b></code> values. The module
+records and <code><b>short</b></code> values. The module
 <code>Genie_Formats</code>, which also comes with a68j, adds formatted
 output (<code>printf</code>, <code>putf</code>) in the manner of Algol
 68 Genie: a68j compiles format texts with the option
@@ -257,7 +256,8 @@ empty</td>
 <tr>
 <td style="text-align: left;"><code><b>andth</b></code>,
 <code><b>orel</b></code></td>
-<td style="text-align: left;">yes (GNU extension)</td>
+<td style="text-align: left;">yes (GNU extension); a68j with
+<code>-fgenie</code> also <code>ANDF</code>, <code>ORF</code></td>
 <td style="text-align: left;">yes (also <code>ANDF</code>,
 <code>ORF</code>)</td>
 </tr>
@@ -270,7 +270,8 @@ empty</td>
 <tr>
 <td style="text-align: left;"><code>downto</code>, <code>until</code> in
 loops</td>
-<td style="text-align: left;">no</td>
+<td style="text-align: left;">no; a68j with <code>-fgenie</code>:
+<code>DOWNTO</code> without <code>BY</code></td>
 <td style="text-align: left;">yes</td>
 </tr>
 <tr>
@@ -312,9 +313,13 @@ examples of this book avoid such values.</p>
 Rosetta Code programs</h2>
 <p>Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie
 in upper-case notation. a68j runs such a program as it is with the
-option <code>-fgenie</code>, which also handles its format texts. For
-ga68, the format rewrite tool of a68j with the option
-<code>--ga68</code> prepares it: it adds
+option <code>-fgenie</code>, which also handles its format texts and
+widens <code><b>int</b></code> to <code><b>long</b> <b>int</b></code>
+(and <code><b>real</b></code> to <code><b>long</b> <b>real</b></code>)
+as Algol 68 Genie does, so that
+<code><b>long</b> <b>int</b> n := 1</code> and <code>n +:= 1</code> need
+no <code><b>long</b></code> before the 1. For ga68, the format rewrite
+tool of a68j with the option <code>--ga68</code> prepares it: it adds
 <code><b>access</b> Genie_Transput</code> and <code>Genie_Formats</code>
 with an enclosing block if the program has none, and rewrites the format
 texts; ga68 then compiles it in upper-case notation with the option
