@@ -63,7 +63,7 @@ Hello, world!
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
 | a68j's own differential tests (`tests/extra`) | 51 of 51 |
-| Rosetta Code programs that ga68 runs | 608 identical (560 of them end normally), 2 equal up to floating-point rounding, 8 open, of 618 |
+| Rosetta Code programs that ga68 runs | 680 identical (627 of them end normally), 5 equal up to floating-point rounding, 10 open, of 695 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |

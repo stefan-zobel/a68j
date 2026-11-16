@@ -14,7 +14,7 @@ abc-incremental-counts	ABC-incremental-counts	missing include sort.incl.a68	-
 abc-problem	ABC-problem	exit 0	pass	
 abc-words-1	ABC-words	missing include files.incl.a68	-	
 abc-words-2	ABC-words	missing include files.incl.a68	-	
-aks-test-for-primes	AKS-test-for-primes	compile error: error: construct beginning with '(' in line 64 followed by '$' and then a specification and 'l' and '$' and ',' and a sp	-	
+aks-test-for-primes	AKS-test-for-primes	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 ascii-control-characters	ASCII-control-characters	compile error: error: clause does not yield a value	-	
 abbreviations-easy	Abbreviations-easy	exit 0	pass	
 abbreviations-simple	Abbreviations-simple	exit 0	pass	
@@ -28,11 +28,11 @@ ackermann-function	Ackermann-function	exit 0	pass
 additive-primes	Additive-primes	missing include primes.incl.a68	-	
 address-of-a-variable-1	Address-of-a-variable	exit 0	pass	
 address-of-a-variable-2	Address-of-a-variable	compile error: error: clause does not yield a value	-	
-air-mass	Air-mass	exit 0	pass	
-align-columns	Align-columns	compile error: error: construct beginning with '(' in line 44 followed by '$' and then 'gx' and '$' and ',' and 'tok' and ')' is an inv	-	
+air-mass	Air-mass	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+align-columns	Align-columns	compile error: error: tag 'onphysicalfileend' has not been declared properly	-	
 aliquot-sequence-classifications	Aliquot-sequence-classifications	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 almkvist-giullera-formula-for-pi	Almkvist-Giullera-formula-for-pi	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
-almost-prime	Almost-prime	compile error: error: construct beginning with '(' in line 47 followed by '$' and then 'k = ' and ',' and 'd' and ',' and ':' and ',' e	-	
+almost-prime	Almost-prime	exit 0	pass	
 alternade-words	Alternade-words	missing include files.incl.a68 sort.incl.a68	-	
 amb	Amb	nondeterministic output	-	
 amicable-pairs	Amicable-pairs	exit 0	pass	
@@ -41,23 +41,23 @@ anagrams	Anagrams	missing include aArray.a68	-
 anagrams-deranged-anagrams	Anagrams-Deranged-anagrams	missing include aArray.a68	-	
 anaprimes	Anaprimes	exit 0	pass	
 angle-difference-between-two-bearings	Angle-difference-between-two-bearings	exit 0	pass	
-angles-geometric-normalization-and-conversion	Angles-geometric-normalization-and-conversion	exit 0	pass	
+angles-geometric-normalization-and-conversion	Angles-geometric-normalization-and-conversion	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 anonymous-recursion	Anonymous-recursion	compile error: error: clause does not yield a value	-	
 anti-primes	Anti-primes	exit 0	pass	
 ap-rys-constant	Ap-rys-constant	compile error: error: int cannot be coerced to long long real in a strong-unit	-	
 append-numbers-at-same-position-in-strings	Append-numbers-at-same-position-in-strings	exit 0	pass	
-apply-a-callback-to-an-array	Apply-a-callback-to-an-array	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'array[' and 'g' and '] = ' and 'gl' and '$' and	-	
+apply-a-callback-to-an-array	Apply-a-callback-to-an-array	exit 0	pass	
 apply-a-digital-filter-direct-form-ii-transposed-	Apply-a-digital-filter-direct-form-II-transposed-	exit 0	pass	
 approximate-equality	Approximate-equality	exit 0	pass	
-arbitrary-precision-integers-included-	Arbitrary-precision-integers-included-	compile error: error: construct beginning with '(' in line 45 followed by '$' and then a specification and 'l' and '$' and ',' and ' fi	-	
+arbitrary-precision-integers-included-	Arbitrary-precision-integers-included-	exit -8	pass	
 archimedean-spiral	Archimedean-spiral	exit 0	pass	
 arithmetic-complex	Arithmetic-Complex	compile error: error: ld returned 1 exit status	-	
-arithmetic-integer	Arithmetic-Integer	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'a plus b = a+b = ' and 'gl' and '$' and ',' and	-	
-arithmetic-rational	Arithmetic-Rational	compile error: error: indicant FORMAT has not been declared properly	-	
+arithmetic-integer	Arithmetic-Integer	compile error: error: int cannot be coerced to long int in a strong-unit	-	
+arithmetic-rational	Arithmetic-Rational	compile error: error: indicant E has not been declared properly	-	
 arithmetic-derivative-1	Arithmetic-derivative	compile error: error: dyadic operator long int < int has not been declared	-	
 arithmetic-derivative-2	Arithmetic-derivative	exit 0	pass	
 arithmetic-evaluation	Arithmetic-evaluation	compile error: error: 'int' cannot be coerced to 'long real' in a strong-enclosed clause	-	
-arithmetic-geometric-mean	Arithmetic-geometric-mean	compile error: error: construct beginning with '(' in line 30 followed by '$' and then a specification and 'l' and '$' and ',' and a sp	-	
+arithmetic-geometric-mean	Arithmetic-geometric-mean	exit 0	pass	
 arithmetic-geometric-mean-calculate-pi	Arithmetic-geometric-mean-Calculate-Pi	compile error: error: int cannot be coerced to long long real in a strong-unit	-	
 arithmetic-numbers	Arithmetic-numbers	exit 0	pass	
 array-concatenation	Array-concatenation	exit 0	pass	
@@ -66,19 +66,19 @@ arrays	Arrays	exit 0	pass
 ascending-primes	Ascending-primes	missing include primes.incl.a68 sort.incl.a68	-	
 assertions-1	Assertions	compile error: error: attempt to redefine keyword ASSERT in operator declaration	-	
 assertions-2	Assertions	compile error: error: indicant PROGRAM has not been declared properly	-	
-associative-array-creation	Associative-array-Creation	compile error: error: indicant FORMAT has not been declared properly	-	
+associative-array-creation	Associative-array-Creation	compile error: error: '(GFORMAT, ITEM)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 associative-array-iteration	Associative-array-Iteration	exit 0	pass	
 associative-array-merging	Associative-array-Merging	missing include aArrayBase.a68	-	
 attractive-numbers	Attractive-numbers	missing include primes.incl.a68	-	
 autogram-checker	Autogram-checker	compile error: error: indicant ~= has not been declared properly	-	
 averages-arithmetic-mean	Averages-Arithmetic-mean	exit 0	pass	
-averages-mean-angle	Averages-Mean-angle	compile error: error: indicant FORMAT has not been declared properly	-	
+averages-mean-angle	Averages-Mean-angle	compile error: error: tag 'arctan2' has not been declared properly	-	
 averages-mean-time-of-day	Averages-Mean-time-of-day	compile error: error: tag 'arctan2' has not been declared properly	-	
 averages-median	Averages-Median	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 averages-mode	Averages-Mode	missing include rows.incl.a68 sort.incl.a68	-	
-averages-pythagorean-means	Averages-Pythagorean-means	compile error: error: indicant FORMAT has not been declared properly	-	
+averages-pythagorean-means	Averages-Pythagorean-means	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 averages-root-mean-square	Averages-Root-mean-square	exit 0	pass	
-averages-simple-moving-average	Averages-Simple-moving-average	compile error: error: construct beginning with '(' in line 88 followed by '$' and then 'next number ' and a specification and ', sma_3 	-	
+averages-simple-moving-average	Averages-Simple-moving-average	compile error: error: real cannot be coerced to long real in a strong-unit	-	
 b-spline	B-spline	exit 0	pass	
 babbage-problem	Babbage-problem	exit 0	pass	
 bacon-cipher	Bacon-cipher	exit 0	pass	
@@ -92,18 +92,18 @@ benfords-law	Benfords-law	compile error: error: dyadic operator ref long long in
 berlekamp-massey-algorithm	Berlekamp-Massey-algorithm	exit 0	pass	
 bernoulli-numbers	Bernoulli-numbers	compile error: error: dyadic operator long long int = int has not been declared	-	
 bernoullis-triangle	Bernoullis-triangle	exit 0	pass	
-bernstein-basis-polynomials	Bernstein-basis-polynomials	exit 0	pass	
+bernstein-basis-polynomials	Bernstein-basis-polynomials	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 best-shuffle	Best-shuffle	exit 0	pass	
 bifid-cipher	Bifid-cipher	exit 0	pass	
 bin-given-limits	Bin-given-limits	exit 0	pass	
 binary-coded-decimal	Binary-coded-decimal	exit 0	pass	
-binary-digits	Binary-digits	compile error: error: construct beginning with '(' in line 11 followed by '$' in line 12 and then 'g' and ' => ' and '2r' and '3' and '	-	
+binary-digits	Binary-digits	exit 0	pass	
 binary-search	Binary-search	exit 0	pass	
-binary-strings	Binary-strings	compile error: error: indicant FORMAT has not been declared properly	-	
+binary-strings	Binary-strings	compile error: error: get skip tree: cannot compute SKIP for mode bytes	-	
 binomial-transform	Binomial-transform	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 bioinformatics-base-count	Bioinformatics-Base-count	exit 0	pass	
 biorhythms	Biorhythms	exit 1	pass	
-birthday-problem	Birthday-problem	compile error: error: indicant FORMAT has not been declared properly	-	
+birthday-problem	Birthday-problem	timeout	-	
 bitmap	Bitmap	missing include prelude/Bitmap.a68	-	
 bitmap-b-zier-curves-cubic-1	Bitmap-B-zier-curves-Cubic	compile error: error: indicant IMAGE has not been declared properly	-	
 bitmap-b-zier-curves-cubic-2	Bitmap-B-zier-curves-Cubic	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68 prelude/Bitmap/Bezier_curves/Cubic.a68	-	
@@ -112,25 +112,25 @@ bitmap-bresenhams-line-algorithm	Bitmap-Bresenhams-line-algorithm	missing includ
 bitmap-midpoint-circle-algorithm-1	Bitmap-Midpoint-circle-algorithm	compile error: error: indicant IMAGE has not been declared properly	-	
 bitmap-midpoint-circle-algorithm-2	Bitmap-Midpoint-circle-algorithm	missing include prelude/Bitmap.a68 prelude/Bitmap/Bresenhams_line_algorithm.a68 prelude/Bitmap/Midpoint_circle_algorithm.a68	-	
 bitwise-io	Bitwise-IO	exit 0	pass	
-bitwise-operations-1	Bitwise-operations	compile error: error: indicant FORMAT has not been declared properly	-	
-bitwise-operations-2	Bitwise-operations	compile error: error: construct beginning with '(' in line 14 followed by '$' and then 'g' and ', 8r' and '8r4' and 'd' and ', ' and a 	-	
+bitwise-operations-1	Bitwise-operations	compile error: error: '(,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
+bitwise-operations-2	Bitwise-operations	exit 0	pass	
 blum-integer	Blum-integer	exit 0	pass	
 boolean-values	Boolean-values	compile error: error: tag 'nullchar' has not been declared properly	-	
 boustrophedon-transform	Boustrophedon-transform	compile error: error: 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'int' and 'in	-	
-box-the-compass	Box-the-compass	compile error: error: construct beginning with '(' in line 76 followed by '$' and then 'zd' and ' ' and ',' and 'g23k' and ',' and 'zzd	-	
+box-the-compass	Box-the-compass	compile error: error: '(GFORMAT, int, GFORMAT, string, GFORMAT, string, GFORMAT, string, GFORMAT, GFORMAT, struct (int d, real m), stru	-	
 brilliant-numbers	Brilliant-numbers	missing include primes.incl.a68	-	
 bulls-and-cows	Bulls-and-cows	exit 1	pass	
 bulls-and-cows-player	Bulls-and-cows-Player	compile error: error: indicant ~= has not been declared properly	-	
 burrows-wheeler-transform	Burrows-Wheeler-transform	missing include sort.incl.a68	-	
-cordic	CORDIC	exit 0	approx: largest deviation 2.38418579e-7 (native 3.57627868e-7)	libm: tan of a REAL rounds differently in glibc (tanf) than on the JVM ((float) Math.tan)
+cordic	CORDIC	exit 0	approx: largest deviation -0.412118 (native -0.412119)	libm: tan of a REAL rounds differently in glibc (tanf) than on the JVM ((float) Math.tan)
 crc-32	CRC-32	exit 0	pass	
 csv-data-manipulation	CSV-data-manipulation	compile error: error: indicant ANDF has not been declared properly	-	
-csv-to-html-translation-1	CSV-to-HTML-translation	compile error: error: construct beginning with '(' in line 33 followed by '$' in line 34 and then '<head>' and 'l' and '$' and ',' and 	-	
+csv-to-html-translation-1	CSV-to-HTML-translation	exit -6	pass	
 csv-to-html-translation-2	CSV-to-HTML-translation	compile error: error: indicant HTML has not been declared properly	-	
 cusip	CUSIP	exit 0	pass	
-caesar-cipher	Caesar-cipher	compile error: error: construct beginning with '(' in line 46 followed by '$' and then 'gl' and '$' and ',' and a formula and ')' is an	-	
+caesar-cipher	Caesar-cipher	compile error: error: 'int' cannot be coerced to 'short short int' in a strong-unit	-	
 calculating-the-value-of-e	Calculating-the-value-of-e	compile error: error: real cannot be coerced to long real in a strong-unit	-	
-calendar	Calendar	compile error: error: indicant FORMAT has not been declared properly	-	
+calendar	Calendar	compile error: error: '(GFORMAT, [] char, GFORMAT, int, GFORMAT, GFORMAT, YEARBOX)' cannot be coerced to '[] GFOUT' in a strong-argumen	-	
 calendar---for-real-programmers	Calendar---for-REAL-programmers	compile error: error: end-symbol expected in enclosed clause, near 'begin' in line 11	-	
 calkin-wilf-sequence-1	Calkin-Wilf-sequence	exit 0	pass	
 calkin-wilf-sequence-2	Calkin-Wilf-sequence	exit 0	pass	
@@ -146,19 +146,19 @@ canonicalize-cidr	Canonicalize-CIDR	compile error: error: bits cannot be coerced
 cantor-set	Cantor-set	exit 0	pass	
 carmichael-3-strong-pseudoprimes	Carmichael-3-strong-pseudoprimes	exit 0	pass	
 cartesian-product-of-two-or-more-lists	Cartesian-product-of-two-or-more-lists	exit 0	pass	
-case-sensitivity-of-identifiers-1	Case-sensitivity-of-identifiers	compile error: error: construct beginning with '(' in line 18 followed by '$' and then 'the three dogs are named ' and 'g' and ', ' and	-	
+case-sensitivity-of-identifiers-1	Case-sensitivity-of-identifiers	exit 0	pass	
 case-sensitivity-of-identifiers-2	Case-sensitivity-of-identifiers	compile error: error: indicant D has not been declared properly	-	
 casting-out-nines	Casting-out-nines	exit 0	pass	
 catalan-numbers-1	Catalan-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 catalan-numbers-2	Catalan-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 catalan-numbers-pascals-triangle	Catalan-numbers-Pascals-triangle	exit 0	pass	
 catamorphism	Catamorphism	exit 0	pass	
-centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	Centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	exit 0	pass	
+centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	Centre-and-radius-of-a-circle-passing-through-3-points-in-a-plane	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 centroid-of-a-set-of-n-dimensional-points	Centroid-of-a-set-of-N-dimensional-points	exit 0	pass	
 change-e-letters-to-i-in-words	Change-e-letters-to-i-in-words	missing include files.incl.a68 sort.incl.a68	-	
 changeable-words	Changeable-words	missing include files.incl.a68 sort.incl.a68	-	
 chaocipher	Chaocipher	exit 0	pass	
-character-codes-1	Character-codes	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'gl' and '$' and ',' and a formula and ')' is an	-	
+character-codes-1	Character-codes	exit 0	pass	
 character-codes-2	Character-codes	compile error: error: possibly a missing or erroneous separator nearby	-	
 character-codes-3	Character-codes	compile error: error: tag 'makeconv' has not been declared properly	-	
 chebyshev-coefficients	Chebyshev-coefficients	compile error: internal compiler error: in a68_type_moid, at algol68/a68-lang.cc:121	-	
@@ -170,7 +170,7 @@ chernicks-carmichael-numbers	Chernicks-Carmichael-numbers	missing include primes
 cheryls-birthday	Cheryls-birthday	exit 0	pass	
 chinese-remainder-theorem	Chinese-remainder-theorem	exit 0	pass	
 chinese-zodiac	Chinese-zodiac	exit 0	pass	
-cholesky-decomposition	Cholesky-decomposition	compile error: error: indicant FORMAT has not been declared properly	-	
+cholesky-decomposition	Cholesky-decomposition	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 chowla-numbers	Chowla-numbers	exit 0	pass	
 chronological-order	Chronological-order	missing include files.incl.a68 sort.incl.a68	-	
 cipollas-algorithm	Cipollas-algorithm	compile error: error: int cannot be coerced to long int in a strong-unit	-	
@@ -191,7 +191,7 @@ combinations-and-permutations-1	Combinations-and-permutations	compile error: err
 combinations-and-permutations-2	Combinations-and-permutations	missing include prelude_combinations_and_permutations.a68	-	
 combinations-with-repetitions-square-digit-chain	Combinations-with-repetitions-Square-digit-chain	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 comma-quibbling	Comma-quibbling	exit 0	pass	
-command-line-arguments	Command-line-arguments	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'the argument #' and a specification and ' is ' 	-	
+command-line-arguments	Command-line-arguments	exit 0	fail: stdout differs	prints argv (1), the path of the executable, which differs natively and on the JVM
 commatizing-numbers	Commatizing-numbers	exit 0	pass	
 common-list-elements	Common-list-elements	exit 0	pass	
 common-sorted-list	Common-sorted-list	missing include sort.incl.a68 rows.incl.a68	-	
@@ -206,11 +206,11 @@ compound-data-type-2	Compound-data-type	compile error: error: indicant UNIONX ha
 compound-data-type-3	Compound-data-type	compile error: error: clause does not yield a value	-	
 compound-data-type-4	Compound-data-type	compile error: error: clause does not yield a value	-	
 concatenate-two-primes-is-also-prime	Concatenate-two-primes-is-also-prime	missing include primes.incl.a68	-	
-concurrent-computing	Concurrent-computing	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'gl' and '$' and ',' and 'string' and ')' is an 	-	
+concurrent-computing	Concurrent-computing	exit 0	pass	
 conjugate-a-latin-verb	Conjugate-a-Latin-verb	compile error: internal compiler error: gimplification failed	-	
 conjugate-transpose	Conjugate-transpose	compile error: error: dyadic operator [,] compl = [,] compl has not been declared	-	
 consecutive-primes-with-ascending-or-descending-differences	Consecutive-primes-with-ascending-or-descending-differences	exit 0	pass	
-constrained-random-points-on-a-circle	Constrained-random-points-on-a-circle	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'g' and '[2j' and '$' and ',' and a formula and 	-	
+constrained-random-points-on-a-circle	Constrained-random-points-on-a-circle	exit 0	pass	
 continued-fraction	Continued-fraction	exit 0	pass	
 continued-fraction-arithmetic-construct-from-rational-number	Continued-fraction-Arithmetic-Construct-from-rational-number	exit 0	pass	
 continued-fraction-convergents	Continued-fraction-convergents	exit 0	pass	
@@ -223,7 +223,7 @@ copy-a-string	Copy-a-string	exit 0	pass
 copy-stdin-to-stdout	Copy-stdin-to-stdout	exit 0	pass	
 count-how-many-vowels-and-consonants-occur-in-a-string	Count-how-many-vowels-and-consonants-occur-in-a-string	exit 0	pass	
 count-in-factors	Count-in-factors	exit 0	pass	
-count-in-octal	Count-in-octal	compile error: error: possibly a missing or erroneous separator nearby	-	
+count-in-octal	Count-in-octal	exit 0	pass	
 count-occurrences-of-a-substring	Count-occurrences-of-a-substring	exit 0	pass	
 count-the-coins-1	Count-the-coins	exit 0	pass	
 count-the-coins-2	Count-the-coins	compile error: error: 'int' and 'int' cannot be coerced to 'long int' in a strong-unit	-	
@@ -240,17 +240,17 @@ create-an-executable-for-a-program-in-an-interpreted-language-3	Create-an-execut
 cuban-primes	Cuban-primes	missing include primes.incl.a68	-	
 cubic-special-primes	Cubic-special-primes	missing include primes.incl.a68	-	
 cullen-and-woodall-numbers	Cullen-and-Woodall-numbers	missing include primes.incl.a68	-	
-cumulative-standard-deviation-1	Cumulative-standard-deviation	compile error: error: construct beginning with '(' in line 55 followed by '$' and then 'value: ' and a specification and ',' and ' stan	-	
-cumulative-standard-deviation-2	Cumulative-standard-deviation	compile error: error: construct beginning with '(' in line 71 followed by '$' and then 'value: ' and a specification and ',' and ' stan	-	
-cumulative-standard-deviation-3	Cumulative-standard-deviation	compile error: error: construct beginning with '(' in line 23 followed by '$' and then a specification and 'l' and '$' and ',' and 'val	-	
+cumulative-standard-deviation-1	Cumulative-standard-deviation	compile error: error: int cannot be coerced to long real in a strong-unit	-	
+cumulative-standard-deviation-2	Cumulative-standard-deviation	compile error: error: 'ref int' cannot be coerced to 'long real' in a strong-enclosed clause	-	
+cumulative-standard-deviation-3	Cumulative-standard-deviation	compile error: error: dyadic operator ref long real / ref int has not been declared	-	
 currency	Currency	compile error: error: dyadic operator long int * int has not been declared	-	
-currying	Currying	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2620	-	
+currying	Currying	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
 curve-that-touches-three-points	Curve-that-touches-three-points	exit 0	pass	
 curzon-numbers	Curzon-numbers	compile error: error: dyadic operator long int = int has not been declared	-	
 cycle-detection	Cycle-detection	missing include rows.incl.a68	-	
 cyclops-numbers	Cyclops-numbers	missing include primes.incl.a68	-	
 damm-algorithm	Damm-algorithm	exit 0	pass	
-date-format	Date-format	compile error: error: indicant FORMAT has not been declared properly	-	
+date-format	Date-format	compile error: error: tag 'localtime' has not been declared properly	-	
 date-manipulation	Date-manipulation	compile error: error: indicant ~= has not been declared properly	-	
 day-of-the-week	Day-of-the-week	exit 0	pass	
 day-of-the-week-of-christmas-and-new-year	Day-of-the-week-of-Christmas-and-New-Year	exit 0	pass	
@@ -261,7 +261,7 @@ death-star	Death-Star	exit 0	pass
 deceptive-numbers	Deceptive-numbers	missing include primes.incl.a68	-	
 decorate-sort-undecorate-idiom	Decorate-sort-undecorate-idiom	exit 0	pass	
 decreasing-contiguous-subsequences	Decreasing-contiguous-subsequences	exit 0	pass	
-define-a-primitive-data-type	Define-a-primitive-data-type	compile error: error: indicant FORMAT has not been declared properly	-	
+define-a-primitive-data-type	Define-a-primitive-data-type	compile error: error: indicant T has not been declared properly	-	
 delegates	Delegates	exit 0	pass	
 delete-a-file	Delete-a-file	compile error: error: tag 'system' has not been declared properly	-	
 demings-funnel	Demings-funnel	missing include rows.incl.a68	-	
@@ -272,7 +272,7 @@ determinant-and-permanent	Determinant-and-permanent	exit 0	pass
 determine-if-a-string-has-all-the-same-characters	Determine-if-a-string-has-all-the-same-characters	exit 0	pass	
 determine-if-a-string-has-all-unique-characters	Determine-if-a-string-has-all-unique-characters	exit 0	pass	
 determine-if-a-string-is-collapsible	Determine-if-a-string-is-collapsible	exit 0	pass	
-determine-if-a-string-is-numeric	Determine-if-a-string-is-numeric	compile error: error: construct beginning with '(' in line 20 followed by '$' and then 'gl' and '$' and ',' and 'numeric' and ')' is an	-	
+determine-if-a-string-is-numeric	Determine-if-a-string-is-numeric	compile error: error: tag 'getf' has not been declared properly	-	
 determine-if-a-string-is-squeezable	Determine-if-a-string-is-squeezable	exit 0	pass	
 determine-if-two-triangles-overlap	Determine-if-two-triangles-overlap	exit 0	pass	
 determine-sentence-type	Determine-sentence-type	exit 0	pass	
@@ -290,7 +290,7 @@ display-a-linear-combination	Display-a-linear-combination	exit 0	pass
 display-an-outline-as-a-nested-table-1	Display-an-outline-as-a-nested-table	exit 0	pass	
 display-an-outline-as-a-nested-table-2	Display-an-outline-as-a-nested-table	compile error: error: indicant ONODE has not been declared properly	-	
 distinct-power-numbers	Distinct-power-numbers	exit 0	pass	
-distribution-of-0-digits-in-factorial-series	Distribution-of-0-digits-in-factorial-series	exit 0	pass	
+distribution-of-0-digits-in-factorial-series	Distribution-of-0-digits-in-factorial-series	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 diversity-prediction-theorem	Diversity-prediction-theorem	exit 0	pass	
 dividuus-numbers	Dividuus-numbers	exit 0	pass	
 doomsday-rule	Doomsday-rule	exit 0	pass	
@@ -300,7 +300,7 @@ doubly-linked-list-definition-1	Doubly-linked-list-Definition	compile error: err
 doubly-linked-list-definition-2	Doubly-linked-list-Definition	compile error: error: indicant LINKNEW has not been declared properly	-	
 doubly-linked-list-definition-3	Doubly-linked-list-Definition	missing include prelude/Doubly-linked_list_Link.a68 prelude/Doubly-linked_list_Operator.a68	-	
 doubly-linked-list-element-definition	Doubly-linked-list-Element-definition	compile error: error: indicant OBJVALUE has not been declared properly	-	
-doubly-linked-list-element-insertion	Doubly-linked-list-Element-insertion	compile error: error: indicant FORMAT has not been declared properly	-	
+doubly-linked-list-element-insertion	Doubly-linked-list-Element-insertion	compile error: error: '(GFORMAT, ref DATA)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 doubly-linked-list-traversal-1	Doubly-linked-list-Traversal	compile error: error: indicant DATA has not been declared properly	-	
 doubly-linked-list-traversal-2	Doubly-linked-list-Traversal	missing include LinkedList.alg	-	
 dragon-curve-1	Dragon-curve	compile error: error: tag 'drawerase' has not been declared properly	-	
@@ -315,10 +315,10 @@ earliest-difference-between-prime-gaps	Earliest-difference-between-prime-gaps	mi
 eban-numbers	Eban-numbers	exit 0	pass	
 egyptian-division	Egyptian-division	exit 0	pass	
 eisenstein-primes	Eisenstein-primes	compile error: error: ld returned 1 exit status	-	
-element-wise-operations	Element-wise-operations	compile error: error: indicant FORMAT has not been declared properly	-	
+element-wise-operations	Element-wise-operations	timeout	-	
 elementary-cellular-automaton	Elementary-cellular-automaton	exit 0	pass	
 elementary-cellular-automaton-random-number-generator	Elementary-cellular-automaton-Random-number-generator	exit 0	pass	
-elliptic-curve-arithmetic	Elliptic-curve-arithmetic	exit 0	pass	
+elliptic-curve-arithmetic	Elliptic-curve-arithmetic	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 emirp-primes	Emirp-primes	missing include primes.incl.a68	-	
 empty-directory	Empty-directory	compile error: error: tag 'fileisdirectory' has not been declared properly	-	
 empty-program-1	Empty-program	exit 0	pass	
@@ -329,23 +329,23 @@ english-cardinal-anagrams	English-cardinal-anagrams	missing include sort.incl.a6
 entropy	Entropy	exit 0	pass	
 entropy-narcissist	Entropy-Narcissist	exit 0	pass	
 enumerations-1	Enumerations	exit 0	pass	
-enumerations-2	Enumerations	compile error: error: construct beginning with '|' in line 91 followed by a specifier in line 92 and then ':' and '$' and 'assam' and '	-	
+enumerations-2	Enumerations	compile error: error: clause does not yield a value	-	
 environment-variables	Environment-variables	exit 0	pass	
 equal-prime-and-composite-sums	Equal-prime-and-composite-sums	compile error: error: dyadic operator long int <= int has not been declared	-	
 equilibrium-index	Equilibrium-index	exit 0	pass	
 erd-s-nicolas-numbers	Erd-s-Nicolas-numbers	exit 0	pass	
 erd-s-primes	Erd-s-primes	missing include primes.incl.a68	-	
 esthetic-numbers	Esthetic-numbers	exit 0	pass	
-ethiopian-multiplication	Ethiopian-multiplication	compile error: error: construct beginning with '(' in line 20 followed by '$' and then 'ethiopian multiplication of ' and a specificati	-	
+ethiopian-multiplication	Ethiopian-multiplication	exit 0	pass	
 euclid-mullin-sequence	Euclid-Mullin-sequence	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 euclidean-rhythm	Euclidean-rhythm	exit 0	pass	
-euler-method	Euler-method	compile error: error: construct beginning with '(' in line 17 followed by '$' and then a specification and ': ' and a specification and	-	
+euler-method	Euler-method	exit 0	pass	
 eulers-identity	Eulers-identity	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 eulers-sum-of-powers-conjecture	Eulers-sum-of-powers-conjecture	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 evaluate-binomial-coefficients	Evaluate-binomial-coefficients	exit 0	pass	
 even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	Even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	exit 0	pass	
 even-or-odd	Even-or-odd	exit 1	pass	
-evolutionary-algorithm	Evolutionary-algorithm	compile error: in format_phase_2, at pretty-print.cc:2306	-	
+evolutionary-algorithm	Evolutionary-algorithm	exit 0	pass	
 exactly-three-adjacent-3-in-lists	Exactly-three-adjacent-3-in-lists	exit 0	pass	
 exceptions-1	Exceptions	compile error: error: indicant OBJ has not been declared properly	-	
 exceptions-2	Exceptions	missing include prelude/event_base(obj).a68	-	
@@ -353,13 +353,13 @@ exceptions-catch-an-exception-thrown-in-a-nested-call	Exceptions-Catch-an-except
 execute-brain--1	Execute-Brain-	exit 1	pass	
 execute-brain--2	Execute-Brain-	compile error: error: indicant >> has not been declared properly	-	
 execute-brain--3	Execute-Brain-	exit 0	pass	
-execute-computer-zero	Execute-Computer-Zero	exit 0	pass	
+execute-computer-zero	Execute-Computer-Zero	exit 0	fixed: docs/ga68-bug-reports.md, entry 11 (MODAB)	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 11): ga68 computes MODAB with the C remainder, so the 8-bit machine gives "***" for 0-255 and -1 for 0-1; a68j computes MOD and gives 1 and 255 (tests/rosetta/fixed)
 execute-hq9+	Execute-HQ9+	exit 1	pass	
 execute-a-system-command-1	Execute-a-system-command	compile error: error: tag 'system' has not been declared properly	-	
 execute-a-system-command-2	Execute-a-system-command	compile error: error: indicant ANDF has not been declared properly	-	
-experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset	Experimental-Verification-of-the-NKTg-Law-in-Earth-Orbit-Based-on-NASA-s-2025-Earth-Dataset	timeout	-	
-exponentiation-operator-1	Exponentiation-operator	compile error: error: construct beginning with '(' in line 21 followed by '$' and then ' one gibi-unit is: int pow(' and a specificatio	-	
-exponentiation-operator-2	Exponentiation-operator	compile error: error: construct beginning with '(' in line 21 followed by '$' and then ' one gibi-unit is: int pow(' and a specificatio	-	
+experimental-verification-of-the-nktg-law-in-earth-orbit-based-on-nasa-s-2025-earth-dataset	Experimental-Verification-of-the-NKTg-Law-in-Earth-Orbit-Based-on-NASA-s-2025-Earth-Dataset	timeout	-	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 3): NKTg1 overflows to an infinite REAL, for which float of libga68 does not end, so the native program times out; a68j prints asterisks for it
+exponentiation-operator-1	Exponentiation-operator	exit 0	approx: largest deviation 1073741824.0 (native 1073741793.6)	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5): a format writes wrong digits of a REAL (2.0**30, exactly 1073741824, as 1073741793.6); a68j writes the digits of the exact value, within the tolerance of run_jvm.py
+exponentiation-operator-2	Exponentiation-operator	exit 0	approx: largest deviation 1073741824.0 (native 1073741793.6)	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5): a format writes wrong digits of a REAL (2.0**30, exactly 1073741824, as 1073741793.6); a68j writes the digits of the exact value, within the tolerance of run_jvm.py
 exponentiation-order	Exponentiation-order	exit 0	pass	
 exponentiation-with-infix-operators-in-or-operating-on-the-base	Exponentiation-with-infix-operators-in-or-operating-on-the-base	exit 0	pass	
 extend-your-language	Extend-your-language	exit 0	pass	
@@ -378,7 +378,7 @@ farey-sequence	Farey-sequence	exit 0	pass
 fast-fourier-transform-1	Fast-Fourier-transform	compile error: error: indicant SCALAR has not been declared properly	-	
 fast-fourier-transform-2	Fast-Fourier-transform	missing include Template.Fast_Fourier_transform.a68	-	
 faulhabers-triangle	Faulhabers-triangle	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
-feigenbaum-constant-calculation	Feigenbaum-constant-calculation	exit 0	pass	
+feigenbaum-constant-calculation	Feigenbaum-constant-calculation	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 fermat-numbers	Fermat-numbers	missing include primes.incl.a68	-	
 fermat-pseudoprimes	Fermat-pseudoprimes	compile error: internal compiler error: Segmentation fault	-	
 fibonacci-n-step-number-sequences	Fibonacci-n-step-number-sequences	exit 0	pass	
@@ -419,26 +419,26 @@ first-class-functions	First-class-functions	compile error: internal compiler err
 first-class-functions-use-numbers-analogously	First-class-functions-Use-numbers-analogously	exit 0	pass	
 first-perfect-square-in-base-n-with-n-unique-digits	First-perfect-square-in-base-n-with-n-unique-digits	compile error: error: dyadic operator ref long int > int has not been declared	-	
 first-power-of-2-that-has-leading-decimal-digits-of-12	First-power-of-2-that-has-leading-decimal-digits-of-12	compile error: error: dyadic operator long int OVER int has not been declared	-	
-five-weekends	Five-weekends	compile error: error: construct beginning with '(' in line 29 followed by '$' and then '...' and 'l' and '$' and ')' is an invalid gene	-	
+five-weekends	Five-weekends	exit 0	pass	
 fivenum	Fivenum	missing include rows.incl.a68 sort.incl.a68	-	
-fizzbuzz-1	FizzBuzz	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'gl' and '$' and ',' and an enclosed clause in l	-	
+fizzbuzz-1	FizzBuzz	exit 0	pass	
 fizzbuzz-2	FizzBuzz	exit 0	pass	
 fizzbuzz-3	FizzBuzz	exit 0	pass	
 flatten-a-list-1	Flatten-a-list	compile error: error: '([] [] [] int, proc (ref FILE) void)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
 flatten-a-list-2	Flatten-a-list	compile error: error: '([] [] [] [] [] [] [] [] [] int)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
-flow-control-structures-1	Flow-control-structures	compile error: error: construct beginning with '(' in line 13 followed by '$' and then 'exited when: i=' and a specification and ', j='	-	
+flow-control-structures-1	Flow-control-structures	exit 0	pass	
 flow-control-structures-2	Flow-control-structures	exit 0	pass	
 flow-control-structures-3	Flow-control-structures	exit 0	pass	
-flow-control-structures-4	Flow-control-structures	compile error: error: construct beginning with '(' in line 30 followed by a declarer and then 'width' and a formula and ')' is an inval	-	
+flow-control-structures-4	Flow-control-structures	compile error: error: declaration cannot follow a labeled unit	-	
 floyd-warshall-algorithm	Floyd-Warshall-algorithm	exit 0	pass	
 floyds-triangle	Floyds-triangle	exit 0	pass	
 forbidden-numbers	Forbidden-numbers	exit 0	pass	
-forest-fire	Forest-fire	compile error: error: construct beginning with '(' in line 64 followed by '$' and then a specification and 'l' and '$' and ',' and 'wor	-	
+forest-fire	Forest-fire	compile error: error: real cannot be coerced to long real in a strong-unit	-	
 fork	Fork	compile error: error: tag 'fork' has not been declared properly	-	
-formatted-numeric-output-1	Formatted-numeric-output	compile error: error: construct beginning with '(' in line 12 followed by '$' and then a specification and 'l' and '$' and ',' and a fo	-	
-formatted-numeric-output-2	Formatted-numeric-output	exit 0	pass	
+formatted-numeric-output-1	Formatted-numeric-output	exit 0	approx: largest deviation +19999103.546e-6 (native +19999101.638e-6)	ga68 defect (docs/ga68-bug-reports.md, entries 4 and 5): a format writes wrong digits of a REAL; a68j writes the digits of the exact value, within the tolerance of run_jvm.py
+formatted-numeric-output-2	Formatted-numeric-output	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 fortunate-numbers	Fortunate-numbers	missing include primes.incl.a68	-	
-forward-difference	Forward-difference	compile error: error: indicant FORMAT has not been declared properly	-	
+forward-difference	Forward-difference	exit 0	pass	
 four-is-magic	Four-is-magic	compile error: error: dyadic operator long int < int has not been declared	-	
 four-sides-of-square	Four-sides-of-square	exit 0	pass	
 fractran	Fractran	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
@@ -449,10 +449,10 @@ function-definition	Function-definition	compile error: error: clause does not yi
 function-prototype	Function-prototype	exit 0	pass	
 fusc-sequence	Fusc-sequence	exit 0	pass	
 gstrans-string-conversion	GSTrans-string-conversion	exit -6	pass	
-gamma-function	Gamma-function	compile error: error: indicant FORMAT has not been declared properly	-	
+gamma-function	Gamma-function	compile error: error: indicant DOWNTO has not been declared properly	-	
 gapful-numbers	Gapful-numbers	exit 0	pass	
 gauss-jordan-matrix-inversion	Gauss-Jordan-matrix-inversion	exit 0	pass	
-gaussian-elimination-1	Gaussian-elimination	compile error: error: construct beginning with '(' in line 27 followed by '$' and then 'exception:' and '$' and ',' and '$' and 'xg' an	-	
+gaussian-elimination-1	Gaussian-elimination	compile error: error: '(GFORMAT, GFORMAT, SIMPLEOUT, GFORMAT)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 gaussian-elimination-2	Gaussian-elimination	compile error: error: indicant SCAL has not been declared properly	-	
 gaussian-elimination-3	Gaussian-elimination	compile error: error: indicant MAT has not been declared properly	-	
 gaussian-elimination-4	Gaussian-elimination	exit 0	pass	
@@ -479,46 +479,46 @@ golden-ratio-convergence	Golden-ratio-Convergence	exit 0	pass
 goodstein-sequence	Goodstein-Sequence	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 gospers-hack	Gospers-hack	missing include bits.incl.a68	-	
 gradient-descent	Gradient-descent	compile error: error: real cannot be coerced to long real in a strong-unit	-	
-gray-code	Gray-code	compile error: error: possibly a missing or erroneous separator nearby	-	
+gray-code	Gray-code	exit 0	pass	
 greatest-common-divisor	Greatest-common-divisor	exit 0	pass	
 greatest-element-of-a-list	Greatest-element-of-a-list	exit 0	pass	
 greatest-prime-dividing-the-n-th-cubefree-number	Greatest-prime-dividing-the-n-th-cubefree-number	exit 0	pass	
 greatest-subsequential-sum	Greatest-subsequential-sum	exit 0	pass	
 greedy-algorithm-for-egyptian-fractions	Greedy-algorithm-for-Egyptian-fractions	compile error: error: dyadic operator long long int = int has not been declared	-	
-guess-the-number	Guess-the-number	compile error: error: construct beginning with '(' in line 18 followed by '$' and then 'g' and '$' and ',' and 'g' and ')' is an invali	-	
+guess-the-number	Guess-the-number	compile error: error: tag 'readf' has not been declared properly	-	
 guess-the-number-with-feedback	Guess-the-number-With-feedback	exit 1	pass	
 guess-the-number-with-feedback-player-	Guess-the-number-With-feedback-player-	exit 1	pass	
 http	HTTP	compile error: error: tag 'grepinstring' has not been declared properly	-	
-hailstone-sequence	Hailstone-sequence	compile error: error: possibly a missing or erroneous separator nearby	-	
+hailstone-sequence	Hailstone-sequence	exit 0	pass	
 halt-and-catch-fire	Halt-and-catch-fire	exit -8	pass	
 hamming-numbers-1	Hamming-numbers	compile error: error: int cannot be coerced to flex [] long long int in a strong-unit	-	
 hamming-numbers-2	Hamming-numbers	compile error: error: 'int' cannot be coerced to 'long long int' in a strong-enclosed clause	-	
 happy-numbers	Happy-numbers	exit 0	pass	
-harmonic-series	Harmonic-series	exit 0	pass	
-harriss-spiral	Harriss-Spiral	exit 0	pass	
-harshad-or-niven-series	Harshad-or-Niven-series	compile error: error: construct beginning with '(' in line 18 followed by '$' and then a specification and ', ' and '$' and ',' and 'i'	-	
+harmonic-series	Harmonic-series	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+harriss-spiral	Harriss-Spiral	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+harshad-or-niven-series	Harshad-or-Niven-series	exit 0	pass	
 hashtron-inference	Hashtron-inference	compile error: error: bits cannot be coerced to long bits in a strong-unit	-	
-haversine-formula	Haversine-formula	compile error: error: construct beginning with '(' in line 29 followed by '$' and then 'dist: ' and a specification and ' km (' and a s	-	
+haversine-formula	Haversine-formula	exit 0	pass	
 held-karp-algorithm	Held-Karp-algorithm	missing include bits.incl.a68	-	
 hello-world-graphical	Hello-world-Graphical	compile error: error: tag 'standdrawchannel' has not been declared properly	-	
 hello-world-line-printer	Hello-world-Line-printer	compile error: error: indicant PIPE has not been declared properly	-	
-hello-world-newbie	Hello-world-Newbie	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'goodbye, world!' and 'l' and '$' and ')' is an 	-	
+hello-world-newbie	Hello-world-Newbie	exit 0	pass	
 hello-world-newline-omission	Hello-world-Newline-omission	exit 0	pass	
 hello-world-standard-error	Hello-world-Standard-error	exit 0	pass	
-hello-world-text	Hello-world-Text	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'hello world!' and 'l' and '$' and ')' is an inv	-	
-here-document	Here-document	compile error: error: construct beginning with '(' in line 17 followed by '$' and then 'gl' and '$' and ',' and 'help' and ',' and '$' 	-	
+hello-world-text	Hello-world-Text	exit 0	pass	
+here-document	Here-document	exit 0	pass	
 heronian-triangles	Heronian-triangles	exit 0	pass	
 hex-words	Hex-words	missing include files.incl.a68	-	
 hickerson-series-of-almost-integers	Hickerson-series-of-almost-integers	compile error: error: 'int' cannot be coerced to 'long long real' in a strong-argument	-	
-higher-order-functions	Higher-order-functions	compile error: error: construct beginning with '(' in line 20 followed by '$' and then a specification and 'l' and '$' and ',' and a sp	-	
+higher-order-functions	Higher-order-functions	compile error: error: 'int' cannot be coerced to 'long real' in a strong-argument	-	
 hilbert-curve	Hilbert-curve	exit 0	pass	
 hofstadter-conway-$10-000-sequence	Hofstadter-Conway-$10-000-sequence	compile error: error: real cannot be coerced to long real in a strong-unit	-	
 hofstadter-q-sequence	Hofstadter-Q-sequence	exit 0	pass	
-holidays-related-to-easter	Holidays-related-to-Easter	compile error: error: indicant FORMAT has not been declared properly	-	
+holidays-related-to-easter	Holidays-related-to-Easter	compile error: error: '(GFORMAT, int, struct (int weekday, int monthday, int month), struct (,,,), struct (,,,), struct (int weekday, i	-	
 honaker-primes	Honaker-primes	exit 0	pass	
 horizontal-sundial-calculations	Horizontal-sundial-calculations	exit 1	pass	
 horners-rule-for-polynomial-evaluation	Horners-rule-for-polynomial-evaluation	exit 0	pass	
-host-introspection	Host-introspection	compile error: error: construct beginning with '(' in line 13 followed by '$' and then 'states per bit: ' and 'dl' and '$' and ',' and 	-	
+host-introspection	Host-introspection	compile error: error: tag 'getbin' has not been declared properly	-	
 hostname	Hostname	compile error: error: tag 'execvechildpipe' has not been declared properly	-	
 humble-numbers	Humble-numbers	exit 0	pass	
 i-before-e-except-after-c	I-before-E-except-after-C	missing include files.incl.a68	-	
@@ -537,7 +537,7 @@ implicit-type-conversion	Implicit-type-conversion	compile error: error: indicant
 inconsummate-numbers-in-base-10	Inconsummate-numbers-in-base-10	exit 0	pass	
 increasing-gaps-between-consecutive-niven-numbers	Increasing-gaps-between-consecutive-Niven-numbers	exit 0	pass	
 increment-a-numerical-string	Increment-a-numerical-string	exit 0	pass	
-infinity	Infinity	compile error: error: construct beginning with '(' in line 9 followed by '$' and then 'max int: ' and 'gl' and '$' and ',' and 'maxint'	-	
+infinity	Infinity	compile error: error: '(GFORMAT, long long real)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 inner-classes	Inner-classes	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): a routine text stored in a heap structure uses a parameter of a procedure that has already returned (no scope check in ga68); a68j keeps the frame alive
 input-output-for-lines-of-text	Input-Output-for-lines-of-text	exit 1	pass	
 input-output-for-pairs-of-numbers-1	Input-Output-for-pairs-of-numbers	exit 1	pass	
@@ -547,11 +547,11 @@ input-loop-2	Input-loop	compile error: error: tag 'onpageend' has not been decla
 integer-comparison	Integer-comparison	exit 1	pass	
 integer-overflow-1	Integer-overflow	exit 0	pass	
 integer-overflow-2	Integer-overflow	compile error: error: dyadic operator int + long int has not been declared	-	
-integer-sequence	Integer-sequence	compile error: error: construct beginning with '(' in line 12 followed by '$' and then a specification and ',' and '$' and ',' and 'i' 	-	
+integer-sequence	Integer-sequence	timeout	-	
 intersecting-number-wheels	Intersecting-number-wheels	exit 0	pass	
-introspection-1	Introspection	exit 0	pass	
-introspection-2	Introspection	compile error: error: indicant FORMAT has not been declared properly	-	
-introspection-3	Introspection	compile error: error: construct beginning with '(' in line 16 followed by '$' and then 'g' and ' ' and '$' and ',' and a formula and ',	-	
+introspection-1	Introspection	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+introspection-2	Introspection	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+introspection-3	Introspection	exit 0	pass	
 introspection-4	Introspection	exit 0	pass	
 inventory-sequence	Inventory-sequence	exit 0	pass	
 inverted-syntax	Inverted-syntax	exit 0	pass	
@@ -566,7 +566,7 @@ jaro-similarity	Jaro-similarity	exit 0	pass
 jensens-device	Jensens-Device	exit 0	pass	
 jewels-and-stones	Jewels-and-stones	exit 0	pass	
 jordan-p-lya-numbers	Jordan-P-lya-numbers	exit 0	pass	
-josephus-problem	Josephus-problem	compile error: error: construct beginning with '(' in line 18 followed by '$' and then 'n = ' and ',' and a specification and ',' and '	-	
+josephus-problem	Josephus-problem	exit 0	pass	
 juggler-sequence	Juggler-sequence	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 julia-set-1	Julia-set	exit 0	pass	
 julia-set-2	Julia-set	exit 0	pass	
@@ -577,14 +577,14 @@ kernighans-large-earthquake-problem	Kernighans-large-earthquake-problem	missing 
 klarner-rado-sequence	Klarner-Rado-sequence	exit 0	pass	
 knapsack-problem-0-1	Knapsack-problem-0-1	missing include bits.incl.a68	-	
 knapsack-problem-continuous	Knapsack-problem-Continuous	exit 0	pass	
-knapsack-problem-unbounded	Knapsack-problem-Unbounded	compile error: error: indicant FORMAT has not been declared properly	-	
+knapsack-problem-unbounded	Knapsack-problem-Unbounded	exit -11	fixed: docs/ga68-bug-reports.md, entry 26 (a row of strings selected from a row of structures): ga68 crashes at name OF items	
 knights-tour	Knights-tour	exit 1	pass	
 knuth-shuffle	Knuth-shuffle	exit 0	pass	
 koch-curve	Koch-curve	missing include lsystem.incl.a68	-	
 kronecker-product	Kronecker-product	compile error: internal compiler error: gimplification failed	-	
 kronecker-product-based-fractals	Kronecker-product-based-fractals	exit 0	pass	
 l-system	L-system	missing include lsystem.incl.a68	-	
-lu-decomposition	LU-decomposition	exit 0	pass	
+lu-decomposition	LU-decomposition	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 lah-numbers	Lah-numbers	compile error: error: 'int' and 'int' and 'int' cannot be coerced to 'long long int' in a strong-unit	-	
 langtons-ant	Langtons-ant	exit 0	pass	
 largest-difference-between-adjacent-primes	Largest-difference-between-adjacent-primes	missing include primes.incl.a68	-	
@@ -600,34 +600,34 @@ last-friday-of-each-month	Last-Friday-of-each-month	exit 0	pass
 last-list-item-1	Last-list-item	missing include sort.incl.a68	-	
 last-list-item-2	Last-list-item	exit 0	pass	
 law-of-cosines---triples	Law-of-cosines---triples	exit 0	pass	
-leap-year	Leap-year	compile error: error: construct beginning with '(' in line 25 followed by '$' and then a specification and ' is ' and a specification a	-	
-least-common-multiple	Least-common-multiple	compile error: error: construct beginning with '(' in line 20 followed by '$' and then a specification and a specification and 'l' and 	-	
+leap-year	Leap-year	exit 0	pass	
+least-common-multiple	Least-common-multiple	exit 0	pass	
 least-m-such-that-n-+-m-is-prime	Least-m-such-that-n-+-m-is-prime	missing include primes.incl.a68	-	
 left-factorials	Left-factorials	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 legendre-prime-counting-function	Legendre-prime-counting-function	missing include primes.incl.a68	-	
 lempel-ziv-complexity	Lempel-Ziv-complexity	exit 0	pass	
 length-of-an-arc-between-two-angles	Length-of-an-arc-between-two-angles	exit 0	pass	
 leonardo-numbers	Leonardo-numbers	exit 0	pass	
-letter-frequency	Letter-frequency	compile error: error: construct beginning with '(' in line 32 followed by '$' and then a specification and 'l' and '$' and ',' and a fo	-	
+letter-frequency	Letter-frequency	compile error: error: tag 'onfileend' has not been declared properly	-	
 levenshtein-distance	Levenshtein-distance	exit 0	pass	
-linear-congruential-generator	Linear-congruential-generator	compile error: error: construct beginning with '(' in line 82 followed by '$' and then a specification and 'l' and '$' and ',' and 'bsd	-	
+linear-congruential-generator	Linear-congruential-generator	exit 0	pass	
 list-comprehensions	List-comprehensions	compile error: error: '([] XYZ, proc (ref FILE) void)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
 list-division-1	List-division	missing include rows.incl.a68	-	
 list-division-2	List-division	missing include rows.incl.a68	-	
 literals-floating-point	Literals-Floating-point	exit 0	pass	
 literals-integer	Literals-Integer	compile error: error: '([] char, short short int, short short int, short short int, short short int, proc (,) ..)' cannot be coerced to	-	
 literals-string-1	Literals-String	compile error: error: clause does not yield a value	-	
-literals-string-10	Literals-String	compile error: error: construct beginning with '(' in line 14 followed by a generic argument list and then '$' and '3' and 'p' and 'pag	-	
-literals-string-2	Literals-String	compile error: error: indicant FORMAT has not been declared properly	-	
+literals-string-10	Literals-String	compile error: error: 'ref flex [] flex [] string' cannot be coerced to 'ref string' in a strong-argument	-	
+literals-string-2	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-3	Literals-String	compile error: error: indicant CHARXYZ has not been declared properly	-	
 literals-string-4	Literals-String	compile error: error: attempt to redefine keyword STRING in mode declaration	-	
 literals-string-5	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-6	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-7	Literals-String	compile error: error: clause does not yield a value	-	
 literals-string-8	Literals-String	exit 0	pass	
-literals-string-9	Literals-String	compile error: error: indicant FORMAT has not been declared properly	-	
+literals-string-9	Literals-String	compile error: error: tag 'linef' has not been declared properly	-	
 logical-operations	Logical-operations	compile error: error: *unworthy character	-	
-logistic-curve-fitting-in-epidemiology	Logistic-curve-fitting-in-epidemiology	exit 0	pass	
+logistic-curve-fitting-in-epidemiology	Logistic-curve-fitting-in-epidemiology	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 long-multiplication-1	Long-multiplication	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 long-multiplication-2	Long-multiplication	compile error: error: indicant & has not been declared properly	-	
 long-multiplication-3	Long-multiplication	compile error: error: indicant INTEGER has not been declared properly	-	
@@ -641,10 +641,10 @@ longest-common-substring	Longest-common-substring	exit 0	pass
 longest-common-suffix	Longest-common-suffix	exit 0	pass	
 longest-increasing-subsequence	Longest-increasing-subsequence	missing include rows.incl.a68	-	
 longest-palindromic-substrings	Longest-palindromic-substrings	exit 0	pass	
-longest-string-challenge-1	Longest-string-challenge	compile error: error: construct beginning with '(' in line 40 followed by '$' and then 'a' and '$' and ',' and a specification and ')' 	-	
+longest-string-challenge-1	Longest-string-challenge	compile error: error: tag 'onfileend' has not been declared properly	-	
 longest-string-challenge-2	Longest-string-challenge	exit 0	pass	
 look-and-say-sequence	Look-and-say-sequence	exit 0	pass	
-loop-over-multiple-arrays-simultaneously	Loop-over-multiple-arrays-simultaneously	compile error: error: construct beginning with '(' in line 12 followed by '$' and then 'ggd' and '$' and ',' and a specification and ',	-	
+loop-over-multiple-arrays-simultaneously	Loop-over-multiple-arrays-simultaneously	exit 0	pass	
 loops-break	Loops-Break	exit 0	pass	
 loops-continue	Loops-Continue	exit 0	pass	
 loops-do-while	Loops-Do-while	exit 0	pass	
@@ -654,8 +654,8 @@ loops-for	Loops-For	exit 0	pass
 loops-foreach-1	Loops-Foreach	exit 0	pass	
 loops-foreach-2	Loops-Foreach	compile error: error: missing or unbalanced keyword in enclosed clause, near '(' in line 8	-	
 loops-increment-loop-index-within-loop-body	Loops-Increment-loop-index-within-loop-body	compile error: error: dyadic operator long int MOD int has not been declared	-	
-loops-infinite-1	Loops-Infinite	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'spam' and 'l' and '$' and ')' is an invalid gen	-	
-loops-infinite-2	Loops-Infinite	compile error: error: construct beginning with '(' in line 10 followed by '$' and then 'spam' and 'l' and '$' and ')' is an invalid gen	-	
+loops-infinite-1	Loops-Infinite	timeout	-	
+loops-infinite-2	Loops-Infinite	timeout	-	
 loops-n-plus-one-half-1	Loops-N-plus-one-half	exit 0	pass	
 loops-n-plus-one-half-2	Loops-N-plus-one-half	exit 0	pass	
 loops-n-plus-one-half-3	Loops-N-plus-one-half	exit 0	pass	
@@ -663,10 +663,10 @@ loops-nested	Loops-Nested	exit 0	pass
 loops-while	Loops-While	exit 0	pass	
 loops-with-multiple-ranges	Loops-With-multiple-ranges	exit 0	pass	
 loops-wrong-ranges	Loops-Wrong-ranges	exit 0	pass	
-lucas-lehmer-test	Lucas-Lehmer-test	compile error: error: construct beginning with '(' in line 41 followed by '$' and then ' m' and a specification and '$' and ',' and 'p'	-	
+lucas-lehmer-test	Lucas-Lehmer-test	compile error: error: dyadic operator long long int - int has not been declared	-	
 ludic-numbers	Ludic-numbers	exit 0	pass	
 luhn-test-of-credit-card-numbers	Luhn-test-of-credit-card-numbers	exit 0	pass	
-lunar-arithmetic	Lunar-arithmetic	compile error: error: tag 'printf' has not been declared properly	-	
+lunar-arithmetic	Lunar-arithmetic	exit 0	pass	
 lychrel-numbers	Lychrel-numbers	missing include aArray.a68	-	
 m-bius-function	M-bius-function	exit 0	pass	
 md5	MD5	compile error: error: *unworthy character â	-	
@@ -678,16 +678,16 @@ magic-squares-of-doubly-even-order	Magic-squares-of-doubly-even-order	exit 0	pas
 magic-squares-of-odd-order	Magic-squares-of-odd-order	exit 0	pass	
 magic-squares-of-singly-even-order	Magic-squares-of-singly-even-order	exit 0	pass	
 magnanimous-numbers	Magnanimous-numbers	missing include primes.incl.a68	-	
-man-or-boy-test	Man-or-boy-test	compile error: error: construct beginning with '(' in line 16 followed by '$' and then 'gl' and '$' and ',' and a specification and ')'	-	
+man-or-boy-test	Man-or-boy-test	exit 0	pass	
 mandelbrot-set	Mandelbrot-set	compile error: error: tag 'makedevice' has not been declared properly	-	
 map-range	Map-range	exit 0	pass	
 matrix-exponentiation-operator-1	Matrix-exponentiation-operator	compile error: error: indicant COSCAL has not been declared properly	-	
 matrix-exponentiation-operator-2	Matrix-exponentiation-operator	compile error: error: indicant MAT has not been declared properly	-	
 matrix-exponentiation-operator-3	Matrix-exponentiation-operator	missing include Matrix_algebra.a68 Matrix-exponentiation_operator.a68	-	
-matrix-multiplication	Matrix-multiplication	compile error: error: construct beginning with '(' in line 15 followed by a generic argument list and then '$' and 'x' and 'exception: 	-	
-matrix-transposition	Matrix-transposition	compile error: error: indicant FORMAT has not been declared properly	-	
+matrix-multiplication	Matrix-multiplication	compile error: error: int cannot be coerced to long real in a strong-unit	-	
+matrix-transposition	Matrix-transposition	exit 0	pass	
 matrix-with-two-diagonals	Matrix-with-two-diagonals	exit 0	pass	
-maximum-difference-between-adjacent-elements-of-list	Maximum-difference-between-adjacent-elements-of-list	exit 0	pass	
+maximum-difference-between-adjacent-elements-of-list	Maximum-difference-between-adjacent-elements-of-list	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 maximum-triangle-path-sum	Maximum-triangle-path-sum	exit 0	pass	
 mayan-numerals	Mayan-numerals	exit 0	pass	
 mcnuggets-problem	McNuggets-problem	exit 0	pass	
@@ -698,13 +698,13 @@ memory-allocation-3	Memory-allocation	compile error: error: indicant MYSTRUCT ha
 memory-allocation-4	Memory-allocation	compile error: error: indicant MYSTRUCT has not been declared properly	-	
 memory-allocation-5	Memory-allocation	compile error: error: indicant MYSTRUCT has not been declared properly	-	
 memory-layout-of-a-data-structure	Memory-layout-of-a-data-structure	exit 0	pass	
-menu	Menu	compile error: error: construct beginning with '(' in line 16 followed by '$' and then a specification and ') ' and 'gl' and '$' and ',	-	
+menu	Menu	exit 1	pass	
 mersenne-primes	Mersenne-primes	missing include primes.incl.a68	-	
 mertens-function	Mertens-function	exit 0	pass	
 metaprogramming	Metaprogramming	exit 0	pass	
-metered-concurrency	Metered-concurrency	compile error: error: construct beginning with '(' in line 12 followed by '$' and then ' job ' and 'd' and ' acquired semaphore ...' an	-	
+metered-concurrency	Metered-concurrency	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 mian-chowla-sequence	Mian-Chowla-sequence	exit 0	pass	
-middle-three-digits	Middle-three-digits	compile error: error: construct beginning with '(' in line 54 followed by '$' and then '11' and a formula and ',' and ' : ' and ',' and	-	
+middle-three-digits	Middle-three-digits	exit 0	pass	
 miller-rabin-primality-test	Miller-Rabin-primality-test	missing include prelude/pow_mod.a68	-	
 minimum-multiple-of-m-where-digital-sum-equals-m	Minimum-multiple-of-m-where-digital-sum-equals-m	exit 0	pass	
 minimum-number-of-cells-after-before-above-and-below-nxn-squares	Minimum-number-of-cells-after-before-above-and-below-NxN-squares	exit 0	pass	
@@ -713,12 +713,12 @@ minimum-positive-multiple-in-base-10-using-only-0-and-1	Minimum-positive-multipl
 minimum-primes	Minimum-primes	missing include primes.incl.a68	-	
 modified-random-distribution	Modified-random-distribution	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 modular-arithmetic	Modular-arithmetic	compile error: error: dyadic operator long long int MOD int has not been declared	-	
-modular-exponentiation	Modular-exponentiation	compile error: error: construct beginning with '(' in line 30 followed by '$' and then 'last 40 digits = ' and ',' and '40' and 'dl' an	-	
-modular-inverse	Modular-inverse	compile error: error: construct beginning with '(' in line 34 followed by '$' and then '42 ^ -1 (mod 2017) = ' and ',' and a specificat	-	
-monads-maybe-monad	Monads-Maybe-monad	exit 0	pass	
+modular-exponentiation	Modular-exponentiation	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
+modular-inverse	Modular-inverse	exit 0	pass	
+monads-maybe-monad	Monads-Maybe-monad	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 monads-writer-monad	Monads-Writer-monad	compile error: error: dyadic operator long real + int has not been declared	-	
-monte-carlo-methods	Monte-Carlo-methods	exit 0	pass	
-monty-hall-problem	Monty-Hall-problem	exit 0	pass	
+monte-carlo-methods	Monte-Carlo-methods	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+monty-hall-problem	Monty-Hall-problem	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 mosaic-matrix	Mosaic-matrix	exit 0	pass	
 mosers-circle-problem	Mosers-circle-problem	exit 0	pass	
 most-frequent-k-chars-distance	Most-frequent-k-chars-distance	exit 0	pass	
@@ -733,10 +733,10 @@ multi-dimensional-array-6	Multi-dimensional-array	compile error: error: tag 'a' 
 multi-dimensional-array-7	Multi-dimensional-array	compile error: error: tag 'a' has not been declared properly	-	
 multi-dimensional-array-8	Multi-dimensional-array	exit 0	pass	
 multi-dimensional-array-9	Multi-dimensional-array	compile error: error: tag 'a' has not been declared properly	-	
-multifactorial	Multifactorial	compile error: error: construct beginning with '(' in line 29 followed by '$' and then a specification and '$' and ',' and a specificat	-	
+multifactorial	Multifactorial	exit 0	pass	
 multiple-distinct-objects	Multiple-distinct-objects	compile error: error: '(ref [] FOO, proc (ref FILE) void)' cannot be coerced to '[] OUTITEM' in a strong-argument	-	
 multiple-regression	Multiple-regression	compile error: internal compiler error: in a68_low_assignation, at algol68/a68-low.cc:1053	-	
-multiplication-tables	Multiplication-tables	compile error: error: indicant FORMAT has not been declared properly	-	
+multiplication-tables	Multiplication-tables	exit 0	pass	
 multiplicative-order	Multiplicative-order	missing include prelude/pow_mod.a68 prelude/sort.a68 prelude/gcd.a68 prelude/iterator.a68	-	
 multiplicatively-perfect-numbers	Multiplicatively-perfect-numbers	missing include primes.incl.a68	-	
 multisplit	Multisplit	exit 0	pass	
@@ -768,13 +768,13 @@ nim-game	Nim-game	exit 1	pass
 nimber-arithmetic	Nimber-arithmetic	missing include bits.incl.a68	-	
 non-continuous-subsequences-1	Non-continuous-subsequences	exit 0	pass	
 non-continuous-subsequences-2	Non-continuous-subsequences	exit 0	pass	
-non-decimal-radices-convert-1	Non-decimal-radices-Convert	compile error: error: indicant FORMAT has not been declared properly	-	
+non-decimal-radices-convert-1	Non-decimal-radices-Convert	compile error: error: tag 'getf' has not been declared properly	-	
 non-decimal-radices-convert-2	Non-decimal-radices-Convert	exit 0	pass	
-non-decimal-radices-input	Non-decimal-radices-Input	compile error: error: construct beginning with '(' in line 21 followed by '$' and then '10r7' and 'd' and '$' and ',' and 'num' and ')'	-	
-non-decimal-radices-output	Non-decimal-radices-Output	compile error: error: construct beginning with '(' in line 11 followed by '$' and then '10r6' and 'd' and ',' and ' ' and '16r6d' and '	-	
+non-decimal-radices-input	Non-decimal-radices-Input	compile error: error: tag 'getf' has not been declared properly	-	
+non-decimal-radices-output	Non-decimal-radices-Output	exit 0	pass	
 non-transitive-dice	Non-transitive-dice	exit 0	pass	
 nth	Nth	exit 0	pass	
-nth-root	Nth-root	compile error: error: possibly a missing or erroneous separator nearby	-	
+nth-root	Nth-root	compile error: error: dyadic operator long real / int has not been declared	-	
 null-object	Null-object	exit 0	pass	
 number-names-1	Number-names	exit 0	pass	
 number-names-2	Number-names	compile error: error: dyadic operator long long int = int has not been declared	-	
@@ -799,20 +799,20 @@ numerical-integration-adaptive-simpsons-method	Numerical-integration-Adaptive-Si
 numerical-integration-romberg-integration	Numerical-integration-Romberg-integration	compile error: internal compiler error: in a68_type_moid, at algol68/a68-lang.cc:121	-	
 numerical-integration-tanh-sinh-quadrature	Numerical-integration-Tanh-Sinh-Quadrature	compile error: error: tag 'sinh' has not been declared properly	-	
 ohalloran-numbers	OHalloran-numbers	exit 0	pass	
-object-serialization	Object-serialization	compile error: error: indicant FORMAT has not been declared properly	-	
+object-serialization	Object-serialization	compile error: error: '(ref PERSON, proc (ref GFILE) void, ref ENTITY, proc (ref GFILE) void)' cannot be coerced to '[] OUTITEM' in a s	-	
 odd-and-square-numbers	Odd-and-square-numbers	exit 0	pass	
 odd-squarefree-semiprimes	Odd-squarefree-semiprimes	exit 0	pass	
 odd-word-problem	Odd-word-problem	exit 1	pass	
 odd-words	Odd-words	missing include files.incl.a68 sort.incl.a68	-	
 old-russian-measure-of-length	Old-Russian-measure-of-length	exit 1	pass	
-old-lady-swallowed-a-fly-1	Old-lady-swallowed-a-fly	compile error: error: construct beginning with '(' in line 19 followed by '$' and then 'gl' and '$' and ',' and 'co' and ')' is an inva	-	
+old-lady-swallowed-a-fly-1	Old-lady-swallowed-a-fly	exit 0	pass	
 old-lady-swallowed-a-fly-2	Old-lady-swallowed-a-fly	exit 0	pass	
-one-dimensional-cellular-automata-1	One-dimensional-cellular-automata	compile error: error: indicant FORMAT has not been declared properly	-	
-one-dimensional-cellular-automata-2	One-dimensional-cellular-automata	compile error: error: indicant FORMAT has not been declared properly	-	
-one-of-n-lines-in-a-file	One-of-n-lines-in-a-file	compile error: error: construct beginning with '(' in line 22 followed by '$' and then a specification and '7' and a specification and 	-	
+one-dimensional-cellular-automata-1	One-dimensional-cellular-automata	compile error: error: int cannot be coerced to short int in a strong-unit	-	
+one-dimensional-cellular-automata-2	One-dimensional-cellular-automata	compile error: error: int cannot be coerced to short int in a strong-unit	-	
+one-of-n-lines-in-a-file	One-of-n-lines-in-a-file	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 one-two-primes	One-two-primes	missing include primes.incl.a68	-	
 optional-parameters	Optional-parameters	exit 0	pass	
-orbital-elements	Orbital-elements	exit 0	pass	
+orbital-elements	Orbital-elements	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 order-two-numerical-lists	Order-two-numerical-lists	exit 0	pass	
 ordered-words-1	Ordered-words	exit 0	pass	
 ordered-words-2	Ordered-words	missing include files.incl.a68	-	
@@ -823,7 +823,7 @@ padovan-n-step-number-sequences	Padovan-n-step-number-sequences	exit 0	pass
 padovan-sequence	Padovan-sequence	compile error: error: real cannot be coerced to long real in a strong-unit	-	
 pairs-with-common-factors	Pairs-with-common-factors	compile error: error: dyadic operator long int < int has not been declared	-	
 palindrome-dates	Palindrome-dates	compile error: error: tag 'localtime' has not been declared properly	-	
-palindrome-detection	Palindrome-detection	compile error: error: indicant FORMAT has not been declared properly	-	
+palindrome-detection	Palindrome-detection	exit 0	pass	
 palindromic-primes	Palindromic-primes	missing include primes.incl.a68	-	
 palindromic-primes-in-base-16	Palindromic-primes-in-base-16	missing include primes.incl.a68	-	
 pan-base-non-primes	Pan-base-non-primes	missing include primes.incl.a68	-	
@@ -833,26 +833,26 @@ pangram-checker	Pangram-checker	exit 0	pass
 parsing-rpn-calculator-algorithm	Parsing-RPN-calculator-algorithm	exit 1	pass	
 parsing-rpn-to-infix-conversion	Parsing-RPN-to-infix-conversion	exit 0	pass	
 parsing-shunting-yard-algorithm	Parsing-Shunting-yard-algorithm	exit 0	pass	
-partial-function-application	Partial-function-application	compile error: error: indicant FORMAT has not been declared properly	-	
-particle-swarm-optimization	Particle-swarm-optimization	exit 0	approx: largest deviation 1.570692157745361 (native 1.570802927017211)	libm: sin/ln of REAL values round differently in glibc than on the JVM
+partial-function-application	Partial-function-application	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
+particle-swarm-optimization	Particle-swarm-optimization	exit 0	approx: largest deviation 1.570692181587219 (native 1.570802927017211)	libm: sin/ln of REAL values round differently in glibc than on the JVM
 partition-an-integer-x-into-n-primes	Partition-an-integer-x-into-n-primes	exit 0	pass	
 partition-function-p	Partition-function-P	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 pascal-matrix-generation	Pascal-matrix-generation	exit 0	pass	
-pascals-triangle	Pascals-triangle	compile error: error: indicant FORMAT has not been declared properly	-	
-pascals-triangle-puzzle	Pascals-triangle-Puzzle	compile error: error: indicant FORMAT has not been declared properly	-	
+pascals-triangle	Pascals-triangle	exit 0	pass	
+pascals-triangle-puzzle	Pascals-triangle-Puzzle	compile error: error: tag 'ludecomp' has not been declared properly	-	
 pathological-floating-point-problems	Pathological-floating-point-problems	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 peano-curve	Peano-curve	missing include lsystem.incl.a68	-	
 pell-numbers	Pell-numbers	missing include primes.incl.a68	-	
 pells-equation	Pells-equation	compile error: error: 'int' cannot be coerced to 'long long int' and 'int' cannot be coerced to 'long long int' in a strong-enclosed cl	-	
 penta-power-prime-seeds	Penta-power-prime-seeds	missing include primes.incl.a68	-	
 pentagram	Pentagram	exit 0	pass	
-percolation-mean-run-density	Percolation-Mean-run-density	exit 0	pass	
+percolation-mean-run-density	Percolation-Mean-run-density	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 perfect-numbers	Perfect-numbers	timeout	-	
 perfect-shuffle	Perfect-shuffle	exit 0	pass	
 perfect-totient-numbers	Perfect-totient-numbers	exit 0	pass	
 periodic-table	Periodic-table	exit 0	pass	
-perlin-noise	Perlin-noise	exit 0	pass	
-permutation-test	Permutation-test	exit 0	pass	
+perlin-noise	Perlin-noise	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
+permutation-test	Permutation-test	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 permutations-1	Permutations	compile error: error: indicant PERMDATA has not been declared properly	-	
 permutations-2	Permutations	missing include prelude_permutations.a68	-	
 permutations-by-swapping	Permutations-by-swapping	exit 0	pass	
@@ -861,14 +861,14 @@ permutations-with-repetitions-2	Permutations-with-repetitions	missing include pr
 pernicious-numbers	Pernicious-numbers	exit 0	pass	
 pfaffian-and-hfaffian	Pfaffian-and-hfaffian	exit 0	pass	
 phrase-reversals	Phrase-reversals	exit 0	pass	
-pi	Pi	compile error: error: construct beginning with '(' in line 55 followed by '$' and then a specification and 'd' and '$' and ',' and 'dig	-	
+pi	Pi	exit 0	pass	
 pick-random-element	Pick-random-element	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 pierpont-primes	Pierpont-primes	missing include primes.incl.a68	-	
 pig-latin	Pig-Latin	exit 0	pass	
 piprimes	Piprimes	missing include primes.incl.a68	-	
 pisano-period	Pisano-period	exit 0	pass	
 playfair-cipher	Playfair-cipher	exit 1	pass	
-playing-cards	Playing-cards	compile error: error: indicant FORMAT has not been declared properly	-	
+playing-cards	Playing-cards	compile error: error: '(GFORMAT, ref CARD)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 plot-coordinate-pairs	Plot-coordinate-pairs	missing include prelude/errata.a68 prelude/exception.a68 prelude/math_lib.a68 prelude/graph_2d.a68 postlude/exception.a68	-	
 pointers-and-references-1	Pointers-and-references	compile error: error: clause does not yield a value	-	
 pointers-and-references-10	Pointers-and-references	exit 0	pass	
@@ -879,26 +879,26 @@ pointers-and-references-4	Pointers-and-references	compile error: error: tag 'poi
 pointers-and-references-5	Pointers-and-references	compile error: error: tag 'pointer' has not been declared properly	-	
 pointers-and-references-6	Pointers-and-references	compile error: error: clause does not yield a value	-	
 pointers-and-references-7	Pointers-and-references	compile error: error: tag 'alias' has not been declared properly	-	
-pointers-and-references-8	Pointers-and-references	compile error: error: construct beginning with '(' in line 9 followed by '$' and then 'alias ' and a specification and ' var!' and 'l' 	-	
+pointers-and-references-8	Pointers-and-references	compile error: error: tag 'alias' has not been declared properly	-	
 pointers-and-references-9	Pointers-and-references	compile error: error: clause does not yield a value	-	
 pollards-rho-algorithm	Pollards-rho-algorithm	missing include primes.incl.a68	-	
 polymorphic-copy	Polymorphic-copy	exit 0	pass	
 polymorphism	Polymorphism	exit 0	pass	
 polynomial-derivative	Polynomial-derivative	exit 0	pass	
 polynomial-long-division	Polynomial-long-division	exit 0	pass	
-polynomial-regression	Polynomial-regression	compile error: error: indicant FORMAT has not been declared properly	-	
+polynomial-regression	Polynomial-regression	compile error: error: tag 'ludecomp' has not been declared properly	-	
 polynomial-synthetic-division	Polynomial-synthetic-division	exit 0	pass	
 population-count	Population-count	compile error: error: dyadic operator ref long int > int has not been declared	-	
 posit-numbers-decoding	Posit-numbers-decoding	compile error: error: dyadic operator long real > int has not been declared	-	
 positive-decimal-integers-with-the-digit-1-occurring-exactly-twice	Positive-decimal-integers-with-the-digit-1-occurring-exactly-twice	exit 0	pass	
-power-set	Power-set	compile error: error: indicant FORMAT has not been declared properly	-	
+power-set	Power-set	compile error: internal compiler error: in a68_pop_serial_clause_range, at algol68/a68-low-ranges.cc:643	-	
 practical-numbers	Practical-numbers	exit 0	pass	
-pragmatic-directives	Pragmatic-directives	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2620	-	
-price-fraction	Price-fraction	compile error: error: construct beginning with '(' in line 37 followed by '$' and then 'value :   ' and 'z' and '0.2' and 'dl' and ',' 	-	
+pragmatic-directives	Pragmatic-directives	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
+price-fraction	Price-fraction	exit 0	pass	
 primality-by-wilsons-theorem	Primality-by-Wilsons-theorem	exit 0	pass	
 primality-by-trial-division	Primality-by-trial-division	exit 0	pass	
 prime-conspiracy	Prime-conspiracy	compile error: error: dyadic operator int CLEAR ref bits has not been declared	-	
-prime-decomposition	Prime-decomposition	timeout	-	
+prime-decomposition	Prime-decomposition	exit 0	pass	
 prime-numbers-of-measurement	Prime-numbers-of-measurement	exit 0	pass	
 prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime	Prime-numbers-p-for-which-the-sum-of-primes-less-than-or-equal-to-p-is-prime	exit 0	pass	
 prime-numbers-which-contain-123	Prime-numbers-which-contain-123	missing include primes.incl.a68	-	
@@ -917,7 +917,7 @@ primes-n-2^m+1	Primes:-n-2^m+1	missing include primes.incl.a68	-
 print-itself-1	Print-itself	exit 0	pass	
 print-itself-2	Print-itself	compile error: error: tag 'system' has not been declared properly	-	
 print-itself-3	Print-itself	missing include files.incl.a68	-	
-probabilistic-choice	Probabilistic-choice	compile error: error: indicant FORMAT has not been declared properly	-	
+probabilistic-choice	Probabilistic-choice	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 problem-of-apollonius	Problem-of-Apollonius	exit 0	pass	
 product-of-divisors-1	Product-of-divisors	exit 0	pass	
 product-of-divisors-2	Product-of-divisors	compile error: error: int cannot be coerced to long int in a strong-unit	-	
@@ -931,16 +931,16 @@ pseudo-random-numbers-pcg32	Pseudo-random-numbers-PCG32	compile error: error: bi
 pseudo-random-numbers-splitmix64	Pseudo-random-numbers-Splitmix64	compile error: error: bits cannot be coerced to long bits in a strong-unit	-	
 pseudo-random-numbers-xorshift-star	Pseudo-random-numbers-Xorshift-star	compile error: error: dyadic operator long int * long long int has not been declared	-	
 punched-cards	Punched-cards	exit 0	pass	
-pythagoras-tree	Pythagoras-tree	exit 0	pass	
+pythagoras-tree	Pythagoras-tree	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 pythagorean-quadruples	Pythagorean-quadruples	exit 0	pass	
 pythagorean-triples	Pythagorean-triples	exit 0	pass	
 quad-power-prime-seeds	Quad-power-prime-seeds	missing include primes.incl.a68	-	
 quadrat-special-primes	Quadrat-special-primes	missing include primes.incl.a68	-	
-quaternion-1	Quaternion	compile error: error: indicant FORMAT has not been declared properly	-	
+quaternion-1	Quaternion	compile error: error: indicant QUATSCAL has not been declared properly	-	
 quaternion-2	Quaternion	missing include prelude/Quaternion.a68	-	
 queue-definition-1	Queue-Definition	compile error: error: indicant OBJLINK has not been declared properly	-	
 queue-definition-2	Queue-Definition	compile error: error: indicant OBJVALUE has not been declared properly	-	
-queue-usage-1	Queue-Usage	compile error: error: indicant FORMAT has not been declared properly	-	
+queue-usage-1	Queue-Usage	compile error: error: clause does not yield a value	-	
 queue-usage-2	Queue-Usage	missing include prelude/link.a68 prelude/queue_base.a68 test/data_stigler_diet.a68	-	
 quickselect-algorithm	Quickselect-algorithm	exit 0	pass	
 quine-1	Quine	exit 0	pass	
@@ -956,7 +956,7 @@ ramer-douglas-peucker-line-simplification	Ramer-Douglas-Peucker-line-simplificat
 random-latin-squares	Random-Latin-squares	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 random-number-generator-included--1	Random-number-generator-included-	compile error: error: *unworthy character â	-	
 random-number-generator-included--2	Random-number-generator-included-	compile error: error: possibly a missing or erroneous symbol nearby	-	
-random-numbers	Random-numbers	compile error: error: possibly a missing or erroneous separator nearby	-	
+random-numbers	Random-numbers	exit 0	pass	
 random-sentence-from-book-1	Random-sentence-from-book	missing include aArray.a68	-	
 random-sentence-from-book-2	Random-sentence-from-book	compile error: error: *unworthy character	-	
 range-consolidation	Range-consolidation	exit 0	pass	
@@ -969,14 +969,14 @@ range-modifications	Range-modifications	exit 0	pass
 ranking-methods	Ranking-methods	exit 0	pass	
 rare-numbers	Rare-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 ray-casting-algorithm	Ray-casting-algorithm	exit 0	pass	
-read-a-file-line-by-line	Read-a-file-line-by-line	compile error: error: indicant FORMAT has not been declared properly	-	
+read-a-file-line-by-line	Read-a-file-line-by-line	compile error: error: tag 'onphysicalfileend' has not been declared properly	-	
 read-a-specific-line-from-a-file	Read-a-specific-line-from-a-file	exit 0	pass	
 read-entire-file-1	Read-entire-file	compile error: error: *unworthy character Â	-	
 read-entire-file-2	Read-entire-file	compile error: error: tag 'book' has not been declared properly	-	
-real-constants-and-functions	Real-constants-and-functions	compile error: error: construct beginning with '(' in line 10 followed by '$' and then a specification and '; ' and '$' and ',' and a s	-	
-reduced-row-echelon-form	Reduced-row-echelon-form	compile error: error: indicant FORMAT has not been declared properly	-	
-regular-expressions-1	Regular-expressions	compile error: error: construct beginning with '(' in line 17 followed by '$' and then 'ends with "' and 'g' and '"' and 'l' and '$' an	-	
-regular-expressions-2	Regular-expressions	compile error: error: indicant FORMAT has not been declared properly	-	
+real-constants-and-functions	Real-constants-and-functions	compile error: error: tag 'atan' has not been declared properly	-	
+reduced-row-echelon-form	Reduced-row-echelon-form	compile error: internal compiler error: in a68_low_assignation, at algol68/a68-low.cc:1053	-	
+regular-expressions-1	Regular-expressions	compile error: error: tag 'grepinstring' has not been declared properly	-	
+regular-expressions-2	Regular-expressions	compile error: error: tag 'onformaterror' has not been declared properly	-	
 remove-duplicate-elements	Remove-duplicate-elements	missing include aArray.a68	-	
 remove-lines-from-a-file	Remove-lines-from-a-file	compile error: error: tag 'create' has not been declared properly	-	
 remove-vowels-from-a-string	Remove-vowels-from-a-string	exit 0	pass	
@@ -993,33 +993,33 @@ rice-coding	Rice-coding	exit 0	pass
 riordan-numbers	Riordan-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 rock-paper-scissors	Rock-paper-scissors	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 rodrigues-rotation-formula	Rodrigues-rotation-formula	compile error: error: tag 'acos' has not been declared properly	-	
-roman-numerals-decode	Roman-numerals-Decode	compile error: error: indicant OF has not been declared properly	-	
+roman-numerals-decode	Roman-numerals-Decode	exit 0	pass	
 roman-numerals-encode	Roman-numerals-Encode	exit 0	pass	
-roots-of-a-function	Roots-of-a-function	compile error: error: indicant FORMAT has not been declared properly	-	
-roots-of-a-quadratic-function	Roots-of-a-quadratic-function	compile error: error: indicant FORMAT has not been declared properly	-	
-roots-of-unity	Roots-of-unity	compile error: error: indicant FORMAT has not been declared properly	-	
+roots-of-a-function	Roots-of-a-function	compile error: error: 'real' cannot be coerced to 'long real' in a strong-unit	-	
+roots-of-a-quadratic-function	Roots-of-a-quadratic-function	compile error: error: tag 'complexsqrt' has not been declared properly	-	
+roots-of-unity	Roots-of-unity	compile error: error: tag 'complexexp' has not been declared properly	-	
 rosetta-code-rank-languages-by-popularity-1	Rosetta-Code-Rank-languages-by-popularity	missing include prelude/sort.a68	-	
 rosetta-code-rank-languages-by-popularity-2	Rosetta-Code-Rank-languages-by-popularity	compile error: error: *unworthy character â	-	
 rot-13	Rot-13	compile error: error: tag 'onlineend' has not been declared properly	-	
 round-robin-tournament-schedule	Round-robin-tournament-schedule	exit 0	pass	
 run-length-encoding	Run-length-encoding	exit 0	pass	
-runge-kutta-method	Runge-Kutta-method	compile error: error: possibly a missing or erroneous separator nearby	-	
+runge-kutta-method	Runge-Kutta-method	exit 0	pass	
 runtime-evaluation-1	Runtime-evaluation	compile error: error: tag 'evaluate' has not been declared properly	-	
 runtime-evaluation-2	Runtime-evaluation	compile error: error: tag 'evaluate' has not been declared properly	-	
 runtime-evaluation-in-an-environment	Runtime-evaluation-In-an-environment	compile error: error: tag 'evaluate' has not been declared properly	-	
 ruth-aaron-numbers	Ruth-Aaron-numbers	exit 0	pass	
 s-expressions	S-expressions	exit 0	pass	
-sedols	SEDOLs	compile error: error: construct beginning with '(' in line 32 followed by '$' and then 'sedol code already checksummed? (' and 'g' and 	-	
+sedols	SEDOLs	compile error: error: tag 'nullchar' has not been declared properly	-	
 send-+-more-=-money	SEND-+-MORE-=-MONEY	exit 0	pass	
 safe-and-sophie-germain-primes	Safe-and-Sophie-Germain-primes	missing include primes.incl.a68	-	
 safe-primes-and-unsafe-primes	Safe-primes-and-unsafe-primes	exit 0	pass	
 sailors-coconuts-and-a-monkey-problem	Sailors-coconuts-and-a-monkey-problem	exit 0	pass	
 sattolo-cycle	Sattolo-cycle	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 scope-function-names-and-labels	Scope-Function-names-and-labels	compile error: error: possibly a missing or erroneous symbol nearby	-	
-search-a-list-1	Search-a-list	compile error: error: indicant FORMAT has not been declared properly	-	
-search-a-list-2	Search-a-list	compile error: error: construct beginning with '(' in line 31 followed by '$' and then 'd' and ' ' and 'gl' and '$' and ',' and 'result	-	
+search-a-list-1	Search-a-list	compile error: error: tag 'getf' has not been declared properly	-	
+search-a-list-2	Search-a-list	exit 0	pass	
 search-a-list-of-records	Search-a-list-of-records	exit 0	pass	
-selective-file-copy	Selective-file-copy	compile error: error: indicant FORMAT has not been declared properly	-	
+selective-file-copy	Selective-file-copy	compile error: error: tag 'getf' has not been declared properly	-	
 selectively-replace-multiple-instances-of-a-character-within-a-string	Selectively-replace-multiple-instances-of-a-character-within-a-string	exit 0	pass	
 self-contained-numbers	Self-contained-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 self-describing-numbers	Self-describing-numbers	exit 0	pass	
@@ -1052,7 +1052,7 @@ show-the-decimal-value-of-a-number-of-1s-appended-with-a-3-then-squared-2	Show-t
 sierpinski-arrowhead-curve	Sierpinski-arrowhead-curve	missing include lsystem.incl.a68	-	
 sierpinski-carpet	Sierpinski-carpet	exit 0	pass	
 sierpinski-square-curve	Sierpinski-square-curve	missing include lsystem.incl.a68	-	
-sierpinski-triangle	Sierpinski-triangle	compile error: error: construct beginning with '(' in line 24 followed by '$' and then 'gl' and '$' and ',' and a specification and ')'	-	
+sierpinski-triangle	Sierpinski-triangle	exit 0	pass	
 sierpinski-triangle-graphical	Sierpinski-triangle-Graphical	missing include lsystem.incl.a68	-	
 sieve-of-eratosthenes	Sieve-of-Eratosthenes	exit 0	pass	
 sign-of-an-integer-signum-	Sign-of-an-integer-signum-	exit 0	pass	
@@ -1092,7 +1092,7 @@ sort-three-variables	Sort-three-variables	exit 0	pass
 sort-using-a-custom-comparator	Sort-using-a-custom-comparator	exit 0	pass	
 sorting-algorithms-bead-sort	Sorting-algorithms-Bead-sort	exit 0	pass	
 sorting-algorithms-bogosort	Sorting-algorithms-Bogosort	exit 0	pass	
-sorting-algorithms-bubble-sort	Sorting-algorithms-Bubble-sort	compile error: error: construct beginning with '(' in line 37 followed by '$' and then 'before: ' and a specification and 'l' and '$' a	-	
+sorting-algorithms-bubble-sort	Sorting-algorithms-Bubble-sort	exit 0	pass	
 sorting-algorithms-circle-sort	Sorting-algorithms-Circle-sort	exit 0	pass	
 sorting-algorithms-cocktail-sort-1	Sorting-algorithms-Cocktail-sort	exit 0	pass	
 sorting-algorithms-cocktail-sort-2	Sorting-algorithms-Cocktail-sort	compile error: error: construct beginning with '(' in line 14 followed by a list of formal declarers and then 'a' and ')' is an invalid	-	
@@ -1114,15 +1114,15 @@ sorting-algorithms-selection-sort	Sorting-algorithms-Selection-sort	exit 0	pass
 sorting-algorithms-shell-sort-1	Sorting-algorithms-Shell-sort	compile error: error: indicant SORTELEMENT has not been declared properly	-	
 sorting-algorithms-shell-sort-2	Sorting-algorithms-Shell-sort	missing include prelude/sort/shell.a68	-	
 sorting-algorithms-stooge-sort	Sorting-algorithms-Stooge-sort	exit 0	pass	
-soundex	Soundex	compile error: error: indicant OF has not been declared properly	-	
-special-characters-1	Special-characters	compile error: error: construct beginning with '(' in line 9 followed by '$' and then 'flip:' and 'g' and '!' and 'l' and '$' and ',' e	-	
+soundex	Soundex	exit 0	pass	
+special-characters-1	Special-characters	exit 0	pass	
 special-characters-2	Special-characters	exit 0	pass	
 special-divisors	Special-divisors	exit 0	pass	
 special-factorials	Special-factorials	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 special-neighbor-primes	Special-neighbor-primes	missing include primes.incl.a68	-	
 special-pythagorean-triplet	Special-pythagorean-triplet	exit 0	pass	
-special-variables-1	Special-variables	compile error: error: indicant FORMAT has not been declared properly	-	
-special-variables-2	Special-variables	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'g' and ': [' and ',' and 'g' and ',' and '] & [	-	
+special-variables-1	Special-variables	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+special-variables-2	Special-variables	compile error: error: tag 'mksaspeedoflight' has not been declared properly	-	
 specific-characters	Specific-characters	exit 0	pass	
 spelling-of-ordinal-numbers	Spelling-of-ordinal-numbers	compile error: error: dyadic operator long int < int has not been declared	-	
 sphenic-numbers	Sphenic-numbers	missing include primes.incl.A68	-	
@@ -1134,9 +1134,9 @@ square-form-factorization	Square-form-factorization	compile error: error: 'int' 
 square-free-integers	Square-free-integers	compile error: error: dyadic operator long int + int has not been declared	-	
 stack-1	Stack	compile error: error: indicant OBJVALUE has not been declared properly	-	
 stack-2	Stack	compile error: error: indicant OBJNEXTLINK has not been declared properly	-	
-stack-3	Stack	compile error: error: indicant FORMAT has not been declared properly	-	
+stack-3	Stack	compile error: error: clause does not yield a value	-	
 stack-4	Stack	missing include prelude/next_link.a68 prelude/stack_base.a68 test/data_stigler_diet.a68	-	
-stack-5	Stack	compile error: error: indicant FORMAT has not been declared properly	-	
+stack-5	Stack	compile error: error: '(GFORMAT, OBJVALUE, GFORMAT)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 stair-climbing-puzzle-1	Stair-climbing-puzzle	compile error: error: clause does not yield a value	-	
 stair-climbing-puzzle-2	Stair-climbing-puzzle	exit 0	pass	
 start-from-a-main-routine	Start-from-a-main-routine	exit 0	pass	
@@ -1148,22 +1148,22 @@ stem-and-leaf-plot-2	Stem-and-leaf-plot	exit 0	pass
 stern-brocot-sequence	Stern-Brocot-sequence	exit 0	pass	
 stirling-numbers-of-the-first-kind	Stirling-numbers-of-the-first-kind	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 stirling-numbers-of-the-second-kind	Stirling-numbers-of-the-second-kind	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
-straddling-checkerboard	Straddling-checkerboard	compile error: error: construct beginning with '(' in line 120 followed by '$' and then 'ggl' and '$' and ',' and 'original: ' in line 	-	
+straddling-checkerboard	Straddling-checkerboard	compile error: internal compiler error: Segmentation fault	-	
 strange-numbers	Strange-numbers	exit 0	pass	
 strange-plus-numbers	Strange-plus-numbers	exit 0	pass	
 strange-unique-prime-triplets	Strange-unique-prime-triplets	missing include primes.incl.a68	-	
 stream-merge	Stream-merge	exit 0	pass	
 string-append	String-append	exit 0	pass	
-string-case	String-case	compile error: error: construct beginning with '(' in line 36 followed by '$' and then 'uppercase: ' and 'gl' and '$' and ',' and 't' a	-	
+string-case	String-case	exit 0	pass	
 string-comparison	String-comparison	exit 0	pass	
 string-concatenation	String-concatenation	exit 0	pass	
-string-interpolation-included--1	String-interpolation-included-	compile error: error: indicant FORMAT has not been declared properly	-	
-string-interpolation-included--2	String-interpolation-included-	compile error: error: indicant FORMAT has not been declared properly	-	
+string-interpolation-included--1	String-interpolation-included-	exit 0	pass	
+string-interpolation-included--2	String-interpolation-included-	exit 0	pass	
 string-length-1	String-length	compile error: error: get skip tree: cannot compute SKIP for mode bytes	-	
-string-length-2	String-length	compile error: error: construct beginning with '(' in line 11 followed by '$' and then 'length of "' and 'g' and '" is ' and a specific	-	
+string-length-2	String-length	exit 0	pass	
 string-matching	String-matching	exit 0	pass	
 string-prepend	String-prepend	exit 0	pass	
-strip-a-set-of-characters-from-a-string	Strip-a-set-of-characters-from-a-string	compile error: error: construct beginning with '(' in line 21 followed by '$' and then 'gl' and '$' and ',' and a specification and ')'	-	
+strip-a-set-of-characters-from-a-string	Strip-a-set-of-characters-from-a-string	exit 0	pass	
 strip-comments-from-a-string	Strip-comments-from-a-string	exit 0	pass	
 strip-control-codes-and-extended-characters-from-a-string	Strip-control-codes-and-extended-characters-from-a-string	exit 0	pass	
 strip-whitespace-from-a-string-top-and-tail-1	Strip-whitespace-from-a-string-Top-and-tail	exit 0	pass	
@@ -1173,14 +1173,14 @@ sturmian-word	Sturmian-word	exit 0	pass
 sub-unit-squares	Sub-unit-squares	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 subleq	Subleq	exit 0	pass	
 substitution-cipher	Substitution-cipher	exit 0	pass	
-substring	Substring	compile error: error: construct beginning with '(' in line 15 followed by '$' and then 'gl' and '$' and ',' and a specification and ')'	-	
-substring-top-and-tail	Substring-Top-and-tail	compile error: error: construct beginning with '(' in line 12 followed by '$' and then 'gl' and '$' and ',' and 'str' in line 13 and ',	-	
+substring	Substring	exit 0	pass	
+substring-top-and-tail	Substring-Top-and-tail	exit 0	pass	
 substring-primes	Substring-primes	missing include primes.incl.a68	-	
-subtractive-generator	Subtractive-generator	exit -6	pass	
+subtractive-generator	Subtractive-generator	exit -6	fixed: docs/ga68-bug-reports.md, entry 11 (MODAB)	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 11): ga68 computes MODAB with the C remainder, so "sgi -:= 1 MODAB max_state" gives -1 and the program stops with a bound error; a68j computes MOD and prints the numbers of the task (tests/rosetta/fixed)
 successive-prime-differences	Successive-prime-differences	exit -9	fail: exit 0 (native -9); stdout differs	the ga68 program was killed (status -9, out of memory: it allocates its rows on the stack); a68j gives the expected result
 sudan-function	Sudan-function	exit 0	pass	
-sudoku	Sudoku	compile error: error: indicant FORMAT has not been declared properly	-	
-sum-and-product-of-an-array	Sum-and-product-of-an-array	compile error: error: construct beginning with '(' in line 28 followed by '$' and then ' sum: ' and a specification and '$' and ',' and	-	
+sudoku	Sudoku	compile error: error: dyadic operator int UP int has not been declared	-	
+sum-and-product-of-an-array	Sum-and-product-of-an-array	exit 0	pass	
 sum-and-product-puzzle	Sum-and-product-puzzle	exit 0	pass	
 sum-data-type-1	Sum-data-type	compile error: error: clause does not yield a value	-	
 sum-data-type-2	Sum-data-type	compile error: error: indicant NODE has not been declared properly	-	
@@ -1193,9 +1193,9 @@ sum-of-elements-below-main-diagonal-of-matrix	Sum-of-elements-below-main-diagona
 sum-of-first-n-cubes	Sum-of-first-n-cubes	exit 0	pass	
 sum-of-primes-in-odd-positions-is-prime	Sum-of-primes-in-odd-positions-is-prime	missing include primes.incl.a68	-	
 sum-of-square-and-cube-digits-of-an-integer-are-primes	Sum-of-square-and-cube-digits-of-an-integer-are-primes	missing include primes.incl.a68	-	
-sum-of-squares-1	Sum-of-squares	compile error: error: construct beginning with '(' in line 17 followed by '$' and then a specification and 'l' and '$' and ',' and a sp	-	
-sum-of-squares-2	Sum-of-squares	compile error: error: construct beginning with '(' in line 16 followed by '$' and then a specification and 'l' and '$' and ',' and a sp	-	
-sum-of-squares-3	Sum-of-squares	compile error: error: construct beginning with '(' in line 46 followed by '$' and then 'real sum sq gen: ' and a specification and 'l' 	-	
+sum-of-squares-1	Sum-of-squares	exit 0	pass	
+sum-of-squares-2	Sum-of-squares	exit 0	pass	
+sum-of-squares-3	Sum-of-squares	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
 sum-of-the-digits-of-n-is-substring-of-n	Sum-of-the-digits-of-n-is-substring-of-n	exit 0	pass	
 sum-of-two-adjacent-numbers-are-primes	Sum-of-two-adjacent-numbers-are-primes	missing include primes.incl.a68	-	
 sum-to-100	Sum-to-100	missing include sort.incl.a68	-	
@@ -1206,42 +1206,42 @@ super-d-numbers	Super-d-numbers	compile error: error: int cannot be coerced to l
 sylvesters-sequence	Sylvesters-sequence	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 symmetric-difference	Symmetric-difference	missing include aArray.a68	-	
 synchronous-concurrency	Synchronous-concurrency	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
-system-time	System-time	compile error: error: indicant FORMAT has not been declared properly	-	
-table-creation-postal-addresses	Table-creation-Postal-addresses	compile error: error: indicant FORMAT has not been declared properly	-	
+system-time	System-time	compile error: error: tag 'localtime' has not been declared properly	-	
+table-creation-postal-addresses	Table-creation-Postal-addresses	compile error: error: tag 'onopenerror' has not been declared properly	-	
 take-notes-on-the-command-line	Take-notes-on-the-command-line	missing include files.incl.a68	-	
 tau-function	Tau-function	exit 0	pass	
 tau-number	Tau-number	exit 0	pass	
-temperature-conversion	Temperature-conversion	compile error: error: indicant FORMAT has not been declared properly	-	
+temperature-conversion	Temperature-conversion	exit 1	pass	
 terminal-control-clear-the-screen	Terminal-control-Clear-the-screen	compile error: error: tag 'cursesstart' has not been declared properly	-	
 ternary-logic-1	Ternary-logic	missing include Template_operators_logical_mixin.a68	-	
 ternary-logic-2	Ternary-logic	compile error: error: indicant LOGICAL has not been declared properly	-	
 ternary-logic-3	Ternary-logic	missing include prelude/general.a68 Ternary_logic.a68	-	
 test-integerness	Test-integerness	compile error: error: indicant COMPLEX has not been declared properly	-	
 text-between	Text-between	exit 0	pass	
-text-processing-1	Text-processing-1	compile error: error: indicant FORMAT has not been declared properly	-	
+text-processing-1	Text-processing-1	compile error: error: tag 'getf' has not been declared properly	-	
 text-processing-2	Text-processing-2	missing include files.incl.a68	-	
-text-processing-max-licenses-in-use	Text-processing-Max-licenses-in-use	compile error: error: indicant FORMAT has not been declared properly	-	
+text-processing-max-licenses-in-use	Text-processing-Max-licenses-in-use	compile error: error: tag 'getf' has not been declared properly	-	
 textonyms	Textonyms	missing include aArray.a68	-	
 the-name-game	The-Name-Game	exit 0	pass	
 the-twelve-days-of-christmas	The-Twelve-Days-of-Christmas	exit 0	pass	
 the-sieve-of-sundaram	The-sieve-of-Sundaram	exit 0	pass	
-thieles-interpolation-formula	Thieles-interpolation-formula	compile error: error: construct beginning with '(' in line 9 followed by a unit list and then ',' and '$' and ' ' and 'g' and '$' and '	-	
+thieles-interpolation-formula	Thieles-interpolation-formula	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
 three-word-location	Three-word-location	compile error: error: dyadic operator long int * int has not been declared	-	
 thue-morse	Thue-Morse	exit 0	pass	
-tokenize-a-string	Tokenize-a-string	compile error: error: construct beginning with '(' in line 44 followed by '$' and then 'g' and '$' and ',' and 'solo' and ')' is an inv	-	
+tokenize-a-string	Tokenize-a-string	compile error: error: tag 'getf' has not been declared properly	-	
 tokenize-a-string-with-escaping	Tokenize-a-string-with-escaping	exit 0	pass	
 top-rank-per-group	Top-rank-per-group	exit 0	pass	
-total-circles-area	Total-circles-area	exit 0	pass	
+total-circles-area	Total-circles-area	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	
 totient-function	Totient-function	exit 0	pass	
-towers-of-hanoi-1	Towers-of-Hanoi	compile error: error: construct beginning with '(' in line 12 followed by '$' and then 'move disk from pole ' and 'g' and ' to pole ' a	-	
-towers-of-hanoi-2	Towers-of-Hanoi	compile error: error: construct beginning with '(' in line 12 followed by '$' and then 'move disk ' and 'g' and '     from pole ' and '	-	
+towers-of-hanoi-1	Towers-of-Hanoi	exit 0	pass	
+towers-of-hanoi-2	Towers-of-Hanoi	exit 0	pass	
 trabb-pardo-knuth-algorithm	Trabb-Pardo-Knuth-algorithm	exit 1	pass	
 tree-traversal	Tree-traversal	exit 0	fail: stdout differs	evaluation order: in the assignation "IF ... FI := end OF queue := qnode" ga68 (GCC) elaborates the source before the destination, a68j the destination first; Algol 68 leaves the order open
 triangular-numbers	Triangular-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 trigonometric-functions	Trigonometric-functions	exit 0	pass	
 triplet-of-three-numbers	Triplet-of-three-numbers	missing include primes.incl.a68	-	
 tropical-algebra-overloading	Tropical-algebra-overloading	exit 0	pass	
-truncatable-primes	Truncatable-primes	compile error: error: construct beginning with '(' in line 50 followed by '$' and then a specification and 'l' and '$' and ',' and 'n' 	-	
+truncatable-primes	Truncatable-primes	exit 0	pass	
 truth-table	Truth-table	compile error: error: tag 'evaluate' has not been declared properly	-	
 tuppers-self-referential-formula	Tuppers-self-referential-formula	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 twin-primes	Twin-primes	exit 1	pass	
@@ -1254,13 +1254,13 @@ upc	UPC	exit 0	pass
 url-decoding	URL-decoding	exit 0	pass	
 url-encoding	URL-encoding	exit 0	pass	
 url-parser	URL-parser	missing include uriParser.a68	-	
-ulam-numbers	Ulam-numbers	exit -6	fail: runtime error 'tests/rosetta/ulam-numbers.a68:17: runtime error: bound 3 out of range [1:0]' (native 'tests/rosetta/ulam-numbers.a68:17: runtime error: bound 1 out of range [1:0]')	evaluation order: in "ulam[3] := ulam[2] := ulam[1] := one" ga68 checks the bound of the inner assignation first; both stop with a bound error because ga68 ignores the bounds of FLEX [1 : n] CHAR (a ga68 bug that a68j reproduces)
+ulam-numbers	Ulam-numbers	exit -6	fail: runtime error 'ulam-numbers.a68:17: runtime error: bound 3 out of range [1:0]' (native 'ulam-numbers.a68:17: runtime error: bound 1 out of range [1:0]')	evaluation order: in "ulam[3] := ulam[2] := ulam[1] := one" ga68 checks the bound of the inner assignation first; both stop with a bound error because ga68 ignores the bounds of FLEX [1 : n] CHAR (a ga68 bug that a68j reproduces)
 ulam-spiral-for-primes-	Ulam-spiral-for-primes-	missing include primes.incl.a68	-	
 ultra-useful-primes	Ultra-useful-primes	missing include primes.incl.a68	-	
 undefined-values	Undefined-values	exit 0	pass	
 undulating-numbers	Undulating-numbers	compile error: error: dyadic operator long int < int has not been declared	-	
 unescape-a-string	Unescape-a-string	exit 0	pass	
-unicode-strings	Unicode-strings	compile error: error: indicant FORMAT has not been declared properly	-	
+unicode-strings	Unicode-strings	compile error: error: '[] union (GFORMAT, bits, string)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 unique-characters-1	Unique-characters	exit 0	pass	
 unique-characters-2	Unique-characters	exit 0	pass	
 unique-characters-in-each-string	Unique-characters-in-each-string	exit 0	pass	
@@ -1284,7 +1284,7 @@ variables-4	Variables	compile error: error: clause does not yield a value	-
 variables-5	Variables	compile error: error: clause does not yield a value	-	
 variadic-function	Variadic-function	exit 0	pass	
 vector	Vector	compile error: error: indicant COMPLEX has not been declared properly	-	
-vector-products	Vector-products	compile error: error: indicant FORMAT has not been declared properly	-	
+vector-products	Vector-products	exit 0	pass	
 verhoeff-algorithm	Verhoeff-algorithm	exit 0	pass	
 vigen-re-cipher	Vigen-re-cipher	exit 0	pass	
 vile-and-dopey-numbers	Vile-and-Dopey-numbers	missing include rows.incl.a68	-	
@@ -1304,7 +1304,7 @@ wieferich-primes	Wieferich-primes	missing include primes.incl.a68	-
 wilson-primes-of-order-n	Wilson-primes-of-order-n	missing include primes.incl.a68	-	
 window-creation	Window-creation	compile error: error: indicant PROGRAM has not been declared properly	-	
 window-creation-x11	Window-creation-X11	compile error: error: tag 'drawdevice' has not been declared properly	-	
-wireworld	Wireworld	compile error: error: construct beginning with '(' in line 127 followed by '$' and then a specification and ' ' and '$' and ',' and a f	-	
+wireworld	Wireworld	exit 0	pass	
 wolstenholme-numbers	Wolstenholme-numbers	missing include primes.incl.a68	-	
 word-break-problem	Word-break-problem	compile error: internal compiler error: in a68_pop_serial_clause_range, at algol68/a68-low-ranges.cc:643	-	
 word-frequency	Word-frequency	missing include aArrayBase.a68	-	
@@ -1319,7 +1319,7 @@ write-float-arrays-to-a-text-file	Write-float-arrays-to-a-text-file	exit 0	pass
 xml-output-1	XML-Output	exit 0	pass	
 xml-output-2	XML-Output	compile error: error: indicant C has not been declared properly	-	
 y-combinator-1	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
-y-combinator-2	Y-combinator	compile error: error: construct beginning with '(' in line 80 followed by '$' and then '  ' and ',' and a specification and '$' and ','	-	
+y-combinator-2	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
 yellowstone-sequence	Yellowstone-sequence	exit 0	pass	
 yin-and-yang	Yin-and-yang	exit -11	fail: exit 0 (native -11); stdout differs	partial parametrization (in circle (0, 0, radius, , )), an Algol 68 Genie extension: ga68 compiles the calls with missing arguments and crashes; a68j runs it and prints what Algol 68 Genie prints (tests/partial)
 zebra-puzzle	Zebra-puzzle	exit 0	pass	

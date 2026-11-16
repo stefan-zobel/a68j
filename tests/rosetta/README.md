@@ -28,9 +28,10 @@ passing.md          list of the solutions that run normally with ga68 and a68j
 passing.txt         the same names, one per line (e.g. for run_jvm.py)
 ```
 
-`tools/rosetta_list.py --dir tests/rosetta --rcd <RosettaCodeData> -o
-tests/rosetta/passing.md` generates `passing.md` and `passing.txt` from
-`results.tsv`.
+`tools/rosetta_list.py --dir tests/rosetta -o tests/rosetta/passing.md`
+generates `passing.md` and `passing.txt` from `results.tsv`. The links to
+Rosetta Code come from the headers of the prepared programs; with
+`--rcd <RosettaCodeData>` they come from the checkout instead.
 
 ## Preparation
 
@@ -102,28 +103,27 @@ if ga68 rejects a program, it rejects both versions, almost always with
 the first error on the same line (exception: `flow-control-structures-4`,
 a format for which ga68 reports the errors in a different order).
 
-## Results (2 Nov 2026, programs in SUPPER)
+## Results (a68j 0.8.0, programs in SUPPER)
 
 | | Solutions |
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 501 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 420 |
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
-| ga68 compiles them, but natively they run longer than 2 minutes | 3 |
-| ga68 compiles and runs them | 618 |
-| **of these identical to ga68 on the JVM** | **608** |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 560 |
-| of these the same up to rounding (`approx`) | 2 |
+| ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
+| ga68 compiles and runs them | 695 |
+| **of these identical to ga68 on the JVM** | **680** |
+| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 26 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 627 |
+| of these the same up to rounding (`approx`) | 5 |
 
-These results, `results.tsv` and `passing.md` were measured before the
-solutions with formats were rewritten. Measured on the 175 rewritten
-solutions alone, with pictures, choices and radix in `Genie_Formats`:
-ga68 compiles 81 and 76 of them end within the time limit; of these, 71
-give the same result on the JVM and 3 the same up to rounding. Among the
-71 is `knapsack-problem-unbounded`, which crashes natively (entry 26 of
+The solutions with formats are rewritten by the format rewrite tool (see
+Preparation): of the 175, ga68 compiles 81. Among them is
+`knapsack-problem-unbounded`, which crashes natively (entry 26 of
 [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
-compared with its result in `fixed`. The other two:
+compared with its result in `fixed`. Three of them are the same only up to
+rounding, because ga68 writes wrong digits of a `REAL` (entries 4 and 5),
 `command-line-arguments` prints the path of the program, and
 `y-combinator-2` crashes natively only.
 
@@ -224,7 +224,13 @@ python3 tools/rosetta_report.py --dir tests/rosetta --native /tmp/native-rc --jv
 ```
 
 Every run of a program starts in a new empty directory, natively and on
-the JVM, since programs may create files. `--runs 2` runs every program
+the JVM, since programs may create files. In a virtual machine with little
+memory, limit the parallel runs (`-j`): a solution such as
+`successive-prime-differences` takes gigabytes natively, and slow solutions
+exceed the time limit when several run at once. Run the solutions that
+timed out again with a longer limit (`--timeout 120 -j 1`) into a second
+directory and give it to `rosetta_report.py` as a second `--native` and
+`--jvm`; later directories take precedence. `--runs 2` runs every program
 twice and sorts out programs whose output changes; `--stack` lets ga68
 use large local rows. `run_jvm.py` compares
 floating-point numbers in the output with a tolerance (`--rel-eps`, default
