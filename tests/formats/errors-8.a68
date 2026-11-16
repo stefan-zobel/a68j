@@ -1,0 +1,4 @@
+# An INT value with a radix picture ends the program. #
+BEGIN
+   printf (($"<"2r8d">"l$, 255))
+END

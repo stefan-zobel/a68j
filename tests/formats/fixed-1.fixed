@@ -1,0 +1,1 @@
+Algol 68 Genie drops the sign and a column of -0.5 with -zz.dd ("  .50"), and the rest of the line after a number 0 whose picture has only z frames.

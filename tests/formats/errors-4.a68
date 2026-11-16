@@ -1,0 +1,4 @@
+# A REAL value with an integral picture ends the program. #
+BEGIN
+   printf (($"x = "3d l$, 12.7))
+END

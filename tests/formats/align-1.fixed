@@ -1,0 +1,1 @@
+Algol 68 Genie counts the character position of k from where each printf starts (fixed-4); here each printf starts a line, so the output is the same, and it was recorded with Algol 68 Genie.

@@ -1,0 +1,4 @@
+# A BOOL value with a choice pattern ends the program. #
+BEGIN
+   printf (($"<"c("a","b")">"l$, TRUE))
+END

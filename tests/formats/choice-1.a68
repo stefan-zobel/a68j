@@ -1,0 +1,20 @@
+# The boolean pattern b and the integral choice pattern c, as in Algol 68
+  Genie. #
+BEGIN
+   printf (($"<"b("yes","no")">"l$, TRUE, FALSE));
+   printf (($"<"b">"l$, TRUE));
+   printf (($b","b l$, TRUE, FALSE));
+   printf (($"<"c("a","bb","ccc")">"l$, 2));
+   printf (($"<"c("a","bb","ccc")">"l$, 4));
+   printf (($"<"c("a","bb","ccc")">"l$, 0));
+   printf (($3(b("1","0"))l$, TRUE, FALSE, TRUE));
+   [] BOOL bs = (TRUE, FALSE, FALSE);
+   printf (($b("+","-")$, bs)); print (newline);
+   FOR n FROM 0 TO 2 DO
+      printf (($g(0) " file" b("", "s") " found" l$, n, n = 1))
+   OD;
+   FOR month FROM 1 TO 3 DO
+      printf (($c("January", "February", "March") ", " g(0) l$, month, month))
+   OD;
+   printf (($b("yes", "no") ", " b l$, 3 > 2, 3 > 4))
+END

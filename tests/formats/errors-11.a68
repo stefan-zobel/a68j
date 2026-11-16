@@ -1,0 +1,4 @@
+# An exponent too wide for its frames ends the program. #
+BEGIN
+   printf (($"<"d.2de+d">"l$, 1.0e20))
+END

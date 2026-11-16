@@ -1,0 +1,7 @@
+# Pictures for which Genie_Formats deliberately differs from Algol 68
+  Genie (fixed-1.fixed). #
+BEGIN
+   printf (($"<"-zz.dd">"l$, -0.5));
+   printf (($"<"3z">"l$, 0));
+   printf (($"<"-zz">"l$, 0))
+END

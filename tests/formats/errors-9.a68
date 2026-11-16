@@ -1,0 +1,4 @@
+# A BITS value too wide for its radix picture ends the program. #
+BEGIN
+   printf (($"<"16r2d">"l$, 16rfff))
+END

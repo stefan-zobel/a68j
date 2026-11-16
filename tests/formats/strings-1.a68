@@ -1,0 +1,16 @@
+# The string pattern a, as in Algol 68 Genie: CHAR and STRING values,
+  insertions between the frames and rows of strings. #
+BEGIN
+   printf (($"<"a">"l$, "x"));
+   CHAR c = "q";
+   printf (($"<"a">"l$, c));
+   printf (($"<"5a">"l$, "hello"));
+   printf (($"<"3a"|"2a">"l$, "abcde"));
+   printf (($"<"a3x2a">"l$, "abc"));
+   STRING s = "abc";
+   printf (($"<"3a">"l$, s));
+   [] STRING ss = ("ab", "cd");
+   printf (($"<"2a">"$, ss)); print (newline);
+   INT n = 4;
+   printf (($"<"n(n)a">"l$, "four"))
+END

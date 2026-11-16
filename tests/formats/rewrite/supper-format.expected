@@ -1,0 +1,7 @@
+{ dg-options "-fstropping=supper" }
+access Genie_Transput, Genie_Formats
+begin Gformat row = gfmt ("3zd, 2x zd.ddd l");
+      [] Gformat rows = (row, gfmt ("g"));
+      mode Format = struct (int x);
+      printf ((row, 1, 2.0))
+end

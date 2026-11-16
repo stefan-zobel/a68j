@@ -1,0 +1,4 @@
+# A string must have as many characters as its picture has frames. #
+BEGIN
+   printf (($"<"5a">"l$, "abc"))
+END

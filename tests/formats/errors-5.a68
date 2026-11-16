@@ -1,0 +1,4 @@
+# A value too wide for its picture ends the program. #
+BEGIN
+   printf (($"<"3d">"l$, 12345))
+END

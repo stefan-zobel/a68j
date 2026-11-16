@@ -1,0 +1,31 @@
+# Real pictures, as in Algol 68 Genie: the point, z before and after it,
+  rounding, integers in real pictures, the floating sign of the mantissa,
+  suppressed frames and LONG REAL. #
+BEGIN
+   printf (($"<"3zd.2d">"l$, 3.14159));
+   printf (($"<"-d.3d">"l$, -2.71828));
+   printf (($"<"d.2z">"l$, 2.5));
+   printf (($"<"z.zz">"l$, 0.05));
+   printf (($"<"zz.dd">"l$, 0.5));
+   printf (($"<"3z.dd">"l$, 0.0));
+   printf (($"<"3z.zz">"l$, 0.0));
+   printf (($"<".3d">"l$, 0.25));
+   printf (($"<"d.d">"l$, 0.96));
+   printf (($"<"3d.">"l$, 12.7));
+   printf (($"<"zd.3d">"l$, 1));
+   printf (($"<"-zd.dd">"l$, -0.5));
+   printf (($"<"-zd.dd">"l$, -1.5));
+   printf (($"<"-zzd.dd">"l$, -5.0));
+   printf (($"<"-zzd.dd">"l$, 5.0));
+   printf (($"<"+zzd.dd">"l$, 5.0));
+   printf (($"<"zz-d.dd">"l$, -5.0));
+   printf (($"<"zz-d.dd">"l$, -123.0));
+   printf (($"<"-zzd.dd">"l$, -5));
+   printf (($"<"zz"x"d.d">"l$, 5.0));
+   printf (($"<"zz","zzd.dd">"l$, 1234.5));
+   printf (($"<"d.2sd">"l$, 1.234));
+   printf (($"<"d.12d">"l$, LONG 3.14159265358979));
+   printf (($"<"-4d.4d">"l$, - LONG 1234.5678));
+   [] REAL r = (1.5, 22.25, 333.4);
+   printf (($"<"zzd.dd">"$, r)); print (newline)
+END

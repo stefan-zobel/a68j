@@ -1,0 +1,4 @@
+# A negative value for a picture without a sign frame ends the program. #
+BEGIN
+   printf (($"<"3d">"l$, -12))
+END

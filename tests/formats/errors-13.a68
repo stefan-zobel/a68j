@@ -1,0 +1,4 @@
+# A negative exponent without a sign frame ends the program. #
+BEGIN
+   printf (($"<"zzde2d">"l$, 5.0))
+END

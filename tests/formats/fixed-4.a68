@@ -1,0 +1,6 @@
+# The alignment k counts what print wrote before on the line
+  (fixed-4.fixed). #
+BEGIN
+   print ("abc"); printf (($6k"|"l$));
+   printf (($"ab"$)); print ("cd"); printf (($8k"|"l$))
+END

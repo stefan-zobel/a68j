@@ -1,0 +1,20 @@
+# Real pictures with an exponent, as in Algol 68 Genie: 0 to 3 integral
+  digits of the mantissa, rounding, sign moulds and z in the exponent. #
+BEGIN
+   printf (($"<"zd.dde+2d">"l$, 12345.678));
+   printf (($"<"d.3de-dd">"l$, 0.000123));
+   printf (($"<"d.2de2d">"l$, 9.996));
+   printf (($"<"d.2de2d">"l$, 0));
+   printf (($"<".3de2d">"l$, 12.5));
+   printf (($"<"3de-2d">"l$, 0.00012345));
+   printf (($"<"zd.de+2d">"l$, 0.5));
+   printf (($"<"2de2d">"l$, 1234));
+   printf (($"<"-d.2de+2d">"l$, -1.5));
+   printf (($"<"-d.de-d">"l$, -5.0));
+   printf (($"<"d.2de-zd">"l$, 1.5e-5));
+   printf (($"<"d.2de-zd">"l$, 1.5e5));
+   printf (($"<"-d.3de-2d">"l$, -1.0e-20));
+   printf (($"<"+d.4de+3d">"l$, LONG 6.02214076e23));
+   INT w = 2;
+   printf (($"<"d.n(w)de+n(w)d">"l$, 271.828))
+END

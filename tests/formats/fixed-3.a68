@@ -1,0 +1,5 @@
+# A LONG INT value with a choice pattern ends the program
+  (fixed-3.fixed). #
+BEGIN
+   printf (($"<"c("a","b")">"l$, LONG 1))
+END

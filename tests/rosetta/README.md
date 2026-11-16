@@ -118,10 +118,12 @@ a format for which ga68 reports the errors in a different order).
 
 These results, `results.tsv` and `passing.md` were measured before the
 solutions with formats were rewritten. Measured on the 175 rewritten
-solutions alone: ga68 compiles 81 and 76 of them end within the time
-limit; of these, 71 give the same result on the JVM and 3 the same up to
-rounding, and 23 stop on both sides at a format item that `Genie_Formats`
-does not support yet (pictures, choices, radix). The other two:
+solutions alone, with pictures, choices and radix in `Genie_Formats`:
+ga68 compiles 81 and 76 of them end within the time limit; of these, 71
+give the same result on the JVM and 3 the same up to rounding. Among the
+71 is `knapsack-problem-unbounded`, which crashes natively (entry 26 of
+[`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
+compared with its result in `fixed`. The other two:
 `command-line-arguments` prints the path of the program, and
 `y-combinator-2` crashes natively only.
 

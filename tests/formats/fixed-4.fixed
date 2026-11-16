@@ -1,0 +1,1 @@
+Algol 68 Genie counts the character position for k from where printf starts, so print ("abc") followed by 6k gives "abc     |".

@@ -1,0 +1,11 @@
+# The alignment k, as in Algol 68 Genie: blanks up to a character
+  position, never backwards. #
+BEGIN
+   printf (($"<"10k"x"l$));
+   printf (($"ab"10k"x"l$));
+   printf (($"abcdef"3k"x"l$));
+   printf (($k"x"l$));
+   INT c = 5;
+   printf (($"-"n(c)k"|"l$));
+   printf (($"<"g(0)20k">"l$, 42))
+END

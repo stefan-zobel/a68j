@@ -1,0 +1,4 @@
+# A CHAR value with a boolean pattern ends the program. #
+BEGIN
+   printf (($"<"b">"l$, "x"))
+END

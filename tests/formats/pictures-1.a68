@@ -1,0 +1,59 @@
+# Integral pictures, as in Algol 68 Genie: d and z, frames without a comma
+  forming one picture, insertions inside a picture (blanked in the
+  suppressed area), signs (fixed and floating), s, replicators, LONG INT,
+  collections of pictures and rows. #
+BEGIN
+   printf (($"<"5d">"l$, 123));
+   printf (($"<"5zd">"l$, 123));
+   printf (($"<"zzd">"l$, 0));
+   printf (($"<"zdz">"l$, 5));
+   printf (($"<"zz">"l$, 5));
+   printf (($"<"2d">"l$, -0));
+   # One picture or two #
+   printf (($3d 2d l$, 12345));
+   printf (($3d, 2d l$, 123, 45));
+   printf (($3d"-"2d l$, 12345));
+   printf (($3d l 2d l$, 12345));
+   printf (($zd"."2d l$, 1234));
+   printf (($"a = " 2d ", b = " 2d l$, 1));
+   printf (($"a = " 2d, ", b = " 2d l$, 1, 2));
+   # Insertions in the suppressed area #
+   printf (($"<"zz","zzd">"l$, 12));
+   printf (($"<"zz","zzd">"l$, 1234));
+   printf (($"<"zz"x"zd">"l$, 5));
+   printf (($"<"zz"x"zd">"l$, 1234));
+   printf (($"<"zz3x"|"d">"l$, 5));
+   # Signs #
+   printf (($"<"-3d">"l$, -12));
+   printf (($"<"-3d">"l$, 12));
+   printf (($"<"+3d">"l$, 12));
+   printf (($"<"+d">"l$, 0));
+   printf (($"<"-zzd">"l$, -5));
+   printf (($"<"-zzd">"l$, 0));
+   printf (($"<"-"x"2d">"l$, -5));
+   printf (($"<"-"x"zzd">"l$, -5));
+   printf (($"<"-zz"x"d">"l$, -5));
+   printf (($"<"zz-d">"l$, -5));
+   printf (($"<"zz-d">"l$, -123));
+   printf (($"<"zz-d">"l$, 5));
+   printf (($"<"zzz+d">"l$, 5));
+   printf (($"<"zzz+d">"l$, 1234));
+   FOR i TO 3 DO
+      INT n = (i | 42, -42, -7);
+      printf (($"[" -4zd "] [", 4z-d "] [", 4z+d "] [", +4d "]" l$, n, n, n, n))
+   OD;
+   # Suppressed frames #
+   printf (($"<"3sd">"l$, 123));
+   printf (($"<"d2sdd">"l$, 1234));
+   # Replicators #
+   INT k = 3;
+   printf (($"<"n(k)d">"l$, 42));
+   printf (($"<"n(k)z n(k - 1)d">"l$, 42));
+   printf (($"<"3(d)">"l$, 1, 2, 3));
+   printf (($3d$, 1, 2)); print (newline);
+   printf (($"<"3d">"l$, LONG 123));
+   printf (($"<"-12d">"l$, - LONG 12345678901));
+   printf (($"<"3d">"l$, LONG LONG 123));
+   [] INT r = (1, 22, 333);
+   printf (($"<"3zd">"$, r)); print (newline)
+END

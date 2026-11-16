@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "knapsack-problem-unbounded.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 26 (a row of strings selected from a row of structures): ga68 crashes at name OF items",
+ "stderr": "",
+ "stdout": "The maximum value achievable (by dynamic programming) is      +54500\n  The number of (panacea, ichor, gold) items to achieve this is: (   9,   0,  11) respectively\n  The weight to carry is  247, and the volume used is  247\n"
+}

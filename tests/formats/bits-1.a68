@@ -1,0 +1,19 @@
+# Radix pictures for BITS and LONG BITS, as in Algol 68 Genie: radix 2,
+  4, 8, 10 and 16, z, insertions and dynamic replicators. #
+BEGIN
+   printf (($"<"16r4d">"l$, 16r00ff));
+   printf (($"<"16r4z">"l$, 16r00ff));
+   printf (($"<"16rzzd">"l$, 16r0));
+   printf (($"<"2r8d">"l$, BIN 5));
+   printf (($"<"8r3zd">"l$, 8r777));
+   printf (($"<"10r4d">"l$, BIN 25));
+   printf (($"<"4r4d">"l$, BIN 27));
+   printf (($"<"16r8d">"l$, 16rffffffff));
+   printf (($"<"16r4d"-"4d">"l$, 16rdeadbeef));
+   printf (($"<"16r16d">"l$, LONG 16rffffffffff));
+   printf (($"<"2r40d">"l$, LONG 16rffffffffff));
+   INT w = 6;
+   printf (($"<"8r n(w)d">"l$, 8r777));
+   [] BITS bs = (BIN 1, BIN 2);
+   printf (($2r4d" "$, bs)); print (newline)
+END

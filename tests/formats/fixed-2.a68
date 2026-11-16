@@ -1,0 +1,5 @@
+# A negative REAL value for a picture without a sign frame ends the
+  program (fixed-2.fixed). #
+BEGIN
+   printf (($"<"d.dd">"l$, -0.5))
+END
