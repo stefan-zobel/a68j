@@ -273,7 +273,7 @@ public final class Scanner {
             throw diag.fatal("could not open source file " + filename);
         }
         String buffer = new String(bytes, StandardCharsets.ISO_8859_1);
-        // a68j: -fgenie rewrites the text first (A68#sourceFilter).
+        // a68j: -fgenie and -fformats rewrite the text first (A68#sourceFilter).
         SourceFilter.Result filtered = null;
         if (a68.sourceFilter != null) {
             filtered = a68.sourceFilter.apply(buffer);
@@ -322,7 +322,7 @@ public final class Scanner {
             refL = appendSourceLine(text, refL, filename, lineNum);
             scanError(l != text.length(), null, -1, "invalid characters in source file");
         }
-        // a68j: an error found by the rewrite of -fgenie.
+        // a68j: an error found by the rewrite of -fgenie or -fformats.
         filterError(filtered, beforeFile.next);
 
         // Extra line before adding postlude.
@@ -806,7 +806,7 @@ public final class Scanner {
                         scanError(true, startL, startC, "error opening included file");
                     }
                     String fbuf = new String(bytes, StandardCharsets.ISO_8859_1);
-                    // a68j: -fgenie rewrites the text first (A68#sourceFilter).
+                    // a68j: -fgenie and -fformats rewrite the text first (A68#sourceFilter).
                     SourceFilter.Result filtered = null;
                     if (a68.sourceFilter != null) {
                         filtered = a68.sourceFilter.apply(fbuf);
@@ -869,8 +869,8 @@ public final class Scanner {
 
     /**
      * a68j: reports the error that the rewrite of a source file (-fgenie,
-     * A68#sourceFilter) found, if any, at its line among the lines of the
-     * file that start at FIRST.
+     * -fformats, A68#sourceFilter) found, if any, at its line among the
+     * lines of the file that start at FIRST.
      */
     private void filterError(SourceFilter.Result filtered, Line first) {
         if (filtered == null || filtered.error() == null) {

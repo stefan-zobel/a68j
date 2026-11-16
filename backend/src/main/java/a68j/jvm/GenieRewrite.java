@@ -1,4 +1,4 @@
-// a68j: the format rewrite tool as the source filter of -fgenie.
+// a68j: the format rewrite tool as the source filter of -fgenie and -fformats.
 // Licensed under the GNU GPL, version 3 or later.
 
 package a68j.jvm;
@@ -8,15 +8,20 @@ import a68j.rt.Proc;
 import a68j.rt.Row;
 
 /**
- * -fgenie: the rewrite of each source file of a program written for
- * Algol 68 Genie before the scanner ({@link SourceFilter}), by the format
- * rewrite tool (tools/formats/rewrite.a68). backend/build.sh compiles the
- * tool with the prologue tools/formats/rewrite-fgenie.a68 into the module
- * class {@code a68j.lib.Genierewrite}; its procedure
+ * -fgenie and -fformats: the rewrite of each source file before the scanner
+ * ({@link SourceFilter}), by the format rewrite tool
+ * (tools/formats/rewrite.a68). backend/build.sh compiles the tool with the
+ * prologue tools/formats/rewrite-fgenie.a68 into the module class
+ * {@code a68j.lib.Genierewrite}; its procedure
  * {@code genie rewrite (text, upper stropping, for genie)} is called here
  * in the compiler, without a process of its own. It yields the rewritten
  * text, or {@code REPR 0}, the line, {@code ":"} and the message of an
  * error.
+ *
+ * <p>-fgenie rewrites a program written for Algol 68 Genie (UPPER
+ * stropping, the changes of the option --ga68 of the tool); -fformats
+ * rewrites only the format texts, the mode {@code format} and the access
+ * list of a program written for a68j, in either stropping.
  *
  * <p>The tool keeps the lines of the text. A CR before LF is dropped first:
  * the scanner drops it anyway, and the tool would put it into the string
@@ -29,20 +34,28 @@ final class GenieRewrite implements SourceFilter {
     private static final String TOOL_CLASS = "a68j.lib.Genierewrite";
 
     private final Proc rewrite;
+    private final boolean upper;
+    private final boolean forGenie;
 
-    private GenieRewrite(Proc rewrite) {
+    private GenieRewrite(Proc rewrite, boolean upper, boolean forGenie) {
         this.rewrite = rewrite;
+        this.upper = upper;
+        this.forGenie = forGenie;
     }
 
-    /** The filter, or null if the class of the tool is missing. */
-    static GenieRewrite load() {
+    /**
+     * The filter, or null if the class of the tool is missing. UPPER: the
+     * program is in UPPER stropping, else in SUPPER stropping; FOR_GENIE:
+     * the program is written for Algol 68 Genie (-fgenie).
+     */
+    static GenieRewrite load(boolean upper, boolean forGenie) {
         try {
             Class<?> c = Class.forName(TOOL_CLASS, true, GenieRewrite.class.getClassLoader());
             String[] keys = ((String) c.getMethod("pubKeys").invoke(null)).split("\n");
             String name = Intrinsics.mangle("genie rewrite") + " ";
             for (int i = 0; i < keys.length; i++) {
                 if (keys[i].startsWith(name)) {
-                    return new GenieRewrite((Proc) c.getMethod("pub$v", int.class).invoke(null, i));
+                    return new GenieRewrite((Proc) c.getMethod("pub$v", int.class).invoke(null, i), upper, forGenie);
                 }
             }
             return null;
@@ -54,7 +67,7 @@ final class GenieRewrite implements SourceFilter {
     @Override
     public Result apply(String text) {
         String t = text.replace("\r\n", "\n");
-        String r = ((Row) rewrite.call(new Object[] {Row.ofString(t), Boolean.TRUE, Boolean.TRUE})).asString();
+        String r = ((Row) rewrite.call(new Object[] {Row.ofString(t), upper, forGenie})).asString();
         if (!r.isEmpty() && r.charAt(0) == '\0') {
             int colon = r.indexOf(':');
             return new Result(t, Integer.parseInt(r.substring(1, colon)), r.substring(colon + 1));

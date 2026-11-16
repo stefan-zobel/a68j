@@ -2,9 +2,11 @@
 
 Status: stages 1 and 2 of the roadmap below are implemented, the
 rewrite tool and the module `Genie_Formats` with pictures, choices, radix
-and `k` ([genie-formats.md](genie-formats.md)), and so is the option
-`-fgenie`, which runs programs written for Algol 68 Genie as they are;
-stages 3 and 4 are not. This note records how much formats matter, what
+and `k` ([genie-formats.md](genie-formats.md)), and so are the option
+`-fgenie`, which runs programs written for Algol 68 Genie as they are,
+and the option `-fformats` of stage 4, which compiles the format texts of
+a program written for a68j through the same tool. Stage 3 is not
+implemented. This note records how much formats matter, what
 ga68 provides, the options, and the roadmap in stages.
 
 ## Why formats
@@ -179,9 +181,11 @@ The most frequent features are:
 
 Input is rare: `getf` appears in 13 solutions and `readf` in one.
 
-The book has 11 examples with formats in chapter 9 and its answers. All of
-them run with Algol 68 Genie only (`run: a68g`), and their output is
-recorded, so they make a ready-made test set.
+The book has 11 examples with formats in chapter 9 and its answers. They
+used to run with Algol 68 Genie only (`run: a68g`). Since stage 2, 10 of
+them also run with a68j (`-fformats`) and ga68 (through the tool), and
+`book/tools/run_examples.py` checks them on all three (the key
+`formats: yes`); only `ch09/readf` waits for stage 3.
 
 ## Roadmap
 
@@ -312,18 +316,21 @@ stages do not depend on it, nor it on them.
      compared with its result in `tests/rosetta/fixed`.
    - With `-fgenie`, all 175 give the same result as their rewritten
      versions.
-   - The format examples of the book, chapter 9, run on a68j through the
-     tool (except `readf`): all give the output of Algol 68 Genie, up to
-     the widths of `g` without parameters.
+   - The format examples of the book, chapter 9, run on a68j with
+     `-fformats` and on ga68 through the tool (except `readf`): all give
+     the output of Algol 68 Genie, up to the widths of `g` without
+     parameters. The chapter describes formats for all three
+     implementations now.
 3. **Formatted input (`readf`, `getf`).**
    - Input is rarely needed. This stage completes the set (178 of 178),
      including the book example `ch09/readf`.
-4. **Compiler support in a68j, behind the option `-fformats` (optional).**
+4. **Compiler support in a68j, the option `-fformats`.** Implemented as
+   the candidate "Rewriting before the scanner" (see "Stage 4 in detail").
    - With it, a68j compiles programs with format texts directly, without
-     running the rewrite tool first. ga68 does not compile such programs,
-     so this stage adds convenience, not reach.
-   - It starts only once stages 1 to 3 have proved themselves. It reuses
-     the representation of `Genie_Formats`.
+     running the rewrite tool by hand. ga68 does not compile such
+     programs, so this stage adds convenience, not reach.
+   - The other candidate, lowering in the back end, stays open and
+     optional. It would keep the option and its behavior.
 
 ### The option `-fgenie`
 
@@ -433,14 +440,15 @@ Genie, as with the pre-processor:
   run without a change to the compiler once the module provides the item;
   this held for stage 2.
 
-**Order.** `-fgenie` first, then stage 2 (both done), then chapter 9 of
-the book. Its format examples rely on pictures, so it is updated only now
-that they run on a68j.
+**Order.** `-fgenie` first, then stage 2, then `-fformats` and chapter 9
+of the book (all done). The format examples of the chapter rely on
+pictures, so it was updated only once they ran on a68j.
 
-**Relation to stage 4.** `-fgenie` already does the second candidate of
-stage 4, "Rewriting before the scanner", for programs written for Algol
-68 Genie. A later `-fformats` for programs written for a68j would use the
-same hooks, without the changes of `--ga68`.
+**Relation to stage 4.** `-fgenie` does the second candidate of stage 4,
+"Rewriting before the scanner", for programs written for Algol 68 Genie.
+`-fformats` does it for programs written for a68j, with the same hooks,
+without the changes of `--ga68` and in the stropping of the program:
+`genie rewrite` is called with `for genie` false.
 
 **Tests.**
 
@@ -453,12 +461,16 @@ same hooks, without the changes of `--ga68`.
   lines of runtime errors in the main file and in an included file;
 - `tests/options/genie-*`: `-fstropping=supper` with `-fgenie`, the line
   of a diagnostic after a format text over two lines, and an error found
-  by the tool.
+  by the tool;
+- `tests/options/formats-*`: `-fformats` in SUPPER and UPPER stropping,
+  an error found by the tool, and `-fformats` with `-fgenie`.
 
 ### Stage 4 in detail
 
-**The front end.** It recognizes `$`, `format` and the prelude modes only
-with `-fformats` (see "What is missing in the a68j front end").
+**The front end.** With the lowering in the back end, it would recognize
+`$`, `format` and the prelude modes only with `-fformats` (see "What is
+missing in the a68j front end"). With the rewrite, which `-fformats` does
+now, the front end sees no format text.
 
 **How a format text becomes a `Gformat` is an open design question.** The
 prelude mode `FORMAT` of the front end is not the mode `Gformat` of the
@@ -480,9 +492,10 @@ module. There are two candidates:
     covers.
   - `-Wscope` needs no change, because `Scope` already handles format
     texts.
-- **Rewriting before the scanner.**
+- **Rewriting before the scanner.** Implemented.
   - With `-fformats`, a68j applies the rewrite of the tool to the source
-    before scanning and accesses `Genie_Formats` implicitly. `-fgenie`
+    before scanning. The tool adds `Genie_Formats` to an access list that
+    names `Genie_Transput`, which the program needs anyway. `-fgenie`
     provides the hooks for this (see "The option `-fgenie`").
   - The back end does not change at all.
   - The rewrite keeps the lines of the source, so diagnostics point to the
@@ -499,7 +512,9 @@ module. There are two candidates:
   modes exported by a module (see [genie-formats.md](genie-formats.md),
   "Differences and limits").
 
-**The option `-fformats` contains the risk of stage 4.**
+**The option `-fformats` contains the risk of stage 4.** With the
+rewrite, it changes neither the front end nor the back end; the points
+below about recognizing `$` apply to the lowering in the back end.
 
 - Without the option, a68j does not recognize `$`. Existing programs are
   compiled exactly as before, and the front end stays identical to ga68,
@@ -564,8 +579,9 @@ the format texts are converted as well.
   dynamic parts and formats stored in variables, and the pictures,
   choices, radix pictures and `k` of stage 2. A file `NAME.fixed` marks a
   deliberate difference to Algol 68 Genie, whose output there is
-  defective; such a test does not run on Algol 68 Genie. The book
-  examples of chapter 9 follow with the update of the chapter.
+  defective; such a test does not run on Algol 68 Genie. The format
+  examples of the book, chapter 9, are checked on all three
+  implementations by `book/tools/run_examples.py`.
 - **The rewrite tool:** `tests/formats/rewrite`, pairs of input and
   expected output in both stroppings, the same on all three systems.
 - **Rosetta Code:** the solutions that use formats, rewritten and compared

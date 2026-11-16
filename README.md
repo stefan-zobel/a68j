@@ -68,6 +68,7 @@ Hello, world!
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
+| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 57 of 57 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (5 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
@@ -81,8 +82,9 @@ into calls of the bundled module `Genie_Formats`, again for a68j and ga68
 alike; with insertions, replicators, `g`, `f`, pictures, choices, radix
 and `k`, so far without formatted input
 ([docs/genie-formats.md](docs/genie-formats.md)).
-The option `-fgenie` does all this in the compiler, so that a program
-written for Algol 68 Genie runs as it is. The bundled module
+The option `-fformats` runs the tool inside the compiler, and `-fgenie`
+does all this, so that a program written for Algol 68 Genie runs as it
+is. The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
@@ -175,6 +177,7 @@ Common options (as in ga68 where ga68 has them):
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
 | `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
+| `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
 ### Modules
 
@@ -317,7 +320,7 @@ Techniques used:
 src/main/java/a68j/front/   the ported ga68 front end (one class per C file)
 backend/                    code generator (a68j.jvm), runtime (a68j.rt), bundled modules
 tests/extra, java, par,     a68j's own tests, with expected output
-  partial
+  partial, formats
 tests/rosetta/              Rosetta Code programs prepared for ga68 and a68j
 tools/                      test runners (differential tests against ga68) and generators
 docs/                       documentation
@@ -354,7 +357,7 @@ python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
-sh tools/options_tests.sh         # -W options, -fno-assert, unknown options, -Wframe-scope
+sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, -Wframe-scope
 python3 tools/formats_tests.py    # formats: the rewrite tool and Genie_Formats (--a68g, --ga68)
 ```
 

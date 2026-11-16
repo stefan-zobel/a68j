@@ -44,7 +44,9 @@ import java.util.List;
  * their own, see Outline; -floop-methods is the default), -fgenie (a
  * program written for Algol 68 Genie: UPPER stropping, each source file
  * rewritten by the format rewrite tool, see GenieRewrite, and the program
- * put into an access clause of Genie_Transput and Genie_Formats).
+ * put into an access clause of Genie_Transput and Genie_Formats) and
+ * -fformats (the format texts of each source file rewritten by the same
+ * tool into calls of the module Genie_Formats, in either stropping).
  */
 public final class Compile {
     private Compile() {}
@@ -158,6 +160,7 @@ public final class Compile {
         boolean run = false;
         boolean loopMethods = true;
         boolean genie = false;
+        boolean formats = false;
         boolean supperGiven = false;
         String className = null;
         List<String> progArgs = new ArrayList<>();
@@ -177,6 +180,7 @@ public final class Compile {
                     supperGiven = true;
                 }
                 case "-fgenie" -> genie = true;
+                case "-fformats" -> formats = true;
                 case "-std=algol68" -> a68.options().strict = true;
                 case "-std=gnu68" -> a68.options().strict = false;
                 case "-fbrackets" -> a68.options().brackets = true;
@@ -247,9 +251,16 @@ public final class Compile {
             }
             a68.options().stropping = Stropping.UPPER;
             a68.options().genie = true;
-            a68.sourceFilter = GenieRewrite.load();
+            a68.sourceFilter = GenieRewrite.load(true, true);
             if (a68.sourceFilter == null) {
                 badOptions.add("'-fgenie' is not available: the class a68j.lib.Genierewrite is missing");
+            }
+        } else if (formats) {
+            // -fgenie rewrites the format texts too, so -fformats with it
+            // changes nothing.
+            a68.sourceFilter = GenieRewrite.load(a68.options().stropping == Stropping.UPPER, false);
+            if (a68.sourceFilter == null) {
+                badOptions.add("'-fformats' is not available: the class a68j.lib.Genierewrite is missing");
             }
         }
         if (!badOptions.isEmpty()) {

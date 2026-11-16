@@ -59,7 +59,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 
 | Tool | Purpose |
 |---|---|
-| `formats/rewrite.a68`, with the prologue `formats/rewrite-a68j.a68` (a68j, ga68), `formats/rewrite-a68g.a68` (Algol 68 Genie) or `formats/rewrite-fgenie.a68` (inside a68j, for `-fgenie`; compiled by `backend/build.sh`) | the format rewrite tool, written in Algol 68: turns the format texts of a program (UPPER or SUPPER stropping) into calls of the module `Genie_Formats`; with `--ga68` also prepares a program written for Algol 68 Genie (access clause unless `--no-wrap`, apostrophes, `FILE`, pragmats) (`docs/genie-formats.md`) |
+| `formats/rewrite.a68`, with the prologue `formats/rewrite-a68j.a68` (a68j, ga68), `formats/rewrite-a68g.a68` (Algol 68 Genie) or `formats/rewrite-fgenie.a68` (inside a68j, for `-fgenie` and `-fformats`; compiled by `backend/build.sh`) | the format rewrite tool, written in Algol 68: turns the format texts of a program (UPPER or SUPPER stropping) into calls of the module `Genie_Formats`; with `--ga68` also prepares a program written for Algol 68 Genie (access clause unless `--no-wrap`, apostrophes, `FILE`, pragmats) (`docs/genie-formats.md`) |
 
 ## Test scripts
 
@@ -67,7 +67,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 |---|---|
 | `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`) |
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
-| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3) |
+| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, `-fgenie`, `-fformats`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3) |
 | `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
 | `formats_tests.py [--java JAVA] [--a68g A68G] [--ga68 XGCC --libdir DIR]` | formats (`docs/genie-formats.md`): the rewrite tool on a68j, Algol 68 Genie and ga68 with the same output (`tests/formats/rewrite`), and programs with format texts rewritten and run with `Genie_Formats`, and as they are with `-fgenie`, against outputs recorded with Algol 68 Genie (`tests/formats`, `tests/formats/genie`; `NAME.fixed` marks a deliberate difference to Algol 68 Genie, not run on it) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |

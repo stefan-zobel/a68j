@@ -12,9 +12,10 @@ no mode `format`. Formatted output in the style of Algol 68 Genie
   a68j, and it compiles with ga68 as an ordinary module. It accesses
   `Genie_Transput` ([genie-transput.md](genie-transput.md)).
 
-With the option `-fgenie`, a68j runs the tool itself, inside the compiler,
-on each source file of a program written for Algol 68 Genie (see "The
-option `-fgenie`" below).
+a68j runs the tool itself, inside the compiler, on each source file of a
+program: with the option `-fformats` for a program written for a68j, and
+with the option `-fgenie` for a program written for Algol 68 Genie (see
+the sections on the two options below).
 
 This is stages 1 and 2 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
@@ -152,6 +153,36 @@ procedure, so that it is elaborated each time the format reaches it, as in
 Algol 68 Genie. The cost is a parse of the text each time a format text is
 elaborated.
 
+## The option `-fformats`
+
+`java -jar a68j-backend.jar -fformats -run prog.a68` compiles a program
+written for a68j (or ga68) that contains format texts. The compiler
+rewrites the main file and each included file with the tool, in the
+stropping of the program (`-fstropping`, SUPPER by default), as the tool
+without `--ga68` does by hand:
+
+- format texts become calls of `gfmt` and `gfmtd`;
+- the mode `format` (`FORMAT`) becomes `Gformat` (`GFORMAT`);
+- an access list that names `Genie_Transput` gets `Genie_Formats` as
+  well, if the file uses formats.
+
+Nothing else changes: the program must access `Genie_Transput` itself, as
+any program that uses `print` does. The lines keep their numbers, so
+messages of the compiler and run-time errors give the lines of the source
+files; an error that the tool finds, such as an unterminated format text,
+is an error of the compiler at its line. The examples with formats in
+chapter 9 of the book are run this way.
+
+With `-fgenie`, `-fformats` changes nothing.
+
+ga68 has no such option: there the tool, built as in "Example", rewrites
+the program first, without `--ga68`:
+
+```sh
+./rewrite < prog.a68 > prog-j.a68
+ga68 -I. prog-j.a68 genieformats.o genietransput.o -o prog
+```
+
 ## The option `-fgenie`
 
 `java -jar a68j-backend.jar -fgenie -run prog.a68` runs a program written
@@ -196,7 +227,7 @@ formats and `PR READ`, and it needs no second command.
 
 | Part | Algol 68 Genie | ga68 | a68j |
 |---|---|---|---|
-| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes, also inside the compiler (`-fgenie`) |
+| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes, also inside the compiler (`-fformats`, `-fgenie`) |
 | input of the tool | UPPER and SUPPER | UPPER and SUPPER | UPPER and SUPPER |
 | the module `Genie_Formats` | no: Algol 68 Genie has no modules, and it does not need them, since it has formats | yes | yes (bundled) |
 | a rewritten program | for tests only, with the module as declarations in front of it | yes, UPPER and SUPPER | yes, UPPER and SUPPER |

@@ -6,7 +6,7 @@ package a68j.front;
 /**
  * a68j: a rewrite of the text of each source file before the scanner makes
  * its lines: the main file and each included file ({@link A68#sourceFilter}).
- * The option -fgenie uses it for the format rewrite tool
+ * The options -fgenie and -fformats use it for the format rewrite tool
  * (a68j.jvm.GenieRewrite). ga68 has nothing like it; without a filter the
  * scanner reads the files as ga68 does.
  */
