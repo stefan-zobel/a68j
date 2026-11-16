@@ -62,8 +62,8 @@ compiled with ga68, provides unformatted transput: \code|print|,
 \code|read|, \code|put|, \code|get|, files on disk, files associated with
 strings, the layout procedures and the events for the end of the file and
 for value errors. It does not provide formats, binary transput, or the
-printing of records, \code|compl|, \code|short| and \code|long long|
-values. The module \code|Genie_Formats|, which also comes with a68j,
+printing of records and \code|short| values. The module
+\code|Genie_Formats|, which also comes with a68j,
 adds formatted output (\code|printf|, \code|putf|) in the manner of
 Algol 68 Genie: a68j compiles format texts with the option
 \code|-fformats|, and for ga68 a rewrite tool turns them into calls of
@@ -114,7 +114,10 @@ values.
 
 Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie in
 upper-case notation. a68j runs such a program as it is with the option
-\code|-fgenie|, which also handles its format texts. For ga68, the
+\code|-fgenie|, which also handles its format texts and widens
+\code|int| to \code|long int| (and \code|real| to \code|long real|) as
+Algol 68 Genie does, so that \code|long int n := 1| and \code|n +:= 1|
+need no \code|long| before the 1. For ga68, the
 format rewrite tool of a68j with the option \code|--ga68| prepares it:
 it adds \code|access Genie_Transput| and \code|Genie_Formats| with an
 enclosing block if the program has none, and rewrites the format texts;
