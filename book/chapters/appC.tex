@@ -82,7 +82,7 @@ Feature & ga68 and a68j & Algol 68 Genie \\
 \endhead
 \code|par| & ga68: one unit after the other; a68j: threads with the option \code|-fpar-threads| & threads \\
 \code|sema| & not in ga68; a68j with \code|-fpar-threads| & yes \\
-\code|compl| operators & a68j only & yes \\
+\code|compl| operators & yes; ga68 only with the static libga68 (Section~\ref{sec-complex}) & yes \\
 \code|bytes| & no & yes \\
 formats & output only, with \code|Genie_Formats| (a68j: \code|-fformats|; ga68: rewrite tool) & yes \\
 lifetime rule (references, procedures, \code|loc| cells) & not checked at run time; warnings with \code|-Wscope|; a68j: warnings where its results are wrong (Section~\ref{sec-proc-lifetimes}) & checked at run time \\
