@@ -305,7 +305,7 @@ stages do not depend on it, nor it on them.
    - This stage covers about 92 % of the solutions (164 of 178), and
      nearly all format examples of the book become testable.
    - The rules were measured with Algol 68 Genie first and recorded as
-     tests (`tests/formats`); five defects of Algol 68 Genie are not
+     tests (`tests/formats`); four defects of Algol 68 Genie are not
      followed (tests with `NAME.fixed`).
    - Of the 175 rewritten solutions, ga68 compiles 81, and 76 end within
      the time limit; none stops with `format item ... is not supported

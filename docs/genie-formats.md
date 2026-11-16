@@ -282,9 +282,10 @@ The semantics follow Algol 68 Genie, checked against it:
 
 ## Pictures, choices, radix, `k`
 
-The rules were measured with Algol 68 Genie 3.1.2; the tests in
+The rules were measured with Algol 68 Genie; the tests in
 `tests/formats` (`pictures-1` to `pictures-3`, `choice-1`, `bits-1`,
-`strings-1`, `align-1`, `errors-4` to `errors-13`) record them.
+`strings-1`, `align-1`, `errors-4` to `errors-14`) record them. They are
+checked with Algol 68 Genie 3.13.4.
 
 **One picture.** Frames without a comma between them form one picture,
 which takes one value; insertions between its frames belong to it.
@@ -337,7 +338,7 @@ suppresses the frame: it takes its digit or character but writes nothing
 - a value that does not fit gives `error transputting INT value` (with
   the mode of the value);
 - a negative value without a sign frame gives
-  `error transputting sign in INT value`;
+  `error transputting sign in INT value` (or `REAL` ...);
 - a string of another length gives `error transputting [] CHAR value`;
 - a value of a mode that the pattern does not take gives
   `cannot transput REAL value with integral-pattern` (`real`, `bits`,
@@ -373,9 +374,6 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
     column (`  .50`) (`fixed-1`);
   - a number 0 with only `z` frames is written as blanks; Algol 68 Genie
     drops the rest of the line (`fixed-1`);
-  - a negative real without a sign frame gives
-    `error transputting sign in REAL value`; Algol 68 Genie crashes with
-    `memory access violation` (`fixed-2`);
   - `c(...)` with a `long int` gives
     `cannot transput LONG INT value with choice-pattern`; Algol 68 Genie
     says `VOID value out of bounds` (`fixed-3`);
@@ -466,6 +464,8 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   file or in an included file, with `-fgenie` only.
 - `tests/options/genie-*.a68` (`tools/options_tests.sh`): the messages of
   the compiler with `-fgenie`, among them an error found by the tool.
+- `tests/options/formats-*.a68`: `-fformats` in SUPPER and UPPER
+  stropping, an error found by the tool, and `-fformats` with `-fgenie`.
 
 `tools/rosetta_prep.py` gives the Rosetta Code solutions that use
 formats to the tool (see `tests/rosetta/README.md`).

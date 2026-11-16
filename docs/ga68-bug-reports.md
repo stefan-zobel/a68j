@@ -711,8 +711,19 @@ makes all others local (`local: *;`, lines 101 and 102). `libga68.a`
 defines 74 global `STANDARD_` symbols, `libga68.so` exports 25. This is
 the same kind of defect as entry 1.
 
-Suggested fix: export every `STANDARD_` symbol that ga68 can emit a
-reference to, for example with a pattern `STANDARD_*;` in `ga68.map`.
+Checked again with commit bb5c3bfcb28b: the defect remains, under other
+names. Since commit 4b22e5581 ("add GNU extensions in Algol 68 to
+libga68"), the program refers to the operators of the new module `GNU`
+(`libga68/gnu.a68.in`, which defines them for `compl` and `word compl`),
+and with `-shared-libga68` the undefined references are `GNU_u_4`,
+`GNU_m_8`, `GNU_r_11`, `GNU_s_14`, `GNU_CONJ15`, `GNU_ABS18` and
+`GNU_ARG19`. `ga68.map` names no `GNU_` symbol at all: `libga68.a`
+defines 42 global `GNU_` symbols, `libga68.so` exports none. The static
+program prints the same line as before.
+
+Suggested fix: export every `STANDARD_` and `GNU_` symbol that ga68 can
+emit a reference to, for example with the patterns `STANDARD_*;` and
+`GNU_*;` in `ga68.map`.
 
 ## 21. A row variable declared in a module lives on the stack of the module's prelude
 
