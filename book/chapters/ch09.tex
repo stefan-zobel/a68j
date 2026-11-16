@@ -11,9 +11,11 @@ The transput of the Report is a large part of its standard library, and
 the implementations provide it to different degrees. Algol 68 Genie
 provides nearly all of it; Section~\ref{sec-transput-genie} lists what it
 lacks. For ga68 and a68j, the module \code|Genie_Transput| provides the
-unformatted part used in this chapter; formatted and binary transput
-are not available there, and the examples of those sections were run
-with Algol 68 Genie.
+unformatted part used in this chapter, and the module
+\code|Genie_Formats| formatted output (Section~\ref{sec-formats}).
+Formatted input, binary transput and the printing of records are not
+available there, and the examples of those sections were run with Algol
+68 Genie.
 
 \section{Books, channels and files}\label{sec-books}
 
@@ -304,6 +306,33 @@ the values; \code|putf| does the same for a given file, and
 
 \example{ch09/formats}
 
+\begin{implnote}
+ga68 and a68j do not compile format texts themselves. A rewrite tool,
+written in Algol 68, turns each format text into a call of the module
+\code|Genie_Formats|, which lays out the values when the program runs,
+in the manner of Algol 68 Genie; the program needs only
+\code|access Genie_Transput|, and the tool adds the access to
+\code|Genie_Formats|. a68j runs the tool itself with the option
+\code|-fformats|:
+\begin{lstlisting}[style=shell]
+$ java -jar a68j-backend.jar -fformats -run formats.a68
+\end{lstlisting}
+For ga68, the module \texttt{genieformats.a68} and the tool
+(\texttt{rewrite-a68j.a68} and \texttt{rewrite.a68}, in UPPER stropping),
+which come with a68j, are compiled once; the tool then rewrites the
+program before it is compiled:
+\begin{lstlisting}[style=shell]
+$ ga68 -I. -c genieformats.a68
+$ ga68 -I. -fstropping=upper rewrite-a68j.a68 genietransput.o -o rewrite
+$ ./rewrite < formats.a68 > formats-r.a68
+$ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats
+\end{lstlisting}
+The lines of the program stay the same, so messages refer to the right
+line. An error inside a format text, such as an unknown frame, shows only
+when the program runs. Formatted input (Section~\ref{sec-readf}) is not
+available yet.
+\end{implnote}
+
 A format consists of \term{pictures}, each of which describes how one
 value is printed, separated by commas. A picture is made of
 \term{frames}:
@@ -386,8 +415,9 @@ Section~\ref{sec-conversions}: \code|g(w)| like \code|whole|,
 \noindent prints
 \outputof{ch09/general}
 
-The first line shows the standard layout of a \code|real| in Algol 68
-Genie, whose \code|real| has 64 bits.
+The first line shows the standard layout of a \code|real| in ga68 and
+a68j, with about seven digits; Algol 68 Genie, whose \code|real| has 64
+bits, prints \code|+1.23456780000000e  +3|.
 
 A string is printed with \code|a| frames, one per character, and the
 number of frames must equal the length of the string; insertions between
@@ -455,9 +485,10 @@ block of \code|digits|.
 
 \begin{implnote}
 In the Report, the rest of a format that is not used up when the list
-ends waits for the next \code|putf| on the same file. Algol 68 Genie
-stops the program instead (``number of pictures does not match number
-of arguments''): the values must use the format up to its end.
+ends waits for the next \code|putf| on the same file. Algol 68 Genie and
+\code|Genie_Formats| stop the program instead (``number of pictures does
+not match number of arguments''): the values must use the format up to
+its end.
 \end{implnote}
 
 \section{Formatted input}\label{sec-readf}
@@ -522,6 +553,11 @@ exceptions, apart from those already mentioned, are:
 \item the format is not kept for the next call of \code|putf|
   (Section~\ref{sec-format-list}).
 \end{itemize}
+
+\noindent \code|Genie_Formats| follows Algol 68 Genie in \code|k|, in
+the \code|z| frames and in the end of the format; its insertion
+\code|y|, like \code|backspace| of \code|Genie_Transput|, can be used on
+\code|stand_out|.
 
 \section{A complete program}\label{sec-transput-complete}
 
@@ -613,5 +649,5 @@ The \hyperref[ans-ch9]{answers} are at the end of the book.
   their names, sexes and years of birth, print sentences such as ``Ann is the
   eldest of three children'' or ``Tom is the only son'', choosing the
   words with \code|b(...)|, \code|c(...)| and \code|f(...)| patterns in a
-  single \code|printf| per child (Algol 68 Genie).
+  single \code|printf| per child.
 \end{enumerate}

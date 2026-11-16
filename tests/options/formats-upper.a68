@@ -1,0 +1,10 @@
+{ a68j-options: -fformats -fstropping=upper }
+# -fformats: the same in UPPER stropping. #
+ACCESS GENIE_TRANSPUT
+BEGIN
+   INT k := 3;
+   FORMAT row = $n(k)(g(-4))l$;
+   printf ((row, 1, 2, 3));
+   printf (($"x = "g(8, 2)l$, 3.14159));
+   printf (($-zzd.dd, " | " 3(b("yes", "no")" ") l$, -5.0, TRUE, FALSE, TRUE))
+END

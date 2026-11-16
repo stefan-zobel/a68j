@@ -1,8 +1,8 @@
 #!/bin/sh
 # Tests of the command-line options and the messages of the compiler:
-# tests/options (the -W options of ga68, -fassert/-fno-assert, -fgenie and
-# the error for an unknown option) and tests/scope (the warning
-# -Wframe-scope). Every program X.a68 is compiled and run with the options
+# tests/options (the -W options of ga68, -fassert/-fno-assert, -fgenie,
+# -fformats and the error for an unknown option) and tests/scope (the
+# warning -Wframe-scope). Every program X.a68 is compiled and run with the options
 # of its first line "{ a68j-options: ... }", and the messages of the
 # compiler, the output of the program and the exit status are compared
 # with X.out.

@@ -1,0 +1,6 @@
+{ a68j-options: -fgenie -fformats }
+# -fformats with -fgenie changes nothing: a program written for Algol 68 Genie, without an access clause. #
+FORMAT f = $"n = "g(0)l$;
+printf ((f, 42));
+FILE out := stand out;
+putf (out, ($"done"l$))

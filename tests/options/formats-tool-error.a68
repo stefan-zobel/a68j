@@ -1,0 +1,6 @@
+{ a68j-options: -fformats }
+{ -fformats: an error found by the format rewrite tool is an error of the compiler, at the line of the program. }
+access Genie_Transput
+begin
+   printf (($"x = "g l, 1))
+end

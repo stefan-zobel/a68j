@@ -27,6 +27,10 @@ A program NAME.a68 may have these files next to it:
                                        "a68j ga68"); for a feature that
                                        ga68 and a68j lack, "a68g" alone
                a68j-options: OPTIONS   extra options for a68j (-fpar-threads)
+               formats: yes            the program has format texts: a68j
+                                       compiles it with -fformats, and for
+                                       ga68 the format rewrite tool
+                                       (tools/formats) rewrites it first
                modules: NAMES          module packets NAME.a68 next to the
                                        program, compiled before it (for
                                        ga68 to objects, for a68j to jars)
@@ -49,8 +53,10 @@ supper_to_upper.py.  An implementation that is not available (no --ga68,
 no --a68g) is left out; a program none of whose implementations is
 available is reported as skipped.
 
-Modules: a program that accesses Genie_Transput or Texts gets the bundled
-module; for ga68 its source in backend/lib is compiled once.
+Modules: a program that accesses Genie_Transput, Genie_Formats or Texts
+gets the bundled module; for ga68 its source in backend/lib is compiled
+once, and so is the rewrite tool, with Genie_Transput.  The rewrite adds
+Genie_Formats to the access list of a program with format texts.
 
 --extract DIR writes the listing of each program to DIR (same relative
 path).  The listing is the whole program, or, if the program contains
@@ -68,7 +74,10 @@ BOOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(BOOK)
 EXAMPLES = os.path.join(BOOK, "examples")
 JAR = os.path.join(ROOT, "backend", "a68j-backend.jar")
-BUNDLED = {"Genie_Transput": "genietransput", "Texts": "texts"}
+# Genie_Formats after Genie_Transput: ga68 needs the exports of
+# Genie_Transput to compile it.
+BUNDLED = {"Genie_Transput": "genietransput", "Genie_Formats": "genieformats", "Texts": "texts"}
+TOOL = os.path.join(ROOT, "tools", "formats")
 TIMEOUT = 120
 
 
@@ -142,7 +151,8 @@ def run_a68j(path, cfg, java):
             if c.returncode != 0:
                 return False, clean(c.stderr.decode("utf-8", "replace"), path)
         inc = ["-I", lib]
-    cmd = [java, "-jar", JAR] + cfg.get("a68j-options", "").split() + inc + ["-run", path]
+    formats = ["-fformats"] if cfg.get("formats") == "yes" else []
+    cmd = [java, "-jar", JAR] + cfg.get("a68j-options", "").split() + formats + inc + ["-run", path]
     p = subprocess.run(cmd, input=stdin_of(path), capture_output=True, cwd=rundir(path, cfg),
                        timeout=TIMEOUT, env=dict(os.environ, LC_ALL="C"))
     return result(path, cfg, p.returncode, p.stdout.decode("utf-8", "replace"), p.stderr.decode("utf-8", "replace"))
@@ -155,6 +165,21 @@ class Ga68:
                      "-fno-diagnostics-show-caret", "-fdiagnostics-color=never"]
         self.env = dict(os.environ, LC_ALL="C", LD_LIBRARY_PATH=libdir)
         self.objects = {}
+        self.tool = None
+
+    def rewrite_tool(self):
+        """The format rewrite tool (tools/formats/rewrite-a68j.a68, UPPER
+        stropping), compiled once with Genie_Transput."""
+        if self.tool is None:
+            exe = os.path.join(self.work, "rewrite")
+            p = subprocess.run(self.base + ["-fstropping=upper", "-I" + self.work, "-I" + TOOL,
+                                            os.path.join(TOOL, "rewrite-a68j.a68"), self.module("Genie_Transput"),
+                                            os.path.join(self.libdir, "libga68.a"), "-lm", "-o", exe],
+                               capture_output=True, env=self.env)
+            if p.returncode != 0:
+                sys.exit("cannot compile the format rewrite tool with ga68:\n" + p.stderr.decode())
+            self.tool = exe
+        return self.tool
 
     def module(self, name):
         if name not in self.objects:
@@ -168,9 +193,20 @@ class Ga68:
 
     def run(self, path, cfg):
         text = open(path, encoding="utf-8").read()
-        objs = [self.module(m) for m in BUNDLED if re.search(r"\baccess\b[^;]*\b" + m + r"\b", text)]
         mdir = os.path.join(self.work, os.path.relpath(path, EXAMPLES).replace(os.sep, "_")[:-4] + ".mod")
         os.makedirs(mdir, exist_ok=True)
+        src = os.path.basename(path)
+        if cfg.get("formats") == "yes":
+            # The program is written for ga68 already: no --ga68.
+            r = subprocess.run([self.rewrite_tool(), "--supper"], input=text.encode("utf-8"),
+                               capture_output=True, env=self.env)
+            if r.returncode != 0:
+                return result(path, cfg, r.returncode, r.stdout.decode("utf-8", "replace"),
+                              r.stderr.decode("utf-8", "replace"))
+            text = r.stdout.decode("utf-8")
+            src = os.path.join(mdir, src)
+            open(src, "w", encoding="utf-8").write(text)
+        objs = [self.module(m) for m in BUNDLED if re.search(r"\baccess\b[^;]*\b" + m + r"\b", text)]
         for m in cfg.get("modules", "").split():
             o = os.path.join(mdir, m + ".o")
             c = subprocess.run(self.base + ["-I" + self.work, "-I" + mdir, "-c", m + ".a68", "-o", o],
@@ -186,7 +222,7 @@ class Ga68:
                 return result(path, cfg, c.returncode, "", c.stderr.decode("utf-8", "replace"))
             objs.append(o)
         exe = os.path.join(self.work, os.path.relpath(path, EXAMPLES).replace(os.sep, "_")[:-4])
-        c = subprocess.run(self.base + ["-I" + self.work, "-I" + mdir, os.path.basename(path)] + objs + [os.path.join(self.libdir, "libga68.a"), "-lm", "-o", exe],
+        c = subprocess.run(self.base + ["-I" + self.work, "-I" + mdir, src] + objs + [os.path.join(self.libdir, "libga68.a"), "-lm", "-o", exe],
                            capture_output=True, cwd=os.path.dirname(path), env=self.env)
         if c.returncode != 0:
             return result(path, cfg, c.returncode, "", c.stderr.decode("utf-8", "replace"))
@@ -272,6 +308,7 @@ def main():
     if ga68:
         for m in BUNDLED:  # compiled once, before the parallel runs
             ga68.module(m)
+        ga68.rewrite_tool()
 
     def one(f):
         cfg = config(f)

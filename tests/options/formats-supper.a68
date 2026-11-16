@@ -1,0 +1,10 @@
+{ a68j-options: -fformats }
+{ -fformats: the format texts of a program in SUPPER stropping become calls of Genie_Formats: the mode format, a dynamic replicator, pictures and choices. }
+access Genie_Transput
+begin
+   int k := 3;
+   format row = $n(k)(g(-4))l$;
+   printf ((row, 1, 2, 3));
+   printf (($"x = "g(8, 2)l$, 3.14159));
+   printf (($-zzd.dd, " | " 3(b("yes", "no")" ") l$, -5.0, true, false, true))
+end

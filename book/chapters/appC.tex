@@ -63,7 +63,12 @@ compiled with ga68, provides unformatted transput: \code|print|,
 strings, the layout procedures and the events for the end of the file and
 for value errors. It does not provide formats, binary transput, or the
 printing of records, \code|compl|, \code|short| and \code|long long|
-values. Algol 68 Genie provides the transput of the Report almost
+values. The module \code|Genie_Formats|, which also comes with a68j,
+adds formatted output (\code|printf|, \code|putf|) in the manner of
+Algol 68 Genie: a68j compiles format texts with the option
+\code|-fformats|, and for ga68 a rewrite tool turns them into calls of
+the module first (Section~\ref{sec-formats}). Formatted input is not
+available. Algol 68 Genie provides the transput of the Report almost
 completely, and adds \code|eof| and \code|eoln|, which
 \code|Genie_Transput| also has; Section~\ref{sec-transput-genie} lists
 what it lacks.
@@ -79,7 +84,7 @@ Feature & ga68 and a68j & Algol 68 Genie \\
 \code|sema| & not in ga68; a68j with \code|-fpar-threads| & yes \\
 \code|compl| operators & a68j only & yes \\
 \code|bytes| & no & yes \\
-formats & no & yes \\
+formats & output only, with \code|Genie_Formats| (a68j: \code|-fformats|; ga68: rewrite tool) & yes \\
 lifetime rule (references, procedures, \code|loc| cells) & not checked at run time; warnings with \code|-Wscope|; a68j: warnings where its results are wrong (Section~\ref{sec-proc-lifetimes}) & checked at run time \\
 bounds of an array field when a record is assigned & not checked & checked \\
 initial value of a variable & zero, \code|false|, blank, empty & undefined (an error when used) \\
@@ -108,7 +113,12 @@ values.
 \section*{Running Rosetta Code programs}
 
 Most Algol 68 programs on Rosetta Code are written for Algol 68 Genie in
-upper-case notation. To run one with ga68 or a68j, convert the notation as
-above, add \code|access Genie_Transput| and an enclosing block if the
-program has none, and check whether it relies on 64-bit integers, on
-formats or on the other features in the table above.
+upper-case notation. a68j runs such a program as it is with the option
+\code|-fgenie|, which also handles its format texts. For ga68, the
+format rewrite tool of a68j with the option \code|--ga68| prepares it:
+it adds \code|access Genie_Transput| and \code|Genie_Formats| with an
+enclosing block if the program has none, and rewrites the format texts;
+ga68 then compiles it in upper-case notation with the option
+\code|-fstropping=upper|. Either way, check whether the
+program relies on 64-bit integers, on formatted input or on the other
+features in the table above.
