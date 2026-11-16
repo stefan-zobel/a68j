@@ -1,7 +1,7 @@
 { dg-modules "genietransput" }
 { associate in the bundled module Genie_Transput (backend/lib/genietransput.a68):
   get and put on a string instead of a file.  Measured against Algol 68
-  Genie 3.1.2, which gives the same output except for the widths of the
+  Genie 3.13.4, which gives the same output except for the widths of the
   numbers (ga68 has 32-bit ints and reals) and the text of the last error
   (Algol 68 Genie adds its position).  The first put empties the string,
   later puts append to the string it holds then; reading keeps its

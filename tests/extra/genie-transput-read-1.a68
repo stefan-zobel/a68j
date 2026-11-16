@@ -11,11 +11,11 @@ access Genie_Transput (
     string data = tmp + "/a68j-genie-transput-read-1.txt",
            missing = tmp + "/a68j-genie-transput-read-1.missing";
 
-    { Writing a file: open gives 1 for a file that does not exist yet,
-      the first put creates it (or truncates it). }
+    { Writing a file: open gives 2 (ENOENT) for a file that does not
+      exist yet, the first put creates it (or truncates it). }
     File wf;
     int r = open (wf, data, stand_out_channel);
-    print (("open for writing: ", r = 0 OR r = 1, newline));
+    print (("open for writing: ", r = 0 OR r = 2, newline));
     put (wf, ("  12 -0034 +5", newline,
                "2147483647 -2147483648 2147483648 9223372036854775807", newline,
                "-9223372036854775808 99999999999999999999", newline,

@@ -28,7 +28,7 @@ java -jar a68j-backend.jar -run prog.a68
 ## What it provides
 
 The procedures of Algol 68 Genie, with the same modes and results
-(measured with Algol 68 Genie 3.1.2):
+(measured with Algol 68 Genie 3.13.4):
 
 | Name | Meaning |
 |---|---|
@@ -73,7 +73,7 @@ terminator).
 ## Differences from Algol 68 Genie
 
 Measured with `tests/java/regex-a68g.a68`, 74 patterns that were also run
-with Algol 68 Genie 3.1.2:
+with Algol 68 Genie 3.13.4:
 
 - **Which match.** POSIX takes the leftmost longest match; Java takes the
   leftmost match of the first alternative that fits. `a|ab` in `xabc`
@@ -101,12 +101,14 @@ with Algol 68 Genie 3.1.2:
 ## Rosetta Code
 
 Ten of the Algol 68 Genie solutions on Rosetta Code (`tests/rosetta/orig`)
-use these procedures. With `access Genie_Transput, Regex` one of them,
-`strip-comments-from-a-string`, runs with a68j and prints the same as
-Algol 68 Genie 3.1.2. The others need more: HTTP (`http content`, `tcp
-request`: `http`, `web-scraping`, `base64-encode-data`,
-`rosetta-code-rank-languages-by-popularity-2`), formats
-(`regular-expressions-1`), the file system (`get directory`: the two
+use these procedures. Two of them run with a68j and print the same as
+Algol 68 Genie 3.13.4: `strip-comments-from-a-string` (with
+`access Genie_Transput, Regex`; its use of `grep in string` is inside a
+comment) and `regular-expressions-1`, which also uses formats (with
+`-fgenie`, the program put into `ACCESS REGEX ( ... )`). The others
+need more: HTTP (`http content`, `tcp request`: `http`, `web-scraping`,
+`base64-encode-data`, `rosetta-code-rank-languages-by-popularity-2`),
+the file system (`get directory`: the two
 `walk-a-directory` solutions, java-open-points.md B2), or library files
 that Rosetta Code does not include (`abc-words-1`,
 `rosetta-code-rank-languages-by-popularity-1`). The Rosetta Code tests

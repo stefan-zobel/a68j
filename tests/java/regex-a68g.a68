@@ -1,5 +1,5 @@
 { The module Regex against Algol 68 Genie: the patterns of this program
-  were run with a68g 3.1.2 (written in UPPER stropping and converted with
+  were run with a68g 3.13.4 (written in UPPER stropping and converted with
   tools/a68supper.py), and the output is the same except for these lines,
   where Java differs as docs/regex.md describes:
     [\d] on [5]          a68g: 1 (no match), a68j: 0 1 1 (\d is a digit in Java)

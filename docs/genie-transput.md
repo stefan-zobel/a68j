@@ -143,7 +143,8 @@ The layout follows Algol 68 Genie:
 
 ## Reading
 
-Reading follows Algol 68 Genie (measured with Algol 68 Genie 3.1.2):
+Reading follows Algol 68 Genie (measured with Algol 68 Genie 3.13.4;
+for incomplete reals see "Differences from Algol 68 Genie"):
 
 - Numbers (`int`, `long int`, `long long int`, `real`, `long real`) skip
   white space, including newlines. A number has an optional sign directly
@@ -193,7 +194,7 @@ until it is closed or reset.
 
 | Call | Result |
 |---|---|
-| `open (f, name, channel)` | 0 if the file exists and can be opened, else 1 (also for a directory); a file that does not exist yet can still be written |
+| `open (f, name, channel)` | 0 if the file exists and can be opened; else, as in Algol 68 Genie, an `errno` value: 2 (`ENOENT`) for a file that does not exist and for a directory; a file that does not exist yet can still be written |
 | `establish (f, name, channel)` | 0; the first `put` fails if the file exists already |
 | `close (f)` | closes the file (not for `stand_in`, `stand_out`, `stand_error`) |
 | `reset (f)` | closes the file; the next `get` reads it from the start, the next `put` writes it anew |
@@ -253,9 +254,14 @@ reads as a string), and for the first `eoln` there.
   a `char` or `newline`, three times for the other modes), and after an
   event of `eoln` it treats the next number as a value error.
 - After a handled value error the item is unchanged; Algol 68 Genie
-  assigns what it has read so far (`1.5` for `1.5e+x`).
+  assigns what it has read so far (0 for `+x` read as an `int`).
+- An incomplete real (`1.5e`, `+x`, `.x`, `- 5`) is a value error;
+  Algol 68 Genie reads it without one, as what it has read so far (1.5
+  and 0), and `1.5e+x` as NaN.
 - An exponent without digits before it (`e5`) is not part of a real; Algol
-  68 Genie consumes it.
+  68 Genie consumes it and gives 0, without a value error.
+- `open` of a file without read permission gives its `errno` (13); Algol
+  68 Genie gives 0, since it only looks at the file with `stat`.
 - `reset` is allowed on every opened file; Algol 68 Genie refuses it for
   `stand_out_channel` ("cannot reset file").
 - Reading with `getchar` or `fgetc` on the same file loses the character

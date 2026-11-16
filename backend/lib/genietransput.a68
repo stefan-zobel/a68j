@@ -186,13 +186,26 @@ def
     proc close_fd = (ref File f) void:
        if state of f = opened AND fd of f > stderr then fclose (fd of f) fi;
 
-    { open: 0 if the file exists and can be opened, else 1 (as in Algol 68
-      Genie; a file that does not exist yet can still be written). }
+    { The result of open for the file NAME: 0 if it exists and can be
+      opened; ENOENT (2) for a directory, as in Algol 68 Genie; else the
+      errno of the failed open (2 for a file that does not exist). }
+    proc open_status = (string name) int:
+       begin int fd := fopen (name, file_o_rdwr);
+             if fd < 0 AND errno = 21
+             then 2
+             else if fd < 0 then fd := fopen (name, file_o_rdonly) fi;
+                  if fd >= 0 then fclose (fd); 0 else errno fi
+             fi
+       end;
+
+    { open: 0 if the file exists and can be opened, else an errno value
+      (as in Algol 68 Genie; a file that does not exist yet can still be
+      written). }
     pub proc open = (ref File f, string name, Channel ch) int:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
                    no_handler, no_handler, "", false, nil, 1, false, false);
-             (can_open (name) | 0 | 1)
+             open_status (name)
        end;
 
     { establish: the file is created by the first put, which fails if
