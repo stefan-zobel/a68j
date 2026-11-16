@@ -1,0 +1,4 @@
+BEGIN
+   GFILE f;
+   printf ((gfmt ("""it''s ""g l"), 1))
+END

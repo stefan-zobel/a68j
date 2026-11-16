@@ -1,0 +1,5 @@
+ACCESS GENIE_TRANSPUT, GENIE_FORMATS (# FILE and CHANNEL without formats: GFILE and GCHANNEL come from Genie_Formats #
+BEGIN
+   GFILE f; GCHANNEL c = stand out channel;
+   print (("no formats", newline))
+END )

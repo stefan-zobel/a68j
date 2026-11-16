@@ -41,7 +41,10 @@ import java.util.List;
  * -fjava-classpath=PATH (jars and directories with the classes of such
  * formal holes, at compile time and for -run), -fno-loop-methods (compile
  * the loops of the particular program in place instead of as methods of
- * their own, see Outline; -floop-methods is the default).
+ * their own, see Outline; -floop-methods is the default), -fgenie (a
+ * program written for Algol 68 Genie: UPPER stropping, each source file
+ * rewritten by the format rewrite tool, see GenieRewrite, and the program
+ * put into an access clause of Genie_Transput and Genie_Formats).
  */
 public final class Compile {
     private Compile() {}
@@ -154,6 +157,8 @@ public final class Compile {
         List<String> libDirs = new ArrayList<>();
         boolean run = false;
         boolean loopMethods = true;
+        boolean genie = false;
+        boolean supperGiven = false;
         String className = null;
         List<String> progArgs = new ArrayList<>();
         List<String> javaClassPath = new ArrayList<>();
@@ -167,7 +172,11 @@ public final class Compile {
             String arg = args[i];
             switch (arg) {
                 case "-fstropping=upper" -> a68.options().stropping = Stropping.UPPER;
-                case "-fstropping=supper" -> a68.options().stropping = Stropping.SUPPER;
+                case "-fstropping=supper" -> {
+                    a68.options().stropping = Stropping.SUPPER;
+                    supperGiven = true;
+                }
+                case "-fgenie" -> genie = true;
                 case "-std=algol68" -> a68.options().strict = true;
                 case "-std=gnu68" -> a68.options().strict = false;
                 case "-fbrackets" -> a68.options().brackets = true;
@@ -232,6 +241,17 @@ public final class Compile {
             }
         }
         a68j.front.WarningOptions.apply(a68.options(), warningOptions);
+        if (genie) {
+            if (supperGiven) {
+                badOptions.add("'-fgenie' is incompatible with '-fstropping=supper'");
+            }
+            a68.options().stropping = Stropping.UPPER;
+            a68.options().genie = true;
+            a68.sourceFilter = GenieRewrite.load();
+            if (a68.sourceFilter == null) {
+                badOptions.add("'-fgenie' is not available: the class a68j.lib.Genierewrite is missing");
+            }
+        }
         if (!badOptions.isEmpty()) {
             for (String m : badOptions) {
                 System.err.println("a68j: error: " + m);

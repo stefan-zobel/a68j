@@ -1,0 +1,58 @@
+# rewrite-fgenie.a68 - the format rewrite tool inside a68j, for its option
+  -fgenie.  backend/build.sh compiles this module (UPPER stropping) into
+  the class a68j.lib.Genierewrite, which the compiler calls through
+  a68j.jvm.GenieRewrite for the main file and each included file of a
+  program written for Algol 68 Genie.  It is not a module for programs.
+
+  genie rewrite (text, upper stropping, for genie) yields the text
+  rewritten with the options --upper or --supper, --ga68 if for genie, and
+  --no-wrap (the compiler wraps the program itself).  If the tool finds an
+  error, it yields REPR 0, the line of the error, ":" and the message
+  instead.
+
+  The tool itself is the included file rewrite.a68; it is included into
+  the procedure, so that its state is new at every call. #
+MODULE GENIE_REWRITE =
+DEF
+   PUB PROC genie rewrite = (STRING program text, BOOL upper stropping, for genie) STRING:
+      BEGIN
+         INT fail line := 0;
+         STRING fail message := "";
+         STRING rewrite result =
+            BEGIN
+               INT next pos := LWB program text;
+               PROC next line = (REF STRING line) BOOL:
+                  IF next pos > UPB program text
+                  THEN FALSE
+                  ELSE INT e := next pos;
+                       WHILE IF e <= UPB program text THEN program text[e] /= REPR 10 ELSE FALSE FI
+                       DO e +:= 1
+                       OD;
+                       line := program text[next pos : e - 1];
+                       next pos := e + 1;
+                       TRUE
+                  FI;
+
+               [] STRING options = (IF upper stropping THEN "--upper" ELSE "--supper" FI,
+                                    IF for genie THEN "--ga68" ELSE "--" FI,
+                                    "--no-wrap");
+
+               # An error ends the rewrite: the jump leaves the procedures of
+                 the tool. #
+               PROC fail = (INT line, STRING msg) VOID:
+                  BEGIN
+                     fail line := line;
+                     fail message := msg;
+                     GOTO failed
+                  END;
+
+               PR include "rewrite.a68" PR;
+               rewritten
+            END;
+         rewrite result
+         EXIT
+         failed: REPR 0 + whole (fail line, 0) + ":" + fail message
+      END;
+
+   SKIP
+FED

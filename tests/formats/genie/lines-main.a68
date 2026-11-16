@@ -1,0 +1,7 @@
+PR read "include/decls.a68" PR
+# -fgenie: a run-time error has the line of the main file. #
+BEGIN
+   [3] INT a;
+   INT i := 4;
+   a[i] := 1
+END

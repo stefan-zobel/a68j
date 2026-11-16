@@ -1,0 +1,2 @@
+tests/options/genie-diagnostic.a68:6:5: error: [] CHAR cannot be coerced to INT in a strong-unit
+exit 1

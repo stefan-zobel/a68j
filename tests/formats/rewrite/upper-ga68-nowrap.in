@@ -1,0 +1,4 @@
+BEGIN
+   FILE f;
+   printf (($"it's "g l$, 1))
+END

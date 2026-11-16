@@ -1,0 +1,4 @@
+# Declarations read by read-first.a68 and read-middle.a68. #
+PR READ "more.a68" PR
+PROC show = (STRING s) VOID: printf (($"show: "g"'s end"l$, s));
+PROC twice = (INT n) INT: 2 * n;

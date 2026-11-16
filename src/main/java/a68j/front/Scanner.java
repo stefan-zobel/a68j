@@ -41,6 +41,12 @@ public final class Scanner {
     private static final String[] UPPER_POSTLUDE = {"      END;", "      stop: SKIP", "END"};
     private static final String[] SUPPER_PRELUDE_START = {"begin", "     begin"};
     private static final String[] SUPPER_POSTLUDE = {"      end;", "      stop: skip", "end"};
+    // a68j: -fgenie (Options#genie) puts the program into an access clause,
+    // on lines of the environ, so that the lines of the program keep their
+    // numbers and a file included by a pragmat on the first line, which
+    // goes before that line, is inside the clause too.
+    private static final String[] GENIE_PRELUDE = {"ACCESS GENIE_TRANSPUT, GENIE_FORMATS ("};
+    private static final String[] GENIE_POSTLUDE = {")"};
 
     static final char NULL_CHAR = '\0';
     static final char STOP_CHAR = 127;
@@ -267,6 +273,12 @@ public final class Scanner {
             throw diag.fatal("could not open source file " + filename);
         }
         String buffer = new String(bytes, StandardCharsets.ISO_8859_1);
+        // a68j: -fgenie rewrites the text first (A68#sourceFilter).
+        SourceFilter.Result filtered = null;
+        if (a68.sourceFilter != null) {
+            filtered = a68.sourceFilter.apply(buffer);
+            buffer = filtered.text();
+        }
         int sourceFileSize = buffer.length();
 
         // scan_buf is an auxiliary buffer known to be big enough to hold any
@@ -277,6 +289,11 @@ public final class Scanner {
         Line refL = null;
         // Prelude.
         refL = appendEnviron(upper() ? UPPER_PRELUDE_START : SUPPER_PRELUDE_START, refL, "prelude");
+        // a68j: the access clause of -fgenie.
+        if (opts.genie) {
+            refL = appendEnviron(GENIE_PRELUDE, refL, "prelude");
+        }
+        Line beforeFile = refL;
 
         // Link all lines into the list. As in C, each line is assembled in
         // scan_buf first (this determines the stale buffer contents later on).
@@ -305,9 +322,16 @@ public final class Scanner {
             refL = appendSourceLine(text, refL, filename, lineNum);
             scanError(l != text.length(), null, -1, "invalid characters in source file");
         }
+        // a68j: an error found by the rewrite of -fgenie.
+        filterError(filtered, beforeFile.next);
 
         // Extra line before adding postlude.
         a68.lineTable.lineStart(lineNum[0], 80 /* max_column_hint */);
+
+        // a68j: the end of the access clause of -fgenie.
+        if (opts.genie) {
+            refL = appendEnviron(GENIE_POSTLUDE, refL, "postlude");
+        }
 
         // Postlude.
         refL = appendEnviron(upper() ? UPPER_POSTLUDE : SUPPER_POSTLUDE, refL, "postlude");
@@ -630,14 +654,27 @@ public final class Scanner {
 
     /** libiberty ldirname: directory part, without trailing slash; "" if none. */
     private static String ldirname(String filename) {
-        int i = filename.lastIndexOf('/');
+        int i = lastDirSeparator(filename);
         return i < 0 ? "" : filename.substring(0, i);
     }
 
     /** libiberty lbasename */
     private static String lbasename(String filename) {
-        int i = filename.lastIndexOf('/');
+        int i = lastDirSeparator(filename);
         return i < 0 ? filename : filename.substring(i + 1);
+    }
+
+    /**
+     * The index of the last directory separator of FILENAME, or -1. As
+     * libiberty's IS_DIR_SEPARATOR, a backslash is one too on Windows, where
+     * the path of an included file (relpath) has backslashes.
+     */
+    private static int lastDirSeparator(String filename) {
+        int i = filename.lastIndexOf('/');
+        if (java.io.File.separatorChar == '\\') {
+            i = Math.max(i, filename.lastIndexOf('\\'));
+        }
+        return i;
     }
 
     /** a68_relpath: concatenate P1/P2/FN and canonicalise it (lrealpath). */
@@ -666,7 +703,12 @@ public final class Scanner {
         // isAbsolute instead of a test for a leading '/', for Windows paths.
         if (!Paths.get(filename).isAbsolute()) {
             String sourcedir = ldirname(curfile);
-            if (sourcedir.isEmpty() && fnbdir.isEmpty()) {
+            // Sic: if the including file has no directory but the filename
+            // has one, the path becomes "/dir/file", absolute, and the file
+            // is not found (docs/ga68-bug-reports.md, entry 25). a68j: with
+            // -fgenie the file is looked for relative to the including
+            // file, as Algol 68 Genie does.
+            if (sourcedir.isEmpty() && (fnbdir.isEmpty() || opts.genie)) {
                 sourcedir = ".";
             }
             String tmpfpath = relpath(sourcedir, fnbdir, incfile);
@@ -764,6 +806,12 @@ public final class Scanner {
                         scanError(true, startL, startC, "error opening included file");
                     }
                     String fbuf = new String(bytes, StandardCharsets.ISO_8859_1);
+                    // a68j: -fgenie rewrites the text first (A68#sourceFilter).
+                    SourceFilter.Result filtered = null;
+                    if (a68.sourceFilter != null) {
+                        filtered = a68.sourceFilter.apply(fbuf);
+                        fbuf = filtered.text();
+                    }
                     int fsize = fbuf.length();
 
                     // Buffer still usable?
@@ -808,12 +856,32 @@ public final class Scanner {
 
                     // Conclude and go find another include directive, if any.
                     a68.lineTable.add(LineMaps.Reason.LC_LEAVE, false, null, 0);
+                    // a68j: the line before the included file, for filterError.
+                    Line beforeFile = s.previous;
                     t.next = s;
                     s.previous = t;
+                    filterError(filtered, beforeFile.next);
                     makePass = true;
                 }
             }
         }
+    }
+
+    /**
+     * a68j: reports the error that the rewrite of a source file (-fgenie,
+     * A68#sourceFilter) found, if any, at its line among the lines of the
+     * file that start at FIRST.
+     */
+    private void filterError(SourceFilter.Result filtered, Line first) {
+        if (filtered == null || filtered.error() == null) {
+            return;
+        }
+        Line u = first;
+        for (int n = 1; n < filtered.errorLine() && u != null && u.next != null
+                && u.next.filename.equals(first.filename); n++) {
+            u = u.next;
+        }
+        throw diag.scanError(u, 0, "%s", filtered.error());
     }
 
     // ------------------------------------------------------------------

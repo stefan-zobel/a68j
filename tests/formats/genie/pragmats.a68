@@ -1,0 +1,9 @@
+PR precision=100 PR
+# -fgenie: pragmats other than read and include are dropped (ga68 knows
+  none of the options of Algol 68 Genie). #
+BEGIN
+   PR
+      precision=100
+   PR
+   print (("pragmats", newline))
+END

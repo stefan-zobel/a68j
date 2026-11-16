@@ -1,0 +1,7 @@
+{ a68j-options: -fgenie }
+# -fgenie: a format text over two lines is rewritten with the same lines, so the error below is reported at line 6. #
+FORMAT f = $"a format over"
+            " two lines"l$;
+printf ((f));
+INT i := "not an integer";
+print ((i, newline))

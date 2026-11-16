@@ -1,0 +1,2 @@
+tests/options/genie-tool-error.a68:4:1: error: unterminated format text
+exit 1

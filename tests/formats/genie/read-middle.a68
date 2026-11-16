@@ -1,0 +1,9 @@
+# -fgenie: a file read in the middle of a program, and read a second time,
+  which reads nothing. #
+BEGIN
+   INT x = 1;
+   PR read "include/decls.a68" PR
+   PR read "include/decls.a68" PR
+   show ("middle");
+   print ((x + more, newline))
+END

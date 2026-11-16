@@ -1,0 +1,10 @@
+# -fgenie: FILE and CHANNEL without formats; in ga68 they are reserved
+  words, and Genie_Formats exports them as GFILE and GCHANNEL. #
+BEGIN
+   FILE f;
+   STRING s := "";
+   associate (f, s);
+   put (f, ("it's ", 1));
+   CHANNEL c = stand out channel;
+   print ((s, newline))
+END

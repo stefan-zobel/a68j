@@ -1,0 +1,5 @@
+# FILE and CHANNEL without formats: GFILE and GCHANNEL come from Genie_Formats #
+BEGIN
+   FILE f; CHANNEL c = stand out channel;
+   print (("no formats", newline))
+END

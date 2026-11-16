@@ -1,0 +1,3 @@
+# Read by lines-include.a68: a procedure that fails at run time. #
+PROC fail at = (INT i) INT:
+   ([3] INT a; a[i] := i);

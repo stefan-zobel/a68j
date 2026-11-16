@@ -44,4 +44,12 @@ public final class Options {
      * language C). See docs/java-modules.md.
      */
     public boolean nestJava = false;
+    /**
+     * -fgenie (a68j extension): the program is written for Algol 68 Genie.
+     * The scanner puts it into an access clause of the modules
+     * Genie_Transput and Genie_Formats, on lines of the environ, and the
+     * format rewrite tool rewrites each source file first
+     * ({@link A68#sourceFilter}). See docs/genie-formats.md.
+     */
+    public boolean genie = false;
 }

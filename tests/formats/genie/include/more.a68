@@ -1,0 +1,2 @@
+# Read by decls.a68, with the path relative to it. #
+INT more = 42;

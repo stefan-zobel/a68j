@@ -7,13 +7,16 @@ Usage: formats_tests.py [--java JAVA] [--jar JAR] [--no-java]
                         [--a68g A68G] [--ga68 XGCC --libdir LIBGA68]
                         [--record] [NAME ...]
 
-Two kinds of tests, both run on every system given:
+Three kinds of tests.  The systems are:
 
-  a68j    (unless --no-java) with --jar (default backend/a68j-backend.jar)
-          and --java (default $JDK25/bin/java, else java);
-  a68g    --a68g A68G: Algol 68 Genie;
-  ga68    --ga68 XGCC --libdir LIBGA68: ga68, with the modules
-          Genie_Transput and Genie_Formats compiled from backend/lib.
+  a68j          (unless --no-java) with --jar (default
+                backend/a68j-backend.jar) and --java (default
+                $JDK25/bin/java, else java);
+  a68j -fgenie  the same a68j, compiling the original program with the
+                option -fgenie (program tests and Genie tests only);
+  a68g          --a68g A68G: Algol 68 Genie;
+  ga68          --ga68 XGCC --libdir LIBGA68: ga68, with the modules
+                Genie_Transput and Genie_Formats compiled from backend/lib.
 
 Rewrite tests, tests/formats/rewrite/NAME.in: the program is given to the
 tool on standard input, NAME.args (optional) holds the options of the tool
@@ -37,6 +40,9 @@ it:
               blanks and in floating point numbers (int and real of ga68
               and a68j have 32 bits, those of Algol 68 Genie 64 bits), as
               in tools/partial_tests.py;
+  a68j -fgenie  the original program, compiled with -fgenie, which
+              rewrites it in the compiler; the output is compared as on
+              a68j;
   a68g        the rewritten program together with an Algol 68 Genie
               version of Genie_Formats, made from its source (UPPER
               stropping, without the module frame) put in front of it;
@@ -44,12 +50,22 @@ it:
               compares Genie_Formats with the formats of Algol 68 Genie
               itself.
 
-  --record   writes NAME.expected (or NAME.err) of the rewrite tests from
-             the first system, and NAME.out of the program tests with
-             Algol 68 Genie (needs --a68g).
+Genie tests, tests/formats/genie/NAME.a68: a program written for Algol
+68 Genie, run as it is with a68j -fgenie and with Algol 68 Genie, for
+what -fgenie does besides formats: PR read of files in
+tests/formats/genie/include, apostrophes, FILE, other pragmats, and the
+lines in error messages.  NAME.out is its output, recorded with Algol 68
+Genie, compared as in the program tests; standard input is NAME.in if it
+exists.  If NAME.err exists instead, the test runs on a68j -fgenie only:
+the program must end with a non-zero exit status, and the text of
+NAME.err must appear in standard error.
 
-Without NAME, all tests are run; NAME is the name of a rewrite test or of a
-program test.  The exit status is 1 if a test fails.
+  --record   writes NAME.expected (or NAME.err) of the rewrite tests from
+             the first system, and NAME.out of the program and Genie
+             tests with Algol 68 Genie (needs --a68g).
+
+Without NAME, all tests are run; NAME is the name of a rewrite test, a
+program test or a Genie test.  The exit status is 1 if a test fails.
 """
 import argparse, glob, os, re, subprocess, sys, tempfile
 
@@ -58,6 +74,7 @@ ROOT = os.path.dirname(HERE)
 TOOL = os.path.join(HERE, "formats")
 TESTS = os.path.join(ROOT, "tests", "formats")
 REWRITE_TESTS = os.path.join(TESTS, "rewrite")
+GENIE_TESTS = os.path.join(TESTS, "genie")
 LIB = os.path.join(ROOT, "backend", "lib")
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "book", "tools"))
@@ -123,13 +140,24 @@ class A68j:
         cp = os.pathsep.join([self.runtime, self.work])
         return run([self.java, "-cp", cp, "RewriteA68j"] + args, stdin)
 
-    def run_program(self, name, data, stdin):
+    def run_program(self, name, path, data, stdin):
         r = self.rewrite(["--ga68"], data)
         if r.status != 0:
             return r
         prog = os.path.join(self.work, name + ".a68")
         open(prog, "wb").write(r.out)
         return run([self.java, "-jar", self.jar, "-fstropping=upper", "-run", prog], stdin, cwd=fresh_dir(self.work))
+
+
+class A68jGenie:
+    name = "a68j -fgenie"
+
+    def __init__(self, java, jar, work):
+        self.java, self.jar, self.work = java, jar, os.path.join(work, "a68j-genie")
+        os.makedirs(self.work, exist_ok=True)
+
+    def run_program(self, name, path, data, stdin):
+        return run([self.java, "-jar", self.jar, "-fgenie", "-run", path], stdin, cwd=fresh_dir(self.work))
 
 
 class A68g:
@@ -146,7 +174,7 @@ class A68g:
     def run_original(self, path, stdin):
         return run([self.a68g, "--quiet", path], stdin, cwd=fresh_dir(self.work))
 
-    def run_program(self, name, data, stdin):
+    def run_program(self, name, path, data, stdin):
         r = self.rewrite([], data)
         if r.status != 0:
             return r
@@ -181,7 +209,7 @@ class Ga68:
     def rewrite(self, args, stdin):
         return run([self.exe] + args, stdin, env=self.env)
 
-    def run_program(self, name, data, stdin):
+    def run_program(self, name, path, data, stdin):
         r = self.rewrite(["--ga68"], data)
         if r.status != 0:
             return r
@@ -245,19 +273,19 @@ def rewrite_test(name, systems, record):
 
 # Program tests.
 
-def program_test(name, systems, record):
-    path = os.path.join(TESTS, name + ".a68")
+def program_test(name, systems, record, tests=TESTS):
+    path = os.path.join(tests, name + ".a68")
     data = open(path, "rb").read()
-    stdin = open(os.path.join(TESTS, name + ".in"), "rb").read() if os.path.exists(os.path.join(TESTS, name + ".in")) else b""
-    out_file = os.path.join(TESTS, name + ".out")
-    err_file = os.path.join(TESTS, name + ".err")
+    stdin = open(os.path.join(tests, name + ".in"), "rb").read() if os.path.exists(os.path.join(tests, name + ".in")) else b""
+    out_file = os.path.join(tests, name + ".out")
+    err_file = os.path.join(tests, name + ".err")
     msgs = []
     if os.path.exists(err_file):
         # The program must end with an error that contains the text of
         # NAME.err; Algol 68 Genie writes its messages to standard output.
         want = open(err_file, encoding="utf-8").read().strip()
         for s in systems:
-            r = s.run_program(name, data, stdin)
+            r = s.run_program(name, path, data, stdin)
             text = r.err.decode("utf-8", "replace") + r.text()
             if r.status == 0 or want not in text:
                 msgs.append(f"{s.name}: exit status {r.status}, expected an error {want!r}\n{text}")
@@ -272,7 +300,7 @@ def program_test(name, systems, record):
         return [f"{name}.out is missing (record it with --record --a68g A68G)"]
     want = open(out_file, encoding="utf-8").read()
     for s in systems:
-        r = s.run_program(name, data, stdin)
+        r = s.run_program(name, path, data, stdin)
         got = r.text()
         if r.status != 0:
             msgs.append(f"{s.name}: exit status {r.status}\n{r.err.decode('utf-8', 'replace')}{got}")
@@ -285,6 +313,33 @@ def program_test(name, systems, record):
             if dev is None:
                 msgs.append(f"{s.name}: output differs:\n--- expected\n{want}--- {s.name}\n{got}")
     return msgs
+
+
+class Original:
+    """Algol 68 Genie running the original program, not the rewritten one
+    (Genie tests)."""
+
+    def __init__(self, a68g):
+        self.a68g, self.name = a68g, a68g.name
+
+    def run_original(self, path, stdin):
+        return self.a68g.run_original(path, stdin)
+
+    def run_program(self, name, path, data, stdin):
+        return self.a68g.run_original(path, stdin)
+
+
+def genie_test(name, systems, record):
+    """A Genie test: on a68j -fgenie and Algol 68 Genie, or, with NAME.err,
+    on a68j -fgenie only."""
+    if os.path.exists(os.path.join(GENIE_TESTS, name + ".err")):
+        systems = [s for s in systems if s.name == "a68j -fgenie"]
+    else:
+        systems = [Original(s) if s.name == "a68g" else s
+                   for s in systems if s.name in ("a68j -fgenie", "a68g")]
+    if not systems:
+        return []
+    return program_test(name, systems, record, GENIE_TESTS)
 
 
 def main():
@@ -305,6 +360,7 @@ def main():
     systems = []
     if not a.no_java:
         systems.append(A68j(a.java, os.path.abspath(a.jar), work))
+        systems.append(A68jGenie(a.java, os.path.abspath(a.jar), work))
     if a.a68g:
         systems.append(A68g(a.a68g, work))
     if a.ga68:
@@ -314,21 +370,27 @@ def main():
 
     rewrites = sorted(os.path.basename(p)[:-3] for p in glob.glob(os.path.join(REWRITE_TESTS, "*.in")))
     programs = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(TESTS, "*.a68")))
+    genies = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(GENIE_TESTS, "*.a68")))
     if a.names:
         rewrites = [n for n in rewrites if n in a.names]
         programs = [n for n in programs if n in a.names]
-    if a.record and programs and not a.a68g:
+        genies = [n for n in genies if n in a.names]
+    if a.record and (programs or genies) and not a.a68g:
         ap.error("--record of program tests needs --a68g")
 
     failed = 0
-    for kind, names, test in (("rewrite", rewrites, rewrite_test), ("program", programs, program_test)):
+    # The rewrite tests need the tool, which a68j -fgenie does not run alone.
+    rewriters = [s for s in systems if hasattr(s, "rewrite")]
+    for kind, names, test, on in (("rewrite", rewrites, rewrite_test, rewriters),
+                                  ("program", programs, program_test, systems),
+                                  ("genie", genies, genie_test, systems)):
         for name in names:
-            msgs = test(name, systems, a.record)
+            msgs = test(name, on, a.record)
             print(("FAIL " if msgs else "pass ") + f"{kind} {name}")
             for m in msgs:
                 print("    " + "\n    ".join(m.splitlines()[:40]))
             failed += bool(msgs)
-    total = len(rewrites) + len(programs)
+    total = len(rewrites) + len(programs) + len(genies)
     print(f"{total - failed} of {total} passed ({', '.join(s.name for s in systems)})")
     sys.exit(1 if failed else 0)
 

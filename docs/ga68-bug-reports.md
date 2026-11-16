@@ -24,7 +24,8 @@ examples of the book were checked; the causes of 16 to
 19 have been examined only as far as their entries say. Entry 23 was
 found in the source; what ga68 does with it has not been measured. Entry
 24 was found while the module `Genie_Formats` was written; its cause has
-not been examined.
+not been examined. Entry 25 was found while the option `-fgenie` was
+written.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -60,6 +61,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
 | 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
+| 25 | ga68 `a68-parser-scanner.cc` | `PR include "dir/file" PR` in a file given without a directory looks for `/dir/file` | reproduces; correct with `-fgenie` |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -894,6 +896,54 @@ sources has not been examined.
 
 The module `Genie_Formats` (`backend/lib/genieformats.a68`) avoids
 flexible rows in its exported mode `Gformat` for this reason.
+
+## 25. An included file with a directory is not found from a file without one
+
+`include/d.a68`:
+
+```
+INT x = 1;
+```
+
+`p.a68`, in the same directory as `include` (UPPER stropping):
+
+```
+PR include "include/d.a68" PR
+puts (whole (x, 0))
+```
+
+```
+ga68 -fstropping=upper p.a68 -o p
+```
+
+ga68 reports `p.a68:1:4: error: included file not found`. The expected
+result is a program that prints `1`, as with `ga68 -fstropping=upper
+./p.a68` or with a filename without a directory. Algol 68 Genie finds such a file
+(`PR read "include/d.a68" PR`) relative to the directory of the program,
+whether the program is given with a directory or not.
+
+`find_include_file` (a68-parser-scanner.cc, line 895; measured with GCC
+trunk 17.0.0 20261104) takes the directory of the including file
+(`ldirname (curfile)`) and uses `.` instead only if both this directory
+and the directory of the filename are empty:
+
+```
+if (strlen (sourcedir) == 0 && strlen (fnbdir) == 0)
+  { ... sourcedir = "." ... }
+tmpfpath = a68_relpath (sourcedir, fnbdir, incfile);
+```
+
+With an empty `sourcedir` and `fnbdir` = `include`, `a68_relpath`
+concatenates `"" + "/" + "include" + "/" + "d.a68"`, an absolute path
+in the root directory. A relative `-I` directory does not help either
+(`-I.`): its path is not absolute, so the same path is tried again. An
+absolute one does.
+
+Suggested fix: use `.` whenever `sourcedir` is empty.
+
+a68j reproduces the error, except with the option `-fgenie`, which runs
+programs written for Algol 68 Genie; there the file is found as Algol 68
+Genie finds it (`tests/formats/genie/read-first.a68`).
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

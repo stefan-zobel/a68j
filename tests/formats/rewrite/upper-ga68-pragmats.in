@@ -1,0 +1,10 @@
+PR read "a.a68" PR # read on the first line #
+BEGIN
+   PR READ "b.a68" PR
+   PRAGMAT include "c.a68" PRAGMAT
+   PR INCLUDE 'd.a68' PR
+   PR precision=100
+   PR
+   CO a comment stays CO
+   print (("pragmats", newline))
+END

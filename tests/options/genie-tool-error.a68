@@ -1,0 +1,4 @@
+{ a68j-options: -fgenie }
+# -fgenie: an error found by the format rewrite tool is an error of the compiler, at the line of the program. #
+print (("before", newline));
+printf (($"unterminated" l, 1))

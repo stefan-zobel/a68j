@@ -1,9 +1,10 @@
 # rewrite-a68g.a68 - the format rewrite tool on Algol 68 Genie:
 
-      a68g rewrite-a68g.a68 -- [--upper | --supper] [--ga68] < in > out
+      a68g rewrite-a68g.a68 -- [--upper | --supper] [--ga68] [--no-wrap] < in > out
 
   The options of the tool come after --.  The tool itself is the included
-  file rewrite.a68; this prologue provides its transput. #
+  file rewrite.a68; this prologue provides its input, options and error
+  handling, and writes the result. #
 BEGIN
    BOOL input ended := FALSE;
    on logical file end (stand in, (REF FILE f) BOOL: (input ended := TRUE; TRUE));
@@ -15,21 +16,37 @@ BEGIN
          NOT input ended OR line /= ""
       END;
 
-   INT first arg =
+   [] STRING options =
       BEGIN
-         INT k := argc + 1;
-         FOR i TO argc DO IF argv (i) = "--" AND k > argc THEN k := i + 1 FI OD;
-         k
+         INT first := argc + 1;
+         FOR i TO argc DO IF argv (i) = "--" AND first > argc THEN first := i + 1 FI OD;
+         [argc - first + 1] STRING o;
+         FOR i FROM first TO argc DO o[i - first + 1] := argv (i) OD;
+         o
       END;
 
-   PROC fail = (STRING msg) VOID:
+   PROC fail = (INT line, STRING msg) VOID:
       BEGIN
-         put (stand error, ("rewrite: ", msg, newline));
+         put (stand error, ("rewrite: ", IF line > 0 THEN "line " + whole (line, 0) + ": " ELSE "" FI,
+                            msg, newline));
          # Algol 68 Genie has no exit procedure; a division by zero ends the
            program with a non-zero exit status. #
          INT zero = 0;
          print (1 OVER zero)
       END;
 
-   PR include "rewrite.a68" PR
+   PR include "rewrite.a68" PR;
+
+   INT line start := 1;
+   FOR k FROM 1 TO UPB rewritten
+   DO IF rewritten[k] = REPR 10
+      THEN STRING line = rewritten[line start : k - 1];
+           print ((line, newline));
+           line start := k + 1
+      FI
+   OD;
+   IF line start <= UPB rewritten
+   THEN STRING line = rewritten[line start : UPB rewritten];
+        print (line)
+   FI
 END

@@ -13,6 +13,10 @@ no mode `format`. Formatted output in the style of Algol 68 Genie
   `Genie_Transput` ([genie-transput.md](genie-transput.md)), which stays
   unchanged.
 
+With the option `-fgenie`, a68j runs the tool itself, inside the compiler,
+on each source file of a program written for Algol 68 Genie (see "The
+option `-fgenie`" below).
+
 This is stage 1 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
 pattern `g` and the format pattern `f`. The patterns of pictures, choices
@@ -42,7 +46,13 @@ ACCESS GENIE_TRANSPUT, GENIE_FORMATS (BEGIN
 END )
 ```
 
-a68j and ga68 compile the result, in UPPER stropping:
+a68j does both steps in one, with the option `-fgenie`:
+
+```sh
+java -jar a68j-backend.jar -fgenie -run prog.a68
+```
+
+By hand, a68j and ga68 compile the result, in UPPER stropping:
 
 ```sh
 java -jar a68j-backend.jar -fstropping=upper -I tools/formats \
@@ -96,18 +106,24 @@ ga68 and a68j:
 
 - a program without an access clause is put into
   `ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... )` (the parenthesis and the
-  access are added to the first and last line);
+  access are added to the first and last line; `GENIE_FORMATS` only if the
+  program needs it). The option `--no-wrap` leaves this out;
 - an apostrophe in a string denotation is doubled (in ga68 it starts a
   string break);
 - in UPPER stropping, `FILE` and `CHANNEL` become `GFILE` and `GCHANNEL`.
   In ga68 `FILE` and `CHANNEL` are reserved words that do not denote the
   modes of `Genie_Transput` (see [genie-transput.md](genie-transput.md),
   "In UPPER stropping"); `Genie_Formats` exports these modes as `Gfile`
-  and `Gchannel`.
+  and `Gchannel`, so a program that uses them accesses `Genie_Formats`
+  even without formats;
+- in UPPER stropping, a pragmat `PR read "file" PR` (`read` or `include`,
+  in any case) becomes `PR include "file" PR`, and any other pragmat,
+  such as `PR precision=100 PR`, becomes a blank with the newlines of the
+  pragmat: ga68 rejects the pragmats it does not know, and it knows only
+  `include` in small letters. The tool does not rewrite the file that is
+  included; `-fgenie` does.
 
-Pragmats (such as `PR read "file" PR`) and QUOTE stropping are not
-handled; `tools/rosetta_prep.py` takes care of pragmats for the Rosetta
-Code programs.
+QUOTE stropping is not handled.
 
 ### Stropping
 
@@ -136,20 +152,63 @@ procedure, so that it is elaborated each time the format reaches it, as in
 Algol 68 Genie. The cost is a parse of the text each time a format text is
 elaborated.
 
+## The option `-fgenie`
+
+`java -jar a68j-backend.jar -fgenie -run prog.a68` runs a program written
+for Algol 68 Genie, such as a Rosetta Code solution, as it is. It implies
+UPPER stropping (`-fstropping=supper` with it is an error) and does what
+the tool with `--ga68` does by hand:
+
+- The compiler rewrites the main file and each included file with the
+  tool, in the same JVM: `backend/build.sh` compiles the tool with the
+  prologue `tools/formats/rewrite-fgenie.a68` into the class
+  `a68j.lib.Genierewrite`, which `a68j.jvm.GenieRewrite` calls. The
+  options are `--upper --ga68 --no-wrap`. A CR before a newline is
+  dropped first.
+- The program is put into
+  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... )` by the compiler, on lines
+  of its own that belong to the environ, like the prelude. A file included
+  by a pragmat on the first line, which goes before that line, is inside
+  the access clause too, and the lines of the program keep their numbers.
+- `PR read "file" PR` and `PR READ "file" PR` include the file once, the
+  first time. The file is looked for relative to the file that reads it,
+  then in the `-I` directories. ga68 does not find a file with a
+  directory from a program given without one (entry 25 of
+  [ga68-bug-reports.md](ga68-bug-reports.md)); with `-fgenie` a68j finds
+  it, as Algol 68 Genie does.
+
+Messages of the compiler and run-time errors give the lines of the source
+files. Their columns can differ where the tool changed a line (a format
+text, a doubled apostrophe, `GFILE`). An error that the tool finds, such
+as an unterminated format text, is an error of the compiler at its line.
+
+These remain differences to Algol 68 Genie, with or without `-fgenie`:
+`long long` modes without multiple precision, the 32-bit `int`, `_` in
+tags (not significant in ga68), no QUOTE stropping, structures as items
+of `print` and `printf`, and the parts of formats that are not supported
+yet (see "Differences and limits").
+
+The option replaces the pre-processor on the Rosetta Code page about
+a68j (<https://rosettacode.org/wiki/A68j>); unlike it, it also handles
+formats and `PR READ`, and it needs no second command.
+
 ## Where the parts run
 
 | Part | Algol 68 Genie | ga68 | a68j |
 |---|---|---|---|
-| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes |
+| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes, also inside the compiler (`-fgenie`) |
 | input of the tool | UPPER and SUPPER | UPPER and SUPPER | UPPER and SUPPER |
 | the module `Genie_Formats` | no: Algol 68 Genie has no modules, and it does not need them, since it has formats | yes | yes (bundled) |
 | a rewritten program | for tests only, with the module as declarations in front of it | yes, UPPER and SUPPER | yes, UPPER and SUPPER |
 
 The tool gives the same output, byte for byte, on all three systems. Its
 body `rewrite.a68` uses no `FILE` and no underscores in tags (Algol 68
-Genie takes `_` as a letter, ga68 ignores it), and reads standard input
-through the procedures of its prologue: `rewrite-a68g.a68` for Algol 68
-Genie, `rewrite-a68j.a68` (with `Genie_Transput`) for a68j and ga68.
+Genie takes `_` as a letter, ga68 ignores it). Its prologue provides the
+input, the options and the handling of errors, and writes the result:
+`rewrite-a68g.a68` for Algol 68 Genie, `rewrite-a68j.a68` (with
+`Genie_Transput`) for a68j and ga68, and `rewrite-fgenie.a68` for
+`-fgenie`, which includes the body inside a procedure, so that each call
+starts afresh, and turns an error into a result instead of an exit.
 
 ## What `Genie_Formats` provides
 
@@ -243,8 +302,9 @@ frames that every call creates.
 
 ## Tests
 
-`tools/formats_tests.py` runs both kinds of tests on every system given:
-a68j (default), Algol 68 Genie (`--a68g`) and ga68 (`--ga68 --libdir`).
+`tools/formats_tests.py` runs the tests on every system given: a68j and
+a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
+(`--ga68 --libdir`).
 
 - `tests/formats/rewrite/NAME.in`: input of the tool, with
   `NAME.expected` (or `NAME.err` for an error) and optional `NAME.args`.
@@ -256,7 +316,14 @@ a68j (default), Algol 68 Genie (`--a68g`) and ga68 (`--ga68 --libdir`).
   program as well, with the module turned into declarations in UPPER
   stropping (`book/tools/supper_to_upper.py`): this compares the module
   with the formats of Algol 68 Genie itself, with the same widths of
-  numbers.
+  numbers. a68j also compiles the original program with `-fgenie`.
+- `tests/formats/genie/NAME.a68`: programs for what `-fgenie` does
+  besides formats (`PR read` on the first line, in the middle and nested,
+  `FILE`, other pragmats), run as they are with `-fgenie` and with Algol
+  68 Genie; `NAME.err` checks the line of a run-time error in the main
+  file or in an included file, with `-fgenie` only.
+- `tests/options/genie-*.a68` (`tools/options_tests.sh`): the messages of
+  the compiler with `-fgenie`, among them an error found by the tool.
 
 `tools/rosetta_prep.py` gives the Rosetta Code solutions that use
 formats to the tool (see `tests/rosetta/README.md`).

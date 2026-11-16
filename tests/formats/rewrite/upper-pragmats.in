@@ -1,0 +1,5 @@
+PR read "a.a68" PR
+BEGIN
+   PR precision=100 PR
+   printf (($g l$, 1))
+END

@@ -3,17 +3,20 @@
   a68j can compile the program.
 
   This is the body of the tool.  It is included by a prologue that provides
-  the transput of the system it runs on:
+  its input, options and error handling on the system it runs on:
 
-      rewrite-a68g.a68   Algol 68 Genie
-      rewrite-a68j.a68   ga68 and a68j (access to Genie_Transput)
+      rewrite-a68g.a68     Algol 68 Genie
+      rewrite-a68j.a68     ga68 and a68j (access to Genie_Transput)
+      rewrite-fgenie.a68   inside a68j, for its option -fgenie
 
   The prologue declares
-      next line   (REF STRING) BOOL: reads the next line of standard input
+      next line   (REF STRING) BOOL: reads the next line of the input
                   without its end of line, false at the end of the input;
-      first arg   the index of the first argument of the tool in argv;
-      fail        (STRING) VOID: writes a message to standard error and
-                  ends the program with a non-zero exit status.
+      options     [] STRING: the options of the tool;
+      fail        (INT line, STRING msg) VOID: reports the error msg at a
+                  line of the input (0 if it has none) and does not return.
+  The body ends with the declaration of
+      rewritten   STRING: the rewritten program, which the prologue writes.
 
   The body is written in UPPER stropping in the common part of Algol 68
   Genie and ga68, without the mode of files and without underscores in
@@ -35,15 +38,23 @@
       and calls the procedures when the format is used;
     * the mode FORMAT becomes GFORMAT (Gformat in SUPPER);
     * an access list that contains Genie_Transput gets Genie_Formats when
-      the program uses formats.
+      the program needs it.
 
   With the option --ga68 it also prepares a program written for Algol 68
-  Genie for ga68 and a68j: a program without an access clause is wrapped in
-  ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... ), an apostrophe in a string
-  denotation is doubled (in ga68 it starts a string break), and in UPPER
-  stropping FILE and CHANNEL become GFILE and GCHANNEL (in ga68 FILE and
-  CHANNEL are reserved words; Genie_Formats exports GFILE and GCHANNEL as
-  the modes of Genie_Transput).
+  Genie for ga68 and a68j:
+    * a program without an access clause is wrapped in
+      ACCESS GENIE_TRANSPUT[, GENIE_FORMATS] ( ... ), unless the option
+      --no-wrap is given (a68j -fgenie wraps the program itself);
+    * an apostrophe in a string denotation is doubled (in ga68 it starts a
+      string break);
+    * in UPPER stropping FILE and CHANNEL become GFILE and GCHANNEL (in
+      ga68 FILE and CHANNEL are reserved words; Genie_Formats exports GFILE
+      and GCHANNEL as the modes of Genie_Transput);
+    * in UPPER stropping a pragmat PR read "file" PR (read or include, in
+      any case) becomes PR include "file" PR, and any other pragmat becomes
+      blanks with the same lines (ga68 rejects pragmats it does not know).
+      The included file itself is not rewritten; a68j -fgenie rewrites it
+      when it includes it.
 
   The stropping is taken from the options --upper and --supper, else from a
   first line with dg-options and -fstropping=..., else the text is read in
@@ -114,11 +125,12 @@ PROC member = (STRING w, [] STRING list) BOOL:
    END;
 
 # State.  upper: the stropping of the input; dry: a trial run whose
-  output is thrown away and whose errors are ignored. #
+  output is thrown away and whose errors are ignored; needs formats: the
+  program needs Genie_Formats (it uses formats, or GFILE or GCHANNEL). #
 
-BOOL upper := TRUE, for ga68 := FALSE, dry := TRUE;
+BOOL upper := TRUE, for ga68 := FALSE, no wrap := FALSE, dry := TRUE;
 INT reserved := 0;
-BOOL uses formats := FALSE, has access := FALSE;
+BOOL needs formats := FALSE, has access := FALSE;
 
 [] STRING reserved words = ("BEGIN", "END", "PROC", "MODE", "INT", "REAL",
    "BOOL", "CHAR", "STRING", "STRUCT", "UNION", "THEN", "ELSE", "FI", "OD",
@@ -133,7 +145,7 @@ PROC line of = (INT pos) INT:
    END;
 
 PROC error = (STRING msg, INT pos) VOID:
-   IF NOT dry THEN fail ("line " + whole (line of (pos), 0) + ": " + msg) FI;
+   IF NOT dry THEN fail (line of (pos), msg) FI;
 
 # Words.  A bold word in UPPER stropping is a capital letter followed by
   capital letters, digits and underscores; a word in SUPPER stropping and
@@ -259,6 +271,32 @@ PROC comment end = (INT i, lim) INT:
            ELSE 0
            FI
       ELSE 0
+      FI
+   END;
+
+# The comment or pragmat from i to e, prepared for ga68 (--ga68, UPPER
+  stropping): a pragmat PR read "file" PR (read or include, in any case)
+  becomes PR include "file" PR, any other pragmat becomes a blank and its
+  newlines, and a comment is copied. #
+PROC pragment = (INT i, e, REF BUF out) VOID:
+   BEGIN
+      INT d = IF bold start (i) THEN bold end (i, e) ELSE i - 1 FI;
+      STRING delimiter = s[i : d];
+      IF delimiter /= "PR" AND delimiter /= "PRAGMAT"
+      THEN FOR k FROM i TO e DO add (out, s[k]) OD
+      ELSE INT w0 := d + 1;
+           WHILE IF w0 <= e THEN white (s[w0]) ELSE FALSE FI DO w0 +:= 1 OD;
+           INT w1 := w0 - 1;
+           WHILE IF w1 < e THEN letter (s[w1 + 1]) ELSE FALSE FI DO w1 +:= 1 OD;
+           STRING word := "";
+           FOR k FROM w0 TO w1 DO word +:= lower case (s[k]) OD;
+           IF word = "read" OR word = "include"
+           THEN FOR k FROM i TO w0 - 1 DO add (out, s[k]) OD;
+                adds (out, "include");
+                FOR k FROM w1 + 1 TO e DO add (out, s[k]) OD
+           ELSE add (out, " ");
+                FOR k FROM i TO e DO IF s[k] = nl THEN add (out, nl) FI OD
+           FI
       FI
    END;
 
@@ -389,7 +427,7 @@ PROC format text = (INT i, lim, REF BUF out) INT:
       REF BUF text = new buf;
       FLEX [1 : 0] STRING ints, formats;
       INT j := i + 1, result := 0;
-      uses formats := TRUE;
+      needs formats := TRUE;
       WHILE result = 0 AND j <= lim
       DO CHAR c = s[j];
          CHAR l = lower case (c);
@@ -473,7 +511,7 @@ PROC access list = (INT e0, lim, REF BUF out) INT:
          FI
       OD;
       FOR p FROM e0 + 1 TO last DO add (out, s[p]) OD;
-      IF transput AND NOT formats AND uses formats
+      IF transput AND NOT formats AND needs formats
       THEN adds (out, IF upper THEN ", GENIE_FORMATS" ELSE ", Genie_Formats" FI)
       FI;
       last
@@ -488,17 +526,18 @@ PROC bold word = (INT i, lim, REF BUF out) INT:
       STRING k = keyword (w);
       IF w = "FORMAT"
       THEN adds (out, IF upper THEN "GFORMAT" ELSE "Gformat" FI);
-           uses formats := TRUE;
+           needs formats := TRUE;
            e
       ELIF for ga68 AND upper AND (w = "FILE" OR w = "CHANNEL")
       THEN adds (out, "G" + w);
+           needs formats := TRUE;
            e
       ELIF k = "ACCESS"
       THEN has access := TRUE;
            adds (out, w);
            access list (e, lim, out)
       ELSE IF member (k, reserved words) THEN reserved +:= 1 FI;
-           IF member (w, format procs) THEN uses formats := TRUE FI;
+           IF member (w, format procs) THEN needs formats := TRUE FI;
            adds (out, w);
            e
       FI
@@ -515,7 +554,10 @@ PROC rewrite = (INT from, lim, REF BUF out) VOID:
               copy string (i, e, out);
               i := e + 1
          ELIF (e := comment end (i, lim)) > 0
-         THEN FOR k FROM i TO e DO add (out, s[k]) OD;
+         THEN IF for ga68 AND upper
+              THEN pragment (i, e, out)
+              ELSE FOR k FROM i TO e DO add (out, s[k]) OD
+              FI;
               i := e + 1
          ELIF c = dollar
          THEN i := format text (i, lim, out) + 1
@@ -524,7 +566,7 @@ PROC rewrite = (INT from, lim, REF BUF out) VOID:
          ELIF upper AND small (c)
          THEN e := tag end (i, lim);
               STRING w = s[i : e];
-              IF member (w, format procs) THEN uses formats := TRUE FI;
+              IF member (w, format procs) THEN needs formats := TRUE FI;
               adds (out, w);
               i := e + 1
          ELIF digit (c)
@@ -541,13 +583,14 @@ PROC rewrite = (INT from, lim, REF BUF out) VOID:
 # Options. #
 
 INT forced := 0;
-FOR a FROM first arg TO argc
-DO STRING o = argv (a);
+FOR a FROM LWB options TO UPB options
+DO STRING o = options[a];
    IF o = "--upper" THEN forced := 1
    ELIF o = "--supper" THEN forced := 2
    ELIF o = "--ga68" THEN for ga68 := TRUE
+   ELIF o = "--no-wrap" THEN no wrap := TRUE
    ELIF o = "--" THEN SKIP
-   ELSE fail ("unknown option " + o + " (usage: rewrite [--upper | --supper] [--ga68] < in > out)")
+   ELSE fail (0, "unknown option " + o + " (usage: rewrite [--upper | --supper] [--ga68] [--no-wrap] < in > out)")
    FI
 OD;
 
@@ -569,7 +612,7 @@ PROC scan = (BOOL as upper) INT:
       upper := as upper;
       dry := TRUE;
       reserved := 0;
-      uses formats := FALSE;
+      needs formats := FALSE;
       has access := FALSE;
       rewrite (1, n, new buf);
       reserved
@@ -587,10 +630,10 @@ scan (upper);
 
 dry := FALSE;
 REF BUF out = new buf;
-BOOL wrap = for ga68 AND NOT has access;
+BOOL wrap = for ga68 AND NOT has access AND NOT no wrap;
 IF wrap
 THEN adds (out, IF upper THEN "ACCESS GENIE_TRANSPUT" ELSE "access Genie_Transput" FI);
-     IF uses formats
+     IF needs formats
      THEN adds (out, IF upper THEN ", GENIE_FORMATS" ELSE ", Genie_Formats" FI)
      FI;
      adds (out, " (")
@@ -603,16 +646,4 @@ THEN IF IF len OF out > 0 THEN (chars OF out)[len OF out] = nl ELSE FALSE FI
      FI
 FI;
 
-STRING output = contents (out);
-INT line start := 1;
-FOR k FROM 1 TO UPB output
-DO IF output[k] = nl
-   THEN STRING line = output[line start : k - 1];
-        print ((line, newline));
-        line start := k + 1
-   FI
-OD;
-IF line start <= UPB output
-THEN STRING line = output[line start : UPB output];
-     print (line)
-FI
+STRING rewritten = contents (out)

@@ -41,6 +41,11 @@ for m in lists hashmaps genietransput genieformats texts regex bigints; do
   "$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fstropping=supper -fnest-java -fclass=a68j.lib.$M lib/$m.a68 -d out
   mv out/$m.m68 out/a68j/lib/$m.m68
 done
+# The format rewrite tool for the option -fgenie (../tools/formats/rewrite-fgenie.a68,
+# UPPER stropping) as the class a68j.lib.Genierewrite, called by the compiler
+# (a68j.jvm.GenieRewrite). It is not a module for programs: no export data.
+"$JAVA_HOME/bin/java" -cp "out${S}../a68j.jar" a68j.jvm.Compile -fstropping=upper -fclass=a68j.lib.Genierewrite ../tools/formats/rewrite-fgenie.a68 -d out
+rm -f out/rewrite-fgenie.m68
 cd out && "$JAVA_HOME/bin/jar" xf ../../a68j.jar a68j && cd ..
 # With JDK 28 ($JDK28, or the default path if it exists): the JDK 28 version
 # of the runtime classes in src/main/java28 (PAR with structured concurrency,
@@ -60,11 +65,11 @@ else
 fi
 # The runtime jar: only what a compiled program needs at run time (a68j.rt,
 # a68j.jlib and the classes of a68j.lib: the standard prelude and the
-# bundled modules), without the compiler and without the export data
-# (*.m68), which only the compiler reads. A program compiled with -d runs
-# with java -cp a68j-runtime.jar:<outdir> <Name>.
+# bundled modules), without the compiler, the rewrite tool of -fgenie and
+# the export data (*.m68), which only the compiler reads. A program
+# compiled with -d runs with java -cp a68j-runtime.jar:<outdir> <Name>.
 set --
-for f in $(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class'); do
+for f in $(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class' ! -name 'Genierewrite*.class'); do
   set -- "$@" -C out "$f"
 done
 rm -f a68j-runtime.jar

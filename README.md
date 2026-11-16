@@ -79,7 +79,9 @@ ga68 alike
 (`$...$`, `printf`) are turned by a rewrite tool, written in Algol 68,
 into calls of the bundled module `Genie_Formats`, again for a68j and ga68
 alike; so far with insertions, replicators, `g` and `f`, without pictures
-and formatted input ([docs/genie-formats.md](docs/genie-formats.md)). The bundled module
+and formatted input ([docs/genie-formats.md](docs/genie-formats.md)).
+The option `-fgenie` does all this in the compiler, so that a program
+written for Algol 68 Genie runs as it is. The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
@@ -171,6 +173,7 @@ Common options (as in ga68 where ga68 has them):
 | `--version` | the version of a68j |
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
+| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
 ### Modules
 

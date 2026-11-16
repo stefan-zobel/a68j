@@ -1,0 +1,9 @@
+PR read "include/decls.a68" PR # read on the first line #
+# -fgenie: a file read by a pragmat on the first line, which reads another
+  file with PR READ; the declarations of both are inside the access clause
+  of Genie_Transput and Genie_Formats. #
+BEGIN
+   show ("first");
+   print (("don't ", twice (21), newline));
+   printf (($"more: "g(0)l$, more))
+END

@@ -1,0 +1,5 @@
+{ a68j-options: -fgenie -fstropping=supper }
+{ -fgenie needs UPPER stropping, so -fstropping=supper is an error; nothing is compiled. }
+BEGIN
+   print (("not compiled", newline))
+END

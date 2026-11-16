@@ -1,11 +1,11 @@
 # TODO: formatted transput (`printf`, `readf`, format texts)
 
 Status: stage 1 of the roadmap below is implemented, the rewrite tool
-and the module `Genie_Formats` ([genie-formats.md](genie-formats.md));
-stages 2 to 4 are not. The option `-fgenie`, which runs programs written
-for Algol 68 Genie directly, is planned next, before stage 2. This note
-records how much formats matter, what ga68 provides, the options, and the
-roadmap in stages.
+and the module `Genie_Formats` ([genie-formats.md](genie-formats.md)),
+and so is the option `-fgenie`, which runs programs written for Algol 68
+Genie as they are; stages 2 to 4 are not. This note records how much
+formats matter, what ga68 provides, the options, and the roadmap in
+stages.
 
 ## Why formats
 
@@ -246,7 +246,7 @@ them in full.
 - The pre-processor on the Rosetta Code page about a68j
   (<https://rosettacode.org/wiki/A68j>, section "A pre-processor") has the
   same structure. It leaves formatted transput out. The option `-fgenie`
-  (below) is meant to make it unnecessary.
+  (below) makes it unnecessary.
 - The Python tools of the repository (`rosetta_prep.py`, the test runner
   `formats_tests.py`) call it through a68j instead of a second
   implementation in Python.
@@ -269,7 +269,7 @@ printf ((f, x))
 
 The feature stages are those of the table above. The rewrite tool is
 complete with stage 1; stages 2 and 3 extend the module only. The option
-`-fgenie` comes between stages 1 and 2 (see "The option `-fgenie`"); the
+`-fgenie` came between stages 1 and 2 (see "The option `-fgenie`"); the
 stages do not depend on it, nor it on them.
 
 1. **`Genie_Formats` and the rewrite tool, output with insertions,
@@ -305,24 +305,25 @@ stages do not depend on it, nor it on them.
 
 ### The option `-fgenie`
 
-**Goal.** a68j runs a program written for Algol 68 Genie, such as a Rosetta
-Code solution, with one command:
+Implemented; [genie-formats.md](genie-formats.md), "The option
+`-fgenie`", describes it for users. a68j runs a program written for
+Algol 68 Genie, such as a Rosetta Code solution, with one command:
 
 ```sh
 java -jar a68j-backend.jar -fgenie -run prog.a68
 ```
 
-It is meant for the next release, whatever stage the formats have reached
-by then. It replaces both the manual steps of the rewrite tool
-([genie-formats.md](genie-formats.md)) and the pre-processor on the
-Rosetta Code page about a68j. The latter needs two compilations to set up,
-and two commands and a temporary file for each program.
+It replaces both the manual steps of the rewrite tool and the
+pre-processor on the Rosetta Code page about a68j. The latter needs two
+compilations to set up, and two commands and a temporary file for each
+program.
 
 **What it does.** `-fgenie` implies `-fstropping=upper`.
 
 | Difference to Algol 68 Genie | The pre-processor of the Rosetta Code page | `-fgenie` |
 |---|---|---|
 | `PR read "file" PR` | inlines the file, once per file; `read` in lower case only | the tool turns `read` and `READ` into `include`, and the front end includes the file, once per file. 38 of the 167 Rosetta solutions with `read` write `READ`. |
+| other pragmats (`PR precision=100 PR`) | kept | blanked by the tool: ga68 rejects pragmats it does not know |
 | `'` in string denotations | doubled | doubled by the tool (as with `--ga68`) |
 | `FILE`, `CHANNEL` | `GFILE`, `GCHANNEL`, from a module of its own | `GFILE`, `GCHANNEL` by the tool, from `Genie_Formats` |
 | a program needs `ACCESS` to `Genie_Transput` | wrapped in `ACCESS ... BEGIN ... END` | wrapped by the compiler (see below) |
@@ -331,51 +332,57 @@ and two commands and a temporary file for each program.
 **How the tool is called.** In the compiler, the tool runs in the same
 JVM, without a second process:
 
-- The program part at the end of `rewrite.a68` (options, input,
-  stropping, rewrite, output) becomes a procedure that takes the text
-  and yields the rewritten text. The two prologues of the tool call it
-  and do only the transput, so the tool keeps running on Algol 68 Genie,
-  ga68 and a68j.
-- A third prologue is a bundled module that exports this procedure. In
-  it, `fail` keeps the message and jumps to a label at the end of the
-  procedure, so that an error in the program becomes a diagnostic of the
-  compiler, not an exit.
-- The compiler gets the procedure through the module class (`pubKeys`,
-  `pub$v`, see `a68j.rt.Modules`) and calls it as a `Proc`.
-- Redirecting the transput of the tool instead is not possible without
-  changes in the output path of every program. Standard input
-  (`Posix.STDIN`) and standard output (`Rt.OUT`) are fixed, `fail`
-  calls `posix exit`, and runtime errors halt the JVM.
-- The state of the tool is local to the procedure. So it can be called
-  for each file, and it shares nothing with the program that `-run`
-  starts afterwards in the same JVM. A runtime error in the tool itself
-  still ends the compiler with status 134, like a crash of the compiler.
+- The body `rewrite.a68` keeps its form, declarations and then the
+  program part, and gets its input, its options and its handling of
+  errors from a prologue (`next line`, `options`, `fail`). It ends with
+  the declaration of the result, `rewritten`, which the prologue writes.
+- The third prologue, `tools/formats/rewrite-fgenie.a68`, is a module
+  that includes the body inside the procedure `genie rewrite`. Each call
+  thus starts with a new state, and shares nothing with the program that
+  `-run` starts afterwards in the same JVM. Its `fail` jumps to a label at
+  the end of the procedure, which yields the error instead of the text.
+- `backend/build.sh` compiles it into the class `a68j.lib.Genierewrite`,
+  which is not in the runtime jar and not accessible from programs.
+  `a68j.jvm.GenieRewrite` gets the procedure through the module class
+  (`pubKeys`, `pub$v`, see `a68j.rt.Modules`) and calls it as a `Proc`.
+- Redirecting the transput of the tool instead would have needed changes
+  in the output path of every program. Standard input (`Posix.STDIN`) and
+  standard output (`Rt.OUT`) are fixed, `posix exit` ends the JVM, and so
+  do runtime errors. A runtime error in the tool itself still ends the
+  compiler with status 134, like a crash of the compiler.
 
-**Where the compiler applies it.** There are two places where the front
-end reads source text: the main file, and `includeFiles` in
-`Scanner.java`. Included files contain format texts too, so both are
-rewritten. Both hooks are a68j additions to the 1:1 port and are marked
-as such.
+**Where the compiler applies it.** The front end reads source text in two
+places: the main file (`Scanner.readSourceFile`) and `includeFiles`. Both
+call the filter `A68.sourceFilter` (`SourceFilter`), which is null
+without `-fgenie`; both hooks are a68j additions to the 1:1 port and are
+marked as such.
 
-- The tool no longer wraps the program; the compiler does. The include
-  pragmat of ga68 inserts the file before the line of the pragmat. A
-  wrapper on line 1 would therefore come after a file included by a
-  pragmat on line 1, and the included text would be outside the `ACCESS`
-  (5 of the 167 Rosetta solutions with `read`). The compiler instead adds
-  the wrapper on lines of its own before the first and after the last
-  line. These lines are not counted, so diagnostics keep the line numbers
-  of the source.
+- The tool does not wrap the program (`--no-wrap`); the scanner does. The
+  include pragmat of ga68 inserts the file before the line of the
+  pragmat. A wrapper on line 1 would therefore come after a file included
+  by a pragmat on line 1, and the included text would be outside the
+  `ACCESS` (5 of the 167 Rosetta solutions with `read`). The scanner adds
+  the wrapper as two lines of the environ, after the prelude and before
+  the postlude. These lines are not counted, so diagnostics keep the line
+  numbers of the source.
 - Included files are not wrapped.
 - An included file is looked for relative to the including file, then in
-  the `-I` directories. The pre-processor of the Rosetta Code page uses the
-  current directory. Both give the same result when the program and the
-  file are in the same directory.
+  the `-I` directories. ga68 does not find a file with a directory from a
+  file given without one (entry 25 of
+  [ga68-bug-reports.md](ga68-bug-reports.md)); with `-fgenie` a68j finds
+  it, as Algol 68 Genie does. On Windows, the directory of an included
+  file is now taken at a backslash as well, as libiberty does there, so
+  that a file included by an included file is found.
+- A CR before LF is dropped before the rewrite: the tool would put it
+  into the string that replaces a format text over several lines.
+- An error found by the tool is reported by the scanner at its line of
+  the file.
 
-**A defect to fix first.** With `--ga68`, the tool turns `FILE` into
-`GFILE`, but it adds `Genie_Formats`, which exports `GFILE`, to the access
-list only when the program uses formats. A program with `FILE` and no
-format text therefore fails with "indicant GFILE has not been declared
-properly".
+**A defect fixed on the way.** With `--ga68`, the tool turned `FILE` into
+`GFILE`, but it added `Genie_Formats`, which exports `GFILE`, to the access
+list only when the program used formats. A program with `FILE` and no
+format text therefore failed with "indicant GFILE has not been declared
+properly". `FILE` and `CHANNEL` now count as a need for `Genie_Formats`.
 
 **What `-fgenie` does not change.** These remain differences to Algol 68
 Genie, as with the pre-processor:
@@ -415,15 +422,16 @@ same hooks, without the changes of `--ga68`.
 
 **Tests.**
 
-- the defect above: a program with `FILE` and no format text;
-- `PR read` and `PR READ` on line 1, in the middle, and nested in an
-  included file;
-- an included file that uses formats and `print`;
-- line numbers of diagnostics and runtime errors in the main file and in
-  an included file;
-- an error found by the tool, such as an unterminated format text;
-- the Rosetta solutions with formats, run with `-fgenie` from `orig/`,
-  compared with the prepared ones.
+- `tests/formats/rewrite`: `FILE` without formats, pragmats with and
+  without `--ga68`, `--no-wrap`;
+- `tests/formats`: every program test also runs with `-fgenie`, from the
+  original program;
+- `tests/formats/genie`: `PR read` on line 1, in the middle, twice and
+  nested with `PR READ`, `FILE` without formats, other pragmats, and the
+  lines of runtime errors in the main file and in an included file;
+- `tests/options/genie-*`: `-fstropping=supper` with `-fgenie`, the line
+  of a diagnostic after a format text over two lines, and an error found
+  by the tool.
 
 ### Stage 4 in detail
 

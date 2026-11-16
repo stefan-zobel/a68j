@@ -1,0 +1,10 @@
+ACCESS GENIE_TRANSPUT (PR include "a.a68" PR # read on the first line #
+BEGIN
+   PR include "b.a68" PR
+   PRAGMAT include "c.a68" PRAGMAT
+   PR include 'd.a68' PR
+    
+
+   CO a comment stays CO
+   print (("pragmats", newline))
+END )

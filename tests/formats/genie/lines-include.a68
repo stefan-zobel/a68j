@@ -1,0 +1,3 @@
+PR read "include/fail.a68" PR
+# -fgenie: a run-time error has the line of the file read. #
+print ((fail at (4), newline))

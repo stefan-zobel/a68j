@@ -48,6 +48,11 @@ public final class A68 {
      * on the class path.
      */
     public final List<String> libraryJars = new ArrayList<>();
+    /**
+     * a68j: the rewrite of each source file before the scanner (-fgenie),
+     * or null (the default, as in ga68).
+     */
+    public SourceFilter sourceFilter;
     /** Association between module indicants and files (-fmodules-map). */
     public final Map<String, String> moduleFiles = new LinkedHashMap<>();
     {
