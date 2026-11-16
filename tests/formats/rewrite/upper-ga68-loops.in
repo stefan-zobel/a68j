@@ -1,0 +1,10 @@
+# ANDF, ORF and DOWNTO become ANDTH, OREL and BY -1 TO; not in strings,
+  comments or longer words: ANDF DOWNTO #
+BEGIN
+   BOOL a = TRUE ANDF FALSE, b = FALSE ORF TRUE;
+   FOR i FROM 5 DOWNTO 1 DO print (i) OD;
+   FOR i DOWNTO 1 DO print ("ANDF DOWNTO") OD;
+   FOR i FROM 3 BY 2 TO 9 DO FOR j FROM i DOWNTO 1 DO SKIP OD OD;
+   INT andfx = 1, downto = 2;
+   MODE ANDFX = INT, DOWNTOWN = INT
+END

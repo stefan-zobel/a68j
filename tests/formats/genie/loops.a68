@@ -1,0 +1,18 @@
+# -fgenie: ANDF and ORF evaluate their right operand only when needed, and
+  DOWNTO counts down by 1, as in Algol 68 Genie. #
+BEGIN
+   INT calls := 0;
+   PROC p = BOOL: (calls +:= 1; TRUE);
+   print ((FALSE ANDF p, TRUE ORF p, TRUE ANDF p, FALSE ORF p, " calls: ", whole (calls, 0), newline));
+   FOR i FROM 5 DOWNTO 1 DO print (whole (i, 0)) OD;
+   print (newline);
+   FOR i DOWNTO 1 DO print (("from 1: ", whole (i, 0))) OD;
+   print (newline);
+   FOR i FROM 1 DOWNTO 5 DO print ("never") OD;
+   INT n := 0;
+   FOR i FROM 3 DOWNTO 1 DO FOR j FROM i DOWNTO 1 DO n +:= j OD OD;
+   print (("nested: ", whole (n, 0), newline));
+   INT k := 0;
+   FOR i FROM 10 DOWNTO 1 WHILE i > 7 DO k +:= 1 OD;
+   print (("while: ", whole (k, 0), newline))
+END

@@ -88,9 +88,9 @@ formats & output only, with \code|Genie_Formats| (a68j: \code|-fformats|; ga68: 
 lifetime rule (references, procedures, \code|loc| cells) & not checked at run time; warnings with \code|-Wscope|; a68j: warnings where its results are wrong (Section~\ref{sec-proc-lifetimes}) & checked at run time \\
 bounds of an array field when a record is assigned & not checked & checked \\
 initial value of a variable & zero, \code|false|, blank, empty & undefined (an error when used) \\
-\code|andth|, \code|orel| & yes (GNU extension) & yes (also \texttt{ANDF}, \texttt{ORF}) \\
+\code|andth|, \code|orel| & yes (GNU extension); a68j with \code|-fgenie| also \texttt{ANDF}, \texttt{ORF} & yes (also \texttt{ANDF}, \texttt{ORF}) \\
 \code|XOR| for \code|bits| & yes & yes \\
-\code|downto|, \code|until| in loops & no & yes \\
+\code|downto|, \code|until| in loops & no; a68j with \code|-fgenie|: \texttt{DOWNTO} without \texttt{BY} & yes \\
 modules & yes (GNU extension, Appendix~\ref{app-modules}) & no \\
 calling C (\code|nest C|) & ga68 only (Appendix~\ref{app-nest}) & no \\
 partial parametrization & a68j only (Appendix~\ref{app-partial}) & yes \\

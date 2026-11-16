@@ -117,6 +117,12 @@ ga68 and a68j:
   "In UPPER stropping"); `Genie_Formats` exports these modes as `Gfile`
   and `Gchannel`, so a program that uses them accesses `Genie_Formats`
   even without formats;
+- in UPPER stropping, `ANDF` and `ORF` become `ANDTH` and `OREL`, the
+  spelling of ga68 for the same short-circuit operations, and `DOWNTO`
+  becomes `BY -1 TO` (since version 0.8.1). Algol 68 Genie negates the
+  step of a loop with `DOWNTO`, whose default is 1, so this is the same
+  loop. In a loop with a `BY` part, `DOWNTO` is an error of the tool
+  ("DOWNTO after BY is not supported");
 - in UPPER stropping, a pragmat `PR read "file" PR` (`read` or `include`,
   in any case) becomes `PR include "file" PR`, and any other pragmat,
   such as `PR precision=100 PR`, becomes a blank with the newlines of the
@@ -227,7 +233,7 @@ the tool with `--ga68` does by hand:
 
 Messages of the compiler and run-time errors give the lines of the source
 files. Their columns can differ where the tool changed a line (a format
-text, a doubled apostrophe, `GFILE`). An error that the tool finds, such
+text, a doubled apostrophe, `GFILE`, `ANDTH`, `BY -1 TO`). An error that the tool finds, such
 as an unterminated format text, is an error of the compiler at its line.
 
 These remain differences to Algol 68 Genie, with or without `-fgenie`:

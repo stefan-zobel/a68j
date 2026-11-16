@@ -51,6 +51,10 @@
     * in UPPER stropping FILE and CHANNEL become GFILE and GCHANNEL (in
       ga68 FILE and CHANNEL are reserved words; Genie_Formats exports GFILE
       and GCHANNEL as the modes of Genie_Transput);
+    * in UPPER stropping ANDF and ORF become ANDTH and OREL, the spelling of
+      ga68, and DOWNTO becomes BY -1 TO, which is what Algol 68 Genie does
+      in a loop without a BY part; DOWNTO in a loop with a BY part is an
+      error of the tool;
     * in UPPER stropping a pragmat PR read "file" PR (read or include, in
       any case) becomes PR include "file" PR, and any other pragmat becomes
       blanks with the same lines (ga68 rejects pragmats it does not know).
@@ -132,6 +136,12 @@ PROC member = (STRING w, [] STRING list) BOOL:
 BOOL upper := TRUE, for ga68 := FALSE, no wrap := FALSE, dry := TRUE;
 INT reserved := 0;
 BOOL needs formats := FALSE, has access := FALSE;
+
+# after by: the last of the bold words FOR FROM BY TO DOWNTO WHILE DO OD
+  was BY, so that a DOWNTO there belongs to a loop with a BY part. #
+
+BOOL after by := FALSE;
+[] STRING loop words = ("FOR", "FROM", "BY", "TO", "DOWNTO", "WHILE", "DO", "OD");
 
 [] STRING reserved words = ("BEGIN", "END", "PROC", "MODE", "INT", "REAL",
    "BOOL", "CHAR", "STRING", "STRUCT", "UNION", "THEN", "ELSE", "FI", "OD",
@@ -533,12 +543,21 @@ PROC bold word = (INT i, lim, REF BUF out) INT:
       THEN adds (out, "G" + w);
            needs formats := TRUE;
            e
+      ELIF for ga68 AND upper AND (w = "ANDF" OR w = "ORF")
+      THEN adds (out, IF w = "ANDF" THEN "ANDTH" ELSE "OREL" FI);
+           e
+      ELIF for ga68 AND upper AND w = "DOWNTO"
+      THEN IF after by THEN error ("DOWNTO after BY is not supported", i) FI;
+           after by := FALSE;
+           adds (out, "BY -1 TO");
+           e
       ELIF k = "ACCESS"
       THEN has access := TRUE;
            adds (out, w);
            access list (e, lim, out)
       ELSE IF member (k, reserved words) THEN reserved +:= 1 FI;
            IF member (w, format procs) THEN needs formats := TRUE FI;
+           IF member (w, loop words) THEN after by := w = "BY" FI;
            adds (out, w);
            e
       FI
@@ -615,6 +634,7 @@ PROC scan = (BOOL as upper) INT:
       reserved := 0;
       needs formats := FALSE;
       has access := FALSE;
+      after by := FALSE;
       rewrite (1, n, new buf);
       reserved
    END;
@@ -630,6 +650,7 @@ scan (upper);
 # The rewrite. #
 
 dry := FALSE;
+after by := FALSE;
 REF BUF out = new buf;
 BOOL wrap = for ga68 AND NOT has access AND NOT no wrap;
 IF wrap

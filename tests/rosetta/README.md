@@ -139,7 +139,11 @@ long bits` and the complex modes as items of `print` and `printf` (also
 since version 0.8.1), 3 more compile: `accumulator-factory` (which Algol
 68 Genie stops with a scope error), `infinity` and `sylvesters-sequence`
 (both print `LONG LONG` values with the precision of Algol 68 Genie
-there). ga68 now compiles `infinity` as well. Most
+there). ga68 now compiles `infinity` as well. With `ANDF`, `ORF` and
+`DOWNTO` (also since version 0.8.1), `loops-downward-for-2` compiles too
+and gives the output of Algol 68 Genie up to the width of its `INT`
+fields; the five other solutions that stopped at these words stop at a
+later point now. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give

@@ -358,6 +358,8 @@ program.
 | a program needs `ACCESS` to `Genie_Transput` | wrapped in `ACCESS ... BEGIN ... END` | wrapped by the compiler (see below) |
 | format texts | not handled | rewritten by the tool, as far as the stages go |
 | widening between lengths (`LONG INT x := 1`, `x +:= 1`) | not handled | as in Algol 68 Genie, by the front end (since version 0.8.1; see below) |
+| `ANDF`, `ORF` | not handled | `ANDTH`, `OREL` by the tool (since version 0.8.1) |
+| `DOWNTO` | not handled | `BY -1 TO` by the tool, in a loop without a `BY` part (since version 0.8.1) |
 
 **How the tool is called.** In the compiler, the tool runs in the same
 JVM, without a second process:
@@ -435,7 +437,8 @@ widenings.
   `3000000000` and the float digits of `0.1`.
 - Of the 420 prepared Rosetta solutions that ga68 rejects, a68j with
   `-fgenie` compiled 25 before and compiles 137 with the widening (140
-  with the new modes of `print` and `printf`, below). Of the 112 new ones,
+  with the new modes of `print` and `printf`, below, and 141 with `ANDF`,
+  `ORF` and `DOWNTO`). Of the 112 new ones,
   47 give the same output as Algol 68 Genie 3.13.4.
   - 14 do not end normally within a minute in Algol 68 Genie either.
   - Most others rely on the multiple precision of `LONG LONG INT`, the

@@ -1,0 +1,3 @@
+BEGIN
+   FOR i FROM 10 BY 2 DOWNTO 1 DO print (i) OD
+END
