@@ -88,3 +88,10 @@ See `docs/optimizations.md` for how the measurements are made.
 | `perf_ab.py` | compares two or three compiled versions program by program with alternating runs |
 | `MethodSizes.java` | prints the bytecode size of each method of class files (HotSpot does not JIT-compile methods above 8000 bytes) |
 | `build_hsdis.sh` | builds the HotSpot disassembler plugin, so that `-XX:+PrintAssembly` prints x86-64 instructions |
+
+## Release
+
+| Tool | Purpose |
+|---|---|
+| `central_bundle.sh [-k KEY] OUTDIR` | the bundle of a release for Maven Central: the artifacts `a68j` and `a68j-runtime` from the release jars (`sh backend/build.sh release`), with POMs, sources jars (the Java sources, the Algol 68 sources of `a68j.lib`, and for the compiler the format rewrite tool), javadoc jars and checksums; with `-k` signed and zipped |
+| `ga68_sources.sh OUTDIR` | `a68j-ga68-sources-x.y.z.zip`, an asset of a release for ga68 users: the modules `Genie_Transput`, `Genie_Formats` and `Texts`, the format rewrite tool with its prologue for ga68, and a `README.txt` with the commands |

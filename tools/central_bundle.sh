@@ -123,7 +123,7 @@ done
 
 # The sources against the tag of the release.
 if git -C "$R" rev-parse -q --verify "refs/tags/$V" > /dev/null; then
-  if ! git -C "$R" diff --quiet "$V" -- src/main backend/src/main backend/lib COPYING COPYING.RUNTIME; then
+  if ! git -C "$R" diff --quiet "$V" -- src/main backend/src/main backend/lib tools/formats COPYING COPYING.RUNTIME; then
     echo "central_bundle.sh: warning: the sources differ from the tag $V" >&2
   fi
 else
@@ -132,7 +132,10 @@ fi
 
 # The source trees. The Algol 68 sources of the classes a68j.lib.X (the
 # standard prelude and the bundled modules) go to a68j/lib, the JDK 28
-# sources to META-INF/versions/28, as in the jars.
+# sources to META-INF/versions/28, as in the jars. The sources of the
+# compiler also get the format rewrite tool (tools/formats/*.a68) in
+# a68j/lib: the source of a68j.lib.Genierewrite (rewrite-fgenie.a68, which
+# includes rewrite.a68), with the prologues for ga68 and Algol 68 Genie.
 SR="$W/src-runtime"
 SC="$W/src-compiler"
 mkdir -p "$SR/a68j/lib" "$SR/META-INF/versions/28" "$SC"
@@ -144,6 +147,7 @@ cp -r "$R/backend/src/main/java28/." "$SR/META-INF/versions/28/"
 cp "$R/COPYING" "$R/COPYING.RUNTIME" "$SR/META-INF/"
 cp -r "$SR/." "$SC/"
 cp -r "$R/src/main/java/." "$R/backend/src/main/java/." "$SC/"
+cp "$R"/tools/formats/*.a68 "$SC/a68j/lib/"
 
 # Javadoc (warnings in $W/javadoc-*.log, shown only if javadoc fails). The
 # source directories are relative to $R: the paths in the argument file are
