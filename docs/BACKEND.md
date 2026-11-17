@@ -405,8 +405,11 @@ routine (`LOWERER_UNIMPL` in a68-parser-prelude.cc: the SEMA operators
 (`a68_lower_unimplemented`): `FILE:LINE:COL: fatal error: no lowering
 routine installed for construct.  jemarch has been lazy`, then
 `compilation terminated.`, status 1 (`Gen.Fatal`, checked in tree order
-before code generation). The 12 Rosetta solutions ga68 rejects this way
-are rejected by a68j at the same line and column. In the same walk
+before code generation). The 5 Rosetta solutions ga68 rejects this way
+are rejected by a68j at the same line and column. The module
+`Genie_Transput` declares `next random` and `rnd` with the meaning of
+Algol 68 Genie, which hides the declarations of
+the prelude in the programs that access it. In the same walk
 (`Gen.checkLowering`), a68j rejects the declarations and clauses for which
 ga68 cannot build a SKIP value (`a68_get_skip_tree`): ga68 has none for
 `file`, `channel`, `bytes` and `long bytes`, nor for a structure with such

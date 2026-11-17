@@ -3,7 +3,7 @@ name	task	ga68	jvm	note
 10001th-prime	10001th-prime	missing include primes.incl.a68	-	
 2048	2048	exit 1	pass	
 21-game	21-game	exit 1	pass	
-24-game	24-game	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+24-game	24-game	exit 1	pass	
 4-rings-or-4-squares-puzzle	4-rings-or-4-squares-puzzle	exit 0	pass	
 9-billion-names-of-god-the-integer	9-billion-names-of-God-the-integer	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 99-bottles-of-beer	99-bottles-of-beer	exit 0	pass	
@@ -74,7 +74,7 @@ autogram-checker	Autogram-checker	compile error: error: indicant ~= has not been
 averages-arithmetic-mean	Averages-Arithmetic-mean	exit 0	pass	
 averages-mean-angle	Averages-Mean-angle	compile error: error: tag 'arctan2' has not been declared properly	-	
 averages-mean-time-of-day	Averages-Mean-time-of-day	compile error: error: tag 'arctan2' has not been declared properly	-	
-averages-median	Averages-Median	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+averages-median	Averages-Median	exit 0	pass	
 averages-mode	Averages-Mode	missing include rows.incl.a68 sort.incl.a68	-	
 averages-pythagorean-means	Averages-Pythagorean-means	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 averages-root-mean-square	Averages-Root-mean-square	exit 0	pass	
@@ -82,7 +82,7 @@ averages-simple-moving-average	Averages-Simple-moving-average	compile error: err
 b-spline	B-spline	exit 0	pass	
 babbage-problem	Babbage-problem	exit 0	pass	
 bacon-cipher	Bacon-cipher	exit 0	pass	
-balanced-brackets	Balanced-brackets	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+balanced-brackets	Balanced-brackets	exit 0	pass	
 barnsley-fern	Barnsley-fern	compile error: error: int cannot be coerced to long real in a strong-unit	-	
 base-16-numbers-needing-a-to-f	Base-16-numbers-needing-a-to-f	exit 0	pass	
 base58check-encoding	Base58Check-encoding	compile error: error: dyadic operator ref long long int > int has not been declared	-	
@@ -309,7 +309,7 @@ dragon-curve-3	Dragon-curve	missing include prelude/turtle_draw.a68 prelude/exce
 dragon-curve-4	Dragon-curve	missing include lsystem.incl.a68	-	
 draw-a-cuboid	Draw-a-cuboid	exit 0	pass	
 duffinian-numbers	Duffinian-numbers	exit 0	pass	
-dutch-national-flag-problem	Dutch-national-flag-problem	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+dutch-national-flag-problem	Dutch-national-flag-problem	exit 0	pass	
 dynamic-variable-names	Dynamic-variable-names	exit 1	pass	
 earliest-difference-between-prime-gaps	Earliest-difference-between-prime-gaps	missing include primes.incl.a68	-	
 eban-numbers	Eban-numbers	exit 0	pass	
@@ -588,7 +588,7 @@ lu-decomposition	LU-decomposition	exit 0	fixed: docs/ga68-bug-reports.md, entrie
 lah-numbers	Lah-numbers	compile error: error: 'int' and 'int' and 'int' cannot be coerced to 'long long int' in a strong-unit	-	
 langtons-ant	Langtons-ant	exit 0	pass	
 largest-difference-between-adjacent-primes	Largest-difference-between-adjacent-primes	missing include primes.incl.a68	-	
-largest-five-adjacent-number	Largest-five-adjacent-number	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+largest-five-adjacent-number	Largest-five-adjacent-number	exit 0	pass	
 largest-int-from-concatenated-ints	Largest-int-from-concatenated-ints	exit 0	pass	
 largest-number-divisible-by-its-digits	Largest-number-divisible-by-its-digits	exit 0	pass	
 largest-palindrome-product-1	Largest-palindrome-product	compile error: error: int cannot be coerced to long int in a strong-unit	-	
@@ -633,7 +633,7 @@ long-multiplication-2	Long-multiplication	compile error: error: indicant & has n
 long-multiplication-3	Long-multiplication	compile error: error: indicant INTEGER has not been declared properly	-	
 long-multiplication-4	Long-multiplication	compile error: error: indicant INTEGER has not been declared properly	-	
 long-primes	Long-primes	exit 0	pass	
-long-stairs	Long-stairs	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+long-stairs	Long-stairs	exit 0	approx: largest deviation 14711.6992 (native 14711.6994)	ga68 defect (docs/ga68-bug-reports.md, entry 4): fixed writes wrong digits of a REAL (147116994 / 10000, the REAL 14711.69921875, as 14711.6994); a68j writes the digits of the exact value, within the tolerance of run_jvm.py
 long-year	Long-year	exit 0	pass	
 longest-common-prefix	Longest-common-prefix	exit 0	pass	
 longest-common-subsequence	Longest-common-subsequence	exit 0	pass	
@@ -711,7 +711,7 @@ minimum-number-of-cells-after-before-above-and-below-nxn-squares	Minimum-number-
 minimum-numbers-of-three-lists	Minimum-numbers-of-three-lists	missing include rows.incl.a68	-	
 minimum-positive-multiple-in-base-10-using-only-0-and-1	Minimum-positive-multiple-in-base-10-using-only-0-and-1	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 minimum-primes	Minimum-primes	missing include primes.incl.a68	-	
-modified-random-distribution	Modified-random-distribution	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+modified-random-distribution	Modified-random-distribution	exit 0	pass	
 modular-arithmetic	Modular-arithmetic	compile error: error: dyadic operator long long int MOD int has not been declared	-	
 modular-exponentiation	Modular-exponentiation	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 modular-inverse	Modular-inverse	exit 0	pass	
@@ -862,7 +862,7 @@ pernicious-numbers	Pernicious-numbers	exit 0	pass
 pfaffian-and-hfaffian	Pfaffian-and-hfaffian	exit 0	pass	
 phrase-reversals	Phrase-reversals	exit 0	pass	
 pi	Pi	exit 0	pass	
-pick-random-element	Pick-random-element	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+pick-random-element	Pick-random-element	exit 0	pass	
 pierpont-primes	Pierpont-primes	missing include primes.incl.a68	-	
 pig-latin	Pig-Latin	exit 0	pass	
 piprimes	Piprimes	missing include primes.incl.a68	-	
@@ -946,14 +946,14 @@ quickselect-algorithm	Quickselect-algorithm	exit 0	pass
 quine-1	Quine	exit 0	pass	
 quine-2	Quine	exit 0	pass	
 quoting-constructs	Quoting-constructs	exit 0	pass	
-rpg-attributes-generator	RPG-attributes-generator	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+rpg-attributes-generator	RPG-attributes-generator	exit 0	pass	
 rsa-code	RSA-code	compile error: error: int cannot be coerced to long long int in a strong-unit	-	
 radical-of-an-integer	Radical-of-an-integer	exit 0	pass	
 rainbow	Rainbow	exit 0	pass	
 ramanujan-primes	Ramanujan-primes	missing include primes.incl.a68	-	
 ramanujans-constant	Ramanujans-constant	compile error: error: 'int' cannot be coerced to 'long long real' in a strong-argument	-	
 ramer-douglas-peucker-line-simplification	Ramer-Douglas-Peucker-line-simplification	exit 0	pass	
-random-latin-squares	Random-Latin-squares	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+random-latin-squares	Random-Latin-squares	exit 0	pass	
 random-number-generator-included--1	Random-number-generator-included-	compile error: error: *unworthy character â	-	
 random-number-generator-included--2	Random-number-generator-included-	compile error: error: possibly a missing or erroneous symbol nearby	-	
 random-numbers	Random-numbers	exit 0	pass	
@@ -991,7 +991,7 @@ reverse-words-in-a-string	Reverse-words-in-a-string	exit 0	pass
 rhonda-numbers	Rhonda-numbers	exit 0	pass	
 rice-coding	Rice-coding	exit 0	pass	
 riordan-numbers	Riordan-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
-rock-paper-scissors	Rock-paper-scissors	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+rock-paper-scissors	Rock-paper-scissors	exit 1	pass	
 rodrigues-rotation-formula	Rodrigues-rotation-formula	compile error: error: tag 'acos' has not been declared properly	-	
 roman-numerals-decode	Roman-numerals-Decode	exit 0	pass	
 roman-numerals-encode	Roman-numerals-Encode	exit 0	pass	
@@ -1014,7 +1014,7 @@ send-+-more-=-money	SEND-+-MORE-=-MONEY	exit 0	pass
 safe-and-sophie-germain-primes	Safe-and-Sophie-Germain-primes	missing include primes.incl.a68	-	
 safe-primes-and-unsafe-primes	Safe-primes-and-unsafe-primes	exit 0	pass	
 sailors-coconuts-and-a-monkey-problem	Sailors-coconuts-and-a-monkey-problem	exit 0	pass	
-sattolo-cycle	Sattolo-cycle	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+sattolo-cycle	Sattolo-cycle	exit 0	pass	
 scope-function-names-and-labels	Scope-Function-names-and-labels	compile error: error: possibly a missing or erroneous symbol nearby	-	
 search-a-list-1	Search-a-list	exit 0	pass	
 search-a-list-2	Search-a-list	exit 0	pass	
@@ -1063,7 +1063,7 @@ singly-linked-list-reversal	Singly-linked-list-Reversal	exit 0	pass
 singly-linked-list-traversal	Singly-linked-list-Traversal	exit 0	pass	
 sisyphus-sequence	Sisyphus-sequence	missing include rows.incl.a68	-	
 sleep	Sleep	compile error: error: tag 'system' has not been declared properly	-	
-sleeping-beauty-problem	Sleeping-Beauty-problem	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+sleeping-beauty-problem	Sleeping-Beauty-problem	exit 0	pass	
 smallest-multiple	Smallest-multiple	missing include primes.incl.a68	-	
 smallest-number-k-such-that-k+2^m-is-composite-for-all-m-less-than-k	Smallest-number-k-such-that-k+2^m-is-composite-for-all-m-less-than-k	missing include primes.incl.a68	-	
 smallest-numbers	Smallest-numbers	compile error: error: 'int' cannot be coerced to 'long long int' in a strong-enclosed clause	-	
@@ -1071,7 +1071,7 @@ smallest-power-of-6-whose-decimal-expansion-contains-n	Smallest-power-of-6-whose
 smallest-square-that-begins-with-n	Smallest-square-that-begins-with-n	exit 0	pass	
 smarandache-prime-digital-sequence	Smarandache-prime-digital-sequence	exit 0	pass	
 smith-numbers	Smith-numbers	exit 0	pass	
-snake-and-ladder	Snake-and-ladder	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+snake-and-ladder	Snake-and-ladder	exit 1	pass	
 soloways-recurring-rainfall	Soloways-recurring-rainfall	exit 1	pass	
 solve-a-hidato-puzzle	Solve-a-Hidato-puzzle	missing include sort.incl.a68	-	
 solve-a-holy-knights-tour	Solve-a-Holy-Knights-tour	exit 0	pass	
@@ -1140,7 +1140,7 @@ stack-5	Stack	compile error: error: '(GFORMAT, OBJVALUE, GFORMAT)' cannot be coe
 stair-climbing-puzzle-1	Stair-climbing-puzzle	compile error: error: clause does not yield a value	-	
 stair-climbing-puzzle-2	Stair-climbing-puzzle	exit 0	pass	
 start-from-a-main-routine	Start-from-a-main-routine	exit 0	pass	
-statistics-basic	Statistics-Basic	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
+statistics-basic	Statistics-Basic	exit 0	pass	
 steady-squares	Steady-squares	exit 0	pass	
 steffensens-method	Steffensens-method	exit 0	pass	
 stem-and-leaf-plot-1	Stem-and-leaf-plot	missing include sort.incl.a68	-	

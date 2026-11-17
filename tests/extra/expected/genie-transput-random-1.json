@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "genie-transput-random-1.a68",
+ "stderr": "",
+ "stdout": " +0.840188  +0.394383\n +0.783099  +0.798440\n +0.911647  +0.197551\nrnd in [-1, 1): T\n -0.462632\nown next_random: +1.0 2\n"
+}

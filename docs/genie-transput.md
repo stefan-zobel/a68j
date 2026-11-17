@@ -118,6 +118,7 @@ and `GCHANNEL` without a module of its own.
 | `int_width`, `long_int_width`, `long_long_int_width`, `real_width`, `long_real_width`, `long_long_real_width`, `exp_width`, `long_exp_width`, `long_long_exp_width` | the environment enquiries of the transput (RR 10.3.1.1) |
 | `char_in_string`, `last_char_in_string`, `string_in_string` | string searching (RR 10.3.2.4, Algol 68 Genie); `pos` may be `nil` |
 | `is_upper`, `is_lower`, `is_alpha`, `is_digit`, `is_alnum`, `is_space`, `is_xdigit`, `to_upper`, `to_lower` | character classes of Algol 68 Genie; they consider ASCII letters and digits only |
+| `next_random`, `rnd` | random numbers of Algol 68 Genie: `next_random` is `random`, `rnd` is `2 * random - 1`, in [-1, 1). ga68 declares both in its standard prelude without implementing them ("no lowering routine installed"); the declarations of the module hide those. The numbers come from the generator of ga68 (a68j has the same), so they are not those of Algol 68 Genie |
 
 `print` and `put` accept `int`, `long int`, `long long int`, `real`,
 `long real`, `long long real`, `compl`, `long compl`, `long long compl`,
@@ -282,6 +283,8 @@ reads as a string), and for the first `eoln` there.
   `gt_file_end` and `gt_value_error`, which read one character at a time,
   give characters back and raise the events of a file; programs do not
   need them;
+- `first_random`, which sets the seed of the generator: the standard
+  prelude of ga68 offers no way to do that;
 - `create`, the events other than
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above
@@ -310,7 +313,9 @@ A module named `Transput` compiles, but `access Transput` then fails with
   `tests/extra/genie-transput-read-1.a68` writes a file and reads it back
   with all the reading procedures, events and opening procedures;
   `tests/extra/genie-transput-associate-1.a68` reads from and writes to
-  strings; ga68 and a68j give the same output. The associate test gives the
+  strings; `tests/extra/genie-transput-random-1.a68` draws random
+  numbers with `random`, `next_random` and `rnd`; ga68 and a68j give the
+  same output. The associate test gives the
   same output with Algol 68 Genie too (converted to UPPER stropping),
   except for the widths of the numbers and the position in the last error
   message.

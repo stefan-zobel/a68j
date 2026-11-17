@@ -109,14 +109,14 @@ a format for which ga68 reports the errors in a different order).
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 414 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 399 |
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
-| ga68 compiles and runs them | 701 |
-| **of these identical to ga68 on the JVM** | **685** |
+| ga68 compiles and runs them | 716 |
+| **of these identical to ga68 on the JVM** | **699** |
 | of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 26 |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 631 |
-| of these the same up to rounding (`approx`) | 5 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 642 |
+| of these the same up to rounding (`approx`) | 6 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
 Preparation): of the 175, ga68 compiles 87 (5 of them since `Genie_Formats`
@@ -150,7 +150,18 @@ with ga68 alike, and give the same result on the JVM:
 `guess-the-number`, `non-decimal-radices-convert-1`,
 `non-decimal-radices-input`, `search-a-list-1` and `tokenize-a-string`.
 The ten others with formatted input stop at other things (events that
-`Genie_Transput` does not have, structures as items). Most
+`Genie_Transput` does not have, structures as items). Since
+`Genie_Transput` provides `next random` and `rnd` of Algol 68 Genie
+(ga68 declares both in its standard prelude, but does not implement
+them), 17 more originals compile with `-fgenie`, and 15 of their
+prepared versions with ga68 (the other two stop at the widening and at
+`DOWNTO`). Their numbers come from the generator of ga68, which a68j has
+as well: 14 give the same output on the JVM, and `long-stairs` the same
+up to rounding (entry 4: ga68 writes wrong digits of a `REAL`). Of the
+30 originals that stop with `clause does not yield a value` under
+`-fgenie`, 29 end with a declaration, which Algol 68 Genie rejects with
+the same message; in the 30th, `enumerations-2`, the rewrite tool does
+not handle a conformity clause of format texts inside `f(...)`. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give

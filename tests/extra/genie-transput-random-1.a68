@@ -1,0 +1,29 @@
+{ dg-modules "genietransput" }
+{ next_random and rnd in the bundled module Genie_Transput
+  (backend/lib/genietransput.a68): the random numbers of Algol 68 Genie,
+  which the standard prelude of ga68 declares without implementing them.
+  Both take their numbers from random, so random and next_random draw
+  from one sequence, and rnd lies in [-1, 1).  The numbers are those of
+  the generator of ga68 (a68j has the same), not those of Algol 68 Genie.
+  A declaration of next_random in the program hides the one of the
+  module. }
+access Genie_Transput (
+begin
+   for i to 3
+   do print ((fixed (random, 10, 6), " ", fixed (next_random, 10, 6), newline))
+   od;
+   bool in_range := true;
+   for i to 1000
+   do real r = rnd;
+      if r < -1.0 OR r >= 1.0 then in_range := false fi
+   od;
+   print (("rnd in [-1, 1): ", in_range, newline));
+   print ((fixed (rnd, 10, 6), newline));
+   begin
+      int calls := 0;
+      proc next_random = real: (calls +:= 1; 0.5);
+      real x = next_random + next_random;
+      print (("own next_random: ", fixed (x, 4, 2), " ", whole (calls, 0), newline))
+   end
+end
+)

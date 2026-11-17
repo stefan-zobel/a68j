@@ -1,0 +1,7 @@
+{ a68j-options: -fgenie }
+# -fgenie: next random and rnd of Algol 68 Genie come from the module Genie_Transput and draw from the sequence of random. #
+REAL a = random, b = next random, c = rnd;
+print ((fixed (a, 0, 6), " ", fixed (b, 0, 6), " ", fixed (c, 0, 6), newline));
+INT n := 0;
+TO 100 DO REAL r = rnd; IF r >= -1 AND r < 1 THEN n +:= 1 FI OD;
+print ((whole (n, 0), newline))

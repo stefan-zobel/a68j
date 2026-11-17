@@ -76,6 +76,8 @@
       is_xdigit, to_upper, to_lower
                                character classes (Algol 68 Genie); they
                                consider ASCII letters and digits only
+      next_random, rnd         random numbers (Algol 68 Genie): ga68
+                               declares them, but does not implement them
 
   The layout of printed values follows Algol 68 Genie: integers are
   right-aligned with a sign in a field of int width + 1 characters, reals
@@ -989,6 +991,14 @@ def
        (is_lower (c) | REPR (ABS c - ABS "a" + ABS "A") | c);
     pub proc to_lower = (char c) char:
        (is_upper (c) | REPR (ABS c - ABS "A" + ABS "a") | c);
+
+    { Random numbers (Algol 68 Genie).  ga68 declares next_random and rnd
+      in its standard prelude without implementing them; these hide them.
+      They take their numbers from random, the generator of ga68, so the
+      numbers are not those of Algol 68 Genie. }
+
+    pub proc next_random = real: random;
+    pub proc rnd = real: 2 * random - 1;
 
     skip
 fed

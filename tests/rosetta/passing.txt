@@ -30,10 +30,12 @@ array-length
 arrays
 associative-array-iteration
 averages-arithmetic-mean
+averages-median
 averages-root-mean-square
 b-spline
 babbage-problem
 bacon-cipher
+balanced-brackets
 base-16-numbers-needing-a-to-f
 berlekamp-massey-algorithm
 bernoullis-triangle
@@ -143,6 +145,7 @@ doomsday-rule
 dot-product
 draw-a-cuboid
 duffinian-numbers
+dutch-national-flag-problem
 eban-numbers
 egyptian-division
 elementary-cellular-automaton
@@ -275,6 +278,7 @@ knapsack-problem-continuous
 knuth-shuffle
 kronecker-product-based-fractals
 langtons-ant
+largest-five-adjacent-number
 largest-int-from-concatenated-ints
 largest-number-divisible-by-its-digits
 largest-product-in-a-grid
@@ -293,6 +297,7 @@ literals-floating-point
 literals-string-8
 logistic-curve-fitting-in-epidemiology
 long-primes
+long-stairs
 long-year
 longest-common-prefix
 longest-common-subsequence
@@ -338,6 +343,7 @@ mian-chowla-sequence
 middle-three-digits
 minimum-multiple-of-m-where-digital-sum-equals-m
 minimum-number-of-cells-after-before-above-and-below-nxn-squares
+modified-random-distribution
 modular-inverse
 monads-maybe-monad
 monte-carlo-methods
@@ -416,6 +422,7 @@ pernicious-numbers
 pfaffian-and-hfaffian
 phrase-reversals
 pi
+pick-random-element
 pig-latin
 pisano-period
 pointers-and-references-10
@@ -452,6 +459,7 @@ quoting-constructs
 radical-of-an-integer
 rainbow
 ramer-douglas-peucker-line-simplification
+random-latin-squares
 random-numbers
 range-consolidation
 range-expansion
@@ -470,12 +478,14 @@ rice-coding
 roman-numerals-decode
 roman-numerals-encode
 round-robin-tournament-schedule
+rpg-attributes-generator
 run-length-encoding
 runge-kutta-method
 ruth-aaron-numbers
 s-expressions
 safe-primes-and-unsafe-primes
 sailors-coconuts-and-a-monkey-problem
+sattolo-cycle
 search-a-list-1
 search-a-list-2
 search-a-list-of-records
@@ -503,6 +513,7 @@ singly-linked-list-element-insertion
 singly-linked-list-element-removal
 singly-linked-list-reversal
 singly-linked-list-traversal
+sleeping-beauty-problem
 smallest-square-that-begins-with-n
 smarandache-prime-digital-sequence
 smith-numbers
@@ -545,6 +556,7 @@ split-a-character-string-based-on-change-of-character
 square-but-not-cube
 stair-climbing-puzzle-2
 start-from-a-main-routine
+statistics-basic
 steady-squares
 steffensens-method
 stem-and-leaf-plot-2
