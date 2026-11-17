@@ -43,9 +43,9 @@ import java.util.List;
  * the loops of the particular program in place instead of as methods of
  * their own, see Outline; -floop-methods is the default), -fgenie (a
  * program written for Algol 68 Genie: UPPER stropping, each source file
- * rewritten by the format rewrite tool, see GenieRewrite, and the program
- * put into an access clause of Genie_Transput and Genie_Formats) and
- * -fformats (the front end parses format texts and the mode FORMAT, the
+ * prepared by the format rewrite tool, see GenieRewrite, the program put
+ * into an access clause of Genie_Transput and Genie_Formats, and the
+ * format texts lowered as with -fformats) and -fformats (the front end parses format texts and the mode FORMAT, the
  * mode Gformat of the module Genie_Formats, and GenFormats lowers each
  * format text to a call of that module; in either stropping).
  */
@@ -252,11 +252,12 @@ public final class Compile {
             }
             a68.options().stropping = Stropping.UPPER;
             a68.options().genie = true;
-            // A68J_FORMATS=lower: the front end parses the format texts and
-            // the back end lowers them, as with -fformats; the tool leaves
-            // them alone. For testing the lowering on programs written for
-            // Algol 68 Genie.
-            boolean lower = "lower".equals(System.getenv("A68J_FORMATS"));
+            // The front end parses the format texts and the back end lowers
+            // them, as with -fformats; the tool leaves them alone and does
+            // the rest of the rewrite (FILE, pragmats, ANDF, ...).
+            // A68J_FORMATS=rewrite: the tool rewrites the format texts too
+            // (the way of -fgenie until version 0.8.1), a fallback.
+            boolean lower = !"rewrite".equals(System.getenv("A68J_FORMATS"));
             a68.options().formats = lower;
             a68.sourceFilter = GenieRewrite.load(true, true, lower);
             if (a68.sourceFilter == null) {
@@ -269,7 +270,7 @@ public final class Compile {
         } else if (formats) {
             // A68J_FORMATS=rewrite: the format rewrite tool instead (the way
             // of -fformats before format texts were lowered), a fallback.
-            // -fgenie rewrites the format texts too, so -fformats with it
+            // -fgenie lowers the format texts itself, so -fformats with it
             // changes nothing.
             a68.sourceFilter = GenieRewrite.load(a68.options().stropping == Stropping.UPPER, false, false);
             if (a68.sourceFilter == null) {

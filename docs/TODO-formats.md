@@ -359,10 +359,10 @@ stages do not depend on it, nor it on them.
    - The lowering finds the errors in format texts when the program is
      compiled, follows Algol 68 Genie in format texts over several lines,
      where the rewrite did not, and lets `-Wframe-scope` see format texts.
-   - `-fgenie` keeps the rewrite, with `A68J_FORMATS=lower` it uses the
-     lowering too: all 220 Rosetta Code solutions that use formats give
-     the same output and exit status both ways, and the program and
-     Genie tests of `tests/formats` pass both ways.
+   - `-fgenie` uses the lowering too since version 0.9.0, and the rewrite
+     with `A68J_FORMATS=rewrite`: all 220 Rosetta Code solutions that use
+     formats give the same output and exit status both ways, and the
+     program and Genie tests of `tests/formats` pass both ways.
    - With `-fgenie` and `-fformats`, structures, rows of rows and `[] char`
      are items of `print` and `printf`, and names of structures and of
      rows items of `read` and `readf`, straightened as in Algol 68 Genie
@@ -393,7 +393,7 @@ program.
 | `'` in string denotations | doubled | doubled by the tool (as with `--ga68`) |
 | `FILE`, `CHANNEL` | `GFILE`, `GCHANNEL`, from a module of its own | `GFILE`, `GCHANNEL` by the tool, from `Genie_Formats` |
 | a program needs `ACCESS` to `Genie_Transput` | wrapped in `ACCESS ... BEGIN ... END` | wrapped by the compiler (see below) |
-| format texts | not handled | rewritten by the tool, as far as the stages go |
+| format texts | not handled | lowered by the compiler as with `-fformats` (since version 0.9.0; rewritten by the tool until version 0.8.1, and with `A68J_FORMATS=rewrite`) |
 | widening between lengths (`LONG INT x := 1`, `x +:= 1`) | not handled | as in Algol 68 Genie, by the front end (since version 0.8.1; see below) |
 | `ANDF`, `ORF` | not handled | `ANDTH`, `OREL` by the tool (since version 0.8.1) |
 | `DOWNTO` | not handled | `BY -1 TO` by the tool, in a loop without a `BY` part (since version 0.8.1) |
@@ -543,8 +543,8 @@ pictures, so it was updated only once they ran on a68j.
 without the changes of `--ga68` and in the stropping of the program
 (`genie rewrite` called with `for genie` false), and does so still with
 `A68J_FORMATS=rewrite`. It now uses the first candidate, the lowering in
-the back end; `-fgenie` does too with `A68J_FORMATS=lower`, which calls
-the tool with `--keep-formats`.
+the back end; so does `-fgenie` since version 0.9.0, which then calls the
+tool with `--keep-formats` (and without it with `A68J_FORMATS=rewrite`).
 
 **Tests.**
 
@@ -556,17 +556,18 @@ the tool with `--keep-formats`.
   nested with `PR READ`, `FILE` without formats, other pragmats, and the
   lines of runtime errors in the main file and in an included file;
 - `tests/options/genie-*`: `-fstropping=supper` with `-fgenie`, the line
-  of a diagnostic after a format text over two lines, and an error found
-  by the tool;
+  of a diagnostic after a format text over two lines, an error in a
+  format text found by the compiler, and one found by the tool
+  (`A68J_FORMATS=rewrite`);
 - `tests/options/formats-*`: `-fformats` in SUPPER and UPPER stropping,
   an error found by the tool, and `-fformats` with `-fgenie`.
 
 ### Stage 4 in detail
 
 **The front end.** With the lowering in the back end, it recognizes `$`
-and `format` only with `-fformats` (see "What was missing in the a68j
-front end"). With the rewrite (`-fgenie`, and `-fformats` with
-`A68J_FORMATS=rewrite`) the front end sees no format text.
+and `format` only with `-fformats` and `-fgenie` (see "What was missing
+in the a68j front end"). With the rewrite (`A68J_FORMATS=rewrite`) the
+front end sees no format text.
 
 **How a format text becomes a `Gformat`.** There were two candidates; the
 first is what `-fformats` does:
@@ -691,5 +692,5 @@ the format texts are converted as well.
   (`tests/scope/formats.a68`), errors in format texts, dynamic parts and
   their environments, a format exported by a module, and a format text
   over several lines (`tests/options/formats-*`, `tests/java`). Every
-  program and Genie test of `tests/formats` runs with the lowering as
-  well. Without `-fformats`, all existing test suites stay unchanged.
+  program and Genie test of `tests/formats` runs with `-fgenie` both with
+  the lowering and with the rewrite. Without `-fformats`, all existing test suites stay unchanged.

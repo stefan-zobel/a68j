@@ -1,0 +1,4 @@
+{ a68j-options: -fgenie }
+# -fgenie: the compiler parses format texts, so an error in one is found when the program is compiled, with its line and column; nothing is printed. #
+print (("before", newline));
+printf (($+d.2d +d.2d l$, 1.5, 2.5))

@@ -49,8 +49,8 @@ final class GenieRewrite implements SourceFilter {
      * The filter, or null if the class of the tool is missing. UPPER: the
      * program is in UPPER stropping, else in SUPPER stropping; FOR_GENIE:
      * the program is written for Algol 68 Genie (-fgenie); KEEP_FORMATS: the
-     * format texts and the mode FORMAT are left to the front end (-fgenie
-     * with A68J_FORMATS=lower).
+     * format texts and the mode FORMAT are left to the front end (-fgenie,
+     * unless A68J_FORMATS=rewrite).
      */
     static GenieRewrite load(boolean upper, boolean forGenie, boolean keepFormats) {
         try {

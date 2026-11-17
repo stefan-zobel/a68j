@@ -12,11 +12,12 @@ Formatted transput in the style of Algol 68 Genie (`printf`, `putf`,
   a68j, and it compiles with ga68 as an ordinary module. It accesses
   `Genie_Transput` ([genie-transput.md](genie-transput.md)).
 
-a68j runs the tool itself, inside the compiler, on each source file of a
-program written for Algol 68 Genie (the option `-fgenie`). With the
-option `-fformats`, for a program written for a68j, the compiler parses
-the format texts itself and lowers each one to a call of the module (see
-the sections on the two options below).
+With the option `-fformats`, for a program written for a68j, the
+compiler parses the format texts itself and lowers each one to a call of
+the module. The option `-fgenie`, for a program written for Algol 68
+Genie, does the same, and runs the tool inside the compiler on each
+source file for the rest of what Algol 68 Genie accepts (see the
+sections on the two options below).
 
 This is stages 1 to 3 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
@@ -231,8 +232,11 @@ the tool with `--ga68` does by hand:
   tool, in the same JVM: `backend/build.sh` compiles the tool with the
   prologue `tools/formats/rewrite-fgenie.a68` into the class
   `a68j.lib.Genierewrite`, which `a68j.jvm.GenieRewrite` calls. The
-  options are `--upper --ga68 --no-wrap`. A CR before a newline is
+  options are `--upper --ga68 --no-wrap --keep-formats` (without
+  `--keep-formats` with `A68J_FORMATS=rewrite`). A CR before a newline is
   dropped first.
+- The compiler parses the format texts and lowers them as with
+  `-fformats` (since version 0.9.0).
 - The program is put into
   `ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... )` by the compiler, on lines
   of its own that belong to the environ, like the prelude. A file included
@@ -267,14 +271,19 @@ the tool with `--ga68` does by hand:
     `real`.
 
 Messages of the compiler and run-time errors give the lines of the source
-files. Their columns can differ where the tool changed a line (a format
-text, a doubled apostrophe, `GFILE`, `ANDTH`, `BY -1 TO`). An error that the tool finds, such
-as an unterminated format text, is an error of the compiler at its line.
+files. Their columns can differ where the tool changed a line (a doubled
+apostrophe, `GFILE`, `ANDTH`, `BY -1 TO`). An error that the tool finds
+is an error of the compiler at its line.
 
-With `A68J_FORMATS=lower` in the environment, `-fgenie` leaves the format
-texts and the mode `FORMAT` to the compiler, as `-fformats` does (the tool
-runs with `--keep-formats`). This is for testing: `tools/formats_tests.py`
-runs every program test and Genie test this way as well.
+Since version 0.9.0, `-fgenie` leaves the format texts and the mode
+`FORMAT` to the compiler, as `-fformats` does (the tool runs with
+`--keep-formats`): an error in a format text is found when the program
+is compiled, with its line and column. With `A68J_FORMATS=rewrite` in the
+environment, the tool rewrites the format texts too, as until version
+0.8.1, and errors in format texts are found when the program runs; this
+fallback is meant to go away. `tools/formats_tests.py` runs every program
+test and Genie test both ways, and all 220 Rosetta Code solutions that
+use formats give the same output and exit status both ways.
 
 With `-fgenie` (and with `-fformats`), a structure, a row of rows or a
 `[] CHAR` is an item of `print` and `printf`, and a name of a structure
@@ -285,8 +294,8 @@ These remain differences to Algol 68 Genie, with or without `-fgenie`:
 `long long` modes without multiple precision, the 32-bit `int` and
 `real` (a `real` variable widened to `long real` keeps the precision of
 its 32 bits), `_` in
-tags (not significant in ga68), no QUOTE stropping, structures as items
-of `print` and `printf`, and the parts of formats that are not supported
+tags (not significant in ga68), no QUOTE stropping, and the parts of
+formats that are not supported
 yet (see "Differences and limits").
 
 The option replaces the pre-processor on the Rosetta Code page about
@@ -625,8 +634,8 @@ each alignment in it.
 ## Tests
 
 `tools/formats_tests.py` runs the tests on every system given: a68j,
-a68j with `-fgenie`, and a68j with `-fgenie` and `A68J_FORMATS=lower`
-(default), Algol 68 Genie (`--a68g`) and ga68 (`--ga68 --libdir`).
+a68j with `-fgenie`, and a68j with `-fgenie` and `A68J_FORMATS=rewrite`
+(by default), Algol 68 Genie (`--a68g`) and ga68 (`--ga68 --libdir`).
 
 - `tests/formats/rewrite/NAME.in`: input of the tool, with
   `NAME.expected` (or `NAME.err` for an error) and optional `NAME.args`
@@ -665,7 +674,9 @@ a68j with `-fgenie`, and a68j with `-fgenie` and `A68J_FORMATS=lower`
   `straighten-1` and `straighten-read-1` have structures and rows of rows
   as items of `print`, `printf`, `read` and `readf`.
 - `tests/options/genie-*.a68` (`tools/options_tests.sh`): the messages of
-  the compiler with `-fgenie`, among them an error found by the tool.
+  the compiler with `-fgenie`, among them an error in a format text,
+  found by the compiler, and one found by the tool
+  (`A68J_FORMATS=rewrite`).
 - `tests/options/formats-*.a68`: `-fformats` in SUPPER and UPPER
   stropping, an error found by the tool (`A68J_FORMATS=rewrite`),
   `-fformats` with `-fgenie`, errors in format texts (syntax, modes, what

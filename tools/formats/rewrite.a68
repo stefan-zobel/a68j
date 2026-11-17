@@ -62,8 +62,8 @@
       when it includes it.
 
   With the option --keep-formats the format texts and the mode FORMAT are
-  left as they are, for a compiler that parses them itself (a68j -fgenie
-  with A68J_FORMATS=lower); the units of a format text still get the other
+  left as they are, for a compiler that parses them itself (a68j -fgenie,
+  unless A68J_FORMATS=rewrite); the units of a format text still get the other
   changes.
 
   The stropping is taken from the options --upper and --supper, else from a

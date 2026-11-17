@@ -62,14 +62,14 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics (up to the ga68 commits listed in `docs/PORTING.md`) |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 55 of 55 |
+| a68j's own differential tests (`tests/extra`) | 56 of 56 |
 | Rosetta Code programs that ga68 runs | 699 identical (642 of them end normally), 6 equal up to floating-point rounding, 11 open, of 716 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 61 of 61, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
-| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 37 of 37, JDK 25 and JDK 28 |
-| Formats: rewrite tool, `Genie_Formats`, `-fgenie`, `-fformats` (`tests/formats`) | 87 of 87 on a68j, with `-fgenie`, and with `-fgenie` and the lowering of format texts; also on ga68 and Algol 68 Genie where they apply (7 deliberate differences from Algol 68 Genie excepted) |
+| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 38 of 38, JDK 25 and JDK 28 |
+| Formats: rewrite tool, `Genie_Formats`, `-fgenie`, `-fformats` (`tests/formats`) | 87 of 87 on a68j, with `-fgenie`, and with `-fgenie` and the rewrite of format texts; also on ga68 and Algol 68 Genie where they apply (7 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
