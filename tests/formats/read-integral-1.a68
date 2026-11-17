@@ -1,0 +1,27 @@
+# Formatted input with integral pictures: d takes a digit, z a digit or a
+  blank, and the frames up to a sign frame a blank, a sign, or a digit
+  (then the sign is +).  A wrong character is a value error, and the
+  digit 0 is taken. #
+BEGIN
+   FILE f; STRING data;
+   # The handler is not a routine text inside open str: ga68 cannot call
+     it once open str has returned (entry 9 of docs/ga68-bug-reports.md). #
+   PROC (REF FILE) BOOL mend = (REF FILE g) BOOL: (print ("[value error]"); TRUE);
+   PROC open str = (STRING t) VOID: (data := t; associate (f, data); on value error (f, mend));
+   INT i;
+   PROC ti = (STRING t, FORMAT fm) VOID:
+      BEGIN open str (t);
+            i := -999;
+            getf (f, (fm, i));
+            STRING rest := "";
+            IF NOT eof (f) THEN getf (f, ($g$, rest)) FI;
+            print (("<", t, "> ", whole (i, 0), " rest <", rest, ">", newline))
+      END;
+   ti ("-012", $+3d$); ti ("+012", $+3d$); ti (" 012", $+3d$); ti ("0123", $+3d$);
+   ti ("-  7x", $-3zd$); ti ("   7x", $-3zd$); ti ("  -7x", $3z-d$); ti ("   7x", $3z-d$);
+   ti ("  12", $4z$); ti (" 1 2", $4z$); ti ("12ab", $4d$); ti ("1x34", $4d$);
+   ti ("12-34", $2d"-"2d$); ti ("12x34", $2d x 2d$); ti ("1234", $2d 2d$);
+   ti ("123456", $3d$);
+   LONG INT li; open str ("123456789012"); getf (f, ($12d$, li)); print ((whole (li, 0), newline));
+   [3] INT r; open str ("1-22-333"); getf (f, ($d, "-"2d, "-"3d$, r)); print ((whole (r[1], 0), " ", whole (r[2], 0), " ", whole (r[3], 0), newline))
+END

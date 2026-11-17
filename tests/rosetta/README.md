@@ -109,17 +109,18 @@ a format for which ga68 reports the errors in a different order).
 |---|---|
 | on Rosetta Code | 1328 |
 | prepared (without missing library files) | 1123 |
-| ga68 does not compile them (Algol 68 Genie extensions, see below) | 419 |
+| ga68 does not compile them (Algol 68 Genie extensions, see below) | 414 |
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
-| ga68 compiles and runs them | 696 |
-| **of these identical to ga68 on the JVM** | **680** |
+| ga68 compiles and runs them | 701 |
+| **of these identical to ga68 on the JVM** | **685** |
 | of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 26 |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 627 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 631 |
 | of these the same up to rounding (`approx`) | 5 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
-Preparation): of the 175, ga68 compiles 82. Among them is
+Preparation): of the 175, ga68 compiles 87 (5 of them since `Genie_Formats`
+provides formatted input). Among them is
 `knapsack-problem-unbounded`, which crashes natively (entry 26 of
 [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
 compared with its result in `fixed`. Three of them are the same only up to
@@ -143,7 +144,13 @@ there). ga68 now compiles `infinity` as well. With `ANDF`, `ORF` and
 `DOWNTO` (also since version 0.8.1), `loops-downward-for-2` compiles too
 and gives the output of Algol 68 Genie up to the width of its `INT`
 fields; the five other solutions that stopped at these words stop at a
-later point now. Most
+later point now. Since `Genie_Formats` provides formatted input (`getf`,
+`readf`), five solutions that stopped at it compile, with `-fgenie` and
+with ga68 alike, and give the same result on the JVM:
+`guess-the-number`, `non-decimal-radices-convert-1`,
+`non-decimal-radices-input`, `search-a-list-1` and `tokenize-a-string`.
+The ten others with formatted input stop at other things (events that
+`Genie_Transput` does not have, structures as items). Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give

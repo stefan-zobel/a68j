@@ -1,0 +1,27 @@
+# Formatted input with the choice patterns c and b: the longest string
+  that the input starts with; the characters read after it are read
+  again. #
+BEGIN
+   FILE f; STRING data;
+   # The handler is not a routine text inside open str: ga68 cannot call
+     it once open str has returned (entry 9 of docs/ga68-bug-reports.md). #
+   PROC (REF FILE) BOOL mend = (REF FILE g) BOOL: (print ("[value error]"); TRUE);
+   PROC open str = (STRING t) VOID: (data := t; associate (f, data); on value error (f, mend));
+   INT i; BOOL b;
+   PROC ti = (STRING t, FORMAT fm) VOID:
+      BEGIN open str (t);
+            i := -999;
+            getf (f, (fm, i));
+            STRING rest := "";
+            IF NOT eof (f) THEN getf (f, ($g$, rest)) FI;
+            print (("<", t, "> ", whole (i, 0), " rest <", rest, ">", newline))
+      END;
+   ti ("cd.", $c("a","b","cd")$); ti ("ab.", $c("a","ab","abc")$); ti ("abx.", $c("a","ab","abc")$);
+   ti ("abc.", $c("ab","abc")$); ti ("ba.", $c("ab","b","a")$);
+   ti ("March 3", $c("January","February","March")$);
+   open str ("zz."); getf (f, ($c("a","b")$, i)); STRING rest; getf (f, ($g$, rest)); print (("rest <", rest, ">", newline));
+   open str ("T"); getf (f, ($b$, b)); print ((b, newline));
+   open str ("no"); getf (f, ($b("yes","no")$, b)); print ((b, newline));
+   open str ("yesno"); BOOL b2; getf (f, ($b("yes","no")$, b, b2)); print ((b, b2, newline));
+   open str ("dogs 12"); INT k; getf (f, ($c("cats","dogs"), x 2d$, i, k)); print ((whole (i, 0), " ", whole (k, 0), newline))
+END

@@ -1,0 +1,26 @@
+# Formatted input with real pictures: the point and the exponent frame
+  take "." and "e", a suppressed point or e reads nothing. #
+BEGIN
+   FILE f; STRING data;
+   # The handler is not a routine text inside open str: ga68 cannot call
+     it once open str has returned (entry 9 of docs/ga68-bug-reports.md). #
+   PROC (REF FILE) BOOL mend = (REF FILE g) BOOL: (print ("[value error]"); TRUE);
+   PROC open str = (STRING t) VOID: (data := t; associate (f, data); on value error (f, mend));
+   REAL x;
+   PROC tr = (STRING t, FORMAT fm) VOID:
+      BEGIN open str (t);
+            x := -999;
+            getf (f, (fm, x));
+            STRING rest := "";
+            IF NOT eof (f) THEN getf (f, ($g$, rest)) FI;
+            print (("<", t, "> ", fixed (x, 0, 4), " rest <", rest, ">", newline))
+      END;
+   tr ("3.14x", $d.2d$); tr ("3,14x", $d.2d$); tr ("+3.14x", $+d.2d$); tr ("-3.14x", $-d.2d$);
+   tr ("314x", $d s. 2d$); tr (".25x", $.2d$); tr ("2.5e3x", $d.de d$);
+   tr ("1.5e+02x", $d.de+2d$); tr ("1.5E-02x", $d.de+2d$); tr ("1.5x+02x", $d.de+2d$);
+   tr ("2.5 3x", $d.d se d$); tr ("+2.5e-3x", $+d.de-d$); tr ("-2.5e 3x", $-d.de-d$);
+   tr ("12.5x", $2z.d$); tr (" 2.5x", $2z.d$); tr ("  .5x", $2z.d$);
+   tr ("  -1.5x", $3z-.d$); tr ("12.50e1x", $2d.2de d$);
+   LONG REAL lx; open str ("3.14159265358"); getf (f, ($d.11d$, lx)); print ((fixed (lx, 0, 11), newline));
+   [2] REAL r; open str ("1.5 2.5 "); getf (f, ($d.d, x$, r)); print ((fixed (r[1], 0, 1), " ", fixed (r[2], 0, 1), newline))
+END

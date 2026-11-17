@@ -1,0 +1,15 @@
+# Formatted input with a frames: each frame takes one character, a
+  newline too; a suppressed frame gives a blank and reads nothing. #
+BEGIN
+   STRING s, t; CHAR c;
+   readf (($5a$, s)); print (("<", s, ">", newline));
+   readf (($a$, c)); print (("<", c, ">", newline));
+   readf (($3a$, s)); print (("<", s, ">", newline));
+   readf (($a sa a$, s)); print (("<", s, ">", newline));
+   readf (($2a"x"2a$, s)); print (("<", s, ">", newline));
+   readf (($l 2a, 2a$, s, t)); print (("<", s, "><", t, ">", newline));
+   INT n = 4;
+   readf (($l n(n)a$, s)); print (("<", s, ">", newline));
+   readf (($l a, a l$, c, s)); print (("<", c, "><", s, ">", newline));
+   readf (($g$, s)); print (("<", s, ">", newline))
+END

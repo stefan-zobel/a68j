@@ -485,7 +485,7 @@ greatest-element-of-a-list	Greatest-element-of-a-list	exit 0	pass
 greatest-prime-dividing-the-n-th-cubefree-number	Greatest-prime-dividing-the-n-th-cubefree-number	exit 0	pass	
 greatest-subsequential-sum	Greatest-subsequential-sum	exit 0	pass	
 greedy-algorithm-for-egyptian-fractions	Greedy-algorithm-for-Egyptian-fractions	compile error: error: dyadic operator long long int = int has not been declared	-	
-guess-the-number	Guess-the-number	compile error: error: tag 'readf' has not been declared properly	-	
+guess-the-number	Guess-the-number	exit 1	pass	
 guess-the-number-with-feedback	Guess-the-number-With-feedback	exit 1	pass	
 guess-the-number-with-feedback-player-	Guess-the-number-With-feedback-player-	exit 1	pass	
 http	HTTP	compile error: error: tag 'grepinstring' has not been declared properly	-	
@@ -768,9 +768,9 @@ nim-game	Nim-game	exit 1	pass
 nimber-arithmetic	Nimber-arithmetic	missing include bits.incl.a68	-	
 non-continuous-subsequences-1	Non-continuous-subsequences	exit 0	pass	
 non-continuous-subsequences-2	Non-continuous-subsequences	exit 0	pass	
-non-decimal-radices-convert-1	Non-decimal-radices-Convert	compile error: error: tag 'getf' has not been declared properly	-	
+non-decimal-radices-convert-1	Non-decimal-radices-Convert	exit 0	pass	
 non-decimal-radices-convert-2	Non-decimal-radices-Convert	exit 0	pass	
-non-decimal-radices-input	Non-decimal-radices-Input	compile error: error: tag 'getf' has not been declared properly	-	
+non-decimal-radices-input	Non-decimal-radices-Input	exit 0	pass	
 non-decimal-radices-output	Non-decimal-radices-Output	exit 0	pass	
 non-transitive-dice	Non-transitive-dice	exit 0	pass	
 nth	Nth	exit 0	pass	
@@ -1016,7 +1016,7 @@ safe-primes-and-unsafe-primes	Safe-primes-and-unsafe-primes	exit 0	pass
 sailors-coconuts-and-a-monkey-problem	Sailors-coconuts-and-a-monkey-problem	exit 0	pass	
 sattolo-cycle	Sattolo-cycle	compile error: error: no lowering routine installed for construct.  jemarch has been lazy	-	
 scope-function-names-and-labels	Scope-Function-names-and-labels	compile error: error: possibly a missing or erroneous symbol nearby	-	
-search-a-list-1	Search-a-list	compile error: error: tag 'getf' has not been declared properly	-	
+search-a-list-1	Search-a-list	exit 0	pass	
 search-a-list-2	Search-a-list	exit 0	pass	
 search-a-list-of-records	Search-a-list-of-records	exit 0	pass	
 selective-file-copy	Selective-file-copy	compile error: error: tag 'getf' has not been declared properly	-	
@@ -1228,7 +1228,7 @@ the-sieve-of-sundaram	The-sieve-of-Sundaram	exit 0	pass
 thieles-interpolation-formula	Thieles-interpolation-formula	compile error: internal compiler error: in fold_convert_loc, at fold-const.cc:2624	-	
 three-word-location	Three-word-location	compile error: error: dyadic operator long int * int has not been declared	-	
 thue-morse	Thue-Morse	exit 0	pass	
-tokenize-a-string	Tokenize-a-string	compile error: error: tag 'getf' has not been declared properly	-	
+tokenize-a-string	Tokenize-a-string	exit 0	pass	
 tokenize-a-string-with-escaping	Tokenize-a-string-with-escaping	exit 0	pass	
 top-rank-per-group	Top-rank-per-group	exit 0	pass	
 total-circles-area	Total-circles-area	exit 0	fixed: docs/ga68-bug-reports.md, entries 4 and 5 (digits of fixed and float): a68j converts a REAL exactly as a LONG REAL	

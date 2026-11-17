@@ -1,0 +1,5 @@
+# A value error without a handler ends the program. #
+BEGIN
+   FILE f; STRING data := "1x3"; associate (f, data);
+   INT i; getf (f, ($3d$, i)); print ((i, newline))
+END

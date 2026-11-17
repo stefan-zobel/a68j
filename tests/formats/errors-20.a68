@@ -1,0 +1,5 @@
+# y is not possible in formatted input. #
+BEGIN
+   FILE f; STRING data := "abc"; associate (f, data);
+   CHAR c, d; getf (f, ($a y a$, c, d)); print ((c, d, newline))
+END

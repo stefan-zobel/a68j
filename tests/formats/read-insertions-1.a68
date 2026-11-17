@@ -1,0 +1,16 @@
+# Insertions and alignments in formatted input: a string is skipped (its
+  characters are not compared), x and q skip a character, l the rest of
+  the line; insertions after the last value are read at the end. #
+BEGIN
+   INT i, j; STRING s; CHAR c;
+   readf (($"label:" 2d$, i)); print ((whole (i, 0), newline));
+   readf (($l 3x 2d, 2q 2d$, i, j)); print ((whole (i, 0), " ", whole (j, 0), newline));
+   readf (($l g "xx"$, i)); print ((whole (i, 0), newline));
+   readf (($l a$, c)); print (("<", c, ">", newline));
+   readf (($l$)); readf (($a$, c)); print (("<", c, ">", newline));
+   readf (($l 2(a x)$, c, c)); print (("<", c, ">", newline));
+   readf (($l 3l a$, c)); print (("<", c, ">", newline));
+   readf (($a l$, c)); readf (($a$, c)); print (("<", c, ">", newline));
+   readf (($n(2)x a$, c)); print (("<", c, ">", newline));
+   readf (($l g$, s)); print (("<", s, ">", newline))
+END

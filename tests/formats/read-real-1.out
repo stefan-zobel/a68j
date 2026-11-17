@@ -1,0 +1,20 @@
+<3.14x> 3.1400 rest <x>
+[value error]<3,14x> 3.1400 rest <x>
+<+3.14x> 3.1400 rest <x>
+<-3.14x> -3.1400 rest <x>
+<314x> 3.1400 rest <x>
+<.25x> .2500 rest <x>
+<2.5e3x> 2500.0000 rest <x>
+<1.5e+02x> 150.0000 rest <x>
+[value error]<1.5E-02x> .0150 rest <x>
+[value error]<1.5x+02x> 150.0000 rest <x>
+[value error]<2.5 3x> 2.5000 rest <3x>
+<+2.5e-3x> .0025 rest <x>
+<-2.5e 3x> -2500.0000 rest <x>
+<12.5x> 12.5000 rest <x>
+< 2.5x> 2.5000 rest <x>
+<  .5x> .5000 rest <x>
+<  -1.5x> -1.5000 rest <x>
+<12.50e1x> 125.0000 rest <x>
+3.14159265358
+1.5 2.5

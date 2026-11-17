@@ -1,14 +1,15 @@
 # Formats: the rewrite tool and the bundled module `Genie_Formats`
 
 ga68, and a68j with it, does not compile format texts (`$ ... $`) and has
-no mode `format`. Formatted output in the style of Algol 68 Genie
-(`printf`, `putf`) is made of two parts, both written in plain Algol 68:
+no mode `format`. Formatted transput in the style of Algol 68 Genie
+(`printf`, `putf`, `readf`, `getf`) is made of two parts, both written in
+plain Algol 68:
 
 - **The rewrite tool** (`tools/formats/`) turns the format texts of a
   program into calls of the module `Genie_Formats`. It runs on a68j, ga68
   and Algol 68 Genie.
 - **The module `Genie_Formats`** (`backend/lib/genieformats.a68`) parses
-  the format text at run time and edits the values. It is bundled with
+  the format text at run time and edits or reads the values. It is bundled with
   a68j, and it compiles with ga68 as an ordinary module. It accesses
   `Genie_Transput` ([genie-transput.md](genie-transput.md)).
 
@@ -17,11 +18,12 @@ program: with the option `-fformats` for a program written for a68j, and
 with the option `-fgenie` for a program written for Algol 68 Genie (see
 the sections on the two options below).
 
-This is stages 1 and 2 of the roadmap in [TODO-formats.md](TODO-formats.md):
+This is stages 1 to 3 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
 pattern `g`, the format pattern `f` (stage 1), pictures, the choice
-patterns `b` and `c`, radix pictures and the alignment `k` (stage 2).
-Formatted input follows in stage 3.
+patterns `b` and `c`, radix pictures and the alignment `k` (stage 2), and
+formatted input with all of them, and the complex pattern `i` in output and
+input (stage 3). Only the pattern `h` is missing.
 
 ## Example
 
@@ -274,6 +276,8 @@ starts afresh, and turns an error into a result instead of an exit.
 | `gfmt (text)`, `gfmtd (text, ints, formats)` | a format from the text of a format text, and the procedures of its dynamic parts |
 | `Gfout` | the values `putf` accepts: those of `Outitem` of `Genie_Transput`, and formats |
 | `putf (f, items)`, `printf (items)`, `writef (items)` | formatted output to `f`, or to `stand_out` |
+| `Gfin` | the names `getf` accepts: those of `Initem` of `Genie_Transput`, names of `compl`, `long compl`, `bits` and `long bits`, rows of `int`, `real` and `string`, and formats |
+| `getf (f, items)`, `readf (items)` | formatted input from `f`, or from `stand_in` |
 | `Gfile`, `Gchannel` | `File` and `Channel` of `Genie_Transput`, under names that UPPER stropping can use |
 
 The format items:
@@ -287,8 +291,8 @@ The format items:
   `whole (x, w)`, `g(w, d)` as `fixed (x, w, d)`, `g(w, d, e)` as
   `float (x, w, d, e)`; the forms with parameters take numbers only;
 - the format pattern `f(...)`: the format it yields is used in place;
-- pictures, the choice patterns `b` and `c`, and radix pictures (see
-  below).
+- pictures, the complex pattern `i`, the choice patterns `b` and `c`, and
+  radix pictures (see below).
 
 The semantics follow Algol 68 Genie, checked against it:
 
@@ -324,6 +328,7 @@ pattern (`g 3d`, `3d b`), and `3(d)` is a collection of three pictures.
 | real | as integral, then `.` and `d`, `z`; `e` and an integral part for the exponent | the integers and `real`, `long real` |
 | radix | `2r` to `16r`, then `d`, `z` | `bits`, `long bits` |
 | string | `a` | `char` for one frame, a `string` of exactly as many characters |
+| complex | a real picture, `i`, a real picture | `compl`, `long compl`, and the integers and reals (with the imaginary part 0) |
 
 Any frame may have a replicator (`3d`, `n(k)d`) and `s` before it, which
 suppresses the frame: it takes its digit or character but writes nothing
@@ -381,23 +386,96 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
 10. `Genie_Transput` counts the characters of each line that it writes
 (`col` of a `File`).
 
+**Complex numbers.** A complex picture is a real picture, the frame `i`
+and a real picture: `$-d.2di-d.2d$` writes `1.5 I -2.25` as ` 1.50i-2.25`.
+`si` suppresses the `i`. With any other pattern a complex value is two
+values, its parts, each edited by its own pattern; a `[] compl` gives its
+elements. The frame `i` must follow a real picture
+(`error in format text d i d at "i"`; Algol 68 Genie rejects such a format
+text when it parses the program).
+
+## Formatted input
+
+`getf (f, items)` and `readf (items)` read with the same formats. The
+rules follow the source of Algol 68 Genie 3.13.4 (`transput-formatted.c`)
+and are checked against it by the tests `read-*`, `complex-2` and
+`errors-15` to `errors-21` in `tests/formats`.
+
+- Each name takes the next pattern; the insertions before it are read.
+  The insertions after the last value are read at the end of `getf`
+  (`$gl$` reads a value and the rest of its line). A format restarts, and
+  patterns that are left are an error, as in output. Rows are read element
+  by element.
+- **`g`** reads as `get` does; its parameters are elaborated and ignored.
+  A string ends at the end of the line (or at a character of
+  `make_term`).
+- **Pictures read one character for each frame.**
+  - In a number, the frames of a part up to its sign frame (its sign mould)
+    take a blank, `+`, `-`, or a digit, which then counts as the sign `+`;
+    after the sign they take digits. `z` takes a digit or a blank (as 0),
+    `d` a digit, the point frame `.` and the exponent frame `e` (not `E`).
+    The characters are collected and converted as `get` converts them:
+    `$-zzd$` reads `-  7` as -7, `$zz-d$` reads `  -7` as -7,
+    `$2d"-"2d$` reads `12-34` as 1234.
+  - A radix picture takes the digits of the radix; `16r` takes `a` to `f`
+    in either case. A digit that is not one of the radix ends the program
+    with `error in BITS denotation`, as in Algol 68 Genie. The radix may
+    be dynamic (`n(base)r2d`).
+  - `a` takes any character, a newline too: `$3a$` reads `ab`, a newline
+    and `c` as one string.
+  - A complex picture reads a real, the frame `i` (`i` or `I`), and a
+    real. Without it, a complex name takes two patterns, one for each
+    part.
+- **Choices.** `c(...)` reads the longest of its strings that the input
+  starts with and gives its number; the characters read after it are read
+  again (`$c("a","ab","abc")$` reads `abx` as 2, and `x` is read next). If
+  no string fits, a value error, and the name keeps its value (in Algol 68
+  Genie it becomes uninitialized). `b("yes",
+  "no")` reads one of its strings; `b` alone reads `T` or `F`.
+- **Insertions are skipped, not compared**, as in Algol 68 Genie: a string
+  skips as many characters as it has. `x` and `q` skip one character, `l`
+  the rest of the line with the newline, `p` the rest of the page, and `k`
+  moves to a position of the line (see below).
+- **Events.**
+  - A wrong character is the value error event of the file, and the digit
+    0 is taken: `$4d$` reads `1x34` as 1034. Without a handler that
+    returns true the program ends with `error transputting INT value`.
+  - The end of the file inside a pattern is the logical file end event
+    (`end of file reached` without a handler); so is a value error when
+    the last character read was the end of the file. The handler may jump
+    out of `getf`, as in chapter 9 of the book.
+- A name of a mode that the pattern does not take ends the program with
+  `cannot transput REAL value with integral-pattern` and the like (Algol
+  68 Genie names the pattern differently, such as `int-symbol`).
+
+`Genie_Transput` provides the procedures `gt_start_get`, `gt_peek_char`,
+`gt_next_char`, `gt_unread`, `gt_at_end`, `gt_file_end` and
+`gt_value_error` for this: `Genie_Formats` reads one character at a time,
+gives back characters after a choice, and calls the event handlers of the
+file.
+
 ## Differences and limits
 
-- The layout procedures (`newline` ...) may be items of `putf`; they are
-  called and use no pattern. Algol 68 Genie does not allow them.
+- The layout procedures (`newline` ...) may be items of `putf` and
+  `getf`; they are called and use no pattern. Algol 68 Genie does not
+  allow them.
 - Errors in a format text are found when the format text is elaborated,
   not when the program is compiled.
 - Plain `g` writes numbers with the widths of `print`, which depend on
   the 32-bit `int` and `real` of ga68 and a68j.
-- Not supported yet: the complex pattern `i`, the pattern `h`, and
-  formatted input (`getf`, `readf`). A format text that uses `i` or `h`
-  passes the tool and ends the program with
-  `format item ... is not supported yet`.
-- A complex value (`compl`, `long compl`, `long long compl`) is two
-  values, its parts, each edited by its own pattern, as in Algol 68 Genie
-  without `i` (since version 0.8.1). `long long real` and `long long bits`
-  are items as well; a picture edits a `long long real` with the
-  precision of a `long real`.
+- Not supported yet: the pattern `h`. A format text that uses it passes
+  the tool and ends the program with `format item h is not supported yet`.
+- A complex value (`compl`, `long compl`, `long long compl`) with a
+  pattern that is not complex is two values, its parts, each edited by its
+  own pattern, as in Algol 68 Genie (since version 0.8.1). `long long
+  real` and `long long bits` are items as well; a picture edits a `long
+  long real` with the precision of a `long real`.
+- `getf` takes names of the modes of `Gfin` only: no `long long real`, no
+  `long long compl`, no `long long bits`, and no structures (as in
+  output). `g` does not read `bits`; a radix picture does.
+- `y` in formatted input ends the program with
+  `format item y is not possible in formatted input`; Algol 68 Genie ends
+  it with `error transputting CHAR value` (`errors-20`).
 - **Where Algol 68 Genie is defective, `Genie_Formats` differs from
   it.** The tests with a file `NAME.fixed` record this:
   - `-zz.dd` writes -0.5 as `  -.50`; Algol 68 Genie drops the sign and a
@@ -409,7 +487,17 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
     says `VOID value out of bounds` (`fixed-3`);
   - `k` counts the position from the start of the line; Algol 68 Genie
     counts it from where `printf` starts, as if `print` had written
-    nothing before on the line (`fixed-4`, `align-1`).
+    nothing before on the line (`fixed-4`, `align-1`);
+  - in input, `nk` reads up to the position `n` of the line, as in output,
+    never back and never beyond the newline; Algol 68 Genie skips `n - 1`
+    characters, fewer if the pattern has read some already
+    (`read-fixed-1`);
+  - in input, a suppressed digit frame (`sd`, `sz`) reads nothing and
+    gives the digit 0; Algol 68 Genie reads a character for it and adds a
+    0 before it, so that `$d sd d$` reads `123` as 1023 (`read-fixed-1`);
+  - Algol 68 Genie does not read a `long bits` with a radix picture (the
+    name stays uninitialized); `Genie_Formats` does
+    (`tests/extra/genie-formats-read-1`).
 - Radix pictures take the radixes 2 to 16, as Algol 68 Genie does; the
   Revised Report has 2, 4, 8 and 16.
 - **ga68: procedures that yield a format with dynamic parts.** The
@@ -426,6 +514,12 @@ counted from 1, and never moves back: `$"ab"10k"x"$` writes `x` in column
   [ga68-bug-reports.md](ga68-bug-reports.md)). For this reason a format
   holds one procedure per kind of dynamic part, which selects the unit by
   its index, and not a row of procedures.
+- **ga68: event handlers inside procedures.** A handler that is a routine
+  text inside a procedure, such as `on_value_error (f, (ref File g) bool:
+  ...)` in a procedure that opens a file, crashes the program when the
+  event comes after that procedure has returned (entry 9 of
+  [ga68-bug-reports.md](ga68-bug-reports.md)). Declare the handler
+  outside the procedure. a68j and Algol 68 Genie are not affected.
 - Structures are not items: Algol 68 Genie prints the fields of a
   structure, but the union `Gfout` cannot cover the structures of a
   program (`print` of `Genie_Transput` has the same limit). Neither can
@@ -485,7 +579,11 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   file `NAME.fixed` marks a deliberate difference to Algol 68 Genie (see
   "Differences and limits"): `NAME.out` or `NAME.err` is written by hand,
   and the test does not run on Algol 68 Genie, whose version of the
-  module cannot do `k`.
+  module cannot do `k`. In that version the procedures `gt_...` of
+  `Genie_Transput` are made of the transput of Algol 68 Genie; it cannot
+  call the value error handler of a file, so a test that needs it has a
+  file `NAME.native`: its output is recorded with Algol 68 Genie, but the
+  module version does not run it.
 - `tests/formats/genie/NAME.a68`: programs for what `-fgenie` does
   besides formats (`PR read` on the first line, in the middle and nested,
   `FILE`, other pragmats), run as they are with `-fgenie` and with Algol

@@ -1,0 +1,26 @@
+# The logical file end event in formatted input, as in the book: the
+  handler jumps out of getf. #
+BEGIN
+   BEGIN
+      FILE f; STRING data := "1 2 3";
+      associate (f, data);
+      on logical file end (f, (REF FILE g) BOOL: (print (("end", newline)); GOTO done));
+      DO INT i; getf (f, ($g$, i)); print ((whole (i, 0), newline)) OD;
+   done: print (("done", newline))
+   END;
+   BEGIN
+      FILE f; STRING data := "1234567";
+      associate (f, data);
+      on logical file end (f, (REF FILE g) BOOL: (print (("end", newline)); GOTO done));
+      DO INT i; getf (f, ($3d$, i)); print ((whole (i, 0), newline)) OD;
+   done: print (("done", newline))
+   END;
+   BEGIN
+      FILE f; STRING data := "abc";
+      associate (f, data);
+      on logical file end (f, (REF FILE g) BOOL: (print (("end", newline)); TRUE));
+      INT i := 5;
+      CHAR c; getf (f, ($a"xx"$, c)); print ((c, newline));
+      getf (f, ($g$, i)); print ((whole (i, 0), newline))
+   END
+END

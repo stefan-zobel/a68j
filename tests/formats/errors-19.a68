@@ -1,0 +1,5 @@
+# A digit that is not one of the radix. #
+BEGIN
+   FILE f; STRING data := "12"; associate (f, data);
+   BITS b; getf (f, ($2r2d$, b)); print ((b, newline))
+END

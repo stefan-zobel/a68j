@@ -1,0 +1,18 @@
+<-012> -12 rest <>
+<+012> 12 rest <>
+< 012> 12 rest <>
+<0123> 123 rest <>
+[value error]<-  7x> -70 rest <>
+[value error]<   7x> 70 rest <>
+[value error]<  -7x> -70 rest <>
+[value error]<   7x> 70 rest <>
+<  12> 12 rest <>
+< 1 2> 102 rest <>
+[value error][value error]<12ab> 1200 rest <>
+[value error]<1x34> 1034 rest <>
+<12-34> 1234 rest <>
+<12x34> 1234 rest <>
+<1234> 1234 rest <>
+<123456> 123 rest <456>
+123456789012
+1 22 333

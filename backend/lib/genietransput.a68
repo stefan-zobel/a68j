@@ -66,6 +66,10 @@
       eof, eoln, make_term     enquiries and the string terminator
       on_logical_file_end, on_value_error
                                event handlers
+      gt_start_get, gt_peek_char, gt_next_char, gt_unread, gt_at_end,
+      gt_file_end, gt_value_error
+                               reading one character at a time, for the
+                               formatted input of the module Genie_Formats
       char_in_string, last_char_in_string, string_in_string
                                string searching (RR 10.3.2.4, Algol 68 Genie)
       is_upper, is_lower, is_alpha, is_digit, is_alnum, is_space,
@@ -132,13 +136,16 @@ def
       nul_read
               true once a char has been read at the end of the file (the
               first such read gives REPR 0, the next ones cause the event,
-              as in Algol 68 Genie). }
+              as in Algol 68 Genie);
+      back    characters given back by gt_unread, read before the rest of
+              the file. }
 
     pub mode File = struct (int fd, int line, int col, int peek, int state,
                             int mood, string name, Channel chan,
                             proc (ref File) bool logical_file_end, value_error,
                             string term, bool new_file,
-                            ref string text, int pos, bool at_end, nul_read);
+                            ref string text, int pos, bool at_end, nul_read,
+                            string back);
 
     int no_file = 0, named = 1, opened = 2, standard = 3, associated = 4;
     int no_mood = 0, get_mood = 1, put_mood = 2;
@@ -149,13 +156,13 @@ def
 
     pub ref File stand_in = heap File := (stdin, 0, 0, no_peek, standard,
                      get_mood, "stand in", stand_in_channel, no_handler,
-                     no_handler, "", false, nil, 1, false, false),
+                     no_handler, "", false, nil, 1, false, false, ""),
                  stand_out = heap File := (stdout, 0, 0, no_peek, standard,
                      put_mood, "stand out", stand_out_channel, no_handler,
-                     no_handler, "", false, nil, 1, false, false),
+                     no_handler, "", false, nil, 1, false, false, ""),
                  stand_error = heap File := (stderr, 0, 0, no_peek, standard,
                      put_mood, "stand error", stand_out_channel, no_handler,
-                     no_handler, "", false, nil, 1, false, false);
+                     no_handler, "", false, nil, 1, false, false, "");
 
     { A transput error ends the program, as in Algol 68 Genie. }
     proc transput_error = (string message) void:
@@ -206,7 +213,7 @@ def
     pub proc open = (ref File f, string name, Channel ch) int:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
-                   no_handler, no_handler, "", false, nil, 1, false, false);
+                   no_handler, no_handler, "", false, nil, 1, false, false, "");
              open_status (name)
        end;
 
@@ -215,7 +222,7 @@ def
     pub proc establish = (ref File f, string name, Channel ch) int:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, named, no_mood, name, ch,
-                   no_handler, no_handler, "", true, nil, 1, false, false);
+                   no_handler, no_handler, "", true, nil, 1, false, false, "");
              0
        end;
 
@@ -228,7 +235,7 @@ def
     pub proc associate = (ref File f, ref string s) void:
        begin close_fd (f);
              f := (-1, 0, 0, no_peek, associated, no_mood, "", stand_back_channel,
-                   no_handler, no_handler, "", false, s, 1, false, false)
+                   no_handler, no_handler, "", false, s, 1, false, false, "")
        end;
 
     pub proc close = (ref File f) void:
@@ -238,7 +245,8 @@ def
             state of f := no_file;
             mood of f := no_mood;
             peek of f := no_peek;
-            text of f := nil
+            text of f := nil;
+            back of f := ""
        fi;
 
     { reset: the file is closed and opened again by the next get or put,
@@ -255,7 +263,8 @@ def
             col of f := 0;
             pos of f := 1;
             at_end of f := false;
-            nul_read of f := false
+            nul_read of f := false;
+            back of f := ""
        fi;
 
     { F is opened for reading if it is not open yet. }
@@ -343,6 +352,9 @@ def
     proc peek_char = (ref File f) int:
        begin if peek of f /= no_peek
              then skip
+             elif UPB back of f >= 1
+             then peek of f := ABS (back of f)[1];
+                  back of f := (back of f)[2 :]
              elif state of f /= associated
              then peek of f := ABS fgetc (fd of f)
              elif pos of f > UPB text of f - LWB text of f + 1
@@ -397,6 +409,38 @@ def
        if NOT (value_error of f) (f)
        then transput_error ("error transputting " + mode_name + " value")
        fi;
+
+    { Reading one character at a time, for the formatted input of the
+      module Genie_Formats. }
+
+    { F is opened for reading if it is not open yet. }
+    pub proc gt_start_get = (ref File f) void: ensure_get (f);
+
+    { The code of the next character of F, or -1 at the end of the file;
+      gt_peek_char leaves the character to be read, gt_next_char consumes
+      it. }
+    pub proc gt_peek_char = (ref File f) int: peek_char (f);
+    pub proc gt_next_char = (ref File f) int: next_char (f);
+
+    { The characters of S are read again, before the rest of F.  S must
+      not contain a newline. }
+    pub proc gt_unread = (ref File f, string s) void:
+       begin string t := s;
+             if peek of f >= 0 then t +:= REPR peek of f fi;
+             back of f := t + back of f;
+             peek of f := no_peek;
+             col of f := (col of f > UPB s | col of f - UPB s | 0)
+       end;
+
+    { Whether the last character that was read or looked at in F is the
+      end of the file. }
+    pub proc gt_at_end = (ref File f) bool: peek of f = end_of_file;
+
+    { The events: the handler of F is called, and without a handler that
+      returns true the program ends with an error. }
+    pub proc gt_file_end = (ref File f) void: file_end_event (f);
+    pub proc gt_value_error = (ref File f, string mode_name) void:
+       value_error_event (f, mode_name);
 
     { The rest of the line is skipped, including the newline.  The end of
       the file is an event only if the line is not empty. }

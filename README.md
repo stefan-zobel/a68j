@@ -62,14 +62,14 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics (up to the ga68 commits listed in `docs/PORTING.md`) |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 54 of 54 |
-| Rosetta Code programs that ga68 runs | 680 identical (627 of them end normally), 5 equal up to floating-point rounding, 11 open, of 696 |
+| a68j's own differential tests (`tests/extra`) | 55 of 55 |
+| Rosetta Code programs that ga68 runs | 685 identical (631 of them end normally), 5 equal up to floating-point rounding, 11 open, of 701 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
 | Command-line options and compiler messages (`tests/options`, `tests/scope`) | 23 of 23, JDK 25 and JDK 28 |
-| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 62 of 62 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (4 deliberate differences from Algol 68 Genie excepted) |
+| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 81 of 81 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (7 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
@@ -78,10 +78,10 @@ prelude (`puts`, `putchar`, `fputs` ...). The bundled Algol 68 module
 `associate` and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
 ga68 alike
 ([docs/genie-transput.md](docs/genie-transput.md)). Format texts
-(`$...$`, `printf`) are turned by a rewrite tool, written in Algol 68,
-into calls of the bundled module `Genie_Formats`, again for a68j and ga68
-alike; with insertions, replicators, `g`, `f`, pictures, choices, radix
-and `k`, so far without formatted input
+(`$...$`, `printf`, `readf`) are turned by a rewrite tool, written in
+Algol 68, into calls of the bundled module `Genie_Formats`, again for a68j
+and ga68 alike; with insertions, replicators, `g`, `f`, pictures, choices,
+radix, `k` and the complex pattern `i`, for output and input
 ([docs/genie-formats.md](docs/genie-formats.md)).
 The option `-fformats` runs the tool inside the compiler, and `-fgenie`
 does all this, so that a program written for Algol 68 Genie runs as it

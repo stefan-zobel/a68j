@@ -1,0 +1,17 @@
+# Formats in formatted input: formats as items, a format that ends and
+  starts again, collections, dynamic replicators and f. #
+BEGIN
+   FORMAT two = $2d$, three = $3d$;
+   INT i, j, k;
+   readf ((two, i, three, j)); print ((whole (i, 0), " ", whole (j, 0), newline));
+   readf (($l$)); readf (($2d x$, i, j, k)); print ((whole (i, 0), " ", whole (j, 0), " ", whole (k, 0), newline));
+   readf (($l 3(d)$, i, j, k)); print ((whole (i, 0), " ", whole (j, 0), " ", whole (k, 0), newline));
+   INT w := 2;
+   readf (($l n(w)(d), x n(w + 1)(d)$, i, j, k, w, w)); print ((whole (i, 0), " ", whole (j, 0), " ", whole (k, 0), newline));
+   readf (($l f(three), x f(two)$, i, j)); print ((whole (i, 0), " ", whole (j, 0), newline));
+   [4] INT r; readf (($l$)); readf (($2d, x$, r)); FOR m TO 4 DO print ((whole (r[m], 0), " ")) OD; print (newline);
+   STRING name; INT year, month, day;
+   FORMAT record = $l 4a, x 4d, "-" 2d, "-" 2d$;
+   readf ((record, name, year, month, day));
+   print ((name, " ", whole (day, 0), ".", whole (month, 0), ".", whole (year, 0), newline))
+END

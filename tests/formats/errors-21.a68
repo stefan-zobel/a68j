@@ -1,0 +1,4 @@
+# The frame i needs a real picture before and after it. #
+BEGIN
+   printf (($d i d$, 1 I 2))
+END

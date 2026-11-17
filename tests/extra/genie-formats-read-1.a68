@@ -1,0 +1,85 @@
+{ dg-modules "genietransput genieformats" }
+{ Formatted input and the complex pattern i of the bundled module
+  Genie_Formats (backend/lib/genieformats.a68), called directly with
+  gfmt and gfmtd, as the rewrite tool writes them: getf from strings,
+  every kind of pattern, the events, formats as items, rows, and a
+  complex picture in output.  stand in is empty under the test
+  runners. }
+access Genie_Transput, Genie_Formats (
+    File f;
+    string data;
+    proc mend = (ref File g) bool: (print ("[value error]"); true);
+    proc open_str = (string t) void: (data := t; associate (f, data); on_value_error (f, mend));
+    proc rest = string: (string r := ""; (NOT eof (f) | getf (f, (gfmt ("g"), r))); r);
+
+    { The general pattern, with parameters that are elaborated and
+      ignored. }
+    int i, j; real x; string s; char c; bool b;
+    open_str ("  42 1.5T word");
+    getf (f, (gfmt ("g, g(9, 2), g, g"), i, x, b, s));
+    print ((whole (i, 0), " ", fixed (x, 0, 2), " <", s, "> ", b, newline));
+
+    { Integral pictures: sign moulds, z and d, insertions, value errors. }
+    open_str ("-012");  getf (f, (gfmt ("+3d"), i)); print ((whole (i, 0), newline));
+    open_str ("  -7x"); getf (f, (gfmt ("3z-d"), i)); print ((whole (i, 0), " <", rest, ">", newline));
+    open_str ("1x34");  getf (f, (gfmt ("4d"), i)); print ((whole (i, 0), newline));
+    open_str ("12-34"); getf (f, (gfmt ("2d""-""2d"), i)); print ((whole (i, 0), newline));
+    long int li;
+    open_str ("123456789012"); getf (f, (gfmt ("12d"), li)); print ((whole (li, 0), newline));
+
+    { Real pictures. }
+    open_str ("-3.14"); getf (f, (gfmt ("-d.2d"), x)); print ((fixed (x, 0, 2), newline));
+    open_str ("2.5e-3"); getf (f, (gfmt ("d.de-d"), x)); print ((fixed (x, 0, 4), newline));
+    open_str ("314");   getf (f, (gfmt ("d s. 2d"), x)); print ((fixed (x, 0, 2), newline));
+    long real lx;
+    open_str ("3.14159265358"); getf (f, (gfmt ("d.11d"), lx)); print ((fixed (lx, 0, 11), newline));
+
+    { Radix pictures, with a dynamic radix. }
+    bits bb; long bits lb;
+    open_str ("1f");    getf (f, (gfmt ("16r2d"), bb)); print ((whole (ABS bb, 0), newline));
+    int base := 8;
+    open_str ("777");   getf (f, (gfmtd ("n(@1)r3d", (int k) int: case k in base esac, skip), bb));
+    print ((whole (ABS bb, 0), newline));
+    open_str ("ffffffffff"); getf (f, (gfmt ("16r10d"), lb)); print ((lb = long 16rffffffffff, newline));
+
+    { a frames, a newline among them, a suppressed frame. }
+    open_str ("ab" + REPR 10 + "cdef"); getf (f, (gfmt ("4a"), s)); print (("<", s, ">", newline));
+    open_str ("abc"); getf (f, (gfmt ("a sa a"), s)); print (("<", s, ">", newline));
+    open_str ("xy"); getf (f, (gfmt ("a"), c)); print ((c, newline));
+
+    { Choices: the longest string, and the characters after it again. }
+    open_str ("abx."); getf (f, (gfmt ("c(""a"",""ab"",""abc"")"), i)); print ((whole (i, 0), " <", rest, ">", newline));
+    open_str ("zz."); i := 7; getf (f, (gfmt ("c(""a"",""b"")"), i)); print ((whole (i, 0), " <", rest, ">", newline));
+    open_str ("no"); getf (f, (gfmt ("b(""yes"",""no"")"), b)); print ((b, newline));
+
+    { Insertions, alignments and formats as items; rows. }
+    open_str ("label:42 x7"); getf (f, (gfmt ("""label:"" 2d"), i, gfmt ("2x d"), j));
+    print ((whole (i, 0), " ", whole (j, 0), newline));
+    [4] int r;
+    open_str ("11 22 33 44 "); getf (f, (gfmt ("2d, x"), r));
+    for k to 4 do print ((whole (r[k], 0), " ")) od; print (newline);
+    [2] string names;
+    open_str ("Anna,Bert,"); getf (f, (gfmt ("4a, x"), names)); print ((names[1], "/", names[2], newline));
+    open_str ("abcdefgh"); getf (f, (gfmt ("6k a"), c)); print ((c, newline));
+
+    { Complex values: with the pattern i, and as two reals without it. }
+    compl z;
+    open_str (" 1.50i-2.25"); getf (f, (gfmt ("-d.dd i -d.dd"), z));
+    print ((fixed (re of z, 0, 2), " ", fixed (im of z, 0, 2), newline));
+    open_str ("1.5 2.5"); getf (f, (gfmt ("g"), z));
+    print ((fixed (re of z, 0, 2), " ", fixed (im of z, 0, 2), newline));
+    printf ((gfmt ("-d.2di-d.2d l"), z));
+    printf ((gfmt ("-d.2d si -d.2d, x -d.2di-d.2d l"), 1.5 I -2.25, 7));
+    [] compl zs = (1 I 2, 3 I 4);
+    printf ((gfmt ("2(d.di d.d x)l"), zs));
+
+    { The logical file end event: the handler jumps out of getf. }
+    associate (f, data := "1 2 3");
+    on_logical_file_end (f, (ref File g) bool: (print (("end", newline)); goto done));
+    do int n; getf (f, (gfmt ("g"), n)); print ((whole (n, 0), newline)) od;
+done:
+    { Without a handler, a value error ends the program. }
+    associate (f, data := "1x");
+    getf (f, (gfmt ("2d"), i));
+    print (("not reached", newline))
+)

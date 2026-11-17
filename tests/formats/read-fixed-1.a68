@@ -1,0 +1,20 @@
+# Where Genie_Formats differs from Algol 68 Genie in formatted input: a
+  suppressed digit frame reads nothing and gives the digit 0, and k skips
+  to a position of the line, as in output. #
+BEGIN
+   FILE f; STRING data;
+   PROC open str = (STRING t) VOID: (data := t; associate (f, data));
+   INT i; CHAR c;
+   PROC ti = (STRING t, FORMAT fm) VOID:
+      BEGIN open str (t);
+            getf (f, (fm, i));
+            STRING rest := "";
+            IF NOT eof (f) THEN getf (f, ($g$, rest)) FI;
+            print (("<", t, "> ", whole (i, 0), " rest <", rest, ">", newline))
+      END;
+   ti ("123", $d sd d$); ti ("123", $d sz d$); ti ("123", $+ d sd$);
+   open str ("abcdefgh"); getf (f, ($6k a$, c)); print ((c, newline));
+   open str ("12cdefgh"); getf (f, ($2d, 6k a$, i, c)); print ((whole (i, 0), " ", c, newline));
+   open str ("abcdefgh"); getf (f, ($a, 2k a$, c, c)); print ((c, newline));
+   open str ("ab" + REPR 10 + "cd"); getf (f, ($9k a, a$, c, c)); print ((c, newline))
+END

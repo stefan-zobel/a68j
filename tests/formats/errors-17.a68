@@ -1,0 +1,5 @@
+# A pattern that is left when the values of getf end. #
+BEGIN
+   FILE f; STRING data := "12 34"; associate (f, data);
+   INT i; getf (f, ($2d, x 2d$, i)); print ((i, newline))
+END

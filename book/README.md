@@ -33,9 +33,9 @@ the examples were checked.
 Every example is run with a68j (`backend/a68j-backend.jar`, built by the
 top-level `build.sh`) and, if given, with ga68 and Algol 68 Genie; all
 must give the recorded output. Examples of features that ga68 or a68j
-lack (formatted input, binary transput, `bytes`, semaphores in ga68) are
+lack (binary transput, `bytes`, semaphores in ga68) are
 run with the implementations named in their `.cfg` file only. Examples
-with formatted output (`formats: yes`) run on all three: a68j with
+with formats (`formats: yes`), output and input, run on all three: a68j with
 `-fformats`, ga68 after the format rewrite tool (`tools/formats`). ga68 programs are linked with the static
 libga68 (`libga68.a` in the `--libdir`), as the ga68 driver does by
 default; the shared library does not export all operators of the prelude.

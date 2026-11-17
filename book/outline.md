@@ -20,7 +20,7 @@ text and all examples are new.
 - Every example is a complete program or a fragment of one that is
   compiled and run with ga68 and with a68j when the book is built; the
   output shown is the output of that run. A fragment that cannot be run
-  with either (formatted input, for example) is marked as such and is
+  with either (binary transput, for example) is marked as such and is
   checked with Algol 68 Genie instead.
 - Input and output use the bundled module `Genie_Transput` (`print`,
   `read`, `put`, `get`, files), since the standard prelude of ga68 has no
@@ -246,10 +246,10 @@ The table maps the terms of the Revised Report to the terms the book uses.
 - Title page: version from `../VERSION`, date of the build (both written
   by `build.sh` to `build/version.tex`), license CC0 1.0.
 - Formatted transput and `bytes` are described as part of the language.
-  The examples of formatted output are checked with a68j (`-fformats`),
-  ga68 (through the format rewrite tool) and Algol 68 Genie
-  (`formats: yes`); those of formatted input and `bytes` with Algol 68
-  Genie only (`run: a68g`).
+  The examples of formatted output and input are checked with a68j
+  (`-fformats`), ga68 (through the format rewrite tool) and Algol 68 Genie
+  (`formats: yes`); those of `bytes` with Algol 68 Genie only
+  (`run: a68g`).
 - `par` and `sema`: examples checked with Algol 68 Genie and with a68j
   (`-fpar-threads`); the text notes that ga68 elaborates `par` like a
   collateral clause and has no semaphores yet.

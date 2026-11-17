@@ -35,7 +35,10 @@ with a non-zero exit status and an error message that contains the text of
 NAME.err.  If NAME.fixed exists, Genie_Formats deliberately differs from
 Algol 68 Genie for this program (NAME.fixed says how): NAME.out or NAME.err
 is written by hand, --record leaves it alone, and the test does not run on
-Algol 68 Genie.  The tool rewrites the program on each system, which then
+Algol 68 Genie.  If NAME.native exists, the program needs the value error
+handler of a file, which the Algol 68 Genie version of Genie_Formats
+cannot call (see below): NAME.out is recorded with Algol 68 Genie, but the
+test does not run with that version.  The tool rewrites the program on each system, which then
 runs it:
 
   a68j, ga68  the program rewritten with --ga68, with the module
@@ -130,7 +133,45 @@ def a68g_library():
     column = "proc gf_column = (ref File f, int c) void: while col of f + 1 < c do space (f) od;"
     assert column in body
     body = body.replace(column, "proc gf_column = (ref File f, int c) void: skip;")
-    return supper_to_upper.convert(body) + "\n"
+    column_in = re.compile(r"proc gf_column_in = .*?do int d = gt_next_char \(f\); skip od;", re.S)
+    assert column_in.search(body)
+    body = column_in.sub("proc gf_column_in = (ref File f, int c) void: skip;", body)
+    return supper_to_upper.convert(A68G_CHARS + body) + "\n"
+
+
+# The procedures of Genie_Transput for reading one character at a time,
+# built from the transput of Algol 68 Genie.  The characters given back by
+# gt_unread or looked at by gt_peek_char are kept for one call of getf only
+# (get does not see them), and the events are those of Algol 68 Genie,
+# except that a value error ends the program: its handler cannot be called
+# from a program.  Tests that need more have NAME.native.
+A68G_CHARS = """
+    string gt_back := "";
+    bool gt_ended := false;
+    proc gt_start_get = (ref File f) void:
+       begin [1 : 0] int none;
+             get (f, none);  { the read mood }
+             gt_back := "";
+             gt_ended := false
+       end;
+    proc gt_peek_char = (ref File f) int:
+       if UPB gt_back >= 1 then ABS gt_back[1]
+       elif eof (f) then -1
+       elif eoln (f) then get (f, newline); gt_back := REPR 10; 10
+       else char c; get (f, c); gt_back := c; ABS c
+       fi;
+    proc gt_next_char = (ref File f) int:
+       begin int c = gt_peek_char (f);
+             gt_ended := c < 0;
+             (c >= 0 | gt_back := gt_back[2 :]);
+             c
+       end;
+    proc gt_unread = (ref File f, string s) void: (gt_back := s + gt_back; gt_ended := false);
+    proc gt_at_end = (ref File f) bool: gt_ended;
+    proc gt_file_end = (ref File f) void: (string s; get (f, s));
+    proc gt_value_error = (ref File f, string mode_name) void:
+       gf_error ("error transputting " + mode_name + " value");
+"""
 
 
 class A68j:
@@ -294,12 +335,17 @@ def program_test(name, systems, record, tests=TESTS):
         # the library, and the deliberate differences are those of Algol 68
         # Genie itself.
         systems = [s for s in systems if s.name != "a68g"]
+    # With NAME.native the program needs a value error handler, which the
+    # Algol 68 Genie version of the library cannot call: the output is
+    # recorded with Algol 68 Genie, but not compared with that version.
+    native = os.path.exists(os.path.join(tests, name + ".native"))
+    runs = [s for s in systems if not (native and s.name == "a68g")]
     msgs = []
     if os.path.exists(err_file):
         # The program must end with an error that contains the text of
         # NAME.err; Algol 68 Genie writes its messages to standard output.
         want = open(err_file, encoding="utf-8").read().strip()
-        for s in systems:
+        for s in runs:
             r = s.run_program(name, path, data, stdin)
             text = r.err.decode("utf-8", "replace") + r.text()
             if r.status == 0 or want not in text:
@@ -314,7 +360,7 @@ def program_test(name, systems, record, tests=TESTS):
     if not os.path.exists(out_file):
         return [f"{name}.out is missing (record it with --record --a68g A68G)"]
     want = open(out_file, encoding="utf-8").read()
-    for s in systems:
+    for s in runs:
         r = s.run_program(name, path, data, stdin)
         got = r.text()
         if r.status != 0:

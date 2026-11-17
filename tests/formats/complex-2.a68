@@ -1,0 +1,19 @@
+# The complex pattern i in formatted input; without it a complex number
+  is read as two reals. #
+BEGIN
+   FILE f; STRING data;
+   COMPL z;
+   PROC t = (STRING d, FORMAT fm) VOID:
+      BEGIN data := d; associate (f, data);
+            z := 9 I 9; getf (f, (fm, z));
+            print ((fixed (re OF z, 0, 2), " ", fixed (im OF z, 0, 2), newline))
+      END;
+   t (" 1.50-2.25", $-d.dd si -d.dd$);
+   t (" 1.50I-2.25", $-d.dd i -d.dd$);
+   t (" 1.50i 2.25", $-d.dd i -d.dd$);
+   t (" 1.50+i-2.25", $-d.dd "+"i -d.dd$);
+   t ("1.5 2.5", $g$);
+   t ("1.5,2.5", $d.d, x d.d$);
+   LONG COMPL lz := LONG 0; data := "1.125i0.250"; associate (f, data);
+   getf (f, ($d.3d i d.3d$, lz)); print ((fixed (re OF lz, 0, 3), " ", fixed (im OF lz, 0, 3), newline))
+END

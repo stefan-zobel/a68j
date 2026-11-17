@@ -1,13 +1,14 @@
 # TODO: formatted transput (`printf`, `readf`, format texts)
 
-Status: stages 1 and 2 of the roadmap below are implemented, the
-rewrite tool and the module `Genie_Formats` with pictures, choices, radix
-and `k` ([genie-formats.md](genie-formats.md)), and so are the option
-`-fgenie`, which runs programs written for Algol 68 Genie as they are,
-and the option `-fformats` of stage 4, which compiles the format texts of
-a program written for a68j through the same tool. Stage 3 is not
-implemented. This note records how much formats matter, what
-ga68 provides, the options, and the roadmap in stages.
+Status: stages 1 to 3 of the roadmap below are implemented, the
+rewrite tool and the module `Genie_Formats` with pictures, choices, radix,
+`k`, the complex pattern `i` and formatted input
+([genie-formats.md](genie-formats.md)), and so are the option `-fgenie`,
+which runs programs written for Algol 68 Genie as they are, and the
+option `-fformats` of stage 4, which compiles the format texts of a
+program written for a68j through the same tool. Only the pattern `h` is
+missing. This note records how much formats matter, what ga68 provides,
+the options, and the roadmap in stages.
 
 ## Why formats
 
@@ -185,7 +186,7 @@ The book has 11 examples with formats in chapter 9 and its answers. They
 used to run with Algol 68 Genie only (`run: a68g`). Since stage 2, 10 of
 them also run with a68j (`-fformats`) and ga68 (through the tool), and
 `book/tools/run_examples.py` checks them on all three (the key
-`formats: yes`); only `ch09/readf` waits for stage 3.
+`formats: yes`); since stage 3 `ch09/readf` does too.
 
 ## Roadmap
 
@@ -208,8 +209,10 @@ them in full.
 
 - It is written in plain Algol 68 without Java, like `Genie_Transput`, so
   it compiles with ga68 as an ordinary module. It accesses `Genie_Transput`
-  and is bundled with a68j. `Genie_Transput` changed only once for it:
-  since stage 2 it counts the column of each line it writes, for `k`.
+  and is bundled with a68j. `Genie_Transput` changed twice for it: since
+  stage 2 it counts the column of each line it writes, for `k`, and since
+  stage 3 it provides the procedures `gt_...` for reading one character
+  at a time.
 - It provides the mode `Gformat`, not `Format`: in Algol 68 Genie `FORMAT`
   is a reserved word, and a rewritten program must be able to run there
   too (for the tests). A `Gformat` holds the parsed format text and two
@@ -220,7 +223,7 @@ them in full.
   [ga68-bug-reports.md](ga68-bug-reports.md)).
 - It provides `gfmt` and `gfmtd`, which parse the text of a format text,
   and `printf`, `putf` and `writef`; their items are those of `Outitem` of
-  `Genie_Transput` and formats. Stage 3 adds `readf` and `getf`.
+  `Genie_Transput` and formats. Stage 3 added `readf` and `getf`.
 - It walks a format with its replicators and matches the items with the
   patterns, with the semantics of Algol 68 Genie.
 - The general pattern `g` maps to `whole`, `fixed` and `float`.
@@ -321,9 +324,28 @@ stages do not depend on it, nor it on them.
      the output of Algol 68 Genie, up to the widths of `g` without
      parameters. The chapter describes formats for all three
      implementations now.
-3. **Formatted input (`readf`, `getf`).**
-   - Input is rarely needed. This stage completes the set (178 of 178),
-     including the book example `ch09/readf`.
+3. **Formatted input (`readf`, `getf`) and the complex pattern `i`.**
+   Implemented.
+   - The rules come from the source of Algol 68 Genie 3.13.4 and were
+     checked against it with the tests `read-*`, `complex-1`, `complex-2`
+     and `errors-15` to `errors-21` (`tests/formats`, 81 tests in all, on
+     a68j, a68j `-fgenie`, ga68 and Algol 68 Genie). Where Algol 68 Genie
+     is defective (`k` and suppressed digit frames in input), the module
+     differs from it (`read-fixed-1`).
+   - `Genie_Transput` got the procedures `gt_...` for reading one
+     character at a time and giving characters back, and a field `back`
+     of `File` for them. Nothing else changed: no change to the tool or
+     to the compiler.
+   - Of the 15 Rosetta solutions with `getf` or `readf`, 5 compile with
+     `-fgenie` now (`guess-the-number`, `non-decimal-radices-convert-1`,
+     `non-decimal-radices-input`, `search-a-list-1`, `tokenize-a-string`);
+     the four that are not random give the output of Algol 68 Genie up to
+     the width of its 64-bit `INT`. The others stop at other things:
+     events that `Genie_Transput` does not have (`on physical file end`,
+     `on line end`, `on format error`), structures or `[] CHAR` as items,
+     a `REF UNION` as item, `null char`, or they cannot run at all.
+   - No Rosetta solution uses `i` or `h`.
+   - The book example `ch09/readf` runs on all three systems.
 4. **Compiler support in a68j, the option `-fformats`.** Implemented as
    the candidate "Rewriting before the scanner" (see "Stage 4 in detail").
    - With it, a68j compiles programs with format texts directly, without
@@ -453,8 +475,8 @@ for values that Algol 68 Genie prints but `Genie_Transput` and
 holds for ga68 and for a68j with or without `-fgenie`.
 
 - As in Algol 68 Genie, a complex number is printed as its two parts. A
-  format edits each part with its own pattern; the pattern `i` is still
-  missing.
+  format edits each part with its own pattern, unless the pattern is
+  complex (the pattern `i`, since stage 3).
 - `long long real` is printed with 18 digits, as in ga68. The `long long
   real` of a68j has 64 bits, so the last digits come from double
   arithmetic and may differ from ga68.
@@ -488,7 +510,7 @@ Genie, as with the pre-processor:
     already finds anywhere in a format text.
 - The union `Gfout` already has the modes of stage 2: `bool` for `b`,
   `bits` and `long bits` for `r`, `string` and `char` for `a`.
-- The tool already recognizes `readf` and `getf` for stage 3.
+- The tool already recognized `readf` and `getf` for stage 3.
 - `Genie_Formats` is bundled, so a release contains the stage it has
   reached. Programs that stop with `format item ... is not supported yet`
   run without a change to the compiler once the module provides the item;

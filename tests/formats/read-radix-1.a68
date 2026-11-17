@@ -1,0 +1,20 @@
+# Formatted input with radix pictures into bits. #
+BEGIN
+   FILE f; STRING data;
+   # The handler is not a routine text inside open str: ga68 cannot call
+     it once open str has returned (entry 9 of docs/ga68-bug-reports.md). #
+   PROC (REF FILE) BOOL mend = (REF FILE g) BOOL: (print ("[value error]"); TRUE);
+   PROC open str = (STRING t) VOID: (data := t; associate (f, data); on value error (f, mend));
+   BITS b;
+   PROC tb = (STRING t, FORMAT fm) VOID:
+      BEGIN open str (t);
+            b := 16r0;
+            getf (f, (fm, b));
+            print (("<", t, "> ", whole (ABS b, 0), newline))
+      END;
+   tb ("1f", $16r2d$); tb ("1F", $16r2d$); tb ("101", $2r3d$); tb (" 101", $2r4z$);
+   tb ("777", $8r3d$); tb ("1234", $10r4d$); tb ("1g", $16r2d$);
+   tb ("ff-ff", $16r2d"-"2d$);
+   INT base = 16;
+   tb ("7f", $n(base)r2d$)
+END

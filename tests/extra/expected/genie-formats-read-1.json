@@ -1,0 +1,8 @@
+{
+ "cerr": "/usr/bin/x86_64-linux-gnu-ld.bfd: warning: cc.o: requires executable stack (because the .note.GNU-stack section is executable)\n",
+ "compile": 0,
+ "exit": 1,
+ "file": "genie-formats-read-1.a68",
+ "stderr": "runtime error: error transputting INT value\n",
+ "stdout": "42 1.50 < word> T\n-12\n[value error]-70 <>\n[value error]1034\n1234\n123456789012\n-3.14\n.0025\n3.14\n3.14159265358\n31\n511\nT\n<ab\nc>\n<a b>\nx\n2 <x.>\n[value error]7 <z.>\nF\n42 7\n11 22 33 44 \nAnna/Bert\nf\n1.50 -2.25\n1.50 2.50\n 1.50i 2.50\n 1.50-2.25  7.00i 0.00\n1.0i2.0 3.0i4.0 \n1\n2\n3\nend\n"
+}

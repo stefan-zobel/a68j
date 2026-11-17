@@ -12,10 +12,10 @@ the implementations provide it to different degrees. Algol 68 Genie
 provides nearly all of it; Section~\ref{sec-transput-genie} lists what it
 lacks. For ga68 and a68j, the module \code|Genie_Transput| provides the
 unformatted part used in this chapter, and the module
-\code|Genie_Formats| formatted output (Section~\ref{sec-formats}).
-Formatted input, binary transput and the printing of records are not
-available there, and the examples of those sections were run with Algol
-68 Genie.
+\code|Genie_Formats| formatted output and input
+(Section~\ref{sec-formats}). Binary transput and the printing of records
+are not available there, and the examples of those sections were run with
+Algol 68 Genie.
 
 \section{Books, channels and files}\label{sec-books}
 
@@ -329,8 +329,8 @@ $ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats
 \end{lstlisting}
 The lines of the program stay the same, so messages refer to the right
 line. An error inside a format text, such as an unknown frame, shows only
-when the program runs. Formatted input (Section~\ref{sec-readf}) is not
-available yet.
+when the program runs. Formatted input (Section~\ref{sec-readf}) works
+the same way.
 \end{implnote}
 
 A format consists of \term{pictures}, each of which describes how one
@@ -511,6 +511,13 @@ The pictures \code|"-" 2d| skip the dash and read the month. The
 included. A field that is one character too short or too long shifts
 every field after it: with \code|4zd| for the score, which reads five
 characters, the program stops at the first record with an error.
+
+\begin{implnote}
+Algol 68 Genie, and \code|Genie_Formats| with it, does not compare the
+characters of an insertion with the input: \code|"-"| skips one
+character, whatever it is. A wrong character in a picture, such as a
+letter for a \code|d| frame, is a value error (Section~\ref{sec-events}).
+\end{implnote}
 
 \section{Binary transput}\label{sec-binary}
 

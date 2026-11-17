@@ -1,0 +1,17 @@
+# The complex pattern i in output: a real picture, the frame i, and a
+  real picture.  A number that is not complex has the imaginary part 0. #
+BEGIN
+   COMPL z = 1.5 I -2.25;
+   printf (($-d.2di-d.2dl$, z));
+   printf (($-d.2d si -d.2dl$, z));
+   printf (($-d.2d"+"i-d.2d"j"l$, z));
+   printf (($-d.2dl$, z));
+   printf (($-d.2di-d.2dl$, 3.5));
+   printf (($-d.2di-d.2dl$, 7));
+   printf (($-d.2de+d i -d.2de+dl$, z));
+   LONG COMPL lz = LONG 1.25 I LONG 0.5;
+   printf (($-d.3di-d.3dl$, lz));
+   [] COMPL zs = (1 I 2, 3 I 4);
+   printf (($2(d.di d.d x)l$, zs));
+   printf (($g(0), x -d.2d i -d.2d, x g(0)l$, 1, z, 2))
+END

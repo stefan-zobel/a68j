@@ -1,0 +1,5 @@
+# A real cannot be read with an integral picture. #
+BEGIN
+   FILE f; STRING data := "12"; associate (f, data);
+   REAL x; getf (f, ($2d$, x)); print ((x, newline))
+END

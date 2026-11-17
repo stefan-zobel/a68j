@@ -360,7 +360,9 @@ native-shebang
 nested-function
 non-continuous-subsequences-1
 non-continuous-subsequences-2
+non-decimal-radices-convert-1
 non-decimal-radices-convert-2
+non-decimal-radices-input
 non-decimal-radices-output
 non-transitive-dice
 nth
@@ -474,6 +476,7 @@ ruth-aaron-numbers
 s-expressions
 safe-primes-and-unsafe-primes
 sailors-coconuts-and-a-monkey-problem
+search-a-list-1
 search-a-list-2
 search-a-list-of-records
 selectively-replace-multiple-instances-of-a-character-within-a-string
@@ -587,6 +590,7 @@ the-name-game
 the-sieve-of-sundaram
 the-twelve-days-of-christmas
 thue-morse
+tokenize-a-string
 tokenize-a-string-with-escaping
 top-rank-per-group
 total-circles-area

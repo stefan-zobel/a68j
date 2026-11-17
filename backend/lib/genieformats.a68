@@ -14,9 +14,9 @@
   software, is an Eligible Compilation Process in the sense of the GCC
   Runtime Library Exception, version 3.1. }
 
-{ genieformats.a68 - the module Genie_Formats of a68j: formatted output in
-  the manner of Algol 68 Genie (printf, putf, writef), on top of the module
-  Genie_Transput.
+{ genieformats.a68 - the module Genie_Formats of a68j: formatted transput
+  in the manner of Algol 68 Genie (printf, putf, writef, readf, getf), on
+  top of the module Genie_Transput.
 
   ga68, and a68j with it, has no format texts ($ ... $) and no mode
   format.  The rewrite tool tools/formats/rewrite.a68 turns each format
@@ -50,6 +50,12 @@
                         Genie_Transput, and formats
       putf (f, items), printf (items), writef (items)
                         formatted output
+      Gfin              the names getf accepts: those of Initem of
+                        Genie_Transput, of compl, long compl, bits and
+                        long bits, rows of int, real and string, and
+                        formats
+      getf (f, items), readf (items)
+                        formatted input
       Gfile, Gchannel   other names of File and Channel of Genie_Transput,
                         for programs in UPPER stropping, where FILE and
                         CHANNEL are reserved words of ga68
@@ -72,7 +78,9 @@
     the insertions between them; $3d 2d$ takes one value of five digits.
     Integral pictures (d z, a sign + or -) take integers, real pictures
     (with . or e) integers and reals, radix pictures (2r ... 16r) bits,
-    and a pictures characters and strings of exactly their length.  z
+    a pictures characters and strings of exactly their length, and
+    complex pictures (a real picture, i, and a real picture) complex
+    numbers, integers and reals (with the imaginary part 0).  z
     writes a blank for a leading zero, and an insertion among such
     blanks is written as blanks; s suppresses a frame.  A sign frame
     after z frames floats to the first digit, as does the sign of a real
@@ -82,30 +90,50 @@
     F), c("a", "b", ...) the string of an integer from 1, or nothing.
   - k writes blanks up to the character position of its replicator,
     never backwards.
+  - A complex number is two values, its parts, each edited by its own
+    pattern, unless the pattern is complex.
   - The procedures newline, space ... of Genie_Transput may be items of
-    putf (Algol 68 Genie does not allow them); they are called and use no
-    pattern.
+    putf and getf (Algol 68 Genie does not allow them); they are called
+    and use no pattern.
+  - In input, a pattern reads one character for each of its frames.  g
+    reads as get does (its parameters are elaborated and ignored).  In
+    a number, the frames of a part up to its sign frame take a blank, a
+    sign, or a digit (which counts as the sign +), z takes a digit or a
+    blank (0), d a digit, the point frame "." and the exponent frame
+    "e"; the characters are collected and then converted as get
+    converts them.  a takes any character, a newline too.  A choice
+    takes the longest of its strings that the input starts with; the
+    characters read after it are read again.  Insertions are skipped by
+    their length, without comparing them; x and q skip a character, l
+    the rest of the line, p the rest of the page.  The insertions after
+    the last value are read at the end of getf.
+  - A wrong character in input is the value error event of the file, and
+    the digit 0 is taken (a choice leaves its name unchanged).  It is the
+    logical file end event if the last character read was the end of
+    the file.  Without a handler that returns true the program ends with
+    "error transputting ... value" or "end of file reached".
 
   Where Algol 68 Genie is defective, this module differs from it
   (docs/genie-formats.md): it keeps the sign of a real whose integral
   digits are all blank, the rest of the line after a number 0 whose
   frames are all z, and counts the position of k from the start of the
-  line, not from the start of printf.
+  line, not from the start of printf.  In input, k reads up to a
+  position of the line, as in output, a suppressed digit frame reads
+  nothing, and y ends the program with an error.
 
-  Not provided yet: the complex pattern i, the pattern h, and formatted
-  input (getf, readf).  Without i, a complex number is two values, its
-  parts, each edited by its own pattern, as in Algol 68 Genie.  A format text that uses i or h is accepted by
-  the rewrite tool and ends the program with the error
-    "format item ... is not supported yet"
+  Not provided yet: the pattern h.  A format text that uses it is
+  accepted by the rewrite tool and ends the program with the error
+    "format item h is not supported yet"
   when the format is elaborated.
 
   Restrictions, so that tools/formats_tests.py can make an Algol 68 Genie
   version of this module (in UPPER stropping, without the module frame)
   and compare it with the formats of Algol 68 Genie itself: no string
   breaks, only those names of Genie_Transput that Algol 68 Genie has with
-  the same meaning (except col of a File in gf_column, which the test
-  replaces), and no other module.  Not ]] in SUPPER stropping, where it
-  ends a pragmat: a[b[i] ] instead of a[b[i]]. }
+  the same meaning (except col of a File in gf_column and gf_column_in,
+  and the procedures gt_... for reading one character at a time, which
+  the test replaces), and no other module.  Not ]] in SUPPER stropping,
+  where it ends a pragmat: a[b[i] ] instead of a[b[i]]. }
 
 module Genie_Formats =
 access Genie_Transput
@@ -123,10 +151,12 @@ def
         gf_collection = 4,  { the items sub, rep times }
         gf_format = 5,      { f: the format with the index dyn of rep }
         gf_picture = 6,     { a picture of the class letter: d integral, .
-                              real, r radix (the radix is rep), a string;
+                              real, i complex (two real pictures with a
+                              frame i between them), r radix (the radix
+                              is rep), a string;
                               sub are its frames and the insertions
                               between them }
-        gf_frame = 7,       { a frame of a picture: letter (d z + - . e a),
+        gf_frame = 7,       { a frame of a picture: letter (d z + - . e i a),
                               rep times; text is "s" if it is suppressed }
         gf_choice = 8;      { b or c (letter) with the strings sub }
 
@@ -144,7 +174,7 @@ def
                             compl, long compl, long long compl,
                             bool, char, string, bits, long bits, long long bits,
                             [] int, [] long int, [] real, [] long real,
-                            [] bool, [] string, [] bits,
+                            [] bool, [] string, [] bits, [] compl,
                             [,] int, [,] real, [,] bool,
                             proc (ref File) void,
                             Gformat);
@@ -315,6 +345,9 @@ def
              int part := 1;
              [3] int digits := (0, 0, 0);
              bool signed := false, has_d := false;
+             { Whether a frame i has come: the picture is complex, a real
+               picture, i, and a real picture. }
+             bool complex := false;
              Gfrep r := rep;
              if radix then pos +:= 1; r := gf_replicator (t, pos) fi;
              bool more := true;
@@ -330,6 +363,9 @@ def
                    elif c = "+" OR c = "-" then number AND part /= 2 AND NOT signed AND NOT has_d
                    elif c = "." then number AND part = 1
                    elif c = "e" then number AND part < 3
+                   elif c = "i"
+                   then class = "." AND NOT complex AND digits[1] + digits[2] > 0
+                        AND (part < 3 OR digits[3] > 0)
                    else false
                    fi;
                 if NOT fits
@@ -343,6 +379,12 @@ def
                 elif c = "+" OR c = "-"
                 then (class = " " | class := "d");
                      signed := true
+                elif c = "i"
+                then complex := true;
+                     class := "d";
+                     part := 1;
+                     digits := (0, 0, 0);
+                     signed := has_d := false
                 else class := ".";
                      part := (c = "." | 2 | 3);
                      signed := has_d := false
@@ -360,7 +402,7 @@ def
                    Gfrep nrep = gf_replicator (t, pos);
                    gf_skip_blanks (t, pos);
                    char d = (pos <= UPB t | gf_lower (t[pos]) | " ");
-                   if gf_member (d, "dzs+-.ea")
+                   if gf_member (d, "dzs+-.eai")
                    then r := nrep;
                         for i to UPB insertions do gf_append (list, insertions[i]) od;
                         look := false
@@ -376,7 +418,10 @@ def
                  | digits[1] = 0)
              then gf_error ("picture without digit frames in format text " + t)
              fi;
-             (gf_picture, class, (radix | rep | (1, 0)), "", heap [UPB list] Gfitem := list,
+             if complex AND class /= "."
+             then gf_error ("real picture expected after i in format text " + t)
+             fi;
+             (gf_picture, (complex | "i" | class), (radix | rep | (1, 0)), "", heap [UPB list] Gfitem := list,
               heap [1 : 0] Gfrep)
        end;
 
@@ -428,14 +473,18 @@ def
              elif gf_member (c, "dzs+-.ea")
              then gf_parse_picture (t, pos, rep, false)
              elif c = "r"
-             then if NOT replicated OR dyn of rep /= 0 OR value of rep < 2 OR value of rep > 16
+             then if NOT replicated
+                  then gf_error ("radix from 2 to 16 expected in format text " + t)
+                  elif dyn of rep = 0 AND (value of rep < 2 OR value of rep > 16)
                   then gf_error ("radix from 2 to 16 expected in format text " + t)
                   fi;
                   gf_parse_picture (t, pos, rep, true)
              elif c = "b" OR c = "c"
              then pos +:= 1;
                   replicate ((gf_choice, c, (1, 0), "", gf_choices (t, pos, c), heap [1 : 0] Gfrep))
-             elif gf_member (c, "ih")
+             elif c = "i"
+             then gf_error ("real picture expected before i in format text " + t); skip
+             elif c = "h"
              then gf_error ("format item " + c + " is not supported yet (format text " + t + ")"); skip
              else gf_error ("error in format text " + t + " at """ + c + """"); skip
              fi
@@ -503,6 +552,14 @@ def
        else (ints of ctx) (dyn of r)
        fi;
 
+    { The radix R of a radix picture: a constant, or a dynamic part that
+      must yield 2 to 16. }
+    proc gf_radix = (Gfrep r, Gformat ctx) int:
+       begin int x = gf_rep (r, ctx);
+             if x < 2 OR x > 16 then gf_error ("invalid radix " + whole (x, 0)) fi;
+             x
+       end;
+
     proc gf_mode_name = (Gfout v) string:
        case v
        in (int x): "INT",
@@ -511,6 +568,9 @@ def
           (real x): "REAL",
           (long real x): "LONG REAL",
           (long long real x): "LONG LONG REAL",
+          (compl x): "COMPLEX",
+          (long compl x): "LONG COMPLEX",
+          (long long compl x): "LONG LONG COMPLEX",
           (bool x): "BOOL",
           (char x): "CHAR",
           (string x): "[] CHAR",
@@ -742,7 +802,7 @@ def
                      (long long bits x): skip
                   out gf_cannot (v, "bits")
                   esac;
-                  string d = gf_strip (gf_radix_digits (v, value of rep of it));
+                  string d = gf_strip (gf_radix_digits (v, gf_radix (rep of it, ctx)));
                   string sign = gf_mould (ek, el, outs, blank, 1, n, d, false, false, name);
                   skip
              elif class = "d"
@@ -757,57 +817,81 @@ def
                   for i from n by -1 to 1
                   do if ek[i] = gf_frame AND sign /= "" then outs[i] +:= sign; sign := "" fi
                   od
-             else { A real picture: the integral part, the point, the fraction,
-                    and the exponent. }
-                  long real y = case v
-                                in (int x): LENG real (x),
-                                   (long int x): long real (x),
-                                   (long long int x): long real (SHORTEN x),
-                                   (real x): LENG x,
-                                   (long real x): x,
-                                   (long long real x): SHORTEN x
-                                out gf_cannot (v, "real"); long 0.0
-                                esac;
-                  int point := 0, ex := 0;
-                  for i to n
-                  do if ek[i] = gf_frame
-                     then (el[i] = "." | point := i |: el[i] = "e" | ex := i)
-                     fi
-                  od;
-                  int int_hi = (point /= 0 | point - 1 |: ex /= 0 | ex - 1 | n);
-                  int frac_lo = (point /= 0 | point + 1 | int_hi + 1);
-                  int frac_hi = (ex /= 0 | ex - 1 | n);
-                  proc digit_frames = (int lo, hi) int:
-                     begin int c := 0;
+             else { A real picture over the elements LO to HI: the integral
+                    part, the point, the fraction, and the exponent. }
+                  proc edit_real = (int lo, hi, long real y, string name) void:
+                     begin int point := 0, ex := 0;
                            for i from lo to hi
                            do if ek[i] = gf_frame
-                              then (el[i] = "d" OR el[i] = "z" | c +:= 1)
+                              then (el[i] = "." | point := i |: el[i] = "e" | ex := i)
                               fi
                            od;
-                           c
+                           int int_hi = (point /= 0 | point - 1 |: ex /= 0 | ex - 1 | hi);
+                           int frac_lo = (point /= 0 | point + 1 | int_hi + 1);
+                           int frac_hi = (ex /= 0 | ex - 1 | hi);
+                           proc digit_frames = (int lo, hi) int:
+                              begin int c := 0;
+                                    for i from lo to hi
+                                    do if ek[i] = gf_frame
+                                       then (el[i] = "d" OR el[i] = "z" | c +:= 1)
+                                       fi
+                                    od;
+                                    c
+                              end;
+                           int before = digit_frames (lo, int_hi), after = digit_frames (frac_lo, frac_hi);
+                           long real a := ABS y;
+                           int p := 0;
+                           if ex /= 0 then gf_standardize (a, before, after, p) fi;
+                           string s = fixed (a, 0, after);
+                           int dot := UPB s + 1;
+                           for i from LWB s to UPB s do (s[i] = "." | dot := i) od;
+                           string sign := gf_mould (ek, el, outs, blank, lo, int_hi, gf_strip (s[: dot - 1]),
+                                                    y < long 0.0, true, name);
+                           int k := dot;
+                           for i from frac_lo to frac_hi
+                           do if ek[i] = gf_frame
+                              then k +:= 1;
+                                   outs[i] := (k <= UPB s | s[k : k] | "0")
+                              fi
+                           od;
+                           if point /= 0 then outs[point] := sign + "."; sign := "" fi;
+                           if ex /= 0
+                           then outs[ex] := sign + "e";
+                                string esign = gf_mould (ek, el, outs, blank, ex + 1, hi, gf_strip (whole (p, 0)),
+                                                         p < 0, false, name);
+                                skip
+                           fi
                      end;
-                  int before = digit_frames (1, int_hi), after = digit_frames (frac_lo, frac_hi);
-                  long real a := ABS y;
-                  int p := 0;
-                  if ex /= 0 then gf_standardize (a, before, after, p) fi;
-                  string s = fixed (a, 0, after);
-                  int dot := UPB s + 1;
-                  for i from LWB s to UPB s do (s[i] = "." | dot := i) od;
-                  string sign := gf_mould (ek, el, outs, blank, 1, int_hi, gf_strip (s[: dot - 1]),
-                                           y < long 0.0, true, name);
-                  int k := dot;
-                  for i from frac_lo to frac_hi
-                  do if ek[i] = gf_frame
-                     then k +:= 1;
-                          outs[i] := (k <= UPB s | s[k : k] | "0")
-                     fi
-                  od;
-                  if point /= 0 then outs[point] := sign + "."; sign := "" fi;
-                  if ex /= 0
-                  then outs[ex] := sign + "e";
-                       string esign = gf_mould (ek, el, outs, blank, ex + 1, n, gf_strip (whole (p, 0)),
-                                                p < 0, false, name);
-                       skip
+                  if class = "i"
+                  then { A complex picture: the real part, the frame i, and
+                         the imaginary part.  A number that is not complex
+                         has the imaginary part 0. }
+                       long real re, im := long 0.0;
+                       string cname := "COMPLEX";
+                       case v
+                       in (int x): re := LENG real (x),
+                          (long int x): (re := long real (x); cname := "LONG COMPLEX"),
+                          (real x): re := LENG x,
+                          (long real x): (re := x; cname := "LONG COMPLEX"),
+                          (compl z): (re := LENG re of z; im := LENG im of z),
+                          (long compl z): (re := re of z; im := im of z; cname := "LONG COMPLEX")
+                       out gf_cannot (v, "complex")
+                       esac;
+                       int ix := 0;
+                       for i to n do (ek[i] = gf_frame | (el[i] = "i" | ix := i)) od;
+                       edit_real (1, ix - 1, re, cname);
+                       outs[ix] := "i";
+                       edit_real (ix + 1, n, im, cname)
+                  else long real y = case v
+                                     in (int x): LENG real (x),
+                                        (long int x): long real (x),
+                                        (long long int x): long real (SHORTEN x),
+                                        (real x): LENG x,
+                                        (long real x): x,
+                                        (long long real x): SHORTEN x
+                                     out gf_cannot (v, "real"); long 0.0
+                                     esac;
+                       edit_real (1, n, y, name)
                   fi
              fi;
              { Writing, in one piece up to each alignment. }
@@ -848,6 +932,14 @@ def
       in.  The current item is items[index] of the last frame; reps is
       the number of times the items of the frame are still to be used. }
     mode Gfframe = struct (ref [] Gfitem items, int index, reps, Gformat ctx);
+
+    proc gf_is_compl = (Gfout v) bool:
+       case v
+       in (compl z): true,
+          (long compl z): true,
+          (long long compl z): true
+       out false
+       esac;
 
     pub proc putf = (ref File f, [] Gfout items) void:
        begin { The frames are stack[1 : depth]. }
@@ -931,12 +1023,22 @@ def
                       if NOT found then gf_error ("patterns exhausted in format") fi;
                       Gfframe top = stack[depth];
                       Gfitem it = (items of top)[index of top];
-                      next;
-                      if kind of it = gf_general then gf_general_out (f, it, ctx of top, v)
-                      elif kind of it = gf_picture then gf_picture_out (f, it, ctx of top, v)
-                      else gf_choice_out (f, it, v)
-                      fi;
-                      seek
+                      { A complex number is two values, its parts, unless the
+                        pattern is complex. }
+                      bool complex = if kind of it = gf_picture then letter of it = "i" else false fi;
+                      if NOT complex AND gf_is_compl (v)
+                      then case v
+                           in (compl z): (out_value (re of z); out_value (im of z)),
+                              (long compl z): (out_value (re of z); out_value (im of z)),
+                              (long long compl z): (out_value (re of z); out_value (im of z))
+                           esac
+                      else next;
+                           if kind of it = gf_general then gf_general_out (f, it, ctx of top, v)
+                           elif kind of it = gf_picture then gf_picture_out (f, it, ctx of top, v)
+                           else gf_choice_out (f, it, v)
+                           fi;
+                           seek
+                      fi
                 end;
 
              for k from LWB items to UPB items
@@ -950,11 +1052,7 @@ def
                    ([] bool r): for i from LWB r to UPB r do out_value (r[i]) od,
                    ([] string r): for i from LWB r to UPB r do out_value (r[i]) od,
                    ([] bits r): for i from LWB r to UPB r do out_value (r[i]) od,
-                   { A complex number is two values, as in Algol 68 Genie
-                     without the pattern i. }
-                   (compl z): (out_value (re of z); out_value (im of z)),
-                   (long compl z): (out_value (re of z); out_value (im of z)),
-                   (long long compl z): (out_value (re of z); out_value (im of z)),
+                   ([] compl r): for i from LWB r to UPB r do out_value (r[i]) od,
                    ([,] int r):
                       for i from 1 LWB r to 1 UPB r
                       do for j from 2 LWB r to 2 UPB r do out_value (r[i, j]) od od,
@@ -972,6 +1070,527 @@ def
 
     pub proc printf = ([] Gfout items) void: putf (stand_out, items);
     pub proc writef = ([] Gfout items) void: putf (stand_out, items);
+
+    { Input.  The rules are those of Algol 68 Genie: characters are read
+      one at a time, a pattern takes as many characters as it has frames,
+      and the characters of a number are collected and then converted.
+      Where Algol 68 Genie is defective, this module differs from it
+      (docs/genie-formats.md). }
+
+    pub mode Gfin = union (ref int, ref long int, ref long long int,
+                           ref real, ref long real, ref compl, ref long compl,
+                           ref bool, ref char, ref string, ref bits, ref long bits,
+                           ref [] int, ref [] real, ref [] string,
+                           proc (ref File) void,
+                           Gformat);
+
+    proc gf_in_name = (Gfin v) string:
+       case v
+       in (ref int x): "INT",
+          (ref long int x): "LONG INT",
+          (ref long long int x): "LONG LONG INT",
+          (ref real x): "REAL",
+          (ref long real x): "LONG REAL",
+          (ref compl x): "COMPLEX",
+          (ref long compl x): "LONG COMPLEX",
+          (ref bool x): "BOOL",
+          (ref char x): "CHAR",
+          (ref string x): "[] CHAR",
+          (ref bits x): "BITS",
+          (ref long bits x): "LONG BITS"
+       out "this"
+       esac;
+
+    proc gf_cannot_in = (Gfin v, string pattern) void:
+       gf_error ("cannot transput " + gf_in_name (v) + " value with " + pattern + "-pattern");
+
+    { The value error of F for a value of the mode NAME.  If the last
+      character read was the end of the file, it is the logical file end
+      event instead, as in Algol 68 Genie. }
+    proc gf_value_error = (ref File f, string name) void:
+       if gt_at_end (f) then gt_file_end (f) else gt_value_error (f, name) fi;
+
+    { The next character of F.  At the end of the file the logical file
+      end event, and REPR 0. }
+    proc gf_read_char = (ref File f) char:
+       begin int c = gt_next_char (f);
+             if c < 0 then gt_file_end (f); REPR 0 else REPR c fi
+       end;
+
+    { The alignment k in input: characters are skipped up to the
+      character position C of the line, never backwards and never beyond
+      the end of the line. }
+    proc gf_column_in = (ref File f, int c) void:
+       while if col of f + 1 < c then int p = gt_peek_char (f); p >= 0 AND p /= 10 else false fi
+       do int d = gt_next_char (f); skip od;
+
+    { Reads an insertion: the string T, N times.  The characters are
+      skipped, not compared with T, as in Algol 68 Genie. }
+    proc gf_skip_literal = (ref File f, string t, int n) void:
+       to n
+       do int k := UPB t - LWB t + 1;
+          while k > 0 AND NOT gt_at_end (f) do char c = gf_read_char (f); k -:= 1 od
+       od;
+
+    { Reads the alignment C (x q l p k), N times; k reads up to the
+      position N. }
+    proc gf_align_in = (ref File f, char c, int n) void:
+       if c = "k"
+       then gf_column_in (f, n)
+       elif c = "y"
+       then gf_error ("format item y is not possible in formatted input")
+       else to n
+            do if gt_at_end (f)
+               then skip
+               elif c = "x" OR c = "q"
+               then char d = gf_read_char (f); skip
+               else { l reads up to and with the newline, p the form feed. }
+                    char stop = (c = "l" | REPR 10 | REPR 12);
+                    bool more := true;
+                    while more
+                    do char d = gf_read_char (f);
+                       more := d /= stop AND NOT gt_at_end (f)
+                    od
+               fi
+            od
+       fi;
+
+    { The value of the string S converted to the mode of X, as get reads
+      it; false if S is not a value of that mode. }
+    proc gf_convert = (string s, Gfin x) bool:
+       begin File sf;
+             string t := s;
+             associate (sf, t);
+             bool ok := true;
+             on_value_error (sf, (ref File g) bool: (ok := false; true));
+             on_logical_file_end (sf, (ref File g) bool: (ok := false; true));
+             case x
+             in (ref int v): get (sf, v),
+                (ref long int v): get (sf, v),
+                (ref long long int v): get (sf, v),
+                (ref real v): get (sf, v),
+                (ref long real v): get (sf, v)
+             out ok := false
+             esac;
+             ok
+       end;
+
+    { The digits D in the radix R as the bits X, which is a name of bits
+      or of long bits; false if a digit is not one of the radix or the
+      value does not fit. }
+    proc gf_convert_bits = (string d, int r, Gfin x) bool:
+       begin int w = case x in (ref bits b): bits_width out long_bits_width esac;
+             [1 : w] int bin;  { the binary digits, the lowest first }
+             for i to w do bin[i] := 0 od;
+             bool ok := true;
+             for k from LWB d to UPB d
+             do char c = gf_lower (d[k]);
+                int v = (gf_digit (c) | ABS c - ABS "0" |: c >= "a" AND c <= "f" | ABS c - ABS "a" + 10 | 99);
+                if v >= r
+                then ok := false
+                else int carry := v;
+                     for i to w
+                     do int y = bin[i] * r + carry;
+                        bin[i] := y MOD 2;
+                        carry := y % 2
+                     od;
+                     (carry /= 0 | ok := false)
+                fi
+             od;
+             if ok
+             then case x
+                  in (ref bits b):
+                        begin bits y := 16r0;
+                              for i from w by -1 to 1 do y := (y SHL 1) OR (bin[i] = 1 | 16r1 | 16r0) od;
+                              b := y
+                        end,
+                     (ref long bits b):
+                        begin long bits y := long 16r0;
+                              for i from w by -1 to 1 do y := (y SHL 1) OR (bin[i] = 1 | long 16r1 | long 16r0) od;
+                              b := y
+                        end
+                  esac
+             fi;
+             ok
+       end;
+
+    { Reads the value X with the general pattern IT: as get reads it.  The
+      parameters of g are elaborated, and then ignored, as in Algol 68
+      Genie. }
+    proc gf_general_in = (ref File f, Gfitem it, Gformat ctx, Gfin v) void:
+       begin for i to UPB args of it do int a = gf_rep ((args of it)[i], ctx); skip od;
+             case v
+             in (ref int x): get (f, x),
+                (ref long int x): get (f, x),
+                (ref long long int x): get (f, x),
+                (ref real x): get (f, x),
+                (ref long real x): get (f, x),
+                (ref bool x): get (f, x),
+                (ref char x): get (f, x),
+                (ref string x): get (f, x)
+             out gf_cannot_in (v, "general")
+             esac
+       end;
+
+    { Reads the value X with the picture IT. }
+    proc gf_picture_in = (ref File f, Gfitem it, Gformat ctx, Gfin v) void:
+       begin ref [] Gfitem sub = sub of it;
+             { The elements, as in gf_picture_out. }
+             [UPB sub] int reps;
+             int n := 0;
+             for i to UPB sub
+             do reps[i] := gf_rep (rep of sub[i], ctx);
+                (reps[i] < 0 | reps[i] := 0);
+                n +:= (kind of sub[i] = gf_frame | reps[i] | 1)
+             od;
+             [n] int ek, src, count;
+             [n] char el;
+             [n] bool hidden;
+             int m := 0;
+             for i to UPB sub
+             do if kind of sub[i] = gf_frame
+                then to reps[i]
+                     do m +:= 1; ek[m] := gf_frame; el[m] := letter of sub[i];
+                        hidden[m] := text of sub[i] = "s"; src[m] := i; count[m] := 1
+                     od
+                else m +:= 1; ek[m] := kind of sub[i]; el[m] := letter of sub[i];
+                     hidden[m] := false; src[m] := i; count[m] := reps[i]
+                fi
+             od;
+             string name = gf_in_name (v);
+             char class = letter of it;
+
+             { Reads the insertion or alignment I. }
+             proc insertion = (int i) void:
+                if ek[i] = gf_insertion
+                then gf_skip_literal (f, text of sub[src[i] ], count[i])
+                else gf_align_in (f, el[i], count[i])
+                fi;
+
+             { Reads the characters of a number with the elements LO to HI
+               and yields them: a sign, if a part has a sign frame, the
+               digits, "." and "e".  The frames of a part up to its sign
+               frame (its sign mould) take a blank, a sign, or a digit,
+               which then counts as the sign +; after the sign they take
+               digits only.  z takes a digit or a blank (0), d a digit
+               (with HEX, those of radix 16 too).  A suppressed digit
+               frame reads nothing and gives 0, a suppressed point or e
+               reads nothing. }
+             proc number = (int lo, hi, bool hex) string:
+                begin string buf := "";
+                      string digits = (hex | "0123456789abcdefABCDEF" | "0123456789");
+                      int sign := 0, sign_pos := 0, sign_end := 0;
+                      proc start_part = (int start) void:
+                         begin sign_end := 0;
+                               bool done := false;
+                               for j from start to hi while NOT done
+                               do if ek[j] = gf_frame
+                                  then if el[j] = "+" OR el[j] = "-" then sign_end := j; done := true
+                                       elif el[j] = "." OR el[j] = "e" then done := true
+                                       fi
+                                  fi
+                               od;
+                               sign := 0;
+                               if sign_end /= 0 then buf +:= " "; sign_pos := UPB buf fi
+                         end;
+                      proc pie = (int i, char c) void:
+                         begin if NOT hidden[i]
+                               then char d = gf_read_char (f);
+                                    (d /= c | gf_value_error (f, name))
+                               fi;
+                               buf +:= c
+                         end;
+                      start_part (lo);
+                      for i from lo to hi
+                      do if ek[i] /= gf_frame
+                         then insertion (i)
+                         elif el[i] = "."
+                         then pie (i, "."); sign_end := 0
+                         elif el[i] = "e"
+                         then pie (i, "e"); start_part (i + 1)
+                         elif i <= sign_end
+                         then if hidden[i]
+                              then (sign /= 0 | buf +:= "0")
+                              else char d = gf_read_char (f);
+                                   if sign /= 0
+                                   then if gf_member (d, digits) then buf +:= d
+                                        else gf_value_error (f, name); buf +:= "0"
+                                        fi
+                                   elif d = "+" then sign := 1
+                                   elif d = "-" then sign := -1
+                                   elif d = " " then skip
+                                   elif gf_member (d, digits) then buf +:= d; sign := 1
+                                   else gf_value_error (f, name)
+                                   fi
+                              fi;
+                              if i = sign_end then buf[sign_pos] := (sign = -1 | "-" | "+") fi
+                         elif hidden[i]
+                         then buf +:= "0"
+                         else char d = gf_read_char (f);
+                              if el[i] = "z" AND d = " " then buf +:= "0"
+                              elif gf_member (d, digits) then buf +:= d
+                              else gf_value_error (f, name); buf +:= "0"
+                              fi
+                         fi
+                      od;
+                      buf
+                end;
+
+             { The number S converted to the mode of X, or a value error. }
+             proc convert = (string s, Gfin x) void:
+                if NOT gf_convert (s, x) then gf_value_error (f, name) fi;
+
+             if class = "a"
+             then string buf := "";
+                  for i to n
+                  do if ek[i] /= gf_frame then insertion (i)
+                     elif hidden[i] then buf +:= " "
+                     else buf +:= gf_read_char (f)
+                     fi
+                  od;
+                  case v
+                  in (ref char c): c := (UPB buf >= 1 | buf[1] | " "),
+                     (ref string s): s := buf
+                  out gf_cannot_in (v, "string")
+                  esac
+             elif class = "r"
+             then case v
+                  in (ref bits b): skip,
+                     (ref long bits b): skip
+                  out gf_cannot_in (v, "bits")
+                  esac;
+                  int r = gf_radix (rep of it, ctx);
+                  if NOT gf_convert_bits (number (1, n, true), r, v)
+                  then gf_error ("error in " + name + " denotation")
+                  fi
+             elif class = "d"
+             then case v
+                  in (ref int x): skip,
+                     (ref long int x): skip,
+                     (ref long long int x): skip
+                  out gf_cannot_in (v, "integral")
+                  esac;
+                  convert (number (1, n, false), v)
+             elif class = "."
+             then case v
+                  in (ref real x): skip,
+                     (ref long real x): skip
+                  out gf_cannot_in (v, "real")
+                  esac;
+                  convert (number (1, n, false), v)
+             else { A complex picture: the real part, the frame i, and the
+                    imaginary part. }
+                  int ix := 0;
+                  for i to n do (ek[i] = gf_frame | (el[i] = "i" | ix := i)) od;
+                  proc frame_i = void:
+                     if NOT hidden[ix]
+                     then char d = gf_read_char (f);
+                          (d /= "i" AND d /= "I" | gf_value_error (f, name))
+                     fi;
+                  case v
+                  in (ref compl z):
+                        begin real x := re of z, y := im of z;
+                              convert (number (1, ix - 1, false), x);
+                              frame_i;
+                              convert (number (ix + 1, n, false), y);
+                              z := (x, y)
+                        end,
+                     (ref long compl z):
+                        begin long real x := re of z, y := im of z;
+                              convert (number (1, ix - 1, false), x);
+                              frame_i;
+                              convert (number (ix + 1, n, false), y);
+                              z := (x, y)
+                        end
+                  out gf_cannot_in (v, "complex")
+                  esac
+             fi
+       end;
+
+    { Reads the value X with the choice pattern IT (b or c): the longest
+      of its strings that the input starts with, as in Algol 68 Genie.
+      The characters read after that string are read again later.  If no
+      string matches, a value error, and X is left unchanged. }
+    proc gf_choice_in = (ref File f, Gfitem it, Gfin v) void:
+       begin ref [] Gfitem s = sub of it;
+             proc choose = int:
+                begin string buf := "";
+                      int longest := 0, longest_len := 0, result := 0;
+                      bool more := true;
+                      while more
+                      do int c = gt_next_char (f);
+                         if c < 0
+                         then more := false
+                         else buf +:= REPR c;
+                              int len = UPB buf;
+                              int matches := 0, first := 0;
+                              for j to UPB s
+                              do string t = text of s[j];
+                                 if if UPB t - LWB t + 1 >= len then t[LWB t : LWB t + len - 1] = buf else false fi
+                                 then matches +:= 1;
+                                      (first = 0 AND UPB t - LWB t + 1 = len | first := j)
+                                 fi
+                              od;
+                              if first > 0 AND matches = 1
+                              then result := first; more := false
+                              elif first > 0
+                              then longest := first; longest_len := len
+                              elif matches = 0
+                              then more := false
+                              fi
+                         fi
+                      od;
+                      if result > 0
+                      then result
+                      elif longest > 0
+                      then gt_unread (f, buf[longest_len + 1 :]);
+                           longest
+                      else gf_value_error (f, "INT");
+                           0
+                      fi
+                end;
+             if letter of it = "b"
+             then case v
+                  in (ref bool x):
+                        if UPB s = 0
+                        then get (f, x)
+                        else int k = choose;
+                             (k = 1 | x := true |: k = 2 | x := false)
+                        fi
+                  out gf_cannot_in (v, "boolean")
+                  esac
+             else case v
+                  in (ref int x): (int k = choose; (k > 0 | x := k))
+                  out gf_cannot_in (v, "choice")
+                  esac
+             fi
+       end;
+
+    pub proc getf = (ref File f, [] Gfin items) void:
+       begin { The frames are stack[1 : depth], as in putf. }
+             [1 : 8] Gfframe stack;
+             int depth := 0;
+             Gformat current;
+             bool have_format := false;
+
+             proc push = (ref [] Gfitem its, int reps, Gformat ctx) void:
+                begin if depth = UPB stack
+                      then gf_error ("formats and collections nested too deeply")
+                      fi;
+                      depth +:= 1;
+                      stack[depth] := (its, 1, reps, ctx)
+                end;
+
+             proc pop = void: depth -:= 1;
+
+             proc next = void:
+                if depth > 0 then index of stack[depth] +:= 1 fi;
+
+             { Reads the insertions up to the next pattern; true if there
+               is one (it is then the current item), false at the end of
+               the format. }
+             proc seek = bool:
+                begin bool found := false, finished := false;
+                      while NOT found AND NOT finished
+                      do if depth = 0
+                         then finished := true
+                         elif index of stack[depth] > UPB items of stack[depth]
+                         then if reps of stack[depth] > 1
+                              then reps of stack[depth] -:= 1;
+                                   index of stack[depth] := 1
+                              else pop; next
+                              fi
+                         else Gfframe top = stack[depth];
+                              Gfitem it = (items of top)[index of top];
+                              int kind = kind of it;
+                              if kind = gf_insertion
+                              then gf_skip_literal (f, text of it, gf_rep (rep of it, ctx of top));
+                                   next
+                              elif kind = gf_alignment
+                              then gf_align_in (f, letter of it, gf_rep (rep of it, ctx of top));
+                                   next
+                              elif kind = gf_collection
+                              then int r = gf_rep (rep of it, ctx of top);
+                                   if r > 0 then push (sub of it, r, ctx of top) else next fi
+                              elif kind = gf_format
+                              then Gformat g = (formats of ctx of top) (dyn of rep of it);
+                                   push (items of g, 1, g)
+                              else found := true
+                              fi
+                         fi
+                      od;
+                      found
+                end;
+
+             { The current format must be used up; its insertions are
+               read. }
+             proc finish = void:
+                if have_format
+                then if seek then gf_error ("number of pictures does not match number of arguments") fi
+                fi;
+
+             proc start = (Gformat g) void:
+                begin finish;
+                      current := g;
+                      have_format := true;
+                      depth := 0;
+                      push (items of g, 1, g)
+                end;
+
+             proc in_value = (Gfin v) void:
+                begin bool found := if have_format then seek else false fi;
+                      if NOT found AND have_format
+                      then push (items of current, 1, current);
+                           found := seek
+                      fi;
+                      if NOT found then gf_error ("patterns exhausted in format") fi;
+                      Gfframe top = stack[depth];
+                      Gfitem it = (items of top)[index of top];
+                      { A complex number is two values, its parts, unless the
+                        pattern is complex. }
+                      bool complex = if kind of it = gf_picture then letter of it = "i" else false fi;
+                      bool split = if complex then false
+                                   else case v in (ref compl z): true, (ref long compl z): true out false esac
+                                   fi;
+                      if split
+                      then case v
+                           in (ref compl z):
+                                 begin real x := re of z, y := im of z;
+                                       in_value (x);
+                                       in_value (y);
+                                       z := (x, y)
+                                 end,
+                              (ref long compl z):
+                                 begin long real x := re of z, y := im of z;
+                                       in_value (x);
+                                       in_value (y);
+                                       z := (x, y)
+                                 end
+                           esac
+                      else next;
+                           if kind of it = gf_general then gf_general_in (f, it, ctx of top, v)
+                           elif kind of it = gf_picture then gf_picture_in (f, it, ctx of top, v)
+                           else gf_choice_in (f, it, v)
+                           fi;
+                           seek
+                      fi
+                end;
+
+             gt_start_get (f);
+             for k from LWB items to UPB items
+             do case items[k]
+                in (Gformat g): start (g),
+                   (proc (ref File) void p): p (f),
+                   (ref [] int r): for i from LWB r to UPB r do in_value (r[i]) od,
+                   (ref [] real r): for i from LWB r to UPB r do in_value (r[i]) od,
+                   (ref [] string r): for i from LWB r to UPB r do in_value (r[i]) od
+                out in_value (items[k])
+                esac
+             od;
+             finish
+       end;
+
+    pub proc readf = ([] Gfin items) void: getf (stand_in, items);
 
     skip
 fed

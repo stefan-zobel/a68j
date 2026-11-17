@@ -64,11 +64,10 @@ strings, the layout procedures and the events for the end of the file and
 for value errors. It does not provide formats, binary transput, or the
 printing of records and \code|short| values. The module
 \code|Genie_Formats|, which also comes with a68j,
-adds formatted output (\code|printf|, \code|putf|) in the manner of
-Algol 68 Genie: a68j compiles format texts with the option
-\code|-fformats|, and for ga68 a rewrite tool turns them into calls of
-the module first (Section~\ref{sec-formats}). Formatted input is not
-available. Algol 68 Genie provides the transput of the Report almost
+adds formatted transput (\code|printf|, \code|putf|, \code|readf|,
+\code|getf|) in the manner of Algol 68 Genie: a68j compiles format texts
+with the option \code|-fformats|, and for ga68 a rewrite tool turns them
+into calls of the module first (Section~\ref{sec-formats}). Algol 68 Genie provides the transput of the Report almost
 completely, and adds \code|eof| and \code|eoln|, which
 \code|Genie_Transput| also has; Section~\ref{sec-transput-genie} lists
 what it lacks.
@@ -123,5 +122,5 @@ it adds \code|access Genie_Transput| and \code|Genie_Formats| with an
 enclosing block if the program has none, and rewrites the format texts;
 ga68 then compiles it in upper-case notation with the option
 \code|-fstropping=upper|. Either way, check whether the
-program relies on 64-bit integers, on formatted input or on the other
-features in the table above.
+program relies on 64-bit integers or on the other features in the table
+above.

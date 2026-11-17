@@ -274,9 +274,14 @@ reads as a string), and for the first `eoln` there.
 
 ## Not provided
 
-- formats (`$...$`, `printf`): ga68 does not compile format texts; the
-  rewrite tool and the bundled module `Genie_Formats` provide them, see
-  [`genie-formats.md`](genie-formats.md);
+- formats (`$...$`, `printf`, `readf`): ga68 does not compile format
+  texts; the rewrite tool and the bundled module `Genie_Formats` provide
+  them, see [`genie-formats.md`](genie-formats.md). For its formatted
+  input, `Genie_Transput` provides the procedures `gt_start_get`,
+  `gt_peek_char`, `gt_next_char`, `gt_unread`, `gt_at_end`,
+  `gt_file_end` and `gt_value_error`, which read one character at a time,
+  give characters back and raise the events of a file; programs do not
+  need them;
 - `create`, the events other than
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above

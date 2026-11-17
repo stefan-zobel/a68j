@@ -1,0 +1,18 @@
+# Formatted input with the general pattern g: as get reads, from standard
+  input.  The parameters of g are elaborated and ignored. #
+BEGIN
+   INT i, j; REAL x; STRING s; CHAR c; BOOL b;
+   readf (($g$, i)); print ((whole (i, 0), newline));
+   readf (($g$, i, j)); print ((whole (i, 0), " ", whole (j, 0), newline));
+   readf (($gl$, s)); print (("<", s, ">", newline));
+   readf (($gl$, s)); print (("<", s, ">", newline));
+   readf (($g$, c)); print (("<", c, ">", newline));
+   readf (($g$, c)); print (("<", c, ">", newline));
+   readf (($g$, b)); print ((b, newline));
+   readf (($g(10, 3)$, x)); print ((fixed (x, 0, 3), newline));
+   INT w := 0;
+   readf (($g(w)$, i)); print ((whole (i, 0), newline));
+   readf (($g, g$, x, i)); print ((fixed (x, 0, 2), " ", whole (i, 0), newline));
+   [3] INT r; readf (($g$, r)); print ((whole (r[1], 0), whole (r[2], 0), whole (r[3], 0), newline));
+   readf (($l g$, s)); print (("<", s, ">", newline))
+END
