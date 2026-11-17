@@ -194,3 +194,22 @@ Conventions established there:
 - `src/.../MoidsDiagnostics.java` is a placeholder; the porter of
   a68-moids-diagnostics.cc replaces it (compile excluding the src copy).
 - Subagents cannot write REPORT.md: return the report as your final reply.
+
+## 10. Upstream state
+
+The front end is a port of ga68 at GCC commit 7ced41f4d438, with these
+later commits ported as well: 69942abe3 (`a68_widens_to`: `long int` to
+`long compl`, `word int` to `word compl`), 5e675dbc6 (`find_operator`:
+the pow operator and the cross-terms of `word real`) and f34ab6459 (the
+message for a module whose exports cannot be decoded). The ga68 results
+of the tests are recorded with GCC commit bb5c3bfcb28b.
+
+ga68 commits up to bb5c3bfcb28b that are not ported, and why:
+
+| Commit | Change in ga68 | Why not in a68j |
+|---|---|---|
+| 9ad9f7f18 | operator `WORDEN` (`SIZETY int`, `real`, `bits` to the word modes) | useful only together with `nest C`, which a68j does not have |
+| 4b22e5581 | libga68 module `GNU` (`gnu.a68.in`) with the operators on `word compl`; the word modes are built in strict mode too | the back end implements the operators on `word compl` itself (`Gen#isWordComplOperator`, the `lcx` methods of `Std`). ga68 now resolves the operators on `compl` to `GNU`, a68j still to `STANDARD`, whose code is the same |
+| 374ee1401 | `ga68-exports.pk`, the description of the export format for GNU poke | no code |
+| b887c1777 | `ga68.map` of the shared libga68 | not used by a68j |
+| aa4d1d548, a44acda56 | configury | not used by a68j |

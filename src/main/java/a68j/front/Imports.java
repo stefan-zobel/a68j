@@ -1901,7 +1901,7 @@ public final class Imports {
             // Got some data. Decode it into a list of moif.
             Ref<String> errstr = Ref.box(null);
             if (!decodeMoifs(a68, exportsData, errstr)) {
-                a68.diagnostics.error(null, "%s", errstr.get());
+                a68.diagnostics.error(null, "reading module exports: %s", errstr.get());
                 return null;
             }
 

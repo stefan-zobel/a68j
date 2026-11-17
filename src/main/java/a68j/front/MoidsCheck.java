@@ -880,7 +880,7 @@ public final class MoidsCheck {
             return a68.parserState.errorTag;
         }
 
-        // (B) MONADs.
+        // MONADs.
         if (x != null && y == null) {
             z = searchTableChainForOperator(a68, s, n, x, null);
             if (z != null) {
@@ -914,15 +914,10 @@ public final class MoidsCheck {
             }
             return null;
         }
-        // (C) DYADs.
+
+        // DYADs.
         z = searchTableChainForOperator(a68, s, n, x, y);
         if (z != null) {
-            return z;
-        }
-
-        // The checks below apply to operators covered by a) and b) in 10.2.3.5 but
-        // not to the pow operator, which is covered by g)
-        if (n.equals("**") || n.equals("^")) {
             return z;
         }
 
@@ -964,7 +959,36 @@ public final class MoidsCheck {
             }
         }
 
-        // (C.3) Look in standenv for an appropriate cross-term.
+        // The RR abbreviated rules in RR 10.2.3.5:
+        //
+        // a) op P = (L real a, L int b) L real: a P L real(b);
+        // b) op P = (L int a, L real b) L real: L real(a) P b;
+        // c) op R = (L real a, L int b) bool: a R L real(b);
+        // d) op R = (L int a, L real b) bool: L real(a) R b;
+        // g) op <^,**,UP> = (L real a, int b) L real: ...;
+        //
+        // where P is one of +, -, ...
+        //       R is one of +, -, ...
+        //
+        // define a full set of "cross-term" operators that combine int and real
+        // operators.  Rather than enumerating all possible combinations in
+        // stand_prelude, we resolve these here by "inlining" the corresponding `L
+        // real(a) P b' expressions.
+        //
+        // Likewise for "and become" operators in RR 10.2.3.11:
+        //
+        // n) OP Q = (REF L REAL a, L INT b) REF L REAL: a Q L REAL (b);
+        // o) OP Q = (REF L COMPL a, L INT b) REF L COMPL: a Q L COMPL (b);
+        // p) OP Q = (REF L COMPL a, L REAL b) REF L COMPL: a Q L COMPL (b);
+        // s) OP <PLUSAB,+:=> = (REF STRING a, CHAR b) REF STRING: a +:= STRING (b);
+        // t) OP <PLUSTO,+=:> = (CHAR a, REF STRING b) REF STRING: STRING (a) +=: b;
+        //
+        // With Q being -:=, +:=, *:= or /:= or their synonyms.
+
+        if (n.equals("**") || n.equals("^")) {
+            return z;
+        }
+
         u = MoidsMisc.makeSeriesFromMoids(a68, x, y);
         u = MoidsMisc.makeUnitedMode(a68, u);
         v = MoidsMisc.getBalancedMode(a68, u, STRONG, A68_NO_DEPREF, SAFE_DEFLEXING);
@@ -972,42 +996,61 @@ public final class MoidsCheck {
         if (z != null) {
             return z;
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.REAL, STRONG, SAFE_DEFLEXING)) {
             z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.REAL, a68.modes.REAL);
             if (z != null) {
                 return z;
             }
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.LONG_REAL, STRONG, SAFE_DEFLEXING)) {
-            z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.LONG_REAL, a68.modes.LONG_REAL);
+            z = searchTableForOperator(a68, a68.standenv.operators, n,
+                    a68.modes.LONG_REAL, a68.modes.LONG_REAL);
             if (z != null) {
                 return z;
             }
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.LONG_LONG_REAL, STRONG, SAFE_DEFLEXING)) {
-            z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.LONG_LONG_REAL, a68.modes.LONG_LONG_REAL);
+            z = searchTableForOperator(a68, a68.standenv.operators, n,
+                    a68.modes.LONG_LONG_REAL, a68.modes.LONG_LONG_REAL);
             if (z != null) {
                 return z;
             }
         }
+
+        if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.WORD_REAL, STRONG, SAFE_DEFLEXING)) {
+            z = searchTableForOperator(a68, a68.standenv.operators, n,
+                    a68.modes.WORD_REAL, a68.modes.WORD_REAL);
+            if (z != null) {
+                return z;
+            }
+        }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.COMPLEX, STRONG, SAFE_DEFLEXING)) {
             z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.COMPLEX, a68.modes.COMPLEX);
             if (z != null) {
                 return z;
             }
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.LONG_COMPLEX, STRONG, SAFE_DEFLEXING)) {
-            z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.LONG_COMPLEX, a68.modes.LONG_COMPLEX);
+            z = searchTableForOperator(a68, a68.standenv.operators, n,
+                    a68.modes.LONG_COMPLEX, a68.modes.LONG_COMPLEX);
             if (z != null) {
                 return z;
             }
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.LONG_LONG_COMPLEX, STRONG, SAFE_DEFLEXING)) {
-            z = searchTableForOperator(a68, a68.standenv.operators, n, a68.modes.LONG_LONG_COMPLEX, a68.modes.LONG_LONG_COMPLEX);
+            z = searchTableForOperator(a68, a68.standenv.operators, n,
+                    a68.modes.LONG_LONG_COMPLEX, a68.modes.LONG_LONG_COMPLEX);
             if (z != null) {
                 return z;
             }
         }
+
         if (MoidsMisc.isCoercibleSeries(a68, u, a68.modes.WORD_COMPLEX, STRONG, SAFE_DEFLEXING)) {
             z = searchTableForOperator(a68, a68.standenv.operators, n,
                     a68.modes.WORD_COMPLEX, a68.modes.WORD_COMPLEX);
@@ -1016,7 +1059,7 @@ public final class MoidsCheck {
             }
         }
 
-        // (C.4) Now allow for depreffing for REF REAL +:= INT and alike.
+        // Now allow for depreffing for REF REAL +:= INT and alike.
         v = MoidsMisc.getBalancedMode(a68, u, STRONG, A68_DEPREF, SAFE_DEFLEXING);
         z = searchTableForOperator(a68, a68.standenv.operators, n, v, v);
         if (z != null) {

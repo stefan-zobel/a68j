@@ -743,8 +743,7 @@ public final class MoidsMisc {
                 return null;
             }
         } else if (p == m.LONG_INT) {
-            // Sic: unlike INT and LONG LONG INT, no step towards LONG COMPLEX.
-            if (q == m.LONG_REAL) {
+            if (q == m.LONG_REAL || q == m.LONG_COMPLEX) {
                 return m.LONG_REAL;
             } else {
                 return null;
@@ -756,7 +755,7 @@ public final class MoidsMisc {
                 return null;
             }
         } else if (p == m.WORD_INT) {
-            if (q == m.WORD_REAL) {
+            if (q == m.WORD_REAL || q == m.WORD_COMPLEX) {
                 return m.WORD_REAL;
             } else {
                 return null;
