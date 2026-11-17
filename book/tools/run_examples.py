@@ -340,7 +340,7 @@ def main():
         rec = f[:-4] + ".out"
         if not msgs:
             if a.record:
-                open(rec, "w", encoding="utf-8").write(out_j)
+                open(rec, "w", encoding="utf-8", newline="").write(out_j)
             elif not os.path.exists(rec):
                 msgs.append("no recorded output (run with --record)")
             elif open(rec, encoding="utf-8").read() != out_j:

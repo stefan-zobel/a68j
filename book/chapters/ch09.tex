@@ -259,10 +259,13 @@ itself, the variable may contain no resizable arrays, so a record with a
 \begin{implnote}
 \code|Genie_Transput| straightens arrays of the primitive types but not
 records (Section~\ref{sec-print-data}), and its \code|get| does not
-accept arrays; this example was run with Algol 68 Genie, whose
-\code|int| has 64 bits and is therefore printed in a wider field. Algol
-68 Genie also reads a record with \code|string| fields with one
-\code|get|.
+accept arrays. With the option \code|-fformats| (or \code|-fgenie|),
+a68j straightens records and arrays in \code|print|, \code|put|,
+\code|get| and \code|read| as Algol 68 Genie does; this example was run
+with \code|-fformats|. Like Algol 68 Genie, a68j then also reads a
+record with \code|string| fields with one \code|get|. Algol 68 Genie,
+whose \code|int| has 64 bits, prints the numbers in a wider field; ga68
+does not straighten records.
 \end{implnote}
 
 \section{Converting numbers to text}\label{sec-conversions}
