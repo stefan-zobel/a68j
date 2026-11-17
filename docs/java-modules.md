@@ -1,6 +1,6 @@
 # Java from Algol 68: `nest Java` and the modules `Lists` and `Hashmaps`
 
-As of 1 Nov 2026. An extension of a68j over ga68. Without the option
+An extension of a68j over ga68 since version 0.5.0. Without the option
 `-fnest-java` a68j behaves exactly like ga68. The modules `Lists` and
 `Hashmaps` can be used without the option, because they come with the
 jar.
@@ -594,11 +594,11 @@ runtime finds it on the stack (section 1, "Java exceptions").
 | | time (with the start of the JVM) |
 |---|---|
 | append to a `flex [] int` 100 000 times | 8.7 s |
-| `string +:= "x"` 100 000 times | 6.0 s (since 31 Oct 2026 with spare room: 0.39 s, `docs/optimizations.md`) |
+| `string +:= "x"` 100 000 times | 0.39 s with spare room (`docs/optimizations.md`); 6.0 s before version 0.5.0 |
 | **append to an `Intlist` 1 000 000 times and read everything** | **0.46 s** |
 | plus 100 000 strings into a `Stringlist` | 0.65 s |
 
-Since 31 Oct 2026 the calls go directly to the Java method without boxing
+Since version 0.5.0 the calls go directly to the Java method without boxing
 (`docs/optimizations.md`, section 2): `lists-speed.a68` takes 0.22 s
 instead of 0.32 s without the start of the JVM; the same with
 `java.util.ArrayList` takes 0.13 s with the start of the JVM.
@@ -723,11 +723,11 @@ all, remove half of them, `HAS` 1 000 000 times, then
 
 | | time with the start of the JVM |
 |---|---|
-| a68j with `Hashmaps`, until 31 Oct 2026 (boxed calls) | 0.80 s |
+| a68j with `Hashmaps`, before version 0.5.0 (boxed calls) | 0.80 s |
 | a68j with `Hashmaps`, direct calls | 0.57 s (0.52 s without the start of the JVM) |
 | the same in Java with `java.util.HashMap` (boxed) | 0.45 s |
 
-The results are the same. Until 31 Oct 2026 the path of the calls made
+The results are the same. Before version 0.5.0 the path of the calls made
 almost all of the difference: every operator called a procedure, and every
 formal hole went through a procedure value with an `Object[]` and boxed
 arguments. Now a call goes directly to the Java method without boxing
@@ -850,12 +850,12 @@ that access them (`-I tests/java/lib`).
 | `bigints-error-1` … `-5` | division by zero, a negative exponent, `nil`, `TOINT` beyond the limits, a string that is not an integer: runtime errors with the position in the program |
 | `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
 
-Result on 4 Nov 2026: 57 of 57 with JDK 25 and JDK 28 ea+21.
+Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
 
 ## 7. Open points
 
 - See [java-open-points.md](java-open-points.md).
-- Done on 1 Nov 2026: overloads that fit equally well are a compile-time
+- Done in version 0.5.0: overloads that fit equally well are a compile-time
   error (they were taken in the order of `getMethods()`, so that
   `String.join` with a Java object took the varargs overload and failed
   when it was called), section 1a, "Which method"; procedures as

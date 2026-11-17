@@ -154,7 +154,7 @@ Options and embedding: see `editors/a68html/README.md`. By default the
 color scheme follows the operating system (light/dark); `--theme light`
 or `--theme dark` fixes it.
 
-**SVG** (added 1 Nov 2026): `node a68html.js --lines -o prog.svg prog.a68`
+**SVG** (since version 0.5.0): `node a68html.js --lines -o prog.svg prog.a68`
 renders the program as an SVG image, for Markdown files on GitHub, which
 has no highlighting for Algol 68 and strips styles from HTML. Every line is
 a `<text>` element whose `textLength` is fixed, so the columns line up

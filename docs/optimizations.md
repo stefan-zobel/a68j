@@ -43,7 +43,7 @@ without a closure, without an argument array and without boxes. Routines
 that capture no identifiers of their environment and have no labels make
 no frame.
 
-Since 31 Oct 2026 this also holds for two more kinds of calls.
+Since version 0.5.0 this also holds for two more kinds of calls.
 
 **Java methods** (`nest Java`, `-fnest-java`). An identifier or operator
 declared with a formal hole cannot change either. Examples:
@@ -67,7 +67,7 @@ typed entry method `pub$i(int) int`. The `i` is the position in
 yet, and calls the typed method of the routine with the frame of the
 module.
 
-Since 1 Nov 2026 a public identifier or operator declared with a Java
+Since version 0.5.0 a public identifier or operator declared with a Java
 formal hole of a procedure mode (`pub proc (int) int j_abs = nest Java
 "java.lang.Math.abs"`) gets such an entry too. After the module is
 elaborated, it converts the arguments and calls the Java method as a
@@ -160,8 +160,8 @@ Effect: `ruth-aaron-numbers` takes 7–8 s instead of 14.9 s (ga68 9.0 s).
   without `%`. The sequence is the same as that of glibc's `rand()`, and
   `percolation-mean-run-density` takes 4 s instead of 13.5 s.
 
-- **`string +:=` with spare room** (31 Oct 2026): see the next section.
-- **No needless copies** (1 Nov 2026): an identity (`[] int d = c`) and a
+- **`string +:=` with spare room**: see the next section.
+- **No needless copies**: an identity (`[] int d = c`) and a
   parameter get a copy of their value, so that a later change of the
   variable it came from does not change it too. But if the value itself
   comes from an identity or a parameter of a row, struct or union mode, or
@@ -171,7 +171,7 @@ Effect: `ruth-aaron-numbers` takes 7–8 s instead of 14.9 s (ga68 9.0 s).
   (`GenUnits.ownedValue`, `Gen.valueConsts`). Assignations to names still
   always copy. A Java bridge that passes a row unchanged to Java copies it
   itself.
-- **No SKIP value that nobody sees** (1 Nov 2026): like ga68, a68j first
+- **No SKIP value that nobody sees**: like ga68, a68j first
   gives every identity the SKIP value when its range is entered, in case it
   is used before its declaration. For rows, structs and unions this value
   has to be built first. That is left out if
@@ -268,7 +268,7 @@ Short programs lose mostly at the start of the JVM. The AOT cache of JDK
 
 ## 6. Measuring
 
-### How to measure correctly (experience of 1 Nov 2026)
+### How to measure correctly
 
 The first measurement of all Rosetta programs with `run_jvm.py --jit
 tiered -j 4` gave factors of up to 25 against ga68. That was almost
@@ -304,7 +304,7 @@ differed by 4 s (68 s against 72.8 s, median +10 ms per program).
 Differences of single programs should therefore always be confirmed with
 `perf_ab.py`.
 
-**Result** (1 Nov 2026): 528 Rosetta programs for which a68j, ga68 `-O0`
+**Result** (before version 0.5.0): 528 Rosetta programs for which a68j, ga68 `-O0`
 and ga68 `-O2` have the same exit status. All were measured one at a time
 and one after the other, ga68 too (`run_native.py --sequential-runs
 --cflags=-O2`):
@@ -358,7 +358,7 @@ To find the hot spots, JFR is useful
 -XX:+PrintInlining`. Careful: JFR sometimes attributes samples in code
 compiled by OSR to neighboring calls that do not run at all.
 
-## 7. Loops as methods of their own (1 Nov 2026)
+## 7. Loops as methods of their own
 
 ### The problem
 
@@ -434,7 +434,7 @@ Even with huge methods allowed (second row) the old code is slow and
 erratic: C2 compiles the large method by OSR again and again.
 
 **Longer runs:** big-program-1 with `scale = 40` instead of 4 (the bubble
-sort alone then makes 5·10⁹ comparisons; since 1 Nov 2026 in the
+sort alone then makes 5·10⁹ comparisons; in the
 repository as `tests/perf/big-program-1-long.a68`), one run each, the same
 output everywhere:
 
@@ -487,7 +487,7 @@ series). Clear cases:
   partial peeling or unswitching one at a time does not change the time.
   The cause was found with the machine code, see the next section.
 
-### Examined with hsdis (1 Nov 2026)
+### Examined with hsdis
 
 `tools/build_hsdis.sh` builds the disassembler plugin of HotSpot from
 the OpenJDK sources with Capstone (Ubuntu's `libhsdis0-fcml` only has the
@@ -569,7 +569,7 @@ check of the `Row` and of the `int[]` each time; C2 does not move these
 loads out of the loop. Done in section 8: the descriptor now stays in
 locals during the loop.
 
-### Compared with ga68 (1 Nov 2026, after stage 3p)
+### Compared with ga68 (before version 0.5.0, after stage 3p)
 
 The long programs measured again against ga68, with the default `all`.
 The three versions run alternately; times are without compilation, those
@@ -619,7 +619,7 @@ ga68 -B$B/gcc -B$L -L$L/.libs -O2 tests/perf/big-program-1-long.a68 -o /tmp/bpl
 (ulimit -s unlimited; LD_LIBRARY_PATH=$L/.libs time /tmp/bpl)
 ```
 
-## 8. Row descriptors kept in locals during a loop (1 Nov 2026)
+## 8. Row descriptors kept in locals during a loop
 
 ### The problem
 
@@ -759,7 +759,7 @@ suite, `tests/extra`, the Java and PAR tests and the Rosetta programs give
 the same results as before, also with `A68J_LOOP_METHODS=none` and
 `every`.
 
-## 9. Smaller code (2 Nov 2026)
+## 9. Smaller code
 
 ### The problem
 
@@ -899,7 +899,7 @@ library jars (25 of 25), the Java, PAR and SKIP mode tests and the
 Rosetta programs give the same results as before; `tests/extra` and the
 Rosetta programs also with `A68J_LOOP_METHODS=every`.
 
-## 10. Compact element access in methods too large for the JIT (2 Nov 2026)
+## 10. Compact element access in methods too large for the JIT
 
 ### The problem
 
@@ -984,7 +984,7 @@ Only one-dimensional rows of the primitive modes have a compact access
   below 8000 and 65 535 bytes, or the compile-time error. The version
   before this section fails the first two.
 
-## 11. Serial clauses cut into methods of their own (2 Nov 2026)
+## 11. Serial clauses cut into methods of their own
 
 ### The problem
 
@@ -1106,7 +1106,7 @@ to 0.16 s after, five runs each).
   20 000 elements, and parts that would need the values of 250
   variables). 10 of 10.
 
-## 12. Row displays of constants as tables (2 Nov 2026)
+## 12. Row displays of constants as tables
 
 ### The problem
 

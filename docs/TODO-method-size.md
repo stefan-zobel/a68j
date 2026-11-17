@@ -1,6 +1,6 @@
 # Methods too large for the JVM and for its JIT (done)
 
-Status, 2 Nov 2026: the three steps of the plan are done (sections 9,
+Status: the three steps of the plan are done since version 0.5.0 (sections 9,
 10 and 11 of [`optimizations.md`](optimizations.md), results below).
 Step 1 reports a method above 65 535 bytes as a compile-time error
 instead of a Java stack trace; step 2 makes the code smaller (`MOD` and
@@ -40,7 +40,7 @@ and a part that would need more than 200 parameters are not divided;
 above 65 535 bytes that is a compile-time error (step 1). The code is
 smaller since step 2.
 
-## Measurements (2 Nov 2026)
+## Measurements
 
 ### The programs of the repository
 
@@ -151,7 +151,7 @@ magnitude counts:
   `optimizations.md`: 16.6 s and 3.5 s for the same program, against
   1.64 s with loop methods).
 
-## Results of steps 1 and 2 (2 Nov 2026)
+## Results of steps 1 and 2
 
 What was done: section 9 of `optimizations.md`. Besides the plan: no
 check for NIL at the uses of a LOC variable without rows, the shortest
@@ -217,7 +217,7 @@ is too large and contains a loop is now often compiled: the loop becomes
 a method of its own after the first attempt. Only step 3 removes the
 limit.
 
-## Compact access by size (2 Nov 2026)
+## Compact access by size
 
 The last point of step 2, in the form chosen after measuring: a method
 that is still above 8000 bytes (or 65 535) after its loops became methods
@@ -238,7 +238,7 @@ methods are unchanged (section 10 of `optimizations.md`).
   `s := (s * 7 + k) MOD 1000003` above) gains nothing; only step 3
   divides it.
 
-## Results of step 3 (2 Nov 2026)
+## Results of step 3
 
 What was done: section 11 of `optimizations.md`, class `Cut`. Changes
 against the plan:

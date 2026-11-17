@@ -1,6 +1,6 @@
 # Real PAR and SEMA (option `-fpar-threads`)
 
-As of 31 Oct 2026. An extension of a68j over ga68; without the option
+An extension of a68j over ga68 since version 0.5.0; without the option
 a68j behaves exactly like ga68.
 
 ## What this is about
@@ -146,7 +146,7 @@ runs them:
 | `par-sequential` | PAR without SEMA (also runs with ga68) |
 | `par-deadlock` | `DOWN` with no unit running |
 
-Result on 31 Oct 2026: 14 of 14 on JDK 25 and on JDK 28 ea+21, with 20
+Result before version 0.5.0: 14 of 14 on JDK 25 and on JDK 28 ea+21, with 20
 repetitions each of the runs with threads.
 
 The Rosetta solutions with PAR/SEMA (`concurrent-computing`,

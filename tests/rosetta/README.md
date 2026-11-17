@@ -9,7 +9,7 @@ two results (output and exit status) are compared.
 ## Origin and license
 
 The sources come from [RosettaCodeData](https://github.com/acmeism/RosettaCodeData)
-(as of 16 Jul 2026, `Task/*/ALGOL-68/*.alg`): 1328 solutions to 1127 tasks.
+(`Task/*/ALGOL-68/*.alg` of the checkout used): 1328 solutions to 1127 tasks.
 The texts of Rosetta Code are licensed under the
 [GNU Free Documentation License 1.3](https://www.gnu.org/licenses/fdl-1.3.html);
 the authors are recorded in the version history of the respective Rosetta
@@ -164,7 +164,7 @@ the same message; in the 30th, `enumerations-2`, the rewrite tool does
 not handle a conformity clause of format texts inside `f(...)`. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
-reading and files (2 Nov 2026), 60 more solutions compile; 59 of them give
+reading and files (since version 0.5.0), 60 more solutions compile; 59 of them give
 the same result on the JVM. With `associate` (transput to a string), 6
 more compile, and all 6 give the same result.
 
@@ -205,7 +205,7 @@ fast as natively (14.5 s, ga68 13.1 s).
 
 These four are entries 10 to 13 of
 [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md), checked
-again with ga68 of 31 Oct 2026.
+again with ga68 at GCC commit 3f35c3d2d116.
 
 - A `string` value that is not a variable, united into a union of
   `string` (or `[] char`) and `[,] char`, causes an internal compiler

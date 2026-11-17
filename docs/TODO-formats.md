@@ -15,7 +15,7 @@ the options, and the roadmap in stages.
 Formats are the most common reason why ga68 does not compile a Rosetta
 Code solution (see `tests/rosetta/README.md`). Counted on the 501
 solutions in `tests/rosetta/results.tsv` that ga68 does not compile
-(2 Nov 2026):
+(before version 0.5.0):
 
 | | Solutions |
 |---|---|

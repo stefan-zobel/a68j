@@ -3,7 +3,7 @@
 # "get skip tree: cannot compute SKIP for mode M" where its lowering needs
 # a SKIP value of FILE, CHANNEL, BYTES or LONG BYTES. Every case below is
 # a declaration in "begin ...; puts ("ok'n") end"; the expected result is
-# what ga68 (GCC trunk of 31 Oct 2026) gives: "ok" or the mode in the
+# what ga68 (GCC trunk at commit 3f35c3d2d116) gives: "ok" or the mode in the
 # message. The script checks that a68j gives the same.
 # Usage: tools/skip_modes_test.sh [JAVA].
 cd "$(dirname "$0")/.."
