@@ -122,8 +122,11 @@ def rundir(path, cfg):
 
 
 def clean(text, path):
-    """The text without the directory of the program and without the line
-    the JVM prints for JAVA_TOOL_OPTIONS."""
+    """The text without the directory of the program, without the line
+    the JVM prints for JAVA_TOOL_OPTIONS, and with "\\n" as line end (the
+    JVM ends the lines of the compiler's messages with "\\r\\n" on
+    Windows)."""
+    text = text.replace("\r\n", "\n")
     lines = [l for l in text.splitlines(True) if not l.startswith("Picked up JAVA_TOOL_OPTIONS")]
     text = "".join(lines)
     return text.replace(os.path.dirname(path) + os.sep, "")
