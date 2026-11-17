@@ -60,9 +60,9 @@ Hello, world!
 
 | Check | Result |
 |---|---|
-| Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics |
+| Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics (up to the ga68 commits listed in `docs/PORTING.md`) |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 52 of 52 |
+| a68j's own differential tests (`tests/extra`) | 54 of 54 |
 | Rosetta Code programs that ga68 runs | 680 identical (627 of them end normally), 5 equal up to floating-point rounding, 11 open, of 696 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |

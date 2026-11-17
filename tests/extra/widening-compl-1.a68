@@ -1,0 +1,49 @@
+{ Widening from long int to long compl and from word int to word compl,
+  and the cross-terms of RR 10.2.3.5 and 10.2.3.11 that combine an int or
+  real operand with a real or compl one, for every length and for the
+  word modes. }
+begin
+    proc show = (string what, bool ok) void:
+        puts (what + (ok | " ok" | " wrong") + "'n");
+
+    long compl lc := long 5;
+    show ("long compl := long int", re of lc = long 5.0 AND im of lc = long 0.0);
+    lc +:= long 3;
+    show ("long compl +:= long int", re of lc = long 8.0);
+    lc +:= long 0.5;
+    show ("long compl +:= long real", re of lc = long 8.5);
+    lc *:= long 2;
+    show ("long compl *:= long int", re of lc = long 17.0);
+
+    word compl wc := word 7;
+    show ("word compl := word int", re of wc = word 7.0 AND im of wc = word 0.0);
+    wc +:= word 20;
+    show ("word compl +:= word int", re of wc = word 27.0);
+    wc +:= word 0.5;
+    show ("word compl +:= word real", re of wc = word 27.5);
+    wc -:= word 7;
+    show ("word compl -:= word int", re of wc = word 20.5);
+
+    compl c := 1;
+    c +:= 20;
+    show ("compl +:= int", re of c = 21.0);
+    c +:= 0.5;
+    show ("compl +:= real", re of c = 21.5);
+    long long compl llc := long long 1;
+    llc +:= long long 20;
+    show ("long long compl +:= long long int", re of llc = long long 21.0);
+
+    real r := 0.5; long real lr := long 0.5; long long real llr := long long 0.5;
+    word real wr := word 0.5;
+    r := r + 10; show ("real + int", r = 10.5);
+    lr := lr + long 10; show ("long real + long int", lr = long 10.5);
+    llr := llr + long long 10; show ("long long real + long long int", llr = long long 10.5);
+    wr := wr + word 10; show ("word real + word int", wr = word 10.5);
+    wr := word 10 + wr; show ("word int + word real", wr = word 20.5);
+    show ("real > int", 3.14 > 2);
+    show ("long int < long real", long 2 < long 3.14);
+    show ("word real > word int", word 3.14 > word 2);
+    show ("word int < word real", word 2 < word 3.14);
+    r +:= 10; show ("real +:= int", r = 20.5);
+    wr +:= word 10; show ("word real +:= word int", wr = word 30.5)
+end

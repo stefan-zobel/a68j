@@ -1,0 +1,62 @@
+{ The standard operators on word compl: = /= + - * / CONJ ABS ARG and the
+  assigning operators, also with their word forms, I and +* with word int
+  and word real. a68j implements them as on long compl; ga68 takes them
+  from the module GNU of libga68. whole and fixed do not accept the word
+  modes, so every result is compared with a word real denotation. ABS and
+  ARG are computed as in that module: ABS of a huge value overflows, and
+  ARG follows its case split. }
+begin
+    proc cmp = (string what, word real x, y) void:
+        puts (what + (x < y | " <" | (x > y | " >" | " =")) + "'n");
+    proc ccmp = (string what, word compl z, word real re, im) void:
+        (cmp (what + " re", re of z, re); cmp (what + " im", im of z, im));
+
+    word compl a = (word 3.0, word 4.0), b = (word 1.0, word 2.0);
+    ccmp ("a + b", a + b, word 4.0, word 6.0);
+    ccmp ("a - b", a - b, word 2.0, word 2.0);
+    ccmp ("a * b", a * b, - word 5.0, word 10.0);
+    ccmp ("a / b", a / b, word 2.2, - word 0.4);
+    ccmp ("- a", - a, - word 3.0, - word 4.0);
+    ccmp ("CONJ a", CONJ a, word 3.0, - word 4.0);
+    puts ((a = a | "a = a'n" | "a /= a'n"));
+    puts ((a = b | "a = b'n" | "a /= b'n"));
+    puts ((a /= b | "a /= b'n" | "a = b'n"));
+    puts ((a EQ (word 3.0, word 4.0) | "EQ'n" | "not EQ'n"));
+    puts ((a NE b | "NE'n" | "not NE'n"));
+
+    word compl c := a;
+    c +:= b; ccmp ("+:=", c, word 4.0, word 6.0);
+    c -:= b; ccmp ("-:=", c, word 3.0, word 4.0);
+    c *:= b; ccmp ("*:=", c, - word 5.0, word 10.0);
+    c /:= b; ccmp ("/:=", c, word 3.0, word 4.0);
+    c PLUSAB b; ccmp ("PLUSAB", c, word 4.0, word 6.0);
+    c MINUSAB b; ccmp ("MINUSAB", c, word 3.0, word 4.0);
+    c TIMESAB b; ccmp ("TIMESAB", c, - word 5.0, word 10.0);
+    c DIVAB b; ccmp ("DIVAB", c, word 3.0, word 4.0);
+
+    ccmp ("int I", word 3 I word 4, word 3.0, word 4.0);
+    ccmp ("real +*", word 1.5 +* - word 2.5, word 1.5, - word 2.5);
+
+    cmp ("ABS (3, 4)", ABS a, word 5.0);
+    cmp ("ABS (1, 1)", ABS (word compl (word 1.0, word 1.0)), word 1.4142135623730951);
+    cmp ("ABS huge", ABS (word compl (word 1.0e200, word 1.0e200)), word_max_real);
+
+    proc arg = (word real re, im, expected) void:
+        cmp ("ARG", ARG (word compl (re, im)), expected);
+    arg (word 1.0, word 1.0, word 0.7853981633974483);
+    arg (- word 1.0, word 1.0, word 2.356194490192345);
+    arg (- word 1.0, - word 1.0, - word 2.356194490192345);
+    arg (word 1.0, - word 1.0, - word 0.7853981633974483);
+    arg (word 2.0, word 1.0, word 0.4636476090008061);
+    arg (- word 2.0, word 1.0, word 2.677945044588987);
+    arg (- word 2.0, - word 1.0, - word 2.677945044588987);
+    arg (word 2.0, - word 1.0, - word 0.4636476090008061);
+    arg (word 1.0, word 2.0, word 1.1071487177940904);
+    arg (- word 1.0, - word 2.0, - word 2.0344439357957027);
+    arg (word 3.0, word 4.0, word 0.9272952180016122);
+    arg (word 0.0, word 1.0, word 1.5707963267948966);
+    arg (word 0.0, - word 1.0, - word 1.5707963267948966);
+    arg (word 1.0, word 0.0, word 0.0);
+    arg (- word 1.0, word 0.0, word 3.141592653589793);
+    arg (word 0.0, word 0.0, word 0.0)
+end

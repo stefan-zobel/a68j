@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "widening-compl-1.a68",
+ "stderr": "",
+ "stdout": "long compl := long int ok\nlong compl +:= long int ok\nlong compl +:= long real ok\nlong compl *:= long int ok\nword compl := word int ok\nword compl +:= word int ok\nword compl +:= word real ok\nword compl -:= word int ok\ncompl +:= int ok\ncompl +:= real ok\nlong long compl +:= long long int ok\nreal + int ok\nlong real + long int ok\nlong long real + long long int ok\nword real + word int ok\nword int + word real ok\nreal > int ok\nlong int < long real ok\nword real > word int ok\nword int < word real ok\nreal +:= int ok\nword real +:= word int ok\n"
+}

@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "word-compl-1.a68",
+ "stderr": "",
+ "stdout": "a + b re =\na + b im =\na - b re =\na - b im =\na * b re =\na * b im =\na / b re =\na / b im =\n- a re =\n- a im =\nCONJ a re =\nCONJ a im =\na = a\na /= b\na /= b\nEQ\nNE\n+:= re =\n+:= im =\n-:= re =\n-:= im =\n*:= re =\n*:= im =\n/:= re =\n/:= im =\nPLUSAB re =\nPLUSAB im =\nMINUSAB re =\nMINUSAB im =\nTIMESAB re =\nTIMESAB im =\nDIVAB re =\nDIVAB im =\nint I re =\nint I im =\nreal +* re =\nreal +* im =\nABS (3, 4) =\nABS (1, 1) =\nABS huge >\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\nARG =\n"
+}
