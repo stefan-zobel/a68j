@@ -678,16 +678,54 @@ public final class Scanner {
     }
 
     /** a68_relpath: concatenate P1/P2/FN and canonicalise it (lrealpath). */
-    private static String relpath(String p1, String p2, String fn) {
-        String q = p1 + "/" + p2 + "/" + fn;
+    private String relpath(String p1, String p2, String fn) {
+        // a68j: with -fgenie, as in Algol 68 Genie (a68g-path.c,
+        // a68g_relpath), a directory of the filename that starts with ~ is
+        // one in the home directory, and a ~ elsewhere is an ordinary
+        // character.
+        if (opts.genie && p2.startsWith("~")) {
+            return lrealpath(homeDirectory() + p2.substring(1) + "/" + fn);
+        }
+        String q = windowsLongNames(p1 + "/" + p2) + "/" + fn;
         // Home directory shortcut ~ is a shell extension.
-        if (q.indexOf('~') >= 0) {
+        // Sic: any ~ in the path makes the file not found, also one in the
+        // name of a directory (docs/ga68-bug-reports.md, entry 27). a68j:
+        // not with -fgenie, see above.
+        if (!opts.genie && q.indexOf('~') >= 0) {
             return null;
         }
+        return lrealpath(q);
+    }
+
+    /** libiberty lrealpath: the canonical path, or a copy of Q on failure. */
+    private static String lrealpath(String q) {
         try {
             return Paths.get(q).toRealPath().toString();
         } catch (IOException | RuntimeException e) {
-            return q; // lrealpath returns a copy of the input on failure.
+            return q;
+        }
+    }
+
+    /** The home directory: $HOME, as Algol 68 Genie takes it, else the one of Java. */
+    private static String homeDirectory() {
+        String home = System.getenv("HOME");
+        return home != null ? home : System.getProperty("user.home");
+    }
+
+    /**
+     * a68j: on Windows, DIR with its short (8.3) names, such as STEFAN~1,
+     * replaced by the long ones, if DIR exists, so that the ~ of a short
+     * name does not make an included file not found. A ~ in a long name
+     * stays.
+     */
+    private static String windowsLongNames(String dir) {
+        if (java.io.File.separatorChar != '\\' || dir.indexOf('~') < 0) {
+            return dir;
+        }
+        try {
+            return Paths.get(dir).toRealPath().toString();
+        } catch (IOException | RuntimeException e) {
+            return dir;
         }
     }
 

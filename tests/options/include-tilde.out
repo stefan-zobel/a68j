@@ -1,0 +1,2 @@
+tests/options/include-tilde.a68:5:9: error: included file not found
+exit 1

@@ -214,7 +214,11 @@ the tool with `--ga68` does by hand:
   then in the `-I` directories. ga68 does not find a file with a
   directory from a program given without one (entry 25 of
   [ga68-bug-reports.md](ga68-bug-reports.md)); with `-fgenie` a68j finds
-  it, as Algol 68 Genie does.
+  it, as Algol 68 Genie does. The same holds for a file whose path has a
+  `~` in it (entry 27): with `-fgenie` a directory of the filename that
+  starts with `~` is one in the home directory, and a `~` elsewhere is an
+  ordinary character. On Windows a68j replaces short names such as
+  `STEFAN~1` by the long ones in any case.
 - Values widen between lengths, as in Algol 68 Genie (since version
   0.8.1):
   - `int` to `long int` to `long long int`, `real` to `long real`, `compl`

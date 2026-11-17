@@ -1,0 +1,7 @@
+{ a68j-options: -fstropping=supper }
+{ As in ga68, a file to include is not found when its path has a ~ in it
+  (docs/ga68-bug-reports.md, entry 27).  With -fgenie it is found, as in
+  Algol 68 Genie (tests/formats/genie/read-tilde.a68). }
+begin [[include "include/a~b/greeting.a68"]]
+   puts (greeting + "'n")
+end

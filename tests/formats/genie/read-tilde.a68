@@ -1,0 +1,5 @@
+PR read "include/a~b/greeting.a68" PR
+# -fgenie: a file to read whose path has a ~ in it is found, as in
+  Algol 68 Genie; ga68 does not find it (docs/ga68-bug-reports.md,
+  entry 27, and tests/options/include-tilde.a68) #
+print ((greeting, newline))

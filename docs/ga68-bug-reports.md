@@ -27,7 +27,8 @@ found in the source; what ga68 does with it has not been measured. Entry
 not been examined. Entry 25 was found while the option `-fgenie` was
 written. Entry 26 was found with a Rosetta Code solution that stage 2 of
 `Genie_Formats` lets run further; its cause has been narrowed down by
-measurement only.
+measurement only. Entry 27 was found when a68j included a file from a
+directory with a Windows short name (`STEFAN~1`).
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -65,6 +66,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
 | 25 | ga68 `a68-parser-scanner.cc` | `PR include "dir/file" PR` in a file given without a directory looks for `/dir/file` | reproduces; correct with `-fgenie` |
 | 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
+| 27 | ga68 `a68-parser-scanner.cc` | an included file is not found when its path has a `~` anywhere in it, also in the name of a directory | reproduces; correct with `-fgenie`, and for Windows short names |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -1038,6 +1040,62 @@ themselves (`string`); this has not been examined in the sources.
 
 The Rosetta Code solution `knapsack-problem-unbounded` crashes in this
 way (`printf` of `name OF items`). a68j gives the expected result.
+
+## 27. An included file is not found when its path has a `~` in it
+
+`/home/u/tilde~dir/lib.a68`:
+
+```
+string x = "ok";
+```
+
+`/home/u/tilde~dir/main.a68`:
+
+```
+begin [[include "lib.a68"]]
+  puts (x + "'n")
+end
+```
+
+```
+ga68 -fstropping=supper /home/u/tilde~dir/main.a68 -o main
+```
+
+ga68 reports `/home/u/tilde~dir/main.a68:1:9: error: included file not
+found`. The expected result is a program that prints `ok`, as it does
+when the directory is called `plaindir`, or when ga68 is run in the
+directory as `ga68 main.a68`. The same happens with a `~` in the
+directory of the filename (`[[include "a~b/lib.a68"]]`). Algol 68 Genie
+finds the file in both cases.
+
+`a68_relpath` (a68-parser-scanner.cc, line 866; measured with GCC trunk
+17.0.0 20261116, commit bb5c3bfcb28b) joins the directory of the
+including file, the directory of the filename and the filename, and
+gives up if the result has a `~` anywhere:
+
+```
+/* Home directory shortcut ~ is a shell extension.  */
+if (strchr (q, '~') != NO_TEXT) {
+  return NO_TEXT;
+}
+```
+
+The comment is about `~/` as a shorthand for the home directory, but the
+test rejects every `~`, also one in the name of a directory, which is an
+ordinary character in a path. In Algol 68 Genie 3.13.4 (`a68g-path.c`,
+`a68g_relpath`) only a directory of the filename that starts with `~` is
+taken as one in the home directory (`$HOME`); a `~` elsewhere stays as
+it is.
+
+Suggested fix: remove the test, or do what Algol 68 Genie does.
+
+a68j reproduces the error, except with the option `-fgenie`, where the
+file is found as Algol 68 Genie finds it
+(`tests/formats/genie/read-tilde.a68`; the error itself is
+`tests/options/include-tilde.a68`). On Windows a68j also replaces short
+(8.3) names such as `STEFAN~1` in the directory by the long ones before
+the test, since such names are not chosen by the user and ga68 does not
+see them on Linux.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 
