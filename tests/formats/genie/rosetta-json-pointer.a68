@@ -1,0 +1,98 @@
+# Rosetta Code task "JSON pointer" (RFC 6901): the value a JSON pointer
+  refers to in a JSON document.  The JSON parser and the output are in
+  json.incl.a68 (task "JSON"). #
+PR read "json.incl.a68" PR
+
+# The value that pointer refers to in doc, or the reason why there is none #
+PROC resolve = (JSON doc, STRING pointer) UNION (JSON, JERROR):
+BEGIN
+   STRING p = pointer[AT 1];
+   JSON node := doc;
+   STRING message;
+   PROC fail = (STRING m) VOID: (message := m; GOTO failed);
+
+   # the element of a that token denotes: an index from 0, without leading zeros #
+   PROC element = (REF JARRAY a, STRING token) JSON:
+   BEGIN
+      INT n := 0;
+      IF token = "" THEN fail ("an empty token is no array index") FI;
+      FOR i TO UPB token DO
+         IF token[i] < "0" OR token[i] > "9" THEN fail ("""" + token + """ is no array index") FI
+      OD;
+      IF token[1] = "0" AND UPB token > 1 THEN fail ("""" + token + """ has a leading zero") FI;
+      IF UPB token > 9 THEN fail ("index " + token + " is out of range") FI;
+      FOR i TO UPB token DO n := n * 10 + (ABS token[i] - ABS "0") OD;
+      IF n >= UPB elements OF a THEN
+         fail ("index " + token + " is out of range (" + whole (UPB elements OF a, 0) + " elements)")
+      FI;
+      (elements OF a)[n + 1]
+   END;
+
+   # the member of o with key token #
+   PROC member = (REF JOBJECT o, STRING token) JSON:
+   BEGIN
+      INT i := 1;
+      WHILE i <= UPB members OF o ANDTH key OF (members OF o)[i] /= token DO i +:= 1 OD;
+      IF i > UPB members OF o THEN fail ("no member """ + token + """") FI;
+      value OF (members OF o)[i]
+   END;
+
+   IF UPB p > 0 ANDTH p[1] /= "/" THEN fail ("a pointer must be empty or start with ""/""") FI;
+   INT pos := 1;
+   WHILE pos <= UPB p DO
+      # the token after the "/" at pos, with ~1 decoded to / and ~0 to ~ #
+      STRING token := "";
+      pos +:= 1;
+      WHILE pos <= UPB p ANDTH p[pos] /= "/" DO
+         IF p[pos] /= "~" THEN token +:= p[pos]; pos +:= 1
+         ELIF pos < UPB p ANDTH p[pos + 1] = "0" THEN token +:= "~"; pos +:= 2
+         ELIF pos < UPB p ANDTH p[pos + 1] = "1" THEN token +:= "/"; pos +:= 2
+         ELSE fail ("""~"" must be followed by 0 or 1")
+         FI
+      OD;
+      node := CASE node IN
+                 (REF JARRAY a): element (a, token),
+                 (REF JOBJECT o): member (o, token),
+                 (STRING): (fail ("no """ + token + """ in a string"); SKIP),
+                 (JNUMBER): (fail ("no """ + token + """ in a number"); SKIP),
+                 (BOOL): (fail ("no """ + token + """ in a boolean"); SKIP),
+                 (VOID): (fail ("no """ + token + """ in null"); SKIP)
+              ESAC
+   OD;
+   node EXIT
+failed:
+   JERROR (0, message)
+END;
+
+STRING document =
+   "{" +
+   "  ""wiki"": {" +
+   "    ""links"": [" +
+   "      ""https://rosettacode.org/wiki/Rosetta_Code""," +
+   "      ""https://discord.com/channels/1011262808001880065""" +
+   "    ]" +
+   "  }," +
+   "  """": ""Rosetta""," +
+   "  "" "": ""Code""," +
+   "  ""g/h"": ""chrestomathy""," +
+   "  ""i~j"": ""site""," +
+   "  ""abc"": [""is"", ""a""]," +
+   "  ""def"": { """": ""programming"" }" +
+   "}";
+
+[] STRING pointers = ("", "/", "/ ", "/abc", "/def/", "/g~1h", "/i~0j",
+                      "/wiki/links/0", "/wiki/links/1", "/wiki/links/2",
+                      "/wiki/name", "/no/such/thing", "bad/pointer");
+
+CASE json parse (document) IN
+   (JSON doc):
+      FOR i TO UPB pointers DO
+         print (("""", pointers[i], """ -> "));
+         CASE resolve (doc, pointers[i]) IN
+            (JSON v): print ((json text (v), newline)),
+            (JERROR e): print (("error: ", message OF e, newline))
+         ESAC
+      OD,
+   (JERROR e): print (("error in the document at position ", whole (position OF e, 0), ": ",
+                       message OF e, newline))
+ESAC

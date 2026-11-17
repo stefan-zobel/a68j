@@ -64,7 +64,11 @@ lines in error messages.  NAME.out is its output, recorded with Algol 68
 Genie, compared as in the program tests; standard input is NAME.in if it
 exists.  If NAME.err exists instead, the test runs on a68j -fgenie only:
 the program must end with a non-zero exit status, and the text of
-NAME.err must appear in standard error.
+NAME.err must appear in standard error.  The Rosetta Code solutions
+rosetta-json and rosetta-json-pointer are Genie tests too; they read the
+library json.incl.a68 next to them, as on Rosetta Code (a file NAME.incl.a68
+is a library, not a test), and give the same output, byte for byte, on all
+systems.
 
   --record   writes NAME.expected (or NAME.err) of the rewrite tests from
              the first system, and NAME.out of the program and Genie
@@ -431,7 +435,8 @@ def main():
 
     rewrites = sorted(os.path.basename(p)[:-3] for p in glob.glob(os.path.join(REWRITE_TESTS, "*.in")))
     programs = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(TESTS, "*.a68")))
-    genies = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(GENIE_TESTS, "*.a68")))
+    genies = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(GENIE_TESTS, "*.a68"))
+                    if not p.endswith(".incl.a68"))
     if a.names:
         rewrites = [n for n in rewrites if n in a.names]
         programs = [n for n in programs if n in a.names]

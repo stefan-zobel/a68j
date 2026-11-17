@@ -1,0 +1,13 @@
+"" -> {"wiki": {"links": ["https://rosettacode.org/wiki/Rosetta_Code", "https://discord.com/channels/1011262808001880065"]}, "": "Rosetta", " ": "Code", "g/h": "chrestomathy", "i~j": "site", "abc": ["is", "a"], "def": {"": "programming"}}
+"/" -> "Rosetta"
+"/ " -> "Code"
+"/abc" -> ["is", "a"]
+"/def/" -> "programming"
+"/g~1h" -> "chrestomathy"
+"/i~0j" -> "site"
+"/wiki/links/0" -> "https://rosettacode.org/wiki/Rosetta_Code"
+"/wiki/links/1" -> "https://discord.com/channels/1011262808001880065"
+"/wiki/links/2" -> error: index 2 is out of range (2 elements)
+"/wiki/name" -> error: no member "name"
+"/no/such/thing" -> error: no member "no"
+"bad/pointer" -> error: a pointer must be empty or start with "/"

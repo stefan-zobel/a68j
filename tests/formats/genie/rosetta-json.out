@@ -1,0 +1,15 @@
+{"foo": 1, "bar": [10, "apples"]}
+foo: 1
+the second element of bar: apples
+{"blue": [1, 2], "ocean": "water", "salty": true, "fish": []}
+{
+  "blue": [1, 2],
+  "ocean": "water",
+  "salty": true,
+  "fish": []
+}
+["say \"hello\"", "tab\there", "café", "😀", -1.5e3, null]
+error at position 7: unexpected character ]
+error at position 6: expected :
+error at position 3: leading zero in a number
+error at position 6: unterminated string

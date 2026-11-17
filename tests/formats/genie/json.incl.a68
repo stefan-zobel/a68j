@@ -1,0 +1,329 @@
+# json.incl.a68: JSON values (RFC 8259), a parser and the output as text.
+  Library of the Rosetta Code tasks "JSON" and "JSON pointer"; read it with
+  PR read "json.incl.a68" PR.
+
+  A value is a JSON: null is EMPTY, true and false are BOOLs, a string is a
+  STRING, a number is a JNUMBER, which keeps the text of the number (so a
+  number is never rounded, whatever the length of INT and REAL), an array is
+  a REF JARRAY and an object a REF JOBJECT, whose members keep their order.
+
+  Characters: a \u escape becomes the character with that code point where
+  CHAR holds code points (max abs char > 255), else its UTF-8 bytes, so that
+  the text printed is the same UTF-8 in both cases.  Other characters are
+  taken and written as they are. #
+
+MODE JSON    = UNION (VOID, BOOL, JNUMBER, STRING, REF JARRAY, REF JOBJECT),
+     JNUMBER = STRUCT (STRING numeral),
+     JARRAY  = STRUCT (FLEX [1 : 0] JSON elements),
+     JOBJECT = STRUCT (FLEX [1 : 0] JMEMBER members),
+     JMEMBER = STRUCT (STRING key, JSON value),
+     JERROR  = STRUCT (INT position, STRING message);
+
+# Building values #
+
+PROC json int = (INT i) JNUMBER: (JNUMBER n; numeral OF n := whole (i, 0); n);
+PROC json array = ([] JSON elements) REF JARRAY:
+   (HEAP JARRAY a; elements OF a := elements; a);
+PROC json object = ([] JMEMBER members) REF JOBJECT:
+   (HEAP JOBJECT o; members OF o := members; o);
+
+OP +:= = (REF FLEX [] JSON row, JSON v) REF FLEX [] JSON:
+BEGIN
+   [UPB row + 1] JSON longer;
+   longer[: UPB row] := row;
+   longer[UPB longer] := v;
+   row := longer
+END;
+OP +:= = (REF FLEX [] JMEMBER row, JMEMBER m) REF FLEX [] JMEMBER:
+BEGIN
+   [UPB row + 1] JMEMBER longer;
+   longer[: UPB row] := row;
+   longer[UPB longer] := m;
+   row := longer
+END;
+
+# Selecting values: the member with key k of an object, the element i
+  (from 1) of an array; null if there is none #
+
+PRIO SEL = 9;
+OP SEL = (JSON v, STRING k) JSON:
+   CASE v IN
+      (REF JOBJECT o):
+         BEGIN
+            INT i := 1;
+            WHILE i <= UPB members OF o ANDTH key OF (members OF o)[i] /= k DO i +:= 1 OD;
+            (i <= UPB members OF o | value OF (members OF o)[i] | EMPTY)
+         END
+   OUT EMPTY
+   ESAC;
+OP SEL = (JSON v, INT i) JSON:
+   CASE v IN
+      (REF JARRAY a): (i >= 1 AND i <= UPB elements OF a | (elements OF a)[i] | EMPTY)
+   OUT EMPTY
+   ESAC;
+
+# Parsing: the value of a JSON text, or the position (from 1) and the
+  reason of the first error #
+
+PROC json parse = (STRING json) UNION (JSON, JERROR):
+BEGIN
+   STRING text = json[AT 1];
+   INT pos := 1;
+   JERROR error;
+   PROC fail = (STRING message) VOID: (error := (pos, message); GOTO failed);
+
+   PROC digit = (CHAR c) BOOL: c >= "0" AND c <= "9";
+   PROC skip space = VOID:
+      WHILE pos <= UPB text ANDTH
+            (text[pos] = " " OR text[pos] = REPR 9 OR text[pos] = REPR 10 OR text[pos] = REPR 13)
+      DO pos +:= 1 OD;
+   PROC peek = CHAR: (skip space; (pos <= UPB text | text[pos] | REPR 0));
+   PROC expect = (CHAR c) VOID: (peek = c | pos +:= 1 | fail ("expected " + c));
+   PROC literal = (STRING w) BOOL:
+      IF pos + UPB w - 1 <= UPB text ANDTH text[pos : pos + UPB w - 1] = w
+      THEN pos +:= UPB w; TRUE
+      ELSE FALSE
+      FI;
+
+   PROC value = JSON:
+      IF CHAR c = peek; c = "{" THEN object
+      ELIF c = "[" THEN array
+      ELIF c = """" THEN string
+      ELIF c = "-" OR digit (c) THEN number
+      ELIF literal ("true") THEN TRUE
+      ELIF literal ("false") THEN FALSE
+      ELIF literal ("null") THEN EMPTY
+      ELIF c = REPR 0 THEN fail ("unexpected end of text"); SKIP
+      ELSE fail ("unexpected character " + c); SKIP
+      FI;
+
+   PROC object = REF JOBJECT:
+   BEGIN
+      REF JOBJECT o = HEAP JOBJECT;
+      expect ("{");
+      IF peek /= "}" THEN
+         members OF o +:= member;
+         WHILE peek = "," DO pos +:= 1; members OF o +:= member OD
+      FI;
+      expect ("}");
+      o
+   END;
+   PROC member = JMEMBER:
+   BEGIN
+      IF peek /= """" THEN fail ("expected a string as key") FI;
+      STRING key = string;
+      expect (":");
+      (key, value)
+   END;
+
+   PROC array = REF JARRAY:
+   BEGIN
+      REF JARRAY a = HEAP JARRAY;
+      expect ("[");
+      IF peek /= "]" THEN
+         elements OF a +:= value;
+         WHILE peek = "," DO pos +:= 1; elements OF a +:= value OD
+      FI;
+      expect ("]");
+      a
+   END;
+
+   PROC string = STRING:
+   BEGIN
+      STRING s := "";
+      expect ("""");
+      WHILE
+         IF pos > UPB text THEN fail ("unterminated string") FI;
+         text[pos] /= """"
+      DO
+         CHAR c = text[pos];
+         IF c = "\" THEN
+            pos +:= 1;
+            IF pos > UPB text THEN fail ("unterminated string") FI;
+            CHAR e = text[pos];
+            IF e = """" OR e = "\" OR e = "/" THEN s +:= e
+            ELIF e = "b" THEN s +:= REPR 8
+            ELIF e = "f" THEN s +:= REPR 12
+            ELIF e = "n" THEN s +:= REPR 10
+            ELIF e = "r" THEN s +:= REPR 13
+            ELIF e = "t" THEN s +:= REPR 9
+            ELIF e = "u" THEN s +:= unicode escape
+            ELSE fail ("invalid escape \" + e)
+            FI
+         ELIF ABS c < 32 THEN fail ("control character in a string")
+         ELSE s +:= c
+         FI;
+         pos +:= 1
+      OD;
+      pos +:= 1;
+      s
+   END;
+
+   # the four hexadecimal digits after pos; pos ends on the last one #
+   PROC hex4 = INT:
+   BEGIN
+      INT n := 0;
+      TO 4 DO
+         pos +:= 1;
+         IF pos > UPB text THEN fail ("unterminated string") FI;
+         CHAR h = text[pos];
+         n := n * 16 + (digit (h) | ABS h - ABS "0"
+                       |: h >= "a" AND h <= "f" | ABS h - ABS "a" + 10
+                       |: h >= "A" AND h <= "F" | ABS h - ABS "A" + 10
+                       | fail ("invalid \u escape"); 0)
+      OD;
+      n
+   END;
+
+   # the character of \uXXXX at pos, with the low surrogate that must follow
+     a high one #
+   PROC unicode escape = STRING:
+   BEGIN
+      INT code := hex4;
+      IF code >= 55296 AND code <= 56319 THEN
+         IF pos + 6 <= UPB text ANDTH text[pos + 1 : pos + 2] = "\u" THEN
+            pos +:= 2;
+            INT low = hex4;
+            IF low >= 56320 AND low <= 57343
+            THEN code := 65536 + (code - 55296) * 1024 + (low - 56320)
+            ELSE fail ("invalid low surrogate")
+            FI
+         ELSE fail ("high surrogate without a low one")
+         FI
+      ELIF code >= 56320 AND code <= 57343 THEN fail ("low surrogate without a high one")
+      FI;
+      IF code < 128 OR max abs char > 255 THEN REPR code
+      ELIF code < 2048 THEN REPR (192 + code OVER 64) + REPR (128 + code MOD 64)
+      ELIF code < 65536 THEN
+         REPR (224 + code OVER 4096) + REPR (128 + code OVER 64 MOD 64) + REPR (128 + code MOD 64)
+      ELSE REPR (240 + code OVER 262144) + REPR (128 + code OVER 4096 MOD 64)
+           + REPR (128 + code OVER 64 MOD 64) + REPR (128 + code MOD 64)
+      FI
+   END;
+
+   PROC number = JNUMBER:
+   BEGIN
+      INT start = pos;
+      PROC next is = (CHAR c) BOOL: pos <= UPB text ANDTH text[pos] = c;
+      PROC next digit = BOOL: pos <= UPB text ANDTH digit (text[pos]);
+      PROC digits = VOID:
+      BEGIN
+         IF NOT next digit THEN fail ("digit expected") FI;
+         WHILE next digit DO pos +:= 1 OD
+      END;
+      IF next is ("-") THEN pos +:= 1 FI;
+      IF next is ("0") THEN
+         pos +:= 1;
+         IF next digit THEN fail ("leading zero in a number") FI
+      ELSE digits
+      FI;
+      IF next is (".") THEN pos +:= 1; digits FI;
+      IF next is ("e") OR next is ("E") THEN
+         pos +:= 1;
+         IF next is ("+") OR next is ("-") THEN pos +:= 1 FI;
+         digits
+      FI;
+      JNUMBER n;
+      numeral OF n := text[start : pos - 1];
+      n
+   END;
+
+   JSON doc = value;
+   IF peek /= REPR 0 THEN fail ("text after the value") FI;
+   doc EXIT
+failed:
+   error
+END;
+
+# Output: JSON text on one line, and indented over several lines #
+
+PROC json quote = (STRING s) STRING:
+BEGIN
+   STRING hex = "0123456789abcdef";
+   STRING q := """";
+   FOR i FROM LWB s TO UPB s DO
+      CHAR c = s[i];
+      IF c = """" THEN q +:= "\"""
+      ELIF c = "\" THEN q +:= "\\"
+      ELIF c = REPR 8 THEN q +:= "\b"
+      ELIF c = REPR 12 THEN q +:= "\f"
+      ELIF c = REPR 10 THEN q +:= "\n"
+      ELIF c = REPR 13 THEN q +:= "\r"
+      ELIF c = REPR 9 THEN q +:= "\t"
+      ELIF ABS c < 32 THEN q +:= "\u00" + hex[ABS c OVER 16 + 1] + hex[ABS c MOD 16 + 1]
+      ELSE q +:= c
+      FI
+   OD;
+   q + """"
+END;
+
+PROC json text = (JSON v) STRING:
+   CASE v IN
+      (VOID): "null",
+      (BOOL b): (b | "true" | "false"),
+      (JNUMBER n): numeral OF n,
+      (STRING s): json quote (s),
+      (REF JARRAY a):
+         BEGIN
+            STRING t := "[";
+            FOR i TO UPB elements OF a DO
+               IF i > 1 THEN t +:= ", " FI;
+               t +:= json text ((elements OF a)[i])
+            OD;
+            t + "]"
+         END,
+      (REF JOBJECT o):
+         BEGIN
+            STRING t := "{";
+            FOR i TO UPB members OF o DO
+               IF i > 1 THEN t +:= ", " FI;
+               t +:= json quote (key OF (members OF o)[i]) + ": "
+                     + json text (value OF (members OF o)[i])
+            OD;
+            t + "}"
+         END
+   ESAC;
+
+# an array of numbers, strings, booleans and nulls stays on one line #
+PROC json indented = (JSON v, INT depth) STRING:
+BEGIN
+   PROC line = (INT d) STRING:
+      (STRING s := REPR 10; TO d DO s +:= "  " OD; s);
+   PROC flat = (REF JARRAY a) BOOL:
+   BEGIN
+      BOOL all scalar := TRUE;
+      FOR i TO UPB elements OF a DO
+         CASE (elements OF a)[i] IN
+            (REF JARRAY): all scalar := FALSE,
+            (REF JOBJECT): all scalar := FALSE
+         ESAC
+      OD;
+      all scalar
+   END;
+   CASE v IN
+      (REF JARRAY a):
+         IF flat (a) THEN json text (v)
+         ELSE
+            STRING t := "[";
+            FOR i TO UPB elements OF a DO
+               t +:= (i > 1 | "," | "") + line (depth + 1)
+                     + json indented ((elements OF a)[i], depth + 1)
+            OD;
+            t + line (depth) + "]"
+         FI,
+      (REF JOBJECT o):
+         IF UPB members OF o = 0 THEN "{}"
+         ELSE
+            STRING t := "{";
+            FOR i TO UPB members OF o DO
+               t +:= (i > 1 | "," | "") + line (depth + 1)
+                     + json quote (key OF (members OF o)[i]) + ": "
+                     + json indented (value OF (members OF o)[i], depth + 1)
+            OD;
+            t + line (depth) + "}"
+         FI
+   OUT json text (v)
+   ESAC
+END;
+
+PROC json pretty = (JSON v) STRING: json indented (v, 0);

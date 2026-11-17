@@ -588,7 +588,13 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   besides formats (`PR read` on the first line, in the middle and nested,
   `FILE`, other pragmats), run as they are with `-fgenie` and with Algol
   68 Genie; `NAME.err` checks the line of a run-time error in the main
-  file or in an included file, with `-fgenie` only.
+  file or in an included file, with `-fgenie` only. Among them are two
+  solutions of our own for Rosetta Code tasks that had no ALGOL 68
+  solution, `rosetta-json` ("JSON") and `rosetta-json-pointer` ("JSON
+  pointer"), which read the library `json.incl.a68` with `PR read`, as
+  on Rosetta Code. Their output is the same, byte for byte, with Algol 68
+  Genie, with `-fgenie` and with ga68 (prepared as in
+  `tools/rosetta_prep.py`, with the library in place of the pragmat).
 - `tests/options/genie-*.a68` (`tools/options_tests.sh`): the messages of
   the compiler with `-fgenie`, among them an error found by the tool.
 - `tests/options/formats-*.a68`: `-fformats` in SUPPER and UPPER

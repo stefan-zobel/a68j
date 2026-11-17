@@ -1,0 +1,43 @@
+# Rosetta Code task "JSON": load a JSON string into a data structure, create
+  a data structure and serialize it into JSON.  The parser and the output
+  are in json.incl.a68. #
+PR read "json.incl.a68" PR
+
+PROC show = (STRING text) VOID:
+   CASE json parse (text) IN
+      (JSON v): print ((json text (v), newline)),
+      (JERROR e): print (("error at position ", whole (position OF e, 0), ": ",
+                          message OF e, newline))
+   ESAC;
+
+# Load a JSON string into a data structure #
+STRING sample = "{ ""foo"": 1, ""bar"": [10, ""apples""] }";
+CASE json parse (sample) IN
+   (JSON doc):
+      BEGIN
+         print ((json text (doc), newline));
+         print (("foo: ", json text (doc SEL "foo"), newline));
+         CASE doc SEL "bar" SEL 2 IN
+            (STRING s): print (("the second element of bar: ", s, newline))
+         OUT print (("the second element of bar is not a string", newline))
+         ESAC
+      END,
+   (JERROR e): print ((message OF e, newline))
+ESAC;
+
+# Create a data structure and serialize it #
+JSON sea = json object ((("blue", json array ((json int (1), json int (2)))),
+                         ("ocean", "water"),
+                         ("salty", TRUE),
+                         ("fish", json array (()))));
+print ((json text (sea), newline));
+print ((json pretty (sea), newline));
+
+# Escapes in strings: \u escapes become characters, written as UTF-8 #
+show ("[""say \""hello\"""", ""tab\there"", ""café"", ""😀"", -1.5e3, null]");
+
+# Invalid JSON #
+show ("[1, 2,]");
+show ("{""a"" 1}");
+show ("[01]");
+show ("""open")
