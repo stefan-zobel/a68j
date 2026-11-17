@@ -28,7 +28,9 @@ not been examined. Entry 25 was found while the option `-fgenie` was
 written. Entry 26 was found with a Rosetta Code solution that stage 2 of
 `Genie_Formats` lets run further; its cause has been narrowed down by
 measurement only. Entry 27 was found when a68j included a file from a
-directory with a Windows short name (`STEFAN~1`).
+directory with a Windows short name (`STEFAN~1`). Entry 28 was found
+with the Rosetta Code solution `matrix-multiplication`, which a68j
+compiles with `-fgenie` since structures are items of `print`.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -67,6 +69,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 25 | ga68 `a68-parser-scanner.cc` | `PR include "dir/file" PR` in a file given without a directory looks for `/dir/file` | reproduces; correct with `-fgenie` |
 | 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
 | 27 | ga68 `a68-parser-scanner.cc` | an included file is not found when its path has a `~` anywhere in it, also in the name of a directory | reproduces; correct with `-fgenie`, and for Windows short names |
+| 28 | libga68 `standard.a68.in` | `fixed` writes a "0" before the point when a value below 1 rounds up to 1, e.g. "01.00" | fixed |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -1096,6 +1099,54 @@ file is found as Algol 68 Genie finds it
 (8.3) names such as `STEFAN~1` in the directory by the long ones before
 the test, since such names are not chosen by the user and ga68 does not
 see them on Linux.
+
+## 28. `fixed` writes "01.00" for a value below 1 that rounds up to 1
+
+```
+begin
+    puts ("[" + fixed (0.999999, -6, 2) + "] [" + fixed (0.999999, 6, 2) + "] ["
+          + fixed (0.6, -6, 0) + "] [" + fixed (0.994, -6, 2) + "]'n")
+end
+```
+
+| | ga68 | expected (a68g) |
+|---|---|---|
+| `fixed (0.999999, -6, 2)` | ` 01.00` | `  1.00` |
+| `fixed (0.999999, 6, 2)` | `+01.00` | ` +1.00` |
+| `fixed (0.6, -6, 0)` | `    01` | `     1` |
+| `fixed (0.994, -6, 2)` | `  0.99` | `  0.99` |
+
+Measured with GCC trunk at commit bb5c3bfcb28b; the line number refers
+to that commit. `fixed` (`libga68/standard.a68.in`, line 223) puts a
+"0" before the point when there is room for it and the value is below 1:
+
+```
+then (length > UPB s AND y < {L} 1.0 | "0" +=: s);
+```
+
+`y` is the value before rounding, but `subfixed` rounds it: 0.999999
+with two digits after the point becomes `1.00`, which already has a
+digit before the point, and the "0" is added in front of it. The test
+`y < 1.0` agrees with whether `subfixed` wrote a digit before the point
+only for values that do not round up to 1. Values that round up to 10
+or more are not affected (`fixed (9.999, -6, 2)` gives ` 10.00`), and
+neither is width 0, where the width is computed with the rounded value.
+Algol 68 Genie 3.13.4 (`transput-formatting.c`, line 492) adds the "0"
+only when the string is empty or starts with the point.
+
+Suggested fix: test the result of `subfixed` instead of `y`:
+
+```
+then (length > UPB s AND (UPB s = 0 | true | s[1] = ".") | "0" +=: s);
+```
+
+a68j reproduced the defect until version 0.8.1. Since version 0.9.0
+`fixed` in its copy of the standard prelude (`backend/lib/standard.a68`)
+makes this test (fixed). For 10 values (0.999999, 0.996, 0.994, 0.3,
+0.6, 0.0, 0.05, 9.999, 99.996, -0.999), the widths 2 to 6 and -2 to -6, and 0,
+1 and 2 digits after the point, a68j then gives the results of Algol 68
+Genie in all 300 cases. `tests/java/standard-prelude-defects.a68` checks
+the fix.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

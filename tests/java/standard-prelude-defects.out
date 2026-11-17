@@ -19,5 +19,6 @@ string_to_long_real: TTTT TTTT TTTT FTFT FTFT
 +9.99988867182683e-321 +9.99988867182683e-321
 +1.79769313486232e+308 +1.79769313486232e+308
 10000000000000000000000 -250.0000e-9
+[  1.00] [ +1.00] [     1] [ -1.00] [  0.99] [  0] [  1.00] [  +1.0]
 string_to_long_real near long max real: TTTT FFFF FFFF
 exit 0

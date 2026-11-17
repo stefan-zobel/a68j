@@ -114,7 +114,7 @@ a format for which ga68 reports the errors in a different order).
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
 | ga68 compiles and runs them | 716 |
 | **of these identical to ga68 on the JVM** | **699** |
-| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 26 |
+| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 27 |
 | of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 642 |
 | of these the same up to rounding (`approx`) | 6 |
 
@@ -171,12 +171,14 @@ and a name of one an item of `read` and `readf`, straightened into its
 parts as in Algol 68 Genie: 19 more originals compile (867 before, 886
 now, of 1328), among them `playing-cards` and
 `doubly-linked-list-element-insertion`. 10 of them give the output of
-Algol 68 Genie 3.13.4, 4 the same up to the widths of its numbers, and 2
-are random (`forest-fire`, `playing-cards`); `matrix-multiplication`
-differs where `fixed` rounds a value just below 1 (a68j writes `01.00`
-for `fixed (0.999999, -6, 2)`, Algol 68 Genie ` 1.00`),
-`unicode-strings` relies on the `CHAR` of Algol 68 Genie being a byte,
-and `text-processing-1` needs an input file that is not there. Most
+Algol 68 Genie 3.13.4, 5 the same up to rounding (4 up to the widths of
+its numbers, and `matrix-multiplication` up to the sign of values near
+0, which a68j writes as `-0.00` with its 32-bit `REAL`; before the
+correction of entry 28 of the bug reports it also wrote `01.00` for
+`1.00`), and 2 are random
+(`forest-fire`, `playing-cards`); `unicode-strings` relies on the `CHAR`
+of Algol 68 Genie being a byte, and `text-processing-1` needs an input
+file that is not there. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (since version 0.5.0), 60 more solutions compile; 59 of them give
@@ -250,6 +252,10 @@ again with ga68 at GCC commit 3f35c3d2d116.
   `chebyshev-coefficients`, `multiple-regression` and
   `numerical-integration-romberg-integration`, and `cordic` and
   `particle-swarm-optimization` differ from ga68 anyway (libm, above).
+- `fixed` writes a "0" before the point of a value below 1 that rounds
+  up to 1, e.g. `01.000` (entry 28). a68j reproduced this until version
+  0.8.1; since version 0.9.0 it writes `1.000`, and the result of
+  `gauss-jordan-matrix-inversion` is in `fixed/`.
 - Partial parametrization (`f (3, )`) is compiled, and the program
   crashes.
 - `NIL` accesses and procedures used outside their scope crash without a
