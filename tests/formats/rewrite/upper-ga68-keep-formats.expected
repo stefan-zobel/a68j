@@ -1,0 +1,10 @@
+# --keep-formats: format texts and FORMAT stay as they are; the units in
+  them still get the changes of --ga68 (ANDF). #
+BEGIN
+   FORMAT f = $"it''s "g(w)l$;
+   BOOL a = TRUE, b = FALSE;
+   INT w = 3;
+   printf ((f, 1));
+   printf (($n(a ANDTH b | 2 | 3)d l$, 7));
+   print ((a OREL b, newline))
+END

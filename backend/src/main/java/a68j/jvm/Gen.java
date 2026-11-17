@@ -229,6 +229,12 @@ public final class Gen {
         boolean ownsLabels;
         /** For a unit of a parallel clause with -fpar-threads: a method run in its own thread. */
         boolean parUnit;
+        /**
+         * For a dynamic part of a format text (-fformats, GenFormats): a
+         * method without parameters that yields the value of the unit, of
+         * the mode want, boxed.
+         */
+        boolean valueUnit;
 
         /**
          * Whether an invocation of this routine makes its own frame. A routine
@@ -1218,6 +1224,8 @@ public final class Gen {
                 unit(r.node);
                 discard(mode(r.node));
                 code.aconst_null();
+            } else if (r.valueUnit) {
+                GenFormats.valueUnit(this, r);
             } else if (r.node.attribute == Attribute.SERIAL_CLAUSE) {
                 GenClauses.serial(this, r.node, r.want);
                 box(r.want);
@@ -1295,6 +1303,7 @@ public final class Gen {
             case CALL -> GenUnits.call(this, p);
             case GENERATOR -> GenUnits.generator(this, p);
             case ROUTINE_TEXT -> GenUnits.routineText(this, p);
+            case FORMAT_TEXT -> GenFormats.formatText(this, p);
             case FORMAL_HOLE -> GenJava.formalHole(this, p);
             case DEREFERENCING -> GenCoercions.dereferencing(this, p);
             case DEPROCEDURING -> GenCoercions.deproceduring(this, p);

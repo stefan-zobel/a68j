@@ -1,0 +1,4 @@
+tests/options/formats-unsupported.a68:5:14: error: format item h is not supported
+tests/options/formats-unsupported.a68:6:14: error: C-style patterns are not supported
+tests/options/formats-unsupported.a68:7:14: error: format item g takes at most three parameters
+exit 1

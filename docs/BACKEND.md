@@ -29,7 +29,7 @@ Every mode has a JVM representation (`JType.of(a68, moid)`):
 | REF m | `a68j.rt.Ref` | `NIL` is `null` |
 | [] m, FLEX [] m (incl. STRING) | `a68j.rt.Row` | descriptor + element storage (`Object[]`, or unboxed, see below) |
 | STRUCT (...) | `a68j.rt.Struct` | `Object[] f` of boxed fields; value semantics |
-| UNION (...) | `a68j.rt.Union` | `int mode` (moid number) + boxed `Object value` |
+| UNION (...) | `a68j.rt.Union` | `int mode` (a number of the mode of the value, see below) + boxed `Object value` |
 | PROC ... | `a68j.rt.Proc` | `Object call(Object[] args)` |
 | FILE, CHANNEL | `int` (I) | as ga68 (file descriptor) |
 | anything else | `Object` | |
@@ -232,7 +232,24 @@ not make the name of the element or field at all (§1).
   the name of a variable of a loop that escapes and is dereferenced later;
   the routine text of the last iteration is right, but is reported too.
   Remedies: make the routine text in a procedure called from the loop, or
-  pass the values by partial parametrization (`tests/scope`).
+  pass the values by partial parametrization (`tests/scope`). A format
+  text with dynamic parts (below) is treated as a routine text.
+- **Format texts (`-fformats`, `GenFormats`):** the mode `FORMAT` is the
+  mode `Gformat` of the bundled module `Genie_Formats`, so a format is an
+  ordinary structure. A format text is lowered to a call of `gfmt (text)`
+  or `gfmtd (text, ints, formats)` of the module, through its own tags
+  (`MoidsCheck.genieFormatsTag`), so that a declaration of the program
+  with the same name does not interfere. The text is made from the syntax
+  tree in the syntax that the module parses at run time, without blanks,
+  with `@i` for the dynamic part of index i; constant parameters go into
+  the text. Each dynamic part (the unit of `n(...)`, a parameter of
+  `g(...)`, the unit of `f(...)`) is a method of its own without
+  parameters (`Routine.valueUnit`), made by `Capture` like the units of a
+  parallel clause with `-fpar-threads`: its node is the unit itself, so
+  the identifiers of the enclosing routines it uses get frame slots, and
+  `Hoist`, `Cut` and `Outline` leave it alone. `a68j.rt.FormatParts`
+  holds the closures of the parts of one kind and calls the one of the
+  index it is given.
 
 ## 4. Standard environment and modules
 
@@ -354,6 +371,7 @@ current routine, label maps) and dispatches on the node attribute like
 | `GenCoercions` | a68-low-coercions.cc | dereferencing, deproceduring, proceduring, uniting, rowing, widening, voiding |
 | `GenRows` | a68-low-multiples.cc, -ranges, -structs, -unions | descriptors, bounds checks, trimmers, struct/union helpers |
 | `GenClauses.accessClause`, `Gen.emitModuleAccess` | a68-low-clauses.cc, a68-low.cc (`lower_module_text`) | ACCESS clauses, module classes (prelude, postlude, public tags) |
+| `GenFormats` | — | format texts (`-fformats`, section 3) |
 | `Capture`, `Direct` | — | pre-passes: frame slots of captured identifiers; direct (unboxed) variables |
 | `FrameScope` | — | the warning `-Wframe-scope` (section 3); generates nothing |
 
@@ -538,6 +556,22 @@ value united in one module conforms in another compilation, also when the
 module is written in SUPPER and the program in UPPER stropping; a conformity case compares that number with the
 number of its specifier (or of every member of a united specifier, which then
 gets the united value itself).
+
+**Straightened items (`-fgenie`, `-fformats`).** A structure or a row of
+rows is an item of `print` and `printf` of the bundled modules, and a name
+of one an item of `read` and `readf`, as in Algol 68 Genie, although the
+unions of the items (`Outitem`, `Gfout`, `Initem`, `Gfin`) cannot hold
+it: the front end accepts it where the parameter is a row of one of these
+unions (`MoidsMisc.straightens`) and inserts a uniting, whose value is not
+of a mode of the union. `GenCoercions.uniting` makes such a uniting into
+a call of `Rt.straighten (value, descriptor)`: the descriptor, a string
+constant made from the mode, says how the value falls into parts of
+modes of the union (fields of structures, elements of rows, names of
+fields and elements), and the result is a united value with the mode
+number `Rt.SPREAD` that holds the parts. A row display of items with such
+an element ends with `Rt.flattenItems`, and the rowing of one item with
+`Rt.spreadRow`, which put the parts in its place; so the modules see
+only members of their unions.
 
 **Declarations before use.** As in ga68, the identifiers declared in a serial
 clause exist from the start of the clause (`GenDecls.prologue`): identities

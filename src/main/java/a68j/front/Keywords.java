@@ -236,5 +236,11 @@ public final class Keywords {
         addKeyword(a68, CLOSE_SYMBOL, ")");
         addKeyword(a68, AT_SYMBOL, "@");
         addKeyword(a68, ELIF_SYMBOL, "ELIF");
+        // a68j: -fformats. ga68 has no format texts; the scanner turns the
+        // bold word FORMAT into the indicant GFORMAT (Scanner#tokeniseSource).
+        if (o.formats) {
+            addKeyword(a68, FORMAT_DELIMITER_SYMBOL, "$");
+            addKeyword(a68, FORMAT_SYMBOL, "FORMAT");
+        }
     }
 }

@@ -213,3 +213,41 @@ ga68 commits up to bb5c3bfcb28b that are not ported, and why:
 | 374ee1401 | `ga68-exports.pk`, the description of the export format for GNU poke | no code |
 | b887c1777 | `ga68.map` of the shared libga68 | not used by a68j |
 | aa4d1d548, a44acda56 | configury | not used by a68j |
+
+## 11. The format code of the front end (`-fformats`)
+
+ga68 has no format texts: its scanner knows no `$` and no `format`, and
+`Modes.FORMAT` is never set, so the format code it shares with Algol 68
+Genie (`BottomUp.reduceFormatTexts`, `MoidsCheck.modeCheckFormatText`,
+`Taxes.taxFormatTexts`, `Scope.scopeFormatText` ...) never runs there.
+With the a68j option `-fformats` it does; without it nothing below is
+active, and the front end stays identical to ga68. The additions are
+marked `a68j:`:
+
+- `Keywords.setUpTables`: the keywords `$` and `FORMAT`;
+  `Scanner.tokeniseSource` turns `FORMAT` into the indicant `GFORMAT` and
+  exempts a `LITERAL` of a format text from the keyword lookup, as a
+  string denotation is;
+- `Scanner.accessGenieFormats`: an access list naming `Genie_Transput`
+  gets `Genie_Formats` if the program uses formats;
+- `Extractor.extractRevelation` records the module interface of
+  `Genie_Formats`, and `ParserDriver.parse` sets `Modes.FORMAT` to its
+  mode `Gformat` (the result of `gfmt`) after the mode table is built;
+- `Extractor.elaborateBoldTags` and `MoidsCheck.modeCheckUnit`: the
+  messages for `FORMAT` and a format text without access to
+  `Genie_Formats`; `MoidsCheck.checkGenieFormat` rejects what the module
+  does not have (`h`, C-style patterns, `g` with more than three
+  parameters);
+- `Parser.yieldsValue` and `Sprops.spropsForUnit` know `FORMAT_TEXT`,
+  which C omits (the assertion in `spropsForUnit` failed on the first
+  format text);
+- `MoidsToString` presents `Modes.FORMAT` as `format`.
+
+The rest of the format code runs as ported. Its defects that do not
+matter for a68j stay as they are: `Scope.scopeFormatText` does not visit
+the parameters of `h` (rejected anyway), `Scope.bindScopeToTag` never
+assigns a scope to a `format` identity (it expects the format text right
+after `=`, where the tree has a `UNIT` around it), `MoidsCheck.modeCheckFormatText` is called
+with the format text and walks its siblings too (it has none), and
+`Taxes.bindFormatTagsToTree` is never called. The scope checker, like
+Algol 68 Genie, does not look at the INT units of a format text.

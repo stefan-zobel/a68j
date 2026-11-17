@@ -1,0 +1,33 @@
+# -fgenie: structures, rows of structures, rows of rows and a [,] CHAR as
+  items of print and printf, straightened into their parts as Algol 68
+  Genie does: the fields of a structure in order, the elements of a row in
+  the order of their subscripts. #
+BEGIN
+   MODE CARD = STRUCT (STRING pip, suit);
+   MODE POINT = STRUCT (INT x, y);
+   MODE SEG = STRUCT (POINT from, to, STRING name);
+   MODE MIXED = STRUCT (INT n, [3] REAL r, BOOL b, CHAR c);
+   CARD card := ("ace", "spades");
+   POINT p = (3, 4);
+   SEG s = ((1, 2), (5, 6), "s1");
+   MIXED m = (7, (1.5, 2.5, 3.5), TRUE, "z");
+   [] CARD hand = (("2", "hearts"), ("king", "clubs"));
+   [][] INT jag = ((1, 2), (3, 4, 5));
+   [,] CHAR grid = ("ab", "cd");
+   REF CARD rc = card;
+   print ((card, newline));
+   print ((p, newline));
+   print ((s, newline));
+   print ((m, newline));
+   print ((hand, newline));
+   print ((jag, newline));
+   print ((grid, newline));
+   print ((rc, newline));
+   print (p); print (newline);
+   print (hand); print (newline);
+   printf (($g, ", ", g l$, card));
+   printf (($2(g(0)" ")l$, p));
+   printf (($g(0)";"$, jag, $l$));
+   printf (($4(a) l$, grid));
+   printf (($n(4)(g(0), x), g l$, s))
+END

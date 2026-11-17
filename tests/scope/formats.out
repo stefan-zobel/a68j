@@ -1,0 +1,7 @@
+tests/scope/formats.a68:6:38: warning: format text captures 'k', which is shared by all iterations of the loop, and may outlive its iteration [-Wframe-scope]
+tests/scope/formats.a68:6:22: note: 'k' is declared here
+001
+002
+003
+01
+exit 0

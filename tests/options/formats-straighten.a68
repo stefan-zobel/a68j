@@ -1,0 +1,15 @@
+{ a68j-options: -fformats }
+{ -fformats: a structure and a row of rows as items of print and printf, straightened into their parts as in Algol 68 Genie. }
+access Genie_Transput
+begin
+   mode Point = struct (int x, y);
+   mode Shape = struct (string name, [2] Point corners);
+   Shape box = ("box", ((0, 0), (4, 3)));
+   [] Shape shapes = (box, ("line", ((1, 1), (2, 2))));
+   [,] int m = ((1, 2), (3, 4));
+   [][] real rr = ((0.5), (1.5, 2.5));
+   printf (($g, ":", 4(" ", g(0)) l$, box));
+   printf (($2(g, ":", 4(" ", g(0)) l)$, shapes));
+   print ((m, newline));
+   printf (($3(g(-4, 1))l$, rr))
+end

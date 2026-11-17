@@ -1,0 +1,2 @@
+tests/options/formats-off.a68:6:13: error: construct beginning with '(' in line 6 followed by '$' and then '3' and 'd' and '$' and ',' and '1' and ')' is an invalid collateral clause
+exit 1

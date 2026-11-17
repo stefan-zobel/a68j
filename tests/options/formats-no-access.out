@@ -1,0 +1,2 @@
+tests/options/formats-no-access.a68:4:4: error: format text needs access to Genie_Formats
+exit 1

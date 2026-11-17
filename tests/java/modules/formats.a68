@@ -1,0 +1,9 @@
+{ a68j-options: -fformats }
+{ A module that exports a value of the mode FORMAT (tests/java/formats-module.a68): its dynamic part reads a variable of the module each time the format is used. }
+module Formats =
+access pub Genie_Transput
+def
+   pub int width := 3;
+   pub format bracketed = $"<" n(width)d ">" l$;
+   skip
+fed

@@ -1,0 +1,10 @@
+{ a68j-options: -fformats }
+{ -fformats: the units of a format text have modes: INT for n(...) and g(...), FORMAT for f(...). }
+access Genie_Transput
+begin
+   printf (($n("x")d l$, 1));
+   printf (($g(1.5)l$, 1));
+   printf (($f(1)$, 1));
+   format f = 1;
+   skip
+end

@@ -148,6 +148,8 @@ public final class Parser {
                     CONDITIONAL_CLAUSE, CASE_CLAUSE, CONFORMITY_CLAUSE, COLLATERAL_CLAUSE, DENOTATION,
                     IDENTIFIER, DEREFERENCING, DEPROCEDURING, PROCEDURING, WIDENING, UNITING, ROWING,
                     VOIDING, JUMP -> true;
+            // a68j: format texts exist only with -fformats.
+            case FORMAT_TEXT -> true;
             default -> false;
         };
     }

@@ -1636,7 +1636,9 @@ public final class Scanner {
                     att = IDENTIFIER;
                 }
 
-                if (kw == null || att == ROW_CHAR_DENOTATION) {
+                // a68j: a LITERAL of a format text (-fformats) is no keyword
+                // either, or the insertion "to" would be TO_SYMBOL.
+                if (kw == null || att == ROW_CHAR_DENOTATION || att == LITERAL) {
                     if (att == IDENTIFIER) {
                         changeCase(false);
                     }
@@ -1671,6 +1673,12 @@ public final class Scanner {
                             }
                         }
                         c = kw.text;
+                        // a68j: -fformats. The mode FORMAT is the mode Gformat
+                        // of the module Genie_Formats.
+                        if (att == FORMAT_SYMBOL) {
+                            att = BOLD_TAG;
+                            c = Keywords.addToken(a68, "GFORMAT").text;
+                        }
                         // Handle pragments.
                         if (att == STYLE_II_COMMENT_SYMBOL
                                 || att == STYLE_I_COMMENT_SYMBOL
@@ -1792,6 +1800,87 @@ public final class Scanner {
     }
 
     /**
+     * a68j: -fformats. If the program uses formats (a format text, the mode
+     * FORMAT, or one of the procedures printf, putf, readf, getf and writef,
+     * as the rewrite tool decides), each access list that names Genie_Transput but not
+     * Genie_Formats gets ", Genie_Formats" after Genie_Transput, so that the
+     * format texts find the module and the back end calls its prelude. The
+     * new tokens have the position of Genie_Transput. -fgenie needs no such
+     * change: its access clause names both modules.
+     */
+    private static final java.util.Set<String> FORMAT_PROCS =
+            java.util.Set.of("printf", "putf", "readf", "getf", "writef");
+
+    private void accessGenieFormats() {
+        boolean usesFormats = false;
+        for (Node p = a68.job.topNode; p != null && !usesFormats; p = p.next) {
+            usesFormats = p.is(FORMAT_DELIMITER_SYMBOL)
+                    || (p.is(BOLD_TAG) && p.info.symbol.equals("GFORMAT"))
+                    || (p.is(IDENTIFIER) && FORMAT_PROCS.contains(p.info.symbol));
+        }
+        if (!usesFormats) {
+            return;
+        }
+        for (Node p = a68.job.topNode; p != null; p = p.next) {
+            if (!p.is(ACCESS_SYMBOL) && !p.is(ALT_ACCESS_SYMBOL)) {
+                continue;
+            }
+            Node transput = null;
+            boolean formats = false;
+            Node q = p.next;
+            while (q != null) {
+                if (q.is(PUBLIC_SYMBOL)) {
+                    q = q.next;
+                }
+                if (q == null || !q.is(BOLD_TAG)) {
+                    break;
+                }
+                String m = q.info.symbol.replace("_", "");
+                if (m.equals("GENIETRANSPUT")) {
+                    transput = q;
+                } else if (m.equals("GENIEFORMATS")) {
+                    formats = true;
+                }
+                q = q.next;
+                if (q == null || !q.is(COMMA_SYMBOL)) {
+                    break;
+                }
+                q = q.next;
+            }
+            if (transput != null && !formats) {
+                Node comma = insertToken(transput, COMMA_SYMBOL, Keywords.findKeyword(a68, ",").text);
+                // The module indicant in the spelling of Genie_Transput.
+                String name = transput.info.symbol.replace("TRANSPUT", "FORMATS");
+                insertToken(comma, BOLD_TAG, Keywords.addToken(a68, name).text);
+            }
+        }
+    }
+
+    /** a68j: a new token after P, at the position of P. */
+    private Node insertToken(Node p, Attribute att, String symbol) {
+        Node q = new Node();
+        a68.newNodes++;
+        q.info = new NodeInfo();
+        a68.newNodeInfos++;
+        if (att != COMMA_SYMBOL) {
+            q.genie = new GInfo();
+            a68.newGenieInfos++;
+        }
+        q.status = Status.NULL_MASK;
+        q.info.line = p.info.line;
+        q.info.charInLine = p.info.charInLine;
+        q.attribute = att;
+        q.info.symbol = symbol;
+        q.previous = p;
+        q.next = p.next;
+        if (p.next != null) {
+            p.next.previous = q;
+        }
+        p.next = q;
+        return q;
+    }
+
+    /**
      * a68_lexical_analyser: tokenise the source file and build the initial
      * syntax tree (a linear list of tokens starting at {@code a68.job.topNode}).
      */
@@ -1807,6 +1896,10 @@ public final class Scanner {
         cur.s = 0;
         root = null;
         tokeniseSource(0, false);
+        // a68j: -fformats.
+        if (opts.formats && !opts.genie) {
+            accessGenieFormats();
+        }
 
         // Determine whether the actual file contents resulted in some token.
         boolean emptyProgram = true;

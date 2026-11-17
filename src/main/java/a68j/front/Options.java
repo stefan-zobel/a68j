@@ -52,4 +52,11 @@ public final class Options {
      * ({@link A68#sourceFilter}). See docs/genie-formats.md.
      */
     public boolean genie = false;
+    /**
+     * -fformats (a68j extension): the front end parses format texts and the
+     * mode {@code FORMAT}, which is the mode {@code Gformat} of the bundled
+     * module Genie_Formats; the back end lowers each format text to a call of
+     * {@code gfmt} or {@code gfmtd}. See docs/genie-formats.md.
+     */
+    public boolean formats = false;
 }

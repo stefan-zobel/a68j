@@ -1,0 +1,22 @@
+# -fgenie: names of structures, of rows of structures and of a [,] INT as
+  items of read and readf, straightened into the names of their parts as
+  Algol 68 Genie does. #
+BEGIN
+   MODE POINT = STRUCT (INT x, y);
+   MODE REC = STRUCT (STRING name, POINT at, [3] REAL v);
+   POINT p;
+   read ((p, newline));
+   print ((p, newline));
+   REC r;
+   readf (($g l, g, g, 3(g) l$, r));
+   print ((name OF r, " ", at OF r, v OF r, newline));
+   [2] POINT ps;
+   read ((ps, newline));
+   print ((ps, newline));
+   [2, 2] INT m;
+   read (m);
+   print ((m, newline));
+   REF POINT rp = ps[2];
+   read (rp);
+   print ((ps, newline))
+END

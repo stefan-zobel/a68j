@@ -1,0 +1,12 @@
+{ a68j-options: -fformats }
+{ -Wframe-scope with -fformats: a format text with a dynamic part captures like a routine text. The format made in an iteration of the loop and used after it sees the value of the last iteration. -Wscope gives no warning: the scope checker, like Algol 68 Genie, does not look at the INT units of a format text. }
+access Genie_Transput
+begin
+   [3] format fs;
+   for i to 3 do int k = i; fs[i] := $n(k)d l$ od;
+   for i to 3 do printf ((fs[i], i)) od;
+   format fixed = $n(2)d l$;
+   [3] format gs;
+   for i to 3 do gs[i] := fixed od;
+   printf ((gs[1], 1))
+end

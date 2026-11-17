@@ -53,6 +53,26 @@ public final class A68 {
      * -fformats), or null (the default, as in ga68).
      */
     public SourceFilter sourceFilter;
+    /**
+     * a68j: -fgenie, -fformats. The module interface of Genie_Formats, once
+     * a revelation has imported it ({@link Extractor#extractRevelation});
+     * with -fformats the mode FORMAT is taken from it
+     * ({@link ParserDriver#parse}).
+     */
+    public Moif genieFormats;
+    /**
+     * a68j: -fgenie and -fformats. The module interface of Genie_Transput,
+     * once a revelation has imported it, and the unions of the items of
+     * print, printf, read and readf (Outitem and Initem of Genie_Transput,
+     * Gfout and Gfin of Genie_Formats): a structure or a row of rows made of
+     * their members, or a name of one made of names that are members, is an
+     * item as well, straightened into its parts
+     * ({@link MoidsMisc#straightensTo}).
+     */
+    public Moif genieTransput;
+    public final java.util.List<Moid> itemUnions = new java.util.ArrayList<>();
+    /** a68j: the union of the items of readf (Gfin), one of itemUnions, or null. */
+    public Moid readfUnion;
     /** Association between module indicants and files (-fmodules-map). */
     public final Map<String, String> moduleFiles = new LinkedHashMap<>();
     {

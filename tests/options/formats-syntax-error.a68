@@ -1,0 +1,6 @@
+{ a68j-options: -fformats }
+{ -fformats: the compiler parses format texts, so a syntax error in one is an error of the compiler, with its line and column. }
+access Genie_Transput
+begin
+   printf (($+d.2d +d.2d l$, 1.5, 2.5))
+end

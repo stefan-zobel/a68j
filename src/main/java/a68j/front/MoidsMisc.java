@@ -1000,6 +1000,10 @@ public final class MoidsMisc {
             return true;
         } else if (isWidenable(a68, p, q)) {
             return true;
+        } else if (straightens(a68, p, q)) {
+            // a68j: a structure or a row of rows as an item of print or
+            // printf, or a name of one as an item of read or readf.
+            return true;
         } else if (isDeprefable(a68, p)) {
             return isStronglyCoercible(a68, deprefOnce(a68, p), q, deflex);
         } else if (q == a68.modes.SIMPLOUT || q == a68.modes.ROW_SIMPLOUT) {
@@ -1007,6 +1011,94 @@ public final class MoidsMisc {
         } else {
             return false;
         }
+    }
+
+    /**
+     * a68j: -fgenie, -fformats. The union of the items of print, printf, read
+     * or readf (A68#itemUnions) that Q is, or of which Q is a row, or null.
+     */
+    private static Moid itemUnion(A68 a68, Moid q) {
+        for (Moid u : a68.itemUnions) {
+            if (q == u || (q.attribute == ROW_SYMBOL && q.sub == u)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * a68j: -fgenie, -fformats. Whether a value of mode P, which is not
+     * unitable to it, is an item of print, printf, read or readf of mode Q
+     * all the same (see straightensTo).
+     */
+    public static boolean straightens(A68 a68, Moid p, Moid q) {
+        Moid u = itemUnion(a68, q);
+        return u != null && !isUnitable(a68, p, u, SAFE_DEFLEXING) && straightensTo(a68, p, u);
+    }
+
+    /**
+     * a68j: -fgenie, -fformats. Whether a value of mode P can be straightened
+     * into values of the members of the union U, as Algol 68 Genie does with
+     * the items of print and printf: a member is itself, a structure is its
+     * fields in order, and a row is its elements in the order of their
+     * subscripts, each straightened in turn. A name of a structure or of a
+     * row is the names of its fields or elements in the same way, for the
+     * items of read and readf, whose members are names. The back end makes
+     * the parts (GenCoercions#uniting).
+     */
+    public static boolean straightensTo(A68 a68, Moid p, Moid u) {
+        if (isUnitable(a68, p, u, SAFE_DEFLEXING)) {
+            return true;
+        } else if (p.attribute == REF_SYMBOL) {
+            return nameStraightensTo(a68, p.sub, u);
+        } else if (p.attribute == STRUCT_SYMBOL) {
+            for (Pack f = p.pack; f != null; f = f.next) {
+                if (!straightensTo(a68, f.type, u)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (p.attribute == ROW_SYMBOL || p.attribute == FLEX_SYMBOL) {
+            return straightensTo(a68, p.sub, u);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * a68j: whether a name of mode REF T straightens into names that are
+     * members of the union U (see straightensTo).
+     */
+    private static boolean nameStraightensTo(A68 a68, Moid t, Moid u) {
+        if (nameMember(a68, t, u) != null) {
+            return true;
+        } else if (t.attribute == STRUCT_SYMBOL) {
+            for (Pack f = t.pack; f != null; f = f.next) {
+                if (!nameStraightensTo(a68, f.type, u)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (t.attribute == ROW_SYMBOL && !(t.sub == a68.modes.CHAR && u == a68.readfUnion)) {
+            // Not a flexible row, as in Algol 68 Genie (a68_is_readable_mode).
+            // Nor a [] CHAR in formatted input: Algol 68 Genie reads it as
+            // one string with one pattern, for which Gfin has no name of a
+            // fixed row (read takes it one character at a time, which reads
+            // the same).
+            return nameStraightensTo(a68, t.sub, u);
+        } else {
+            return false;
+        }
+    }
+
+    /** a68j: the member REF T of the union U, or null. */
+    public static Moid nameMember(A68 a68, Moid t, Moid u) {
+        for (Pack k = u.pack; k != null; k = k.next) {
+            if (k.type.attribute == REF_SYMBOL && isEqualModes(a68, k.type.sub, t, NO_DEFLEXING)) {
+                return k.type;
+            }
+        }
+        return null;
     }
 
     /** Basic coercions (a68_basic_coercions). */
@@ -1425,6 +1517,13 @@ public final class MoidsMisc {
             makeRowingCoercion(a68, n, p, q);
         } else if (q.attribute == FLEX_SYMBOL && isStrongSlice(a68, p, q)) {
             makeRowingCoercion(a68, n, p, q);
+        } else if (p.attribute == REF_SYMBOL && straightens(a68, p, q)) {
+            // a68j: a name of a structure or of a row as an item of read or
+            // readf: a uniting that the back end makes into names of its parts.
+            makeCoercion(a68, n, UNITING, q.attribute == ROW_SYMBOL ? q.sub : q);
+            if (q.attribute == ROW_SYMBOL) {
+                makeCoercion(a68, n, ROWING, q);
+            }
         } else if (p.attribute == REF_SYMBOL) {
             Moid r = deprefOnce(a68, p);
             makeCoercion(a68, n, DEREFERENCING, r);
@@ -1434,6 +1533,13 @@ public final class MoidsMisc {
 
             makeCoercion(a68, n, DEPROCEDURING, r);
             makeDepreffingCoercion(a68, n, r, q);
+        } else if (straightens(a68, p, q)) {
+            // a68j: a structure or a row of rows as an item of print or
+            // printf: a uniting that the back end makes into its parts.
+            makeCoercion(a68, n, UNITING, q.attribute == ROW_SYMBOL ? q.sub : q);
+            if (q.attribute == ROW_SYMBOL) {
+                makeCoercion(a68, n, ROWING, q);
+            }
         } else if (p != q) {
             MoidsDiagnostics.cannotCoerce(a68, n, p, q, NO_SORT, SKIP_DEFLEXING, STOP);
         }

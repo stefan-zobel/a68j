@@ -1,2 +1,2 @@
-tests/options/formats-tool-error.a68:5:1: error: unterminated format text
+tests/options/formats-tool-error.a68:6:1: error: unterminated format text
 exit 1

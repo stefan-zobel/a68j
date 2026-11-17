@@ -1173,6 +1173,8 @@ public final class Sprops {
         case NIHIL:
         case EMPTY_SYMBOL:
         case ROUTINE_TEXT:
+        // a68j: format texts exist only with -fformats; like a routine text.
+        case FORMAT_TEXT:
             p.origin = makeOrigin(a68, p);
             p.access = ACCESS_DIR;
             break;

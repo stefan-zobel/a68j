@@ -67,7 +67,9 @@ printing of records and \code|short| values. The module
 adds formatted transput (\code|printf|, \code|putf|, \code|readf|,
 \code|getf|) in the manner of Algol 68 Genie: a68j compiles format texts
 with the option \code|-fformats|, and for ga68 a rewrite tool turns them
-into calls of the module first (Section~\ref{sec-formats}). Algol 68 Genie provides the transput of the Report almost
+into calls of the module first (Section~\ref{sec-formats}). With
+\code|-fformats|, a68j also prints and reads records and rows of rows,
+field by field and element by element, as Algol 68 Genie does. Algol 68 Genie provides the transput of the Report almost
 completely, and adds \code|eof| and \code|eoln|, which
 \code|Genie_Transput| also has; Section~\ref{sec-transput-genie} lists
 what it lacks.
@@ -83,7 +85,7 @@ Feature & ga68 and a68j & Algol 68 Genie \\
 \code|sema| & not in ga68; a68j with \code|-fpar-threads| & yes \\
 \code|compl| operators & yes; ga68 only with the static libga68 (Section~\ref{sec-complex}) & yes \\
 \code|bytes| & no & yes \\
-formats & output only, with \code|Genie_Formats| (a68j: \code|-fformats|; ga68: rewrite tool) & yes \\
+formats & with \code|Genie_Formats| (a68j: \code|-fformats|; ga68: rewrite tool) & yes \\
 lifetime rule (references, procedures, \code|loc| cells) & not checked at run time; warnings with \code|-Wscope|; a68j: warnings where its results are wrong (Section~\ref{sec-proc-lifetimes}) & checked at run time \\
 bounds of an array field when a record is assigned & not checked & checked \\
 initial value of a variable & zero, \code|false|, blank, empty & undefined (an error when used) \\

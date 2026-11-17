@@ -1,0 +1,2 @@
+tests/options/formats-syntax-error.a68:5:17: error: real pattern and real pattern must be separated by a comma-symbol
+exit 1

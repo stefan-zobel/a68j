@@ -1,0 +1,8 @@
+{ a68j-options: }
+{ Without -fgenie and -fformats, a structure is no item of print, as in ga68. }
+access Genie_Transput
+begin
+   mode Point = struct (int x, y);
+   Point p = (1, 2);
+   print ((p, newline))
+end

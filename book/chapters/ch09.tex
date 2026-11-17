@@ -307,17 +307,17 @@ the values; \code|putf| does the same for a given file, and
 \example{ch09/formats}
 
 \begin{implnote}
-ga68 and a68j do not compile format texts themselves. A rewrite tool,
-written in Algol 68, turns each format text into a call of the module
-\code|Genie_Formats|, which lays out the values when the program runs,
-in the manner of Algol 68 Genie; the program needs only
-\code|access Genie_Transput|, and the tool adds the access to
-\code|Genie_Formats|. a68j runs the tool itself with the option
-\code|-fformats|:
+ga68 does not compile format texts. The module \code|Genie_Formats|
+lays out the values when the program runs, in the manner of Algol 68
+Genie. a68j compiles format texts into calls of that module with the
+option \code|-fformats|; the program needs only
+\code|access Genie_Transput|, and the compiler adds the access to
+\code|Genie_Formats|:
 \begin{lstlisting}[style=shell]
 $ java -jar a68j-backend.jar -fformats -run formats.a68
 \end{lstlisting}
-For ga68, the module \texttt{genieformats.a68} and the tool
+For ga68, a rewrite tool written in Algol 68 turns each format text into
+such a call first. The module \texttt{genieformats.a68} and the tool
 (\texttt{rewrite-a68j.a68} and \texttt{rewrite.a68}, in UPPER stropping),
 which come with a68j, are compiled once; the tool then rewrites the
 program before it is compiled:
@@ -329,7 +329,8 @@ $ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats
 \end{lstlisting}
 The lines of the program stay the same, so messages refer to the right
 line. An error inside a format text, such as an unknown frame, shows only
-when the program runs. Formatted input (Section~\ref{sec-readf}) works
+when the program runs; a68j reports it when it compiles the program, as
+Algol 68 Genie does. Formatted input (Section~\ref{sec-readf}) works
 the same way.
 \end{implnote}
 

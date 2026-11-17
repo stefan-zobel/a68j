@@ -1,0 +1,2 @@
+tests/options/formats-straighten-error.a68:7:4: error: 'NODE' cannot be coerced to '[] OUTITEM' in a strong-argument
+exit 1

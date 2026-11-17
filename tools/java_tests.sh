@@ -1,7 +1,9 @@
 #!/bin/sh
 # Tests of the Java connection (tests/java): nest Java (-fnest-java) and the
-# bundled modules Lists and Hashmaps. The modules tests/java/modules/X.a68
-# are compiled first, into tests/java/lib/libX.jar. Every program X.a68 is
+# bundled modules Lists and Hashmaps, and of modules of the tests. The
+# modules tests/java/modules/X.a68 are compiled first, into
+# tests/java/lib/libX.jar, with the options of their first line
+# "{ a68j-options: ... }" if they have one (formats.a68: -fformats). Every program X.a68 is
 # compiled and run, and its output and exit status are compared with X.out.
 # Options come from a first line "{ a68j-options: ... }", environment
 # variables for the run from a second line "{ a68j-env: NAME=VALUE ... }".
@@ -22,7 +24,8 @@ JAVAC=$(dirname "$JAVA")/javac; [ -x "$JAVAC" ] || JAVAC=javac
 mkdir -p tests/java/lib
 for m in tests/java/modules/*.a68; do
   n=$(basename "$m" .a68)
-  "$JAVA" -cp $JAR a68j.jvm.Compile -fnest-java -fjava-classpath=tests/java/classes "$m" \
+  mopts=$(sed -n '1s/^{ a68j-options: \(.*\) }$/\1/p' "$m")
+  "$JAVA" -cp $JAR a68j.jvm.Compile -fnest-java -fjava-classpath=tests/java/classes $mopts "$m" \
     -d "tests/java/lib/lib$n.jar" 2>&1 | grep -v '^Picked up'
   [ -f "tests/java/lib/lib$n.jar" ] || { echo "cannot compile $m"; exit 1; }
 done

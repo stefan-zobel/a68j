@@ -194,7 +194,6 @@ final class Intrinsics {
      */
     static void callModuleTag(Gen g, Tag t, List<Node> args, Node p) {
         Moid proc = JType.base(t.type);
-        List<ClassDesc> params = new ArrayList<>();
         int i = 0;
         for (Pack z = proc.pack; z != null; z = z.next, i++) {
             Node a = args.get(i);
@@ -205,6 +204,18 @@ final class Intrinsics {
             } else {
                 GenUnits.copyIfValue(g, z.type);
             }
+        }
+        invokeModuleTag(g, t);
+    }
+
+    /**
+     * The call of the procedure T of a module, its arguments on the stack
+     * (in the representation of the parameter modes, copied as needed).
+     */
+    static void invokeModuleTag(Gen g, Tag t) {
+        Moid proc = JType.base(t.type);
+        List<ClassDesc> params = new ArrayList<>();
+        for (Pack z = proc.pack; z != null; z = z.next) {
             params.add(JType.of(g.a68, z.type).desc);
         }
         var bsm = java.lang.constant.MethodHandleDesc.ofMethod(

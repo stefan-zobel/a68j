@@ -161,7 +161,22 @@ up to rounding (entry 4: ga68 writes wrong digits of a `REAL`). Of the
 30 originals that stop with `clause does not yield a value` under
 `-fgenie`, 29 end with a declaration, which Algol 68 Genie rejects with
 the same message; in the 30th, `enumerations-2`, the rewrite tool does
-not handle a conformity clause of format texts inside `f(...)`. Most
+not handle a conformity clause of format texts inside `f(...)` (when the
+compiler parses the format texts itself, `A68J_FORMATS=lower`, it gets
+past them and stops at a `SHORT SHORT INT` later). With
+`A68J_FORMATS=lower`, all 220 originals that use formats give the same
+output and exit status as with the rewrite tool. A structure, a row of
+rows or a `[] CHAR` is an item of `print` and `printf` with `-fgenie`,
+and a name of one an item of `read` and `readf`, straightened into its
+parts as in Algol 68 Genie: 19 more originals compile (867 before, 886
+now, of 1328), among them `playing-cards` and
+`doubly-linked-list-element-insertion`. 10 of them give the output of
+Algol 68 Genie 3.13.4, 4 the same up to the widths of its numbers, and 2
+are random (`forest-fire`, `playing-cards`); `matrix-multiplication`
+differs where `fixed` rounds a value just below 1 (a68j writes `01.00`
+for `fixed (0.999999, -6, 2)`, Algol 68 Genie ` 1.00`),
+`unicode-strings` relies on the `CHAR` of Algol 68 Genie being a byte,
+and `text-processing-1` needs an input file that is not there. Most
 of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (since version 0.5.0), 60 more solutions compile; 59 of them give

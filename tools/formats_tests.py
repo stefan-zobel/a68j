@@ -14,6 +14,10 @@ Three kinds of tests.  The systems are:
                 $JDK25/bin/java, else java);
   a68j -fgenie  the same a68j, compiling the original program with the
                 option -fgenie (program tests and Genie tests only);
+  a68j -fgenie lowered
+                the same, with A68J_FORMATS=lower: the compiler parses the
+                format texts and lowers them to calls of Genie_Formats,
+                instead of the rewrite tool;
   a68g          --a68g A68G: Algol 68 Genie;
   ga68          --ga68 XGCC --libdir LIBGA68: ga68, with the modules
                 Genie_Transput and Genie_Formats compiled from backend/lib.
@@ -48,7 +52,9 @@ runs it:
               in tools/partial_tests.py;
   a68j -fgenie  the original program, compiled with -fgenie, which
               rewrites it in the compiler; the output is compared as on
-              a68j;
+              a68j; the same for a68j -fgenie lowered, but if
+              NAME.lowered.err exists, its text is the error expected there
+              (an error that the compiler finds in a format text);
   a68g        the rewritten program together with an Algol 68 Genie
               version of Genie_Formats, made from its source (UPPER
               stropping, without the module frame) put in front of it;
@@ -211,7 +217,20 @@ class A68jGenie:
         os.makedirs(self.work, exist_ok=True)
 
     def run_program(self, name, path, data, stdin):
-        return run([self.java, "-jar", self.jar, "-fgenie", "-run", path], stdin, cwd=fresh_dir(self.work))
+        return run([self.java, "-jar", self.jar, "-fgenie", "-run", path], stdin, cwd=fresh_dir(self.work),
+                   env=self.env)
+
+    env = None
+
+
+class A68jLowered(A68jGenie):
+    """a68j -fgenie with the format texts lowered by the compiler."""
+    name = "a68j -fgenie lowered"
+
+    def __init__(self, java, jar, work):
+        self.java, self.jar, self.work = java, jar, os.path.join(work, "a68j-lowered")
+        os.makedirs(self.work, exist_ok=True)
+        self.env = dict(os.environ, A68J_FORMATS="lower")
 
 
 class A68g:
@@ -348,8 +367,12 @@ def program_test(name, systems, record, tests=TESTS):
     if os.path.exists(err_file):
         # The program must end with an error that contains the text of
         # NAME.err; Algol 68 Genie writes its messages to standard output.
-        want = open(err_file, encoding="utf-8").read().strip()
+        want_all = open(err_file, encoding="utf-8").read().strip()
+        lowered_file = os.path.join(tests, name + ".lowered.err")
         for s in runs:
+            want = want_all
+            if s.name == "a68j -fgenie lowered" and os.path.exists(lowered_file):
+                want = open(lowered_file, encoding="utf-8").read().strip()
             r = s.run_program(name, path, data, stdin)
             text = r.err.decode("utf-8", "replace") + r.text()
             if r.status == 0 or want not in text:
@@ -396,12 +419,12 @@ class Original:
 
 def genie_test(name, systems, record):
     """A Genie test: on a68j -fgenie and Algol 68 Genie, or, with NAME.err,
-    on a68j -fgenie only."""
+    on a68j -fgenie only (with and without the lowering)."""
     if os.path.exists(os.path.join(GENIE_TESTS, name + ".err")):
-        systems = [s for s in systems if s.name == "a68j -fgenie"]
+        systems = [s for s in systems if s.name in ("a68j -fgenie", "a68j -fgenie lowered")]
     else:
         systems = [Original(s) if s.name == "a68g" else s
-                   for s in systems if s.name in ("a68j -fgenie", "a68g")]
+                   for s in systems if s.name in ("a68j -fgenie", "a68j -fgenie lowered", "a68g")]
     if not systems:
         return []
     return program_test(name, systems, record, GENIE_TESTS)
@@ -426,6 +449,7 @@ def main():
     if not a.no_java:
         systems.append(A68j(a.java, os.path.abspath(a.jar), work))
         systems.append(A68jGenie(a.java, os.path.abspath(a.jar), work))
+        systems.append(A68jLowered(a.java, os.path.abspath(a.jar), work))
     if a.a68g:
         systems.append(A68g(a.a68g, work))
     if a.ga68:
