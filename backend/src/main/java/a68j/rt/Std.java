@@ -388,8 +388,22 @@ public final class Std {
     public static Struct up_cx_i(Struct z, int n) { return cpow(true, z, n); }
     public static double opre_lcx(Struct z) { return re(z); }
     public static double opim_lcx(Struct z) { return im(z); }
-    public static double opabs_lcx(Struct z) { return Math.hypot(re(z), im(z)); }
-    public static double oparg_lcx(Struct z) { return Math.atan2(im(z), re(z)); }
+    // ABS and ARG on LONG COMPL in Std serve WORD COMPL (Gen#isWordComplOperator);
+    // those of programs on LONG COMPL come from standard.a68. They compute as
+    // ABS and ARG of libga68's gnu.a68, so that the results agree with ga68
+    // to the last digit.
+    public static double opabs_lcx(Struct z) { double r = re(z), i = im(z); return Math.sqrt(r * r + i * i); }
+    public static double oparg_lcx(Struct z) {
+        double zr = re(z), zi = im(z);
+        if (zr != 0 || zi != 0) {
+            if (Math.abs(zr) > Math.abs(zi)) {
+                return Math.atan(zi / zr) + Math.PI / 2 * (zi < 0 ? Math.signum(zr) - 1 : 1 - Math.signum(zr));
+            } else {
+                return -Math.atan(zr / zi) + Math.PI / 2 * Math.signum(zi);
+            }
+        }
+        return 0;
+    }
     public static Struct opconj_lcx(Struct z) { return compl(false, re(z), -im(z)); }
     public static Struct op$minus_lcx(Struct z) { return compl(false, -re(z), -im(z)); }
     public static Struct op$plus_lcx(Struct z) { return z; }

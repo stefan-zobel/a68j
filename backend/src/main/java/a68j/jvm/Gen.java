@@ -95,8 +95,12 @@ public final class Gen {
      */
     private void checkLowering(Node p) {
         for (; p != null; p = p.next) {
-            if ((p.attribute == Attribute.IDENTIFIER || p.attribute == Attribute.OPERATOR) && p.tag != null
-                    && p.tag.unimplemented && !(a68.options().parThreads && isSemaOperator(p.tag))) {
+            // A dyadic formula: ga68 calls the lowerer of the operator with
+            // the formula (a68_lower_formula), before its operands, so the
+            // error is at the start of the formula.
+            Node dyadic = p.attribute == Attribute.FORMULA && p.sub != null ? p.sub.next : null;
+            if ((p.attribute == Attribute.IDENTIFIER || p.attribute == Attribute.OPERATOR) && unimplemented(p.tag)
+                    || dyadic != null && dyadic.attribute == Attribute.OPERATOR && unimplemented(dyadic.tag)) {
                 throw new Fatal(p, "no lowering routine installed for construct.  jemarch has been lazy");
             }
             switch (p.attribute) {
@@ -126,6 +130,12 @@ public final class Gen {
             }
             checkLowering(p.sub);
         }
+    }
+
+    /** Whether T is a standard identifier or operator without a lowerer that a68j does not implement either. */
+    private boolean unimplemented(a68j.front.Tag t) {
+        return t != null && t.unimplemented && !(a68.options().parThreads && isSemaOperator(t))
+                && !isWordComplOperator(t);
     }
 
     private void needSkip(Node p, Moid m) {
@@ -174,6 +184,34 @@ public final class Gen {
             }
         }
         return false;
+    }
+
+    /** The operators on WORD COMPL that a68j implements although the prelude declares them without a lowerer. */
+    private static final java.util.Set<String> WORD_COMPL_DYADIC = java.util.Set.of("=", "EQ", "/=", "NE",
+            "+", "-", "*", "/", "+:=", "-:=", "*:=", "/:=", "PLUSAB", "MINUSAB", "TIMESAB", "DIVAB");
+    private static final java.util.Set<String> WORD_COMPL_MONADIC = java.util.Set.of("-", "ABS", "ARG");
+
+    /**
+     * Whether T is a standard operator on WORD COMPL that a68j implements in
+     * Std, as for LONG COMPL, which has the same representation. The
+     * prelude declares these operators without a lowerer; since commit
+     * 4b22e5581, ga68 takes them from the module GNU of libga68, which
+     * a68j does not have. That module has no monadic + and no **, UP and ^
+     * on WORD COMPL, so these stay a fatal error, as in ga68.
+     */
+    private boolean isWordComplOperator(a68j.front.Tag t) {
+        Moid m = t.type;
+        if (t.moif != null || m == null || m.attribute != Attribute.PROC_SYMBOL || m.pack == null) {
+            return false;
+        }
+        boolean word = false;
+        for (a68j.front.Pack z = m.pack; z != null; z = z.next) {
+            if (z.type == a68.modes.WORD_COMPLEX || z.type == a68.modes.REF_WORD_COMPLEX) {
+                word = true;
+            }
+        }
+        String n = Intrinsics.name(t);
+        return word && (m.pack.next == null ? WORD_COMPL_MONADIC.contains(n) : WORD_COMPL_DYADIC.contains(n));
     }
 
     /** A routine text, or the particular program (node == top). */

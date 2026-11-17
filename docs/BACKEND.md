@@ -251,7 +251,10 @@ COMPL), `rows`, `row`, `ref`, `struct`, `union`, `proc`. Standard
 procedures used as values become a `Proc` that calls the method by
 reflection (`Std.procValue`); a deproceduring of a standard procedure calls
 it directly. `a68j.jvm.StdCheck` lists the standard-environment tags without
-a method. The flag
+a method. The prelude declares the operators on WORD COMPL without a
+lowerer, and ga68 takes them from libga68's module GNU; a68j compiles them
+to the `lcx` methods instead (`Gen#isWordComplOperator`), whose ABS and ARG
+compute as that module does. The flag
 `Rt.strict` (-std=algol68) selects the strict variants (e.g. BIN, ABS on BITS). Reference for the semantics:
 `a68-low-prelude.cc`, `a68-low-ints.cc`, `-reals`, `-bits`, `-bools`,
 `-chars`, `-strings`, `-complex`, and libga68 (`/home/me/src/gcc/libga68`).
