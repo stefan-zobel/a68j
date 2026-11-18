@@ -28,7 +28,12 @@
   local_time, utc_time        [] int: year, month, day, hours, minutes,
                               seconds, day of the week (1 = Sunday) and 1 if
                               daylight saving time is in effect, else 0.
-  cpu_time                    the CPU time of the process in seconds, a real.
+  cpu_time, clock, seconds    the CPU time of the program in seconds since
+                              it started, a real.
+  wall_time, wall_clock, wall_seconds
+                              the seconds since the program started, a real.
+  sleep (x)                   waits ABS x seconds, x a real (or an int,
+                              widened), and gives 0.
 
   Four modes, Java objects whose values never change; = compares the
   values, IS the objects:
@@ -100,6 +105,12 @@ def
     pub proc [] int local_time = nest Java "a68j.jlib.Times.localTime";
     pub proc [] int utc_time = nest Java "a68j.jlib.Times.utcTime";
     pub proc real cpu_time = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real clock = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real seconds = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real wall_time = nest Java "a68j.jlib.Times.wallTime";
+    pub proc real wall_clock = nest Java "a68j.jlib.Times.wallTime";
+    pub proc real wall_seconds = nest Java "a68j.jlib.Times.wallTime";
+    pub proc (real) int sleep = nest Java "a68j.jlib.Times.sleep";
 
     { Construction, the clock and time zones. }
     pub proc (int, int, int) Date date = nest Java "a68j.jlib.DateValue.of";

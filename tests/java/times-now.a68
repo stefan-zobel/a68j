@@ -23,5 +23,13 @@ access Times (
    int s := 0;
    for k to 2000000 do s +:= k MOD 7 od;
    real c1 = cpu_time;
-   puts (b (c0 >= 0 AND c1 >= c0 AND s > 0) + "'n")
+   puts (b (c0 >= 0 AND c1 >= c0 AND s > 0) + "'n");
+   { The other names of Algol 68 Genie: clock and seconds are cpu_time,
+     wall_clock and wall_seconds are wall_time; sleep waits ABS x seconds
+     and gives 0.  CPU time starts with the program. }
+   puts (b (c0 < 10 AND clock >= c1 AND seconds >= c1) + "'n");
+   real w0 = wall_time;
+   int r = sleep (0.2), r2 = sleep (-0.1);
+   real w1 = wall_clock;
+   puts (b (w0 >= 0 AND r = 0 AND r2 = 0 AND w1 - w0 >= 0.29 AND wall_seconds >= w1) + "'n")
 )

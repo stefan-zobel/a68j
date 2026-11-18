@@ -16,7 +16,10 @@
 package a68j.jlib;
 
 import a68j.rt.JavaObject;
+import a68j.rt.Rt;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -35,7 +38,7 @@ import java.util.Map;
 /**
  * The procedures of the Algol 68 module Times (backend/lib/times.a68) that
  * belong to no single mode: those of Algol 68 Genie (local time, utc time,
- * cpu time), the zone of the system, and the helpers of DateValue,
+ * cpu time, wall time, sleep), the zone of the system, and the helpers of DateValue,
  * DatetimeValue, DurationValue and PeriodValue for checked construction,
  * time zones and patterns. Only static methods.
  */
@@ -70,18 +73,61 @@ public final class Times {
         };
     }
 
-    private static final long START = System.nanoTime();
-
     /**
-     * cpu_time: the CPU time of the process in seconds; where the system
-     * does not report it, the seconds since the program started.
+     * cpu_time (also clock and seconds): the CPU time of the program in
+     * seconds, as Algol 68 Genie counts it from the start of the program.
+     * That is the CPU time of the thread that runs the program, which starts
+     * with the program ({@link Rt#start}), so that neither the start of the
+     * JVM nor the compilation with -run counts; without that thread, or
+     * where the system does not measure the time of a thread, the CPU time
+     * of the process; where the system does not report that either, the
+     * seconds since the program started.
      */
     public static double cpuTime() {
+        Thread t = Rt.programThread();
+        if (t != null) {
+            ThreadMXBean mx = ManagementFactory.getThreadMXBean();
+            if (mx.isThreadCpuTimeSupported()) {
+                long n = mx.getThreadCpuTime(t.threadId());
+                if (n >= 0) {
+                    return n / 1e9;
+                }
+            }
+        }
         Duration d = ProcessHandle.current().info().totalCpuDuration().orElse(null);
         if (d != null) {
             return d.getSeconds() + d.getNano() / 1e9;
         }
-        return (System.nanoTime() - START) / 1e9;
+        return wallTime();
+    }
+
+    /**
+     * wall_time (also wall_clock and wall_seconds): the seconds since the
+     * program started.
+     */
+    public static double wallTime() {
+        return (System.nanoTime() - Rt.startNanos()) / 1e9;
+    }
+
+    /**
+     * sleep: waits ABS S seconds and gives 0, as Algol 68 Genie does when
+     * the time has passed.
+     */
+    public static int sleep(double s) {
+        double a = Math.abs(s);
+        if (!(a < Long.MAX_VALUE / 1e9)) {
+            throw JavaObject.error("invalid argument for sleep");
+        }
+        long end = System.nanoTime() + (long) (a * 1e9);
+        for (long left = end - System.nanoTime(); left > 0; left = end - System.nanoTime()) {
+            try {
+                Thread.sleep(Duration.ofNanos(left));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        return 0;
     }
 
     /** local_zone: the time zone of the system, such as Europe/Berlin. */

@@ -900,9 +900,9 @@ that access them (`-I tests/java/lib`).
 | `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
 | `files-basic` | the module `Files`: whole files, lines, sizes, times, listing and walking, moving, copying and deleting, in a temporary directory ([files.md](files.md)) |
 | `files-genie` | the procedures of Algol 68 Genie in `Files` on a directory, a file and a missing path |
-| `files-error-1` … `-4` | a missing file, a directory that is not empty, a file listed as a directory, a directory copied: runtime errors with the position in the program |
+| `files-error-1` … `-6` | a missing file, a directory that is not empty, a file listed as a directory, a directory copied, `get_directory` of a missing directory and of a file: runtime errors with the position in the program |
 | `times-basic` | the module `Times`: construction, fields, days, periods and month ends, durations, comparisons, assigning operators, ISO text and patterns, seconds since 1970 in fixed zones across changes of daylight saving time ([times.md](times.md)) |
-| `times-now` | the clock: `today`, `now`, `now_in`, `local_time`, `utc_time` and `cpu_time` checked for their ranges and their agreement |
+| `times-now` | the clock: `today`, `now`, `now_in`, `local_time`, `utc_time`, `cpu_time`, `wall_time` and `sleep` checked for their ranges and their agreement |
 | `times-error-1` … `-5` | an invalid date, a text that does not fit its pattern, an invalid pattern, an unknown zone, `nil`: runtime errors with the position in the program |
 
 Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.

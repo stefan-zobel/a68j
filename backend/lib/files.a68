@@ -27,11 +27,15 @@
   The procedures of Algol 68 Genie, with its names and modes:
 
   get_directory (dir)         the names in dir, "." and ".." first, then the
-                              others sorted; none if dir is not a directory.
+                              others sorted; an error if dir is not a
+                              directory.
   file_is_directory (path)    also file_is_regular, file_is_link,
                               file_is_block_device, file_is_char_device,
                               file_is_fifo: false if path does not exist.
   file_mode (path)            st_mode as bits, 0 if path does not exist.
+  get_pwd                     the current directory, absolute.
+  real_path (path)            path as an absolute path with symbolic links
+                              resolved, "" if path does not exist.
 
   Further procedures:
 
@@ -74,6 +78,8 @@ def
     pub proc (string) bool file_is_char_device = nest Java "a68j.jlib.Filesystem.isCharDevice";
     pub proc (string) bool file_is_fifo = nest Java "a68j.jlib.Filesystem.isFifo";
     pub proc (string) bits file_mode = nest Java "a68j.jlib.Filesystem.mode";
+    pub proc string get_pwd = nest Java "a68j.jlib.Filesystem.currentDirectory";
+    pub proc (string) string real_path = nest Java "a68j.jlib.Filesystem.realPath";
 
     { Queries. }
     pub proc (string) bool file_exists = nest Java "a68j.jlib.Filesystem.exists";

@@ -38,16 +38,21 @@ numbers.txt 6
 
 | Name | Meaning |
 |---|---|
-| `get_directory (string dir) [] string` | the names in `dir`: `.` and `..` first, then the others sorted; no names if `dir` is not a directory that can be read |
+| `get_directory (string dir) [] string` | the names in `dir`: `.` and `..` first, then the others sorted |
 | `file_is_directory (string path) bool` | whether `path` is a directory |
 | `file_is_regular (string path) bool` | whether `path` is a regular file |
 | `file_is_link (string path) bool` | whether `path` is a symbolic link |
 | `file_is_block_device`, `file_is_char_device`, `file_is_fifo` | the same for the special files of POSIX |
 | `file_mode (string path) bits` | `st_mode` of POSIX: the type bits (`8r170000`) and the permissions |
+| `get_pwd string` | the current directory, absolute |
+| `real_path (string path) string` | `path` as an absolute path, without `.` and `..` and with every symbolic link resolved; `""` if `path` does not exist |
 
-They do not fail. For a path that does not exist, the `file_is_` procedures
-yield `false` and `file_mode` yields 0. Except for `file_is_link`, they
-follow symbolic links, as `stat` does.
+Only `get_directory` fails: if `dir` does not exist or is not a
+directory that can be read, it is a runtime error with the text of
+Algol 68 Genie, such as `file access error, no such file or directory`
+or `file access error, not a directory`. For a path that does not exist,
+the `file_is_` procedures yield `false` and `file_mode` yields 0. Except
+for `file_is_link`, they follow symbolic links, as `stat` does.
 
 ### Further procedures
 
@@ -87,9 +92,9 @@ follow symbolic links, as `stat` does.
 
 ## Errors
 
-Apart from the procedures of Algol 68 Genie and `file_exists`, a failure
-is a runtime error, status 134, at the position of the call in the
-program:
+Apart from the procedures of Algol 68 Genie other than `get_directory`,
+and `file_exists`, a failure is a runtime error, status 134, at the
+position of the call in the program:
 
 ```
 prog.a68:5: runtime error: cannot read "data.txt": no such file or directory
@@ -109,9 +114,9 @@ gives. A program that must not stop tests first with `file_exists`,
 - A path is a string, absolute or relative to the current directory. A
   program cannot change the current directory (the JVM has no `chdir`).
 - The paths that the module yields (`walk_directory`,
-  `make_temp_directory`, `current_directory`, `absolute_path`) use `/` on
-  every system, so that a program prints the same on Windows and
-  elsewhere. Windows accepts `/` in the paths it is given as well.
+  `make_temp_directory`, `current_directory`, `absolute_path`, `get_pwd`,
+  `real_path`) use `/` on every system, so that a program prints the same
+  on Windows and elsewhere. Windows accepts `/` in the paths it is given as well.
 - Text is UTF-8: a character of Algol 68 (a code point) is one to four
   bytes in the file. Bytes that are not UTF-8 are read as U+FFFD.
   `file_size` counts bytes, so `"a" + REPR 228` is 3 bytes.
@@ -123,6 +128,12 @@ gives. A program that must not stop tests first with `file_exists`,
 - **Order.** Algol 68 Genie gives the names of `get directory` in the
   order of `readdir`, which depends on the file system; a68j sorts them,
   after `.` and `..`.
+- **`file is link`.** Algol 68 Genie asks `stat`, which follows the
+  link, so for a symbolic link it yields `FALSE`; a68j yields `TRUE`.
+- **`set pwd`** of Algol 68 Genie is missing: the JVM cannot change its
+  current directory.
+- **Status.** A runtime error ends the program with status 134 in a68j,
+  with 1 in Algol 68 Genie.
 - **Windows.** Without the POSIX attributes, `file_mode` has the type bits
   of a directory or regular file and the permissions that Java sees for
   the user (read, write, execute), repeated for the group and the others,
@@ -158,8 +169,9 @@ above with `JavaObject.error`. `file_mode` reads the attribute
   directory.
 - `tests/java/files-genie.a68`: the procedures of Algol 68 Genie on a
   directory, a file and a missing path.
-- `tests/java/files-error-1.a68` … `-4`: a missing file, a directory that
-  is not empty, a file listed as a directory, a directory copied.
+- `tests/java/files-error-1.a68` … `-6`: a missing file, a directory that
+  is not empty, a file listed as a directory, a directory copied, and
+  `get_directory` of a missing directory and of a file.
 - `tests/options/genie-files.a68`: `-fgenie` with `get directory`,
   `file is directory`, `grep in string` and a declaration that hides one
   of `Files`.

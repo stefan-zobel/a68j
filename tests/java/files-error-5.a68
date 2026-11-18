@@ -1,0 +1,5 @@
+{ The module Files: get_directory of a directory that does not exist is a
+  runtime error with the text of Algol 68 Genie. }
+access Files (
+   puts (whole (UPB get_directory ("tests/java/no-such-directory"), 0) + "'n")
+)

@@ -727,6 +727,22 @@ public final class Rt {
     /** Stack size of the thread that runs the program. */
     static final long STACK_SIZE = 128L << 20;
 
+    /** The thread that runs the program, null before {@link #start}. */
+    private static volatile Thread programThread;
+
+    /** The value of System.nanoTime() when the program started. */
+    private static volatile long startNanos = System.nanoTime();
+
+    /** The thread that runs the program, or null if there is none yet. */
+    public static Thread programThread() {
+        return programThread;
+    }
+
+    /** The value of System.nanoTime() when the program started. */
+    public static long startNanos() {
+        return startNanos;
+    }
+
     /**
      * Run the program (the class's run0) in a thread with a large stack.
      * A stack overflow ends the program like the segmentation fault of a
@@ -736,6 +752,7 @@ public final class Rt {
     public static void start(java.lang.invoke.MethodHandle run0) throws Throwable {
         ClassLoader loader = WALKER.getCallerClass().getClassLoader();
         Throwable[] failure = new Throwable[1];
+        startNanos = System.nanoTime();
         Thread t = new Thread(null, () -> {
             try {
                 run0.invokeExact();
@@ -746,6 +763,7 @@ public final class Rt {
                 failure[0] = e;
             }
         }, "main", STACK_SIZE);
+        programThread = t;
         t.start();
         t.join();
         if (failure[0] != null) {

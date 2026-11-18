@@ -245,7 +245,7 @@ the tool with `--ga68` does by hand:
   program keep their numbers. `Regex`, `Files` and `Times` give the
   procedures of Algol 68 Genie for regular expressions (`grep in string`),
   files (`get directory`, `file is directory`) and the clock
-  (`local time`, `utc time`, `cpu time`), see [regex.md](regex.md),
+  (`local time`, `utc time`, `cpu time`, `sleep`), see [regex.md](regex.md),
   [files.md](files.md) and [times.md](times.md); a declaration of the program with the same name
   hides the one of the module.
 - `PR read "file" PR` and `PR READ "file" PR` include the file once, the

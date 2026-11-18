@@ -1,9 +1,10 @@
 # The bundled module `Times`
 
 The prelude of Algol 68 has no clock time, no calendar dates and no date
-arithmetic. Algol 68 Genie has three procedures for the clock:
-`local time`, `utc time` and `cpu time`. The module `Times` provides
-them under the same names, and dates, date-times, durations and periods
+arithmetic. Algol 68 Genie has a few procedures for the clock:
+`local time`, `utc time`, `cpu time`, `wall time` and `sleep`, with some
+other names for the same. The module `Times` provides them under the
+same names, and dates, date-times, durations and periods
 with operators for their arithmetic, on top of `java.time`. It comes with
 `a68j-backend.jar` and needs no option; as it needs Java, it runs with
 a68j only.
@@ -44,7 +45,13 @@ instant: the clock, and seconds since 1970.
 |---|---|
 | `local_time [] int` | year, month, day, hours, minutes, seconds, day of the week (1 for Sunday to 7 for Saturday) and 1 if daylight saving time is in effect, else 0, in the zone of the system; the lower bound is 1 |
 | `utc_time [] int` | the same in UTC; the last element is always 0 |
-| `cpu_time real` | the CPU time of the process in seconds |
+| `cpu_time real`, also `clock` and `seconds` | the CPU time of the program in seconds since it started |
+| `wall_time real`, also `wall_clock` and `wall_seconds` | the seconds since the program started |
+| `sleep (real x) int` | waits `ABS x` seconds and yields 0; an `int` is widened to `real` |
+
+In Algol 68 Genie, `cpu time` and the others without a parameter are
+identifiers of mode `REAL` whose value is taken anew at each use; in
+a68j they are procedures, which a program uses in the same way.
 
 ### The modes
 
@@ -181,22 +188,34 @@ A Duration divided by 0 is `division by zero`.
 
 ## Differences from Algol 68 Genie
 
-- **`cpu_time`** is the CPU time of all threads of the Java virtual
-  machine, including its just-in-time compiler and garbage collector, and
-  with `-run` also that of compiling the program, so it starts above 0
-  (about 2 seconds with `-run`). Differences, as in the Rosetta Code
-  solutions, are what it is meant for. Where the operating system does
-  not report it, it is the time since the program started.
+- **`cpu_time`** is the CPU time of the thread that runs the program,
+  which starts with the program: as in Algol 68 Genie, it is close to 0
+  at the start, and neither the start of the Java virtual machine nor
+  the compilation with `-run` counts. The just-in-time compiler and the
+  garbage collector run in threads of their own and do not count either,
+  nor do the threads of a `PAR` clause with `-fpar-threads`. Where the
+  system does not measure the time of a thread, it is the CPU time of
+  the process; where it does not report that either, the time since the
+  program started. The first use takes about 50 milliseconds to set up
+  the measurement. On Windows the CPU time grows in steps of about 16
+  milliseconds.
+- **`wall_time`** is the time since the program started. In Algol 68
+  Genie it is so only where Genie was built with the real-time library
+  (`clock_gettime`); otherwise it is the CPU time, as in the build of
+  Algol 68 Genie 3.13.4 that the tests of a68j use.
+- **`sleep`** takes a `real` (an `int` is widened to it) where Algol 68
+  Genie takes any number, also `LONG INT` and `LONG REAL`.
 - **`real`** has single precision in a68j (as in ga68), so `cpu_time`
-  is exact to a millisecond only for its first two hours.
+  and `wall_time` are exact to a millisecond only for their first two
+  hours.
 
 ## `-fgenie`
 
 With `-fgenie` the program is put into an access clause of
 `Genie_Transput`, `Genie_Formats`, `Regex`, `Files` and `Times`
 ([genie-formats.md](genie-formats.md)), so a program written for
-Algol 68 Genie can call `local time`, `utc time` and `cpu time` as it
-is. A declaration of the program with the same name hides the one of the
+Algol 68 Genie can call `local time`, `utc time`, `cpu time`,
+`wall time` and `sleep` as it is. A declaration of the program with the same name hides the one of the
 module, whatever its kind: the Rosetta Code solution
 `convert-seconds-to-compound-duration` declares its own `MODE DURATION`,
 others `MODE YEAR` or `OP PERIOD`. The solutions `date-format`,
@@ -221,9 +240,11 @@ used last).
   patterns both ways, seconds since 1970 in fixed zones across the
   changes of daylight saving time.
 - `tests/java/times-now.a68`: the clock, checked for its ranges and the
-  agreement of `today`, `now`, `local_time` and `utc_time`.
+  agreement of `today`, `now`, `local_time` and `utc_time`; `cpu_time`,
+  `wall_time`, their other names, and `sleep`.
 - `tests/java/times-error-1.a68` … `-5`: an invalid date, a text that does
   not fit its pattern, an invalid pattern, an unknown zone, `nil`.
 - `tests/options/genie-times.a68`: `-fgenie` with `local time`,
-  `utc time`, `cpu time`, and declarations that hide a mode, an operator
-  and a procedure of `Times`.
+  `utc time`, `cpu time` and its other names, `wall time`, `sleep`,
+  `get pwd` and `real path` of `Files`, and declarations that hide a
+  mode, an operator, a procedure and an identifier of `Times`.

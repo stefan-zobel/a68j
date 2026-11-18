@@ -1,8 +1,9 @@
 { The module Files: the procedures of Algol 68 Genie.  get_directory
-  gives "." and ".." first and the other names sorted, and nothing for a
-  path that is not a directory; the file_is_ procedures are false and
-  file_mode is 0 for a path that does not exist.  The type bits of
-  file_mode are those of POSIX st_mode on every system. }
+  gives "." and ".." first and the other names sorted; the file_is_
+  procedures are false and file_mode is 0 for a path that does not exist.
+  The type bits of file_mode are those of POSIX st_mode on every system.
+  get_pwd is the current directory; real_path is "" for a path that does
+  not exist. }
 access Files (
    string d = make_temp_directory ("a68j-files-");
    write_file (d + "/b.txt", "b");
@@ -21,10 +22,11 @@ access Files (
             + (ABS (file_mode (p) AND 8r400) /= 0 | " readable" | "") + "'n");
    show (get_directory (d));
    show (get_directory (d + "/c"));
-   show (get_directory (d + "/b.txt"));
-   show (get_directory (d + "/missing"));
    kind (d);
    kind (d + "/b.txt");
    kind (d + "/missing");
+   puts ((get_pwd = current_directory | "T" | "F") + (real_path (".") = get_pwd | "T" | "F")
+         + (real_path (d + "/c/..") = real_path (d) | "T" | "F")
+         + (real_path (d + "/missing") = "" | "T" | "F") + "'n");
    delete_file (d + "/b.txt"); delete_file (d + "/A.txt"); delete_file (d + "/c"); delete_file (d)
 )

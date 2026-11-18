@@ -97,7 +97,8 @@ of Algol 68 Genie (`grep in string`, `sub in string`) on top of
 `file is directory`) and more: whole files read and written as strings,
 directories listed and walked, files moved, copied and deleted, also for
 a68j only ([docs/files.md](docs/files.md)). `Times` has the time
-procedures of Algol 68 Genie (`local time`, `utc time`, `cpu time`) and
+procedures of Algol 68 Genie (`local time`, `utc time`, `cpu time`,
+`sleep`) and
 dates, date-times and durations on top of `java.time`, with operators for
 their arithmetic, patterns for text, and time zones, for a68j only
 ([docs/times.md](docs/times.md)).

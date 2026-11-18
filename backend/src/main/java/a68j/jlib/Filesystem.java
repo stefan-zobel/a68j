@@ -120,19 +120,21 @@ public final class Filesystem {
     /**
      * get directory: the names of the entries of the directory S, "." and
      * ".." first, then the others in the order of their names (Algol 68
-     * Genie gives them in the order of readdir, which is not defined). No
-     * names if S is not a directory that can be read.
+     * Genie gives them in the order of readdir, which is not defined). If S
+     * is not a directory that can be read, a runtime error with the text of
+     * Algol 68 Genie, such as "file access error, no such file or
+     * directory".
      */
     public static String[] directory(String s) {
-        Path p = pathOrNull(s);
-        if (p == null || !Files.isDirectory(p)) {
-            return new String[0];
+        Path p = s.isEmpty() ? null : pathOrNull(s);
+        if (p == null) {
+            throw JavaObject.error("file access error, no such file or directory");
         }
         List<String> names;
         try {
             names = names(p);
         } catch (IOException e) {
-            return new String[0];
+            throw JavaObject.error("file access error, " + reason(e));
         }
         names.add(0, "..");
         names.add(0, ".");
@@ -223,6 +225,22 @@ public final class Filesystem {
     /** The current directory, absolute. */
     public static String currentDirectory() {
         return slashes(Path.of("").toAbsolutePath());
+    }
+
+    /**
+     * real path: S as an absolute path without "." and ".." and with every
+     * symbolic link resolved, or "" if S does not exist (Algol 68 Genie).
+     */
+    public static String realPath(String s) {
+        Path p = s.isEmpty() ? null : pathOrNull(s);
+        if (p == null) {
+            return "";
+        }
+        try {
+            return slashes(p.toRealPath());
+        } catch (IOException | SecurityException e) {
+            return "";
+        }
     }
 
     /** S as an absolute path without "." and "..". */
