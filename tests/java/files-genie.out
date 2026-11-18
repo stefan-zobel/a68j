@@ -1,0 +1,8 @@
+5: . .. A.txt b.txt c
+2: . ..
+0:
+0:
+d----- 16384 readable
+-r---- 32768 readable
+------ 0
+exit 0

@@ -92,7 +92,11 @@ records and rows of rows are items of `print`, `printf`, `read` and
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
 of Algol 68 Genie (`grep in string`, `sub in string`) on top of
-`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)).
+`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)), and
+`Files` the file procedures of Algol 68 Genie (`get directory`,
+`file is directory`) and more: whole files read and written as strings,
+directories listed and walked, files moved, copied and deleted, also for
+a68j only ([docs/files.md](docs/files.md)).
 `long long int` has 64 bits, as in ga68, where Algol 68 Genie has 72
 digits; for larger integers the `Bigints` module offers the mode `Bigint`, with the
 operators of an `int`, on top of `java.math.BigInteger`, for a68j only
@@ -179,7 +183,7 @@ Common options (as in ga68 where ga68 has them):
 | `--version` | the version of a68j |
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
-| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), `ANDF`, `ORF`, `DOWNTO`, and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
+| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), `ANDF`, `ORF`, `DOWNTO`, and access to `Genie_Transput`, `Genie_Formats`, `Regex` and `Files` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 | `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in; errors in them are errors of the compiler, and records and rows of rows are items of `print`, `printf`, `read` and `readf` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
 ### Modules
@@ -339,6 +343,7 @@ The detailed documentation is in `docs/`:
 - `docs/texts.md`: the bundled module `Texts` (string functions).
 - `docs/regex.md`: the bundled module `Regex` (regular expressions, a68j only).
 - `docs/bigints.md`: the bundled module `Bigints` (integers of any size, a68j only).
+- `docs/files.md`: the bundled module `Files` (files and directories, a68j only).
 - `docs/genie-formats.md`: formats (`$...$`, `printf`): the rewrite tool and the bundled module `Genie_Formats`.
 - `docs/TODO-formats.md`: the roadmap for formats in stages.
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
@@ -357,7 +362,7 @@ python3 tools/run_jvm.py --native tests/ga68/expected $S/*.a68 $S/mcgt/*.a68 $S/
 python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
-sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
+sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints, Files
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, -Wframe-scope

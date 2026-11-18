@@ -1,0 +1,67 @@
+{ The module Files: reading and writing whole files and their lines,
+  sizes, times, listing and walking directories, moving, copying and
+  deleting, all in a new temporary directory, which is deleted at the
+  end.  Only paths relative to it are printed.  Characters beyond ASCII
+  are written as UTF-8. }
+access Files (
+   string d = make_temp_directory ("a68j-files-");
+   proc show = ([] string names) void:
+      begin for i from LWB names to UPB names do puts (" " + names[i]) od;
+            puts ("'n")
+      end;
+   proc rel = ([] string paths) [] string:
+      begin [LWB paths : UPB paths] string r;
+            for i from LWB paths to UPB paths do r[i] := paths[i][UPB d + 2 :] od;
+            r
+      end;
+
+   { Whole files, lines and sizes. }
+   string a = d + "/a.txt";
+   puts ((file_exists (a) | "a exists" | "no a") + "'n");
+   write_file (a, "one'r'ntwo'rthree'nfour");
+   append_file (a, "'n");
+   puts ((file_exists (a) | "a exists" | "no a") + "'n");
+   [] string lines = read_lines (a);
+   puts (whole (LWB lines, 0) + " to " + whole (UPB lines, 0) + ":"); show (lines);
+   puts (whole (file_size (a), 0) + " bytes'n");
+   write_file (a, "short");
+   puts (read_file (a) + " " + whole (file_size (a), 0) + "'n");
+   write_lines (a, ("x", "", "z"));
+   puts (whole (UPB read_lines (a), 0) + " lines, " + whole (file_size (a), 0) + " bytes'n");
+   write_file (a, "");
+   puts (whole (UPB read_lines (a), 0) + " lines, " + whole (UPB read_file (a), 0) + " characters'n");
+   append_file (d + "/new.txt", "made by append");
+   puts (read_file (d + "/new.txt") + "'n");
+   puts ((file_time (a) > long 1700000000 | "time ok" | "time wrong") + "'n");
+
+   { Characters beyond ASCII: 2 and 4 bytes in UTF-8. }
+   string u = "a" + REPR 228 + REPR 128512;
+   write_file (d + "/u.txt", u);
+   puts (whole (file_size (d + "/u.txt"), 0) + " bytes, " + whole (UPB read_file (d + "/u.txt"), 0) + " characters, "
+         + (read_file (d + "/u.txt") = u | "equal" | "different") + "'n");
+
+   { Directories. }
+   make_directory (d + "/sub/deep/deeper");
+   make_directory (d + "/sub/deep");
+   write_file (d + "/sub/B.txt", "b");
+   write_file (d + "/sub/deep/c.txt", "c");
+   puts ("list:"); show (list_directory (d));
+   puts ("list sub:"); show (list_directory (d + "/sub"));
+   puts ("walk:"); show (rel (walk_directory (d)));
+   puts ("walk sub/:"); show (rel (walk_directory (d + "/sub/")));
+   puts ((absolute_path (d + "/sub/../a.txt") = a | "absolute ok" | "absolute wrong") + "'n");
+   puts ((absolute_path (".") = current_directory | "current ok" | "current wrong") + "'n");
+
+   { Move, copy, delete. }
+   move_file (d + "/new.txt", d + "/moved.txt");
+   copy_file (d + "/moved.txt", d + "/copied.txt");
+   copy_file (d + "/u.txt", d + "/copied.txt");
+   move_file (d + "/sub/B.txt", d + "/moved.txt");
+   puts ("after move and copy:"); show (list_directory (d));
+   puts (read_file (d + "/moved.txt") + " " + (read_file (d + "/copied.txt") = u | "u" | "?") + "'n");
+   [] string all = walk_directory (d);
+   for i from UPB all by -1 to LWB all do delete_file (all[i]) od;
+   puts ("empty:"); show (list_directory (d));
+   delete_file (d);
+   puts ((file_exists (d) | "still there" | "deleted") + "'n")
+)

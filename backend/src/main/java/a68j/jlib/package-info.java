@@ -15,7 +15,7 @@
 // Runtime Library Exception, version 3.1.
 /**
  * The Java side of the bundled modules: the lists of {@code Lists}, the maps of
- * {@code Hashmaps}, the integers of {@code Bigints} and the regular expressions
- * of {@code Regex}.
+ * {@code Hashmaps}, the integers of {@code Bigints}, the regular expressions
+ * of {@code Regex} and the files and directories of {@code Files}.
  */
 package a68j.jlib;

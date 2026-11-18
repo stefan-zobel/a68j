@@ -148,8 +148,8 @@ string to number 11, trimming 10, splitting 10, prefix, suffix and index
 9, replace 3, join 3. A further 31 programs use `associate` on a string
 only, to format or parse with the transput, and 9 use the regular
 expressions of Algol 68 Genie (`grep in string`, `sub in string`). For
-comparison, only 9 programs use the file system (java-open-points.md
-B2), all of them in tasks about the file system.
+comparison, only 9 programs use the file system (the module `Files`,
+[files.md](files.md)), all of them in tasks about the file system.
 
 ## Not provided
 

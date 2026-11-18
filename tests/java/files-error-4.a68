@@ -1,0 +1,5 @@
+{ The module Files: copying a directory and writing to one are runtime
+  errors; here the copy. }
+access Files (
+   copy_file ("tests/java/demo", "tests/java/demo-copy")
+)

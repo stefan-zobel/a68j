@@ -238,10 +238,15 @@ the tool with `--ga68` does by hand:
 - The compiler parses the format texts and lowers them as with
   `-fformats` (since version 0.9.0).
 - The program is put into
-  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... )` by the compiler, on lines
-  of its own that belong to the environ, like the prelude. A file included
-  by a pragmat on the first line, which goes before that line, is inside
-  the access clause too, and the lines of the program keep their numbers.
+  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES ( ... )` by the
+  compiler, on lines of its own that belong to the environ, like the
+  prelude. A file included by a pragmat on the first line, which goes
+  before that line, is inside the access clause too, and the lines of the
+  program keep their numbers. `Regex` and `Files` give the procedures of
+  Algol 68 Genie for regular expressions (`grep in string`) and files
+  (`get directory`, `file is directory`), see [regex.md](regex.md) and
+  [files.md](files.md); a declaration of the program with the same name
+  hides the one of the module.
 - `PR read "file" PR` and `PR READ "file" PR` include the file once, the
   first time. The file is looked for relative to the file that reads it,
   then in the `-I` directories. ga68 does not find a file with a

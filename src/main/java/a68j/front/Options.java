@@ -47,7 +47,7 @@ public final class Options {
     /**
      * -fgenie (a68j extension): the program is written for Algol 68 Genie.
      * The scanner puts it into an access clause of the modules
-     * Genie_Transput and Genie_Formats, on lines of the environ, and the
+     * Genie_Transput, Genie_Formats, Regex and Files, on lines of the environ, and the
      * format rewrite tool rewrites each source file first
      * ({@link A68#sourceFilter}). See docs/genie-formats.md.
      */

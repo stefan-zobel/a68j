@@ -898,6 +898,9 @@ that access them (`-I tests/java/lib`).
 | `bigints-big` | `Bigints` on 1000!, fib (1000), 5 ** 4 ** 3 ** 2 (183 231 digits) and the Lucas-Lehmer test |
 | `bigints-error-1` … `-5` | division by zero, a negative exponent, `nil`, `TOINT` beyond the limits, a string that is not an integer: runtime errors with the position in the program |
 | `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
+| `files-basic` | the module `Files`: whole files, lines, sizes, times, listing and walking, moving, copying and deleting, in a temporary directory ([files.md](files.md)) |
+| `files-genie` | the procedures of Algol 68 Genie in `Files` on a directory, a file and a missing path |
+| `files-error-1` … `-4` | a missing file, a directory that is not empty, a file listed as a directory, a directory copied: runtime errors with the position in the program |
 
 Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
 

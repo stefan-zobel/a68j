@@ -5,8 +5,9 @@ holes, the modules `Lists` and `Hashmaps`) is described in
 [java-modules.md](java-modules.md). This file collects ideas for further
 modules backed by Java APIs. The open points of the integration itself
 are done, and so are the idea B1, the modules `Texts` and `Regex`
-([texts.md](texts.md), [regex.md](regex.md)), and the integers of the
-idea B3, the module `Bigints` ([bigints.md](bigints.md)).
+([texts.md](texts.md), [regex.md](regex.md)), the idea B2, the module
+`Files` ([files.md](files.md)), and the integers of the idea B3, the
+module `Bigints` ([bigints.md](bigints.md)).
 
 ## Ideas for Java modules
 
@@ -23,26 +24,6 @@ Two rules from java-modules.md apply to all of them:
   a priority for `AT`, `INDEX`, `HAS` or `REMOVE`; it takes
   `access pub Lists` instead (java-modules.md, "`Lists` and `Hashmaps`
   together").
-
-### B2. `Files`: files and directories
-
-**The gap.** The transput has no test whether a file exists, no directory
-listing, no way to read a whole file into a string or write one from a
-string, and no delete, rename, copy or creation of directories. Without
-them Algol 68 is hard to use for small tools and scripts.
-
-**The Java side.** `java.nio.file.Files` and `Path`: `exists`,
-`isDirectory`, `readString`, `writeString`, `readAllLines`, `list`,
-`walk`, `delete`, `move`, `copy`, `createDirectories`, `size`,
-`getLastModifiedTime`.
-
-**How it fits.** Most of it can work with paths as strings, so no object
-mode is needed: `proc (string) bool file_exists`,
-`proc (string) string read_file`, `proc (string, string) void write_file`.
-A directory listing gives a `Stringlist` or a `flex [] string`. Errors such
-as a missing file become runtime errors with the Algol 68 position, as for
-every Java exception; a variant that returns a `bool` for success may be
-wanted for scripts that test before they act.
 
 ### B3. `Bigdecimals`: decimals of any precision
 
@@ -77,7 +58,7 @@ date arithmetic.
 
 **How it fits.** Immutable objects as opaque names; parse and format with
 strings; differences and additions with operators as in `Bigints`.
-Useful, but needed less often than `Texts`, `Regex`, `Bigints` and B2.
+Useful, but needed less often than `Texts`, `Regex`, `Bigints` and `Files`.
 
 ### B5. Less central
 

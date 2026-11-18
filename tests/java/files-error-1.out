@@ -1,0 +1,3 @@
+before
+tests/java/files-error-1.a68:5: runtime error: cannot read "tests/java/no-such-file.txt": no such file or directory
+exit 134

@@ -101,16 +101,17 @@ with Algol 68 Genie 3.13.4:
 ## Rosetta Code
 
 Ten of the Algol 68 Genie solutions on Rosetta Code (`tests/rosetta/orig`)
-use these procedures. Two of them run with a68j and print the same as
-Algol 68 Genie 3.13.4: `strip-comments-from-a-string` (with
-`access Genie_Transput, Regex`; its use of `grep in string` is inside a
-comment) and `regular-expressions-1`, which also uses formats (with
-`-fgenie`, the program put into `ACCESS REGEX ( ... )`). The others
-need more: HTTP (`http content`, `tcp request`: `http`, `web-scraping`,
-`base64-encode-data`, `rosetta-code-rank-languages-by-popularity-2`),
-the file system (`get directory`: the two
-`walk-a-directory` solutions, java-open-points.md B2), or library files
-that Rosetta Code does not include (`abc-words-1`,
+use these procedures. `-fgenie` puts a program into an access clause of
+`Regex` too ([genie-formats.md](genie-formats.md)), so these run as they
+are with `-fgenie` and print the same as Algol 68 Genie 3.13.4:
+`strip-comments-from-a-string` (its use of `grep in string` is inside a
+comment) and `regular-expressions-1`, which also uses formats. The two
+`walk-a-directory` solutions run as well; they also use `get directory`
+and `file is directory` of the module `Files` ([files.md](files.md)),
+which lists the names of a directory sorted. The others need more: HTTP
+(`http content`, `tcp request`: `http`, `web-scraping`,
+`base64-encode-data`, `rosetta-code-rank-languages-by-popularity-2`), or
+library files that Rosetta Code does not include (`abc-words-1`,
 `rosetta-code-rank-languages-by-popularity-1`). The Rosetta Code tests
 compare a68j with ga68, which has no `Regex`, so `tools/rosetta_prep.py`
 does not add the module.
