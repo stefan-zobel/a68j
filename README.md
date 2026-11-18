@@ -47,7 +47,8 @@ Hello, world!
   functional interfaces (a comparator for `Arrays.sort`, say) and come
   back as procedures. Constructors, instance methods and fields are bound as
   method references (`nest Java "java.util.ArrayList::new"`), so objects of
-  the JDK can be used directly. The bundled modules `Lists` and
+  the JDK can be used directly. Where several overloads fit, the types of
+  the parameters name one (`"org.xml.sax.InputSource::new(Reader)"`). The bundled modules `Lists` and
   `Hashmaps` provide growable lists and hash maps built on it, and
   `Bigints` integers of any size with the operators of an `int`
   ([docs/bigints.md](docs/bigints.md)).

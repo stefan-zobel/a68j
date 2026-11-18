@@ -1,0 +1,59 @@
+{ a68j-options: -fnest-java }
+{ The types of the parameters in a formal hole name one overload: of
+  String.join for a Java object, of the constructors of InputSource and of
+  DocumentBuilder.parse, which fit a Java object equally well. The types
+  are written with their package or without it, an array with [] and a
+  varargs parameter also with "...", a nested class with dots, the
+  parameters of a generic class erased, "()" for no parameters. }
+begin
+   mode List = ref struct (int list_java_object);
+   mode Reader = ref struct (int reader_java_object);
+   mode Source = ref struct (int source_java_object);
+   mode Factory = ref struct (int factory_java_object);
+   mode Builder = ref struct (int builder_java_object);
+   mode Node = ref struct (int node_java_object);
+   mode Entry = ref struct (int entry_java_object);
+
+   { A generic class: the parameters as Java erases them. }
+   proc List new_list = nest Java "java.util.ArrayList<String>::new()";
+   proc (List, string) bool add = nest Java "java.util.ArrayList<String>::add(Object)";
+   proc (List, int, string) void insert = nest Java "java.util.ArrayList<String>::add(int, Object)";
+
+   { A static method, with "." and with "::", short and full names. }
+   proc (string, List) string join = nest Java "java.lang.String.join(CharSequence, Iterable)";
+   proc (string, List) string join_full =
+      nest Java "java.lang.String::join(java.lang.CharSequence, java.lang.Iterable)";
+   { A varargs parameter, written both ways, and blanks. }
+   proc (string, [] string) string join_row = nest Java "java.lang.String.join(CharSequence, CharSequence...)";
+   proc (string, [] string) string join_array = nest Java "java.lang.String.join ( CharSequence , CharSequence[] )";
+   { An array, where the mode alone would do. }
+   proc ([] int) string show = nest Java "java.util.Arrays.toString(int[])";
+
+   List l = new_list;
+   add (l, "b");
+   add (l, "c");
+   insert (l, 0, "a");
+   puts (join ("-", l) + " " + join_full ("+", l) + "'n");
+   puts (join_row ("/", ("x", "y")) + " " + join_array (":", ("p", "q", "r")) + "'n");
+   puts (show ((3, 1, 4)) + "'n");
+
+   { Constructors and an instance method that differ in a class only. }
+   proc (string) Reader string_reader = nest Java "java.io.StringReader::new(String)";
+   proc (Reader) Source input_source = nest Java "org.xml.sax.InputSource::new(Reader)";
+   proc Factory factory = nest Java "javax.xml.parsers.DocumentBuilderFactory.newInstance()";
+   proc (Factory) Builder new_builder = nest Java "javax.xml.parsers.DocumentBuilderFactory::newDocumentBuilder";
+   proc (Builder, Source) Node parse = nest Java "javax.xml.parsers.DocumentBuilder::parse(org.xml.sax.InputSource)";
+   proc (Node) Node root = nest Java "org.w3c.dom.Document::getDocumentElement()";
+   proc (Node) string name = nest Java "org.w3c.dom.Node::getNodeName";
+   proc (Node) string text = nest Java "org.w3c.dom.Node::getTextContent()";
+
+   Node doc = parse (new_builder (factory), input_source (string_reader ("<greeting>hello</greeting>")));
+   puts (name (root (doc)) + ": " + text (root (doc)) + "'n");
+
+   { A nested class in the list. }
+   proc (string, string) Entry new_entry = nest Java "java.util.AbstractMap.SimpleEntry::new(Object, Object)";
+   proc (Entry) Entry copy = nest Java "java.util.AbstractMap.SimpleEntry::new(java.util.Map.Entry)";
+   proc (Entry) Entry copy_short = nest Java "java.util.AbstractMap.SimpleEntry::new(Map.Entry)";
+   proc (Entry) string entry_string = nest Java "java.util.AbstractMap.SimpleEntry::toString()";
+   puts (entry_string (copy_short (copy (new_entry ("key", "value")))) + "'n")
+end

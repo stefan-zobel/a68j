@@ -1,0 +1,7 @@
+{ a68j-options: -fnest-java }
+{ A parameter list names a method or constructor, not a field. }
+begin
+   mode Obj = ref struct (int obj_java_object);
+   proc (Obj) int x_of = nest Java "java.awt.Point::x()";
+   skip
+end

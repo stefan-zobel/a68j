@@ -1,0 +1,3 @@
+tests/java/nest-java-overload-error-6.a68:5:19: fatal error: the Java reference 'java.lang.Math.PI()' needs a procedure mode
+compilation terminated.
+exit 1

@@ -1,0 +1,7 @@
+{ a68j-options: -fnest-java }
+{ The overload that the formal hole names does not fit the mode. }
+begin
+   mode Obj = ref struct (int obj_java_object);
+   proc (string, int) string join = nest Java "java.lang.String.join(CharSequence, Iterable)";
+   skip
+end

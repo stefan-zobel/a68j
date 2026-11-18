@@ -1,0 +1,8 @@
+{ a68j-options: -fnest-java }
+{ No overload of the method has the parameters of the formal hole: the
+  message names those there are. }
+begin
+   mode Obj = ref struct (int obj_java_object);
+   proc (string, Obj) string join = nest Java "java.lang.String.join(CharSequence, List)";
+   skip
+end
