@@ -49,7 +49,7 @@ number in its tables, with the mixed operators for `Bigint`, `int` and
 - how `ROUND`, `ENTIER` and the output in the style of `fixed` and
   `float` fit.
 
-### B6. `Digests`: checksums and encodings
+### B5. `Digests`: checksums and encodings
 
 **The gap.** MD5, SHA-1, SHA-256, CRC-32 and Base64 need unsigned 32-bit
 arithmetic and bytes, which Algol 68 expresses only with effort through
@@ -64,7 +64,7 @@ encoding and decoding of a string. Open question: whether bytes beyond
 strings are needed (a row of `int`, or the contents of a file through
 `Files`).
 
-### B7. Priority queues and sorted maps
+### B6. Priority queues and sorted maps
 
 **The gap.** Dijkstra, A*, event simulation and "the k smallest" need a
 heap or an ordered map; programs write their own each time.
@@ -78,21 +78,58 @@ mode; a queue of structures ordered by a field would need a key
 procedure, as a priority of type `int` or `real` next to the element.
 The rules above on `AT`, `INDEX`, `HAS` and `REMOVE` apply.
 
+### B7. `Xml`: reading, querying and writing XML
+
+**The gap.** A parser for XML in Algol 68 is much more work than one for
+JSON: entities, namespaces, CDATA, encodings. Rosetta Code has
+`XML/Output` for Algol 68, which needs no parser, but not `XML/Input`,
+`XML/XPath` or `XML/DOM serialization`. Today a program reaches the JDK
+only through `nest Java` holes (`DocumentBuilder::parse(InputSource)`,
+java-modules.md).
+
+**The Java side.** All in the JDK, no library needed:
+`javax.xml.parsers` (DOM), `javax.xml.xpath`, `javax.xml.transform`
+(serialization).
+
+**How it fits.** A mode `Xml_node` (`org.w3c.dom.Node`): parse a string
+or a file, name, text and attributes of a node, its children as a row,
+XPath queries that yield a row of nodes or strings, creating elements,
+and the text of a document. Open questions: namespaces (left out at
+first?), and whether parse errors are runtime errors or a result that
+the program tests.
+
 ### B8. Images
 
-**The gap.** Algol 68 has no graphics. Up to 26 Rosetta Code originals
-(Mandelbrot set, dragon curve, Sierpinski curves, the bitmap tasks)
-contain `draw` or `make device`, most likely the drawing procedures of
-Algol 68 Genie (plotutils), which `-fgenie` does not provide.
+**The gap.** Algol 68 has no graphics. Programs write PPM or SVG files
+by hand; the bitmap tasks of Rosetta Code build their images in Algol 68
+(`PR READ "prelude/Bitmap.a68"`).
+
+**Algol 68 Genie.** Genie draws with GNU plotutils, if built with it
+(`src/a68g/rts-plotutils.c`, names in `prelude-extern.c`); the build of
+3.13.4 in WSL has no plotutils. A file is a drawing device:
+`make device (f, type, size)` (also `draw device`) with the type `"X"`
+(a window), `"gif"`, `"pnm"`, `"png"` or `"ps"` and a size such as
+`"600x400"`, then `open (f, name, stand draw channel)`, and `close (f)`
+writes the file. The procedures take the file first: `draw move`,
+`draw line`, `draw point`, `draw rect`, `draw circle`, `draw ball`,
+`draw star` and `draw text` at coordinates from 0 to 1 (scaled by the
+size; a line or rectangle starts at the last position); `draw colour`
+and `draw background colour` with red, green and blue from 0 to 1,
+`draw colour name` with a name of X11's `rgb.txt`; `draw linestyle`,
+`draw linewidth`, `draw fillstyle`, `draw fontname`, `draw fontsize`,
+`draw textangle`, `draw erase` (`draw clear`), `draw show`
+(`draw flush`), `draw aspect` and `draw possible`. Only 4 Rosetta Code
+originals use them, 3 of them with a window (`dragon-curve-3`,
+`hello-world-graphical`, `window-creation-x11`) and 1 with a GIF
+(`mandelbrot-set`).
 
 **The Java side.** `java.awt.image.BufferedImage`, `java.awt.Graphics2D`,
-`javax.imageio.ImageIO` (PNG), headless.
+`javax.imageio.ImageIO` (PNG, GIF), headless.
 
 **How it fits.** A mode for an image with pixels, lines, rectangles,
-circles and text, written to a PNG file. Under `-fgenie` the procedures
-of Algol 68 Genie under their names, writing the image to a file instead
-of a window. First step: check the drawing API of Algol 68 Genie 3.13.4
-in its source.
+circles and text, written to a PNG file. The procedures of Algol 68
+Genie would need `stand draw channel` and devices in the transput of
+`Genie_Transput`; for 4 programs, that is hardly worth it.
 
 ### B9. External processes
 
@@ -107,7 +144,7 @@ shell) and yields its exit status, one that also yields its standard
 output as a string, and `system` of Algol 68 Genie for `-fgenie`. Small,
 but rarely needed.
 
-### B5. Less central
+### B10. Less central
 
 HTTP (`java.net.http.HttpClient`) and JSON would also fit technically.
 JSON has no parser in the JDK, so it would need a library on the class
