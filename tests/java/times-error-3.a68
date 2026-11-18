@@ -1,0 +1,5 @@
+{ The module Times: an invalid pattern is a runtime error. }
+access Times (
+   puts ("before'n");
+   puts (date_format (today, "yyyy-bb"))
+)

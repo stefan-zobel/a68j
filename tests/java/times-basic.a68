@@ -1,0 +1,92 @@
+{ The module Times: dates, date-times, durations and periods, their
+  fields, arithmetic and comparisons, ISO text and patterns both ways,
+  and the conversion from and to seconds since 1970 in fixed time zones.
+  Nothing depends on the clock or on the zone of the system. }
+access Times (
+   proc b = (bool x) string: (x | "T" | "F");
+   proc i = (int n) string: whole (n, 0);
+
+   { Construction and fields. }
+   Date d = date (2026, 11, 18);
+   puts (date_text (d) + " " + i (YEAR d) + " " + i (MONTH d) + " " + i (DAY d) +
+         " weekday " + i (WEEKDAY d) + " yearday " + i (YEARDAY d) + "'n");
+   Datetime t = datetime (2026, 11, 18, 14, 5, 9);
+   puts (datetime_text (t) + " " + i (HOUR t) + ":" + i (MINUTE t) + ":" + i (SECOND t) +
+         " nano " + i (NANO t) + " weekday " + i (WEEKDAY t) + "'n");
+   puts (date_text (TODATE t) + " " + datetime_text (at_time (d, 0, 0, 0)) + "'n");
+
+   { Days, periods and month ends. }
+   puts (date_text (d + 30) + " " + date_text (30 + d) + " " + date_text (d - 365) + "'n");
+   puts (i (date (2026, 12, 25) - d) + " " + i (d - date (2026, 12, 25)) + "'n");
+   puts (date_text (date (2024, 2, 29) + YEARS 1) + " " +
+         date_text (date (2026, 1, 31) + MONTHS 1) + " " +
+         date_text (date (2024, 1, 31) + MONTHS 1) + " " +
+         date_text (d + WEEKS 2) + " " + date_text (d - DAYS 18) + "'n");
+   puts (date_text (d + (YEARS 1 + MONTHS 2 - DAYS 3)) + " " +
+         period_text (YEARS 1 + MONTHS 2 - DAYS 3) + " " + period_text (- MONTHS 5) + "'n");
+   puts (i (months_between (date (2026, 1, 31), date (2026, 3, 30))) + " " +
+         i (years_between (date (2000, 2, 29), date (2026, 2, 28))) + " " +
+         i (years_between (date (2026, 2, 28), date (2000, 2, 29))) + "'n");
+   puts (b (MONTHS 12 = YEARS 1) + b (MONTHS 12 = MONTHS 12) + b (DAYS 7 /= WEEKS 1) + "'n");
+
+   { Date-times and durations. }
+   Datetime u = datetime (2026, 12, 31, 23, 59, 30);
+   puts (datetime_text (u + SECONDS 45) + " " + datetime_text (u + HOURS 25) + " " +
+         datetime_text (u - MINUTES 60) + " " + datetime_text (u + MONTHS 2) + "'n");
+   Duration span = u - t;
+   puts (duration_text (span) + " " + duration_text (t - u) + " " +
+         duration_text (ABS (t - u)) + " " + duration_text (- HOURS 2) + "'n");
+   puts (duration_text (HOURS 1 + MINUTES 30) + " " + duration_text (MINUTES 90 * 3) + " " +
+         duration_text (2 * SECONDS 7) + " " + duration_text (MINUTES 1 % 7) + " " +
+         duration_text (HOURS 1 OVER 4) + " " + duration_text (SECONDS 3 - SECONDS 5) + "'n");
+   puts (fixed (duration_seconds (MINUTES 1 % 8), 0, 3) + " " +
+         whole (duration_millis (HOURS 2), 0) + " " +
+         duration_text (SECONDS (LENG 86400 * LENG 365)) + "'n");
+
+   { Comparisons. }
+   puts (b (d = date (2026, 11, 18)) + b (d /= date (2026, 11, 18)) + b (d < d + 1) +
+         b (d <= d) + b (d > d + 1) + b (d >= d - 1) + b (d EQ d) + b (d NE d) +
+         b (d LT d) + b (d LE d) + b (d GT d) + b (d GE d) + "'n");
+   puts (b (t = datetime_from_text ("2026-11-18T14:05:09")) + b (t < u) + b (u > t) +
+         b (t + SECONDS 1 /= t) + b (t LE t) + b (t GT u) + "'n");
+   puts (b (HOURS 1 = MINUTES 60) + b (SECONDS 59 < MINUTES 1) + b (- SECONDS 1 < SECONDS 0) +
+         b (HOURS 1 >= MINUTES 61) + b (HOURS 2 GE HOURS 1) + "'n");
+   puts (b (d is d) + b (date (2026, 11, 18) is date (2026, 11, 18)) + "'n");
+
+   { Assigning operators. }
+   Date x := d;
+   x +:= 1; x +:= MONTHS 1; x -:= 2; x PLUSAB YEARS 1; x MINUSAB DAYS 1;
+   Datetime y := t;
+   y +:= HOURS 1; y -:= MINUTES 5; y +:= DAYS 1; y MINUSAB SECONDS 9;
+   Duration z := SECONDS 0;
+   for k to 4 do z +:= MINUTES k od;
+   z -:= SECONDS 30; z PLUSAB HOURS 1;
+   puts (date_text (x) + " " + datetime_text (y) + " " + duration_text (z) + "'n");
+
+   { ISO text and patterns. }
+   puts (date_text (date_from_text ("2026-02-28")) + " " +
+         datetime_text (datetime_from_text ("2026-02-28T07:30")) + " " +
+         datetime_text (datetime_from_text ("2026-02-28T07:30:00.250")) + "'n");
+   puts (date_format (d, "dd.MM.yyyy") + " " + date_format (d, "EEEE, MMMM d, uuuu") + " " +
+         date_format (d, "EEE d MMM yy") + "'n");
+   puts (datetime_format (t, "yyyy-MM-dd HH:mm:ss") + " " + datetime_format (t, "h:mm a") + " " +
+         datetime_format (t + HOURS 10, "hh ''h'' mm, dd. MMM") + "'n");
+   puts (date_text (date_from_format ("29.02.2024", "dd.MM.yyyy")) + " " +
+         date_text (date_from_format ("1 Mar 2026", "d MMM uuuu")) + " " +
+         datetime_text (datetime_from_format ("18.11.2026 07:08", "dd.MM.yyyy HH:mm")) + "'n");
+   puts (date_format (d, "d. MMMM yyyy") + " " + date_format (d, "''" + REPR 8364 + "'' d") + "'n");
+
+   { Seconds since 1970 and time zones. }
+   puts (datetime_text (datetime_from_epoch (LENG 0, "UTC")) + " " +
+         datetime_text (datetime_from_epoch (LENG 1700000000, "UTC")) + " " +
+         datetime_text (datetime_from_epoch (LENG 1700000000, "Europe/Berlin")) + " " +
+         datetime_text (datetime_from_epoch (LENG 1700000000, "+05:30")) + "'n");
+   puts (whole (datetime_to_epoch (datetime (2026, 3, 29, 0, 30, 0), "UTC"), 0) + " " +
+         whole (datetime_to_epoch (datetime (2026, 3, 29, 3, 30, 0), "Europe/Berlin") -
+                datetime_to_epoch (datetime (2026, 3, 29, 1, 30, 0), "Europe/Berlin"), 0) + " " +
+         whole (datetime_to_epoch (datetime (2026, 10, 25, 3, 30, 0), "Europe/Berlin") -
+                datetime_to_epoch (datetime (2026, 10, 25, 1, 30, 0), "Europe/Berlin"), 0) + "'n");
+   puts (datetime_text (datetime_convert (datetime (2026, 7, 1, 12, 0, 0), "Europe/Berlin", "UTC")) + " " +
+         datetime_text (datetime_convert (datetime (2026, 1, 1, 12, 0, 0), "Europe/Berlin", "America/New_York")) + " " +
+         datetime_text (datetime_convert (datetime (2026, 1, 1, 12, 0, 0), "Z", "Asia/Kolkata")) + "'n")
+)

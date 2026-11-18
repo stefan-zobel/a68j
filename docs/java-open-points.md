@@ -6,8 +6,9 @@ holes, the modules `Lists` and `Hashmaps`) is described in
 modules backed by Java APIs. The open points of the integration itself
 are done, and so are the idea B1, the modules `Texts` and `Regex`
 ([texts.md](texts.md), [regex.md](regex.md)), the idea B2, the module
-`Files` ([files.md](files.md)), and the integers of the idea B3, the
-module `Bigints` ([bigints.md](bigints.md)).
+`Files` ([files.md](files.md)), the integers of the idea B3, the module
+`Bigints` ([bigints.md](bigints.md)), and the idea B4, the module `Times`
+([times.md](times.md)).
 
 ## Ideas for Java modules
 
@@ -47,18 +48,6 @@ number in its tables, with the mixed operators for `Bigint`, `int` and
   of `/`);
 - how `ROUND`, `ENTIER` and the output in the style of `fixed` and
   `float` fit.
-
-### B4. `Times`: date and time
-
-**The gap.** The prelude has no clock time, no calendar dates and no
-date arithmetic.
-
-**The Java side.** `java.time`: `LocalDate`, `LocalDateTime`, `Duration`,
-`DateTimeFormatter`, `Instant`.
-
-**How it fits.** Immutable objects as opaque names; parse and format with
-strings; differences and additions with operators as in `Bigints`.
-Useful, but needed less often than `Texts`, `Regex`, `Bigints` and `Files`.
 
 ### B5. Less central
 

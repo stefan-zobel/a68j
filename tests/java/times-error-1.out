@@ -1,0 +1,3 @@
+before
+tests/java/times-error-1.a68:5: runtime error: invalid date 2026-02-30
+exit 134

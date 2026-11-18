@@ -1,0 +1,7 @@
+{ The module Times: a text that is not a date, here with a day that the
+  month does not have, is a runtime error. }
+access Times (
+   puts (date_text (date_from_format ("29.02.2024", "dd.MM.yyyy")) + "'n");
+   Date d = date_from_format ("30.02.2026", "dd.MM.yyyy");
+   puts (date_text (d))
+)

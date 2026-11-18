@@ -1,0 +1,27 @@
+{ The module Times: the clock.  The values change from run to run, so
+  only their ranges and their agreement are printed. }
+access Times (
+   proc b = (bool x) string: (x | "T" | "F");
+   [] int l = local_time, u = utc_time;
+   puts (b (LWB l = 1 AND UPB l = 8 AND LWB u = 1 AND UPB u = 8) + "'n");
+   puts (b (l[1] >= 2026 AND l[2] >= 1 AND l[2] <= 12 AND l[3] >= 1 AND l[3] <= 31 AND
+            l[4] >= 0 AND l[4] <= 23 AND l[5] >= 0 AND l[5] <= 59 AND l[6] >= 0 AND l[6] <= 60 AND
+            l[7] >= 1 AND l[7] <= 7 AND (l[8] = 0 OR l[8] = 1)) + "'n");
+   puts (b (u[1] >= 2026 AND u[7] >= 1 AND u[7] <= 7 AND u[8] = 0) + "'n");
+   { The day of the week of Algol 68 Genie, 1 for Sunday, against WEEKDAY,
+     1 for Monday, unless midnight passed in between. }
+   Date d = today;
+   [] int l2 = local_time;
+   puts (b (l2[3] /= DAY d OR l2[7] = WEEKDAY d MOD 7 + 1) + "'n");
+   Datetime t0 = now;
+   Datetime t1 = now;
+   puts (b (t1 >= t0 AND TODATE t0 >= d AND t1 - t0 < MINUTES 1) + "'n");
+   Datetime z = now_in ("UTC");
+   puts (b (ABS (datetime_convert (z, "UTC", local_zone) - now) < MINUTES 1) + "'n");
+   puts (b (UPB local_zone > 0) + "'n");
+   real c0 = cpu_time;
+   int s := 0;
+   for k to 2000000 do s +:= k MOD 7 od;
+   real c1 = cpu_time;
+   puts (b (c0 >= 0 AND c1 >= c0 AND s > 0) + "'n")
+)

@@ -1,0 +1,6 @@
+{ The module Times: an unknown time zone is a runtime error. }
+access Times (
+   puts (datetime_text (datetime_from_epoch (LENG 0, "Europe/Berlin")) + "'n");
+   Datetime t = now_in ("Mars/Base");
+   puts (datetime_text (t))
+)

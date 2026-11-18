@@ -1,6 +1,6 @@
 #!/bin/sh
 # Tests of the Java connection (tests/java): nest Java (-fnest-java) and the
-# bundled modules (Lists, Hashmaps, Regex, Bigints, Files), and of modules of the tests. The
+# bundled modules (Lists, Hashmaps, Regex, Bigints, Files, Times), and of modules of the tests. The
 # modules tests/java/modules/X.a68 are compiled first, into
 # tests/java/lib/libX.jar, with the options of their first line
 # "{ a68j-options: ... }" if they have one (formats.a68: -fformats). Every program X.a68 is

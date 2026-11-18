@@ -16,6 +16,7 @@
 /**
  * The Java side of the bundled modules: the lists of {@code Lists}, the maps of
  * {@code Hashmaps}, the integers of {@code Bigints}, the regular expressions
- * of {@code Regex} and the files and directories of {@code Files}.
+ * of {@code Regex}, the files and directories of {@code Files} and the
+ * dates, times and durations of {@code Times}.
  */
 package a68j.jlib;

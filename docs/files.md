@@ -132,7 +132,7 @@ gives. A program that must not stop tests first with `file_exists`,
 ## `-fgenie`
 
 With `-fgenie` the program is put into an access clause of
-`Genie_Transput`, `Genie_Formats`, `Regex` and `Files`
+`Genie_Transput`, `Genie_Formats`, `Regex`, `Files` and `Times`
 ([genie-formats.md](genie-formats.md)), so a program written for
 Algol 68 Genie can call `get directory` and `file is directory` as it is.
 A declaration of the program with the same name hides the one of the

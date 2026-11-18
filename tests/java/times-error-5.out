@@ -1,0 +1,3 @@
+before
+tests/java/times-error-5.a68:6: runtime error: attempt to use a NIL Date
+exit 134

@@ -1,0 +1,7 @@
+{ The module Times: a NIL Date is a runtime error in the operator that
+  uses it. }
+access Times (
+   Date d = nil;
+   puts ("before'n");
+   puts (date_text (d + 1))
+)

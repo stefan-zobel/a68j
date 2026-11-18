@@ -44,7 +44,7 @@ import java.util.List;
  * their own, see Outline; -floop-methods is the default), -fgenie (a
  * program written for Algol 68 Genie: UPPER stropping, each source file
  * prepared by the format rewrite tool, see GenieRewrite, the program put
- * into an access clause of Genie_Transput, Genie_Formats, Regex and Files, and the
+ * into an access clause of Genie_Transput, Genie_Formats, Regex, Files and Times, and the
  * format texts lowered as with -fformats) and -fformats (the front end parses format texts and the mode FORMAT, the
  * mode Gformat of the module Genie_Formats, and GenFormats lowers each
  * format text to a call of that module; in either stropping).
