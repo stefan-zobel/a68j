@@ -1605,6 +1605,60 @@ public final class MoidsCheck {
         MoidsMisc.makeSoid(a68, y, x.sort, a68.modes.ERROR, STOP);
     }
 
+    /**
+     * a68j: -fformats. Rejects the parts of a format text that the module
+     * Genie_Formats does not have: the pattern h, the C patterns (%), and g
+     * with more than three parameters. The units of the format text are not
+     * entered; a format text in them is checked by its own mode check.
+     */
+    private static void checkGenieFormat(A68 a68, Node p) {
+        for (; p != null; p = p.next) {
+            switch (p.attribute) {
+                case ENCLOSED_CLAUSE -> {
+                    // A unit of the format text.
+                }
+                case GENERAL_PATTERN -> {
+                    if (p.sub.is(FORMAT_ITEM_H)) {
+                        a68.diagnostics.error(p, "format item h is not supported");
+                    } else if (p.sub.next != null && p.sub.next.sub.is(COLLATERAL_CLAUSE)
+                            && countUnits(p.sub.next.sub) > 3) {
+                        a68.diagnostics.error(p, "format item g takes at most three parameters");
+                    }
+                }
+                case BITS_C_PATTERN, CHAR_C_PATTERN, FIXED_C_PATTERN, FLOAT_C_PATTERN,
+                        GENERAL_C_PATTERN, INTEGRAL_C_PATTERN, STRING_C_PATTERN ->
+                    a68.diagnostics.error(p, "C-style patterns are not supported");
+                default -> checkGenieFormat(a68, p.sub);
+            }
+        }
+    }
+
+    /**
+     * a68j: -fformats. The identifier NAME of the module Genie_Formats as
+     * revealed in the range of TABLE, or null; a declaration of the program
+     * with the same name does not hide it. The back end calls gfmt and gfmtd
+     * through these tags.
+     */
+    public static Tag genieFormatsTag(Table table, String name) {
+        for (Table t = table; t != null; t = t.previous) {
+            for (Tag z = t.identifiers; z != null; z = z.next) {
+                if (z.moif != null && z.moif.name.equals("GENIEFORMATS") && z.node.info.symbol.equals(name)) {
+                    return z;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** a68j: the number of units in P, not entering them. */
+    private static int countUnits(Node p) {
+        int n = 0;
+        for (; p != null; p = p.next) {
+            n += p.is(UNIT) ? 1 : countUnits(p.sub);
+        }
+        return n;
+    }
+
     /** Mode check format text (mode_check_format_text). */
     private static void modeCheckFormatText(A68 a68, Node p) {
         for (; p != null; p = p.next) {
@@ -1673,6 +1727,14 @@ public final class MoidsCheck {
         } else if (p.is(ENCLOSED_CLAUSE)) {
             modeCheckEnclosed(a68, p.sub, x, y);
         } else if (p.is(FORMAT_TEXT)) {
+            // a68j: format texts exist only with -fformats; they need the
+            // module Genie_Formats, which yields the mode FORMAT.
+            if (a68.modes.FORMAT == null || genieFormatsTag(p.symbolTable, "gfmtd") == null) {
+                a68.diagnostics.error(p, "format text needs access to Genie_Formats");
+                MoidsMisc.makeSoid(a68, y, x.sort, a68.modes.ERROR, STOP);
+                return;
+            }
+            checkGenieFormat(a68, p.sub);
             modeCheckFormatText(a68, p);
             MoidsMisc.makeSoid(a68, y, x.sort, a68.modes.FORMAT, STOP);
             MoidsDiagnostics.warnForVoiding(a68, p, x, y, FORMAT_TEXT);

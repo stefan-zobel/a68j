@@ -36,6 +36,10 @@ import java.util.Set;
  * out of it) cannot be called once the serial clause of the label has been
  * left: no handler catches the {@link a68j.rt.Jump} then.
  *
+ * <p>A format text with dynamic parts (-fformats, GenFormats) is treated as
+ * a routine text: its parts are methods that use the frame they were made
+ * in.
+ *
  * <p>Every value whose mode can hold a procedure gets a danger level: storing
  * it in a name whose scope (a symbol table level, as in a68j.front.Scope) is
  * at most that level is wrong. A repeater (a loop, or a serial clause with
@@ -172,7 +176,9 @@ final class FrameScope {
                     contribute(around, p.tag.symbolTable.level, new Danger(r.level, null, p.tag, r, null));
                 }
             }
-            if (p.attribute == Attribute.ROUTINE_TEXT) {
+            // A format text (-fformats) captures like a routine text: its
+            // dynamic parts are methods called when the format is used.
+            if (p.attribute == Attribute.ROUTINE_TEXT || p.attribute == Attribute.FORMAT_TEXT) {
                 around.push(p);
                 captures(p.sub, around);
                 around.pop();
@@ -238,7 +244,7 @@ final class FrameScope {
             return null;
         }
         switch (p.attribute) {
-            case ROUTINE_TEXT: {
+            case ROUTINE_TEXT, FORMAT_TEXT: {
                 Danger d = texts.get(p);
                 return d == null ? null : d.at(p);
             }
@@ -406,6 +412,7 @@ final class FrameScope {
             return;
         }
         String what = d.origin.attribute == Attribute.ROUTINE_TEXT ? "routine text"
+                : d.origin.attribute == Attribute.FORMAT_TEXT ? "format text"
                 : d.origin.attribute == Attribute.PROCEDURING ? null
                 : "value of '" + Fmt.symbol(d.origin) + "'";
         var diag = g.a68.diagnostics;

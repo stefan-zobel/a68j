@@ -1,5 +1,5 @@
 { Defects of libga68's standard prelude that a68j corrects
-  (docs/ga68-bug-reports.md, entries 2 to 5). }
+  (docs/ga68-bug-reports.md, entries 2 to 5 and 28). }
 begin
     proc b = (bool x) string: (x | "T" | "F");
     { Whether x is v, but for the rounding of the last digits. }
@@ -68,6 +68,12 @@ begin
        puts (float (x, 22, 14, 4) + " " + float (LENG x, 22, 14, 4) + "'n")
     od;
     puts (fixed (long 1.0e22, 0, 0) + " " + float (- long 2.5e-7, 12, 4, 2) + "'n");
+
+    { Entry 28: a value below 1 that rounds up to 1 gets no "0" before
+      the point; a value that stays below 1 still gets it. }
+    puts ("[" + fixed (0.999999, -6, 2) + "] [" + fixed (0.999999, 6, 2) + "] [" + fixed (0.6, -6, 0) + "] ["
+          + fixed (-0.999, -6, 2) + "] [" + fixed (0.994, -6, 2) + "] [" + fixed (0.3, -3, 0) + "] ["
+          + fixed (long 0.9999, -6, 2) + "] [" + fixed (long long 0.9999, 6, 1) + "]'n");
 
     { The long variants of string_to_real use long_standardize near the
       largest value. }

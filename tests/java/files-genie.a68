@@ -1,0 +1,32 @@
+{ The module Files: the procedures of Algol 68 Genie.  get_directory
+  gives "." and ".." first and the other names sorted; the file_is_
+  procedures are false and file_mode is 0 for a path that does not exist.
+  The type bits of file_mode are those of POSIX st_mode on every system.
+  get_pwd is the current directory; real_path is "" for a path that does
+  not exist. }
+access Files (
+   string d = make_temp_directory ("a68j-files-");
+   write_file (d + "/b.txt", "b");
+   write_file (d + "/A.txt", "a");
+   make_directory (d + "/c");
+   proc show = ([] string names) void:
+      begin puts (whole (UPB names, 0) + ":");
+            for i to UPB names do puts (" " + names[i]) od;
+            puts ("'n")
+      end;
+   proc kind = (string p) void:
+      puts ((file_is_directory (p) | "d" | "-") + (file_is_regular (p) | "r" | "-")
+            + (file_is_link (p) | "l" | "-") + (file_is_block_device (p) | "b" | "-")
+            + (file_is_char_device (p) | "c" | "-") + (file_is_fifo (p) | "f" | "-")
+            + " " + whole (ABS (file_mode (p) AND 8r170000), 0)
+            + (ABS (file_mode (p) AND 8r400) /= 0 | " readable" | "") + "'n");
+   show (get_directory (d));
+   show (get_directory (d + "/c"));
+   kind (d);
+   kind (d + "/b.txt");
+   kind (d + "/missing");
+   puts ((get_pwd = current_directory | "T" | "F") + (real_path (".") = get_pwd | "T" | "F")
+         + (real_path (d + "/c/..") = real_path (d) | "T" | "F")
+         + (real_path (d + "/missing") = "" | "T" | "F") + "'n");
+   delete_file (d + "/b.txt"); delete_file (d + "/A.txt"); delete_file (d + "/c"); delete_file (d)
+)

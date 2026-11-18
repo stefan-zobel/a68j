@@ -36,26 +36,30 @@ final class GenieRewrite implements SourceFilter {
     private final Proc rewrite;
     private final boolean upper;
     private final boolean forGenie;
+    private final boolean keepFormats;
 
-    private GenieRewrite(Proc rewrite, boolean upper, boolean forGenie) {
+    private GenieRewrite(Proc rewrite, boolean upper, boolean forGenie, boolean keepFormats) {
         this.rewrite = rewrite;
         this.upper = upper;
         this.forGenie = forGenie;
+        this.keepFormats = keepFormats;
     }
 
     /**
      * The filter, or null if the class of the tool is missing. UPPER: the
      * program is in UPPER stropping, else in SUPPER stropping; FOR_GENIE:
-     * the program is written for Algol 68 Genie (-fgenie).
+     * the program is written for Algol 68 Genie (-fgenie); KEEP_FORMATS: the
+     * format texts and the mode FORMAT are left to the front end (-fgenie,
+     * unless A68J_FORMATS=rewrite).
      */
-    static GenieRewrite load(boolean upper, boolean forGenie) {
+    static GenieRewrite load(boolean upper, boolean forGenie, boolean keepFormats) {
         try {
             Class<?> c = Class.forName(TOOL_CLASS, true, GenieRewrite.class.getClassLoader());
             String[] keys = ((String) c.getMethod("pubKeys").invoke(null)).split("\n");
             String name = Intrinsics.mangle("genie rewrite") + " ";
             for (int i = 0; i < keys.length; i++) {
                 if (keys[i].startsWith(name)) {
-                    return new GenieRewrite((Proc) c.getMethod("pub$v", int.class).invoke(null, i), upper, forGenie);
+                    return new GenieRewrite((Proc) c.getMethod("pub$v", int.class).invoke(null, i), upper, forGenie, keepFormats);
                 }
             }
             return null;
@@ -67,7 +71,7 @@ final class GenieRewrite implements SourceFilter {
     @Override
     public Result apply(String text) {
         String t = text.replace("\r\n", "\n");
-        String r = ((Row) rewrite.call(new Object[] {Row.ofString(t), upper, forGenie})).asString();
+        String r = ((Row) rewrite.call(new Object[] {Row.ofString(t), upper, forGenie, keepFormats})).asString();
         if (!r.isEmpty() && r.charAt(0) == '\0') {
             int colon = r.indexOf(':');
             return new Result(t, Integer.parseInt(r.substring(1, colon)), r.substring(colon + 1));

@@ -1,0 +1,6 @@
+{ a68j-options: -fformats }
+{ -fformats: a format text needs the module Genie_Formats, which a program accessing Genie_Transput gets. }
+begin
+   $3d$;
+   skip
+end

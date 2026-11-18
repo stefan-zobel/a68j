@@ -1,0 +1,7 @@
+{ a68j-options: }
+{ Without -fformats, a format text is an error, as in ga68. }
+access Genie_Transput
+begin
+   print ((1, newline));
+   printf (($3d$, 1))
+end

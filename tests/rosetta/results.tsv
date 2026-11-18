@@ -451,7 +451,7 @@ fusc-sequence	Fusc-sequence	exit 0	pass
 gstrans-string-conversion	GSTrans-string-conversion	exit -6	pass	
 gamma-function	Gamma-function	compile error: error: indicant DOWNTO has not been declared properly	-	
 gapful-numbers	Gapful-numbers	exit 0	pass	
-gauss-jordan-matrix-inversion	Gauss-Jordan-matrix-inversion	exit 0	pass	
+gauss-jordan-matrix-inversion	Gauss-Jordan-matrix-inversion	exit 0	fixed: docs/ga68-bug-reports.md, entry 28 (fixed writes a "0" before the point of a value that rounds up to 1)	
 gaussian-elimination-1	Gaussian-elimination	compile error: error: '(GFORMAT, GFORMAT, SIMPLEOUT, GFORMAT)' cannot be coerced to '[] GFOUT' in a strong-argument	-	
 gaussian-elimination-2	Gaussian-elimination	compile error: error: indicant SCAL has not been declared properly	-	
 gaussian-elimination-3	Gaussian-elimination	compile error: error: indicant MAT has not been declared properly	-	

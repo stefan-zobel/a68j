@@ -350,6 +350,11 @@ final class GenRows {
                     Gen.constant(cb, (long) units.size());
                     pushElements(g, units);
                     cb.invokestatic(Gen.CD_ROW, "of1", MethodTypeDesc.of(Gen.CD_ROW, CD_long, CD_long, Gen.CD_OBJECTS));
+                    if (units.stream().anyMatch(u -> GenCoercions.isSpread(g, GenUnits.strip(u)))) {
+                        // -fgenie, -fformats: items of print or printf that
+                        // are straightened (GenCoercions#uniting).
+                        cb.invokestatic(Gen.CD_RT, "flattenItems", MethodTypeDesc.of(Gen.CD_ROW, Gen.CD_ROW));
+                    }
                 } else {
                     pushElements(g, units);
                     g.pushWhere(p);

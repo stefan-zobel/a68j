@@ -1,0 +1,5 @@
+{ The module Files: listing a file as a directory is a runtime error. }
+access Files (
+   [] string names = list_directory ("tests/java/files-error-3.a68");
+   puts (whole (UPB names, 0) + "'n")
+)

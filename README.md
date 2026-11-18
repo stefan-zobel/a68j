@@ -47,10 +47,13 @@ Hello, world!
   functional interfaces (a comparator for `Arrays.sort`, say) and come
   back as procedures. Constructors, instance methods and fields are bound as
   method references (`nest Java "java.util.ArrayList::new"`), so objects of
-  the JDK can be used directly. The bundled modules `Lists` and
+  the JDK can be used directly. Where several overloads fit, the types of
+  the parameters name one (`"org.xml.sax.InputSource::new(Reader)"`). The bundled modules `Lists` and
   `Hashmaps` provide growable lists and hash maps built on it, and
   `Bigints` integers of any size with the operators of an `int`
-  ([docs/bigints.md](docs/bigints.md)).
+  ([docs/bigints.md](docs/bigints.md)), and `Bigdecimals` decimals of any
+  precision with the operators of a `real`
+  ([docs/bigdecimals.md](docs/bigdecimals.md)).
 - **Partial parametrization** (an extension of Algol 68 Genie, after
   Lindsey's proposal of 1976): a call that leaves arguments out,
   `add (3, )`, yields a procedure of the missing parameters. ga68 accepts
@@ -62,14 +65,14 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics (up to the ga68 commits listed in `docs/PORTING.md`) |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 55 of 55 |
+| a68j's own differential tests (`tests/extra`) | 56 of 56 |
 | Rosetta Code programs that ga68 runs | 699 identical (642 of them end normally), 6 equal up to floating-point rounding, 11 open, of 716 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 60 of 60, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 93 of 93, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 12 of 12 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
-| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 23 of 23, JDK 25 and JDK 28 |
-| Formats: rewrite tool, `Genie_Formats`, `-fgenie` (`tests/formats`) | 81 of 81 on a68j and with `-fgenie`, also on ga68 and Algol 68 Genie (7 deliberate differences from Algol 68 Genie excepted) |
+| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 40 of 40, JDK 25 and JDK 28 |
+| Formats: rewrite tool, `Genie_Formats`, `-fgenie`, `-fformats` (`tests/formats`) | 87 of 87 on a68j, with `-fgenie`, and with `-fgenie` and the rewrite of format texts; also on ga68 and Algol 68 Genie where they apply (7 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
 `newline`, `put`, `$…$` formats); output goes through the POSIX
@@ -78,24 +81,37 @@ prelude (`puts`, `putchar`, `fputs` ...). The bundled Algol 68 module
 `associate` and `stand_out` in the style of Algol 68 Genie on top of it, for a68j and
 ga68 alike
 ([docs/genie-transput.md](docs/genie-transput.md)). Format texts
-(`$...$`, `printf`, `readf`) are turned by a rewrite tool, written in
-Algol 68, into calls of the bundled module `Genie_Formats`, again for a68j
-and ga68 alike; with insertions, replicators, `g`, `f`, pictures, choices,
-radix, `k` and the complex pattern `i`, for output and input
-([docs/genie-formats.md](docs/genie-formats.md)).
-The option `-fformats` runs the tool inside the compiler, and `-fgenie`
-does all this, so that a program written for Algol 68 Genie runs as it
-is. The bundled module
+(`$...$`, `printf`, `readf`) become calls of the bundled module
+`Genie_Formats`, with insertions, replicators, `g`, `f`, pictures,
+choices, radix, `k` and the complex pattern `i`, for output and input
+([docs/genie-formats.md](docs/genie-formats.md)): a68j compiles them with
+the option `-fformats`, and for ga68 a rewrite tool, written in Algol 68,
+turns them into such calls first. `-fgenie` does all this, so that a
+program written for Algol 68 Genie runs as it is; with these options,
+records and rows of rows are items of `print`, `printf`, `read` and
+`readf` too. The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
 of Algol 68 Genie (`grep in string`, `sub in string`) on top of
-`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)).
+`java.util.regex`, for a68j only ([docs/regex.md](docs/regex.md)), and
+`Files` the file procedures of Algol 68 Genie (`get directory`,
+`file is directory`) and more: whole files read and written as strings,
+directories listed and walked, files moved, copied and deleted, also for
+a68j only ([docs/files.md](docs/files.md)). `Times` has the time
+procedures of Algol 68 Genie (`local time`, `utc time`, `cpu time`,
+`sleep`) and
+dates, date-times and durations on top of `java.time`, with operators for
+their arithmetic, patterns for text, and time zones, for a68j only
+([docs/times.md](docs/times.md)).
 `long long int` has 64 bits, as in ga68, where Algol 68 Genie has 72
 digits; for larger integers the `Bigints` module offers the mode `Bigint`, with the
 operators of an `int`, on top of `java.math.BigInteger`, for a68j only
 ([docs/bigints.md](docs/bigints.md)). 80-bit `long long real` is out of
-scope.
+scope; for more digits the `Bigdecimals` module offers the mode
+`Bigdecimal`, decimals with a precision of 70 digits or any other, on top
+of `java.math.BigDecimal`, for a68j only
+([docs/bigdecimals.md](docs/bigdecimals.md)).
 
 ## Requirements
 
@@ -177,8 +193,8 @@ Common options (as in ga68 where ga68 has them):
 | `--version` | the version of a68j |
 | `-fnest-java`, `-fjava-classpath=…` | allow `nest Java "…"` [formal holes](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Foreign-Function-Interface.html) (a68j extension) |
 | `-fpar-threads` | run the units of `par` clauses in parallel threads (a68j extension) |
-| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), `ANDF`, `ORF`, `DOWNTO`, and access to `Genie_Transput` and `Genie_Formats` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
-| `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
+| `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), `ANDF`, `ORF`, `DOWNTO`, and access to `Genie_Transput`, `Genie_Formats`, `Regex`, `Files` and `Times` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
+| `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in; errors in them are errors of the compiler, and records and rows of rows are items of `print`, `printf`, `read` and `readf` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
 ### Modules
 
@@ -337,6 +353,9 @@ The detailed documentation is in `docs/`:
 - `docs/texts.md`: the bundled module `Texts` (string functions).
 - `docs/regex.md`: the bundled module `Regex` (regular expressions, a68j only).
 - `docs/bigints.md`: the bundled module `Bigints` (integers of any size, a68j only).
+- `docs/bigdecimals.md`: the bundled module `Bigdecimals` (decimals of any precision, a68j only).
+- `docs/files.md`: the bundled module `Files` (files and directories, a68j only).
+- `docs/times.md`: the bundled module `Times` (dates, times and durations, a68j only).
 - `docs/genie-formats.md`: formats (`$...$`, `printf`): the rewrite tool and the bundled module `Genie_Formats`.
 - `docs/TODO-formats.md`: the roadmap for formats in stages.
 - `docs/ga68-bug-reports.md`: defects found in ga68 and libga68.
@@ -355,11 +374,11 @@ python3 tools/run_jvm.py --native tests/ga68/expected $S/*.a68 $S/mcgt/*.a68 $S/
 python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
-sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints
+sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints, Bigdecimals, Files, Times
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, -Wframe-scope
-python3 tools/formats_tests.py    # formats: the rewrite tool and Genie_Formats (--a68g, --ga68)
+python3 tools/formats_tests.py    # formats: the rewrite tool, Genie_Formats, -fgenie with and without the lowering (--a68g, --ga68)
 ```
 
 ## License

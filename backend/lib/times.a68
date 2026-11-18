@@ -1,0 +1,317 @@
+{ dg-options "-fstropping=supper -fnest-java" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ times.a68 - the module Times of a68j: dates, times and durations, on top
+  of java.time (a68j.jlib.Times, DateValue, DatetimeValue, DurationValue,
+  PeriodValue).
+
+      access Times (
+          Date d = date (2026, 1, 31);
+          puts (date_text (d + MONTHS 1) + " " + whole (d - date (2025, 12, 25), 0) + "'n")
+      )                                                     { 2026-02-28 37 }
+
+  The procedures of Algol 68 Genie, with its names and modes:
+
+  local_time, utc_time        [] int: year, month, day, hours, minutes,
+                              seconds, day of the week (1 = Sunday) and 1 if
+                              daylight saving time is in effect, else 0.
+  cpu_time, clock, seconds    the CPU time of the program in seconds since
+                              it started, a real.
+  wall_time, wall_clock, wall_seconds
+                              the seconds since the program started, a real.
+  sleep (x)                   waits ABS x seconds, x a real (or an int,
+                              widened), and gives 0.
+
+  Four modes, Java objects whose values never change; = compares the
+  values, IS the objects:
+
+  Date                        a date (java.time.LocalDate).
+  Datetime                    a date and a time of day to the nanosecond,
+                              without a time zone (LocalDateTime).
+  Duration                    an amount of time in seconds (Duration).
+  Period                      years, months and days of the calendar
+                              (Period); a month is 28 to 31 days.
+
+  date (y, m, d), datetime (y, m, d, h, mi, s), at_time (date, h, mi, s)
+                              construction; invalid values are errors.
+  today, now, now_in (zone), local_zone
+                              the clock and the zone of the system.
+  datetime_from_epoch (s, zone), datetime_to_epoch (t, zone)
+                              seconds since 1970-01-01 UTC, a long int.
+  datetime_convert (t, from, to)
+                              the same instant in another zone.
+  YEAR, MONTH, DAY, WEEKDAY (1 = Monday), YEARDAY
+                              of a Date or Datetime; HOUR, MINUTE, SECOND,
+                              NANO of a Datetime; TODATE t its date.
+  HOURS n, MINUTES n, SECONDS n
+                              a Duration, n an int or long int.
+  DAYS n, WEEKS n, MONTHS n, YEARS n
+                              a Period, n an int.
+  d + n, d - n, d - d         days; d + p, d - p for a Period p.
+  t + u, t - u, t - t         for a Duration u; t + p, t - p.
+  u + u, u - u, u * n, n * u, u % n, u OVER n, - u, ABS u
+  p + p, p - p, - p
+  = /= < <= > >= EQ NE LT LE GT GE
+                              for Dates, Datetimes and Durations; = and /=
+                              also for Periods.
+  +:= -:= PLUSAB MINUSAB      for variables of the modes but Period.
+  date_text, datetime_text, duration_text, period_text
+                              ISO 8601: 2026-11-18, 2026-11-18T14:05:09,
+                              PT1H30M, P1Y2M.
+  date_from_text, datetime_from_text
+                              ISO 8601 back.
+  date_format (d, pattern), datetime_format (t, pattern),
+  date_from_format (s, pattern), datetime_from_format (s, pattern)
+                              the patterns of java.time.format.
+                              DateTimeFormatter, with English names.
+  months_between (a, b), years_between (a, b)
+                              whole months or years from Date a to Date b.
+  duration_seconds (u), duration_millis (u)
+                              a long real, a long int.
+
+  A zone is a region (Europe/Berlin), UTC or an offset (+01:00).  The
+  operators have the priorities of the prelude; the module declares none.
+  An invalid date, a text that cannot be read, an unknown zone and a NIL
+  value are runtime errors (docs/times.md).
+
+  Bundled with a68j-backend.jar; a program needs no -fnest-java to access
+  this module.  It runs with a68j only, as it needs Java. }
+
+module Times =
+def
+    pub mode Date = ref Date_object;
+    pub mode Date_object = struct (int date_java_object);
+    pub mode Datetime = ref Datetime_object;
+    pub mode Datetime_object = struct (int datetime_java_object);
+    pub mode Duration = ref Duration_object;
+    pub mode Duration_object = struct (int duration_java_object);
+    pub mode Period = ref Period_object;
+    pub mode Period_object = struct (int period_java_object);
+
+    { The procedures of Algol 68 Genie. }
+    pub proc [] int local_time = nest Java "a68j.jlib.Times.localTime";
+    pub proc [] int utc_time = nest Java "a68j.jlib.Times.utcTime";
+    pub proc real cpu_time = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real clock = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real seconds = nest Java "a68j.jlib.Times.cpuTime";
+    pub proc real wall_time = nest Java "a68j.jlib.Times.wallTime";
+    pub proc real wall_clock = nest Java "a68j.jlib.Times.wallTime";
+    pub proc real wall_seconds = nest Java "a68j.jlib.Times.wallTime";
+    pub proc (real) int sleep = nest Java "a68j.jlib.Times.sleep";
+
+    { Construction, the clock and time zones. }
+    pub proc (int, int, int) Date date = nest Java "a68j.jlib.DateValue.of";
+    pub proc (int, int, int, int, int, int) Datetime datetime = nest Java "a68j.jlib.DatetimeValue.of";
+    pub proc (Date, int, int, int) Datetime at_time = nest Java "a68j.jlib.DateValue.atTime";
+    pub proc Date today = nest Java "a68j.jlib.DateValue.today";
+    pub proc Datetime now = nest Java "a68j.jlib.DatetimeValue.now";
+    pub proc (string) Datetime now_in = nest Java "a68j.jlib.DatetimeValue.nowIn";
+    pub proc string local_zone = nest Java "a68j.jlib.Times.localZone";
+    pub proc (long int, string) Datetime datetime_from_epoch = nest Java "a68j.jlib.DatetimeValue.fromEpoch";
+    pub proc (Datetime, string) long int datetime_to_epoch = nest Java "a68j.jlib.DatetimeValue.toEpoch";
+    pub proc (Datetime, string, string) Datetime datetime_convert = nest Java "a68j.jlib.DatetimeValue.convert";
+
+    { Text. }
+    pub proc (Date) string date_text = nest Java "a68j.jlib.DateValue.text";
+    pub proc (Datetime) string datetime_text = nest Java "a68j.jlib.DatetimeValue.text";
+    pub proc (Duration) string duration_text = nest Java "a68j.jlib.DurationValue.text";
+    pub proc (Period) string period_text = nest Java "a68j.jlib.PeriodValue.text";
+    pub proc (string) Date date_from_text = nest Java "a68j.jlib.DateValue.fromText";
+    pub proc (string) Datetime datetime_from_text = nest Java "a68j.jlib.DatetimeValue.fromText";
+    pub proc (Date, string) string date_format = nest Java "a68j.jlib.DateValue.format";
+    pub proc (Datetime, string) string datetime_format = nest Java "a68j.jlib.DatetimeValue.format";
+    pub proc (string, string) Date date_from_format = nest Java "a68j.jlib.DateValue.fromFormat";
+    pub proc (string, string) Datetime datetime_from_format = nest Java "a68j.jlib.DatetimeValue.fromFormat";
+
+    { Differences and durations. }
+    pub proc (Date, Date) int months_between = nest Java "a68j.jlib.DateValue.monthsBetween";
+    pub proc (Date, Date) int years_between = nest Java "a68j.jlib.DateValue.yearsBetween";
+    pub proc (Duration) long real duration_seconds = nest Java "a68j.jlib.DurationValue.toSeconds";
+    pub proc (Duration) long int duration_millis = nest Java "a68j.jlib.DurationValue.toMillis";
+
+    { The holes behind the operators. }
+    proc (Date) int j_date_year = nest Java "a68j.jlib.DateValue.year";
+    proc (Date) int j_date_month = nest Java "a68j.jlib.DateValue.month";
+    proc (Date) int j_date_day = nest Java "a68j.jlib.DateValue.day";
+    proc (Date) int j_date_weekday = nest Java "a68j.jlib.DateValue.weekday";
+    proc (Date) int j_date_yearday = nest Java "a68j.jlib.DateValue.yearday";
+    proc (Date, int) Date j_date_plus_days = nest Java "a68j.jlib.DateValue.plusDays";
+    proc (Date, Period) Date j_date_plus_period = nest Java "a68j.jlib.DateValue.plusPeriod";
+    proc (Date, Date) int j_date_days_between = nest Java "a68j.jlib.DateValue.daysBetween";
+    proc (Date, Date) int j_date_compare = nest Java "a68j.jlib.DateValue.compare";
+
+    proc (Datetime) int j_datetime_year = nest Java "a68j.jlib.DatetimeValue.year";
+    proc (Datetime) int j_datetime_month = nest Java "a68j.jlib.DatetimeValue.month";
+    proc (Datetime) int j_datetime_day = nest Java "a68j.jlib.DatetimeValue.day";
+    proc (Datetime) int j_datetime_weekday = nest Java "a68j.jlib.DatetimeValue.weekday";
+    proc (Datetime) int j_datetime_yearday = nest Java "a68j.jlib.DatetimeValue.yearday";
+    proc (Datetime) int j_datetime_hour = nest Java "a68j.jlib.DatetimeValue.hour";
+    proc (Datetime) int j_datetime_minute = nest Java "a68j.jlib.DatetimeValue.minute";
+    proc (Datetime) int j_datetime_second = nest Java "a68j.jlib.DatetimeValue.second";
+    proc (Datetime) int j_datetime_nano = nest Java "a68j.jlib.DatetimeValue.nano";
+    proc (Datetime) Date j_datetime_to_date = nest Java "a68j.jlib.DatetimeValue.toDate";
+    proc (Datetime, Duration) Datetime j_datetime_plus_duration = nest Java "a68j.jlib.DatetimeValue.plusDuration";
+    proc (Datetime, Period) Datetime j_datetime_plus_period = nest Java "a68j.jlib.DatetimeValue.plusPeriod";
+    proc (Datetime, Datetime) Duration j_datetime_between = nest Java "a68j.jlib.DatetimeValue.between";
+    proc (Datetime, Datetime) int j_datetime_compare = nest Java "a68j.jlib.DatetimeValue.compare";
+
+    proc (long int) Duration j_hours = nest Java "a68j.jlib.DurationValue.hours";
+    proc (long int) Duration j_minutes = nest Java "a68j.jlib.DurationValue.minutes";
+    proc (long int) Duration j_seconds = nest Java "a68j.jlib.DurationValue.seconds";
+    proc (Duration, Duration) Duration j_duration_add = nest Java "a68j.jlib.DurationValue.add";
+    proc (Duration, Duration) Duration j_duration_subtract = nest Java "a68j.jlib.DurationValue.subtract";
+    proc (Duration, int) Duration j_duration_multiply = nest Java "a68j.jlib.DurationValue.multiply";
+    proc (Duration, int) Duration j_duration_divide = nest Java "a68j.jlib.DurationValue.divide";
+    proc (Duration) Duration j_duration_negate = nest Java "a68j.jlib.DurationValue.negate";
+    proc (Duration) Duration j_duration_abs = nest Java "a68j.jlib.DurationValue.abs";
+    proc (Duration, Duration) int j_duration_compare = nest Java "a68j.jlib.DurationValue.compare";
+
+    proc (int) Period j_days = nest Java "a68j.jlib.PeriodValue.days";
+    proc (int) Period j_weeks = nest Java "a68j.jlib.PeriodValue.weeks";
+    proc (int) Period j_months = nest Java "a68j.jlib.PeriodValue.months";
+    proc (int) Period j_years = nest Java "a68j.jlib.PeriodValue.years";
+    proc (Period, Period) Period j_period_add = nest Java "a68j.jlib.PeriodValue.add";
+    proc (Period, Period) Period j_period_subtract = nest Java "a68j.jlib.PeriodValue.subtract";
+    proc (Period) Period j_period_negate = nest Java "a68j.jlib.PeriodValue.negate";
+    proc (Period, Period) bool j_period_equal = nest Java "a68j.jlib.PeriodValue.equal";
+
+    { Fields. }
+    pub op YEAR = (Date d) int: j_date_year (d);
+    pub op MONTH = (Date d) int: j_date_month (d);
+    pub op DAY = (Date d) int: j_date_day (d);
+    pub op WEEKDAY = (Date d) int: j_date_weekday (d);
+    pub op YEARDAY = (Date d) int: j_date_yearday (d);
+    pub op YEAR = (Datetime t) int: j_datetime_year (t);
+    pub op MONTH = (Datetime t) int: j_datetime_month (t);
+    pub op DAY = (Datetime t) int: j_datetime_day (t);
+    pub op WEEKDAY = (Datetime t) int: j_datetime_weekday (t);
+    pub op YEARDAY = (Datetime t) int: j_datetime_yearday (t);
+    pub op HOUR = (Datetime t) int: j_datetime_hour (t);
+    pub op MINUTE = (Datetime t) int: j_datetime_minute (t);
+    pub op SECOND = (Datetime t) int: j_datetime_second (t);
+    pub op NANO = (Datetime t) int: j_datetime_nano (t);
+    pub op TODATE = (Datetime t) Date: j_datetime_to_date (t);
+
+    { Durations and periods. }
+    pub op HOURS = (int n) Duration: j_hours (LENG n);
+    pub op HOURS = (long int n) Duration: j_hours (n);
+    pub op MINUTES = (int n) Duration: j_minutes (LENG n);
+    pub op MINUTES = (long int n) Duration: j_minutes (n);
+    pub op SECONDS = (int n) Duration: j_seconds (LENG n);
+    pub op SECONDS = (long int n) Duration: j_seconds (n);
+    pub op DAYS = (int n) Period: j_days (n);
+    pub op WEEKS = (int n) Period: j_weeks (n);
+    pub op MONTHS = (int n) Period: j_months (n);
+    pub op YEARS = (int n) Period: j_years (n);
+
+    { Arithmetic. }
+    pub op + = (Date d, int n) Date: j_date_plus_days (d, n);
+    pub op + = (int n, Date d) Date: j_date_plus_days (d, n);
+    pub op - = (Date d, int n) Date: j_date_plus_days (d, - n);
+    pub op - = (Date a, b) int: j_date_days_between (a, b);
+    pub op + = (Date d, Period p) Date: j_date_plus_period (d, p);
+    pub op - = (Date d, Period p) Date: j_date_plus_period (d, j_period_negate (p));
+
+    pub op + = (Datetime t, Duration u) Datetime: j_datetime_plus_duration (t, u);
+    pub op - = (Datetime t, Duration u) Datetime: j_datetime_plus_duration (t, j_duration_negate (u));
+    pub op + = (Datetime t, Period p) Datetime: j_datetime_plus_period (t, p);
+    pub op - = (Datetime t, Period p) Datetime: j_datetime_plus_period (t, j_period_negate (p));
+    pub op - = (Datetime a, b) Duration: j_datetime_between (a, b);
+
+    pub op + = (Duration a, b) Duration: j_duration_add (a, b);
+    pub op - = (Duration a, b) Duration: j_duration_subtract (a, b);
+    pub op * = (Duration a, int n) Duration: j_duration_multiply (a, n);
+    pub op * = (int n, Duration a) Duration: j_duration_multiply (a, n);
+    pub op % = (Duration a, int n) Duration: j_duration_divide (a, n);
+    pub op OVER = (Duration a, int n) Duration: j_duration_divide (a, n);
+    pub op - = (Duration a) Duration: j_duration_negate (a);
+    pub op ABS = (Duration a) Duration: j_duration_abs (a);
+
+    pub op + = (Period a, b) Period: j_period_add (a, b);
+    pub op - = (Period a, b) Period: j_period_subtract (a, b);
+    pub op - = (Period a) Period: j_period_negate (a);
+
+    { Comparisons. }
+    pub op = = (Date a, b) bool: j_date_compare (a, b) = 0;
+    pub op /= = (Date a, b) bool: j_date_compare (a, b) /= 0;
+    pub op < = (Date a, b) bool: j_date_compare (a, b) < 0;
+    pub op <= = (Date a, b) bool: j_date_compare (a, b) <= 0;
+    pub op > = (Date a, b) bool: j_date_compare (a, b) > 0;
+    pub op >= = (Date a, b) bool: j_date_compare (a, b) >= 0;
+    pub op EQ = (Date a, b) bool: j_date_compare (a, b) = 0;
+    pub op NE = (Date a, b) bool: j_date_compare (a, b) /= 0;
+    pub op LT = (Date a, b) bool: j_date_compare (a, b) < 0;
+    pub op LE = (Date a, b) bool: j_date_compare (a, b) <= 0;
+    pub op GT = (Date a, b) bool: j_date_compare (a, b) > 0;
+    pub op GE = (Date a, b) bool: j_date_compare (a, b) >= 0;
+
+    pub op = = (Datetime a, b) bool: j_datetime_compare (a, b) = 0;
+    pub op /= = (Datetime a, b) bool: j_datetime_compare (a, b) /= 0;
+    pub op < = (Datetime a, b) bool: j_datetime_compare (a, b) < 0;
+    pub op <= = (Datetime a, b) bool: j_datetime_compare (a, b) <= 0;
+    pub op > = (Datetime a, b) bool: j_datetime_compare (a, b) > 0;
+    pub op >= = (Datetime a, b) bool: j_datetime_compare (a, b) >= 0;
+    pub op EQ = (Datetime a, b) bool: j_datetime_compare (a, b) = 0;
+    pub op NE = (Datetime a, b) bool: j_datetime_compare (a, b) /= 0;
+    pub op LT = (Datetime a, b) bool: j_datetime_compare (a, b) < 0;
+    pub op LE = (Datetime a, b) bool: j_datetime_compare (a, b) <= 0;
+    pub op GT = (Datetime a, b) bool: j_datetime_compare (a, b) > 0;
+    pub op GE = (Datetime a, b) bool: j_datetime_compare (a, b) >= 0;
+
+    pub op = = (Duration a, b) bool: j_duration_compare (a, b) = 0;
+    pub op /= = (Duration a, b) bool: j_duration_compare (a, b) /= 0;
+    pub op < = (Duration a, b) bool: j_duration_compare (a, b) < 0;
+    pub op <= = (Duration a, b) bool: j_duration_compare (a, b) <= 0;
+    pub op > = (Duration a, b) bool: j_duration_compare (a, b) > 0;
+    pub op >= = (Duration a, b) bool: j_duration_compare (a, b) >= 0;
+    pub op EQ = (Duration a, b) bool: j_duration_compare (a, b) = 0;
+    pub op NE = (Duration a, b) bool: j_duration_compare (a, b) /= 0;
+    pub op LT = (Duration a, b) bool: j_duration_compare (a, b) < 0;
+    pub op LE = (Duration a, b) bool: j_duration_compare (a, b) <= 0;
+    pub op GT = (Duration a, b) bool: j_duration_compare (a, b) > 0;
+    pub op GE = (Duration a, b) bool: j_duration_compare (a, b) >= 0;
+
+    pub op = = (Period a, b) bool: j_period_equal (a, b);
+    pub op /= = (Period a, b) bool: NOT j_period_equal (a, b);
+    pub op EQ = (Period a, b) bool: j_period_equal (a, b);
+    pub op NE = (Period a, b) bool: NOT j_period_equal (a, b);
+
+    { Assigning operators. }
+    pub op +:= = (ref Date x, int n) ref Date: x := j_date_plus_days (x, n);
+    pub op -:= = (ref Date x, int n) ref Date: x := j_date_plus_days (x, - n);
+    pub op +:= = (ref Date x, Period p) ref Date: x := j_date_plus_period (x, p);
+    pub op -:= = (ref Date x, Period p) ref Date: x := j_date_plus_period (x, j_period_negate (p));
+    pub op PLUSAB = (ref Date x, int n) ref Date: x := j_date_plus_days (x, n);
+    pub op MINUSAB = (ref Date x, int n) ref Date: x := j_date_plus_days (x, - n);
+    pub op PLUSAB = (ref Date x, Period p) ref Date: x := j_date_plus_period (x, p);
+    pub op MINUSAB = (ref Date x, Period p) ref Date: x := j_date_plus_period (x, j_period_negate (p));
+
+    pub op +:= = (ref Datetime x, Duration u) ref Datetime: x := j_datetime_plus_duration (x, u);
+    pub op -:= = (ref Datetime x, Duration u) ref Datetime: x := j_datetime_plus_duration (x, j_duration_negate (u));
+    pub op +:= = (ref Datetime x, Period p) ref Datetime: x := j_datetime_plus_period (x, p);
+    pub op -:= = (ref Datetime x, Period p) ref Datetime: x := j_datetime_plus_period (x, j_period_negate (p));
+    pub op PLUSAB = (ref Datetime x, Duration u) ref Datetime: x := j_datetime_plus_duration (x, u);
+    pub op MINUSAB = (ref Datetime x, Duration u) ref Datetime: x := j_datetime_plus_duration (x, j_duration_negate (u));
+    pub op PLUSAB = (ref Datetime x, Period p) ref Datetime: x := j_datetime_plus_period (x, p);
+    pub op MINUSAB = (ref Datetime x, Period p) ref Datetime: x := j_datetime_plus_period (x, j_period_negate (p));
+
+    pub op +:= = (ref Duration x, Duration u) ref Duration: x := j_duration_add (x, u);
+    pub op -:= = (ref Duration x, Duration u) ref Duration: x := j_duration_subtract (x, u);
+    pub op PLUSAB = (ref Duration x, Duration u) ref Duration: x := j_duration_add (x, u);
+    pub op MINUSAB = (ref Duration x, Duration u) ref Duration: x := j_duration_subtract (x, u);
+
+    skip
+fed

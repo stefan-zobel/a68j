@@ -1,9 +1,8 @@
 # Formats: the rewrite tool and the bundled module `Genie_Formats`
 
-ga68, and a68j with it, does not compile format texts (`$ ... $`) and has
-no mode `format`. Formatted transput in the style of Algol 68 Genie
-(`printf`, `putf`, `readf`, `getf`) is made of two parts, both written in
-plain Algol 68:
+ga68 does not compile format texts (`$ ... $`) and has no mode `format`.
+Formatted transput in the style of Algol 68 Genie (`printf`, `putf`,
+`readf`, `getf`) is made of two parts, both written in plain Algol 68:
 
 - **The rewrite tool** (`tools/formats/`) turns the format texts of a
   program into calls of the module `Genie_Formats`. It runs on a68j, ga68
@@ -13,10 +12,12 @@ plain Algol 68:
   a68j, and it compiles with ga68 as an ordinary module. It accesses
   `Genie_Transput` ([genie-transput.md](genie-transput.md)).
 
-a68j runs the tool itself, inside the compiler, on each source file of a
-program: with the option `-fformats` for a program written for a68j, and
-with the option `-fgenie` for a program written for Algol 68 Genie (see
-the sections on the two options below).
+With the option `-fformats`, for a program written for a68j, the
+compiler parses the format texts itself and lowers each one to a call of
+the module. The option `-fgenie`, for a program written for Algol 68
+Genie, does the same, and runs the tool inside the compiler on each
+source file for the rest of what Algol 68 Genie accepts (see the
+sections on the two options below).
 
 This is stages 1 to 3 of the roadmap in [TODO-formats.md](TODO-formats.md):
 output with insertions, alignments, replicators, collections, the general
@@ -164,22 +165,51 @@ elaborated.
 ## The option `-fformats`
 
 `java -jar a68j-backend.jar -fformats -run prog.a68` compiles a program
-written for a68j (or ga68) that contains format texts. The compiler
-rewrites the main file and each included file with the tool, in the
-stropping of the program (`-fstropping`, SUPPER by default), as the tool
-without `--ga68` does by hand:
+written for a68j (or ga68) that contains format texts, in either stropping
+(`-fstropping`, SUPPER by default). The compiler parses the format texts
+itself:
 
-- format texts become calls of `gfmt` and `gfmtd`;
-- the mode `format` (`FORMAT`) becomes `Gformat` (`GFORMAT`);
-- an access list that names `Genie_Transput` gets `Genie_Formats` as
-  well, if the file uses formats.
+- The front end recognizes `$` and the mode `format` (`FORMAT` in UPPER
+  stropping), which is the mode `Gformat` of `Genie_Formats`; messages
+  call it `format`.
+- An access list that names `Genie_Transput` gets `Genie_Formats` as
+  well if the program uses formats: a format text, the mode `format`, or
+  one of `printf`, `putf`, `readf`, `getf` and `writef`. The program must
+  access `Genie_Transput` itself, as any program that uses `print` does;
+  a format text without access to `Genie_Formats` is an error.
+- The back end lowers each format text to a call of `gfmt` or `gfmtd` of
+  the module, which builds the same value that the rewrite tool builds: a
+  text in the syntax that the module parses when the program runs, and,
+  for the dynamic parts (`n(k)`, the parameters of `g(...)`, `f(...)`),
+  procedures without parameters that yield their values. A dynamic part
+  is elaborated each time the format uses it, in the environment of the
+  format text. A constant parameter, as in `g(-6, 2)`, goes into the text.
+- Errors in a format text are errors of the compiler, with line and
+  column, as in Algol 68 Genie: syntax errors (`$+d.2d +d.2d$` needs a
+  comma between the two patterns), the modes of the units (`n("x")`,
+  `f(1)`), and what the module does not have (`h`, C-style patterns such
+  as `%5d`, `g` with more than three parameters).
+- A format text may continue over several lines, as in Algol 68 Genie:
+  `$3` at the end of a line and `2d$` on the next is the replicator 32,
+  and two literals on two lines are two insertions.
+- A parameter of `g` that is a clause yielding a row, such as
+  `g(c | 6 | 7)`, is one parameter: its row must have one element at run
+  time. Parameters given as a row in another way are not supported.
+- A structure, a row of rows or a `[] char` is an item of `printf` and
+  `print`, and a name of a structure or of a row an item of `readf` and
+  `read`, straightened into its parts (see "Differences and limits").
+- `-Wframe-scope` reports a format text whose dynamic part uses an
+  identifier of a loop and that outlives the iteration, as it does for a
+  routine text.
 
-Nothing else changes: the program must access `Genie_Transput` itself, as
-any program that uses `print` does. The lines keep their numbers, so
-messages of the compiler and run-time errors give the lines of the source
-files; an error that the tool finds, such as an unterminated format text,
-is an error of the compiler at its line. The examples with formats in
-chapter 9 of the book are run this way.
+The examples with formats in chapter 9 of the book are run this way.
+
+With `A68J_FORMATS=rewrite` in the environment, `-fformats` rewrites each
+source file with the tool instead, as before the compiler parsed format
+texts (the tool without `--ga68`: format texts become calls of `gfmt` and
+`gfmtd`, `format` becomes `Gformat`); this fallback is meant to go
+away. An error that the tool finds is then an error of the compiler at
+its line, and errors in a format text are found when the program runs.
 
 With `-fgenie`, `-fformats` changes nothing.
 
@@ -202,13 +232,22 @@ the tool with `--ga68` does by hand:
   tool, in the same JVM: `backend/build.sh` compiles the tool with the
   prologue `tools/formats/rewrite-fgenie.a68` into the class
   `a68j.lib.Genierewrite`, which `a68j.jvm.GenieRewrite` calls. The
-  options are `--upper --ga68 --no-wrap`. A CR before a newline is
+  options are `--upper --ga68 --no-wrap --keep-formats` (without
+  `--keep-formats` with `A68J_FORMATS=rewrite`). A CR before a newline is
   dropped first.
+- The compiler parses the format texts and lowers them as with
+  `-fformats` (since version 0.9.0).
 - The program is put into
-  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS ( ... )` by the compiler, on lines
-  of its own that belong to the environ, like the prelude. A file included
-  by a pragmat on the first line, which goes before that line, is inside
-  the access clause too, and the lines of the program keep their numbers.
+  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES, TIMES ( ... )` by the
+  compiler, on lines of its own that belong to the environ, like the
+  prelude. A file included by a pragmat on the first line, which goes
+  before that line, is inside the access clause too, and the lines of the
+  program keep their numbers. `Regex`, `Files` and `Times` give the
+  procedures of Algol 68 Genie for regular expressions (`grep in string`),
+  files (`get directory`, `file is directory`) and the clock
+  (`local time`, `utc time`, `cpu time`, `sleep`), see [regex.md](regex.md),
+  [files.md](files.md) and [times.md](times.md); a declaration of the program with the same name
+  hides the one of the module.
 - `PR read "file" PR` and `PR READ "file" PR` include the file once, the
   first time. The file is looked for relative to the file that reads it,
   then in the `-I` directories. ga68 does not find a file with a
@@ -238,16 +277,31 @@ the tool with `--ga68` does by hand:
     `real`.
 
 Messages of the compiler and run-time errors give the lines of the source
-files. Their columns can differ where the tool changed a line (a format
-text, a doubled apostrophe, `GFILE`, `ANDTH`, `BY -1 TO`). An error that the tool finds, such
-as an unterminated format text, is an error of the compiler at its line.
+files. Their columns can differ where the tool changed a line (a doubled
+apostrophe, `GFILE`, `ANDTH`, `BY -1 TO`). An error that the tool finds
+is an error of the compiler at its line.
+
+Since version 0.9.0, `-fgenie` leaves the format texts and the mode
+`FORMAT` to the compiler, as `-fformats` does (the tool runs with
+`--keep-formats`): an error in a format text is found when the program
+is compiled, with its line and column. With `A68J_FORMATS=rewrite` in the
+environment, the tool rewrites the format texts too, as until version
+0.8.1, and errors in format texts are found when the program runs; this
+fallback is meant to go away. `tools/formats_tests.py` runs every program
+test and Genie test both ways, and all 220 Rosetta Code solutions that
+use formats give the same output and exit status both ways.
+
+With `-fgenie` (and with `-fformats`), a structure, a row of rows or a
+`[] CHAR` is an item of `print` and `printf`, and a name of a structure
+or of a row an item of `read` and `readf`, as in Algol 68 Genie (see
+"Differences and limits").
 
 These remain differences to Algol 68 Genie, with or without `-fgenie`:
 `long long` modes without multiple precision, the 32-bit `int` and
 `real` (a `real` variable widened to `long real` keeps the precision of
 its 32 bits), `_` in
-tags (not significant in ga68), no QUOTE stropping, structures as items
-of `print` and `printf`, and the parts of formats that are not supported
+tags (not significant in ga68), no QUOTE stropping, and the parts of
+formats that are not supported
 yet (see "Differences and limits").
 
 The option replaces the pre-processor on the Rosetta Code page about
@@ -258,7 +312,8 @@ formats and `PR READ`, and it needs no second command.
 
 | Part | Algol 68 Genie | ga68 | a68j |
 |---|---|---|---|
-| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes, also inside the compiler (`-fformats`, `-fgenie`) |
+| the rewrite tool (one source in UPPER stropping, a prologue per system) | yes | yes | yes, also inside the compiler (`-fgenie`) |
+| format texts parsed by the compiler and lowered to calls of the module | (formats are built in) | no | yes (`-fformats`) |
 | input of the tool | UPPER and SUPPER | UPPER and SUPPER | UPPER and SUPPER |
 | the module `Genie_Formats` | no: Algol 68 Genie has no modules, and it does not need them, since it has formats | yes | yes (bundled) |
 | a rewritten program | for tests only, with the module as declarations in front of it | yes, UPPER and SUPPER | yes, UPPER and SUPPER |
@@ -463,12 +518,19 @@ file.
 - The layout procedures (`newline` ...) may be items of `putf` and
   `getf`; they are called and use no pattern. Algol 68 Genie does not
   allow them.
-- Errors in a format text are found when the format text is elaborated,
-  not when the program is compiled.
+- With the rewrite tool (ga68, `-fgenie`), errors in a format text are
+  found when the format text is elaborated, not when the program is
+  compiled. With `-fformats` the compiler finds them, as Algol 68 Genie
+  does.
 - Plain `g` writes numbers with the widths of `print`, which depend on
   the 32-bit `int` and `real` of ga68 and a68j.
 - Not supported yet: the pattern `h`. A format text that uses it passes
-  the tool and ends the program with `format item h is not supported yet`.
+  the tool and ends the program with `format item h is not supported yet`;
+  with `-fformats` it is an error of the compiler.
+- A format whose dynamic part uses an identifier of a procedure may be
+  used after the procedure has returned: the procedure of the dynamic
+  part keeps the frame alive. Algol 68 Genie stops such a program with
+  "value is exported out of its scope".
 - A complex value (`compl`, `long compl`, `long long compl`) with a
   pattern that is not complex is two values, its parts, each edited by its
   own pattern, as in Algol 68 Genie (since version 0.8.1). `long long
@@ -524,10 +586,22 @@ file.
   event comes after that procedure has returned (entry 9 of
   [ga68-bug-reports.md](ga68-bug-reports.md)). Declare the handler
   outside the procedure. a68j and Algol 68 Genie are not affected.
-- Structures are not items: Algol 68 Genie prints the fields of a
-  structure, but the union `Gfout` cannot cover the structures of a
-  program (`print` of `Genie_Transput` has the same limit). Neither can
-  it cover rows of rows, `[] char` or the `short` modes.
+- Structures as items: the union `Gfout` cannot cover the structures of
+  a program (`print` of `Genie_Transput` has the same limit), nor rows of
+  rows, `[] char` or the `short` modes. With `-fgenie` and `-fformats`
+  the compiler straightens such an item into its parts, as Algol 68 Genie
+  does: a structure is its fields in order, a row its elements in the
+  order of their subscripts, each straightened in turn until the parts
+  are of modes of the union; in `printf` each part takes a pattern. A
+  name of a structure or of a row is the names of its fields or elements
+  in the same way, as an item of `readf` (`Gfin`) and of `read`
+  (`Initem`); a name of a flexible row is not, as in Algol 68 Genie, and
+  neither is a name of a `[] char` in `readf`, which Algol 68 Genie reads
+  as one string with one pattern, whereas `Gfin` has no name of such a
+  row (`read` reads it one character at a time, which reads the same). A
+  structure with a name or a procedure in it other than a layout
+  procedure stays an error. ga68, and a68j without these options, accept
+  the members of the unions only.
 - Algol 68 Genie checks the scope of procedures at run time and refuses to
   put a routine text of the program into the heap. `putf` therefore keeps
   its state in a local row: formats and collections may be nested 8
@@ -565,12 +639,13 @@ each alignment in it.
 
 ## Tests
 
-`tools/formats_tests.py` runs the tests on every system given: a68j and
-a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
-(`--ga68 --libdir`).
+`tools/formats_tests.py` runs the tests on every system given: a68j,
+a68j with `-fgenie`, and a68j with `-fgenie` and `A68J_FORMATS=rewrite`
+(by default), Algol 68 Genie (`--a68g`) and ga68 (`--ga68 --libdir`).
 
 - `tests/formats/rewrite/NAME.in`: input of the tool, with
-  `NAME.expected` (or `NAME.err` for an error) and optional `NAME.args`.
+  `NAME.expected` (or `NAME.err` for an error) and optional `NAME.args`
+  (`upper-ga68-keep-formats` with `--keep-formats`).
   The output must be the same on every system and keep the lines.
 - `tests/formats/NAME.a68`: programs written for Algol 68 Genie, with
   their output `NAME.out` recorded by Algol 68 Genie (`NAME.err` for a
@@ -579,7 +654,10 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   program as well, with the module turned into declarations in UPPER
   stropping (`book/tools/supper_to_upper.py`): this compares the module
   with the formats of Algol 68 Genie itself, with the same widths of
-  numbers. a68j also compiles the original program with `-fgenie`. A
+  numbers. a68j also compiles the original program with `-fgenie`, with
+  the rewrite and with the lowering of the format texts; `NAME.lowered.err`
+  is the error expected with the lowering where the compiler finds an
+  error that the rewrite leaves to the run time (`errors-21`). A
   file `NAME.fixed` marks a deliberate difference to Algol 68 Genie (see
   "Differences and limits"): `NAME.out` or `NAME.err` is written by hand,
   and the test does not run on Algol 68 Genie, whose version of the
@@ -599,10 +677,21 @@ a68j with `-fgenie` (default), Algol 68 Genie (`--a68g`) and ga68
   on Rosetta Code. Their output is the same, byte for byte, with Algol 68
   Genie, with `-fgenie` and with ga68 (prepared as in
   `tools/rosetta_prep.py`, with the library in place of the pragmat).
+  `straighten-1` and `straighten-read-1` have structures and rows of rows
+  as items of `print`, `printf`, `read` and `readf`.
 - `tests/options/genie-*.a68` (`tools/options_tests.sh`): the messages of
-  the compiler with `-fgenie`, among them an error found by the tool.
+  the compiler with `-fgenie`, among them an error in a format text,
+  found by the compiler, and one found by the tool
+  (`A68J_FORMATS=rewrite`).
 - `tests/options/formats-*.a68`: `-fformats` in SUPPER and UPPER
-  stropping, an error found by the tool, and `-fformats` with `-fgenie`.
+  stropping, an error found by the tool (`A68J_FORMATS=rewrite`),
+  `-fformats` with `-fgenie`, errors in format texts (syntax, modes, what
+  the module does not have, no access to `Genie_Formats`), a format text
+  over several lines, dynamic parts and their environments
+  (`formats-closure`), structures as items, and the diagnostic without
+  `-fformats`. `tests/scope/formats.a68` checks `-Wframe-scope` on a
+  format text in a loop, and `tests/java/formats-module.a68` a format
+  exported by a module.
 
 `tools/rosetta_prep.py` gives the Rosetta Code solutions that use
 formats to the tool (see `tests/rosetta/README.md`).

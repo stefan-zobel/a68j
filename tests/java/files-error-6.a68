@@ -1,0 +1,5 @@
+{ The module Files: get_directory of a file is a runtime error with the
+  text of Algol 68 Genie. }
+access Files (
+   puts (whole (UPB get_directory ("tests/java/files-error-6.a68"), 0) + "'n")
+)

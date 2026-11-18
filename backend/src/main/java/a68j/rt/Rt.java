@@ -404,6 +404,139 @@ public final class Rt {
         return row.ref(row.offset + index);
     }
 
+    // ------------------------------------------------------------------
+    // Straightening (-fgenie, -fformats): a structure or a row of rows as an
+    // item of print or printf, as in Algol 68 Genie (MoidsMisc#straightensTo
+    // in the front end, GenCoercions#uniting).
+    // ------------------------------------------------------------------
+
+    /** The mode number of a united value that holds the parts of a straightened value. */
+    public static final int SPREAD = Integer.MIN_VALUE;
+
+    /** The parts of a straightened value, each a united value of the union of the items. */
+    public static final class Spread {
+        final java.util.List<Object> parts;
+
+        Spread(java.util.List<Object> parts) {
+            this.parts = parts;
+        }
+    }
+
+    /**
+     * The value V straightened as the descriptor D says: {@code L<n>;} is a
+     * member of the union with mode number n, {@code S<k>;} a structure of k
+     * fields followed by their descriptors, {@code R} a row followed by the
+     * descriptor of its elements (all elements, in the order of their
+     * subscripts). {@code N<k>;} and {@code M} are the same for a name of a
+     * structure or a row: the parts are the names of its fields or
+     * elements. The result is a united value whose value is a
+     * {@link Spread}; {@link #flattenItems} and {@link #spreadRow} put its
+     * parts into the row of items.
+     */
+    public static Union straighten(Object v, String d) {
+        java.util.List<Object> parts = new java.util.ArrayList<>();
+        straighten(v, d, new int[] {0}, parts);
+        return new Union(SPREAD, new Spread(parts));
+    }
+
+    private static void straighten(Object v, String d, int[] pos, java.util.List<Object> parts) {
+        char c = d.charAt(pos[0]++);
+        switch (c) {
+            case 'L' -> parts.add(unite(v, number(d, pos)));
+            case 'S' -> {
+                int n = number(d, pos);
+                Object[] f = ((Struct) v).f;
+                for (int i = 0; i < n; i++) {
+                    straighten(f[i], d, pos, parts);
+                }
+            }
+            case 'N' -> {
+                int n = number(d, pos);
+                Struct s = (Struct) ((Ref) v).get();
+                for (int i = 0; i < n; i++) {
+                    straighten(new FieldRef(s, i), d, pos, parts);
+                }
+            }
+            case 'R', 'M' -> {
+                boolean names = c == 'M';
+                Row r = (Row) (names ? ((Ref) v).get() : v);
+                int start = pos[0];
+                int end = skip(d, start);
+                if (r.elems() > 0) {
+                    long[] subs = r.lwb.clone();
+                    boolean more = true;
+                    while (more) {
+                        pos[0] = start;
+                        int ix = r.index(subs);
+                        straighten(names ? r.ref(ix) : r.get(ix), d, pos, parts);
+                        int k = r.dims - 1;
+                        while (k >= 0 && subs[k] == r.upb[k]) {
+                            subs[k] = r.lwb[k];
+                            k--;
+                        }
+                        if (k < 0) {
+                            more = false;
+                        } else {
+                            subs[k]++;
+                        }
+                    }
+                }
+                pos[0] = end;
+            }
+            default -> throw new IllegalStateException("straighten: " + d);
+        }
+    }
+
+    /** The number up to the next semicolon in D from POS[0], which is moved past it. */
+    private static int number(String d, int[] pos) {
+        int e = d.indexOf(';', pos[0]);
+        int n = Integer.parseInt(d, pos[0], e, 10);
+        pos[0] = e + 1;
+        return n;
+    }
+
+    /** The position after the descriptor in D that starts at POS. */
+    private static int skip(String d, int pos) {
+        int[] p = {pos};
+        skip(d, p);
+        return p[0];
+    }
+
+    private static void skip(String d, int[] pos) {
+        char c = d.charAt(pos[0]++);
+        if (c == 'L') {
+            number(d, pos);
+        } else if (c == 'S' || c == 'N') {
+            int n = number(d, pos);
+            for (int i = 0; i < n; i++) {
+                skip(d, pos);
+            }
+        } else {
+            skip(d, pos);
+        }
+    }
+
+    /** The row of items R with the parts of each straightened item in its place. */
+    public static Row flattenItems(Row r) {
+        java.util.List<Object> items = new java.util.ArrayList<>();
+        long n = r.elems();
+        for (long i = 0; i < n; i++) {
+            Object x = r.get(r.offset + (int) (i * r.stride[0]));
+            if (x instanceof Union u && u.value instanceof Spread s) {
+                items.addAll(s.parts);
+            } else {
+                items.add(x);
+            }
+        }
+        return Row.of1(1, items.size(), items.toArray());
+    }
+
+    /** The row of the parts of the straightened item U (the rowing of an item). */
+    public static Row spreadRow(Union u) {
+        java.util.List<Object> parts = ((Spread) u.value).parts;
+        return Row.of1(1, parts.size(), parts.toArray());
+    }
+
     /** Uniting: a boxed value of the mode with number MODE into a united value. */
     public static Union unite(Object v, int mode) {
         if (v instanceof Union u) {
@@ -594,6 +727,22 @@ public final class Rt {
     /** Stack size of the thread that runs the program. */
     static final long STACK_SIZE = 128L << 20;
 
+    /** The thread that runs the program, null before {@link #start}. */
+    private static volatile Thread programThread;
+
+    /** The value of System.nanoTime() when the program started. */
+    private static volatile long startNanos = System.nanoTime();
+
+    /** The thread that runs the program, or null if there is none yet. */
+    public static Thread programThread() {
+        return programThread;
+    }
+
+    /** The value of System.nanoTime() when the program started. */
+    public static long startNanos() {
+        return startNanos;
+    }
+
     /**
      * Run the program (the class's run0) in a thread with a large stack.
      * A stack overflow ends the program like the segmentation fault of a
@@ -603,6 +752,7 @@ public final class Rt {
     public static void start(java.lang.invoke.MethodHandle run0) throws Throwable {
         ClassLoader loader = WALKER.getCallerClass().getClassLoader();
         Throwable[] failure = new Throwable[1];
+        startNanos = System.nanoTime();
         Thread t = new Thread(null, () -> {
             try {
                 run0.invokeExact();
@@ -613,6 +763,7 @@ public final class Rt {
                 failure[0] = e;
             }
         }, "main", STACK_SIZE);
+        programThread = t;
         t.start();
         t.join();
         if (failure[0] != null) {

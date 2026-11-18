@@ -1,0 +1,3 @@
+tests/java/nest-java-overload-error-5.a68:5:37: fatal error: type arguments in the parameter list of the Java formal hole 'java.lang.String.join(CharSequence, Iterable<String>)': write the types as Java erases them, 'List' for 'List<String>'
+compilation terminated.
+exit 1

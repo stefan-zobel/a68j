@@ -35,7 +35,9 @@ java -jar backend/a68j-backend.jar -fnest-java -run prog.a68
 - **Procedure mode:** the static method whose parameters and result fit
   the mode is looked up; with overloading, the cheapest fitting one, and
   a compile-time error if several are equally cheap (section 1a, "Which
-  method"). Constructors, instance methods and fields
+  method"). The types of the parameters may follow the method to name one
+  overload, `"java.lang.String.join(CharSequence, Iterable)"` (section 1a,
+  "Naming the overload"). Constructors, instance methods and fields
   of objects are written as method references, `"java.util.ArrayList::new"`,
   `"java.util.ArrayList::add"` and `"java.awt.Point::x"` (section 1b).
 - **Other mode:** the static field is read, such as `Math.PI`, once, where
@@ -273,16 +275,59 @@ proc (string, List) string join = nest Java "java.lang.String.join"
 prog.a68:4:38: fatal error: Java formal hole 'java.lang.String.join' is
 ambiguous for the mode proc (string, ref struct (int listjavaobject))
 string: java.lang.String.join(CharSequence, CharSequence...) and
-java.lang.String.join(CharSequence, Iterable) fit equally well
+java.lang.String.join(CharSequence, Iterable) fit equally well; name one
+in the formal hole, as in
+'java.lang.String.join(CharSequence, CharSequence...)'
 ```
 
 Taking one of them would be a guess, and the wrong one fails only when it
-is called. To make the formal hole unique, give it a mode that fits only
-one overload (`proc (string, [] string) string` fits only the varargs
-`join`), or call a small Java method of your own that takes the type you
-mean (with `-fjava-classpath`). Two candidates with the same parameters
-count as one, such as a method of an interface and the same method of
-`Object`.
+is called. The message ends with the way out: `name one in the formal
+hole, as in 'java.lang.String.join(CharSequence, CharSequence...)'`. Two
+candidates with the same parameters count as one, such as a method of an
+interface and the same method of `Object`.
+
+**Naming the overload** (since version 0.9.0). A method or constructor in
+a formal hole may be followed by the types of its parameters:
+
+```
+proc (string, List) string join = nest Java "java.lang.String.join(CharSequence, Iterable)";
+proc (Reader) Source source = nest Java "org.xml.sax.InputSource::new(java.io.Reader)";
+proc (Builder, Source) Document parse = nest Java "javax.xml.parsers.DocumentBuilder::parse(InputSource)";
+proc List new_list = nest Java "java.util.ArrayList<String>::new()";
+```
+
+- The list gives the parameters **as Java declares them**: without the
+  object of an instance method, and erased for a generic class
+  (`"java.util.ArrayList<String>::add(int, Object)"`, not `String`). `()`
+  is the overload without parameters.
+- A type is written with its package (`java.io.Reader`) or without it
+  (`Reader`), as the messages of the compiler print it, so a list can be
+  copied from the message into the formal hole. A nested class is written
+  with dots (`Map.Entry`), an array with `[]` (`int[]`), and the last
+  parameter of a varargs method as `CharSequence...` or `CharSequence[]`.
+  Blanks do not count. Type arguments are not written (`List`, not
+  `List<String>`).
+- The types are compared as text with the parameters of the overloads; no
+  class is looked up for them. If two overloads differ only in classes of
+  the same short name from different packages, the formal hole stays
+  ambiguous until the packages are written.
+- The list only selects. The mode of the formal hole must still fit the
+  overload, and the values are converted as without a list.
+- If no overload has these parameters, the message names those there are:
+
+```
+prog.a68:6:37: fatal error: no public static Java method
+'java.lang.String.join(CharSequence, List)' has these parameters; there
+are: java.lang.String.join(CharSequence, CharSequence...),
+java.lang.String.join(CharSequence, Iterable)
+```
+
+- A list names a method or a constructor. With a list, `"Class::name"` is
+  never taken as a field (section 1b).
+
+Without a list, a formal hole can also be made unique by a mode that fits
+only one overload (`proc (string, [] string) string` fits only the varargs
+`join`).
 
 **Control flow.** A jump out of the procedure (`goto` to a label outside)
 and runtime errors pass through the Java method as they would through an
@@ -352,7 +397,9 @@ What `"Class::name"` means, as in Java:
   (`toString`, `equals` …) also count for an interface.
 - As for `"Class.member"` the cheapest fitting one is taken, and several
   equally cheap ones are a compile-time error (section 1a, "Which
-  method"); a procedure mode is required. Nested classes are
+  method"); one of them is named by the types of its parameters,
+  `"java.io.StringReader::new(String)"` (section 1a, "Naming the
+  overload"). A procedure mode is required. Nested classes are
   written with dots as in Java, e.g. `"java.util.Map.Entry::getKey"` for
   the class `java.util.Map$Entry`, and so also with `"Class.member"`.
 - The object may be of other modes too, as far as they fit the class:
@@ -826,7 +873,9 @@ that access them (`-I tests/java/lib`).
 | `nest-java-generics-callback` | the same `Integer` passed by `forEach` to a `proc (string) void`: runtime error at the call of `forEach` |
 | `nest-java-generics-mode` | an `int` added to an `ArrayList<String>`: compile-time error |
 | `nest-java-generics-subclass` | the field of `T` of `StringBox extends Box<String>` read as `int`: compile-time error |
-| `nest-java-ambiguous` | `String.join` with a Java object as the second parameter: `join(CharSequence, CharSequence...)` and `join(CharSequence, Iterable)` fit equally well, compile-time error |
+| `nest-java-ambiguous` | `String.join` with a Java object as the second parameter: `join(CharSequence, CharSequence...)` and `join(CharSequence, Iterable)` fit equally well, compile-time error that ends with the formal hole that names one of them |
+| `nest-java-overload` | the types of the parameters in a formal hole: `String.join(CharSequence, Iterable)` for a Java object, with `.` and `::`, short and full type names, a varargs parameter as `...` and as `[]`, blanks, an array, `()`, the erased parameters of `ArrayList<String>::add`, the constructors `InputSource::new(Reader)` and `SimpleEntry::new(Map.Entry)`, `DocumentBuilder::parse(org.xml.sax.InputSource)`; in `tests/java/modules/jholes.a68` a public formal hole with a list |
+| `nest-java-overload-error-1` to `-6` | compile-time errors: no overload with these parameters (the message names those there are), the named overload does not fit the mode, a list that is not closed, a list after a field, type arguments in the list, a list with a mode that is no procedure |
 | `nest-java-char` | `Character.isDigit`, `getNumericValue` and `toUpperCase` with characters beyond U+FFFF: the overloads for `int` (code points) are taken |
 | `nest-java-module` | public formal holes of a module (`tests/java/modules/jholes.a68`), called through their typed entries: numbers, strings, `char`, a name of a row, a procedure as an `IntUnaryOperator`, a discarded `long` result, a constructor, fields and an instance method, operators, procedure values of the holes; the program has no `-fnest-java` |
 | `nest-java-module-exception` | a Java exception in a public formal hole of a module: the position of the call in the program |
@@ -849,6 +898,17 @@ that access them (`-I tests/java/lib`).
 | `bigints-big` | `Bigints` on 1000!, fib (1000), 5 ** 4 ** 3 ** 2 (183 231 digits) and the Lucas-Lehmer test |
 | `bigints-error-1` … `-5` | division by zero, a negative exponent, `nil`, `TOINT` beyond the limits, a string that is not an integer: runtime errors with the position in the program |
 | `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
+| `bigdecimals-basic` | the module `Bigdecimals`: the conversions, every operator with every operand mode on either side, `/` of Bigints, `ROUND` and `ENTIER`, the assigning operators ([bigdecimals.md](bigdecimals.md)) |
+| `bigdecimals-precision` | the precision changed while the program runs, a mixed operator that rounds once, `bigdec_sqrt` with 100 digits |
+| `bigdecimals-output` | `bigdec_whole`, `bigdec_fixed`, `bigdec_float` and `bigdec_text`, compared with Algol 68 Genie's `whole`, `fixed` and `float` of a `long long real` |
+| `bigdecimals-error-1` … `-6` | `nil`, division by zero, a string that is not a number, a precision of 0, the square root of a negative value, `TOREAL` beyond the limits: runtime errors with the position in the program |
+| `bigdecimals-modules` | `Bigdecimals`, `Hashmaps`, `Texts` and `Genie_Transput` in one access clause |
+| `files-basic` | the module `Files`: whole files, lines, sizes, times, listing and walking, moving, copying and deleting, in a temporary directory ([files.md](files.md)) |
+| `files-genie` | the procedures of Algol 68 Genie in `Files` on a directory, a file and a missing path |
+| `files-error-1` … `-6` | a missing file, a directory that is not empty, a file listed as a directory, a directory copied, `get_directory` of a missing directory and of a file: runtime errors with the position in the program |
+| `times-basic` | the module `Times`: construction, fields, days, periods and month ends, durations, comparisons, assigning operators, ISO text and patterns, seconds since 1970 in fixed zones across changes of daylight saving time ([times.md](times.md)) |
+| `times-now` | the clock: `today`, `now`, `now_in`, `local_time`, `utc_time`, `cpu_time`, `wall_time` and `sleep` checked for their ranges and their agreement |
+| `times-error-1` … `-5` | an invalid date, a text that does not fit its pattern, an invalid pattern, an unknown zone, `nil`: runtime errors with the position in the program |
 
 Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
 
@@ -864,3 +924,6 @@ Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
   static fields through `"Class::field"`, section 1b; typed entries for
   public formal holes of a module, section 5; type arguments in formal
   holes (generic element types), section 1b.
+- Done in version 0.9.0: the types of the parameters in a formal hole name
+  one of several overloads that fit equally well, section 1a, "Naming the
+  overload".

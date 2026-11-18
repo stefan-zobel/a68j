@@ -1,0 +1,7 @@
+{ The module Times: an invalid date is a runtime error with the position
+  in the program. }
+access Times (
+   puts ("before'n");
+   Date d = date (2026, 2, 30);
+   puts (date_text (d))
+)

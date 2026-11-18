@@ -1,0 +1,6 @@
+{ a68j-options: -fformats }
+{ -fformats: the mode FORMAT is the mode Gformat of the module Genie_Formats, which a program accessing Genie_Transput gets. }
+begin
+   format f;
+   skip
+end

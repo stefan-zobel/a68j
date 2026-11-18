@@ -118,6 +118,15 @@ final class GenCoercions {
     /** UNITING: M -> UNION (...). */
     static void uniting(Gen g, Node p) {
         Node s = p.sub;
+        if (isSpread(g, p)) {
+            // -fgenie, -fformats: a structure or a row of rows as an item of
+            // print or printf, straightened into its parts (Rt#straighten).
+            g.unit(s);
+            g.box(s.type);
+            Gen.constant(g.cb, descriptor(g, s.type, JType.base(p.type)));
+            g.cb.invokestatic(Gen.CD_RT, "straighten", MethodTypeDesc.of(Gen.CD_UNION, CD_Object, CD_String));
+            return;
+        }
         g.unit(s);
         if (JType.of(g.a68, s.type) == JType.UNION) {
             return;
@@ -135,6 +144,66 @@ final class GenCoercions {
     }
 
     /**
+     * Whether the UNITING P makes the parts of a straightened item: the
+     * union is one of the items of print, printf, read or readf
+     * (A68#itemUnions), and its value is not of a mode of it
+     * (MoidsMisc#straightens, -fgenie, -fformats).
+     */
+    static boolean isSpread(Gen g, Node p) {
+        return p != null && p.attribute == Attribute.UNITING && p.sub != null && p.sub.type != null
+                && g.a68.itemUnions.contains(JType.base(p.type))
+                && JType.of(g.a68, p.sub.type) != JType.UNION
+                && !a68j.front.MoidsMisc.isUnitable(g.a68, JType.base(p.sub.type), JType.base(p.type),
+                        a68j.front.MoidsMisc.SAFE_DEFLEXING);
+    }
+
+    /** The descriptor of Rt#straighten for a value of mode M straightened into members of the union U. */
+    static String descriptor(Gen g, Moid m, Moid u) {
+        Moid b = JType.base(m);
+        if (a68j.front.MoidsMisc.isUnitable(g.a68, b, u, a68j.front.MoidsMisc.SAFE_DEFLEXING)) {
+            return "L" + JType.unionTag(g, m) + ";";
+        }
+        if (b.attribute == Attribute.REF_SYMBOL) {
+            return nameDescriptor(g, b.sub, u);
+        }
+        if (b.attribute == Attribute.STRUCT_SYMBOL) {
+            StringBuilder d = new StringBuilder();
+            int n = 0;
+            for (a68j.front.Pack f = b.pack; f != null; f = f.next) {
+                d.append(descriptor(g, f.type, u));
+                n++;
+            }
+            return "S" + n + ";" + d;
+        }
+        if (b.attribute == Attribute.FLEX_SYMBOL) {
+            b = JType.base(b.sub);
+        }
+        return "R" + descriptor(g, b.sub, u);
+    }
+
+    /** The descriptor of Rt#straighten for a name of mode REF T straightened into names that are members of U. */
+    private static String nameDescriptor(Gen g, Moid t, Moid u) {
+        Moid member = a68j.front.MoidsMisc.nameMember(g.a68, JType.base(t), u);
+        if (member != null) {
+            return "L" + JType.unionTag(g, member) + ";";
+        }
+        Moid b = JType.base(t);
+        if (b.attribute == Attribute.STRUCT_SYMBOL) {
+            StringBuilder d = new StringBuilder();
+            int n = 0;
+            for (a68j.front.Pack f = b.pack; f != null; f = f.next) {
+                d.append(nameDescriptor(g, f.type, u));
+                n++;
+            }
+            return "N" + n + ";" + d;
+        }
+        if (b.attribute == Attribute.FLEX_SYMBOL) {
+            b = JType.base(b.sub);
+        }
+        return "M" + nameDescriptor(g, b.sub, u);
+    }
+
+    /**
      * ROWING (a68_lower_rowing): A -> [] A gives a row [1:1]; [] A -> [,] A
      * adds a first dimension [1:1] sharing the elements. Rowing a name yields
      * a name of the rowed value (NIL stays NIL); the elements of a rowed row
@@ -143,6 +212,12 @@ final class GenCoercions {
      */
     static void rowing(Gen g, Node p) {
         Node s = p.sub;
+        if (isSpread(g, s)) {
+            // The parts of a straightened item are the row of items.
+            g.unit(s);
+            g.cb.invokestatic(Gen.CD_RT, "spreadRow", MethodTypeDesc.of(Gen.CD_ROW, Gen.CD_UNION));
+            return;
+        }
         g.unit(s);
         if (JType.of(g.a68, p.type) == JType.REF) {
             Moid tm = JType.base(JType.base(p.type).sub);

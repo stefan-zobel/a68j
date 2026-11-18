@@ -13,9 +13,10 @@ provides nearly all of it; Section~\ref{sec-transput-genie} lists what it
 lacks. For ga68 and a68j, the module \code|Genie_Transput| provides the
 unformatted part used in this chapter, and the module
 \code|Genie_Formats| formatted output and input
-(Section~\ref{sec-formats}). Binary transput and the printing of records
-are not available there, and the examples of those sections were run with
-Algol 68 Genie.
+(Section~\ref{sec-formats}). Binary transput is not available there, and
+the examples of that section were run with Algol 68 Genie; records are
+printed and read only by a68j with the option \code|-fformats|
+(Section~\ref{sec-straightening}).
 
 \section{Books, channels and files}\label{sec-books}
 
@@ -259,10 +260,13 @@ itself, the variable may contain no resizable arrays, so a record with a
 \begin{implnote}
 \code|Genie_Transput| straightens arrays of the primitive types but not
 records (Section~\ref{sec-print-data}), and its \code|get| does not
-accept arrays; this example was run with Algol 68 Genie, whose
-\code|int| has 64 bits and is therefore printed in a wider field. Algol
-68 Genie also reads a record with \code|string| fields with one
-\code|get|.
+accept arrays. With the option \code|-fformats| (or \code|-fgenie|),
+a68j straightens records and arrays in \code|print|, \code|put|,
+\code|get| and \code|read| as Algol 68 Genie does; this example was run
+with \code|-fformats|. Like Algol 68 Genie, a68j then also reads a
+record with \code|string| fields with one \code|get|. Algol 68 Genie,
+whose \code|int| has 64 bits, prints the numbers in a wider field; ga68
+does not straighten records.
 \end{implnote}
 
 \section{Converting numbers to text}\label{sec-conversions}
@@ -307,17 +311,17 @@ the values; \code|putf| does the same for a given file, and
 \example{ch09/formats}
 
 \begin{implnote}
-ga68 and a68j do not compile format texts themselves. A rewrite tool,
-written in Algol 68, turns each format text into a call of the module
-\code|Genie_Formats|, which lays out the values when the program runs,
-in the manner of Algol 68 Genie; the program needs only
-\code|access Genie_Transput|, and the tool adds the access to
-\code|Genie_Formats|. a68j runs the tool itself with the option
-\code|-fformats|:
+ga68 does not compile format texts. The module \code|Genie_Formats|
+lays out the values when the program runs, in the manner of Algol 68
+Genie. a68j compiles format texts into calls of that module with the
+option \code|-fformats|; the program needs only
+\code|access Genie_Transput|, and the compiler adds the access to
+\code|Genie_Formats|:
 \begin{lstlisting}[style=shell]
 $ java -jar a68j-backend.jar -fformats -run formats.a68
 \end{lstlisting}
-For ga68, the module \texttt{genieformats.a68} and the tool
+For ga68, a rewrite tool written in Algol 68 turns each format text into
+such a call first. The module \texttt{genieformats.a68} and the tool
 (\texttt{rewrite-a68j.a68} and \texttt{rewrite.a68}, in UPPER stropping),
 which come with a68j, are compiled once; the tool then rewrites the
 program before it is compiled:
@@ -329,7 +333,8 @@ $ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats
 \end{lstlisting}
 The lines of the program stay the same, so messages refer to the right
 line. An error inside a format text, such as an unknown frame, shows only
-when the program runs. Formatted input (Section~\ref{sec-readf}) works
+when the program runs; a68j reports it when it compiles the program, as
+Algol 68 Genie does. Formatted input (Section~\ref{sec-readf}) works
 the same way.
 \end{implnote}
 

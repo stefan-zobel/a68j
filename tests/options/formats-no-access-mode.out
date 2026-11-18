@@ -1,0 +1,2 @@
+tests/options/formats-no-access-mode.a68:4:4: error: mode FORMAT needs access to Genie_Formats
+exit 1

@@ -62,11 +62,14 @@ href="9-ch-transput.html#sec-transput-genie" data-reference-type="ref"
 data-reference="sec-transput-genie">9.12</a> lists what it lacks. For
 ga68 and a68j, the module <code>Genie_Transput</code> provides the
 unformatted part used in this chapter, and the module
-<code>Genie_Formats</code> formatted output (Section <a
+<code>Genie_Formats</code> formatted output and input (Section <a
 href="9-ch-transput.html#sec-formats" data-reference-type="ref"
-data-reference="sec-formats">9.9</a>). Formatted input, binary transput
-and the printing of records are not available there, and the examples of
-those sections were run with Algol 68 Genie.</p>
+data-reference="sec-formats">9.9</a>). Binary transput is not available
+there, and the examples of that section were run with Algol 68 Genie;
+records are printed and read only by a68j with the option
+<code>-fformats</code> (Section <a
+href="9-ch-transput.html#sec-straightening" data-reference-type="ref"
+data-reference="sec-straightening">9.7</a>).</p>
 <h2 data-number="9.1" id="sec-books"><span
 class="header-section-number">9.1</span> Books, channels and files</h2>
 <p>The Report distinguishes three things that current languages usually
@@ -433,7 +436,7 @@ prints the fields of every element:</p>
 <pre class="algol68"><code><b>mode</b> Point = <b>struct</b> (<b>int</b> x, y);
 [] Point path = ((1, 2), (3, 4));
 print ((path, newline))</code></pre>
-<pre class="output"><code>                  +1                  +2                  +3                  +4</code></pre>
+<pre class="output"><code>         +1         +2         +3         +4</code></pre>
 <p><code>get</code> straightens in the same way: <code>get (f, m)</code>
 for a <code>[2,3] <b>int</b></code> variable <code>m</code> reads six
 numbers into it, row by row. For input the Report is stricter: apart
@@ -446,10 +449,14 @@ with one <code>get</code>.</p>
 straightens arrays of the primitive types but not records (Section <a
 href="4-ch-data.html#sec-print-data" data-reference-type="ref"
 data-reference="sec-print-data">4.11</a>), and its <code>get</code> does
-not accept arrays; this example was run with Algol 68 Genie, whose
-<code><b>int</b></code> has 64 bits and is therefore printed in a wider
-field. Algol 68 Genie also reads a record with
-<code><b>string</b></code> fields with one <code>get</code>.</p>
+not accept arrays. With the option <code>-fformats</code> (or
+<code>-fgenie</code>), a68j straightens records and arrays in
+<code>print</code>, <code>put</code>, <code>get</code> and
+<code>read</code> as Algol 68 Genie does; this example was run with
+<code>-fformats</code>. Like Algol 68 Genie, a68j then also reads a
+record with <code><b>string</b></code> fields with one <code>get</code>.
+Algol 68 Genie, whose <code><b>int</b></code> has 64 bits, prints the
+numbers in a wider field; ga68 does not straighten records.</p>
 </blockquote>
 <h2 data-number="9.8" id="sec-conversions"><span
 class="header-section-number">9.8</span> Converting numbers to text</h2>
@@ -514,17 +521,17 @@ printf (($"[" 3a "]" x b l$, "abc", <b>true</b>))</code></pre>
 [3.142e+03]
 [abc] T</code></pre>
 <blockquote>
-<p><strong>Implementation note.</strong>  ga68 and a68j do not compile
-format texts themselves. A rewrite tool, written in Algol 68, turns each
-format text into a call of the module <code>Genie_Formats</code>, which
-lays out the values when the program runs, in the manner of Algol 68
-Genie; the program needs only <code><b>access</b> Genie_Transput</code>,
-and the tool adds the access to <code>Genie_Formats</code>. a68j runs
-the tool itself with the option <code>-fformats</code>:</p>
+<p><strong>Implementation note.</strong>  ga68 does not compile format
+texts. The module <code>Genie_Formats</code> lays out the values when
+the program runs, in the manner of Algol 68 Genie. a68j compiles format
+texts into calls of that module with the option <code>-fformats</code>;
+the program needs only <code><b>access</b> Genie_Transput</code>, and
+the compiler adds the access to <code>Genie_Formats</code>:</p>
 <pre class="shell"><code>$ java -jar a68j-backend.jar -fformats -run formats.a68</code></pre>
-<p>For ga68, the module <code>genieformats.a68</code> and the tool
-(<code>rewrite-a68j.a68</code> and <code>rewrite.a68</code>, in UPPER
-stropping), which come with a68j, are compiled once; the tool then
+<p>For ga68, a rewrite tool written in Algol 68 turns each format text
+into such a call first. The module <code>genieformats.a68</code> and the
+tool (<code>rewrite-a68j.a68</code> and <code>rewrite.a68</code>, in
+UPPER stropping), which come with a68j, are compiled once; the tool then
 rewrites the program before it is compiled:</p>
 <pre class="shell"><code>$ ga68 -I. -c genieformats.a68
 $ ga68 -I. -fstropping=upper rewrite-a68j.a68 genietransput.o -o rewrite
@@ -532,9 +539,10 @@ $ ./rewrite &lt; formats.a68 &gt; formats-r.a68
 $ ga68 -I. formats-r.a68 genieformats.o genietransput.o -o formats</code></pre>
 <p>The lines of the program stay the same, so messages refer to the
 right line. An error inside a format text, such as an unknown frame,
-shows only when the program runs. Formatted input (Section <a
+shows only when the program runs; a68j reports it when it compiles the
+program, as Algol 68 Genie does. Formatted input (Section <a
 href="9-ch-transput.html#sec-readf" data-reference-type="ref"
-data-reference="sec-readf">9.10</a>) is not available yet.</p>
+data-reference="sec-readf">9.10</a>) works the same way.</p>
 </blockquote>
 <p>A format consists of <em>pictures</em>, each of which describes how
 one value is printed, separated by commas. A picture is made of
@@ -802,6 +810,15 @@ name included. A field that is one character too short or too long
 shifts every field after it: with <code>4zd</code> for the score, which
 reads five characters, the program stops at the first record with an
 error.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  Algol 68 Genie, and
+<code>Genie_Formats</code> with it, does not compare the characters of
+an insertion with the input: <code>"-"</code> skips one character,
+whatever it is. A wrong character in a picture, such as a letter for a
+<code>d</code> frame, is a value error (Section <a
+href="9-ch-transput.html#sec-events" data-reference-type="ref"
+data-reference="sec-events">9.4</a>).</p>
+</blockquote>
 <h2 data-number="9.11" id="sec-binary"><span
 class="header-section-number">9.11</span> Binary transput</h2>
 <p>The procedures <code>put_bin</code> and <code>get_bin</code> write

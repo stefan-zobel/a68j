@@ -1,0 +1,5 @@
+{ The module Files: deleting a directory that is not empty is a runtime
+  error. }
+access Files (
+   delete_file ("tests/java/demo")
+)

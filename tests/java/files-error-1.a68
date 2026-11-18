@@ -1,0 +1,7 @@
+{ The module Files: reading a file that does not exist is a runtime error
+  with the position in the program. }
+access Files (
+   puts ("before'n");
+   string s = read_file ("tests/java/no-such-file.txt");
+   puts (s)
+)

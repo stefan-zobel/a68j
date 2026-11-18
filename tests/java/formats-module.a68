@@ -1,0 +1,8 @@
+{ a68j-options: -I tests/java/lib -fformats }
+{ -fformats: a format exported by a module (tests/java/modules/formats.a68). printf comes from Genie_Formats; the module reveals Genie_Transput. }
+access Formats, Genie_Formats
+begin
+   printf ((bracketed, 7));
+   width := 5;
+   printf ((bracketed, 7, $g l$, "done"))
+end

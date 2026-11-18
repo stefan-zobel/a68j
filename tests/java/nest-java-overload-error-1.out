@@ -1,0 +1,3 @@
+tests/java/nest-java-overload-error-1.a68:6:37: fatal error: no public static Java method 'java.lang.String.join(CharSequence, List)' has these parameters; there are: java.lang.String.join(CharSequence, CharSequence...), java.lang.String.join(CharSequence, Iterable)
+compilation terminated.
+exit 1

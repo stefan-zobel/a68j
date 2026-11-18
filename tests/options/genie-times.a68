@@ -1,0 +1,26 @@
+{ a68j-options: -fgenie }
+# -fgenie: local time, utc time and cpu time come from the module Times.  The program declares a mode DURATION, an operator PERIOD and a procedure today of its own, which hide those of Times. #
+MODE DURATION = STRUCT (INT weeks, days);
+PRIO PERIOD = 6;
+OP PERIOD = (INT a, b) INT: a * 100 + b;
+PROC today = INT: 42;
+DURATION d = (2, 3);
+print ((weeks OF d PERIOD days OF d, " ", today, newline));
+[] INT now = local time;
+print ((LWB now = 1 AND UPB now = 8, now[1] >= 2026, now[7] >= 1 AND now[7] <= 7, newline));
+[] INT utc = utc time;
+print ((utc[8] = 0, ABS (utc[5] - now[5]) MOD 15 = 0 OR utc[6] /= now[6], newline));
+REAL start = cpu time;
+print ((start >= 0, cpu time >= start, newline));
+# The other names of Genie: clock and seconds are cpu time, wall clock and wall seconds are wall time; sleep waits ABS x seconds and yields 0; get pwd and real path come from Files.  A declaration of the program hides seconds. #
+REAL w0 = wall time;
+INT r1 = sleep (0.1), r2 = sleep (0);
+print ((start < 10, clock >= start, seconds >= start, r1 = 0 AND r2 = 0, wall clock - w0 >= 0.09, wall seconds >= w0, newline));
+print ((get pwd = real path ("."), real path ("no such file") = "", newline));
+BEGIN
+   INT seconds = 60;
+   print ((seconds, newline))
+END;
+# The modes of Times remain usable under their own names where nothing hides them. #
+DATE christmas = date (2026, 12, 25);
+print ((WEEKDAY christmas, " ", date text (christmas + MONTHS 1), newline))

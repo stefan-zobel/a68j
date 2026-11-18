@@ -1,0 +1,12 @@
+{ a68j-options: -fformats }
+{ -fformats: a format text over several lines, as in Algol 68 Genie: a replicator may continue on the next line (3, 2d is 32d), and two literals on two lines are two insertions. The rewrite tool got both wrong. }
+access Genie_Transput
+begin
+   printf (($"<"3
+   2d">"l$, 7));
+   printf (($"<" "a"
+   "b" ">"l$));
+   printf (($"<"3 2d">"l$, 7));
+   printf (($"<"2d, 3
+   d">"l$, 7, 8))
+end

@@ -1,0 +1,110 @@
+{ dg-options "-fstropping=supper -fnest-java" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ files.a68 - the module Files of a68j: files and directories, on top of
+  java.nio.file (a68j.jlib.Filesystem).
+
+      access Files (
+          write_file ("greeting.txt", "hello'nworld'n");
+          [] string lines = read_lines ("greeting.txt");
+          puts (whole (UPB lines, 0) + " lines'n");                      { 2 lines }
+          delete_file ("greeting.txt")
+      )
+
+  The procedures of Algol 68 Genie, with its names and modes:
+
+  get_directory (dir)         the names in dir, "." and ".." first, then the
+                              others sorted; an error if dir is not a
+                              directory.
+  file_is_directory (path)    also file_is_regular, file_is_link,
+                              file_is_block_device, file_is_char_device,
+                              file_is_fifo: false if path does not exist.
+  file_mode (path)            st_mode as bits, 0 if path does not exist.
+  get_pwd                     the current directory, absolute.
+  real_path (path)            path as an absolute path with symbolic links
+                              resolved, "" if path does not exist.
+
+  Further procedures:
+
+  file_exists (path)          whether a file or directory exists.
+  file_size (path)            its size in bytes, a long int.
+  file_time (path)            the time of its last change, in seconds since
+                              1970-01-01 UTC, a long int.
+  read_file (path)            the whole file as a string.
+  read_lines (path)           its lines, split at "'n", "'r'n" or "'r".
+  write_file (path, text)     creates or replaces the file.
+  append_file (path, text)    appends, creating the file if needed.
+  write_lines (path, lines)   creates or replaces the file, each line
+                              followed by "'n".
+  list_directory (dir)        the names in dir, sorted, without "." and "..".
+  walk_directory (dir)        every file and directory below dir, as paths
+                              that start with dir, depth first and sorted.
+  make_directory (dir)        creates dir and its parents, if needed.
+  make_temp_directory (prefix)  a new empty directory for temporary files.
+  delete_file (path)          deletes a file or an empty directory.
+  move_file (from, to)        moves or renames, replacing a file to.
+  copy_file (from, to)        copies a file, replacing a file to.
+  current_directory           the current directory, absolute.
+  absolute_path (path)        path as an absolute path without "." and "..".
+
+  Text is UTF-8. Paths that the module returns have "/" on every system.
+  Apart from the queries, a failure is a runtime error, such as
+  cannot read "data.txt": no such file or directory (docs/files.md).
+
+  Bundled with a68j-backend.jar; a program needs no -fnest-java to access
+  this module.  It runs with a68j only, as it needs Java. }
+
+module Files =
+def
+    { The procedures of Algol 68 Genie. }
+    pub proc (string) [] string get_directory = nest Java "a68j.jlib.Filesystem.directory";
+    pub proc (string) bool file_is_directory = nest Java "a68j.jlib.Filesystem.isDirectory";
+    pub proc (string) bool file_is_regular = nest Java "a68j.jlib.Filesystem.isRegular";
+    pub proc (string) bool file_is_link = nest Java "a68j.jlib.Filesystem.isLink";
+    pub proc (string) bool file_is_block_device = nest Java "a68j.jlib.Filesystem.isBlockDevice";
+    pub proc (string) bool file_is_char_device = nest Java "a68j.jlib.Filesystem.isCharDevice";
+    pub proc (string) bool file_is_fifo = nest Java "a68j.jlib.Filesystem.isFifo";
+    pub proc (string) bits file_mode = nest Java "a68j.jlib.Filesystem.mode";
+    pub proc string get_pwd = nest Java "a68j.jlib.Filesystem.currentDirectory";
+    pub proc (string) string real_path = nest Java "a68j.jlib.Filesystem.realPath";
+
+    { Queries. }
+    pub proc (string) bool file_exists = nest Java "a68j.jlib.Filesystem.exists";
+    pub proc (string) long int file_size = nest Java "a68j.jlib.Filesystem.size";
+    pub proc (string) long int file_time = nest Java "a68j.jlib.Filesystem.time";
+    pub proc string current_directory = nest Java "a68j.jlib.Filesystem.currentDirectory";
+    pub proc (string) string absolute_path = nest Java "a68j.jlib.Filesystem.absolutePath";
+
+    { Reading and writing. }
+    pub proc (string) string read_file = nest Java "a68j.jlib.Filesystem.readFile";
+    pub proc (string) [] string read_lines = nest Java "a68j.jlib.Filesystem.readLines";
+    pub proc (string, string) void write_file = nest Java "a68j.jlib.Filesystem.writeFile";
+    pub proc (string, string) void append_file = nest Java "a68j.jlib.Filesystem.appendFile";
+    pub proc (string, [] string) void write_lines = nest Java "a68j.jlib.Filesystem.writeLines";
+
+    { Directories. }
+    pub proc (string) [] string list_directory = nest Java "a68j.jlib.Filesystem.list";
+    pub proc (string) [] string walk_directory = nest Java "a68j.jlib.Filesystem.walk";
+    pub proc (string) void make_directory = nest Java "a68j.jlib.Filesystem.makeDirectory";
+    pub proc (string) string make_temp_directory = nest Java "a68j.jlib.Filesystem.makeTempDirectory";
+
+    { Delete, move, copy. }
+    pub proc (string) void delete_file = nest Java "a68j.jlib.Filesystem.delete";
+    pub proc (string, string) void move_file = nest Java "a68j.jlib.Filesystem.move";
+    pub proc (string, string) void copy_file = nest Java "a68j.jlib.Filesystem.copy";
+
+    skip
+fed

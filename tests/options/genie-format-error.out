@@ -1,0 +1,2 @@
+tests/options/genie-format-error.a68:4:14: error: real pattern and real pattern must be separated by a comma-symbol
+exit 1

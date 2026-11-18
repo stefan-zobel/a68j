@@ -14,7 +14,7 @@ The generated files are checked in; change the generator, not its output.
 |---|---|
 | `gen_lists.py` | the module `Lists`: `backend/lib/lists.a68` and the classes `backend/src/main/java/a68j/jlib/*List.java` (`docs/java-modules.md`) |
 | `gen_hashmaps.py` | the module `Hashmaps`: `backend/lib/hashmaps.a68` and the classes `backend/src/main/java/a68j/jlib/*Map.java` (`docs/java-modules.md`) |
-| `gen_bignums.py` | the module `Bigints`: `backend/lib/bigints.a68`, the operators of `Bigint` on the hand-written class `backend/src/main/java/a68j/jlib/BigInt.java` (`docs/bigints.md`) |
+| `gen_bignums.py` | the modules `Bigints` and `Bigdecimals`: `backend/lib/bigints.a68` and `backend/lib/bigdecimals.a68`, the operators of `Bigint` and `Bigdecimal` on the hand-written classes `backend/src/main/java/a68j/jlib/BigInt.java` and `BigDec.java` (`docs/bigints.md`, `docs/bigdecimals.md`) |
 | `gen_tmlanguage.py` | the TextMate grammar `editors/vscode-algol68/syntaxes/algol68.tmLanguage.json` (`docs/editor.md`) |
 | `gen_tmlanguage_upper.py` | the TextMate grammar for UPPER and SUPPER stropping `editors/textmate-algol68/syntaxes/algol68.tmLanguage.json`, with the SUPPER rules read from the grammar above (`docs/editor.md`, section 8) |
 | `grammar_check.sh` | no output; compares a grammar with the token dump of the a68j scanner for all test programs (`GRAMMAR`, `STROPPING=upper` for the other grammar and regime) |
@@ -59,17 +59,17 @@ See `tests/rosetta/README.md` for the whole procedure.
 
 | Tool | Purpose |
 |---|---|
-| `formats/rewrite.a68`, with the prologue `formats/rewrite-a68j.a68` (a68j, ga68), `formats/rewrite-a68g.a68` (Algol 68 Genie) or `formats/rewrite-fgenie.a68` (inside a68j, for `-fgenie` and `-fformats`; compiled by `backend/build.sh`) | the format rewrite tool, written in Algol 68: turns the format texts of a program (UPPER or SUPPER stropping) into calls of the module `Genie_Formats`; with `--ga68` also prepares a program written for Algol 68 Genie (access clause unless `--no-wrap`, apostrophes, `FILE`, pragmats) (`docs/genie-formats.md`) |
+| `formats/rewrite.a68`, with the prologue `formats/rewrite-a68j.a68` (a68j, ga68), `formats/rewrite-a68g.a68` (Algol 68 Genie) or `formats/rewrite-fgenie.a68` (inside a68j, for `-fgenie`, with `--keep-formats` unless `A68J_FORMATS=rewrite`, and for `-fformats` with `A68J_FORMATS=rewrite`; compiled by `backend/build.sh`) | the format rewrite tool, written in Algol 68: turns the format texts of a program (UPPER or SUPPER stropping) into calls of the module `Genie_Formats`; with `--ga68` also prepares a program written for Algol 68 Genie (access clause unless `--no-wrap`, apostrophes, `FILE`, pragmats); `--keep-formats` leaves format texts and `FORMAT` to the compiler (`docs/genie-formats.md`) |
 
 ## Test scripts
 
 | Tool | Tests |
 |---|---|
-| `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`) |
+| `java_tests.sh [JAVA]` | the Java connection (`tests/java`, `docs/java-modules.md`), and modules of the tests (`tests/java/modules`, compiled with the options of their first line) |
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
-| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, `-fgenie`, `-fformats`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3) |
+| `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, `-fgenie`, `-fformats`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3); environment variables from a second line `{ a68j-env: ... }` |
 | `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
-| `formats_tests.py [--java JAVA] [--a68g A68G] [--ga68 XGCC --libdir DIR]` | formats (`docs/genie-formats.md`): the rewrite tool on a68j, Algol 68 Genie and ga68 with the same output (`tests/formats/rewrite`), and programs with format texts rewritten and run with `Genie_Formats`, and as they are with `-fgenie`, against outputs recorded with Algol 68 Genie (`tests/formats`, `tests/formats/genie`; `NAME.fixed` marks a deliberate difference to Algol 68 Genie, not run on it; `NAME.native` a program that the Algol 68 Genie version of `Genie_Formats` cannot run) |
+| `formats_tests.py [--java JAVA] [--a68g A68G] [--ga68 XGCC --libdir DIR]` | formats (`docs/genie-formats.md`): the rewrite tool on a68j, Algol 68 Genie and ga68 with the same output (`tests/formats/rewrite`), and programs with format texts rewritten and run with `Genie_Formats`, and as they are with `-fgenie`, with the lowering and with the rewrite (`A68J_FORMATS=rewrite`; `NAME.lowered.err` for an error the compiler finds with the lowering), against outputs recorded with Algol 68 Genie (`tests/formats`, `tests/formats/genie`; `NAME.fixed` marks a deliberate difference to Algol 68 Genie, not run on it; `NAME.native` a program that the Algol 68 Genie version of `Genie_Formats` cannot run) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |
 | `loop_methods_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every loop outlined into a method of its own (`A68J_LOOP_METHODS=every`) |
 | `compact_access_test.sh NATIVE_ROSETTA [JAR]` | the extra tests and the Rosetta programs with every element of a row accessed by a call of the runtime (`A68J_COMPACT_ACCESS=every`), the code a68j makes for methods too large for the JIT |

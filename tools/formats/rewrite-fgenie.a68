@@ -4,17 +4,20 @@
   a68j.jvm.GenieRewrite for the main file and each included file of a
   program written for Algol 68 Genie.  It is not a module for programs.
 
-  genie rewrite (text, upper stropping, for genie) yields the text
-  rewritten with the options --upper or --supper, --ga68 if for genie, and
-  --no-wrap (the compiler wraps the program itself).  If the tool finds an
-  error, it yields REPR 0, the line of the error, ":" and the message
-  instead.
+  genie rewrite (text, upper stropping, for genie, keep format texts)
+  yields the text rewritten with the options --upper or --supper, --ga68
+  if for genie, --keep-formats if keep format texts (the compiler parses
+  the format texts itself), and --no-wrap (the compiler wraps the program
+  itself).  The names of the parameters differ from those of the tool,
+  whose declarations are in the same range.
+  If the tool finds an error, it yields REPR 0, the line of the error,
+  ":" and the message instead.
 
   The tool itself is the included file rewrite.a68; it is included into
   the procedure, so that its state is new at every call. #
 MODULE GENIE_REWRITE =
 DEF
-   PUB PROC genie rewrite = (STRING program text, BOOL upper stropping, for genie) STRING:
+   PUB PROC genie rewrite = (STRING program text, BOOL upper stropping, for genie, keep format texts) STRING:
       BEGIN
          INT fail line := 0;
          STRING fail message := "";
@@ -35,6 +38,7 @@ DEF
 
                [] STRING options = (IF upper stropping THEN "--upper" ELSE "--supper" FI,
                                     IF for genie THEN "--ga68" ELSE "--" FI,
+                                    IF keep format texts THEN "--keep-formats" ELSE "--" FI,
                                     "--no-wrap");
 
                # An error ends the rewrite: the jump leaves the procedures of

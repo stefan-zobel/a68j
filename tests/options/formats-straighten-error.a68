@@ -1,0 +1,8 @@
+{ a68j-options: -fformats }
+{ -fformats: a structure with a name in it cannot be straightened into items of print: an error, as before. }
+access Genie_Transput
+begin
+   mode Node = struct (int value, ref Node next);
+   Node n = (1, nil);
+   print (n)
+end

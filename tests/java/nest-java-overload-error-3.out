@@ -1,0 +1,3 @@
+tests/java/nest-java-overload-error-3.a68:5:31: fatal error: invalid parameter list in the Java formal hole 'java.io.StringReader::new(String', expected types as Java declares them, 'package.Class::member(java.io.Reader, int)'
+compilation terminated.
+exit 1

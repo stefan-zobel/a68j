@@ -1,0 +1,5 @@
+tests/options/formats-mode-error.a68:5:14: error: 'char' cannot be coerced to 'int' in a strong-enclosed clause
+tests/options/formats-mode-error.a68:6:14: error: 'real' cannot be coerced to '[] int' in a strong-enclosed clause
+tests/options/formats-mode-error.a68:7:14: error: 'int' cannot be coerced to 'format' in a strong-enclosed clause
+tests/options/formats-mode-error.a68:8:15: error: int cannot be coerced to format in a strong-unit
+exit 1

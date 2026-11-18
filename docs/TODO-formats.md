@@ -1,13 +1,13 @@
 # TODO: formatted transput (`printf`, `readf`, format texts)
 
-Status: stages 1 to 3 of the roadmap below are implemented, the
+Status: stages 1 to 4 of the roadmap below are implemented, the
 rewrite tool and the module `Genie_Formats` with pictures, choices, radix,
 `k`, the complex pattern `i` and formatted input
 ([genie-formats.md](genie-formats.md)), and so are the option `-fgenie`,
 which runs programs written for Algol 68 Genie as they are, and the
-option `-fformats` of stage 4, which compiles the format texts of a
-program written for a68j through the same tool. Only the pattern `h` is
-missing. This note records how much formats matter, what ga68 provides,
+option `-fformats` of stage 4, with which the compiler parses the format
+texts of a program written for a68j and lowers them to calls of the
+module. Only the pattern `h` is missing. This note records how much formats matter, what ga68 provides,
 the options, and the roadmap in stages.
 
 ## Why formats
@@ -142,19 +142,23 @@ this, and the mode `FORMAT` becomes the mode `Gformat` of the module:
 - **Measured, not guessed:** every rule is checked against a68g, as in
   `docs/genie-transput.md`, including the error texts.
 
-## What is missing in the a68j front end
+## What was missing in the a68j front end
 
-The format code of the front end is complete up to three missing pieces:
+The format code of the front end was complete up to three missing
+pieces, which stage 4 adds with `-fformats` (see
+[PORTING.md](PORTING.md), section 11):
 
 - the keyword `$` (`FORMAT_DELIMITER_SYMBOL`), which switches the scanner
   into format mode;
-- the bold word `format` (`FORMAT_SYMBOL`);
-- the prelude modes `FORMAT` and `COLLITEM`. `Modes.FORMAT` and
-  `Modes.COLLITEM` are never set, although `Taxes` already creates tags
-  with them for format texts.
+- the bold word `format` (`FORMAT_SYMBOL`), now the indicant of the mode
+  `Gformat` of `Genie_Formats`;
+- the mode `FORMAT`: `Modes.FORMAT` was never set, although `Taxes`
+  already creates tags with it for format texts (`Modes.COLLITEM`, the
+  mode of the tags of pictures, is set).
 
-This code has never run in ga68, so defects in it are likely and must be
-expected. It matters only for stage 4 of the roadmap.
+This code has never run in ga68. With the three pieces it ran on the
+first try up to one assertion (`Sprops` did not know `FORMAT_TEXT`); the
+defects of it that remain do not matter for a68j.
 
 ## Which features the Rosetta solutions need
 
@@ -346,13 +350,24 @@ stages do not depend on it, nor it on them.
      a `REF UNION` as item, `null char`, or they cannot run at all.
    - No Rosetta solution uses `i` or `h`.
    - The book example `ch09/readf` runs on all three systems.
-4. **Compiler support in a68j, the option `-fformats`.** Implemented as
-   the candidate "Rewriting before the scanner" (see "Stage 4 in detail").
+4. **Compiler support in a68j, the option `-fformats`.** Implemented,
+   first as the candidate "Rewriting before the scanner", now as the
+   candidate "Lowering in the back end" (see "Stage 4 in detail").
    - With it, a68j compiles programs with format texts directly, without
      running the rewrite tool by hand. ga68 does not compile such
      programs, so this stage adds convenience, not reach.
-   - The other candidate, lowering in the back end, stays open and
-     optional. It would keep the option and its behavior.
+   - The lowering finds the errors in format texts when the program is
+     compiled, follows Algol 68 Genie in format texts over several lines,
+     where the rewrite did not, and lets `-Wframe-scope` see format texts.
+   - `-fgenie` uses the lowering too since version 0.9.0, and the rewrite
+     with `A68J_FORMATS=rewrite`: all 220 Rosetta Code solutions that use
+     formats give the same output and exit status both ways, and the
+     program and Genie tests of `tests/formats` pass both ways.
+   - With `-fgenie` and `-fformats`, structures, rows of rows and `[] char`
+     are items of `print` and `printf`, and names of structures and of
+     rows items of `read` and `readf`, straightened as in Algol 68 Genie
+     (see [genie-formats.md](genie-formats.md), "Differences and
+     limits").
 
 ### The option `-fgenie`
 
@@ -378,7 +393,7 @@ program.
 | `'` in string denotations | doubled | doubled by the tool (as with `--ga68`) |
 | `FILE`, `CHANNEL` | `GFILE`, `GCHANNEL`, from a module of its own | `GFILE`, `GCHANNEL` by the tool, from `Genie_Formats` |
 | a program needs `ACCESS` to `Genie_Transput` | wrapped in `ACCESS ... BEGIN ... END` | wrapped by the compiler (see below) |
-| format texts | not handled | rewritten by the tool, as far as the stages go |
+| format texts | not handled | lowered by the compiler as with `-fformats` (since version 0.9.0; rewritten by the tool until version 0.8.1, and with `A68J_FORMATS=rewrite`) |
 | widening between lengths (`LONG INT x := 1`, `x +:= 1`) | not handled | as in Algol 68 Genie, by the front end (since version 0.8.1; see below) |
 | `ANDF`, `ORF` | not handled | `ANDTH`, `OREL` by the tool (since version 0.8.1) |
 | `DOWNTO` | not handled | `BY -1 TO` by the tool, in a loop without a `BY` part (since version 0.8.1) |
@@ -495,8 +510,10 @@ Genie, as with the pre-processor:
 - `LONG LONG` modes without multiple precision;
 - the 32-bit `INT`;
 - `_` is not significant in tags;
-- no QUOTE stropping;
-- structures as items of `print` and `printf`.
+- no QUOTE stropping.
+
+Structures as items of `print` and `printf` were on this list; they are
+straightened now, as in Algol 68 Genie (see stage 4).
 
 **Stages 2 and 3 need no change to it.**
 
@@ -522,9 +539,12 @@ pictures, so it was updated only once they ran on a68j.
 
 **Relation to stage 4.** `-fgenie` does the second candidate of stage 4,
 "Rewriting before the scanner", for programs written for Algol 68 Genie.
-`-fformats` does it for programs written for a68j, with the same hooks,
-without the changes of `--ga68` and in the stropping of the program:
-`genie rewrite` is called with `for genie` false.
+`-fformats` did it for programs written for a68j, with the same hooks,
+without the changes of `--ga68` and in the stropping of the program
+(`genie rewrite` called with `for genie` false), and does so still with
+`A68J_FORMATS=rewrite`. It now uses the first candidate, the lowering in
+the back end; so does `-fgenie` since version 0.9.0, which then calls the
+tool with `--keep-formats` (and without it with `A68J_FORMATS=rewrite`).
 
 **Tests.**
 
@@ -536,46 +556,48 @@ without the changes of `--ga68` and in the stropping of the program:
   nested with `PR READ`, `FILE` without formats, other pragmats, and the
   lines of runtime errors in the main file and in an included file;
 - `tests/options/genie-*`: `-fstropping=supper` with `-fgenie`, the line
-  of a diagnostic after a format text over two lines, and an error found
-  by the tool;
+  of a diagnostic after a format text over two lines, an error in a
+  format text found by the compiler, and one found by the tool
+  (`A68J_FORMATS=rewrite`);
 - `tests/options/formats-*`: `-fformats` in SUPPER and UPPER stropping,
   an error found by the tool, and `-fformats` with `-fgenie`.
 
 ### Stage 4 in detail
 
-**The front end.** With the lowering in the back end, it would recognize
-`$`, `format` and the prelude modes only with `-fformats` (see "What is
-missing in the a68j front end"). With the rewrite, which `-fformats` does
-now, the front end sees no format text.
+**The front end.** With the lowering in the back end, it recognizes `$`
+and `format` only with `-fformats` and `-fgenie` (see "What was missing
+in the a68j front end"). With the rewrite (`A68J_FORMATS=rewrite`) the
+front end sees no format text.
 
-**How a format text becomes a `Gformat` is an open design question.** The
-prelude mode `FORMAT` of the front end is not the mode `Gformat` of the
-module. There are two candidates:
+**How a format text becomes a `Gformat`.** There were two candidates; the
+first is what `-fformats` does:
 
-- **Lowering in the back end.**
+- **Lowering in the back end.** Implemented.
+  - `FORMAT` is not a mode of its own: the front end takes the mode
+    `Gformat` of `Genie_Formats` as `Modes.FORMAT`, and the scanner turns
+    the bold word `format` into the indicant `GFORMAT`. So `JType`, the
+    unions, the module keys and the module interfaces need no change, and
+    a module may export a format.
   - The back end lowers a format text into the same value that the
-    rewritten program builds: the text, plus closures for the dynamic
-    parts.
-  - It needs `FORMAT` in `JType` and in unions, a way to make `FORMAT` and
-    `Gformat` agree, a mode code for `FORMAT` in the module interfaces (the
-    ga68 export format has none), and a rule for format texts in
-    `FrameScope` (`-Wframe-scope`).
+    rewritten program builds: a call of `gfmt` or `gfmtd` with a text made
+    from the syntax tree, plus closures for the dynamic parts.
   - The dynamic parts are elaborated later, in the environment of the
-    format text, so they are closures. They must pass through every
-    pre-pass: `Capture`, `Direct`, `Hoist`, `Cut`, `Outline` and
-    `FrameScope`. Mitigation: lower each of them as an ordinary routine
-    text, which the existing, well-tested handling of routine texts then
-    covers.
-  - `-Wscope` needs no change, because `Scope` already handles format
-    texts.
-- **Rewriting before the scanner.** Implemented.
+    format text, so they are closures: each is a method of its own made by
+    `Capture`, as the units of a parallel clause with `-fpar-threads` are,
+    which `Hoist`, `Cut` and `Outline` already leave alone. `FrameScope`
+    treats a format text with dynamic parts as a routine text.
+  - `-Wscope` needs no change: `Scope` handles format texts as Algol 68
+    Genie does, which does not look at their `INT` units.
+- **Rewriting before the scanner.** Implemented first; still used by
+  `-fgenie`.
   - With `-fformats`, a68j applies the rewrite of the tool to the source
     before scanning. The tool adds `Genie_Formats` to an access list that
     names `Genie_Transput`, which the program needs anyway. `-fgenie`
     provides the hooks for this (see "The option `-fgenie`").
   - The back end does not change at all.
   - The rewrite keeps the lines of the source, so diagnostics point to the
-    right line. Diagnostics name the mode `GFORMAT`, not `FORMAT`.
+    right line. Diagnostics name the mode `GFORMAT`, not `FORMAT`, and the
+    errors in format texts are found when the program runs.
 
 ### Risks
 
@@ -589,8 +611,7 @@ module. There are two candidates:
   "Differences and limits").
 
 **The option `-fformats` contains the risk of stage 4.** With the
-rewrite, it changes neither the front end nor the back end; the points
-below about recognizing `$` apply to the lowering in the back end.
+lowering in the back end, it changes both; the points below hold.
 
 - Without the option, a68j does not recognize `$`. Existing programs are
   compiled exactly as before, and the front end stays identical to ga68,
@@ -667,5 +688,9 @@ the format texts are converted as well.
     implementation.
   - `g` without parameters differs in the widths and digits, because of the
     32-bit `int` and `real` of ga68 and a68j, as `print` already does.
-- **Stage 4:** format texts in loops, for `-Wframe-scope`. With and without
-  `-fformats`, all existing test suites must stay unchanged.
+- **Stage 4:** format texts in loops, for `-Wframe-scope`
+  (`tests/scope/formats.a68`), errors in format texts, dynamic parts and
+  their environments, a format exported by a module, and a format text
+  over several lines (`tests/options/formats-*`, `tests/java`). Every
+  program and Genie test of `tests/formats` runs with `-fgenie` both with
+  the lowering and with the rewrite. Without `-fformats`, all existing test suites stay unchanged.

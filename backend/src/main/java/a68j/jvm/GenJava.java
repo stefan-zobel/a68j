@@ -54,7 +54,12 @@ import java.util.List;
  * ({@link #findField}). An object of a class that does not extend
  * a68j.rt.Ref is an a68j.rt.JavaHandle in Algol 68.
  *
- * The class is looked up when the program is compiled ({@link #loader}), so
+ * <p>A method or constructor may be followed by the types of its parameters
+ * as Java declares them, {@code "pkg.Class::member(java.io.Reader, int)"}:
+ * only the overloads with these parameters are looked at ({@link #select}).
+ * That names one of several overloads that fit the mode equally well.
+ *
+ * <p>The class is looked up when the program is compiled ({@link #loader}), so
  * a wrong name or a mismatch of the modes is a compile-time error.
  *
  * <p>Algol 68 and Java values: INT int (also long, double), LONG INT long,
@@ -91,7 +96,7 @@ final class GenJava {
             g.cb.invokespecial(Gen.CD_CLOSURE, "<init>", MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
         } else {
             String[] parts = spec(p);
-            if (parts[2] != null) {
+            if (parts[2] != null || parts[3] != null) {
                 throw new Gen.Fatal(p, "the Java reference '" + denotation(p) + "' needs a procedure mode");
             }
             Class<?> c = javaClass(p, parts[0]);
@@ -119,23 +124,72 @@ final class GenJava {
     }
 
     /**
-     * The parts of the formal hole P: the class name, the member and, for a
-     * method reference ("Class::member", "Class::new"), "::" (else null).
+     * The parts of the formal hole P: the class name, the member, for a
+     * method reference ("Class::member", "Class::new") "::" (else null), and
+     * the text between the parentheses of a list of parameter types
+     * ("Class::member(Reader, int)", see {@link #paramTypes}; else null).
      */
     private static String[] spec(Node p) {
-        String spec = denotation(p);
+        String full = denotation(p);
+        String spec = full;
+        String list = null;
+        int open = full.indexOf('(');
+        if (open >= 0 || full.indexOf(')') >= 0) {
+            if (open <= 0 || full.indexOf('(', open + 1) >= 0 || full.indexOf(')') != full.length() - 1) {
+                throw invalidList(p);
+            }
+            list = full.substring(open + 1, full.length() - 1);
+            spec = full.substring(0, open).stripTrailing();
+        }
+        String[] parts = specOf(p, spec, full);
+        return new String[] {parts[0], parts[1], parts[2], list};
+    }
+
+    private static Gen.Fatal invalidList(Node p) {
+        return new Gen.Fatal(p, "invalid parameter list in the Java formal hole '" + denotation(p)
+                + "', expected types as Java declares them, 'package.Class::member(java.io.Reader, int)'");
+    }
+
+    /**
+     * The types of the parameter list LIST of the formal hole P (see
+     * {@link #spec}), without blanks; null if LIST is null (no list), none
+     * for "()".
+     */
+    private static String[] paramTypes(Node p, String list) {
+        if (list == null) {
+            return null;
+        }
+        if (list.isBlank()) {
+            return new String[0];
+        }
+        String[] types = list.split(",", -1);
+        for (int i = 0; i < types.length; i++) {
+            types[i] = types[i].replace(" ", "");
+            if (types[i].indexOf('<') >= 0) {
+                throw new Gen.Fatal(p, "type arguments in the parameter list of the Java formal hole '"
+                        + denotation(p) + "': write the types as Java erases them, 'List' for 'List<String>'");
+            }
+            if (types[i].isEmpty()) {
+                throw invalidList(p);
+            }
+        }
+        return types;
+    }
+
+    /** The first three parts of {@link #spec} for SPEC, the formal hole FULL of P without its parameter list. */
+    private static String[] specOf(Node p, String spec, String full) {
         int colons = spec.indexOf("::");
         if (colons > 0 && colons + 2 < spec.length() && spec.indexOf(':', colons + 2) < 0
                 && spec.indexOf('.', colons + 2) < 0) {
             return new String[] {spec.substring(0, colons), spec.substring(colons + 2), "::"};
         }
         if (colons < 0 && spec.indexOf('<') >= 0) {
-            throw new Gen.Fatal(p, "type arguments in the Java formal hole '" + spec
+            throw new Gen.Fatal(p, "type arguments in the Java formal hole '" + full
                     + "' need a method reference, 'package.Class<...>::member'");
         }
         int dot = spec.lastIndexOf('.');
         if (colons >= 0 || dot <= 0 || dot == spec.length() - 1) {
-            throw new Gen.Fatal(p, "invalid Java formal hole '" + spec
+            throw new Gen.Fatal(p, "invalid Java formal hole '" + full
                     + "', expected 'package.Class.member', 'package.Class::member' or 'package.Class::new'");
         }
         return new String[] {spec.substring(0, dot), spec.substring(dot + 1), null};
@@ -185,9 +239,10 @@ final class GenJava {
         }
         Moid m = JType.base(p.type);
         String mode = modeString(g, p);
+        String[] types = paramTypes(p, parts[3]);
         Target target;
         if (parts[2] == null) {
-            target = findMethod(g, p, c, parts[1], m);
+            target = findMethod(g, p, c, parts[1], m, types);
             if (target == null) {
                 throw new Gen.Fatal(p, "no public static Java method '" + denotation(p) + "' fits the mode " + mode);
             }
@@ -195,13 +250,13 @@ final class GenJava {
             if (!Modifier.isPublic(c.getModifiers())) {
                 throw new Gen.Fatal(p, "Java class '" + parts[0] + "' is not public");
             }
-            target = findReference(g, p, c, parts[1], m, denotation(p), env);
-            if (target == null) {
+            target = findReference(g, p, c, parts[1], m, denotation(p), env, types);
+            if (target == null && types == null) {
                 target = findField(g, c, parts[1], m, denotation(p), env);
             }
             if (target == null) {
                 String what = parts[1].equals("new") ? "constructor"
-                        : publicField(c, parts[1]) != null ? "method or field" : "method";
+                        : types == null && publicField(c, parts[1]) != null ? "method or field" : "method";
                 throw new Gen.Fatal(p, "no public Java " + what + " '" + denotation(p) + "' fits the mode " + mode);
             }
         }
@@ -277,16 +332,75 @@ final class GenJava {
     /**
      * The public static method NAME of C whose parameters and result fit the
      * procedure mode M of the formal hole P; of several the one with the
-     * lowest cost (see {@link #best}).
+     * lowest cost (see {@link #best}). With TYPES only the methods with
+     * these parameters ({@link #select}).
      */
-    private static Target findMethod(Gen g, Node p, Class<?> c, String name, Moid m) {
+    private static Target findMethod(Gen g, Node p, Class<?> c, String name, Moid m, String[] types) {
         List<Target> candidates = new ArrayList<>();
         for (Method x : c.getMethods()) {
             if (x.getName().equals(name) && Modifier.isStatic(x.getModifiers())) {
                 candidates.add(Target.ofStatic(x, null));
             }
         }
-        return best(g, p, candidates, m);
+        return best(g, p, select(p, candidates, types, "static Java method"), m);
+    }
+
+    /**
+     * Of the CANDIDATES for the formal hole P those whose parameters, as Java
+     * declares them (erased, without the object of an instance method), are
+     * TYPES, the parameter list of the formal hole; all of them if TYPES is
+     * null (no list). A type is written with its package or without it, a
+     * nested class with dots, an array with [], the last parameter of a
+     * varargs method also with "..." ({@link #matches}). The types are
+     * compared as text, so no class is looked up for them. If there are
+     * candidates but none has these parameters, that is a compile-time error
+     * that names the overloads there are (WHAT says what they are, for the
+     * message).
+     */
+    private static List<Target> select(Node p, List<Target> candidates, String[] types, String what) {
+        if (types == null) {
+            return candidates;
+        }
+        List<Target> selected = new ArrayList<>();
+        for (Target t : candidates) {
+            java.lang.reflect.Executable x = (java.lang.reflect.Executable) t.x();
+            Class<?>[] ps = x.getParameterTypes();
+            boolean same = ps.length == types.length;
+            for (int i = 0; same && i < ps.length; i++) {
+                same = matches(ps[i], i == ps.length - 1 && x.isVarArgs(), types[i]);
+            }
+            if (same) {
+                selected.add(t);
+            }
+        }
+        if (selected.isEmpty() && !candidates.isEmpty()) {
+            java.util.Set<String> names = new java.util.TreeSet<>();
+            for (Target t : candidates) {
+                names.add(signature(t));
+            }
+            throw new Gen.Fatal(p, "no public " + what + " '" + denotation(p)
+                    + "' has these parameters; there are: " + String.join(", ", names));
+        }
+        return selected;
+    }
+
+    /**
+     * Whether WRITTEN, a type of the parameter list of a formal hole, names
+     * the Java type C: its name with the package or without it
+     * ({@link #simpleName}), and for the last parameter of a varargs method
+     * (VARARGS) also its component type followed by "...".
+     */
+    private static boolean matches(Class<?> c, boolean varargs, String written) {
+        String w = written.replace('$', '.');
+        if (w.equals(c.getTypeName().replace('$', '.')) || w.equals(simpleName(c))) {
+            return true;
+        }
+        if (varargs && w.endsWith("...")) {
+            Class<?> e = c.getComponentType();
+            String v = w.substring(0, w.length() - 3);
+            return v.equals(e.getTypeName().replace('$', '.')) || v.equals(simpleName(e));
+        }
+        return false;
     }
 
     /**
@@ -301,7 +415,9 @@ final class GenJava {
      * take one of them would be a guess (the wrong one fails when it is
      * called). Candidates with the same parameters are one: a method of an
      * interface and the same method of Object or of a superinterface, of
-     * which the one with the narrowest result is taken.
+     * which the one with the narrowest result is taken. The message ends
+     * with the formal hole that names the first of them by the types of its
+     * parameters ({@link #select}).
      */
     private static Target best(Gen g, Node p, List<Target> candidates, Moid m) {
         List<Target> best = new ArrayList<>();
@@ -323,8 +439,14 @@ final class GenJava {
                 names.add(signature(t));
             }
             java.util.Collections.sort(names);
-            throw new Gen.Fatal(p, "Java formal hole '" + denotation(p) + "' is ambiguous for the mode "
-                    + modeString(g, p) + ": " + String.join(" and ", names) + " fit equally well");
+            String d = denotation(p);
+            // With a parameter list already, two classes of different
+            // packages have the same short name.
+            String hint = d.indexOf('(') >= 0 ? "write the types with their packages"
+                    : "name one in the formal hole, as in '" + d
+                            + names.get(0).substring(names.get(0).indexOf('(')) + "'";
+            throw new Gen.Fatal(p, "Java formal hole '" + d + "' is ambiguous for the mode "
+                    + modeString(g, p) + ": " + String.join(" and ", names) + " fit equally well; " + hint);
         }
         return best.isEmpty() ? null : best.get(0);
     }
@@ -387,7 +509,7 @@ final class GenJava {
             e = e.getComponentType();
         }
         Package k = e.getPackage();
-        return k == null || k.getName().isEmpty() ? n : n.substring(k.getName().length() + 1);
+        return (k == null || k.getName().isEmpty() ? n : n.substring(k.getName().length() + 1)).replace('$', '.');
     }
 
     /** The mode of the formal hole P in lower case, for a message. */
@@ -404,10 +526,11 @@ final class GenJava {
      * the one with the lowest cost ({@link #best}, which reports the formal
      * hole P as ambiguous if that is not one); null if none fits. ENV binds
      * the type variables of C to the type arguments of the formal hole
-     * (empty without them, see {@link Target#bound}).
+     * (empty without them, see {@link Target#bound}). With TYPES only the
+     * methods or constructors with these parameters ({@link #select}).
      */
     private static Target findReference(Gen g, Node p, Class<?> c, String name, Moid m, String spec,
-            Map<TypeVariable<?>, Type> env) {
+            Map<TypeVariable<?>, Type> env, String[] types) {
         List<Target> candidates = new ArrayList<>();
         if (name.equals("new")) {
             if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
@@ -428,6 +551,7 @@ final class GenJava {
                         : Target.ofInstance(x, c, spec));
             }
         }
+        candidates = select(p, candidates, types, name.equals("new") ? "Java constructor" : "Java method");
         if (!env.isEmpty()) {
             candidates.replaceAll(t -> t.bound(env));
         }

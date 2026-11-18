@@ -1,0 +1,2 @@
+tests/java/files-error-5.a68:4: runtime error: file access error, no such file or directory
+exit 134

@@ -450,7 +450,11 @@ def
       a68j: fixed converts a real as a long real, which it represents
       exactly: in real arithmetic, the rounding term and the scaling by a
       power of ten are inexact, and libga68 gives wrong digits from about
-      the seventh one on (entry 4).  }
+      the seventh one on (entry 4).
+
+      a68j: fixed adds a "0" before the point only when subfixed yields
+      no digit before it: libga68 tests y < 1.0, the value before
+      rounding, and writes "01.00" for fixed (0.999999, -6, 2) (entry 28).  }
     pub proc fixed = (Number v, int width, after) string:
        case v in
           ( real x): fixed (LENG x, width, after),
@@ -467,7 +471,7 @@ def
                   fi;
                   string s := subfixed (y, length, after);
                   if ~char_in_string (errorchar, loc int, s)
-                  then (length > UPB s AND y < long 1.0 | "0" +=: s);
+                  then (length > UPB s AND (UPB s = 0 | true | s[1] = ".") | "0" +=: s);
                        (x < long 0 | "-" |: width > 0 | "+" | "") +=: s;
                        (width /= 0 | (ABS width - UPB s) * " " +=: s);
                        s
@@ -490,7 +494,7 @@ def
                   fi;
                   string s := subfixed (y, length, after);
                   if ~char_in_string (errorchar, loc int, s)
-                  then (length > UPB s AND y < long long 1.0 | "0" +=: s);
+                  then (length > UPB s AND (UPB s = 0 | true | s[1] = ".") | "0" +=: s);
                        (x < long long 0 | "-" |: width > 0 | "+" | "") +=: s;
                        (width /= 0 | (ABS width - UPB s) * " " +=: s);
                        s

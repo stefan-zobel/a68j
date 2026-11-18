@@ -144,6 +144,14 @@ final class Capture {
                 }
                 continue;
             }
+            if (p.attribute == Attribute.FORMAT_TEXT) {
+                // -fformats: each dynamic part of a format text is a method
+                // without parameters that yields its value (GenFormats).
+                GenFormats.Parts parts = GenFormats.parts(g, p);
+                valueUnits(g, parts.ints(), g.a68.modes.INT, in, uses);
+                valueUnits(g, parts.formats(), g.a68.modes.FORMAT, in, uses);
+                continue;
+            }
             if (p.attribute == Attribute.ROUTINE_TEXT) {
                 Gen.Routine r = new Gen.Routine(g.routines.size(), p, cur, "r" + g.routines.size());
                 g.routines.add(r);
@@ -152,6 +160,24 @@ final class Capture {
             } else {
                 walk(g, p.sub, in, uses, in != cur || keepsTop(p, top));
             }
+        }
+    }
+
+    /** The methods of the dynamic parts UNITS of a format text in IN, yielding WANT. */
+    private static void valueUnits(Gen g, List<Node> units, a68j.front.Moid want, Gen.Routine in, List<Use> uses) {
+        for (Node u : units) {
+            Gen.Routine r = new Gen.Routine(g.routines.size(), u, in, "r" + g.routines.size());
+            r.valueUnit = true;
+            r.want = want;
+            g.routines.add(r);
+            g.routineOf.put(u, r);
+            if (u.symbolTable != null) {
+                g.tableOwner.putIfAbsent(u.symbolTable, r);
+            }
+            if (u.tag != null) {
+                uses.add(new Use(u.tag, r));
+            }
+            walk(g, u.sub, r, uses, true);
         }
     }
 

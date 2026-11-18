@@ -1,0 +1,2 @@
+tests/java/files-error-6.a68:4: runtime error: file access error, not a directory
+exit 134

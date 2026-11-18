@@ -1,0 +1,21 @@
+no a
+a exists
+1 to 4: one two three four
+20 bytes
+short 5
+3 lines, 5 bytes
+0 lines, 0 characters
+made by append
+time ok
+7 bytes, 3 characters, equal
+list: a.txt new.txt sub u.txt
+list sub: B.txt deep
+walk: a.txt new.txt sub sub/B.txt sub/deep sub/deep/c.txt sub/deep/deeper u.txt
+walk sub/: sub/B.txt sub/deep sub/deep/c.txt sub/deep/deeper
+absolute ok
+current ok
+after move and copy: a.txt copied.txt moved.txt sub u.txt
+b u
+empty:
+deleted
+exit 0

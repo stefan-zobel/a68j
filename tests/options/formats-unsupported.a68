@@ -1,0 +1,8 @@
+{ a68j-options: -fformats }
+{ -fformats: what Genie_Formats does not have is an error of the compiler: the pattern h, C-style patterns and g with more than three parameters. }
+access Genie_Transput
+begin
+   printf (($h(8, 2)l$, 1.5));
+   printf (($%5d l$, 1));
+   printf (($g(8, 2, 1, 1)l$, 1.5))
+end

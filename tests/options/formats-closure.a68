@@ -1,0 +1,28 @@
+{ a68j-options: -fformats }
+{ -fformats: the dynamic parts of a format text are elaborated each time the format uses them, in the environment of the format text: parameters and locals of a procedure, a format used after the procedure has returned, nested formats and recursion. }
+access Genie_Transput
+begin
+   proc show = (int w, real x) void: printf (($g(w, 2)"|"l$, x));
+   show (8, 3.25);
+   show (10, 2.5);
+
+   { Algol 68 Genie reports a scope error here; a68j keeps the parameter alive. }
+   proc digits = (int k) format: $n(k)d l$;
+   format f3 = digits (3), f5 = digits (5);
+   printf ((f3, 7, f5, 7));
+
+   int w := 2;
+   format fw = $n(w)d l$;
+   printf ((fw, 1));
+   w := 4;
+   printf ((fw, 1));
+
+   proc nested = (bool b) format: $"<" f(b | $f($"[" 2d "]"$)$ | $"-"$) ">" l$;
+   printf ((nested (true), 5, nested (false)));
+
+   proc stars = (int n) format: (n = 0 | $l$ | $"*" f(stars (n - 1))$);
+   printf (stars (5));
+
+   [] int ws = (2, 4, 6);
+   for i to 3 do printf (($n(ws[i])d, g(i + 1)l$, i, i)) od
+end

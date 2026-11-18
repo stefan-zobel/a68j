@@ -1,0 +1,4 @@
+{ The square root of a negative Bigdecimal is a runtime error. }
+access Bigdecimals (
+   puts (bigdec_text (bigdec_sqrt (DEC "-2")) + "'n")
+)

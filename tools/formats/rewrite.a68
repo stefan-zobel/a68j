@@ -61,6 +61,11 @@
       The included file itself is not rewritten; a68j -fgenie rewrites it
       when it includes it.
 
+  With the option --keep-formats the format texts and the mode FORMAT are
+  left as they are, for a compiler that parses them itself (a68j -fgenie,
+  unless A68J_FORMATS=rewrite); the units of a format text still get the other
+  changes.
+
   The stropping is taken from the options --upper and --supper, else from a
   first line with dg-options and -fstropping=..., else the text is read in
   both ways and the one that finds more reserved words wins (UPPER on a
@@ -133,7 +138,7 @@ PROC member = (STRING w, [] STRING list) BOOL:
   output is thrown away and whose errors are ignored; needs formats: the
   program needs Genie_Formats (it uses formats, or GFILE or GCHANNEL). #
 
-BOOL upper := TRUE, for ga68 := FALSE, no wrap := FALSE, dry := TRUE;
+BOOL upper := TRUE, for ga68 := FALSE, no wrap := FALSE, keep formats := FALSE, dry := TRUE;
 INT reserved := 0;
 BOOL needs formats := FALSE, has access := FALSE;
 
@@ -535,7 +540,7 @@ PROC bold word = (INT i, lim, REF BUF out) INT:
       INT e = IF upper THEN bold end (i, lim) ELSE word end (i, lim) FI;
       STRING w = s[i : e];
       STRING k = keyword (w);
-      IF w = "FORMAT" OR k = "FORMAT"
+      IF (w = "FORMAT" OR k = "FORMAT") AND NOT keep formats
       THEN adds (out, IF upper THEN "GFORMAT" ELSE "Gformat" FI);
            needs formats := TRUE;
            e
@@ -579,7 +584,7 @@ PROC rewrite = (INT from, lim, REF BUF out) VOID:
               ELSE FOR k FROM i TO e DO add (out, s[k]) OD
               FI;
               i := e + 1
-         ELIF c = dollar
+         ELIF c = dollar AND NOT keep formats
          THEN i := format text (i, lim, out) + 1
          ELIF IF upper THEN capital (c) ELSE letter (c) FI
          THEN i := bold word (i, lim, out) + 1
@@ -609,8 +614,10 @@ DO STRING o = options[a];
    ELIF o = "--supper" THEN forced := 2
    ELIF o = "--ga68" THEN for ga68 := TRUE
    ELIF o = "--no-wrap" THEN no wrap := TRUE
+   ELIF o = "--keep-formats" THEN keep formats := TRUE
    ELIF o = "--" THEN SKIP
-   ELSE fail (0, "unknown option " + o + " (usage: rewrite [--upper | --supper] [--ga68] [--no-wrap] < in > out)")
+   ELSE fail (0, "unknown option " + o
+                 + " (usage: rewrite [--upper | --supper] [--ga68] [--no-wrap] [--keep-formats] < in > out)")
    FI
 OD;
 

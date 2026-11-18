@@ -165,7 +165,11 @@ public final class Extractor {
                     // INDICANT, OPERATOR and MODULE_INDICANT; sums of several
                     // kinds match no case and are left alone.
                     int def = findTagDefinition(a68, q.symbolTable, q.info.symbol);
-                    if (def == 0) {
+                    if (def == 0 && a68.options().formats && q.info.symbol.equals("GFORMAT")) {
+                        // a68j: -fformats. FORMAT is the mode Gformat of
+                        // Genie_Formats (Scanner#tokeniseSource).
+                        a68.diagnostics.error(q, "mode FORMAT needs access to Genie_Formats");
+                    } else if (def == 0) {
                         Fmt s = Fmt.symbol(q);
                         a68.diagnostics.error(q, "indicant %e has not been declared properly", s);
                     } else if (def == INDICANT.ordinal()) {
@@ -227,6 +231,17 @@ public final class Extractor {
 
         if (tag != null) {
             tag.moif = moif;
+        }
+        // a68j: -fgenie, -fformats. The mode FORMAT is the mode Gformat of
+        // Genie_Formats (-fformats), and the items of print and printf may be
+        // straightened (MoidsMisc#straightensTo).
+        if (a68.options().genie || a68.options().formats) {
+            if (a68.genieFormats == null && moif.name.equals("GENIEFORMATS")) {
+                a68.genieFormats = moif;
+            }
+            if (a68.genieTransput == null && moif.name.equals("GENIETRANSPUT")) {
+                a68.genieTransput = moif;
+            }
         }
 
         // Store all the modes from the MOIF in the moid list.

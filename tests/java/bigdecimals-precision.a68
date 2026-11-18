@@ -1,0 +1,37 @@
+{ The module Bigdecimals: the precision can be changed at any time; the
+  operations after the change round to it, values keep their digits, and
+  + a rounds a to the precision. }
+access Bigdecimals (
+   proc show = (string what, Bigdecimal x) void:
+      puts (what + ": " + bigdec_text (x) + "'n");
+   Bigdecimal third70 = DEC 1 / 3;
+   bigdec_set_precision (10);
+   puts ("precision: " + whole (bigdec_precision, 0) + "'n");
+   show ("1 / 3", DEC 1 / 3);
+   show ("2 / 3", DEC 2 / 3);
+   show ("third70 keeps its digits", third70);
+   show ("+ third70", + third70);
+   show ("third70 * 1", third70 * 1);
+   show ("DEC rounds", DEC "123456789.987654321");
+   show ("DEC rounds a long int", DEC long 12345678951);
+   { A mixed operator converts its operand exactly and rounds once. }
+   show ("-0.4 + long 12345678945", DEC "-0.4" + long 12345678945);
+   show ("0.1 ** 3", DEC 0.1 ** 3);
+   bigdec_set_precision (1);
+   show ("precision 1: 2 / 3", DEC 2 / 3);
+   show ("precision 1: 250", DEC 250);
+   bigdec_set_precision (100);
+   show ("sqrt 2", bigdec_sqrt (DEC 2));
+   show ("sqrt 0", bigdec_sqrt (DEC 0));
+   show ("sqrt 1e-10", bigdec_sqrt (DEC "1e-10"));
+   Bigdecimal s = bigdec_sqrt (DEC 2);
+   show ("sqrt 2 ** 2", s * s);
+   bigdec_set_precision (70);
+   show ("back to 70: 1 / 7", DEC 1 / 7);
+   { A computation with guard digits, rounded at the end. }
+   bigdec_set_precision (40);
+   Bigdecimal sum := DEC 0;
+   for i to 30 do sum +:= DEC 1 / i od;
+   bigdec_set_precision (30);
+   show ("harmonic 30", + sum)
+)

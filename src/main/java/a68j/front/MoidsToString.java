@@ -160,6 +160,13 @@ public final class MoidsToString {
             return;
         }
 
+        // a68j: -fformats. The mode FORMAT is the mode Gformat of the module
+        // Genie_Formats; it is presented as FORMAT.
+        if (n == a68.modes.FORMAT) {
+            addToMoidText(a68, b, supperStropping ? "format" : "FORMAT", w);
+            return;
+        }
+
         // If declared by a mode-declaration, present the indicant.
         if (idf != null && !(n.attribute == STANDARD)) {
             Tag indy = findIndicantGlobal(a68, idf.symbolTable, n);

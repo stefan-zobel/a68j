@@ -179,17 +179,19 @@ layout procedures and the events for the end of the file and for value
 errors. It does not provide formats, binary transput, or the printing of
 records and <code><b>short</b></code> values. The module
 <code>Genie_Formats</code>, which also comes with a68j, adds formatted
-output (<code>printf</code>, <code>putf</code>) in the manner of Algol
-68 Genie: a68j compiles format texts with the option
-<code>-fformats</code>, and for ga68 a rewrite tool turns them into
-calls of the module first (Section <a
+transput (<code>printf</code>, <code>putf</code>, <code>readf</code>,
+<code>getf</code>) in the manner of Algol 68 Genie: a68j compiles format
+texts with the option <code>-fformats</code>, and for ga68 a rewrite
+tool turns them into calls of the module first (Section <a
 href="9-ch-transput.html#sec-formats" data-reference-type="ref"
-data-reference="sec-formats">9.9</a>). Formatted input is not available.
-Algol 68 Genie provides the transput of the Report almost completely,
-and adds <code>eof</code> and <code>eoln</code>, which
-<code>Genie_Transput</code> also has; Section <a
-href="9-ch-transput.html#sec-transput-genie" data-reference-type="ref"
-data-reference="sec-transput-genie">9.12</a> lists what it lacks.</p>
+data-reference="sec-formats">9.9</a>). With <code>-fformats</code>, a68j
+also prints and reads records and rows of rows, field by field and
+element by element, as Algol 68 Genie does. Algol 68 Genie provides the
+transput of the Report almost completely, and adds <code>eof</code> and
+<code>eoln</code>, which <code>Genie_Transput</code> also has;
+Section <a href="9-ch-transput.html#sec-transput-genie"
+data-reference-type="ref" data-reference="sec-transput-genie">9.12</a>
+lists what it lacks.</p>
 <h2 class="unnumbered" id="other-features">Other features</h2>
 <table>
 <thead>
@@ -226,9 +228,8 @@ data-reference-type="ref" data-reference="sec-complex">6.1</a>)</td>
 </tr>
 <tr>
 <td style="text-align: left;">formats</td>
-<td style="text-align: left;">output only, with
-<code>Genie_Formats</code> (a68j: <code>-fformats</code>; ga68: rewrite
-tool)</td>
+<td style="text-align: left;">with <code>Genie_Formats</code> (a68j:
+<code>-fformats</code>; ga68: rewrite tool)</td>
 <td style="text-align: left;">yes</td>
 </tr>
 <tr>
@@ -324,7 +325,7 @@ tool of a68j with the option <code>--ga68</code> prepares it: it adds
 with an enclosing block if the program has none, and rewrites the format
 texts; ga68 then compiles it in upper-case notation with the option
 <code>-fstropping=upper</code>. Either way, check whether the program
-relies on 64-bit integers, on formatted input or on the other features
-in the table above.</p>
+relies on 64-bit integers or on the other features in the table
+above.</p>
 </body>
 </html>

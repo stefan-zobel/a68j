@@ -1,1 +1,1 @@
-rewrite: unknown option --frobnicate (usage: rewrite [--upper | --supper] [--ga68] [--no-wrap] < in > out)
+rewrite: unknown option --frobnicate (usage: rewrite [--upper | --supper] [--ga68] [--no-wrap] [--keep-formats] < in > out)

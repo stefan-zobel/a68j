@@ -277,7 +277,8 @@ reads as a string), and for the first `eoln` there.
 
 - formats (`$...$`, `printf`, `readf`): ga68 does not compile format
   texts; the rewrite tool and the bundled module `Genie_Formats` provide
-  them, see [`genie-formats.md`](genie-formats.md). For its formatted
+  them, and a68j compiles them with `-fformats`, see
+  [`genie-formats.md`](genie-formats.md). For its formatted
   input, `Genie_Transput` provides the procedures `gt_start_get`,
   `gt_peek_char`, `gt_next_char`, `gt_unread`, `gt_at_end`,
   `gt_file_end` and `gt_value_error`, which read one character at a time,
@@ -289,10 +290,13 @@ reads as a string), and for the first `eoln` there.
   logical file end and value error, reading rows, binary transput
   (`put_bin`, `get_bin`), and the channels other than the three above
   (`stand_draw_channel` ...);
-- rows of rows (`[] [] int` ...) as items of `print` or `put`: the
-  union `OUTITEM` has rows of the plain modes only, and a union cannot
-  cover rows of any depth; a68g straightens them (Rosetta
-  `flatten-a-list-2` fails to compile for this reason);
+- structures and rows of rows (`[] [] int` ...) as items of `print` or
+  `put`: the union `OUTITEM` has rows of the plain modes only, and a union
+  cannot cover the structures of a program or rows of any depth; a68g
+  straightens them. a68j does the same with `-fgenie` and `-fformats`
+  (for `read` and `get` too, with names of structures and rows; see
+  "Differences and limits" in [`genie-formats.md`](genie-formats.md)), ga68
+  and a68j without these options do not;
 - `[,] char`: in a union with both `string` (or `[] char`) and `[,] char`,
   ga68 crashes when a `string` yielded by a call is united into it
   (internal compiler error in `verify_gimple`), and silently takes the

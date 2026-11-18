@@ -1,0 +1,4 @@
+{ DEC of a string that is not a decimal number is a runtime error. }
+access Bigdecimals (
+   puts (bigdec_text (DEC "1.2.3") + "'n")
+)

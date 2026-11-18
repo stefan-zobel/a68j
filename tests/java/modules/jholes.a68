@@ -8,7 +8,7 @@ def
 
     { Static methods of the JDK. }
     pub proc (int) int j_abs = nest Java "java.lang.Math.abs";
-    pub proc (long int, long int) long int j_max = nest Java "java.lang.Math.max";
+    pub proc (long int, long int) long int j_max = nest Java "java.lang.Math.max(long, long)";
     pub proc (string) int j_parse = nest Java "java.lang.Integer.parseInt";
     pub proc (int) string j_hex = nest Java "java.lang.Integer.toHexString";
     pub proc (real) real j_sqrt = nest Java "java.lang.Math.sqrt";

@@ -1,0 +1,52 @@
+{ XML/XPath with the XML parser and XPath engine of the JDK:
+    java -jar backend/a68j-backend.jar -fnest-java -run examples/xml-xpath.a68 }
+begin
+   mode Java = ref struct (int java_object);   { any Java object }
+
+   proc Java factory = nest Java "javax.xml.parsers.DocumentBuilderFactory.newInstance()";
+   proc (Java) Java new_builder = nest Java "javax.xml.parsers.DocumentBuilderFactory::newDocumentBuilder";
+   proc (string) Java reader = nest Java "java.io.StringReader::new";
+   proc (Java) Java source = nest Java "org.xml.sax.InputSource::new(Reader)";
+   proc (Java, Java) Java parse = nest Java "javax.xml.parsers.DocumentBuilder::parse(InputSource)";
+   proc Java xpath_factory = nest Java "javax.xml.xpath.XPathFactory.newInstance()";
+   proc (Java) Java new_xpath = nest Java "javax.xml.xpath.XPathFactory::newXPath";
+   proc (Java, string, Java, Java) Java evaluate = nest Java "javax.xml.xpath.XPath::evaluate";
+   proc Java nodeset = nest Java "javax.xml.xpath.XPathConstants::NODESET";
+   proc (Java) int length = nest Java "org.w3c.dom.NodeList::getLength";
+   proc (Java, int) Java item = nest Java "org.w3c.dom.NodeList::item";
+   proc (Java) string text = nest Java "org.w3c.dom.Node::getTextContent";
+
+   string xml =
+      "<inventory title=""OmniCorp Store #45x10^3"">" +
+      "<section name=""health"">" +
+      "<item upc=""123456789"" stock=""12""><name>Invisibility Cream</name><price>14.50</price>" +
+      "<description>Makes you invisible</description></item>" +
+      "<item upc=""445322344"" stock=""18""><name>Levitation Salve</name><price>23.99</price>" +
+      "<description>Levitate yourself for up to 3 hours per application</description></item>" +
+      "</section>" +
+      "<section name=""food"">" +
+      "<item upc=""485672034"" stock=""653""><name>Blork and Freen Instameal</name><price>4.95</price>" +
+      "<description>A tasty meal in a tablet; just add water</description></item>" +
+      "<item upc=""132957764"" stock=""44""><name>Grob winglets</name><price>3.56</price>" +
+      "<description>Tender winglets of Grob. Just add water</description></item>" +
+      "</section></inventory>";
+
+   Java doc = parse (new_builder (factory), source (reader (xml)));
+   Java xp = new_xpath (xpath_factory);
+   proc select = (string path) [] Java:
+   begin
+      Java nodes = evaluate (xp, path, doc, nodeset);
+      [length (nodes)] Java r;
+      for i to UPB r do r[i] := item (nodes, i - 1) od;
+      r
+   end;
+
+   { 1. The first item element (the text of its name). }
+   puts (text (select ("//item[1]/name")[1]) + "'n");
+   { 2. An action on each price element. }
+   [] Java prices = select ("//price");
+   for i to UPB prices do puts (text (prices[i]) + "'n") od;
+   { 3. A row of all the name elements. }
+   [] Java names = select ("//name");
+   for i to UPB names do puts (text (names[i]) + "'n") od
+end

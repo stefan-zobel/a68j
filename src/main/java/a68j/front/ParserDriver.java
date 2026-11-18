@@ -104,6 +104,37 @@ public final class ParserDriver {
         return false;
     }
 
+    /** a68j: -fformats. The mode yielded by gfmt of the module interface M. */
+    private static Moid formatMode(A68 a68, Moif m) {
+        Moid gfmt = identifierMode(a68, m, "gfmt");
+        return gfmt == null ? null : gfmt.sub;
+    }
+
+    /** a68j: the mode of the identifier NAME of the module interface M, or null. */
+    private static Moid identifierMode(A68 a68, Moif m, String name) {
+        for (Extract e : m.identifiers) {
+            if (Low.demangleSymbol(a68, m.name, e.symbol).equals(name)) {
+                return e.mode;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * a68j: -fgenie, -fformats. Records the union U of the items of the
+     * procedure PROC ([] U) VOID called NAME of the module interface M
+     * (print, printf, read, readf), and yields it (null if there is none).
+     */
+    private static Moid itemUnion(A68 a68, Moif m, String name) {
+        Moid p = m == null ? null : identifierMode(a68, m, name);
+        if (p != null && p.attribute == Attribute.PROC_SYMBOL && p.pack != null && p.pack.next == null
+                && p.pack.type.attribute == Attribute.ROW_SYMBOL && p.pack.type.sub.attribute == Attribute.UNION_SYMBOL) {
+            a68.itemUnions.add(p.pack.type.sub);
+            return p.pack.type.sub;
+        }
+        return null;
+    }
+
     /**
      * The complete a68_parser: syntax analysis ({@link #parseSyntax}) followed
      * by the semantic passes (symbol tables, modes, mode checker, coercions,
@@ -129,6 +160,18 @@ public final class ParserDriver {
         // Mode table builder.
         if (job.errorCount == 0) {
             ModeBuilder.makeMoidList(a68, job);
+            // a68j: -fformats. FORMAT is the mode Gformat of Genie_Formats,
+            // the mode yielded by its procedure gfmt.
+            if (a68.options().formats && a68.genieFormats != null) {
+                a68.modes.FORMAT = formatMode(a68, a68.genieFormats);
+            }
+            // a68j: -fgenie, -fformats. The unions of the items of print and
+            // printf, whose members a structure or a row of rows may be made
+            // of (MoidsMisc#straightensTo).
+            itemUnion(a68, a68.genieTransput, "print");
+            itemUnion(a68, a68.genieFormats, "printf");
+            itemUnion(a68, a68.genieTransput, "read");
+            a68.readfUnion = itemUnion(a68, a68.genieFormats, "readf");
         }
         job.crossReferenceSafe = true;
 

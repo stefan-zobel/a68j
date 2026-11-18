@@ -1,0 +1,2 @@
+tests/java/files-error-4.a68:4: runtime error: cannot copy "tests/java/demo": is a directory
+exit 134

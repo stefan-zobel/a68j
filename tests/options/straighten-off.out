@@ -1,0 +1,2 @@
+tests/options/straighten-off.a68:7:4: error: '(POINT, proc (ref FILE) void)' cannot be coerced to '[] OUTITEM' in a strong-argument
+exit 1

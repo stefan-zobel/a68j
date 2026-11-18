@@ -1,0 +1,2 @@
+tests/java/files-error-2.a68:4: runtime error: cannot delete "tests/java/demo": directory not empty
+exit 134
