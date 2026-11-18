@@ -898,6 +898,11 @@ that access them (`-I tests/java/lib`).
 | `bigints-big` | `Bigints` on 1000!, fib (1000), 5 ** 4 ** 3 ** 2 (183 231 digits) and the Lucas-Lehmer test |
 | `bigints-error-1` … `-5` | division by zero, a negative exponent, `nil`, `TOINT` beyond the limits, a string that is not an integer: runtime errors with the position in the program |
 | `bigints-modules` | `Bigints`, `Lists`, `Texts` and `Genie_Transput` in one access clause |
+| `bigdecimals-basic` | the module `Bigdecimals`: the conversions, every operator with every operand mode on either side, `/` of Bigints, `ROUND` and `ENTIER`, the assigning operators ([bigdecimals.md](bigdecimals.md)) |
+| `bigdecimals-precision` | the precision changed while the program runs, a mixed operator that rounds once, `bigdec_sqrt` with 100 digits |
+| `bigdecimals-output` | `bigdec_whole`, `bigdec_fixed`, `bigdec_float` and `bigdec_text`, compared with Algol 68 Genie's `whole`, `fixed` and `float` of a `long long real` |
+| `bigdecimals-error-1` … `-6` | `nil`, division by zero, a string that is not a number, a precision of 0, the square root of a negative value, `TOREAL` beyond the limits: runtime errors with the position in the program |
+| `bigdecimals-modules` | `Bigdecimals`, `Hashmaps`, `Texts` and `Genie_Transput` in one access clause |
 | `files-basic` | the module `Files`: whole files, lines, sizes, times, listing and walking, moving, copying and deleting, in a temporary directory ([files.md](files.md)) |
 | `files-genie` | the procedures of Algol 68 Genie in `Files` on a directory, a file and a missing path |
 | `files-error-1` … `-6` | a missing file, a directory that is not empty, a file listed as a directory, a directory copied, `get_directory` of a missing directory and of a file: runtime errors with the position in the program |

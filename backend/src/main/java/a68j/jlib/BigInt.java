@@ -60,6 +60,16 @@ public final class BigInt extends JavaObject {
         return b.v;
     }
 
+    /** A Bigint of V, for BigDec (ROUND, ENTIER); not public, so no formal hole sees it. */
+    static BigInt wrap(BigInteger v) {
+        return make(v);
+    }
+
+    /** The value of B, for BigDec; NIL is a runtime error. */
+    static BigInteger value(BigInt b) {
+        return val(b);
+    }
+
     private static BigInteger nonZero(BigInteger d) {
         if (d.signum() == 0) {
             throw error("division by zero");

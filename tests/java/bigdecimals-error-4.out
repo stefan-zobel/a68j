@@ -1,0 +1,2 @@
+tests/java/bigdecimals-error-4.a68:3: runtime error: bigdec_set_precision with 0 digits, which is not at least 1
+exit 134

@@ -1,0 +1,99 @@
+{ The module Bigdecimals: conversions, every operator with every operand
+  mode on either side, comparisons by value, ROUND and ENTIER, and the
+  assigning operators, at the default precision of 70 digits. }
+access Bigdecimals (
+   proc show = (string what, Bigdecimal x) void:
+      puts (what + ": " + bigdec_text (x) + "'n");
+   proc truth = (string what, bool b) void:
+      puts (what + ": " + (b | "true" | "false") + "'n");
+
+   { Conversions: a real gives its shortest decimal. }
+   show ("DEC int", DEC 42);
+   show ("DEC long int", DEC long 9223372036854775807);
+   show ("DEC long long int", DEC (- long long 9223372036854775807));
+   show ("DEC real", DEC 0.1);
+   show ("DEC long real", DEC long 0.1);
+   show ("DEC long long real", DEC long long 2.5e-3);
+   show ("DEC Bigint", DEC (BIG 10 ** 30 + 1));
+   show ("DEC string", DEC "  -123.4500e2 ");
+   show ("DEC string point", DEC ".5");
+   show ("DEC char", DEC "7");
+   show ("DEC rounds", DEC "1.23456789012345678901234567890123456789012345678901234567890123456789012345");
+   puts ("TOREAL: " + fixed (TOREAL DEC "2.5", 0, 3) + "'n");
+   puts ("TOLONGREAL: " + fixed (TOLONGREAL (DEC 1 / 8), 0, 5) + "'n");
+
+   { The default precision and decimal fractions. }
+   puts ("precision: " + whole (bigdec_precision, 0) + "'n");
+   show ("1 / 3", DEC 1 / 3);
+   show ("2 / 3", DEC 2 / 3);
+   truth ("0.1 + 0.2 = 0.3", DEC 0.1 + 0.2 = DEC "0.3");
+   truth ("1.0 = 1.00", DEC "1.0" = DEC "1.00");
+   truth ("1.0 is 1.0", Bigdecimal (DEC "1.0") is DEC "1.0");
+
+   { The monadic operators. }
+   Bigdecimal a = DEC "-2.75";
+   show ("- a", - a);
+   show ("+ a", + a);
+   show ("ABS a", ABS a);
+   puts ("SIGN: " + whole (SIGN a, 0) + " " + whole (SIGN DEC 0, 0) + " " + whole (SIGN ABS a, 0) + "'n");
+
+   { ROUND and ENTIER yield a Bigint. }
+   [] string r = ("2.5", "-2.5", "2.4", "-2.4", "2.6", "-2.6", "0", "123456789012345678901234567890.5");
+   for i to UPB r
+   do Bigdecimal x = DEC r[i];
+      puts ("ROUND, ENTIER " + r[i] + ": " + big_whole (ROUND x, 0) + " " + big_whole (ENTIER x, 0) + "'n")
+   od;
+
+   { Every dyadic operator with every operand mode on either side. }
+   Bigdecimal b = DEC "1.5";
+   show ("b + b", b + b); show ("b + 2", b + 2); show ("2 + b", 2 + b);
+   show ("b + long 2", b + long 2); show ("long 2 + b", long 2 + b);
+   show ("b + long long 2", b + long long 2); show ("long long 2 + b", long long 2 + b);
+   show ("b + 0.25", b + 0.25); show ("0.25 + b", 0.25 + b);
+   show ("b + long 0.25", b + long 0.25); show ("long 0.25 + b", long 0.25 + b);
+   show ("b + long long 0.25", b + long long 0.25); show ("long long 0.25 + b", long long 0.25 + b);
+   show ("b + BIG 2", b + BIG 2); show ("BIG 2 + b", BIG 2 + b);
+   show ("b - b", b - b); show ("b - 2", b - 2); show ("2 - b", 2 - b);
+   show ("b - 0.25", b - 0.25); show ("0.25 - b", 0.25 - b);
+   show ("b - BIG 2", b - BIG 2); show ("BIG 2 - b", BIG 2 - b);
+   show ("b * b", b * b); show ("b * 3", b * 3); show ("3 * b", 3 * b);
+   show ("b * long 0.5", b * long 0.5); show ("long 0.5 * b", long 0.5 * b);
+   show ("b * BIG 4", b * BIG 4); show ("BIG 4 * b", BIG 4 * b);
+   show ("b / b", b / b); show ("b / 4", b / 4); show ("4 / b", 4 / b);
+   show ("b / long 0.5", b / long 0.5); show ("long 0.5 / b", long 0.5 / b);
+   show ("b / BIG 4", b / BIG 4); show ("BIG 4 / b", BIG 4 / b);
+
+   { The quotient of Bigints. }
+   show ("BIG 1 / BIG 8", BIG 1 / BIG 8);
+   show ("BIG 22 / 7", BIG 22 / 7); show ("1 / BIG 7", 1 / BIG 7);
+   show ("BIG 1 / long 4", BIG 1 / long 4); show ("long long 1 / BIG 4", long long 1 / BIG 4);
+   show ("10 ** 40 / 3", BIG 10 ** 40 / BIG 3);
+
+   { The power, also with a negative exponent. }
+   show ("b ** 2", b ** 2); show ("b UP 3", b UP 3); show ("2 ^ -3", DEC 2 ^ -3);
+   show ("b ** 0", b ** 0); show ("0 ** 0", DEC 0 ** 0);
+   show ("10 ** -20", DEC 10 ** -20);
+   show ("1.1 ** 100", DEC "1.1" ** 100);
+
+   { Comparisons with every operand mode. }
+   truth ("b = 1.5", b = 1.5); truth ("1.5 = b", 1.5 = b);
+   truth ("b /= 1", b /= 1); truth ("b < 2", b < 2); truth ("2 <= b", 2 <= b);
+   truth ("b > long 1", b > long 1); truth ("b >= long long 2", b >= long long 2);
+   truth ("b EQ long 1.5", b EQ long 1.5); truth ("long long 1.5 NE b", long long 1.5 NE b);
+   truth ("b LT BIG 2", b LT BIG 2); truth ("BIG 1 LE b", BIG 1 LE b);
+   truth ("b GT b", b GT b); truth ("b GE b", b GE b);
+   truth ("1/3 < 0.3333333", DEC 1 / 3 < DEC "0.3333333");
+   truth ("DEC 0.1 = long 0.1", DEC 0.1 = long 0.1);
+
+   { The assigning operators yield the variable. }
+   Bigdecimal x := DEC 1;
+   x +:= b; show ("+:= b", x);
+   x -:= 1; show ("-:= 1", x);
+   x *:= BIG 4; show ("*:= BIG 4", x);
+   x /:= long 0.5; show ("/:= long 0.5", x);
+   x PLUSAB 0.25; show ("PLUSAB 0.25", x);
+   x MINUSAB long long 1; show ("MINUSAB long long 1", x);
+   x TIMESAB DEC 2; show ("TIMESAB DEC 2", x);
+   x DIVAB 3; show ("DIVAB 3", x);
+   show ("(x +:= 1) +:= 1", (x +:= 1) +:= 1)
+)

@@ -1,0 +1,5 @@
+{ A NIL Bigdecimal is a runtime error with the position. }
+access Bigdecimals (
+   Bigdecimal a = nil;
+   puts (bigdec_text (a + 1) + "'n")
+)

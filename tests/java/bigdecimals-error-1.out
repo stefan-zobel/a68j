@@ -1,0 +1,2 @@
+tests/java/bigdecimals-error-1.a68:4: runtime error: attempt to use a NIL Bigdecimal
+exit 134

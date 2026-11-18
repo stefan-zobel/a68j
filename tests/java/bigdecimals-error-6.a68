@@ -1,0 +1,4 @@
+{ TOREAL of a Bigdecimal beyond the limits of real is a runtime error. }
+access Bigdecimals (
+   puts (fixed (TOREAL DEC "1e40", 0, 0) + "'n")
+)

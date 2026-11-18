@@ -165,11 +165,10 @@ values do not fit into 64 bits.
 
 ## Not provided
 
-- **Division with a fractional result (`/`).** It would yield a decimal.
-  A later module `Bigdecimals` on `java.math.BigDecimal` would add it.
-  That module would access `Bigints` with `access pub Bigints`, as
-  `Hashmaps` does with `Lists`, and the generator
-  (`tools/gen_bignums.py`) is laid out for a second kind of number.
+- **Division with a fractional result (`/`).** It yields a decimal and
+  comes with the module `Bigdecimals` ([bigdecimals.md](bigdecimals.md)),
+  which accesses `Bigints` with `access pub Bigints`: `BIG 1 / BIG 8` is
+  the Bigdecimal 0.125.
 - **Bit operations** (`AND`, `OR`, `SHL` and so on) on Bigints.
 - **`long long int` results.** `TOLONGINT` gives a `long int`, which in
   a68j holds the same values.

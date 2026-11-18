@@ -1,0 +1,2 @@
+tests/java/bigdecimals-error-3.a68:3: runtime error: DEC of "1.2.3", which is not a decimal number
+exit 134

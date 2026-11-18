@@ -1,0 +1,5 @@
+{ A precision below 1 is a runtime error. }
+access Bigdecimals (
+   bigdec_set_precision (0);
+   puts ("not reached'n")
+)

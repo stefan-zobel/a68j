@@ -1,0 +1,2 @@
+tests/java/bigdecimals-error-6.a68:3: runtime error: TOREAL of a Bigdecimal beyond the limits of real
+exit 134

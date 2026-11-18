@@ -51,7 +51,9 @@ Hello, world!
   the parameters name one (`"org.xml.sax.InputSource::new(Reader)"`). The bundled modules `Lists` and
   `Hashmaps` provide growable lists and hash maps built on it, and
   `Bigints` integers of any size with the operators of an `int`
-  ([docs/bigints.md](docs/bigints.md)).
+  ([docs/bigints.md](docs/bigints.md)), and `Bigdecimals` decimals of any
+  precision with the operators of a `real`
+  ([docs/bigdecimals.md](docs/bigdecimals.md)).
 - **Partial parametrization** (an extension of Algol 68 Genie, after
   Lindsey's proposal of 1976): a call that leaves arguments out,
   `add (3, )`, yields a procedure of the missing parameters. ga68 accepts
@@ -106,7 +108,10 @@ their arithmetic, patterns for text, and time zones, for a68j only
 digits; for larger integers the `Bigints` module offers the mode `Bigint`, with the
 operators of an `int`, on top of `java.math.BigInteger`, for a68j only
 ([docs/bigints.md](docs/bigints.md)). 80-bit `long long real` is out of
-scope.
+scope; for more digits the `Bigdecimals` module offers the mode
+`Bigdecimal`, decimals with a precision of 70 digits or any other, on top
+of `java.math.BigDecimal`, for a68j only
+([docs/bigdecimals.md](docs/bigdecimals.md)).
 
 ## Requirements
 
@@ -348,6 +353,7 @@ The detailed documentation is in `docs/`:
 - `docs/texts.md`: the bundled module `Texts` (string functions).
 - `docs/regex.md`: the bundled module `Regex` (regular expressions, a68j only).
 - `docs/bigints.md`: the bundled module `Bigints` (integers of any size, a68j only).
+- `docs/bigdecimals.md`: the bundled module `Bigdecimals` (decimals of any precision, a68j only).
 - `docs/files.md`: the bundled module `Files` (files and directories, a68j only).
 - `docs/times.md`: the bundled module `Times` (dates, times and durations, a68j only).
 - `docs/genie-formats.md`: formats (`$...$`, `printf`): the rewrite tool and the bundled module `Genie_Formats`.
@@ -368,7 +374,7 @@ python3 tools/run_jvm.py --native tests/ga68/expected $S/*.a68 $S/mcgt/*.a68 $S/
 python3 tools/run_jvm.py --native tests/extra/expected tests/extra/*.a68
 python3 tools/run_native.py --ga68 …/xgcc --libdir …/libga68/.libs --out /tmp/native tests/extra/*.a68
 python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
-sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints, Files, Times
+sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints, Bigdecimals, Files, Times
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
 sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, -Wframe-scope

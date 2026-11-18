@@ -1,0 +1,24 @@
+{ The module Bigdecimals with Hashmaps (and so Lists), Texts and Genie_Transput in
+  one access clause: Bigdecimals declares no priority, and its operators
+  take other operand modes than those of the other modules.  Bigints comes
+  with Bigdecimals (access pub Bigints). }
+access Bigdecimals, Hashmaps, Texts, Genie_Transput (
+   Stringlist parts = new_stringlist;
+   for i to 3 do parts +:= bigdec_text (DEC i / 8) od;
+   Bigdecimal sum := DEC 0;
+   for i to UPB parts do sum +:= DEC (i ELEM parts) od;
+   print (("sum: ", bigdec_text (sum), newline));
+   String_int_map m = new_string_int_map;
+   "pi" AT m := 314;
+   Bigdecimal pi = DEC ("pi" ELEM m) / 100;
+   print (("pi: ", bigdec_fixed (pi, 0, 2), newline));
+   [] string fields = "1.5, -2.25, 1e3" SPLIT ",";
+   Bigdecimal product := DEC 1;
+   for i to UPB fields do product *:= DEC TRIM fields[i] od;
+   print (("product: ", bigdec_text (product), newline));
+   Bigint b := BIG 7;
+   b +:= 1;
+   print (("Bigint / Bigint: ", bigdec_text (b / BIG 3 * 3), newline));
+   print (("ROUND: ", big_whole (ROUND (DEC b / 3), 0), newline));
+   print (("RJUST: [", bigdec_fixed (product, 0, 1) RJUST 12, "]", newline))
+)

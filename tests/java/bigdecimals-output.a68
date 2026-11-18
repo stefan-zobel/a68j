@@ -1,0 +1,30 @@
+{ The module Bigdecimals: bigdec_whole, bigdec_fixed and bigdec_float with
+  the rules of whole, fixed and float, and bigdec_text.  The output of
+  whole, fixed and float is that of Algol 68 Genie 3.13.4 for the same
+  values as long long real, but for three fields of fixed with width 0
+  (docs/bigdecimals.md): Genie gives 1e30 with 42 places instead of 50,
+  9.9995 with 3 places as "10.00" instead of "10.000" (the Revised Report
+  counts the digits before the point after rounding), and the 70th digit
+  of 1/7e40 truncated instead of rounded. }
+access Bigdecimals (
+   [] Bigdecimal values = (DEC 2 / 3, - DEC 2 / 3, DEC 0, DEC 1 / 8, DEC "123.456",
+                           DEC "-0.0005", DEC "1e30", DEC "1e-30", DEC "9.9995", DEC "0.96",
+                           DEC 1 / 7 * DEC 10 ** 40);
+   [] string names = ("2/3", "-2/3", "0", "1/8", "123.456", "-0.0005", "1e30",
+                      "1e-30", "9.9995", "0.96", "1/7e40");
+   for i to UPB values
+   do Bigdecimal x = values[i];
+      puts (names[i] + "'n");
+      puts ("  whole [" + bigdec_whole (x, 0) + "] [" + bigdec_whole (x, 8) + "] [" +
+            bigdec_whole (x, -8) + "] [" + bigdec_whole (x, 2) + "]'n");
+      puts ("  fixed [" + bigdec_fixed (x, 0, 0) + "] [" + bigdec_fixed (x, 0, 3) + "] [" +
+            bigdec_fixed (x, 0, 50) + "]'n");
+      puts ("  fixed [" + bigdec_fixed (x, 12, 4) + "] [" + bigdec_fixed (x, -12, 4) + "] [" +
+            bigdec_fixed (x, 5, 3) + "] [" + bigdec_fixed (x, 3, 0) + "]'n");
+      puts ("  float [" + bigdec_float (x, 15, 6, 3) + "] [" + bigdec_float (x, -15, 6, 3) + "] [" +
+            bigdec_float (x, 10, 2, 2) + "]'n");
+      puts ("  float [" + bigdec_float (x, 60, 50, 4) + "] [" + bigdec_float (x, 8, 3, 1) + "] [" +
+            bigdec_float (x, 12, 0, 3) + "]'n");
+      puts ("  text [" + bigdec_text (x) + "]'n")
+   od
+)
