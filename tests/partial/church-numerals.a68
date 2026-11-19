@@ -1,0 +1,36 @@
+{ Rosetta Code, task "Church numerals": an ALGOL 68 solution written for
+  a68j and Algol 68 Genie, here in SUPPER stropping.  As in the untyped
+  lambda calculus, every value is a procedure that takes a procedure and
+  yields one.  The Church numeral n applied to f yields f applied n times. }
+access Genie_Transput (
+mode Fn = proc (Fn) Fn;
+
+{ Currying with partial parametrization: g (a, ) yields the procedure of
+  the missing parameter, with a stored in it }
+proc curry2 = (proc (Fn, Fn) Fn g, Fn a) Fn: g (a, );
+proc curry3 = (proc (Fn, Fn, Fn) Fn g, Fn a) Fn: curry2 (g (a, , ), );
+proc curry4 = (proc (Fn, Fn, Fn, Fn) Fn g, Fn a) Fn: curry3 (g (a, , , ), );
+
+Fn zero  = curry2 ((Fn f, x) Fn: x, );
+Fn succ  = curry3 ((Fn n, f, x) Fn: f (n (f) (x)), );
+Fn plus  = curry4 ((Fn m, n, f, x) Fn: m (f) (n (f) (x)), );
+Fn times = curry3 ((Fn m, n, f) Fn: m (n (f)), );
+Fn power = curry2 ((Fn m, n) Fn: n (m), );
+
+{ Conversions between Church numerals and integers }
+proc to_church = (int i) Fn: if i = 0 then zero else succ (to_church (i - 1)) fi;
+proc to_int = (Fn n) int:
+   begin
+      int count := 0;
+      void (n ((Fn x) Fn: (count +:= 1; x)) (zero));
+      count
+   end;
+
+Fn three = succ (succ (succ (zero)));
+Fn four  = succ (three);
+print (("3 + 4 = ", whole (to_int (plus (three) (four)), 0), newline,
+        "3 * 4 = ", whole (to_int (times (three) (four)), 0), newline,
+        "4 ^ 3 = ", whole (to_int (power (four) (three)), 0), newline,
+        "3 ^ 4 = ", whole (to_int (power (three) (four)), 0), newline,
+        "6 * 7 = ", whole (to_int (times (to_church (6)) (to_church (7))), 0), newline))
+)
