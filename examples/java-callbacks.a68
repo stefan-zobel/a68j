@@ -1,0 +1,18 @@
+begin
+   { Java calls the procedures f and df while newton runs. }
+   proc (proc (long real) long real, proc (long real) long real, long real) long real newton
+      = nest Java "Events.newton";
+   long real root = newton ((long real x) long real: x * x - long 2,
+                            (long real x) long real: long 2 * x, long 1);
+   puts ("sqrt 2 = " + fixed (root, 0, 15) + "'n");
+
+   { Java keeps the procedures and calls them later. }
+   proc (proc (string, int) void) void register = nest Java "Events.register";
+   proc (string, int) void fire = nest Java "Events.fire";
+   int total := 0;
+   register ((string event, int value) void: puts (event + " " + whole (value, 0) + "'n"));
+   register ((string event, int value) void: total +:= value);
+   fire ("open", 1);
+   fire ("read", 41);
+   puts ("total " + whole (total, 0) + "'n")
+end

@@ -220,6 +220,49 @@ Both nest: a procedure from Java can be passed back to Java, and the
 parameters and results of the interface method may themselves be
 procedures.
 
+**Java code of your own.** A Java method may call the procedure while it
+runs, or keep the object and call it later, after it has returned.
+`examples/java-sort.a68` is the short case with the JDK alone:
+`Arrays.sort` calls a comparator written in Algol 68.
+`examples/java-callbacks.a68` does both with a class of its own,
+`examples/Events.java`, whose interface `Handler` takes the place of an
+interface of the JDK:
+
+[![java-callbacks.a68](../images/java-callbacks.svg)](../examples/java-callbacks.a68)
+
+```java
+public interface Handler {
+    void handle(String event, int value);
+}
+
+private static final List<Handler> handlers = new ArrayList<>();
+
+public static void register(Handler h) { handlers.add(h); }
+
+public static void fire(String event, int value) {
+    for (Handler h : handlers) h.handle(event, value);
+}
+
+public static double newton(DoubleUnaryOperator f, DoubleUnaryOperator df, double x) { … }
+```
+
+```sh
+javac -d classes examples/Events.java
+java -jar a68j-backend.jar -fnest-java -fjava-classpath=classes -run examples/java-callbacks.a68
+sqrt 2 = 1.414213562373095
+open 1
+read 41
+total 42
+```
+
+Java gets Algol 68 procedures only as values that the program passes to
+it; there is no way for Java code to find a procedure of a compiled
+Algol 68 program by its name. A procedure that Java keeps may be called
+after the range in which it was declared has been left. The frames of
+a68j are objects on the heap, so this works, but
+it goes beyond what the scope rules of Algol 68 allow, and a68j does not
+check it.
+
 **Generic types.** The modes are matched against the types the generic
 signature gives. `Function<Float, Float>` takes and yields `Float`, so
 `proc (real) real` fits it, and `Comparator<? super String>` compares
