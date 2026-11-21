@@ -127,11 +127,28 @@ Each Java class gets a type of its own, declared once:
 
 \example{appH/objects}
 
-\noindent The record and its field are never used; they give the type
-\code|List| a name of its own, so that a \code|List| cannot be confused
-with a reference of another type. The value \code|nil| is Java's
-\texttt{null}, and \code|is| compares two objects as \texttt{==} does in
-Java. A name with \code|::| refers to a constructor (\code|::new|), a
+\noindent The two type declarations are a pattern. A Java object is a
+reference that refers to nothing in the Algol 68 program: it can be
+passed on, stored in variables and compared, but taking its value or
+assigning to it is a run-time error. The record is therefore never
+created, and its field is never used. It is there only to give
+\code|List| a type of its own. Algol 68 compares types by their structure
+(Section~\ref{sec-modes}), and the names of the fields belong to the
+structure of a record; the unusual field name \code|list_java_object|
+makes \code|ref List_object| differ from every other type. The type of
+the field does not matter; \code|int| is merely the shortest choice.
+
+The record could even be left out. With \code|mode List = ref int| the
+program still runs, but a \code|List| is then the same type as every
+\code|int| variable, and as every other class declared in the same way.
+The compiler would accept an \code|int| variable where a list is
+expected, and the mistake would show only at run time, with the message
+\texttt{a name where a java.util.ArrayList is expected}. With a type of
+its own for each class, the compiler finds such mistakes, and operators
+can be declared for each class separately.
+
+The value \code|nil| is Java's \texttt{null}, and \code|is| compares two
+objects as \texttt{==} does in Java. A name with \code|::| refers to a constructor (\code|::new|), a
 method of an object, or a field of an object; the object is the first
 parameter. The type arguments in angle brackets say what the type
 parameters of a generic class stand for, as in Java: with
