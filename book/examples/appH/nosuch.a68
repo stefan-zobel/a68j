@@ -1,0 +1,7 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc (string) real cbrt = nest Java "java.lang.Math.cbrt";
+   print ((fixed (cbrt ("27"), 0, 3), newline))
+{ end excerpt }
+end

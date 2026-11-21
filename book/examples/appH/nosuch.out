@@ -1,0 +1,2 @@
+nosuch.a68:4:30: fatal error: no public static Java method 'java.lang.Math.cbrt' fits the mode proc (string) real
+compilation terminated.

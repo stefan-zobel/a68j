@@ -93,8 +93,9 @@ initial value of a variable & zero, \code|false|, blank, empty & undefined (an e
 \code|XOR| for \code|bits| & yes & yes \\
 \code|downto|, \code|until| in loops & no; a68j with \code|-fgenie|: \texttt{DOWNTO} without \texttt{BY} & yes \\
 modules & yes (GNU extension, Appendix~\ref{app-modules}) & no \\
-calling C (\code|nest C|) & ga68 only (Appendix~\ref{app-nest}) & no \\
 partial parametrization & a68j only (Appendix~\ref{app-partial}) & yes \\
+calling C (\code|nest C|) & ga68 only (Appendix~\ref{app-nest}) & no \\
+calling Java (\code|nest Java|) & a68j only, with \code|-fnest-java| (Appendix~\ref{app-java}) & no \\
 \bottomrule
 \end{longtable}
 

@@ -27,13 +27,13 @@ and in floating-point numbers within the tolerance of `tools/run_jvm.py`
 
 | Program | Origin |
 |---|---|
-| `add`, `stages`, `compose`, `power`, `when` | the examples of appendix G of the book (`book/examples/appG`), without the excerpt marks |
+| `add`, `stages`, `compose`, `power`, `when`, `monad`, `triples`, `writer` | the examples of appendix F of the book (`book/examples/appF`), without the excerpt marks |
 | `closures-value-capture`, `currying`, `first-class-functions`, `function-composition-2`, `yin-and-yang` | Rosetta Code solutions, copies of `tests/rosetta` (prepared by `tools/rosetta_prep.py`; GNU Free Documentation License 1.3, see `tests/rosetta/README.md`) |
 | `procedures` | `src/test-set/27-procedures.a68` of Algol 68 Genie 3.13.4 (GNU General Public License, version 3 or later), adapted for a68j and ga68 as its header describes |
 | `church-numerals` | written for a68j: the ALGOL 68 solution of the Rosetta Code task "Church numerals", in SUPPER stropping |
 | `standard-procedures` | written for a68j: procedures of the standard prelude (`sin ()`, `char_in_string ("b", pos, )`), a procedure variable as the primary, every argument left out, and the arguments evaluated once |
 
-The example `scope` of appendix G is not here: Algol 68 Genie stops it with
+The example `scope` of appendix F is not here: Algol 68 Genie stops it with
 a run-time error because a stored reference outlives its cell, and a68j
 checks the lifetime rule nowhere (as ga68), so it runs to the end. The
 second test of the Algol 68 Genie test set that uses partial

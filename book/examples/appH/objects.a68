@@ -1,0 +1,18 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode List = ref List_object;
+   mode List_object = struct (int list_java_object);
+   proc List new_list = nest Java "java.util.ArrayList<String>::new";
+   proc (List, string) bool add = nest Java "java.util.ArrayList<String>::add";
+   proc (List) int size = nest Java "java.util.ArrayList<String>::size";
+   proc (List, proc (string, string) int) void sort = nest Java "java.util.ArrayList<String>::sort";
+   proc (List) string show = nest Java "java.util.ArrayList<String>::toString";
+   proc (string, string) int compare = nest Java "java.lang.String::compareTo";
+
+   List l = new_list;
+   add (l, "Wirth"); add (l, "van Wijngaarden"); add (l, "Lindsey"); add (l, "Koster");
+   sort (l, compare);
+   print ((show (l), " ", whole (size (l), 0), newline))
+{ end excerpt }
+end

@@ -37,6 +37,12 @@ A program NAME.a68 may have these files next to it:
                c-files: NAMES          C sources next to the program, compiled
                                        with cc and linked with it (ga68
                                        only, for formal holes "nest C")
+               java-files: NAMES       Java sources next to the program,
+                                       compiled with javac (next to the
+                                       --java executable) into a temporary
+                                       directory that a68j gets with
+                                       -fjava-classpath (a68j only, for
+                                       formal holes "nest Java")
                files: NAMES            run the program in an empty temporary
                                        directory into which these files
                                        (next to the program) are copied
@@ -154,6 +160,14 @@ def run_a68j(path, cfg, java):
             if c.returncode != 0:
                 return False, clean(c.stderr.decode("utf-8", "replace"), path)
         inc = ["-I", lib]
+    if cfg.get("java-files"):
+        classes = tempfile.mkdtemp(prefix="book-classes-")
+        javac = os.path.join(os.path.dirname(java), "javac") if os.path.dirname(java) else "javac"
+        c = subprocess.run([javac, "-d", classes] + cfg["java-files"].split(), capture_output=True,
+                           cwd=os.path.dirname(path), env=dict(os.environ, LC_ALL="C"))
+        if c.returncode != 0:
+            return False, clean(c.stdout.decode("utf-8", "replace") + c.stderr.decode("utf-8", "replace"), path)
+        inc = inc + ["-fjava-classpath=" + classes]
     formats = ["-fformats"] if cfg.get("formats") == "yes" else []
     cmd = [java, "-jar", JAR] + cfg.get("a68j-options", "").split() + formats + inc + ["-run", path]
     p = subprocess.run(cmd, input=stdin_of(path), capture_output=True, cwd=rundir(path, cfg),

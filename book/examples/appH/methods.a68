@@ -1,0 +1,11 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc (real) real cbrt = nest Java "java.lang.Math.cbrt";
+   proc (int) string to_binary = nest Java "java.lang.Integer.toBinaryString";
+   proc ([] int) string show = nest Java "java.util.Arrays.toString";
+   long real pi = nest Java "java.lang.Math.PI";
+   print ((fixed (cbrt (27), 0, 3), " ", to_binary (42), " ", show ((3, 1, 4)), newline));
+   print ((fixed (pi, 0, 10), newline))
+{ end excerpt }
+end

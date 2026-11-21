@@ -1,5 +1,5 @@
-{ Copy of book/examples/appG/compose.a68, an example of partial
-  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+{ Copy of book/examples/appF/compose.a68, an example of partial
+  parametrization in appendix F of the book "Algol 68 in Modern Terms". }
 access Genie_Transput
 begin
    mode Fn = proc (real) real;

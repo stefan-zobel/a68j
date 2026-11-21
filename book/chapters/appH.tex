@@ -1,0 +1,163 @@
+\chapter{Calling Java}\label{app-java}
+
+What calling C is for ga68 (Appendix~\ref{app-nest}), calling Java is
+for a68j. Since a68j compiles to the Java virtual machine, an Algol 68
+program can use the classes of the Java platform directly: the static
+methods and fields of a class, and its objects with their constructors,
+methods and fields. This puts the large library of the JDK, and any
+library or class written in Java, at the disposal of the program. The
+program runs wherever a Java virtual machine runs, as other Java
+programs do. The facility is an extension of a68j and is enabled with the
+option \code|-fnest-java|; a program that uses it runs only with a68j.
+Without the option, a68j reports what ga68 reports for such a program:
+\texttt{Java is not a valid language indication}.
+
+\section*{Formal holes}
+
+A Java method or field is named by a formal hole, written as for C,
+with the language \code|Java| and the full name of the class:
+
+\example{appH/methods}
+
+\noindent The program is run with the option:
+\begin{lstlisting}[style=shell]
+$ java -jar a68j-backend.jar -fnest-java -run methods.a68
+\end{lstlisting}
+As for C, the type is not written in the hole but given by the context,
+and a formal hole may only be written in a strong context. A hole of a
+procedure type names a static method; a hole of another type, such as
+\code|pi|, reads a static field once, when the declaration is executed.
+
+The difference from C is that Java classes describe themselves. a68j
+looks the method up when it compiles the program and checks that the
+declared type fits it. Here \code|cbrt| is declared with a \code|real|,
+a 32-bit number, and \texttt{Math.cbrt} takes and returns a
+\texttt{double}: a68j converts the values, where the C declaration of
+Appendix~\ref{app-nest} would give wrong results. A declaration that no
+method fits is an error when the program is compiled:
+
+\example{appH/nosuch}
+
+\noindent If a class has several methods of the name that fit, the
+overloads of Java, a68j takes the one that needs the least conversion,
+and reports an error if two are equally good. The parameter types can
+also be written after the name of the method, as in
+\code|nest Java "java.lang.String.join(CharSequence, Iterable)"|.
+
+\section*{Types}
+
+The types of Algol 68 and Java correspond as follows:
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+Algol 68 & Java \\
+\midrule
+\code|void| (as a result) & any result, which is discarded \\
+\code|bool| & \texttt{boolean} \\
+\code|char| & \texttt{int} (the character code) or \texttt{char} \\
+\code|int|, \code|long int| & \texttt{int}, \texttt{long} \\
+\code|bits| & \texttt{int} \\
+\code|real|, \code|long real| & \texttt{float} or \texttt{double}, \texttt{double} \\
+\code|string| & \texttt{String} \\
+an array of these types & a Java array, copied \\
+\code|ref| to an array & a Java array, copied back after the call \\
+\code|proc| & an interface with one abstract method \\
+\code|ref| to a record with one field & a Java object (see below) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Where Java expects an object of a class such as \texttt{Object}
+or \texttt{Integer}, a value of a simple type is passed as the
+corresponding object, and an object returned by Java is converted back.
+
+\section*{Functions as parameters}
+
+Many Java methods take a function: a comparison for sorting, an action
+for each element, a function to integrate. In Java such a parameter has
+the type of an interface with a single abstract method, such as
+\texttt{Comparator} or \texttt{DoubleUnaryOperator}. An Algol 68 function
+of the matching type can be passed for it. \texttt{Arrays.sort} sorts the
+array \code|names| with a routine text that compares the lengths of two
+strings; since the parameter is a reference to the array, the sorted
+array is copied back:
+
+\example{appH/sort}
+
+\section*{Java code of one's own}
+
+Classes of one's own are found on the class path given with the option
+\code|-fjava-classpath|. The class \texttt{Events} below keeps the
+functions it receives and calls them later, and it has a method that
+calls two functions while it runs: Newton's method for a zero of a
+function \code|f| with the derivative \code|df|. The interface
+\texttt{Handler} is one of its own; a function of type
+\code|proc (string, int) void| fits it:
+
+\javaprogram{appH/Events}
+
+\noindent and the Algol 68 program that uses it:
+
+\example{appH/callbacks}
+
+\noindent The Java class is compiled with the Java compiler first:
+\begin{lstlisting}[style=shell]
+$ javac -d classes Events.java
+$ java -jar a68j-backend.jar -fnest-java -fjava-classpath=classes -run callbacks.a68
+\end{lstlisting}
+The second handler changes the variable \code|total| of the program each
+time \texttt{fire} calls it. Java receives Algol 68 functions only as
+values that the program passes to it; it has no way to find a function of
+the program by its name.
+
+A function that Java keeps may be called after the block in which it was
+declared has ended. In a68j this works, since its blocks keep their names
+on the heap rather than on the stack, but it goes beyond the lifetime
+rule of Section~\ref{sec-proc-lifetimes}, and a68j does not check it. The
+functions that ga68 passes to C are bound to the stack frame of their
+block (Appendix~\ref{app-nest}).
+
+\section*{Objects}
+
+A Java object is represented by a reference to a record with one field.
+Each Java class gets a type of its own, declared once:
+
+\example{appH/objects}
+
+\noindent The record and its field are never used; they give the type
+\code|List| a name of its own, so that a \code|List| cannot be confused
+with a reference of another type. The value \code|nil| is Java's
+\texttt{null}, and \code|is| compares two objects as \texttt{==} does in
+Java. A name with \code|::| refers to a constructor (\code|::new|), a
+method of an object, or a field of an object; the object is the first
+parameter. The type arguments in angle brackets say what the type
+parameters of a generic class stand for, as in Java: with
+\code|ArrayList<String>|, a declaration of \code|add| with an \code|int|
+parameter is an error when the program is compiled. A Java method can
+itself be the function that is passed: \code|compare| is the method
+\texttt{compareTo} of a \texttt{String}, whose object is its first
+parameter, and \code|sort| receives it as the comparison.
+
+\section*{Exceptions}
+
+An exception that a Java method throws and does not catch ends the
+program with a run-time error, at the position of the call in the Algol
+68 program:
+
+\example{appH/exception}
+
+\noindent The program stops with the exit status 134, as for the
+run-time errors of Algol 68 itself.
+
+\section*{Programs compiled separately}
+
+With \code|-d|, a68j writes the compiled program to a directory instead
+of running it. The program is then run with the Java command, with the
+runtime of a68j and the classes it uses on the class path (separated by
+\texttt{;} on Windows):
+\begin{lstlisting}[style=shell]
+$ java -jar a68j-backend.jar -fnest-java -fjava-classpath=classes callbacks.a68 -d out
+$ java -cp a68j-backend.jar:classes:out Callbacks
+\end{lstlisting}

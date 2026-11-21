@@ -1,0 +1,8 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   proc (string) int parse = nest Java "java.lang.Integer.parseInt";
+   print ((whole (parse ("42") + 1, 0), newline));
+   print ((whole (parse ("12x"), 0), newline))
+{ end excerpt }
+end

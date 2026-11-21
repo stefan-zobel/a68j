@@ -53,9 +53,10 @@ end
 
 function CodeBlock(el)
   local style = el.attributes["style"]
-  -- A listing in another language (the C file of Appendix F) is shown
-  -- as it is.
-  if style == "output" or style == "shell" or el.attributes["language"] == "C" then
+  -- A listing in another language (the C file of Appendix G, the Java
+  -- file of Appendix H) is shown as it is.
+  local language = el.attributes["language"]
+  if style == "output" or style == "shell" or language == "C" or language == "Java" then
     return pandoc.RawBlock("html", '<pre class="' .. (style or "other") .. '"><code>' .. esc(el.text) .. "</code></pre>")
   end
   return pandoc.RawBlock("html", '<pre class="algol68"><code>' .. algol(el.text) .. "</code></pre>")

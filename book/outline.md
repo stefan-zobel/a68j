@@ -129,10 +129,13 @@ Appendices:
 - D. Glossary: the terms of the Report and their modern equivalents (the
   table below, extended).
 - E. Modules (a GNU extension): `module`, `pub`, `access`.
-- F. Calling C (a GNU extension): formal holes `nest C`, the mapping of
+- F. Partial parametrization (Lindsey's proposal, AB 39.3.1; Algol 68
+  Genie and a68j), with a monad built from it.
+- G. Calling C (a GNU extension): formal holes `nest C`, the mapping of
   types, strings and functions as parameters.
-- G. Partial parametrization (Lindsey's proposal, AB 39.3.1; Algol 68
-  Genie and a68j).
+- H. Calling Java (an extension of a68j, the counterpart of G): formal
+  holes `nest Java`, the mapping of types, functions as parameters, Java
+  code of one's own, objects, exceptions.
 - Answers to the exercises; index.
 
 ## Terminology
@@ -231,8 +234,9 @@ The table maps the terms of the Revised Report to the terms the book uses.
   the late 1970s. Comparisons with current languages are welcome; modern
   additions are side remarks, not the subject.
 - GNU extensions of ga68 (`andth`, `orel`, modules, ...) may be mentioned
-  where useful. Extensions of a68j (Java interoperation, real threads) get
-  no more than a short note.
+  where useful. Java interoperation, an extension of a68j, has an
+  appendix of its own, as the counterpart of calling C in ga68; other
+  extensions of a68j (real threads) get no more than a short note.
 - Differences between ga68, a68j and Algol 68 Genie are mentioned briefly
   where they help the reader, for example to understand Rosetta Code
   programs, or where they concern sizes (`int`, `real`). Differences found
