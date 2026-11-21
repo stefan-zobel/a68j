@@ -1,0 +1,23 @@
+access Genie_Transput
+begin
+{ begin excerpt }
+   mode M = proc (proc void) void;
+   prio BIND = 1;
+   op BIND = (M m, n) M: ((M m, n, proc void k) void: m (void: n (k))) (m, n, );
+   proc guard = (proc bool ok, proc void k) void: (ok | k);
+   proc act = (proc void a, proc void k) void: (a; k);
+
+   real x;
+   M safe = guard (bool: x /= 0, ) BIND act (void: x := 1 / x, )
+      BIND guard (bool: x >= 0, ) BIND act (void: x := sqrt (x), )
+      BIND guard (bool: x > 0, ) BIND act (void: x := ln (x), );
+   []real tests = (-2, 0, 0.25, 1, 4);
+   for i to UPB tests do
+      x := tests[i];
+      bool done := false;
+      safe (void: done := true);
+      print (((done | fixed (x, 0, 6) | "undefined"), " "))
+   od;
+   print (newline)
+{ end excerpt }
+end

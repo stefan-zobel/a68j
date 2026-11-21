@@ -1,0 +1,17 @@
+{ Copy of book/examples/appG/writer.a68, an example of partial
+  parametrization in appendix G of the book "Algol 68 in Modern Terms". }
+access Genie_Transput
+begin
+   mode W = proc (string) string;
+   prio BIND = 1;
+   op BIND = (W f, g) W: ((W f, g, string log) string: g (f (log))) (f, g, );
+   proc note = (proc void a, string text, string log) string:
+      (a; (log = "" | text | log + ", " + text));
+
+   real v := 5;
+   W golden = note (void: v := sqrt (v), "took the square root", )
+      BIND note (void: v +:= 1, "added one", )
+      BIND note (void: v /:= 2, "divided by two", );
+   print ((golden (""), newline));
+   print (("golden ratio ", fixed (v, 0, 6), newline))
+end

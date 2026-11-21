@@ -1,0 +1,20 @@
+access Genie_Transput
+begin
+   mode M = proc (proc void) void;
+   prio BIND = 1;
+   op BIND = (M m, n) M: ((M m, n, proc void k) void: m (void: n (k))) (m, n, );
+{ begin excerpt }
+   proc range = (ref int v, int lo, hi, proc void k) void:
+      for i from lo to hi do v := i; k od;
+   proc pythagorean = (ref int a, b, c, proc void k) void:
+      (a < b AND a * a + b * b = c * c | k);
+   proc triples = (ref int a, b, c, int n) M:
+      range (a, 1, n, ) BIND range (b, 1, n, ) BIND range (c, 1, n, )
+         BIND pythagorean (a, b, c, );
+
+   int a, b, c;
+   M t = triples (a, b, c, 20);
+   t (void: print (("(", whole (a, 0), " ", whole (b, 0), " ", whole (c, 0), ") ")));
+   print (newline)
+{ end excerpt }
+end

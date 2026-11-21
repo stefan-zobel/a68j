@@ -111,3 +111,80 @@ of \code|tick|; Algol 68 Genie says:
 \noindent Leaving out at least one argument, as \code|bump| does above,
 works in both.
 \end{implnote}
+
+\section*{A monad}
+
+Functional languages build computations with an effect, such as a result
+that may be missing or a choice among several results, as monads: a type
+\code|M a| of computations with results of type \code|a|, and an
+operation, bind, that runs a computation and passes each of its results
+to the next step. In Haskell \texttt{Maybe} and lists are monads; in Java
+\texttt{Optional.flatMap} and \texttt{Stream.flatMap} play the part of
+bind. (The word has nothing to do with the monadic operators of the
+Revised Report, the unary operators of this book.)
+
+Algol 68 has no type parameters, so \code|M a| cannot be written once for
+every \code|a|. A monad can still be written that carries only the
+effect: the values stay in variables of the program, which the steps read
+and assign. A computation is then a function that calls its continuation,
+the rest of the computation, once for each result, or never:
+
+\example{appG/monad}
+
+\noindent \code|guard| and \code|act| are steps: functions whose last
+parameter is the continuation. Given all other arguments, as in
+\code|guard (bool: x /= 0, )|, they yield a computation of type
+\code|M|. The operator \code|BIND| joins two computations as
+\code|compose| joins two functions: the result runs \code|m| with a
+continuation that runs \code|n| with the continuation \code|k|. The chain
+\code|safe| is made once and run for each test value. A guard that fails
+does not call its continuation, so the rest of the chain is skipped and
+\code|done| stays \code|false|: this is the Maybe monad. For $-2$ and 0
+there is no result; for 0.25 the result is $\ln 2$. The continuation is a
+parameter for the reason given in the previous section: a call with all
+arguments runs at once, so partial parametrization cannot make a function
+without parameters, and the argument left out is the continuation.
+
+The same type \code|M| is the list monad when a step calls its
+continuation more than once. \code|range| assigns each number to its
+variable and continues with it; \code|pythagorean| continues only for
+Pythagorean triples, so it filters as \code|guard| does:
+
+\example{appG/triples}
+
+\noindent \code|triples| makes the chain and returns it. As in
+\code|compose|, no routine text in it uses the names of \code|triples|:
+the steps get the variables \code|a|, \code|b| and \code|c| as arguments,
+and these belong to the caller, which runs the chain while they exist.
+
+\begin{pitfall}
+The steps get their arguments when the chain is made, not when it runs
+(``When the arguments are evaluated'' above). This is why \code|guard|
+takes a \code|proc bool| and not a \code|bool|: a guard with a
+\code|bool| parameter would test \code|x| once, when \code|safe| is
+made. For the same reason
+\code|range (b, a, n, )| would not count from the current value of
+\code|a| but store the value that \code|a| has when \code|triples| is
+called. Here \code|a| has no value yet: Algol 68 Genie stops with
+\texttt{attempt to use an uninitialised INT value}, and a68j runs with the
+initial value 0 (Section~\ref{sec-variables}) and prints wrong triples. A
+step that needs the current value must get a function, as \code|guard|
+does, or the reference itself.
+\end{pitfall}
+
+The effect of a Writer monad, a log written along the way, is not a
+choice of how to go on but a value that each step extends. It needs a
+type of its own: a computation takes the log so far and yields it
+extended, and bind is composition, again made by partial
+parametrization:
+
+\example{appG/writer}
+
+\noindent The value 5 becomes \code|(sqrt (5) + 1) / 2|, the golden
+ratio, and the log tells how. Here the approach reaches its limits. Every effect
+needs its own type and its own \code|BIND|, and the two cannot be mixed in
+one chain. A log in a variable that \code|act| steps of type \code|M|
+extend would not help: all branches of a list computation would write
+into the same log. In all three examples the values do not travel in the
+monad but in variables, and the compiler does not check that a step reads
+what the previous step wrote; in Haskell the type \code|M a| does that.
