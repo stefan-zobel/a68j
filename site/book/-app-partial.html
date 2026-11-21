@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Appendix G: Partial parametrization</title>
+  <title>Appendix F: Partial parametrization</title>
   <style>
     div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
     span.navlink { flex: 1; }
@@ -39,14 +39,14 @@
 </div>
 <div class="sitenav">
 <span class="navlink">
-<span class="navlink-label">Next:</span> <a href="-ch-answers.html" accesskey="n" rel="next">Answers to the exercises</a>
+<span class="navlink-label">Next:</span> <a href="-app-nest.html" accesskey="n" rel="next">Appendix G: Calling C</a>
 </span>
 <span class="navlink">
-<span class="navlink-label">Previous:</span> <a href="-app-nest.html" accesskey="p" rel="previous">Appendix F: Calling C</a>
+<span class="navlink-label">Previous:</span> <a href="-app-modules.html" accesskey="p" rel="previous">Appendix E: Modules</a>
 </span>
 </div>
 </nav>
-<h1 class="unnumbered" id="app-partial">Appendix G: Partial
+<h1 class="unnumbered" id="app-partial">Appendix F: Partial
 parametrization</h1>
 <p>Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
 data-reference-type="ref" data-reference="sec-proc-lifetimes">7.16</a>
@@ -210,5 +210,125 @@ a68g: error: 1: INT cannot be coerced to PROC INT in a strong-unit, in closed-cl
 <p>Leaving out at least one argument, as <code>bump</code> does above,
 works in both.</p>
 </blockquote>
+<h2 class="unnumbered" id="a-monad">A monad</h2>
+<p>Functional languages build computations with an effect, such as a
+result that may be missing or a choice among several results, as monads:
+a type <code>M a</code> of computations with results of type
+<code>a</code>, and an operation, bind, that runs a computation and
+passes each of its results to the next step. In Haskell
+<code>Maybe</code> and lists are monads; in Java
+<code>Optional.flatMap</code> and <code>Stream.flatMap</code> play the
+part of bind. (The word has nothing to do with the monadic operators of
+the Revised Report, the unary operators of this book.)</p>
+<p>Algol 68 has no type parameters, so <code>M a</code> cannot be
+written once for every <code>a</code>. A monad can still be written that
+carries only the effect: the values stay in variables of the program,
+which the steps read and assign. A computation is then a function that
+calls its continuation, the rest of the computation, once for each
+result, or never:</p>
+<pre class="algol68"><code><b>mode</b> M = <b>proc</b> (<b>proc</b> <b>void</b>) <b>void</b>;
+<b>prio</b> BIND = 1;
+<b>op</b> BIND = (M m, n) M: ((M m, n, <b>proc</b> <b>void</b> k) <b>void</b>: m (<b>void</b>: n (k))) (m, n, );
+<b>proc</b> guard = (<b>proc</b> <b>bool</b> ok, <b>proc</b> <b>void</b> k) <b>void</b>: (ok | k);
+<b>proc</b> act = (<b>proc</b> <b>void</b> a, <b>proc</b> <b>void</b> k) <b>void</b>: (a; k);
+
+<b>real</b> x;
+M safe = guard (<b>bool</b>: x /= 0, ) BIND act (<b>void</b>: x := 1 / x, )
+   BIND guard (<b>bool</b>: x &gt;= 0, ) BIND act (<b>void</b>: x := sqrt (x), )
+   BIND guard (<b>bool</b>: x &gt; 0, ) BIND act (<b>void</b>: x := ln (x), );
+[]<b>real</b> tests = (-2, 0, 0.25, 1, 4);
+<b>for</b> i <b>to</b> UPB tests <b>do</b>
+   x := tests[i];
+   <b>bool</b> done := <b>false</b>;
+   safe (<b>void</b>: done := <b>true</b>);
+   print (((done | fixed (x, 0, 6) | "undefined"), " "))
+<b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>undefined undefined .693147 .000000 -.693147 </code></pre>
+<p><code>guard</code> and <code>act</code> are steps: functions whose
+last parameter is the continuation. Given all other arguments, as in
+<code>guard (<b>bool</b>: x /= 0, )</code>, they yield a computation of
+type <code>M</code>. The operator <code>BIND</code> joins two
+computations as <code>compose</code> joins two functions: the result
+runs <code>m</code> with a continuation that runs <code>n</code> with
+the continuation <code>k</code>. The chain <code>safe</code> is made
+once and run for each test value. A guard that fails does not call its
+continuation, so the rest of the chain is skipped and <code>done</code>
+stays <code><b>false</b></code>: this is the Maybe monad. For <span
+class="math inline">−2</span> and 0 there is no result; for 0.25 the
+result is <span class="math inline">ln 2</span>. The continuation is a
+parameter for the reason given in the previous section: a call with all
+arguments runs at once, so partial parametrization cannot make a
+function without parameters, and the argument left out is the
+continuation.</p>
+<p>The same type <code>M</code> is the list monad when a step calls its
+continuation more than once. <code>range</code> assigns each number to
+its variable and continues with it; <code>pythagorean</code> continues
+only for Pythagorean triples, so it filters as <code>guard</code>
+does:</p>
+<pre class="algol68"><code><b>proc</b> range = (<b>ref</b> <b>int</b> v, <b>int</b> lo, hi, <b>proc</b> <b>void</b> k) <b>void</b>:
+   <b>for</b> i <b>from</b> lo <b>to</b> hi <b>do</b> v := i; k <b>od</b>;
+<b>proc</b> pythagorean = (<b>ref</b> <b>int</b> a, b, c, <b>proc</b> <b>void</b> k) <b>void</b>:
+   (a &lt; b AND a * a + b * b = c * c | k);
+<b>proc</b> triples = (<b>ref</b> <b>int</b> a, b, c, <b>int</b> n) M:
+   range (a, 1, n, ) BIND range (b, 1, n, ) BIND range (c, 1, n, )
+      BIND pythagorean (a, b, c, );
+
+<b>int</b> a, b, c;
+M t = triples (a, b, c, 20);
+t (<b>void</b>: print (("(", whole (a, 0), " ", whole (b, 0), " ", whole (c, 0), ") ")));
+print (newline)</code></pre>
+<pre class="output"><code>(3 4 5) (5 12 13) (6 8 10) (8 15 17) (9 12 15) (12 16 20) </code></pre>
+<p><code>triples</code> makes the chain and returns it. As in
+<code>compose</code>, no routine text in it uses the names of
+<code>triples</code>: the steps get the variables <code>a</code>,
+<code>b</code> and <code>c</code> as arguments, and these belong to the
+caller, which runs the chain while they exist.</p>
+<blockquote>
+<p><strong>Pitfall.</strong>  The steps get their arguments when the
+chain is made, not when it runs (“When the arguments are evaluated”
+above). This is why <code>guard</code> takes a
+<code><b>proc</b> <b>bool</b></code> and not a <code><b>bool</b></code>:
+a guard with a <code><b>bool</b></code> parameter would test
+<code>x</code> once, when <code>safe</code> is made. For the same reason
+<code>range (b, a, n, )</code> would not count from the current value of
+<code>a</code> but store the value that <code>a</code> has when
+<code>triples</code> is called. Here <code>a</code> has no value yet:
+Algol 68 Genie stops with
+<code>attempt <b>to</b> use an uninitialised INT value</code>, and a68j
+runs with the initial value 0 (Section <a
+href="2-ch-values.html#sec-variables" data-reference-type="ref"
+data-reference="sec-variables">2.5</a>) and prints wrong triples. A step
+that needs the current value must get a function, as <code>guard</code>
+does, or the reference itself.</p>
+</blockquote>
+<p>The effect of a Writer monad, a log written along the way, is not a
+choice of how to go on but a value that each step extends. It needs a
+type of its own: a computation takes the log so far and yields it
+extended, and bind is composition, again made by partial
+parametrization:</p>
+<pre class="algol68"><code><b>mode</b> W = <b>proc</b> (<b>string</b>) <b>string</b>;
+<b>prio</b> BIND = 1;
+<b>op</b> BIND = (W f, g) W: ((W f, g, <b>string</b> log) <b>string</b>: g (f (log))) (f, g, );
+<b>proc</b> note = (<b>proc</b> <b>void</b> a, <b>string</b> text, <b>string</b> log) <b>string</b>:
+   (a; (log = "" | text | log + ", " + text));
+
+<b>real</b> v := 5;
+W golden = note (<b>void</b>: v := sqrt (v), "took the square root", )
+   BIND note (<b>void</b>: v +:= 1, "added one", )
+   BIND note (<b>void</b>: v /:= 2, "divided by two", );
+print ((golden (""), newline));
+print (("golden ratio ", fixed (v, 0, 6), newline))</code></pre>
+<pre class="output"><code>took the square root, added one, divided by two
+golden ratio 1.618034</code></pre>
+<p>The value 5 becomes <code>(sqrt (5) + 1) / 2</code>, the golden
+ratio, and the log tells how. Here the approach reaches its limits.
+Every effect needs its own type and its own <code>BIND</code>, and the
+two cannot be mixed in one chain. A log in a variable that
+<code>act</code> steps of type <code>M</code> extend would not help: all
+branches of a list computation would write into the same log. In all
+three examples the values do not travel in the monad but in variables,
+and the compiler does not check that a step reads what the previous step
+wrote; in Haskell the type <code>M a</code> does that.</p>
 </body>
 </html>

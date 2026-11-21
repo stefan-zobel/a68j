@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Appendix F: Calling C</title>
+  <title>Appendix G: Calling C</title>
   <style>
     div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
     span.navlink { flex: 1; }
@@ -39,21 +39,22 @@
 </div>
 <div class="sitenav">
 <span class="navlink">
-<span class="navlink-label">Next:</span> <a href="-app-partial.html" accesskey="n" rel="next">Appendix G: Partial parametrization</a>
+<span class="navlink-label">Next:</span> <a href="-app-java.html" accesskey="n" rel="next">Appendix H: Calling Java</a>
 </span>
 <span class="navlink">
-<span class="navlink-label">Previous:</span> <a href="-app-modules.html" accesskey="p" rel="previous">Appendix E: Modules</a>
+<span class="navlink-label">Previous:</span> <a href="-app-partial.html" accesskey="p" rel="previous">Appendix F: Partial parametrization</a>
 </span>
 </div>
 </nav>
-<h1 class="unnumbered" id="app-nest">Appendix F: Calling C</h1>
+<h1 class="unnumbered" id="app-nest">Appendix G: Calling C</h1>
 <p>A program sometimes needs a function that exists only in another
 language: a routine of the C library, of the operating system, or of a
 library written in C. ga68 can call such functions directly, and it can
 also use variables of a C program. This appendix describes how. The
 mechanism is a GNU extension; a68j and Algol 68 Genie cannot call C
-(a68j has a similar mechanism for Java methods, described in its own
-documentation).</p>
+(a68j has the same mechanism for Java, described in Appendix <a
+href="-app-java.html#app-java" data-reference-type="ref"
+data-reference="app-java">H</a>).</p>
 <h2 class="unnumbered" id="formal-holes">Formal holes</h2>
 <p>The construct that names a C function or variable is a <em>formal
 hole</em>:</p>

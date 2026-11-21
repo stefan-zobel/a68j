@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Appendix H: Calling Java</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="index.html" accesskey="u" rel="up">Algol 68 in Modern Terms</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">Algol 68 in Modern Terms</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="-ch-answers.html" accesskey="n" rel="next">Answers to the exercises</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="-app-nest.html" accesskey="p" rel="previous">Appendix G: Calling C</a>
+</span>
+</div>
+</nav>
+<h1 class="unnumbered" id="app-java">Appendix H: Calling Java</h1>
+<p>What calling C is for ga68 (Appendix <a
+href="-app-nest.html#app-nest" data-reference-type="ref"
+data-reference="app-nest">G</a>), calling Java is for a68j. Since a68j
+compiles to the Java virtual machine, an Algol 68 program can use the
+classes of the Java platform directly: the static methods and fields of
+a class, and its objects with their constructors, methods and fields.
+This puts the large library of the JDK, and any library or class written
+in Java, at the disposal of the program. The program runs wherever a
+Java virtual machine runs, as other Java programs do. The facility is an
+extension of a68j and is enabled with the option
+<code>-fnest-java</code>; a program that uses it runs only with a68j.
+Without the option, a68j reports what ga68 reports for such a program:
+<code>Java <b>is</b> not a valid language indication</code>.</p>
+<h2 class="unnumbered" id="formal-holes-1">Formal holes</h2>
+<p>A Java method or field is named by a formal hole, written as for C,
+with the language <code>Java</code> and the full name of the class:</p>
+<pre class="algol68"><code><b>proc</b> (<b>real</b>) <b>real</b> cbrt = <b>nest</b> Java "java.lang.Math.cbrt";
+<b>proc</b> (<b>int</b>) <b>string</b> to_binary = <b>nest</b> Java "java.lang.Integer.toBinaryString";
+<b>proc</b> ([] <b>int</b>) <b>string</b> show = <b>nest</b> Java "java.util.Arrays.toString";
+<b>long</b> <b>real</b> math_pi = <b>nest</b> Java "java.lang.Math.PI";
+print ((fixed (cbrt (27), 0, 3), " ", to_binary (42), " ", show ((3, 1, 4)), newline));
+print ((fixed (math_pi, 0, 10), newline))</code></pre>
+<pre class="output"><code>3.000 101010 [3, 1, 4]
+3.1415926536</code></pre>
+<p>The program is run with the option:</p>
+<pre class="shell"><code>$ java -jar a68j-backend.jar -fnest-java -run methods.a68</code></pre>
+<p>As for C, the type is not written in the hole but given by the
+context, and a formal hole may only be written in a strong context. A
+hole of a procedure type names a static method; a hole of another type,
+such as <code>math_pi</code>, reads a static field once, when the
+declaration is executed.</p>
+<p>The difference from C is that Java classes describe themselves. a68j
+looks the method up when it compiles the program and checks that the
+declared type fits it. Here <code>cbrt</code> is declared with a
+<code><b>real</b></code>, a 32-bit number, and <code>Math.cbrt</code>
+takes and returns a <code>double</code>: a68j converts the values, where
+the C declaration of Appendix <a href="-app-nest.html#app-nest"
+data-reference-type="ref" data-reference="app-nest">G</a> would give
+wrong results. A declaration that no method fits is an error when the
+program is compiled:</p>
+<pre class="algol68"><code><b>proc</b> (<b>string</b>) <b>real</b> cbrt = <b>nest</b> Java "java.lang.Math.cbrt";
+print ((fixed (cbrt ("27"), 0, 3), newline))</code></pre>
+<pre class="output"><code>nosuch.a68:4:30: fatal error: no public static Java method 'java.lang.Math.cbrt' fits the mode proc (string) real
+compilation terminated.</code></pre>
+<p>If a class has several methods of the name that fit, the overloads of
+Java, a68j takes the one that needs the least conversion, and reports an
+error if two are equally good. The parameter types can also be written
+after the name of the method, as in
+<code><b>nest</b> Java "java.lang.String.join(CharSequence, Iterable)"</code>.</p>
+<h2 class="unnumbered" id="types-2">Types</h2>
+<p>The types of Algol 68 and Java correspond as follows:</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Algol 68</th>
+<th style="text-align: left;">Java</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code><b>void</b></code> (as a
+result)</td>
+<td style="text-align: left;">any result, which is discarded</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>bool</b></code></td>
+<td style="text-align: left;"><code>boolean</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>char</b></code></td>
+<td style="text-align: left;"><code><b>int</b></code> (the character
+code) or <code><b>char</b></code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>long</b> <b>int</b></code></td>
+<td style="text-align: left;"><code><b>int</b></code>,
+<code><b>long</b></code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>bits</b></code></td>
+<td style="text-align: left;"><code><b>int</b></code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>real</b></code>,
+<code><b>long</b> <b>real</b></code></td>
+<td style="text-align: left;"><code>float</code> or <code>double</code>,
+<code>double</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>string</b></code></td>
+<td style="text-align: left;"><code>String</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">an array of these types</td>
+<td style="text-align: left;">a Java array, copied</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>ref</b></code> to an array</td>
+<td style="text-align: left;">a Java array, copied back after the
+call</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>proc</b></code></td>
+<td style="text-align: left;">an interface with one abstract method</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code><b>ref</b></code> to a record with
+one field</td>
+<td style="text-align: left;">a Java object (see below)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where Java expects an object of a class such as <code>Object</code>
+or <code>Integer</code>, a value of a simple type is passed as the
+corresponding object, and an object returned by Java is converted
+back.</p>
+<h2 class="unnumbered" id="functions-as-parameters">Functions as
+parameters</h2>
+<p>Many Java methods take a function: a comparison for sorting, an
+action for each element, a function to integrate. In Java such a
+parameter has the type of an interface with a single abstract method,
+such as <code>Comparator</code> or <code>DoubleUnaryOperator</code>. An
+Algol 68 function of the matching type can be passed for it.
+<code>Arrays.sort</code> sorts the array <code>names</code> with a
+routine text that compares the lengths of two strings; since the
+parameter is a reference to the array, the sorted array is copied
+back:</p>
+<pre class="algol68"><code><b>proc</b> (<b>ref</b> [] <b>string</b>, <b>proc</b> (<b>string</b>, <b>string</b>) <b>int</b>) <b>void</b> sort = <b>nest</b> Java "java.util.Arrays.sort";
+[4] <b>string</b> names := ("Wirth", "van Wijngaarden", "Lindsey", "Koster");
+sort (names, (<b>string</b> a, b) <b>int</b>: UPB a - UPB b);
+<b>for</b> i <b>to</b> UPB names <b>do</b> print ((names[i], " ")) <b>od</b>;
+print (newline)</code></pre>
+<pre class="output"><code>Wirth Koster Lindsey van Wijngaarden </code></pre>
+<h2 class="unnumbered" id="java-code-of-ones-own">Java code of one’s
+own</h2>
+<p>Classes of one’s own are found on the class path given with the
+option <code>-fjava-classpath</code>. The class <code>Events</code>
+below keeps the functions it receives and calls them later, and it has a
+method that calls two functions while it runs: Newton’s method for a
+zero of a function <code>f</code> with the derivative <code>df</code>.
+The interface <code>Handler</code> is one of its own; a function of type
+<code><b>proc</b> (<b>string</b>, <b>int</b>) <b>void</b></code> fits
+it:</p>
+<pre class="other"><code>import java.util.ArrayList;
+import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+
+public final class Events {
+    private Events() {}
+
+    // An interface with one abstract method: an Algol 68 function fits it.
+    // In Algol 68: proc (string, int) void
+    public interface Handler {
+        void handle(String event, int value);
+    }
+
+    private static final List&lt;Handler&gt; handlers = new ArrayList&lt;&gt;();
+
+    // Keeps the handler, to call it later.
+    // In Algol 68: proc (proc (string, int) void) void register
+    //    = nest Java "Events.register"
+    public static void register(Handler h) {
+        handlers.add(h);
+    }
+
+    // Calls every handler registered so far.
+    // In Algol 68: proc (string, int) void fire = nest Java "Events.fire"
+    public static void fire(String event, int value) {
+        for (Handler h : handlers) {
+            h.handle(event, value);
+        }
+    }
+
+    // Newton's method: f and its derivative df are Algol 68 functions.
+    // In Algol 68: proc (proc (long real) long real, proc (long real) long real,
+    //    long real) long real newton = nest Java "Events.newton"
+    public static double newton(DoubleUnaryOperator f, DoubleUnaryOperator df, double x) {
+        for (int i = 0; i &lt; 50; i++) {
+            double step = f.applyAsDouble(x) / df.applyAsDouble(x);
+            x -= step;
+            if (Math.abs(step) &lt; 1e-15) {
+                break;
+            }
+        }
+        return x;
+    }
+}</code></pre>
+<p>and the Algol 68 program that uses it:</p>
+<pre class="algol68"><code><b>proc</b> (<b>proc</b> (<b>long</b> <b>real</b>) <b>long</b> <b>real</b>, <b>proc</b> (<b>long</b> <b>real</b>) <b>long</b> <b>real</b>, <b>long</b> <b>real</b>) <b>long</b> <b>real</b> newton
+   = <b>nest</b> Java "Events.newton";
+<b>long</b> <b>real</b> root = newton ((<b>long</b> <b>real</b> x) <b>long</b> <b>real</b>: x * x - <b>long</b> 2,
+                         (<b>long</b> <b>real</b> x) <b>long</b> <b>real</b>: <b>long</b> 2 * x, <b>long</b> 1);
+print (("sqrt 2 = ", fixed (root, 0, 15), newline));
+
+<b>proc</b> (<b>proc</b> (<b>string</b>, <b>int</b>) <b>void</b>) <b>void</b> register = <b>nest</b> Java "Events.register";
+<b>proc</b> (<b>string</b>, <b>int</b>) <b>void</b> fire = <b>nest</b> Java "Events.fire";
+<b>int</b> total := 0;
+register ((<b>string</b> event, <b>int</b> value) <b>void</b>: print ((event, " ", whole (value, 0), newline)));
+register ((<b>string</b> event, <b>int</b> value) <b>void</b>: total +:= value);
+fire ("open", 1);
+fire ("read", 41);
+print (("total ", whole (total, 0), newline))</code></pre>
+<pre class="output"><code>sqrt 2 = 1.414213562373095
+open 1
+read 41
+total 42</code></pre>
+<p>The Java class is compiled with the Java compiler first:</p>
+<pre class="shell"><code>$ javac -d classes Events.java
+$ java -jar a68j-backend.jar -fnest-java -fjava-classpath=classes -run callbacks.a68</code></pre>
+<p>The second handler changes the variable <code>total</code> of the
+program each time <code>fire</code> calls it. Java receives Algol 68
+functions only as values that the program passes to it; it has no way to
+find a function of the program by its name.</p>
+<p>A function that Java keeps may be called after the block in which it
+was declared has ended. In a68j this works, since its blocks keep their
+names on the heap rather than on the stack, but it goes beyond the
+lifetime rule of Section <a href="7-ch-advanced.html#sec-proc-lifetimes"
+data-reference-type="ref" data-reference="sec-proc-lifetimes">7.16</a>,
+and a68j does not check it. The functions that ga68 passes to C are
+bound to the stack frame of their block (Appendix <a
+href="-app-nest.html#app-nest" data-reference-type="ref"
+data-reference="app-nest">G</a>).</p>
+<h2 class="unnumbered" id="objects">Objects</h2>
+<p>A Java object is represented by a reference to a record with one
+field. Each Java class gets a type of its own, declared once:</p>
+<pre class="algol68"><code><b>mode</b> List = <b>ref</b> List_object;
+<b>mode</b> List_object = <b>struct</b> (<b>int</b> list_java_object);
+<b>proc</b> List new_list = <b>nest</b> Java "java.util.ArrayList&lt;String&gt;::new";
+<b>proc</b> (List, <b>string</b>) <b>bool</b> add = <b>nest</b> Java "java.util.ArrayList&lt;String&gt;::add";
+<b>proc</b> (List) <b>int</b> size = <b>nest</b> Java "java.util.ArrayList&lt;String&gt;::size";
+<b>proc</b> (List, <b>proc</b> (<b>string</b>, <b>string</b>) <b>int</b>) <b>void</b> sort = <b>nest</b> Java "java.util.ArrayList&lt;String&gt;::sort";
+<b>proc</b> (List) <b>string</b> show = <b>nest</b> Java "java.util.ArrayList&lt;String&gt;::toString";
+<b>proc</b> (<b>string</b>, <b>string</b>) <b>int</b> compare = <b>nest</b> Java "java.lang.String::compareTo";
+
+List l = new_list;
+add (l, "Wirth"); add (l, "van Wijngaarden"); add (l, "Lindsey"); add (l, "Koster");
+sort (l, compare);
+print ((show (l), " ", whole (size (l), 0), newline))</code></pre>
+<pre class="output"><code>[Koster, Lindsey, Wirth, van Wijngaarden] 4</code></pre>
+<p>The two type declarations are a pattern. A Java object is a reference
+that refers to nothing in the Algol 68 program: it can be passed on,
+stored in variables and compared, but taking its value or assigning to
+it is a run-time error. The record is therefore never created, and its
+field is never used. It is there only to give <code>List</code> a type
+of its own. Algol 68 compares types by their structure (Section <a
+href="4-ch-data.html#sec-modes" data-reference-type="ref"
+data-reference="sec-modes">4.8</a>), and the names of the fields belong
+to the structure of a record; the unusual field name
+<code>list_java_object</code> makes <code><b>ref</b> List_object</code>
+differ from every other type. The type of the field does not matter;
+<code><b>int</b></code> is merely the shortest choice.</p>
+<p>The record could even be left out. With
+<code><b>mode</b> List = <b>ref</b> <b>int</b></code> the program still
+runs, but a <code>List</code> is then the same type as every
+<code><b>int</b></code> variable, and as every other class declared in
+the same way. The compiler would accept an <code><b>int</b></code>
+variable where a list is expected, and the mistake would show only at
+run time, with the message
+<code>a name where a java.util.ArrayList <b>is</b> expected</code>. With
+a type of its own for each class, the compiler finds such mistakes, and
+operators can be declared for each class separately.</p>
+<p>The value <code><b>nil</b></code> is Java’s <code>null</code>, and
+<code><b>is</b></code> compares two objects as <code>==</code> does in
+Java. A name with <code>::</code> refers to a constructor
+(<code>::new</code>), a method of an object, or a field of an object;
+the object is the first parameter. The type arguments in angle brackets
+say what the type parameters of a generic class stand for, as in Java:
+with <code>ArrayList&lt;String&gt;</code>, a declaration of
+<code>add</code> with an <code><b>int</b></code> parameter is an error
+when the program is compiled. A Java method can itself be the function
+that is passed: <code>compare</code> is the method
+<code>compareTo</code> of a <code>String</code>, whose object is its
+first parameter, and <code>sort</code> receives it as the
+comparison.</p>
+<h2 class="unnumbered" id="exceptions">Exceptions</h2>
+<p>An exception that a Java method throws and does not catch ends the
+program with a run-time error, at the position of the call in the Algol
+68 program:</p>
+<pre class="algol68"><code><b>proc</b> (<b>string</b>) <b>int</b> parse = <b>nest</b> Java "java.lang.Integer.parseInt";
+print ((whole (parse ("42") + 1, 0), newline));
+print ((whole (parse ("12x"), 0), newline))</code></pre>
+<pre class="output"><code>43
+exception.a68:6: runtime error: Java exception java.lang.NumberFormatException: For input string: "12x"</code></pre>
+<p>The program stops with the exit status 134, as for the run-time
+errors of Algol 68 itself.</p>
+<h2 class="unnumbered" id="programs-compiled-separately">Programs
+compiled separately</h2>
+<p>With <code>-d</code>, a68j writes the compiled program to a directory
+instead of running it. The program is then run with the Java command,
+with the runtime of a68j and the classes it uses on the class path
+(separated by <code>;</code> on Windows):</p>
+<pre class="shell"><code>$ java -jar a68j-backend.jar -fnest-java -fjava-classpath=classes callbacks.a68 -d out
+$ java -cp a68j-backend.jar:classes:out Callbacks</code></pre>
+</body>
+</html>
