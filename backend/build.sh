@@ -68,17 +68,16 @@ fi
 # bundled modules), without the compiler, the rewrite tool of -fgenie and
 # the export data (*.m68), which only the compiler reads. A program
 # compiled with -d runs with java -cp a68j-runtime.jar:<outdir> <Name>.
-set --
-for f in $(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class' ! -name 'Genierewrite*.class'); do
-  set -- "$@" -C out "$f"
-done
+# The files are named in an argument file: the classes of the procedure
+# values of the modules are too many for a command line.
+(cd out && find a68j/rt a68j/jlib a68j/lib -name '*.class' ! -name 'Genierewrite*.class') | sed 's|^|-C out |' > runtime.args
 rm -f a68j-runtime.jar
 if [ -d out28 ]; then
-  "$JDK28/bin/jar" --create --file a68j-runtime.jar --manifest version.mf "$@" --release 28 -C out28 .
+  "$JDK28/bin/jar" --create --file a68j-runtime.jar --manifest version.mf @runtime.args --release 28 -C out28 .
 else
-  "$JAVA_HOME/bin/jar" --create --file a68j-runtime.jar --manifest version.mf "$@"
+  "$JAVA_HOME/bin/jar" --create --file a68j-runtime.jar --manifest version.mf @runtime.args
 fi
-rm -f version.mf
+rm -f version.mf runtime.args
 echo "built backend/a68j-runtime.jar"
 # sh build.sh release: copies of the two jars with the version in their names,
 # as a release ships them: dist/a68j-backend-x.y.z.jar, dist/a68j-runtime-x.y.z.jar.

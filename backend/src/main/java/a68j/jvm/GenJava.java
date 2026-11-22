@@ -79,21 +79,32 @@ final class GenJava {
 
     static final ClassDesc CD_CONV = ClassDesc.of("a68j.rt.JavaConv");
 
+    /**
+     * The name of the bridge method of the Java formal hole P of a procedure
+     * mode, (Frame, Object[]) -> Object, which converts the arguments, calls
+     * the Java method and converts the result. Made on the first request for
+     * P; looking the Java method up reports the errors of the hole.
+     */
+    static String bridge(Gen g, Node p) {
+        String b = g.javaBridgeNames.get(p);
+        if (b == null) {
+            Moid m = JType.base(p.type);
+            Target target = method(g, p);
+            String name = "j" + g.javaBridges.size();
+            g.javaBridges.add(clb -> emitBridge(g, clb, name, target, m, p));
+            g.javaBridgeNames.put(p, name);
+            b = name;
+        }
+        return b;
+    }
+
     static void formalHole(Gen g, Node p) {
         if (!g.a68.options().nestJava || !MoidsCheck.isJavaHole(p)) {
             throw new Gen.Unsupported(p, "formal hole");
         }
         Moid m = JType.base(p.type);
         if (m.attribute == Attribute.PROC_SYMBOL) {
-            Target target = method(g, p);
-            String bridge = "j" + g.javaBridges.size();
-            g.javaBridges.add(clb -> emitBridge(g, clb, bridge, target, m, p));
-            g.cb.new_(Gen.CD_CLOSURE);
-            g.cb.dup();
-            Gen.constant(g.cb, java.lang.constant.MethodHandleDesc.ofMethod(
-                    java.lang.constant.DirectMethodHandleDesc.Kind.STATIC, g.thisClass, bridge, Gen.MT_ROUTINE));
-            g.cb.aconst_null();
-            g.cb.invokespecial(Gen.CD_CLOSURE, "<init>", MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
+            g.newProc(bridge(g, p), false);
         } else {
             String[] parts = spec(p);
             if (parts[2] != null || parts[3] != null) {

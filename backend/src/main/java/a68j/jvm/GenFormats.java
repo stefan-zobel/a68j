@@ -218,12 +218,7 @@ final class GenFormats {
             Gen.Routine r = g.routineFor(nodes.get(i));
             cb.dup();
             Gen.constant(cb, i);
-            cb.new_(Gen.CD_CLOSURE);
-            cb.dup();
-            Gen.constant(cb, g.handle(r));
-            cb.aload(g.frameLocal);
-            cb.invokespecial(Gen.CD_CLOSURE, "<init>",
-                    MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
+            g.newProc(r.method, true);
             cb.aastore();
         }
         cb.invokespecial(CD_FORMAT_PARTS, "<init>", MethodTypeDesc.of(CD_void, Gen.CD_PROC.arrayType()));

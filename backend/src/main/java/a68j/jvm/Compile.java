@@ -330,16 +330,19 @@ public final class Compile {
                 }
                 GenJava.loader = new java.net.URLClassLoader(urls, Compile.class.getClassLoader());
             }
-            byte[] bytes = Gen.compileClass(a68, name, file, loopMethods);
+            // The class of the program (or module) and the classes of its procedure values.
+            java.util.Map<String, byte[]> classes = Gen.compileClass(a68, name, file, loopMethods);
             print(a68); // the warnings of the back end (-Wframe-scope)
             if (run) {
-                runClass(name, bytes, progArgs, jars);
+                runClass(name, classes, progArgs, jars);
                 return;
             }
             if (toJar) {
                 // -d libX.jar: a library jar (the analogue of libX.so), see Imports#libraryJar.
                 java.util.Map<String, byte[]> entries = new java.util.LinkedHashMap<>();
-                entries.put(name.replace('.', '/') + ".class", bytes);
+                for (var c : classes.entrySet()) {
+                    entries.put(c.getKey().replace('.', '/') + ".class", c.getValue());
+                }
                 if (exports.length > 0) {
                     entries.put(a68j.front.Imports.LIBRARY_JAR_EXPORTS + base + ".m68", exports);
                 }
@@ -350,9 +353,11 @@ public final class Compile {
                 updateJar(outDir, entries);
                 return;
             }
-            Path out = outDir.resolve(name.replace('.', '/') + ".class");
-            Files.createDirectories(out.getParent());
-            Files.write(out, bytes);
+            for (var c : classes.entrySet()) {
+                Path out = outDir.resolve(c.getKey().replace('.', '/') + ".class");
+                Files.createDirectories(out.getParent());
+                Files.write(out, c.getValue());
+            }
         } catch (Gen.Unsupported e) {
             System.err.println(e.getMessage());
             System.exit(3);
@@ -485,11 +490,13 @@ public final class Compile {
     }
 
     /**
-     * -run: define the class in memory and call its main with the program
+     * -run: define the classes in memory (CLASSES by binary name, see
+     * Gen#compileClass) and call the main of the class NAME with the program
      * arguments. The library jars JARS ({@link #runJars}) are added to the
      * class path.
      */
-    private static void runClass(String name, byte[] bytes, List<String> progArgs, List<String> jars) throws Throwable {
+    private static void runClass(String name, java.util.Map<String, byte[]> classes, List<String> progArgs,
+                                 List<String> jars) throws Throwable {
         ClassLoader parent = Compile.class.getClassLoader();
         if (!jars.isEmpty()) {
             java.net.URL[] urls = new java.net.URL[jars.size()];
@@ -501,7 +508,8 @@ public final class Compile {
         ClassLoader loader = new ClassLoader(parent) {
             @Override
             protected Class<?> findClass(String n) throws ClassNotFoundException {
-                if (n.equals(name)) {
+                byte[] bytes = classes.get(n);
+                if (bytes != null) {
                     return defineClass(n, bytes, 0, bytes.length);
                 }
                 throw new ClassNotFoundException(n);

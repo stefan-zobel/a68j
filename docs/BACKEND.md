@@ -123,8 +123,16 @@ not make the name of the element or field at all (§1).
 
 - Each routine text (and the particular program) is compiled to a private
   static method `r<N>(Frame env, Object[] args) -> Object` of the program
-  class. A procedure value is `new Closure(MethodHandle, Frame)`; the
-  `MethodHandle` is loaded with `ldc` of a `DirectMethodHandleDesc`.
+  class. A procedure value is an instance of a small class of its own for
+  each such method, `<class>$r<N> extends Proc` with the frame in a field,
+  whose `call` invokes `r<N>` directly (`Gen.newProc`). These classes are
+  nest members of the program class, so they may call its private methods;
+  the compiler writes them next to it (`Gen.compileClass` returns all class
+  files). Since each routine has a class of its own, the JIT profiles the
+  receivers of `Proc.call` at each call site and can inline the routine
+  there (see docs/optimizations.md, section 13). Values that are rarely made
+  (the public procedures of a module asked for by `pub()` and `pub$v`) are
+  `new Closure(MethodHandle, Frame)` instead, without a class of their own.
 - `a68j.rt.Frame { final Frame up; final Object[] s; }`. One frame per
   invocation of a routine, holding every identifier of that routine that is
   **captured** (used inside a nested routine text). `up` is the frame of the
@@ -153,20 +161,26 @@ not make the name of the element or field at all (§1).
   bound without uniting the row to ROWS.
 - Operators declared by the user are procedures (the OP tag holds a Proc).
 - **Direct calls:** a procedure or brief operator declared with a routine
-  text (`proc f = (int n) int: ...`, `op X = ...`; `Gen.staticProcs`) is
-  elaborated when its range is entered and cannot change, so a call of it
-  (`f (x)`, `X y`, `a X b`, deproceduring `f`) invokes its method directly
-  with the frame the routine text would have captured (`GenUnits.directCall`,
-  found by walking the static chain). Such a routine has a typed entry
+  text (`proc f = (int n) int: ...`, `op X = ...`; `Gen.staticProcs`)
+  cannot change, so a call of it (`f (x)`, `X y`, `a X b`, deproceduring
+  `f`) invokes its method directly with the frame the routine text would
+  have captured (`GenUnits.directCall`, found by walking the static chain).
+  Such a routine has a typed entry
   `r<N>t(Frame env, <parameters unboxed>) -> <result unboxed>`; the boxed
-  `r<N>(Frame, Object[])` only unboxes and calls it, for closures. The order
-  of evaluation is unchanged (the procedure value has no side effects).
+  `r<N>(Frame, Object[])` only unboxes and calls it, for procedure values.
+  The order of evaluation is unchanged (the procedure value has no side
+  effects). Its value is not made when its range is entered but where it
+  is used as a value (`Gen.load`, `Gen.lazyValue`), with the same frame:
+  procedure values have no identity, and most such procedures are only
+  called, so a value made in advance would load its class for nothing.
 - **Direct calls of Java formal holes** (-fnest-java): an identifier or
   operator declared with a Java formal hole of a procedure mode
   (`Gen.javaProcs`, found by `Capture`) is called with invokestatic of the
   Java method itself, the arguments unboxed and converted as in the bridge
   method (`GenJava.directCall`); a Row parameter gets a copy as before.
-  Used as a value it is the closure over the bridge as before.
+  Used as a value it is a procedure value over the bridge, made where it is
+  used, as for the procedures above (the declaration only asks for the
+  bridge, `GenJava.bridge`, so that the errors of the hole are reported).
 - **Typed entries of modules:** a module class has for every public
   procedure or operator declared with a routine text at the top of the DEF
   part a `public static pub$i(parameters unboxed) -> result unboxed`
@@ -480,7 +494,8 @@ Objects of classes that do not extend
 `Ref` are wrapped in an `a68j.rt.JavaHandle`. For a
 method it emits a bridge `(Frame, Object[]) -> Object` (unbox, convert with
 `a68j.rt.JavaConv`, invokestatic, convert back, box), emitted after the
-routines (`Gen.javaBridges`); the value of the hole is a `Closure` over it.
+routines (`Gen.javaBridges`); the value of the hole is a procedure value
+over it (`Gen.newProc`, section 3).
 A Java object is a name that refers to nothing: its class extends
 `a68j.rt.JavaObject` (a `Ref` whose `get`/`set` are runtime errors). Modes
 like `REF STRUCT (INT intlist java object)` differ only in the field name,

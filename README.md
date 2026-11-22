@@ -286,17 +286,17 @@ includes process start:
 
 | | Total |
 |---|---|
-| ga68 `-O0` | 164.9 s |
-| ga68 `-O2` | 69.9 s |
-| a68j (JDK 25) | 175.8 s, of which about 42 s is JVM start-up (~0.065 s per program) |
+| ga68 `-O0` | 164.5 s |
+| ga68 `-O2` | 70.2 s |
+| a68j (JDK 25) | 144.5 s, of which about 39 s is JVM start-up (~0.06 s per program) |
 
-For the 34 programs that run at least 0.3 s with ga68 `-O0`:
+For the 35 programs that run at least 0.3 s with ga68 `-O0`:
 
 | | Total | Median ratio |
 |---|---|---|
-| a68j | 107.2 s | |
-| ga68 `-O0` | 158.1 s | a68j / ga68 `-O0` = 0.72 |
-| ga68 `-O2` | 66.3 s | a68j / ga68 `-O2` = 1.64 |
+| a68j | 78.1 s | |
+| ga68 `-O0` | 157.6 s | a68j / ga68 `-O0` = 0.74 |
+| ga68 `-O2` | 66.3 s | a68j / ga68 `-O2` = 1.62 |
 
 So **a68j** is faster than unoptimized **ga68** on longer-running
 programs, and takes about 1.6 times as long as ga68 `-O2` in the median.
@@ -308,18 +308,23 @@ in rotating order, with the same output for all three:
 
 | | Time |
 |---|---|
-| ga68 `-O0` | 102.0 s |
-| ga68 `-O2` | 24.6 s |
-| a68j (JDK 25) | 22.0 s |
+| ga68 `-O0` | 103.1 s |
+| ga68 `-O2` | 24.8 s |
+| a68j (JDK 25) | 22.5 s |
 
 (ga68 needs `ulimit -s unlimited` for this program, otherwise it crashes
 in the last kernel.)
 
-The JVM needs about 65 ms to start, which dominates short programs.
+The JVM needs about 60 ms to start, which dominates short programs.
 
 Techniques used:
 - unboxed values and rows of the primitive modes;
 - variables kept in JVM locals;
+- procedure values with a class of their own for each routine, so that
+  the JIT can inline a call of a procedure value and a jump out of the
+  procedure becomes a branch instead of an exception unwound through the
+  frames (`prime-decomposition`: 48.7 s before, 19.8 s now, ga68 `-O2`
+  14.6 s);
 - direct calls with typed entries, also across modules through
   `invokedynamic`;
 - bounds checks and element access inlined in the bytecode;

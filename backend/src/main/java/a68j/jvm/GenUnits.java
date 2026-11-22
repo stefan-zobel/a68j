@@ -624,15 +624,9 @@ final class GenUnits {
         GenRows.generate(g, declarer, p.type.sub, p);
     }
 
-    /** ROUTINE_TEXT: a closure over the current frame. */
+    /** ROUTINE_TEXT: a procedure value over the current frame (Gen#newProc). */
     static void routineText(Gen g, Node p) {
-        Gen.Routine r = g.routineFor(p);
-        g.cb.new_(Gen.CD_CLOSURE);
-        g.cb.dup();
-        Gen.constant(g.cb, g.handle(r));
-        g.cb.aload(g.frameLocal);
-        g.cb.invokespecial(Gen.CD_CLOSURE, "<init>",
-                MethodTypeDesc.of(CD_void, CD_MethodHandle, Gen.CD_FRAME));
+        g.newProc(g.routineFor(p).method, true);
     }
 
     /** The parameters of the routine text RT, in order. */

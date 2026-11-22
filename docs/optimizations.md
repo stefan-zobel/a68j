@@ -1250,3 +1250,123 @@ show it in the frames printed); ga68 compiles 20 000 INTs in 0.8 s.
   STRINGs and a matrix of 300 × 300 INTs give the right results with no
   method above 8000 bytes; the case of the compile-time error is now a
   display of 20 000 copies of a variable. 13 of 13.
+
+## 13. Procedure values with a class of their own
+
+### The problem
+
+Until version 0.9.0 a procedure value was a `Closure`: a `MethodHandle`
+of the routine's method and the frame. Every call of a procedure value
+(a procedure passed as a parameter, held in a variable or a field) went
+through `Closure.call`, that is through `MethodHandle.invokeExact` on a
+handle that is not a constant. The JIT cannot inline through such a
+handle, and all calls of all procedure values share the one call site in
+`Closure.call`, so it has no useful profile either.
+
+That costs twice when a program jumps out of a procedure (`go to` to a
+label of an enclosing routine, docs/BACKEND.md section 8). The jump is
+an exception (`a68j.rt.Jump`), and since neither the routine nor the
+code around it could be inlined into the method with the handler, the
+JVM unwinds it frame by frame. The Rosetta program `prime-decomposition`
+writes generators in the style of Algol 68 Genie: `gen_primes` calls the
+procedure it is given for every prime, and the procedure leaves the
+loop with `go to done`. It threw 134.7 million such jumps in about 45 s
+(JFR, `jdk.ExceptionStatistics`). `perf` with the perf map of the JVM
+showed where the time went:
+
+| share | what |
+|---|---|
+| about 60 % | unwinding the jumps in the VM: `CodeHeap::find_blob`, `CodeCache::find_blob`, `OptoRuntime::handle_exception_C` and its helper, `C2 Runtime rethrow`, ... |
+| about 20 % | the calls through the method handles (`LambdaForm$DMH.invokeStatic`, `MethodHandle.invokeBasic`) |
+| about 17 % | the program itself |
+
+ga68 compiles such a jump as a nonlocal `goto` (it restores the stack
+and frame pointers) and calls a procedure value through a function
+pointer, so the program cost it 33 s at `-O0` and 15 s at `-O2`; a68j
+took about 48 s.
+
+A small Java benchmark of three levels of procedures, one in four calls
+leaving all three by a jump, showed the size of the effect: about 69 ns
+per iteration with closures over method handles, about 3 ns with a class
+per procedure (all inlined, the jump a branch).
+
+The catch and rethrow of `RuntimeException` in `Closure.call` was not the
+cause: a `Closure.class` without the handler gave the same time.
+
+### What a68j does now
+
+Every routine whose value is made gets a small class of its own,
+`<class>$r<N> extends Proc`, with the frame in a field and a `call` that
+invokes `r<N>` with `invokestatic` (`Gen.newProc`). The bridges of Java
+formal holes get one too (`<class>$j<N>`, without a frame). These
+classes are nest members of the class of the program (attributes
+`NestHost` and `NestMembers`), so they may call its private methods;
+`Gen.compileClass` returns all class files, and `Compile` writes them to
+the directory or jar, or defines them for `-run`. The stack maps need to
+know that such a class is a `Proc` where two procedure values meet
+(`Gen.procClassInfo`).
+
+As every routine has a class of its own, the JIT profiles the receivers
+of `Proc.call` at each call site and can inline the routine there if the
+site sees one or two of them. A jump out of an inlined routine to a
+label of a routine it is inlined into becomes a branch.
+
+A class for each procedure costs class loading if the values are made
+in advance. Procedures and brief operators declared with a routine text
+or a Java formal hole cannot change, and procedure values have no
+identity, so their values are now made where they are used as values
+(`Gen.load`, `Gen.lazyValue`) instead of when their range is entered;
+direct calls (section 2) never need them. The declaration of a Java
+formal hole still asks for its bridge (`GenJava.bridge`), so that its
+errors are reported. A module gives the values of its public procedures
+through `pub()` and `pub$v` only when another compilation asks for one,
+which is rare (calls go through the typed entries `pub$i`): these are
+`Closure`s as before, without a class of their own, and the module is
+elaborated through `pub$e()`, which does not make the values at all.
+
+So the bundled modules have 6 such classes instead of the 1588 they
+would have with a class for every procedure and an eager value, and the
+jars are slightly smaller than in version 0.9.0, since the code that
+made all values when a module was elaborated is gone.
+
+### Measurements
+
+Measured as in section 6: the 648 Rosetta programs of
+`tests/rosetta/passing.txt`, compiled first, each program run with
+ga68 `-O0`, ga68 `-O2`, a68j 0.9.0 and the new a68j right after each
+other in rotating order, three passes, the median per program:
+
+| | `prime-decomposition` | the 647 others | the 34 of them that run at least 0.3 s with ga68 `-O0` |
+|---|---|---|---|
+| ga68 `-O0` | 33.3 s | 131.1 s | 124.3 s |
+| ga68 `-O2` | 14.6 s | 55.6 s | 51.7 s |
+| a68j 0.9.0 | 48.7 s | 128.0 s | 58.3 s |
+| a68j now | 19.8 s | 124.8 s | 58.3 s |
+
+The median of the ratios new / 0.9.0 is 0.96 over the 647 programs and
+1.00 over the 34 long ones: the gain comes from the start, probably as
+no values are made in advance and no method handle constants resolved
+any more, for example
+`copy-stdin-to-stdout` 0.12 s → 0.09 s. Programs that do not use
+procedure values keep their speed, such as
+`tests/perf/big-program-1-long.a68` (median of three runs in rotating
+order: 0.9.0 22.4 s, now 22.5 s, ga68 `-O2` 24.8 s). Start of the JVM
+with modules (median of 15 runs each): `hashmaps-basic` 109 ms → 97 ms,
+`bigints-modules` 106 ms → 93 ms, `99-bottles-of-beer` (Genie_Transput)
+107 ms → 103 ms, `hello` 59 ms → 59 ms.
+
+### Tests
+
+- The ga68 test suite, `tests/extra`, `tests/java`, `tests/par`,
+  `tests/options`, `tests/scope`, `tests/partial` and `tests/formats`
+  give the same results as before (on Windows, the four tests that fail
+  there anyway still fail).
+- All 712 Rosetta programs that a68j compiles give the same results as
+  with version 0.9.0, program by program, also with `A68J_CUT=every` and
+  `A68J_LOOP_METHODS=every`. (In the first run without these variables
+  two programs differed under the load of the parallel runs: `21-game`,
+  probably through a warning of the JVM about its performance data on
+  standard output, gives the same output with both versions when run
+  alone, and
+  `proper-divisors-2`, whose ga68 result in that run was a crash, ran
+  into the time limit.)

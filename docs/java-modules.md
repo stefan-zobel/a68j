@@ -89,8 +89,8 @@ arrays, stored back) and Java objects for plain values.
 For every formal hole of a procedure a68j generates a **bridge method**
 `(Frame, Object[]) → Object` in the class of the program. It unpacks the
 arguments, converts them, calls the Java method with `invokestatic` and
-converts the result back. The value of the formal hole is a closure over
-this method, that is, an ordinary procedure value: it can be passed on,
+converts the result back. The value of the formal hole is a procedure
+value over this method, an ordinary one: it can be passed on,
 stored in variables and so on (`backend/.../jvm/GenJava.java`, runtime
 helpers in `a68j.rt.JavaConv`). A call of the identifier itself does not
 go through the closure but calls the Java method directly
@@ -872,7 +872,7 @@ The formal holes can also be public themselves, for example `pub proc
 has a typed entry for each of them (`pub$i`, `docs/optimizations.md`,
 section 2). A program calls it without boxing, as it calls a public
 procedure with a routine text. The procedure value of the hole is still
-the closure over the bridge method. `tests/java/modules/jholes.a68` is
+a procedure value over the bridge method. `tests/java/modules/jholes.a68` is
 such a module.
 
 ## 6. Tests

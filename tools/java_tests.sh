@@ -11,6 +11,10 @@
 # out of a Java stack trace in the output ("\tat java.base/...",
 # "\tat a68j...", "\t... N more"), as their line numbers change with the
 # JDK and with a68j; the frames of the program and of its Java classes stay.
+# With A68J_CUT=every (tools/cut_test.sh) the program is cut into methods
+# of its own (part0, part1, ...), which appear as frames of the program:
+# then the frames of the program are left out of both outputs, those of
+# its Java classes still compared.
 # Usage: tools/java_tests.sh [JAVA].
 cd "$(dirname "$0")/.."
 JAVA=${1:-java}
@@ -45,7 +49,16 @@ for f in tests/java/*.a68; do
   else
     out=$(grep -v '^Picked up' "$tmp"; echo "exit $st")
   fi
-  if [ "$out" = "$(cat "$b.out")" ]; then pass=$((pass + 1)); else echo "FAIL $f"; echo "$out" | head -5; fail=$((fail + 1)); fi
+  expected=$(cat "$b.out")
+  if [ -n "$env" ] && [ -n "$A68J_CUT" ]; then
+    # The class of the program, from its frame "at Class.program(...)".
+    cls=$(sed -n 's/^	at \([A-Za-z0-9_]*\)\.program(.*$/\1/p' "$b.out" | head -1)
+    if [ -n "$cls" ]; then
+      out=$(printf '%s\n' "$out" | grep -v "^	at $cls\.")
+      expected=$(printf '%s\n' "$expected" | grep -v "^	at $cls\.")
+    fi
+  fi
+  if [ "$out" = "$expected" ]; then pass=$((pass + 1)); else echo "FAIL $f"; echo "$out" | head -5; fail=$((fail + 1)); fi
 done
 echo "java tests: $pass passed, $fail failed"
 [ $fail -eq 0 ]
