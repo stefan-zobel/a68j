@@ -18,7 +18,7 @@ It is verified by differential testing against ga68. Every program in the
 test corpora must produce the same output and exit status on the JVM as
 with **ga68**:
 - the ga68 test suite,
-- more than 500 Rosetta Code programs,
+- almost 650 Rosetta Code programs,
 - the project's own tests.
 
 [![hello.a68](images/hello.svg)](examples/hello.a68)
@@ -37,8 +37,10 @@ Hello, world!
   because scanner, parser, mode checker and the other passes are the ported
   ga68 code.
 - **Runs wherever Java runs.** One jar, no native toolchain.
-- **Reasonably fast.** About as fast as ga68 without optimization, about
-  half as fast as ga68 `-O2` (plus the JVM's start-up). Values of the
+- **Reasonably fast.** Faster than ga68 without optimization on
+  longer-running programs, about 1.6 times the time of ga68 `-O2` in the
+  median, and as fast as `-O2` on a long numeric program (plus the JVM's
+  start-up). Values of the
   primitive modes are kept unboxed, calls are direct, and the generated
   code is shaped for the JIT. See [Performance](#performance).
 - **Java interoperability** (an a68j extension, off by default):
@@ -89,7 +91,9 @@ the option `-fformats`, and for ga68 a rewrite tool, written in Algol 68,
 turns them into such calls first. `-fgenie` does all this, so that a
 program written for Algol 68 Genie runs as it is; with these options,
 records and rows of rows are items of `print`, `printf`, `read` and
-`readf` too. The bundled module
+`readf` too.
+ 
+The bundled module
 `Texts`, also in plain Algol 68, adds string functions: case, trimming,
 splitting, joining, replacing, padding, and strings to numbers
 ([docs/texts.md](docs/texts.md)); `Regex` offers the regular expressions
@@ -104,6 +108,7 @@ procedures of Algol 68 Genie (`local time`, `utc time`, `cpu time`,
 dates, date-times and durations on top of `java.time`, with operators for
 their arithmetic, patterns for text, and time zones, for a68j only
 ([docs/times.md](docs/times.md)).
+
 `long long int` has 64 bits, as in ga68, where Algol 68 Genie has 72
 digits; for larger integers the `Bigints` module offers the mode `Bigint`, with the
 operators of an `int`, on top of `java.math.BigInteger`, for a68j only
@@ -272,42 +277,45 @@ java -jar a68j-backend.jar -run bigints.a68
 
 ## Performance
 
-Measured on the 528 Rosetta Code programs that run with both, each
-program run on its own, one after the other, on the same machine (times
-include process start):
+Measured on the 648 Rosetta Code programs that run with both
+(`tests/rosetta/passing.txt`), all compiled beforehand. Each program runs
+on its own, and the three variants of a program run right after each
+other in rotating order, so that a machine that warms up and slows down
+does not favor one of them. Each time is the median of three runs and
+includes process start:
 
 | | Total |
 |---|---|
-| ga68 `-O0` | 30.2 s |
-| ga68 `-O2` | 16.7 s |
-| a68j (JDK 25) | 71.3 s, of which about 42 s is JVM start-up (~0.08 s per program) |
+| ga68 `-O0` | 164.9 s |
+| ga68 `-O2` | 69.9 s |
+| a68j (JDK 25) | 175.8 s, of which about 42 s is JVM start-up (~0.065 s per program) |
 
-For the 22 programs that run at least 0.3 s:
+For the 34 programs that run at least 0.3 s with ga68 `-O0`:
 
 | | Total | Median ratio |
 |---|---|---|
-| a68j | 14.3 s | |
-| ga68 `-O0` | 23.5 s | a68j / ga68 `-O0` = 0.82 |
-| ga68 `-O2` | 13.2 s | a68j / ga68 `-O2` = 2.2 |
+| a68j | 107.2 s | |
+| ga68 `-O0` | 158.1 s | a68j / ga68 `-O0` = 0.72 |
+| ga68 `-O2` | 66.3 s | a68j / ga68 `-O2` = 1.64 |
 
-So **a68j** is roughly as fast as unoptimised **ga68**, mostly faster on
-longer-running programs, and about half as fast as ga68 `-O2` in the
-median.
+So **a68j** is faster than unoptimized **ga68** on longer-running
+programs, and takes about 1.6 times as long as ga68 `-O2` in the median.
 
-On a long-running program the gap to `-O2` closes:
+On a long-running program a68j catches up with `-O2`:
 `tests/perf/big-program-1-long.a68` (14 numeric kernels in one main
-program, ten times the work of `big-program-1.a68`), median of three runs:
+program, ten times the work of `big-program-1.a68`), median of three runs
+in rotating order, with the same output for all three:
 
 | | Time |
 |---|---|
-| ga68 `-O0` | 97.6 s |
-| ga68 `-O2` | 30.1 s |
-| a68j (JDK 25) | 36.8 s |
+| ga68 `-O0` | 102.0 s |
+| ga68 `-O2` | 24.6 s |
+| a68j (JDK 25) | 22.0 s |
 
 (ga68 needs `ulimit -s unlimited` for this program, otherwise it crashes
 in the last kernel.)
 
-The JVM needs about 60 ms to start, which dominates short programs.
+The JVM needs about 65 ms to start, which dominates short programs.
 
 Techniques used:
 - unboxed values and rows of the primitive modes;
@@ -327,8 +335,15 @@ Techniques used:
 - `editors/vscode-algol68`: a TextMate grammar and a VS Code extension for
   GNU Algol 68 with SUPPER stropping. It is checked token by token against
   the scanner over all test programs.
+- `editors/textmate-algol68`: a newer TextMate grammar and VS Code
+  extension (`algol68-0.3.0.vsix`) that handles both SUPPER and UPPER
+  stropping: GNU Algol 68 as above, and the Revised Report, Algol 68 Genie
+  and ga68 with `-fstropping=upper`. It recognizes the regime from the
+  first reserved word of the file, so the original Rosetta Code solutions
+  are colored as well. It replaces the SUPPER-only extension, which must
+  be uninstalled first, since both define the language `algol68`.
 - `editors/a68html`: renders source as highlighted HTML or SVG with the
-  same grammar. SVG is the way to show colored Algol 68 in Markdown on
+  SUPPER grammar (or another one, given with `A68_GRAMMAR`). SVG is the way to show colored Algol 68 in Markdown on
   GitHub.
 
 ## Repository layout
@@ -399,8 +414,8 @@ under the **GNU General Public License, version 3 or later** (`COPYING`).
   corrections in `fixed`, `float`, `string_to_real` and the procedures
   they use, which are marked in the file (GPL 3 with the GCC Runtime
   Library Exception 3.1).
-- The VS Code extension in `editors/vscode-algol68` is under the ISC
-  license. It started from https://github.com/jlguenego/vscode-algol68.
+- The VS Code extensions in `editors/vscode-algol68` and
+  `editors/textmate-algol68` are under the ISC license. It started from https://github.com/jlguenego/vscode-algol68.
 - The Rosetta Code programs in `tests/rosetta` are under the GNU Free
   Documentation License 1.3 (see the README there).
 
