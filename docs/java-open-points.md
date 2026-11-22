@@ -55,6 +55,39 @@ mode; a queue of structures ordered by a field would need a key
 procedure, as a priority of type `int` or `real` next to the element.
 The rules above on `AT`, `INDEX`, `HAS` and `REMOVE` apply.
 
+### B11. `Randoms`: random number generators
+
+**The gap.** The only generator is `random` of the standard prelude:
+glibc's `rand()` (TYPE_3, an additive lagged Fibonacci generator of
+31 bits) that always starts with the seed 1, as in libga68, so that a68j
+draws the same numbers as ga68 (`a68j.rt.Std`). `Genie_Transput` adds
+`next_random` and `rnd` on top of it. A program cannot set the seed
+(`first_random` of Algol 68 Genie is missing, genie-transput.md), there are
+no integers in a range, no normal distribution and no shuffling of a row,
+and there is one global state, which is synchronized once a PAR clause
+has run (par-and-sema.md). 73 of the original Rosetta Code solutions use
+`random` or `next random`, one `first random`; Monte Carlo methods,
+shuffles and random mazes write their own helpers each time.
+
+**The Java side.** `java.util.SplittableRandom`: fast, of good
+statistical quality, and `split()` yields an independent generator, so
+each unit of a PAR clause can have its own without a lock. Also
+`java.util.random.RandomGenerator` for further algorithms. Not for
+cryptography; `java.security.SecureRandom` is reachable directly through
+`nest Java` where that is needed.
+
+**How it fits.** A generator is a Java object, `mode Random =
+ref Random_object`, made with a seed (reproducible runs) or without one.
+Procedures on it: an `int` or `long int` in a range (`next_int (g, n)`
+from 0 to n - 1, `next_int (g, lo, hi)`), a `real` or `long real` in
+[0, 1), a `bool`, a normally distributed `long real` (`gaussian`),
+`split (g)`, and shuffling a row in place (`shuffle`) for the element
+modes of `Lists`. Optionally `first_random (seed)` for `-fgenie`, which
+would make `random` reproducible with another seed; `random` itself stays
+as it is, so that the output of a program stays the same as with ga68.
+Open questions: the exact names, and whether the module offers a default
+generator of its own next to the objects (procedures without `g`).
+
 ### B7. `Xml`: reading, querying and writing XML
 
 **The gap.** A parser for XML in Algol 68 is much more work than one for
