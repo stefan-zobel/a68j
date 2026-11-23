@@ -1,0 +1,120 @@
+BEGIN # shortest paths: Dijkstra, Bellman-Ford, Johnson, A* #
+   MODE WEIGHT = INT;
+   WEIGHT infinite weight = max int;
+   PR read "graphs.incl.a68" PR
+
+   PROC show paths = (REF GRAPH g, PATHS p) VOID:
+      FOR t TO n OF g DO
+         print ((vertex name (g, source OF p), " -> ", vertex name (g, t), ": "));
+         IF (distance OF p)[t] < infinite weight THEN
+            print ((whole ((distance OF p)[t], 0), "  ",
+                    path text (g, path to (g, p, t)), newline))
+         ELSE
+            print (("unreachable", newline))
+         FI
+      OD # show paths # ;
+
+   # Dijkstra's algorithm, the graph of the Rosetta Code task #
+   print (("Dijkstra", newline));
+   REF GRAPH g = new graph (TRUE);
+   add edges (g, (("a", "b",  7), ("a", "c",  9), ("a", "f", 14),
+                  ("b", "c", 10), ("b", "d", 15), ("c", "d", 11),
+                  ("c", "f",  2), ("d", "e",  6), ("e", "f",  9)));
+   show paths (g, shortest paths (g, vertex (g, "a")));
+   show paths (g, shortest paths (g, vertex (g, "d")));
+
+   print (("Bellman-Ford", newline));
+   PATHS bf;
+   IF bellman ford (g, vertex (g, "a"), bf) THEN show paths (g, bf) FI;
+
+   print (("Dijkstra, undirected", newline));
+   REF GRAPH u = new graph (FALSE);
+   FOR e TO m OF g DO
+      EDGE x = (edge OF g)[e];
+      add edge (u, vertex (u, vertex name (g, tail OF x)),
+                vertex (u, vertex name (g, head OF x)), weight OF x)
+   OD;
+   show paths (u, shortest paths (u, vertex (u, "e")));
+
+   # Johnson's algorithm #
+   print (("Johnson", newline));
+   REF GRAPH j = new graph (TRUE);
+   add edges (j, (("w", "z", 2), ("x", "w", 6), ("x", "y", 3), ("y", "w", 4),
+                  ("y", "z", 5), ("z", "x", -7), ("z", "y", -3)));
+   INT n = n OF j;
+   INT q = add vertices (j, 1);
+   FOR v TO n DO add edge (j, q, v, 0) OD;
+   PATHS h;
+   IF NOT bellman ford (j, q, h) THEN
+      print (("negative cycle", newline))
+   ELSE
+      PROC reweighted = (INT e) WEIGHT:
+         (EDGE x = (edge OF j)[e];
+          weight OF x + (distance OF h)[tail OF x] - (distance OF h)[head OF x]);
+      FOR s TO n DO
+         PATHS r = shortest paths by (j, s, reweighted);
+         FOR t TO n DO
+            IF s /= t THEN
+               print ((vertex name (j, s), " -> ", vertex name (j, t), ": ",
+                       whole ((distance OF r)[t] - (distance OF h)[s] + (distance OF h)[t], 0),
+                       "  ", path text (j, path to (j, r, t)), newline))
+            FI
+         OD
+      OD
+   FI;
+   add edge (j, vertex (j, "x"), vertex (j, "z"), 2);
+   print ((IF bellman ford (j, q, h) THEN "no negative cycle" ELSE "negative cycle" FI, newline));
+
+   # A*, the grid of the Rosetta Code task: 8 directions, cost 1, a barrier #
+   # square costs 100 to enter                                              #
+   print (("A*", newline));
+   INT size = 8;
+   [0 : size - 1, 0 : size - 1] BOOL barrier;
+   FOR y FROM 0 TO size - 1 DO FOR x FROM 0 TO size - 1 DO barrier[x, y] := FALSE OD OD;
+   [] STRUCT (INT x, y) walls = ((2, 4), (2, 5), (2, 6), (3, 6), (4, 6), (5, 6),
+                                 (5, 5), (5, 4), (5, 3), (5, 2), (4, 2), (3, 2));
+   FOR i FROM LWB walls TO UPB walls DO barrier[x OF walls[i], y OF walls[i]] := TRUE OD;
+   REF GRAPH grid = new graph (TRUE);
+   VOID (add vertices (grid, size * size));
+   PROC cell = (INT x, y) INT: y * size + x + 1;
+   FOR y FROM 0 TO size - 1 DO
+      FOR x FROM 0 TO size - 1 DO
+         FOR dy FROM -1 TO 1 DO
+            FOR dx FROM -1 TO 1 DO
+               INT nx = x + dx, ny = y + dy;
+               IF (dx /= 0 OR dy /= 0) AND nx >= 0 AND nx < size AND ny >= 0 AND ny < size THEN
+                  add edge (grid, cell (x, y), cell (nx, ny), IF barrier[nx, ny] THEN 100 ELSE 1 FI)
+               FI
+            OD
+         OD
+      OD
+   OD;
+   INT goal = cell (size - 1, size - 1);
+   PROC chebyshev = (INT v) WEIGHT:
+      BEGIN
+         INT dx = ABS ((v - 1) MOD size - (goal - 1) MOD size);
+         INT dy = ABS ((v - 1) OVER size - (goal - 1) OVER size);
+         IF dx > dy THEN dx ELSE dy FI
+      END # chebyshev # ;
+   [] INT route = a star (grid, cell (0, 0), goal, chebyshev);
+   INT cost := 0;
+   FOR i FROM LWB route + 1 TO UPB route DO
+      cost +:= IF barrier[(route[i] - 1) MOD size, (route[i] - 1) OVER size] THEN 100 ELSE 1 FI
+   OD;
+   print (("path:"));
+   FOR i FROM LWB route TO UPB route DO
+      print ((" (", whole ((route[i] - 1) MOD size, 0), ",", whole ((route[i] - 1) OVER size, 0), ")"))
+   OD;
+   print ((newline, "cost: ", whole (cost, 0), ", Dijkstra: ",
+           whole ((distance OF shortest paths (grid, cell (0, 0)))[goal], 0), newline));
+   FOR y FROM 0 TO size - 1 DO
+      FOR x FROM 0 TO size - 1 DO
+         BOOL on route := FALSE;
+         FOR i FROM LWB route TO UPB route DO
+            IF route[i] = cell (x, y) THEN on route := TRUE FI
+         OD;
+         print ((IF on route THEN "x" ELIF barrier[x, y] THEN "#" ELSE "." FI))
+      OD;
+      print (newline)
+   OD
+END

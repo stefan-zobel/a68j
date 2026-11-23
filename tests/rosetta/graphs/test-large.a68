@@ -1,0 +1,33 @@
+BEGIN # a 200 x 200 grid with pseudo-random weights #
+   MODE WEIGHT = INT;
+   WEIGHT infinite weight = max int;
+   PR read "graphs.incl.a68" PR
+
+   INT size = 200;
+   INT seed := 12345;
+   PROC next = INT: (seed := (seed * 1103 + 12345) MOD 65536; seed MOD 100 + 1);
+   REF GRAPH g = new graph (TRUE);
+   VOID (add vertices (g, size * size));
+   PROC cell = (INT x, y) INT: y * size + x + 1;
+   FOR y FROM 0 TO size - 1 DO
+      FOR x FROM 0 TO size - 1 DO
+         IF x + 1 < size THEN add edge (g, cell (x, y), cell (x + 1, y), next) FI;
+         IF y + 1 < size THEN add edge (g, cell (x, y), cell (x, y + 1), next) FI;
+         IF x > 0 AND next > 30 THEN add edge (g, cell (x, y), cell (x - 1, y), next) FI;
+         IF y > 0 AND next > 30 THEN add edge (g, cell (x, y), cell (x, y - 1), next) FI
+      OD
+   OD;
+   print (("vertices ", whole (n OF g, 0), ", edges ", whole (m OF g, 0), newline));
+   PATHS p = shortest paths (g, 1);
+   print (("distance to the far corner ", whole ((distance OF p)[n OF g], 0),
+           ", path of ", whole (UPB path to (g, p, n OF g), 0), " vertices", newline));
+   print (("strong components ", whole (count OF strong components (g), 0), newline));
+   print (("reached by breadth first ", whole (UPB order OF breadth first (g, 1), 0), newline));
+   print (("spanning tree edges ", whole (UPB minimum spanning tree (g), 0), newline));
+   INT sum := 0;
+   FOR v TO n OF g DO
+      [] INT out = out edges (g, v);
+      FOR k FROM LWB out TO UPB out DO sum +:= weight OF (edge OF g)[out[k]] OD
+   OD;
+   print (("sum of the weights through out edges ", whole (sum, 0), newline))
+END
