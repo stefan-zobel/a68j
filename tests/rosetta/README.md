@@ -29,6 +29,9 @@ passing.txt         the same names, one per line (e.g. for run_jvm.py)
 graphs/             a graph library in the notation of Algol 68 Genie, with
                     tests and new solutions to tasks without an ALGOL 68
                     solution (graphs/README.md); not prepared for ga68
+hashes/             32-bit words, bytes, SHA-256 and HMAC in the notation of
+                    Algol 68 Genie, on top of bits.incl.a68 of Rosetta Code
+                    (hashes/README.md); not prepared for ga68
 ```
 
 `tools/rosetta_list.py --dir tests/rosetta -o tests/rosetta/passing.md`

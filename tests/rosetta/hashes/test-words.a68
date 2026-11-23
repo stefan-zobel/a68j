@@ -1,0 +1,41 @@
+# words, bytes and padding of hashes.incl.a68 #
+BEGIN
+   PR read "bits.incl.a68" PR
+   PR read "hashes.incl.a68" PR
+
+   INT failed := 0;
+   PROC check = (STRING name, STRING value, expected) VOID:
+      BEGIN
+         print ((IF value = expected THEN "ok    " ELSE "WRONG " FI, name, ": ", value, newline));
+         IF value /= expected THEN failed +:= 1 FI
+      END # check # ;
+   PROC word = (INT w) STRING: hex (big endian bytes (w));
+
+   check ("word mask", word (word mask), "ffffffff");
+   check ("ffffffff + 1", word ((TOINT 16rffffffff + 1) AND word mask), "00000000");
+   check ("ffffffff + ffffffff", word ((TOINT 16rffffffff + TOINT 16rffffffff) AND word mask), "fffffffe");
+   check ("80000001 ROTL 1", word (TOINT 16r80000001 ROTL 1), "00000003");
+   check ("12345678 ROTL 4", word (TOINT 16r12345678 ROTL 4), "23456781");
+   check ("12345678 ROTR 8", word (TOINT 16r12345678 ROTR 8), "78123456");
+   check ("80000000 ROTR 31", word (TOINT 16r80000000 ROTR 31), "00000001");
+   check ("NOT 0f0f0f0f", word ((NOT TOINT 16r0f0f0f0f) AND word mask), "f0f0f0f0");
+   check ("deadbeef SHR 28", word (TOINT 16rdeadbeef SHR 28), "0000000d");
+   check ("deadbeef SHL 4", word ((TOINT 16rdeadbeef SHL 4) AND word mask), "eadbeef0");
+
+   [] INT b = (16, 32, 48, 255);
+   check ("big endian word", word (big endian word (b, 1)), "102030ff");
+   check ("little endian word", word (little endian word (b, 1)), "ff302010");
+   check ("little endian bytes", hex (little endian bytes (TOINT 16rdeadbeef)), "efbeadde");
+   check ("join", hex (join (b[2 : 3], b)), "2030102030ff");
+
+   check ("bytes of ASCII", hex (bytes ("Rosetta")), "526f7365747461");
+   check ("bytes of UTF-8", hex (bytes ("aä€𝄞")), "61c3a4e282acf09d849e");
+
+   [] INT p = padded (bytes ("abc"), TRUE);
+   check ("padded length", whole (UPB p, 0), "64");
+   check ("padded big endian", hex (p[1 : 4]) + " " + hex (p[57 : 64]), "61626380 0000000000000018");
+   [] INT q = padded (bytes ("abc"), FALSE);
+   check ("padded little endian", hex (q[57 : 64]), "1800000000000000");
+   check ("padded 56 bytes", whole (UPB padded (bytes ("12345678901234567890123456789012345678901234567890123456"), TRUE), 0), "128");
+   print ((whole (failed, 0), " wrong", newline))
+END

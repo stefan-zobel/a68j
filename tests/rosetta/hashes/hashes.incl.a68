@@ -1,0 +1,147 @@
+# hashes.incl.a68: 32-bit words, bytes, SHA-256 and HMAC.                 #
+# Needs bits.incl.a68 of Rosetta Code (Category:ALGOL 68-bits), read      #
+# before this file. Description: README.md next to this file.             #
+# A word is an INT that holds 32 bits; after + and SHL it is masked with  #
+# AND word mask. Where INT has 64 bits (Algol 68 Genie) a word is then    #
+# 0 .. 2^32 - 1; where it has 32 bits (a68j) the INT wraps around and is  #
+# its own mask, so a word may be negative there but has the same bits.    #
+# A row of bytes is a [] INT of values 0 .. 255.                          #
+
+INT word mask = TOINT 16rffffffff;
+
+# rotations of a word, for 0 < n < 32 #
+PRIO ROTL = 8, ROTR = 8;
+OP ROTL = (INT x, n) INT: ((x SHL n) OR (x SHR (32 - n))) AND word mask;
+OP ROTR = (INT x, n) INT: ((x SHR n) OR (x SHL (32 - n))) AND word mask;
+
+# the UTF-8 bytes of s: where CHAR is a byte (max abs char = 255), the    #
+# characters of a string in UTF-8 are its bytes already                  #
+PROC bytes = (STRING s) [] INT:
+   BEGIN
+      PROC length = (INT c) INT:
+         IF max abs char <= 255 OR c < 128 THEN 1
+         ELIF c < 2048 THEN 2 ELIF c < 65536 THEN 3 ELSE 4
+         FI # length # ;
+      [] INT lead = (0, 192, 224, 240);
+      INT n := 0;
+      FOR i FROM LWB s TO UPB s DO n +:= length (ABS s[i]) OD;
+      [1 : n] INT b;
+      INT k := 0;
+      FOR i FROM LWB s TO UPB s DO
+         INT c = ABS s[i];
+         INT l = length (c);
+         b[k +:= 1] := IF l = 1 THEN c ELSE lead[l] OR (c SHR (6 * (l - 1))) FI;
+         FOR j FROM l - 2 BY -1 TO 0 DO b[k +:= 1] := 128 OR ((c SHR (6 * j)) AND 63) OD
+      OD;
+      b
+   END # bytes # ;
+
+# the bytes of a followed by those of b #
+PROC join = ([] INT a, b) [] INT:
+   BEGIN
+      INT na = UPB a - LWB a + 1;
+      [1 : na + UPB b - LWB b + 1] INT r;
+      FOR i TO na DO r[i] := a[LWB a + i - 1] OD;
+      FOR i FROM LWB b TO UPB b DO r[na + 1 + i - LWB b] := b[i] OD;
+      r
+   END # join # ;
+
+# the word of the bytes b[i] .. b[i + 3], and the bytes of a word #
+PROC big endian word = ([] INT b, INT i) INT:
+   ((b[i] SHL 24) OR (b[i + 1] SHL 16) OR (b[i + 2] SHL 8) OR b[i + 3]) AND word mask;
+PROC little endian word = ([] INT b, INT i) INT:
+   ((b[i + 3] SHL 24) OR (b[i + 2] SHL 16) OR (b[i + 1] SHL 8) OR b[i]) AND word mask;
+PROC big endian bytes = (INT w) [] INT:
+   ((w SHR 24) AND 255, (w SHR 16) AND 255, (w SHR 8) AND 255, w AND 255);
+PROC little endian bytes = (INT w) [] INT:
+   (w AND 255, (w SHR 8) AND 255, (w SHR 16) AND 255, (w SHR 24) AND 255);
+
+# the message padded for MD4, MD5, SHA-1, SHA-256 and RIPEMD-160: the byte #
+# 128, zeros up to 56 modulo 64 and the length in bits as 8 bytes         #
+PROC padded = ([] INT message, BOOL big endian) [] INT:
+   BEGIN
+      INT n = UPB message - LWB message + 1;
+      INT zeros = (55 - n) MOD 64;
+      [1 : n + 1 + zeros + 8] INT p;
+      FOR i TO n DO p[i] := message[LWB message + i - 1] OD;
+      p[n + 1] := 128;
+      FOR i FROM n + 2 TO n + 1 + zeros DO p[i] := 0 OD;
+      LONG INT length := LENG n * LENG 8;
+      FOR i TO 8 DO
+         p[IF big endian THEN UPB p + 1 - i ELSE n + 1 + zeros + i FI] := SHORTEN (length MOD LENG 256);
+         length := length OVER LENG 256
+      OD;
+      p
+   END # padded # ;
+
+# lower case hexadecimal digits of bytes #
+PROC hex = ([] INT b) STRING:
+   BEGIN
+      STRING digits = "0123456789abcdef";
+      STRING s := "";
+      FOR i FROM LWB b TO UPB b DO s +:= digits[b[i] OVER 16 + 1] + digits[b[i] MOD 16 + 1] OD;
+      s
+   END # hex # ;
+
+# SHA-256 (FIPS 180-4) of bytes: 32 bytes #
+PROC sha256 = ([] INT message) [] INT:
+   BEGIN
+      [] INT k = (TOINT 16r428a2f98, TOINT 16r71374491, TOINT 16rb5c0fbcf, TOINT 16re9b5dba5,
+                  TOINT 16r3956c25b, TOINT 16r59f111f1, TOINT 16r923f82a4, TOINT 16rab1c5ed5,
+                  TOINT 16rd807aa98, TOINT 16r12835b01, TOINT 16r243185be, TOINT 16r550c7dc3,
+                  TOINT 16r72be5d74, TOINT 16r80deb1fe, TOINT 16r9bdc06a7, TOINT 16rc19bf174,
+                  TOINT 16re49b69c1, TOINT 16refbe4786, TOINT 16r0fc19dc6, TOINT 16r240ca1cc,
+                  TOINT 16r2de92c6f, TOINT 16r4a7484aa, TOINT 16r5cb0a9dc, TOINT 16r76f988da,
+                  TOINT 16r983e5152, TOINT 16ra831c66d, TOINT 16rb00327c8, TOINT 16rbf597fc7,
+                  TOINT 16rc6e00bf3, TOINT 16rd5a79147, TOINT 16r06ca6351, TOINT 16r14292967,
+                  TOINT 16r27b70a85, TOINT 16r2e1b2138, TOINT 16r4d2c6dfc, TOINT 16r53380d13,
+                  TOINT 16r650a7354, TOINT 16r766a0abb, TOINT 16r81c2c92e, TOINT 16r92722c85,
+                  TOINT 16ra2bfe8a1, TOINT 16ra81a664b, TOINT 16rc24b8b70, TOINT 16rc76c51a3,
+                  TOINT 16rd192e819, TOINT 16rd6990624, TOINT 16rf40e3585, TOINT 16r106aa070,
+                  TOINT 16r19a4c116, TOINT 16r1e376c08, TOINT 16r2748774c, TOINT 16r34b0bcb5,
+                  TOINT 16r391c0cb3, TOINT 16r4ed8aa4a, TOINT 16r5b9cca4f, TOINT 16r682e6ff3,
+                  TOINT 16r748f82ee, TOINT 16r78a5636f, TOINT 16r84c87814, TOINT 16r8cc70208,
+                  TOINT 16r90befffa, TOINT 16ra4506ceb, TOINT 16rbef9a3f7, TOINT 16rc67178f2);
+      [1 : 8] INT h := (TOINT 16r6a09e667, TOINT 16rbb67ae85, TOINT 16r3c6ef372, TOINT 16ra54ff53a,
+                        TOINT 16r510e527f, TOINT 16r9b05688c, TOINT 16r1f83d9ab, TOINT 16r5be0cd19);
+      [] INT p = padded (message, TRUE);
+      [0 : 63] INT w;
+      FOR block FROM LWB p BY 64 TO UPB p DO
+         FOR t FROM 0 TO 15 DO w[t] := big endian word (p, block + 4 * t) OD;
+         FOR t FROM 16 TO 63 DO
+            INT s0 = (w[t - 15] ROTR 7) XOR (w[t - 15] ROTR 18) XOR (w[t - 15] SHR 3);
+            INT s1 = (w[t - 2] ROTR 17) XOR (w[t - 2] ROTR 19) XOR (w[t - 2] SHR 10);
+            w[t] := (w[t - 16] + s0 + w[t - 7] + s1) AND word mask
+         OD;
+         INT a := h[1], b := h[2], c := h[3], d := h[4], e := h[5], f := h[6], g := h[7], hh := h[8];
+         FOR t FROM 0 TO 63 DO
+            INT sigma1 = (e ROTR 6) XOR (e ROTR 11) XOR (e ROTR 25);
+            INT choice = (e AND f) XOR ((NOT e) AND g);
+            INT t1 = (hh + sigma1 + choice + k[t + 1] + w[t]) AND word mask;
+            INT sigma0 = (a ROTR 2) XOR (a ROTR 13) XOR (a ROTR 22);
+            INT majority = (a AND b) XOR (a AND c) XOR (b AND c);
+            hh := g; g := f; f := e; e := (d + t1) AND word mask;
+            d := c; c := b; b := a; a := (t1 + sigma0 + majority) AND word mask
+         OD;
+         [] INT v = (a, b, c, d, e, f, g, hh);
+         FOR i TO 8 DO h[i] := (h[i] + v[i]) AND word mask OD
+      OD;
+      [1 : 32] INT digest;
+      FOR i TO 8 DO digest[4 * i - 3 : 4 * i] := big endian bytes (h[i]) OD;
+      digest
+   END # sha256 # ;
+
+# HMAC (RFC 2104) with hash, whose blocks have block size bytes (64 for   #
+# MD5, SHA-1 and SHA-256)                                                 #
+PROC hmac = (PROC ([] INT) [] INT hash, INT block size, [] INT key, message) [] INT:
+   BEGIN
+      [] INT short key = IF UPB key - LWB key + 1 > block size THEN hash (key) ELSE key FI;
+      [1 : block size] INT inner, outer;
+      FOR i TO block size DO
+         INT k = IF i <= UPB short key - LWB short key + 1
+                 THEN short key[LWB short key + i - 1] ELSE 0 FI;
+         inner[i] := k XOR 54;
+         outer[i] := k XOR 92
+      OD;
+      hash (join (outer, hash (join (inner, message))))
+   END # hmac # ;
