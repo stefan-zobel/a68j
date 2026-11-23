@@ -1,0 +1,57 @@
+# Rosetta Code task "SHA-1": SHA-1 (FIPS 180-4) implemented with the      #
+# 32-bit words of hashes.incl.a68, which needs bits.incl.a68              #
+# (Category:ALGOL 68-bits). The message is padded as for SHA-256 and read #
+# as big endian words; each block of 16 words is expanded to 80 words.    #
+BEGIN
+   PR read "bits.incl.a68" PR
+   PR read "hashes.incl.a68" PR
+
+   # the SHA-1 digest of a message of bytes: 20 bytes #
+   PROC sha1 = ([] INT message) [] INT:
+      BEGIN
+         [1 : 5] INT h := (TOINT 16r67452301, TOINT 16refcdab89, TOINT 16r98badcfe,
+                           TOINT 16r10325476, TOINT 16rc3d2e1f0);
+         [] INT p = padded (message, TRUE);
+         [0 : 79] INT w;
+         FOR block FROM LWB p BY 64 TO UPB p DO
+            FOR t FROM 0 TO 15 DO w[t] := big endian word (p, block + 4 * t) OD;
+            FOR t FROM 16 TO 79 DO
+               w[t] := (w[t - 3] XOR w[t - 8] XOR w[t - 14] XOR w[t - 16]) ROTL 1
+            OD;
+            INT a := h[1], b := h[2], c := h[3], d := h[4], e := h[5];
+            FOR t FROM 0 TO 79 DO
+               INT f, k;
+               IF t < 20 THEN
+                  f := (b AND c) OR ((NOT b) AND d);
+                  k := TOINT 16r5a827999
+               ELIF t < 40 THEN
+                  f := b XOR c XOR d;
+                  k := TOINT 16r6ed9eba1
+               ELIF t < 60 THEN
+                  f := (b AND c) OR (b AND d) OR (c AND d);
+                  k := TOINT 16r8f1bbcdc
+               ELSE
+                  f := b XOR c XOR d;
+                  k := TOINT 16rca62c1d6
+               FI;
+               INT temp = ((a ROTL 5) + (f AND word mask) + e + k + w[t]) AND word mask;
+               e := d;
+               d := c;
+               c := b ROTL 30;
+               b := a;
+               a := temp
+            OD;
+            [] INT v = (a, b, c, d, e);
+            FOR i TO 5 DO h[i] := (h[i] + v[i]) AND word mask OD
+         OD;
+         [1 : 20] INT digest;
+         FOR i TO 5 DO digest[4 * i - 3 : 4 * i] := big endian bytes (h[i]) OD;
+         digest
+      END # sha1 # ;
+
+   []  STRING messages = ("Rosetta Code", "abc", "",
+                          "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq");
+   FOR i FROM LWB messages TO UPB messages DO
+      print ((hex (sha1 (bytes (messages[i]))), "  """, messages[i], """", newline))
+   OD
+END

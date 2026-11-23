@@ -14,7 +14,7 @@ PRIO ROTL = 8, ROTR = 8;
 OP ROTL = (INT x, n) INT: ((x SHL n) OR (x SHR (32 - n))) AND word mask;
 OP ROTR = (INT x, n) INT: ((x SHR n) OR (x SHL (32 - n))) AND word mask;
 
-# the UTF-8 bytes of s: where CHAR is a byte (max abs char = 255), the    #
+# the UTF-8 bytes of s: where CHAR is a byte (max abs char = 255), the   #
 # characters of a string in UTF-8 are its bytes already                  #
 PROC bytes = (STRING s) [] INT:
    BEGIN
@@ -57,7 +57,7 @@ PROC little endian bytes = (INT w) [] INT:
    (w AND 255, (w SHR 8) AND 255, (w SHR 16) AND 255, (w SHR 24) AND 255);
 
 # the message padded for MD4, MD5, SHA-1, SHA-256 and RIPEMD-160: the byte #
-# 128, zeros up to 56 modulo 64 and the length in bits as 8 bytes         #
+# 128, zeros up to 56 modulo 64 and the length in bits as 8 bytes          #
 PROC padded = ([] INT message, BOOL big endian) [] INT:
    BEGIN
       INT n = UPB message - LWB message + 1;

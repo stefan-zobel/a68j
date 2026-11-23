@@ -34,6 +34,9 @@ On Windows, `curl` of Git Bash may fail to connect to Rosetta Code;
 | File | |
 |---|---|
 | `hashes.incl.a68` | the library |
+| `sha-256.a68` | the task "SHA-256": the digest of "Rosetta code" |
+| `sha-1.a68` | the task "SHA-1": SHA-1 implemented with the words of the library, the digest of "Rosetta Code" and of the test vectors of FIPS 180-4 |
+| `md5-implementation.a68` | the task "MD5/Implementation": MD5 implemented with the words of the library, checked with the test suite of RFC 1321 |
 | `test-words.a68` | words, rotations, bytes in both orders, UTF-8, padding |
 | `test-sha256.a68` | SHA-256 with the test vectors of FIPS 180-4 and the task "SHA-256", messages of 55, 56, 63, 64, 119 and 1000 bytes (the limits of the padding), and HMAC-SHA-256 with the test cases 1, 2, 3 and 6 of RFC 4231 |
 | `NAME.out` | the output and exit status of `NAME.a68`, recorded with Algol 68 Genie 3.13.4 |
