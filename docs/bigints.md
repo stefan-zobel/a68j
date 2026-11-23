@@ -138,16 +138,16 @@ start of the JVM:
 
 | | |
 |---|---|
-| 10⁷ additions of a small `int` to a Bigint (`s +:= i`) | 0.25 s, about 25 ns each |
+| 10^7 additions of a small `int` to a Bigint (`s +:= i`) | 0.25 s, about 25 ns each |
 | 20000! by 20 000 products | 0.12 s |
 | `big_whole` of 20000! (77 338 digits) | 0.07 s |
 | (20000!) ** 2 (154 675 digits) | 0.01 s |
 
-- **Small values.** The 10⁷ additions with `long long int` take 0.01 s,
+- **Small values.** The 10^7 additions with `long long int` take 0.01 s,
   so a Bigint is about 30 times slower on small values. This is the cost
   of a new object for each result.
 - **Large values.** The same factorial in plain Algol 68, as products of
-  rows of digits in base 10⁹, takes 0.49 s.
+  rows of digits in base 10^9, takes 0.49 s.
   `BigInteger` multiplies large numbers with the algorithms of Karatsuba
   and Toom-Cook and converts them to decimal digits by divide and conquer.
   A plain Algol 68 version would be quadratic in both and would also need

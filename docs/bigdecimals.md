@@ -86,7 +86,7 @@ Bigints `i` and `j`:
   digits, `DEC 2 / 3` is 0.6666666667.
 - **Decimal fractions.** The radix is 10, so `DEC 0.1 + 0.2 = DEC "0.3"`
   is true, as for `long long real` in Algol 68 Genie, whose radix is
-  10⁷.
+  10^7.
 - **`=` and `is`.** `=` compares the values, `is` the objects:
   `DEC "1.0" = DEC "1.00"` is true, `DEC 1 is DEC 1` false.
 - **Priorities.** The operators have the priorities of the prelude. The

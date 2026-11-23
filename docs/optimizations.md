@@ -434,7 +434,7 @@ Even with huge methods allowed (second row) the old code is slow and
 erratic: C2 compiles the large method by OSR again and again.
 
 **Longer runs:** big-program-1 with `scale = 40` instead of 4 (the bubble
-sort alone then makes 5·10⁹ comparisons; in the
+sort alone then makes 5 * 10^9 comparisons; in the
 repository as `tests/perf/big-program-1-long.a68`), one run each, the same
 output everywhere:
 
@@ -686,7 +686,7 @@ element. Other strides hardly occur: an identity or a parameter copies a
 slice like `m[, 2]` (as ga68 does); only a slice of an identity is shared
 (`[,] int mm = m; [] int c = mm[, 2]`, see `GenUnits.ownedValue`). For
 that case the old path takes as long as before (3.7–3.9 s in all
-versions of a test with 5·10⁹ accesses).
+versions of a test with 5 * 10^9 accesses).
 
 **NIL.** The variable is NIL on entry only if the loop runs before its
 declaration (the declaration is outside the loop, so it stays NIL for the

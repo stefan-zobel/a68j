@@ -26,6 +26,9 @@ notes.tsv           explanation of the known differences (for results.tsv)
 passing.md          list of the solutions that run normally with ga68 and a68j
                     and give the same result (with links to Rosetta Code)
 passing.txt         the same names, one per line (e.g. for run_jvm.py)
+graphs/             a graph library in the notation of Algol 68 Genie, with
+                    tests and new solutions to tasks without an ALGOL 68
+                    solution (graphs/README.md); not prepared for ga68
 ```
 
 `tools/rosetta_list.py --dir tests/rosetta -o tests/rosetta/passing.md`
@@ -193,7 +196,7 @@ The remaining differences (details in `notes.tsv`):
   `ln` etc. with the C library (`sinf`, `tanf` …), a68j with
   `java.lang.Math` (pure Java, deliberately without C calls). The result
   differs in the last digit; in `particle-swarm-optimization` the
-  optimization method amplifies the difference to about 10⁻⁴.
+  optimization method amplifies the difference to about 10^-4.
 - **Order of evaluation** (`tree-traversal`, `ulam-numbers`): Algol 68 does
   not specify whether the destination or the source of an assignation is
   elaborated first, nor the order of the operands of a formula. Here ga68
@@ -204,7 +207,7 @@ The remaining differences (details in `notes.tsv`):
   `successive-prime-differences`: ga68 needs more than 4.7 GB and is
   killed; `yin-and-yang`: partial parametrization, which a68j implements
   as Algol 68 Genie does, see `tests/partial`).
-- **Both fail** (`self-numbers`: a row with 2·10⁹ elements).
+- **Both fail** (`self-numbers`: a row with 2 * 10^9 elements).
 - **80-bit `long long real`** (`infinity`): ga68 prints
   `long long max real` of its 80-bit `long long real`, a68j that of a
   double.
