@@ -1,0 +1,8 @@
+tests/options/ice-front.a68: internal compiler error: java.lang.IllegalStateException: A68J_ICE=front
+  in a68j.jvm.Compile.testHook, at Compile.java
+Please submit a full bug report, with the program, its include files and
+the command line, at <https://github.com/stefan-zobel/a68j/issues>.
+a68j VERSION, Java VERSION
+Java stack trace:
+java.lang.IllegalStateException: A68J_ICE=front
+exit 4

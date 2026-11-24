@@ -548,6 +548,23 @@ does not grow with its size (`Tables`, `a68j.rt.Table`, section 12), so
 only a display of thousands of elements that are not constants is such
 a unit.
 
+The exit status of the compiler itself (`Compile`): 1 for errors in the
+program and for fatal errors, 2 without a source file, 3 for a construct
+that is not supported yet, and 4 for an internal compiler error, as
+`ICE_EXIT_CODE` of GCC. A file that cannot be written (`-d`, the cache of
+the bundled interface files) is a fatal error: `a68j: fatal error: cannot
+write 'PATH': REASON`, `compilation terminated.`; so is a lack of memory.
+Any other exception of the compiler is an internal compiler error, reported
+as GCC reports one: `FILE: internal compiler error:
+EXCEPTION`, the innermost frame of a68j code (`in CLASS.METHOD, at
+FILE.java:LINE`), where to report it, the versions of a68j and Java, and
+the Java stack trace. If errors were reported before, the message is only
+`FILE: confused by earlier errors, bailing out`. With `-run`, an exception
+of the program is not an internal compiler error; it is printed by the JVM
+as before. The environment variable `A68J_ICE=front` (or `back`) causes an
+internal compiler error before the front end (or before the code
+generation), for the tests `tests/options/ice-*.a68`.
+
 ## 7. Values of generators and SKIP
 
 `a68j.rt.Gen` builds fresh values from a compact description of the mode

@@ -112,6 +112,9 @@ def classify(nat, rc, out, err, src_dir=""):
         return "unsupported", m.group(1)
     if rc == 1 and re.search(r": (error|fatal error): ", err):
         return "frontend", err.strip().splitlines()[0]
+    m = re.search(r"internal compiler error: .*", err)
+    if rc == 4 and m:
+        return "crash", m.group(0)[:160]
     if re.search(r"^(Exception in thread|Error: |java\.lang\.)", err, re.M) or "at java.base/" in err:
         lines = [l for l in err.splitlines() if l.strip()]
         first = next((l for l in lines if "Exception" in l or "Error" in l), lines[0] if lines else "")

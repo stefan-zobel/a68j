@@ -204,6 +204,10 @@ Common options (as in ga68 where ga68 has them):
 | `-fgenie` | run a program written for Algol 68 Genie, such as a Rosetta Code solution, as it is: UPPER stropping, `PR read`, apostrophes in strings, `FILE`, format texts, widening between lengths (`LONG INT x := 1`, `x +:= 1`), `ANDF`, `ORF`, `DOWNTO`, `COMPLEX`, and access to `Genie_Transput`, `Genie_Formats`, `Regex`, `Files`, `Times` and `Math` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 | `-fformats` | compile the format texts (`$...$`, `printf`) of a program written for a68j, in either stropping: they become calls of the module `Genie_Formats`, which an access to `Genie_Transput` brings in; errors in them are errors of the compiler, and records and rows of rows are items of `print`, `printf`, `read` and `readf` ([docs/genie-formats.md](docs/genie-formats.md); a68j extension) |
 
+The compiler exits with status 1 for errors, 3 for a construct that a68j
+does not support yet, and 4 for an internal compiler error; its message
+says where to report it ([docs/BACKEND.md](docs/BACKEND.md), section 6).
+
 ### Modules
 
 A [module](https://gcc.gnu.org/onlinedocs/gcc-16.1.0/ga68/Modules.html) packet compiles to a class and an interface file `x.m68`. The
@@ -401,7 +405,7 @@ python3 tools/run_jvm.py --native /tmp/native tests/extra/*.a68
 sh tools/java_tests.sh            # nest Java, Lists, Hashmaps, Regex, Bigints, Bigdecimals, Files, Times, Math
 sh tools/par_tests.sh java 3      # -fpar-threads
 python3 tools/partial_tests.py    # partial parametrization, against Algol 68 Genie
-sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, -Wframe-scope
+sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats, unknown options, internal compiler errors, -Wframe-scope
 python3 tools/formats_tests.py    # formats: the rewrite tool, Genie_Formats, -fgenie with and without the lowering (--a68g, --ga68)
 ```
 

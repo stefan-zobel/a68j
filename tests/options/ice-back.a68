@@ -1,0 +1,6 @@
+{ a68j-options: -fstropping=supper }
+{ a68j-env: A68J_ICE=back }
+{ An internal compiler error, caused by the test hook A68J_ICE=back (after the front end, before the code generation): the message in the style of GCC with where to report the error, the versions and the Java stack trace; exit status 4. The test runner leaves out the frames of the stack trace, the line of the innermost frame and the versions. }
+begin
+   puts ("not run'n")
+end
