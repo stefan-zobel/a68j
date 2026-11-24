@@ -272,6 +272,9 @@ reads as a string), and for the first `eoln` there.
   "cannot reset file" on `stand_in_channel` and `stand_out_channel`.
 - Reading with `getchar` or `fgetc` on the same file loses the character
   that `get` has read ahead.
+- A file is read as UTF-8, and each invalid part of it gives the
+  character U+FFFD; Algol 68 Genie, where a `char` is a byte, gives the
+  bytes 128 to 254 as they are.
 
 ## Not provided
 

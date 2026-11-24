@@ -1,0 +1,83 @@
+{ fgetc on invalid UTF-8.  The program can write only valid UTF-8, so the
+  invalid sequences are made from valid ones: by reading from the middle
+  of a character, or by writing over part of one.  A byte that cannot
+  start a character gives U+FFFD alone; a byte that cannot continue a
+  sequence ends it with U+FFFD and is read again by the next fgetc, and
+  lseek counts it as not yet read.  ga68 takes as many bytes as the first
+  byte announces, whatever they are (docs/ga68-bug-reports.md, entry 29);
+  the expected result of a68j is in tests/extra/fixed.  The file is
+  created in the working directory. }
+begin
+    string name = "posix-fgetc-utf8-1.txt";
+
+    { A file with the text S, with T written over it from offset POS. }
+    proc make = (string s, int pos, string t) void:
+        begin int w = fcreate (name, 8r644);
+              fputs (w, s);
+              fclose (w);
+              if t /= ""
+              then int u = fopen (name, file_o_wronly);
+                   lseek (u, LENG LENG pos, seek_set);
+                   fputs (u, t);
+                   fclose (u)
+              fi
+        end;
+
+    { The codes of the characters of S. }
+    proc codes = (string s) string:
+        begin string r := "";
+              for i from LWB s to UPB s do r +:= " " + whole (ABS s[i], 0) od;
+              r
+        end;
+
+    { The codes of the characters of the file from OFFSET on. }
+    proc show = (string label, int offset) void:
+        begin int fd = fopen (name, file_o_rdonly);
+              string s := label + ":";
+              lseek (fd, LENG LENG offset, seek_set);
+              do int c = ABS fgetc (fd);
+                 if c = -1 then finish fi;
+                 s +:= " " + whole (c, 0)
+              od;
+              finish: fclose (fd);
+              puts (s + "'n")
+        end;
+
+    make ("aä€😀'n", 0, "");
+    show ("valid", 0);
+
+    { c3 a9 0a 41 0a from offset 1: a continuation byte before a newline }
+    make ("é'nA'n", 0, "");
+    show ("continuation byte", 1);
+
+    { e2 5a ac 0a: a first byte followed by a letter }
+    make ("€'n", 1, "Z");
+    show ("first byte, letter", 0);
+
+    { f0 78 98 80 61 62 0a: the first byte of four bytes, then a letter }
+    make ("😀ab'n", 1, "x");
+    show ("four bytes, letter", 0);
+
+    { lseek after a byte that ended an invalid sequence }
+    make ("€'n", 1, "Z");
+    begin int fd = fopen (name, file_o_rdonly);
+          int c1 = ABS fgetc (fd);
+          long long int p = lseek (fd, long long 0, seek_cur);
+          int c2 = ABS fgetc (fd);
+          lseek (fd, long long 2, seek_set);
+          int c3 = ABS fgetc (fd);
+          fclose (fd);
+          puts ("lseek:" + codes (REPR c1) + " at " + whole (p, 0) + codes (REPR c2)
+                + " after seek" + codes (REPR c3) + "'n")
+    end;
+
+    { fgets: the newline after the continuation byte ends the line }
+    make ("é'nA'n", 0, "");
+    begin int fd = fopen (name, file_o_rdonly);
+          lseek (fd, long long 1, seek_set);
+          string l1 = fgets (fd, 0);
+          string l2 = fgets (fd, 0);
+          fclose (fd);
+          puts ("fgets:" + codes (l1) + " |" + codes (l2) + "'n")
+    end
+end

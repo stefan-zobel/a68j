@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "posix-fgetc-utf8-1.a68",
+ "stderr": "",
+ "stdout": "valid: 97 228 8364 128512 10\ncontinuation byte: 65533 65 10\nfirst byte, letter: 65533 10\nfour bytes, letter: 65533 97 98 10\nlseek: 65533 at 3 10 after seek 65533\nfgets: 65533 65 10 |\n"
+}

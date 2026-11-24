@@ -72,7 +72,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
 | 27 | ga68 `a68-parser-scanner.cc` | an included file is not found when its path has a `~` anywhere in it, also in the name of a directory | reproduces; correct with `-fgenie`, and for Windows short names |
 | 28 | libga68 `standard.a68.in` | `fixed` writes a "0" before the point when a value below 1 rounds up to 1, e.g. "01.00" | fixed |
-| 29 | libga68 `ga68-posix.c` | `fgetc` takes the bytes after an invalid UTF-8 byte into the same character without checking them, so a newline or a letter after it is lost, and a sequence cut off by the end of the file gives the end of the file | reproduces |
+| 29 | libga68 `ga68-posix.c` | `fgetc` takes the bytes after an invalid UTF-8 byte into the same character without checking them, so a newline or a letter after it is lost, and a sequence cut off by the end of the file gives the end of the file | fixed |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -1286,12 +1286,19 @@ must count it. Compiled on its own, this `fgetc` gives the expected
 results of the table, and for `x\300\200y\n`, `\355\240\200z` and
 `\342\202\254` the same results as Python.
 
-a68j reproduces the defect: `fgetc` of its POSIX prelude
-(`backend/src/main/java/a68j/rt/Posix.java`) is a port of the code above
-and gives the results of ga68 in the table. The module `Genie_Transput`
-reads with `fgetc` as well, so with `-fgenie` a line of Latin-1 text
-loses characters, and a line that ends within a group is lost. (Algol 68
-Genie, where a `char` is a byte, reads the bytes 128 to 254 unchanged.)
+a68j reproduced the defect until version 0.9.0: `fgetc` of its POSIX
+prelude (`backend/src/main/java/a68j/rt/Posix.java`) was a port of the
+code above, and the module `Genie_Transput`, which reads with `fgetc`,
+lost characters of a line of Latin-1 text, also with `-fgenie`, and
+lost a line that ended within a group. Since version 0.9.1 `fgetc`
+reads as the suggested fix does (fixed): it keeps the byte that ends an
+invalid sequence for the next read, `lseek` counts that byte as not yet
+read, and `lseek` and `fclose` drop it. It gives the expected results of
+the table. `tests/extra/posix-fgetc-utf8-1.a68` checks the fix with
+invalid sequences made from valid UTF-8, also with `lseek` and `fgets`,
+and `tests/java/fgetc-bytes.a68` with files written byte by byte, read
+with `fgetc` and with `get` of `Genie_Transput`. (Algol 68 Genie, where
+a `char` is a byte, reads the bytes 128 to 254 unchanged.)
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

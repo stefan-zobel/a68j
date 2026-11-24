@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "posix-fgetc-utf8-1.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 29 (fgetc)",
+ "stderr": "",
+ "stdout": "valid: 97 228 8364 128512 10\ncontinuation byte: 65533 10 65 10\nfirst byte, letter: 65533 90 65533 10\nfour bytes, letter: 65533 120 65533 65533 97 98 10\nlseek: 65533 at 1 90 after seek 65533\nfgets: 65533 10 | 65 10\n"
+}

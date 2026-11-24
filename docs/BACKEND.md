@@ -369,7 +369,10 @@ to 2 (a redirected file has its size and position, a pipe or a terminal
 size 0 and ESPIPE), and `fcreate` gives a new file the permission bits of
 its mode less the umask, as creat (the bits 07000 by the "unix" attribute
 view of the JDK); `lseek` on a device that ignores the position, such as
-`/dev/null`, yields 0 for any offset, as in Linux.
+`/dev/null`, yields 0 for any offset, as in Linux. Unlike libga68, `fgetc`
+replaces each maximal subpart of an invalid UTF-8 sequence with U+FFFD
+and keeps the byte that ended it for the next read, so no valid byte is
+lost (`docs/ga68-bug-reports.md`, entry 29).
 
 ## 5. Code generator structure
 

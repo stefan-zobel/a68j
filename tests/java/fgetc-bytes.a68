@@ -1,0 +1,79 @@
+{ a68j-options: -fnest-java }
+{ fgetc of the POSIX prelude and get of Genie_Transput on bytes that are
+  not valid UTF-8 (docs/ga68-bug-reports.md, entry 29): each maximal
+  subpart of an invalid sequence gives one U+FFFD (65533), the bytes after
+  it are not lost, and the end of the file within a sequence gives U+FFFD.
+  fputs writes only valid UTF-8, so the files are written byte by byte
+  with java.io.FileOutputStream, into a temporary file. }
+begin
+    mode Jfile = ref Jfile_object;
+    mode Jfile_object = struct (int jfile_java_object);
+    mode Stream = ref Stream_object;
+    mode Stream_object = struct (int stream_java_object);
+    proc (string, string) Jfile temp_file = nest Java "java.io.File.createTempFile";
+    proc (Jfile) void delete_on_exit = nest Java "java.io.File::deleteOnExit";
+    proc (Jfile) string path_of = nest Java "java.io.File::getPath";
+    proc (string) Stream new_stream = nest Java "java.io.FileOutputStream::new";
+    proc (Stream, int) void write_byte = nest Java "java.io.FileOutputStream::write(int)";
+    proc (Stream) void close_stream = nest Java "java.io.FileOutputStream::close";
+
+    Jfile tmp = temp_file ("a68j-fgetc-bytes", ".txt");
+    delete_on_exit (tmp);
+    string name = path_of (tmp);
+
+    proc make = ([] int octets) void:
+        begin Stream s = new_stream (name);
+              for i from LWB octets to UPB octets do write_byte (s, octets[i]) od;
+              close_stream (s)
+        end;
+
+    proc codes = (string s) string:
+        begin string r := "";
+              for i from LWB s to UPB s do r +:= " " + whole (ABS s[i], 0) od;
+              r
+        end;
+
+    { The codes of the characters that fgetc reads. }
+    proc by_fgetc = string:
+        begin int fd = fopen (name, file_o_rdonly);
+              string s := "";
+              do int c = ABS fgetc (fd);
+                 if c = -1 then finish fi;
+                 s +:= " " + whole (c, 0)
+              od;
+              finish: fclose (fd);
+              s
+        end;
+
+    { The codes of the lines that get reads, each followed by "|". }
+    proc by_get = string:
+        access Genie_Transput
+        begin File f;
+              open (f, name, stand_in_channel);
+              string s := "";
+              on_logical_file_end (f, (ref File g) bool: finish);
+              do string line;
+                 get (f, line);
+                 s +:= codes (line) + " |";
+                 get (f, newline)
+              od;
+              finish: close (f);
+              s
+        end;
+
+    proc try = (string label, [] int octets) void:
+        begin make (octets);
+              puts (label + "'n  fgetc:" + by_fgetc + "'n  get:  " + by_get + "'n")
+        end;
+
+    [129] int high;
+    for i to 128 do high[i] := 127 + i od;
+    high[129] := 10;
+    try ("bytes 128 to 255", high);
+    try ("ff before a newline", (255, 10, 65, 10));
+    try ("Latin-1", (99, 97, 102, 233, 10, 97, 98, 10));
+    try ("cut off by the end", (120, 226, 130));
+    try ("overlong", (120, 192, 128, 121, 10));
+    try ("surrogate", (237, 160, 128, 122, 10));
+    try ("valid", (97, 195, 164, 226, 130, 172, 240, 159, 152, 128, 10))
+end
