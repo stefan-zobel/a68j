@@ -1,0 +1,293 @@
+# rows.incl.a68: array related utilities for Algol 68 RC tasks   30/04/2025   #
+
+    # returns the smallest element in a68 rows list or maxint if it is empty  #
+    OP   MIN = ( []INT a68 rows list )INT:
+         IF LWB a68 rows list > UPB a68 rows list THEN maxint
+         ELSE
+            INT result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result > a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MIN # ;
+    # returns the smallest element in a68 rows list                          #
+    #         or long max int if it is empty                                 #
+    OP   MIN = ( []LONG INT a68 rows list )LONG INT:
+         IF LWB a68 rows list > UPB a68 rows list THEN long max int
+         ELSE
+            LONG INT result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result > a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MIN # ;
+    # returns the smallest element in a68 rows list or maxreal if it is empty #
+    OP   MIN = ( []REAL a68 rows list )REAL:
+         IF LWB a68 rows list > UPB a68 rows list THEN maxreal
+         ELSE
+            REAL result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result > a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MAX # ;
+
+    # returns the largest element in a68 rows list or -maxint if it is empty  #
+    OP   MAX = ( []INT a68 rows list )INT:
+         IF LWB a68 rows list > UPB a68 rows list THEN -maxint
+         ELSE
+            INT result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result < a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MAX # ;
+    # returns the largest element in a68 rows list                            #
+    #         or - long max int if it is empty                                #
+    OP   MAX = ( []LONG INT a68 rows list )LONG INT:
+         IF LWB a68 rows list > UPB a68 rows list THEN - long max int
+         ELSE
+            LONG INT result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result < a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MAX # ;
+    # returns the largest element in a68 rows list or -maxreal if it is empty #
+    OP   MAX = ( []REAL a68 rows list )REAL:
+         IF LWB a68 rows list > UPB a68 rows list THEN -maxreal
+         ELSE
+            REAL result := a68 rows list[ LWB a68 rows list ];
+            FOR i FROM LWB a68 rows list + 1 TO UPB a68 rows list DO
+                IF result < a68 rows list[ i ] THEN result := a68 rows list[ i ] FI
+            OD;
+            result
+         FI # MAX # ;
+
+    # prints the elements of an array of integers separated by spaces         #
+    OP   SHOW = ( []INT a68 rows list )VOID:
+         FOR a68 rows i FROM LWB a68 rows list TO UPB a68 rows list DO
+            print( ( " ", whole( a68 rows list[ a68 rows i ], 0 ) ) )
+         OD # SHOW # ;
+    # prints the elements of an array of long integers separated by spaces    #
+    OP   SHOW = ( []LONG INT a68 rows list )VOID:
+         FOR a68 rows i FROM LWB a68 rows list TO UPB a68 rows list DO
+            print( ( " ", whole( a68 rows list[ a68 rows i ], 0 ) ) )
+         OD # SHOW # ;
+    # prints the elements of an array of reals separated by spaces            #
+    OP   SHOW = ( []REAL a68 rows list )VOID:
+         FOR a68 rows i FROM LWB a68 rows list TO UPB a68 rows list DO
+            print( ( " ", fixed( a68 rows list[ a68 rows i ], -14, 8 ) ) )
+         OD # SHOW # ;
+
+    # returns the kth lowest element of a68 rows list usng the quick select algorithm #
+    PRIO QUICKSELECT = 9;
+    OP   QUICKSELECT = ( REF[]INT qs a68 rows list, INT k )INT:
+         IF LWB qs a68 rows list > UPB qs a68 rows list THEN
+             # empty a68 rows list #
+             0
+         ELSE
+             # non-empty a68 rows list #
+             # partitions the subset of p a68 rows list from p left to p right #
+             PROC partition = ( REF[]INT p a68 rows list, INT p left, p right, pivot index )INT:
+                  BEGIN
+                      # swaps elements a and b in s a68 rows list #
+                      PROC swap = ( REF[]INT s a68 rows list, INT a, b )VOID:
+                           BEGIN
+                               INT a68 rows t        = s a68 rows list[ a ];
+                               s a68 rows list[ a ] := s a68 rows list[ b ];
+                               s a68 rows list[ b ] := a68 rows t
+                           END # swap # ;
+                      INT pivot value = p a68 rows list[ pivot index ];
+                      swap( p a68 rows list, pivot index, p right );
+                      INT store index := p left;
+                      FOR i FROM p left TO p right - 1 DO
+                          IF p a68 rows list[ i ] < pivot value THEN
+                              swap( p a68 rows list, store index, i );
+                              store index +:= 1
+                          FI
+                      OD;
+                      swap( p a68 rows list, p right, store index );
+                      store index
+                  END # partition # ;
+             INT  qs left  := LWB qs a68 rows list, qs right := UPB qs a68 rows list, result := 0;
+             BOOL qs found := FALSE;
+             WHILE NOT qs found DO
+                 IF qs left = qs right THEN
+                     result   := qs a68 rows list[ qs left ];
+                     qs found := TRUE
+                 ELSE
+                     INT pivot index
+                       = partition( qs a68 rows list
+                                  , qs left
+                                  , qs right
+                                  , ( qs left
+                                    + ENTIER ( ( random * ( qs right - qs left ) + 1 ) )
+                                    )
+                                  );
+                     IF qs found := k = pivot index THEN
+                         result   := qs a68 rows list[ k ]
+                     ELIF k < pivot index THEN
+                         qs right := pivot index - 1
+                     ELSE
+                         qs left  := pivot index + 1
+                     FI
+                 FI
+             OD;
+             result
+         FI # QUICKSELECT # ;
+
+    # find the index of an element of an array using a binary search          #
+    PRIO INDEXOF = 9;
+    OP   INDEXOF = ( []INT qzjj array, INT qzjj value )INT:
+         BEGIN
+            INT  low qzjj    := LWB qzjj array;
+            INT  high qzjj   := UPB qzjj array;
+            INT  qzjj result := LWB qzjj array - 1;
+            WHILE low qzjj <= high qzjj DO
+                INT mid qzjj := ( low qzjj + high qzjj ) OVER 2;
+                IF  qzjj value = qzjj array[ mid qzjj ]
+                THEN qzjj result := mid qzjj;               # found the element #
+                     low qzjj    := high qzjj + 1
+                ELIF qzjj value < qzjj array[ mid qzjj ]
+                THEN high qzjj := mid qzjj - 1
+                ELSE low qzjj  := mid qzjj + 1
+                FI
+            OD;
+            qzjj result
+         END; # INDEXOF #
+    OP   INDEXOF = ( []LONG INT qzjj array, LONG INT qzjj value )INT:
+         BEGIN
+            INT  low qzjj    := LWB qzjj array;
+            INT  high qzjj   := UPB qzjj array;
+            INT  qzjj result := LWB qzjj array - 1;
+            WHILE low qzjj <= high qzjj DO
+                INT mid qzjj := ( low qzjj + high qzjj ) OVER 2;
+                IF  qzjj value = qzjj array[ mid qzjj ]
+                THEN qzjj result := mid qzjj;               # found the element #
+                     low qzjj    := high qzjj + 1
+                ELIF qzjj value < qzjj array[ mid qzjj ]
+                THEN high qzjj := mid qzjj - 1
+                ELSE low qzjj  := mid qzjj + 1
+                FI
+            OD;
+            qzjj result
+         END; # INDEXOF #
+    OP   INDEXOF = ( []LONG INT qzjj array, INT qzjj value )INT:
+         qzjj array INDEXOF LENG qzjj value;
+    OP   INDEXOF = ( []REAL qzjj array, REAL qzjj value )INT:
+         BEGIN
+            INT  low qzjj    := LWB qzjj array;
+            INT  high qzjj   := UPB qzjj array;
+            INT  qzjj result := LWB qzjj array - 1;
+            WHILE low qzjj <= high qzjj DO
+                INT mid qzjj := ( low qzjj + high qzjj ) OVER 2;
+                IF  qzjj value = qzjj array[ mid qzjj ]
+                THEN qzjj result := mid qzjj;               # found the element #
+                     low qzjj    := high qzjj + 1
+                ELIF qzjj value < qzjj array[ mid qzjj ]
+                THEN high qzjj := mid qzjj - 1
+                ELSE low qzjj  := mid qzjj + 1
+                FI
+            OD;
+            qzjj result
+         END; # INDEXOF #
+    OP   INDEXOF = ( []STRING qzjj array, STRING qzjj value )INT:
+         BEGIN
+            INT  low qzjj    := LWB qzjj array;
+            INT  high qzjj   := UPB qzjj array;
+            INT  qzjj result := LWB qzjj array - 1;
+            WHILE low qzjj <= high qzjj DO
+                INT mid qzjj := ( low qzjj + high qzjj ) OVER 2;
+                IF  qzjj value = qzjj array[ mid qzjj ]
+                THEN qzjj result := mid qzjj;               # found the element #
+                     low qzjj    := high qzjj + 1
+                ELIF qzjj value < qzjj array[ mid qzjj ]
+                THEN high qzjj := mid qzjj - 1
+                ELSE low qzjj  := mid qzjj + 1
+                FI
+            OD;
+            qzjj result
+         END; # INDEXOF #
+    OP   INDEXOF = ( []STRING qzjj array, CHAR qzjj value )INT:
+         qzjj array INDEXOF STRING( qzjj value );
+
+    # returns the median element from a68 rows data                           #
+    OP   MEDIAN = ( REF[]INT a68 rows data )REAL:
+         IF   INT a68 rows len = ( UPB a68 rows data - LWB a68 rows data ) + 1;
+              INT a68 rows mid = ( a68 rows len OVER 2 ) + LWB a68 rows data;
+              ODD a68 rows len
+         THEN     a68 rows data QUICKSELECT   a68 rows mid
+         ELSE ( ( a68 rows data QUICKSELECT ( a68 rows mid - 1 )
+                + a68 rows data QUICKSELECT   a68 rows mid
+                )
+              / 2
+              )
+         FI # MEDIAN # ;
+
+    # returns the average of the elements of a                                #
+    OP   AVERAGE = ( []INT a68 rows a )REAL:
+         IF   INT a68 rows len = ( UPB a68 rows a - LWB a68 rows a ) + 1;
+              a68 rows len < 1
+         THEN 0
+         ELSE INT a68 rows sum := 0;
+              FOR a68 rows i FROM LWB a68 rows a TO UPB a68 rows a DO
+                  a68 rows sum +:= a68 rows a[ a68 rows i ]
+              OD;
+              a68 rows sum / a68 rows len
+         FI # AVERAGE # ;
+    OP   AVERAGE = ( []REAL a68 rows a )REAL:
+         IF   INT a68 rows len = ( UPB a68 rows a - LWB a68 rows a ) + 1;
+              a68 rows len < 1
+         THEN 0
+         ELSE REAL a68 rows sum := 0;
+              FOR a68 rows i FROM LWB a68 rows a TO UPB a68 rows a DO
+                  a68 rows sum +:= a68 rows a[ a68 rows i ]
+              OD;
+              a68 rows sum / a68 rows len
+         FI # AVERAGE # ;
+
+    # returns the standard deviation of a68 rows a                            #
+    OP   STANDARDDEVIATION = ( []INT a68 rows a )REAL:
+         IF   INT a68 rows len = ( UPB a68 rows a - LWB a68 rows a ) + 1;
+              a68 rows len < 1
+         THEN 0
+         ELSE REAL a68 rows m = AVERAGE a68 rows a;
+              REAL a68 rows sum := 0;
+              FOR a68 rows i FROM LWB a68 rows a TO UPB a68 rows a DO
+                  a68 rows sum +:= ( a68 rows a[ a68 rows i ] - a68 rows m ) ^ 2
+              OD;
+              ( a68 rows sum / a68 rows len )
+         FI # STANDARDDEVIATION # ;
+    OP   STANDARDDEVIATION = ( []REAL a68 rows a )REAL:
+         IF   INT a68 rows len = ( UPB a68 rows a - LWB a68 rows a ) + 1;
+              a68 rows len < 1
+         THEN 0
+         ELSE REAL a68 rows m = AVERAGE a68 rows a;
+              REAL a68 rows sum := 0;
+              FOR a68 rows i FROM LWB a68 rows a TO UPB a68 rows a DO
+                  a68 rows sum +:= ( a68 rows a[ a68 rows i ] - a68 rows m ) ^ 2
+              OD;
+              sqrt( a68 rows sum / a68 rows len )
+         FI # STANDARDDEVIATION # ;
+
+
+    IF FALSE THEN                             # avoid warnings from ALGOL 68G #
+        [ 1 : 3 ]INT       qig3mm1 := ( 1, 2, 3 );
+        [ 1 : 3 ]LONG INT  qlg3mm1 := ( LONG 1, LONG 2, LONG 3 );
+        [ 1 : 3 ]REAL      qrg3mm1 := ( 1, 2, 3 );
+        [ 1 : 3 ]STRING    qsg3mm1 := ( "!", "22", "$$$" );
+        print( ( AVERAGE qig3mm1, MEDIAN qig3mm1 ) );
+        print( ( STANDARDDEVIATION qrg3mm1, " ", STANDARDDEVIATION qig3mm1 ) );
+        SHOW qrg3mm1;  SHOW qlg3mm1; SHOW qig3mm1;
+        print( ( MIN []INT( -4, 6, 2 ), ", ", MIN []REAL( 3, 2, 1 ), newline ) );
+        print( ( MAX []INT( 66, 33, 101 ), ", ", MAX []REAL( 9, 3.2, 77.406 ), newline ) );
+        print( ( MIN []INT(), ", ", MIN []REAL(), newline ) );
+        print( ( MAX []INT(), ", ", MAX []REAL(), newline ) );
+        print( ( MIN []LONG INT( - LONG 54, - LONG 656, LONG 656 ), ", " ) );
+        print( ( MAX []LONG INT( LONG 32768, LONG 2, LONG 1 ), newline ) );
+        print( ( MIN []LONG INT(), ", ", MAX []LONG INT(), newline ) );
+        print( ( qig3mm1 INDEXOF 3, qlg3mm1 INDEXOF 2, qrg3mm1 INDEXOF 1.0, qsg3mm1 INDEXOF "!" ) )
+    FI;
+
+# END rows.incl.a68                                                           #

@@ -51,6 +51,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 | Tool | Purpose |
 |---|---|
 | `rosetta_prep.py` | prepares the ALGOL 68 solutions of a RosettaCodeData checkout for ga68 and a68j (`tests/rosetta/`), with the format rewrite tool for the solutions with formats; `--again` prepares given files again from `orig/` |
+| `rosetta_includes.py` | fetches the include files that solutions read (`primes.incl.a68`, `prelude/*.a68` ...) from Rosetta Code into `tests/rosetta/include/`, with their pages and revisions in `SOURCES.tsv`; `--dry-run` shows where each file is found, `--only FILE...` fetches single files |
 | `a68supper.py` | converts an UPPER-stropped program to SUPPER stropping; used by `rosetta_prep.py` |
 | `rosetta_report.py` | summarizes the runs of ga68 and a68j in `tests/rosetta/results.tsv` |
 | `rosetta_list.py` | writes `tests/rosetta/passing.md` and `passing.txt` from `results.tsv` |
@@ -69,7 +70,7 @@ See `tests/rosetta/README.md` for the whole procedure.
 | `par_tests.sh [JAVA [REPEAT]]` | PAR and SEMA (`tests/par`, `docs/par-and-sema.md`) |
 | `options_tests.sh [JAVA]` | command-line options (`tests/options`): the warnings `-W…` of ga68 and how `-Wall`, `-Wextra` and named warnings combine, `-fassert`/`-fno-assert`, `-fgenie`, `-fformats`, and the error for an unknown option; the warning `-Wframe-scope` (`tests/scope`, `docs/BACKEND.md` section 3); environment variables from a second line `{ a68j-env: ... }` |
 | `graphs_tests.sh [JAVA]` | the graph library for Rosetta Code and the solutions that use it (`tests/rosetta/graphs`), with `-fgenie`, against outputs recorded with Algol 68 Genie (`--record [A68G]`) |
-| `hashes_tests.sh [JAVA]` | 32-bit words, bytes and SHA-256 for Rosetta Code (`tests/rosetta/hashes`), with `-fgenie`, against outputs recorded with Algol 68 Genie (`--record [A68G]`); `--fetch` copies `bits.incl.a68`, on which it builds, from Rosetta Code |
+| `hashes_tests.sh [JAVA]` | 32-bit words, bytes and SHA-256 for Rosetta Code (`tests/rosetta/hashes`), with `-fgenie`, against outputs recorded with Algol 68 Genie (`--record [A68G]`); it builds on `bits.incl.a68` of Rosetta Code in `tests/rosetta/include` |
 | `partial_tests.py [--java JAVA]` | partial parametrization (`tests/partial`), against outputs recorded with Algol 68 Genie (`--record --a68g A68G`), up to the widths and rounding of numbers |
 | `formats_tests.py [--java JAVA] [--a68g A68G] [--ga68 XGCC --libdir DIR]` | formats (`docs/genie-formats.md`): the rewrite tool on a68j, Algol 68 Genie and ga68 with the same output (`tests/formats/rewrite`), and programs with format texts rewritten and run with `Genie_Formats`, and as they are with `-fgenie`, with the lowering and with the rewrite (`A68J_FORMATS=rewrite`; `NAME.lowered.err` for an error the compiler finds with the lowering), against outputs recorded with Algol 68 Genie (`tests/formats`, `tests/formats/genie`; `NAME.fixed` marks a deliberate difference to Algol 68 Genie, not run on it; `NAME.native` a program that the Algol 68 Genie version of `Genie_Formats` cannot run) |
 | `skip_modes_test.sh [JAVA]` | the modes without a SKIP value in ga68 (`file`, `channel`, `bytes`, `long bytes`): a68j rejects the same declarations as ga68 |

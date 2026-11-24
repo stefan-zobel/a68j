@@ -6,7 +6,7 @@
 # they are given as in RFC 1321, since their computation would depend on  #
 # the precision of REAL.                                                  #
 BEGIN
-   PR read "bits.incl.a68" PR
+   PR read "../include/bits.incl.a68" PR
    PR read "hashes.incl.a68" PR
 
    # the MD5 digest of a message of bytes: 16 bytes #

@@ -1,0 +1,145 @@
+# sort.incl.a68: sorting related modes, operators, etc.           30/04/2025  #
+
+    # mode to hold the array bounds for sorting a subset of the array         #
+    MODE ELEMENTS = STRUCT( INT low, high );
+
+    # swaps the values of a and b                                             #
+    PRIO =:= = 9;
+    OP   =:= = ( REF INT      swap a, with b )REF INT:
+         BEGIN INT      t := with b; with b := swap a; swap a := t END;
+    OP   =:= = ( REF LONG INT swap a, with b )REF LONG INT:
+         BEGIN LONG INT t := with b; with b := swap a; swap a := t END;
+    OP   =:= = ( REF REAL     swap a, with b )REF REAL:
+         BEGIN REAL     t := with b; with b := swap a; swap a := t END;
+    OP   =:= = ( REF STRING   swap a, with b )REF STRING:
+         BEGIN STRING   t := with b; with b := swap a; swap a := t END;
+
+    # in-place quick sort a[ low OF bounds : high OF bounds ]                 #
+    PRIO QUICKSORT = 9;
+    OP   QUICKSORT = ( REF[]INT qs a, ELEMENTS bounds )REF[]INT:
+         IF INT lb = low OF bounds, ub = high OF bounds;
+            ub <= lb
+         THEN qs a                      # at most 1 element - no need to sort #
+         ELSE                           # more than one element, so must sort #
+            INT qs left  := lb;
+            INT qs right := ub;
+            # choosing the middle element of the array as the pivot           #
+            INT pivot := qs a[ qs left + ( ( qs right + 1 ) - qs left ) OVER 2 ];
+            WHILE
+                WHILE IF qs left  <= ub THEN qs a[ qs left  ] < pivot ELSE FALSE FI
+                DO
+                    qs left  +:= 1
+                OD;
+                WHILE IF qs right >= lb THEN qs a[ qs right ] > pivot ELSE FALSE FI
+                DO
+                    qs right -:= 1
+                OD;
+                qs left <= qs right
+            DO
+                qs a[ qs left  ] =:= qs a[ qs right ];
+                qs left          +:= 1;
+                qs right         -:= 1
+            OD;
+            qs a QUICKSORT ELEMENTS( lb,      qs right );
+            qs a QUICKSORT ELEMENTS( qs left, ub       )
+         FI # QUICKSORT # ;
+    OP   QUICKSORT = ( REF[]LONG INT qs a, ELEMENTS bounds )REF[]LONG INT:
+         IF INT lb = low OF bounds, ub = high OF bounds;
+            ub <= lb
+         THEN qs a                      # at most 1 element - no need to sort #
+         ELSE                           # more than one element, so must sort #
+            INT qs left  := lb;
+            INT qs right := ub;
+            # choosing the middle element of the array as the pivot           #
+            LONG INT pivot := qs a[ qs left + ( ( qs right + 1 ) - qs left ) OVER 2 ];
+            WHILE
+                WHILE IF qs left  <= ub THEN qs a[ qs left  ] < pivot ELSE FALSE FI
+                DO
+                    qs left  +:= 1
+                OD;
+                WHILE IF qs right >= lb THEN qs a[ qs right ] > pivot ELSE FALSE FI
+                DO
+                    qs right -:= 1
+                OD;
+                qs left <= qs right
+            DO
+                qs a[ qs left  ] =:= qs a[ qs right ];
+                qs left          +:= 1;
+                qs right         -:= 1
+            OD;
+            qs a QUICKSORT ELEMENTS( lb,      qs right );
+            qs a QUICKSORT ELEMENTS( qs left, ub       )
+         FI # QUICKSORT # ;
+    OP   QUICKSORT = ( REF[]REAL qs a, ELEMENTS bounds )REF[]REAL:
+         IF INT lb = low OF bounds, ub = high OF bounds;
+            ub <= lb
+         THEN qs a                      # at most 1 element - no need to sort #
+         ELSE                           # more than one element, so must sort #
+            INT qs left   := lb;
+            INT qs right  := ub;
+            # choosing the middle element of the array as the pivot           #
+            REAL pivot := qs a[ qs left + ( ( qs right + 1 ) - qs left ) OVER 2 ];
+            WHILE
+                WHILE IF qs left  <= ub THEN qs a[ qs left  ] < pivot ELSE FALSE FI
+                DO
+                    qs left  +:= 1
+                OD;
+                WHILE IF qs right >= lb THEN qs a[ qs right ] > pivot ELSE FALSE FI
+                DO
+                    qs right -:= 1
+                OD;
+                qs left <= qs right
+            DO
+                qs a[ qs left  ] =:= qs a[ qs right ];
+                qs left          +:= 1;
+                qs right         -:= 1
+            OD;
+            qs a QUICKSORT ELEMENTS( lb,      qs right );
+            qs a QUICKSORT ELEMENTS( qs left, ub       );
+            qs a
+         FI # QUICKSORT # ;
+    OP   QUICKSORT = ( REF[]STRING qs a, ELEMENTS bounds )REF[]STRING:
+         IF INT lb = low OF bounds, ub = high OF bounds;
+            ub <= lb
+         THEN qs a                      # at most 1 element - no need to sort #
+         ELSE                           # more than one element, so must sort #
+            INT qs left  := lb;
+            INT qs right := ub;
+            # choosing the middle element of the array as the pivot           #
+            STRING pivot := qs a[ qs left + ( ( qs right + 1 ) - qs left ) OVER 2 ];
+            WHILE
+                WHILE IF qs left  <= ub THEN qs a[ qs left  ] < pivot ELSE FALSE FI
+                DO
+                    qs left  +:= 1
+                OD;
+                WHILE IF qs right >= lb THEN qs a[ qs right ] > pivot ELSE FALSE FI
+                DO
+                    qs right -:= 1
+                OD;
+                qs left <= qs right
+            DO
+                qs a[ qs left  ] =:= qs a[ qs right ];
+                qs left          +:= 1;
+                qs right         -:= 1
+            OD;
+            qs a QUICKSORT ELEMENTS( lb,      qs right );
+            qs a QUICKSORT ELEMENTS( qs left, ub       )
+         FI # QUICKSORT # ;
+
+    # quicksorts a in-place                                                   #
+    OP   QUICKSORT = ( REF[]INT      qs a )REF[]INT:      qs a QUICKSORT ELEMENTS( LWB qs a, UPB qs a );
+    OP   QUICKSORT = ( REF[]LONG INT qs a )REF[]LONG INT: qs a QUICKSORT ELEMENTS( LWB qs a, UPB qs a );
+    OP   QUICKSORT = ( REF[]REAL     qs a )REF[]REAL:     qs a QUICKSORT ELEMENTS( LWB qs a, UPB qs a );
+    OP   QUICKSORT = ( REF[]STRING   qs a )REF[]STRING:   qs a QUICKSORT ELEMENTS( LWB qs a, UPB qs a );
+
+    IF FALSE THEN                             # avoid warnings from ALGOL 68G #
+        [ 1 : 3 ]INT      qs0r99iz := ( 1701, 1482, 90210 );
+        [ 1 : 3 ]LONG INT qs0r99lz := (  403,   -6,     1 );
+        [ 1 : 3 ]REAL     qs0r99rz := ( 1665,    2,    -3 );
+        [ 1 : 3 ]STRING   qs0r99sz := ( "iA", "P03",  "3" );
+        print( ( QUICKSORT qs0r99iz, QUICKSORT qs0r99rz, QUICKSORT qs0r99sz ) );
+        print( ( QUICKSORT qs0r99lz ) )
+    FI;
+
+
+# end sort.incl.a68                                                           #

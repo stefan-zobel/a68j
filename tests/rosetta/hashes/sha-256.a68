@@ -2,7 +2,7 @@
 # Uses bits.incl.a68 (Category:ALGOL 68-bits) and hashes.incl.a68, which  #
 # implements SHA-256 as in FIPS 180-4.                                    #
 BEGIN
-   PR read "bits.incl.a68" PR
+   PR read "../include/bits.incl.a68" PR
    PR read "hashes.incl.a68" PR
 
    print ((hex (sha256 (bytes ("Rosetta code"))), newline))

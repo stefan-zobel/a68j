@@ -1,0 +1,138 @@
+# files.incl.a68: file related operators, procedure etc. Version: 20260219-1  #
+
+    PRIO EACHLINE = 9;
+
+    # applies p to each line of the file with path a68files name              #
+    # returns the number of lines in the file if sucessful,                   #
+    #         -1 if the file couldn't be opened                               #
+    OP   EACHLINE = ( STRING a68files name, PROC(STRING)VOID p )INT:
+         IF FILE input file;
+            open( input file, a68files name, stand in channel ) /= 0
+         THEN -1                                    # failed to open the file #
+         ELSE                                                # file opened OK #
+            BOOL at eof := FALSE;
+            # set the EOF handler for the file                                #
+            on logical file end
+               ( input file
+               , ( REF FILE f )BOOL: # note that we reached EOF on the latest #
+                     at eof := TRUE  # read and return TRUE so processing can #
+                                     #                               continue #
+               );
+            INT count := 0;
+            WHILE STRING line;
+                  get( input file, line );
+                  IF NOT at eof THEN
+                      get( input file, newline );
+                      IF at eof THEN        # no newline after the final line #
+                          count +:= 1;
+                          p( line )
+                      FI
+                  FI;
+                  NOT at eof
+            DO
+                count +:= 1;
+                p( line )
+            OD;
+            close( input file );
+            count
+         FI # EACHLINE # ;
+
+    # applies p to each line of the file with path a68files name              #
+    # returns if sucessful, the number of lines in the file where p           #
+    #         returned TRUE if sucessful, -1 if the file couldn't be opened   #
+    OP   EACHLINE = ( STRING a68files name, PROC(STRING,INT)BOOL p )INT:
+         IF FILE input file;
+            open( input file, a68files name, stand in channel ) /= 0
+         THEN -1                                    # failed to open the file #
+         ELSE                                                # file opened OK #
+            BOOL at eof := FALSE;
+            # set the EOF handler for the file                                #
+            on logical file end
+               ( input file
+               , ( REF FILE f )BOOL: # note that we reached EOF on the latest #
+                     at eof := TRUE  # read and return TRUE so processing can #
+                                     #                               continue #
+               );
+            INT count := 0;
+            WHILE STRING line;
+                  get( input file, line );
+                  IF NOT at eof THEN
+                      get( input file, newline );
+                      IF at eof THEN        # no newline after the final line #
+                          IF p( line, count ) THEN count +:= 1 FI
+                      FI
+                  FI;
+                  NOT at eof
+            DO
+                IF p( line, count ) THEN count +:= 1 FI
+            OD;
+            close( input file );
+            count
+         FI # EACHLINE # ;
+
+    # prints all lines from a68files name                                     #
+    # returns the number of lines in the file if successful,                  #
+    #         -1 if the file could not be opened                              #
+    OP   PRINTLINES = ( STRING a68files name )INT:
+         BEGIN PROC print line = ( STRING line )VOID: print( ( line, newline ) );
+               a68files name EACHLINE print line
+         END # PRINTLINES # ;
+
+    # returns the lines from a68files name or an empty row if the file        #
+    #         couldn't be opened                                              #
+    OP   READLINES = ( STRING a68files name )REF[]STRING:
+         BEGIN
+            FLEX[ 1 : 0 ]STRING lines;
+            INT line pos := 0;
+
+            # adds line to lines, extending lines if necessary                #
+            PROC rl read line = ( STRING line )VOID:
+                 BEGIN
+                    IF ( line pos +:= 1 ) > UPB lines THEN
+                        # lines isn't big enoough                             #
+                        [ 1 : UPB lines + 2000 ]STRING new lines;
+                        new lines[ 1 : UPB lines ] := lines;
+                        lines := new lines
+                    FI;
+                    lines[ line pos ] := line
+                 END # read line # ;
+
+            VOID( a68files name EACHLINE rl read line );
+            HEAP[ 1 : line pos ]STRING := lines[ 1 : line pos ]
+         END # READLINES # ;
+
+    PRIO APPENDLINES = 9;
+
+    # appends lines to the the end of the file named a68files name            #
+    # the file is created if it doesn't exist                                 #
+    # returns TRUE if sucessful, FALSE if the file could not be opened        #
+    OP   APPENDLINES = ( STRING a68files name, []STRING lines )BOOL:
+         IF   REF[]STRING existing lines = READLINES a68files name;
+              FILE output file;
+              IF   open( output file, a68files name, stand out channel ) = 0
+              THEN 0      # OK - file already exists and will be overwritten #
+              ELSE       # failed to open the file - try creating a new file #
+                   establish( output file, a68files name, stand out channel )
+              FI /= 0
+         THEN FALSE                     # unable to open the file for writing #
+         ELSE                                         # output file opened OK #
+              FOR i FROM LWB existing lines TO UPB existing lines DO
+                  put( output file, ( existing lines[ i ], newline ) )
+              OD;
+              FOR i FROM LWB lines TO UPB lines DO
+                  put( output file, ( lines[ i ], newline ) )
+              OD;
+              close( output file );
+              TRUE
+         FI # APPENDLINES # ;
+
+    IF FALSE THEN                  # avoid "not used" warnings from ALGOL 68G #
+        print( ( "someFile.txt" APPENDLINES []STRING( "a", "B" ) ) );
+        PROC qwzwz = ( STRING a )VOID: print( ( a, newline ) );
+        PROC qwzxz = ( STRING a, INT b )BOOL: BEGIN print( ( a, b, newline ) ); TRUE END;
+        print( ( "someFile.txt" EACHLINE qwzwz, "anotherFile.dat" EACHLINE qwzxz ) );
+        print( ( PRINTLINES "printFile.txt" ) )
+    FI;
+
+
+# END files.incl.a68                                                          #

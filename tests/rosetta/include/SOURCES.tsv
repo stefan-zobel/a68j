@@ -1,0 +1,65 @@
+file	page	revision
+Iterator_pipe_operators.a68	User defined pipe and redirection operators/ALGOL 68	329028
+Iterator_pipe_page.a68	User defined pipe and redirection operators/ALGOL 68	329028
+Iterator_pipe_utilities.a68	User defined pipe and redirection operators/ALGOL 68	329028
+LinkedList.alg	Doubly-linked list/Traversal	418487
+Matrix-exponentiation_operator.a68	Matrix-exponentiation operator	418466
+Matrix_algebra.a68	Matrix-exponentiation operator	418466
+Template.Balanced_ternary_float.Base.a68	Generalised floating point multiplication	399693
+Template.Big_float.Addition.a68	Generalised floating point addition	402372
+Template.Big_float.Base.a68	Generalised floating point addition	402372
+Template.Big_float.Multiplication.a68	Generalised floating point multiplication	399693
+Template.Big_float.Subtraction.a68	Generalised floating point addition	402372
+Template.Big_float_BCD.Base.a68	Generalised floating point addition	402372
+Template.Fast_Fourier_transform.a68	Fast Fourier transform	419999
+Template.Find_first_and_last_set_bit.a68	Find first and last set bit of a long integer	415821
+Template.Generator.a68	Generator/Exponential	419485
+Template_Range_extraction_Base.a68	Range extraction	417579
+Template_Range_extraction_Iterative.a68	Range extraction	417579
+Template_operators_logical_mixin.a68	Ternary logic	411890
+Ternary_logic.a68	Ternary logic	411890
+aArray.a68	ALGOL 68/prelude	382782
+aArrayBase.a68	ALGOL 68/prelude	382782
+bits.incl.a68	Category:ALGOL 68-bits	389518
+files.incl.a68	Category talk:ALGOL 68-files	396782
+lsystem.incl.a68	Category talk:ALGOL 68-l-system	372608
+postlude_exception.a68	Gaussian elimination	418334
+prelude/Bitmap.a68	ALGOL 68/prelude	382782
+prelude/Bitmap/Bezier_curves/Cubic.a68	Bitmap/Bézier curves/Cubic	419293
+prelude/Bitmap/Bresenhams_line_algorithm.a68	ALGOL 68/prelude	382782
+prelude/Bitmap/Midpoint_circle_algorithm.a68	Bitmap/Midpoint circle algorithm	411660
+prelude/Doubly-linked_list_Link.a68	Doubly-linked list/Definition	418484
+prelude/Doubly-linked_list_Operator.a68	Doubly-linked list/Definition	418484
+prelude/Quaternion.a68	Quaternion	419847
+prelude/errata.a68	ALGOL 68/prelude/errata.a68	363834
+prelude/event_base(obj).a68	Exceptions	420100
+prelude/exception.a68	Dragon curve	419233
+prelude/general.a68	Template:Prelude/general.a68	363545
+prelude/graph_2d.a68	ALGOL 68/prelude/graph 2d.a68	363833
+prelude/is_prime.a68	Template:Prelude/is prime.a68	108115
+prelude/link.a68	Queue/Definition	420101
+prelude/matrix.a68	Identity matrix	418401
+prelude/matrix_base.a68	Identity matrix	418401
+prelude/matrix_ident.a68	Identity matrix	418401
+prelude/next_link.a68	Stack	419530
+prelude/pow_mod.a68	Template:Prelude/pow mod.a68	108082
+prelude/queue_base.a68	Queue/Definition	420101
+prelude/sort.a68	Template:Prelude/sort.a68	108107
+prelude/sort/shell.a68	Sorting algorithms/Shell sort	414506
+prelude/stack_base.a68	Stack	419530
+prelude/turtle_draw.a68	Dragon curve	419233
+prelude/vector_base.a68	Identity matrix	418401
+prelude_combinations.a68	Combinations	415712
+prelude_combinations_and_permutations.a68	Combinations and permutations	419149
+prelude_dijkstras_algorithm.a68	Dijkstra's algorithm	418839
+prelude_exception.a68	Gaussian elimination	418334
+prelude_gaussian_elimination.a68	Gaussian elimination	418334
+prelude_mat_lib.a68	Gaussian elimination	418334
+prelude_permutations.a68	Permutations	418235
+prelude_permutations_with_repetitions.a68	Permutations with repetitions	415977
+primes.incl.a68	Talk:ALGOL 68-primes	371784
+rows.incl.a68	Category:ALGOL 68-rows	419734
+sort.incl.a68	Category talk:ALGOL 68-sort	380492
+test/data_stigler_diet.a68	Stack	419530
+uriParser.a68	URL parser/URI parser ALGOL68	371203
+wavelet_matrix.incl.a68	Wavelet Matrix	417729

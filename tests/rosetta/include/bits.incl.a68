@@ -1,0 +1,51 @@
+# bits.incl.a68: bit-manipulation operators                                  #
+
+    PRIO ANDAB = 1, ORAB = 1, XORAB = 1, SHLAB = 1, SHRAB = 1;
+
+    # convert to/from INT from/to BITS allowing for negative integers        #
+    OP   TOBITS = ( INT  a )BITS:
+         IF   a >= 0
+         THEN BIN a
+         ELSE NOT BIN IF INT r = - ( a + 1 ); r = 0 THEN 0 ELSE r FI
+         FI # TOBITS # ;
+    OP   TOINT  = ( BITS a )INT: IF 1 ELEM a THEN - ( ABS NOT a + 1 ) ELSE ABS a FI;
+
+    # allow bit manipulation on integers                                     #
+    OP   AND   = ( INT zqzq a, zqzq b  )INT: TOINT ( TOBITS zqzq a AND TOBITS zqzq b );
+    OP   SHL   = ( INT zqzq v, zqzq sh )INT: TOINT ( TOBITS zqzq v SHL zqzq sh );
+    OP   SHR   = ( INT zqzq v, zqzq sh )INT: TOINT ( TOBITS zqzq v SHR zqzq sh );
+    OP   OR    = ( INT zqzq a, zqzq b  )INT: TOINT ( TOBITS zqzq a OR  TOBITS zqzq b );
+    OP   XOR   = ( INT zqzq a, zqzq b  )INT: TOINT ( TOBITS zqzq a XOR TOBITS zqzq b );
+    OP   NOT   = ( INT zqzq a          )INT: TOINT NOT TOBITS zqzq a; 
+    OP   SHLAB = ( REF INT zqzq a, INT zqzq b )REF INT: zqzq a := zqzq a SHL zqzq b;
+    OP   SHRAB = ( REF INT zqzq a, INT zqzq b )REF INT: zqzq a := zqzq a SHR zqzq b;
+    OP   ANDAB = ( REF INT zqzq a, INT zqzq b )REF INT: zqzq a := zqzq a AND zqzq b;
+    OP   ORAB  = ( REF INT zqzq a, INT zqzq b )REF INT: zqzq a := zqzq a OR  zqzq b;
+    OP   XORAB = ( REF INT zqzq a, INT zqzq b )REF INT: zqzq a := zqzq a XOR zqzq b;
+
+    # allow BITS AND/OR/XOR integers                                         #
+    OP   AND   = ( BITS zqzq a, INT zqzq b  )BITS: zqzq a AND TOBITS zqzq b;
+    OP   OR    = ( BITS zqzq a, INT zqzq b  )BITS: zqzq a OR  TOBITS zqzq b;
+    OP   XOR   = ( BITS zqzq a, INT zqzq b  )BITS: zqzq a XOR TOBITS zqzq b;
+    OP   ANDAB = ( REF BITS zqzq a, INT zqzq b )REF BITS: zqzq a := zqzq a AND zqzq b;
+    OP   ORAB  = ( REF BITS zqzq a, INT zqzq b )REF BITS: zqzq a := zqzq a OR  zqzq b;
+    OP   XORAB = ( REF BITS zqzq a, INT zqzq b )REF BITS: zqzq a := zqzq a XOR zqzq b;
+
+    # BITS assignment operators                                              #
+    OP   SHLAB = ( REF BITS zqzq a, INT  zqzq b )REF BITS: zqzq a := zqzq a SHL zqzq b;
+    OP   SHRAB = ( REF BITS zqzq a, INT  zqzq b )REF BITS: zqzq a := zqzq a SHR zqzq b;
+    OP   ANDAB = ( REF BITS zqzq a, BITS zqzq b )REF BITS: zqzq a := zqzq a AND zqzq b;
+    OP   ORAB  = ( REF BITS zqzq a, BITS zqzq b )REF BITS: zqzq a := zqzq a OR  zqzq b;
+    OP   XORAB = ( REF BITS zqzq a, BITS zqzq b )REF BITS: zqzq a := zqzq a XOR zqzq b;
+
+    IF FALSE THEN # ensure the operatotrs appear to be used                  #
+        INT   qzqzq a := 0;
+        qzqzq a ANDAB ( ( ( 5 AND 4 ) XOR 3 ) OR 2 ) ORAB 77 XORAB 63 SHLAB 2 SHRAB 1;
+        BITS  qzqzq b := 16rfff;
+        qzqzq b SHLAB 5 SHRAB 3 ANDAB 16rffff ORAB 16r555 XORAB 16r3;
+        qzqzq b ANDAB 1 ORAB 2 XORAB 15;
+        print( ( qzqzq a SHL 7, qzqzq b ) )
+    FI;
+
+
+# end bits.incl.a68                                                          #

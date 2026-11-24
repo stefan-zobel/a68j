@@ -1,6 +1,6 @@
 # words, bytes and padding of hashes.incl.a68 #
 BEGIN
-   PR read "bits.incl.a68" PR
+   PR read "../include/bits.incl.a68" PR
    PR read "hashes.incl.a68" PR
 
    INT failed := 0;

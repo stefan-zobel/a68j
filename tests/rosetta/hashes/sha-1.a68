@@ -3,7 +3,7 @@
 # (Category:ALGOL 68-bits). The message is padded as for SHA-256 and read #
 # as big endian words; each block of 16 words is expanded to 80 words.    #
 BEGIN
-   PR read "bits.incl.a68" PR
+   PR read "../include/bits.incl.a68" PR
    PR read "hashes.incl.a68" PR
 
    # the SHA-1 digest of a message of bytes: 20 bytes #

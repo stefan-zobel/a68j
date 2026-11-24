@@ -1,0 +1,11 @@
+# associative array for STRING elements and keys                             #
+
+# the modes allowed as associative array element values - change to suit     #
+MODE AAVALUE = STRING;
+# the modes allowed as associative array element keys - change to suit       #
+MODE AAKEY   = STRING;
+
+# an initial value for an array element                                      #
+AAVALUE init element value = "";
+
+PR read "aArrayBase.a68" PR

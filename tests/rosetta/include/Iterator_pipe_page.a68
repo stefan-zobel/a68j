@@ -1,0 +1,26 @@
+# Define the required OPerators for pipes of user-defined type "PAGE" #
+OP +:= = (PAGEOUT page, LINE line)MOID:(
+  [LWB page:UPB page+1]LINE out;
+  out[:UPB page]:=page;
+  out[UPB out]:=line;
+  page := out
+);
+
+PROC page read line = (PAGEIN page, YIELDLINE yield)VOID:
+  FOR elem FROM LWB page TO UPB page DO
+    yield(page[elem])
+  OD;
+
+OP READ = (PAGEIN page)GENLINE:
+  page read line(page, );
+
+PROC page append line = (PAGEAPPEND page, LINE line)VOID:
+  IF LWB page > UPB page THEN page := line ELSE page +:= line FI;
+ 
+OP WRITE = (PAGEOUT page)YIELDLINE: (
+  page := (FLEX[1:0]LINE l; l);
+  page append line(page, )
+);
+
+OP APPEND = (PAGEAPPEND page)YIELDLINE:
+  page append line(page, );

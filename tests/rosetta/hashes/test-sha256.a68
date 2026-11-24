@@ -2,7 +2,7 @@
 # the Rosetta Code task "SHA-256", and messages whose lengths are near    #
 # the limits of the padding                                               #
 BEGIN
-   PR read "bits.incl.a68" PR
+   PR read "../include/bits.incl.a68" PR
    PR read "hashes.incl.a68" PR
 
    INT failed := 0;

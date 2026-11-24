@@ -13,12 +13,20 @@ The sources come from [RosettaCodeData](https://github.com/acmeism/RosettaCodeDa
 The texts of Rosetta Code are licensed under the
 [GNU Free Documentation License 1.3](https://www.gnu.org/licenses/fdl-1.3.html);
 the authors are recorded in the version history of the respective Rosetta
-Code page (linked in the header of each prepared file).
+Code page (linked in the header of each prepared file). The files in
+`include/` come from the pages and revisions listed in
+`include/SOURCES.tsv`, under the same license. `tools/rosetta_includes.py`
+fetches them again; four files that solutions read are not on Rosetta
+Code (`postlude/exception.a68`, `prelude/gcd.a68`,
+`prelude/iterator.a68`, `prelude/math_lib.a68`).
 
 ## Contents
 
 ```
 orig/<name>.a68     the solution unchanged, as on Rosetta Code
+include/            the files that solutions read (PR read "primes.incl.a68"
+                    PR), unchanged, as on Rosetta Code; include/SOURCES.tsv
+                    names the page and revision of each
 <name>.a68          the same solution, prepared for ga68, in GNU notation (SUPPER)
 index.tsv           all solutions with task and result of the preparation
 results.tsv         result per solution: what ga68 does, what the JVM does, note
@@ -30,7 +38,7 @@ graphs/             a graph library in the notation of Algol 68 Genie, with
                     tests and new solutions to tasks without an ALGOL 68
                     solution (graphs/README.md); not prepared for ga68
 hashes/             32-bit words, bytes, SHA-256 and HMAC in the notation of
-                    Algol 68 Genie, on top of bits.incl.a68 of Rosetta Code
+                    Algol 68 Genie, on top of include/bits.incl.a68
                     (hashes/README.md); not prepared for ga68
 ```
 
@@ -277,6 +285,9 @@ program that shows it, are in [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-r
 # once: fetch and prepare the sources
 git clone --filter=blob:none --no-checkout --depth 1 https://github.com/acmeism/RosettaCodeData rcd
 (cd rcd && git sparse-checkout set --no-cone '/Task/*/ALGOL-68/*' '/Task/*/00-META.yaml' && git checkout)
+python3 tools/rosetta_prep.py --data rcd --out tests/rosetta
+# the include files that index.tsv lists as missing, then prepare again
+python3 tools/rosetta_includes.py
 python3 tools/rosetta_prep.py --data rcd --out tests/rosetta
 
 # reference with ga68, then comparison on the JVM

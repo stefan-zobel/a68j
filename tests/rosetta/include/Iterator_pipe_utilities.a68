@@ -1,0 +1,96 @@
+PROC cat yield line = ([]GENLINE argv, YIELDLINE yield)VOID:
+  FOR gen line FROM LWB argv TO UPB argv DO
+    argv[gen line](yield)
+  OD;
+
+PROC cat = ([]GENLINE argv)GENLINE:
+  cat yield line(argv, );
+
+PROC tee yield line = (GENLINE gen, []YIELDLINE args yield, YIELDLINE yield)VOID: (
+  # FOR LINE line IN # gen(#) DO #
+  ##   (LINE line)VOID: (
+         yield(line);
+         FOR outn FROM LWB args yield TO UPB args yield DO
+            args yield[outn](line)
+         OD
+  # OD #))
+);
+
+PROC tee filter = (GENLINE gen, []YIELDLINE args yield)GENLINE:
+  tee yield line(gen, args yield, );
+
+PROC tee = ([]YIELDLINE args filter)FILTER:
+  tee filter(, args filter);
+
+PROC grep yield line = (STRING pattern, []GENLINE argv, YIELDLINE yield)VOID:
+# FOR LINE line IN # cat(argv)(
+##   (LINE line)VOID:
+       IF string in string(pattern, NIL, line) THEN yield(line) FI
+# OD #);
+
+PROC grep = (STRING pattern, []GENLINE argv)GENLINE:
+  grep yield line(pattern, cat(argv), );
+
+PROC uniq yield line = (GENLINE arg, YIELDLINE yield)VOID:(
+  UNION(VOID, LINE)prev := EMPTY;
+# FOR LINE this IN # arg(#) DO #
+##   (LINE this)VOID:
+       CASE prev IN
+         (LINE case prev): IF NOT(case prev=this) THEN prev := this; yield(this) FI,
+         (VOID): (prev := this; yield(this))
+       ESAC
+# OD #)
+);
+
+PROC uniq = (GENLINE arg)GENLINE:
+  uniq yield line(arg, );
+
+MODE SORTSTRUCT = LINE;
+PR READ "prelude/sort.a68" PR
+
+PROC sort yield line = ([]GENLINE args, YIELDLINE yield)VOID:(
+  PAGE out; cat(args) > out; in place shell sort(out);
+  FOR elem FROM LWB out TO UPB out DO
+    yield(out[elem])
+  OD
+);
+
+PROC sort = (GENLINE arg)GENLINE:
+  sort yield line(arg, );
+
+PROC head yield line= (INT n, []GENLINE args, YIELDLINE yield)VOID:
+  FOR argn FROM LWB args TO UPB args DO
+    GENLINE line gen = args[argn];
+    INT count := 0;
+  # FOR LINE line IN # cat(line gen)(#) DO #
+  ##   (LINE line)VOID:(
+         count+:=1;
+         yield(line);
+         IF count = n THEN done FI
+  # OD #));
+    done: SKIP
+  OD;
+
+PROC head = (INT n, []GENLINE args)GENLINE:
+  head yield line(n, args, );
+
+PROC tail yield line = (INT n, []GENLINE args, YIELDLINE yield)VOID:
+  FOR argn FROM LWB args TO UPB args DO
+    GENLINE gen line = args[argn];
+    [0:n-1]LINE window; INT window end := -1;
+  # FOR LINE line IN # gen line(#) DO #
+  ##   (LINE line)VOID:
+         window[(window end+:=1) MOD n]:= line
+  # OD #);
+    FOR line FROM window end-n+1 TO window end DO
+      IF line>=0 THEN
+        yield(window[line MOD n])
+      FI
+    OD
+  OD;
+
+PROC tail = (INT n, []GENLINE args)GENLINE:
+  tail yield line(n, args, );
+
+# Define an optional monadic OPerator #
+OP TAIL = (INT n)MANYTOONE: tail(n, );

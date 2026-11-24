@@ -9,25 +9,22 @@ and with a68j (`-fgenie`) with the same results.
 
 It builds on `bits.incl.a68` of Rosetta Code
 ([Category:ALGOL 68-bits](https://rosettacode.org/wiki/Category:ALGOL_68-bits)),
-which provides `AND`, `OR`, `XOR`, `NOT`, `SHL` and `SHR` on `INT`. A
-program reads both:
+which provides `AND`, `OR`, `XOR`, `NOT`, `SHL` and `SHR` on `INT`. It
+is in `tests/rosetta/include`, with the other include files of Rosetta
+Code (`tools/rosetta_includes.py`). A program here reads both:
 
 ```
-PR read "bits.incl.a68" PR
+PR read "../include/bits.incl.a68" PR
 PR read "hashes.incl.a68" PR
 ```
 
-`bits.incl.a68` is not in the repository; `.gitignore` leaves out the
-copy in this directory.
+On Rosetta Code, where both files are next to the program, the first
+line is `PR read "bits.incl.a68" PR`.
 
 ```sh
-sh tools/hashes_tests.sh --fetch             # copy bits.incl.a68 from Rosetta Code
 sh tools/hashes_tests.sh [JAVA]              # run with a68j -fgenie, compare with NAME.out
 sh tools/hashes_tests.sh --record [A68G]     # record NAME.out with Algol 68 Genie
 ```
-
-On Windows, `curl` of Git Bash may fail to connect to Rosetta Code;
-`--fetch` then works in WSL.
 
 ## Contents
 

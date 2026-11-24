@@ -1,0 +1,159 @@
+# primes.incl.a68: prime related operators, procedure etc.                   #
+
+    # returns a sieve of primes up to a68 primes n                           #
+    OP   PRIMESIEVE = ( INT a68 primes n )[]BOOL:
+         BEGIN
+            [ 0 : a68 primes n ]BOOL ps prime;
+            ps prime[ 0 ] := ps prime[ 1 ] := FALSE;
+            ps prime[ 2 ] := TRUE;
+            FOR i FROM 3 BY 2 TO UPB ps prime DO ps prime[ i ] := TRUE  OD;
+            FOR i FROM 4 BY 2 TO UPB ps prime DO ps prime[ i ] := FALSE OD;
+            FOR i FROM 3 BY 2 TO ENTIER sqrt( UPB ps prime ) DO
+                IF ps prime[ i ] THEN
+                    FOR s FROM i * i BY i + i TO UPB ps prime DO ps prime[ s ] := FALSE OD
+                FI
+            OD;
+            ps prime
+         END; # PRIMESIEVE #
+
+    # modes and operators for extracting primes from a sieve                 #
+
+    INT first n primes extract op    = 0;
+    INT primes up to extract op      = 1;
+
+    MODE PRIMEEXTRACT = STRUCT( INT extract op, INT n );
+
+    # returns a PRIMEEXTRACT with the first a68 primes n primces extract op  #
+    OP   EXTRACTFIRST      = ( INT a68 primes n )PRIMEEXTRACT:
+         PRIMEEXTRACT( first n primes extract op, a68 primes n );
+
+    # returns a PRIMEEXTRACT with primes up to extract op                    #
+    OP   EXTRACTPRIMESUPTO = ( INT a68 primes n )PRIMEEXTRACT:
+         PRIMEEXTRACT( primes up to extract op,   a68 primes n );
+
+    # returns an array of primes extracted from prime                        #
+    #         as specified by by the extract op and number of primes in ex   #
+    PRIO PRIMESFROMSIEVE = 9, FROMPRIMESIEVE = 9;
+    OP PRIMESFROMSIEVE = ( PRIMEEXTRACT a68 primes ex, []BOOL fs prime )[]INT:
+         IF extract op OF a68 primes ex = first n primes extract op
+         THEN
+             # extract the first n OF ex primes                              #
+             # count the primes up n OF a68 primes ex                        #
+             INT pfs count := 0;
+             FOR a68 primes i TO UPB fs prime WHILE pfs count < n OF a68 primes ex DO
+                 IF fs prime[ a68 primes i ] THEN pfs count +:= 1 FI
+             OD;
+             # construct a list of the first n OF ex primes or p count,      #
+             # whichever is smaller                                          #
+             [ 1 : pfs count ]INT pfs low prime;
+             INT pfs low pos := 0;
+             FOR a68 primes i WHILE pfs low pos < UPB pfs low prime DO
+                 IF fs prime[ a68 primes i ] THEN pfs low prime[ pfs low pos +:= 1 ] := a68 primes i FI
+             OD;
+             pfs low prime
+         ELSE
+             # extract primes up to n OF ex primes                           #
+             INT max fs prime = n OF a68 primes ex;
+             # count the primes up to max prime                              #
+             INT pfs count := 0;
+             FOR i TO max fs prime DO IF fs prime[ i ] THEN pfs count +:= 1 FI OD;
+             # construct a list of the primes up to max prime                #
+             [ 1 : pfs count ]INT pfs low prime;
+             INT pfs low pos := 0;
+             FOR a68 primes i WHILE pfs low pos < UPB pfs low prime DO
+                 IF fs prime[ a68 primes i ] THEN pfs low prime[ pfs low pos +:= 1 ] := a68 primes i FI
+             OD;
+             pfs low prime
+         FI # PRIMESFROMSIEVE # ;
+    # alternative spelling of the operator name                              #
+    OP FROMPRIMESIEVE = ( PRIMEEXTRACT a68 primes ex, []BOOL ex prime )[]INT:
+       a68 primes ex PRIMESFROMSIEVE ex prime;
+
+    PROC is probably prime = ( LONG LONG INT a68 primes n )BOOL:
+         IF   a68 primes n < 3        THEN a68 primes n =  2
+         ELIF NOT ODD a68 primes n    THEN FALSE
+         ELIF a68 primes n MOD  3 = 0 THEN a68 primes n =  3
+         ELIF a68 primes n MOD  5 = 0 THEN a68 primes n =  5
+         ELIF a68 primes n MOD  7 = 0 THEN a68 primes n =  7
+         ELIF a68 primes n MOD 11 = 0 THEN a68 primes n = 11
+         ELIF a68 primes n < 10 000 000 THEN
+             INT  short n             = SHORTEN SHORTEN a68 primes n;
+             INT  a68 primes f       :=  13;
+             INT  a68 primes f2      := 169;
+             INT  a68 primes to next :=  56;
+             BOOL is mr prime        := TRUE;
+             WHILE a68 primes f2 <= a68 primes n AND is mr prime DO
+                 is mr prime         := short n MOD a68 primes f /= 0;
+                 a68 primes f       +:= 2;
+                 a68 primes f2      +:= a68 primes to next;
+                 a68 primes to next +:= 8
+             OD;
+             is mr prime
+         ELSE
+            # miller rabin primality test #
+            PROC mr pow mod = (LONG LONG INT a68 primes b, a68 primes in e, a68 primes modulus)LONG LONG INT:
+                 BEGIN
+                    LONG LONG INT a68 primes sq     := a68 primes b, a68 primes e := a68 primes in e;
+                    LONG LONG INT a68 primes result := IF ODD a68 primes e THEN a68 primes b ELSE 1 FI;
+                    a68 primes e OVERAB 2;
+                    WHILE a68 primes e /= 0 DO
+                        a68 primes sq := a68 primes sq * a68 primes sq MOD a68 primes modulus;
+                        IF ODD a68 primes e THEN
+                            a68 primes result := a68 primes result * a68 primes sq MOD a68 primes modulus
+                        FI ;
+                        a68 primes e OVERAB 2
+                    OD;
+                    a68 primes result
+                 END # mr pow mod # ;
+            INT  a68 primes k = 10;
+            LONG LONG INT a68 primes d := a68 primes n - 1;
+            INT a68 primes s := 0;
+            WHILE NOT ODD a68 primes d DO
+                a68 primes d OVERAB 2;
+                a68 primes s +:= 1
+            OD;
+            BOOL is mr prime := TRUE;
+            TO a68 primes k WHILE is mr prime DO
+                LONG LONG INT a68 primes a := 2 + ENTIER ( random * ( a68 primes n - 3 ) );
+                LONG LONG INT a68 primes x := mr pow mod( a68 primes a, a68 primes d, a68 primes n );
+                IF a68 primes x /= 1 THEN
+                    BOOL a68 primes done := FALSE;
+                    TO a68 primes s WHILE NOT a68 primes done DO
+                        IF   a68 primes x = a68 primes n - 1
+                        THEN a68 primes done := TRUE
+                        ELSE a68 primes x    := a68 primes x * a68 primes x MOD a68 primes n
+                        FI
+                    OD;
+                    IF NOT a68 primes done THEN
+                        IF a68 primes x /= a68 primes n-1 THEN is mr prime := FALSE FI
+                    FI
+                FI
+            OD;
+            is mr prime
+         FI # is probably prime # ;
+
+    # returns an approximate size of sieve required for n primes    #
+    #         uses Chebyshev's formula of n/ln(n), increased by 20% #
+    #         as n/ln(n) is only pi(n) when n appraoches infinity   #
+    OP   APPROXIMATESIEVESIZEFOR = ( INT a68 primes n )INT:
+         BEGIN
+            INT result := 10;
+            WHILE INT asp count = ENTIER ( ( result / ln( result ) ) * 1.2 );
+                  asp count < a68 primes n
+            DO
+                result *:= 4
+            OD;
+            result
+         END # APPROXIMATESIEVESIZEFOR # ;
+
+    IF FALSE THEN        # avoid "not used" warnings from ALGOL 68G #
+        []BOOL qzqxz = PRIMESIEVE 20;
+        []INT  qzqyz = EXTRACTPRIMESUPTO 10 FROMPRIMESIEVE qzqxz;
+        print( ( APPROXIMATESIEVESIZEFOR qzqyz[ 1 ] ) );
+        print( ( is probably prime( 3 )             ) );
+        print( ( EXTRACTFIRST 3                     ) )
+    FI;
+
+
+
+# END primes.incl.a68                                                        #
