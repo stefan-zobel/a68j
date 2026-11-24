@@ -300,12 +300,24 @@ or of a row an item of `read` and `readf`, as in Algol 68 Genie (see
 "Differences and limits").
 
 These remain differences to Algol 68 Genie, with or without `-fgenie`:
-`long long` modes without multiple precision, the 32-bit `int` and
-`real` (a `real` variable widened to `long real` keeps the precision of
-its 32 bits), `_` in
-tags (not significant in ga68), no QUOTE stropping, and the parts of
-formats that are not supported
-yet (see "Differences and limits").
+
+- `long long` modes without multiple precision, and the 32-bit `int` and
+  `real` (a `real` variable widened to `long real` keeps the precision of
+  its 32 bits).
+- `short int` and `short short int`, and the `short` modes of `real`,
+  `bits` and `compl`, are modes of their own, as in ga68; in Algol 68
+  Genie they are the modes without `short`. A program that mixes them with
+  `int` gets errors from the compiler (no coercion, no operator for the
+  two modes), and `print` and `printf` take no `short` value.
+- There is no operator `&`, which Algol 68 Genie has as another
+  spelling of `AND`. A program that declares `OP &` for modes of its own
+  needs `PRIO & = 3` too.
+- `ORDER ... REDRO` is a pragmat and `NOTE ... ETON` a comment, as in ga68
+  with UPPER stropping, which `-fgenie` implies. An operator or mode with
+  one of these names gives the error "unterminated comment or pragmat".
+- `_` in tags is not significant in ga68.
+- There is no QUOTE stropping.
+- Parts of formats are not supported yet (see "Differences and limits").
 
 The option replaces the pre-processor on the Rosetta Code page about
 a68j (<https://rosettacode.org/wiki/A68j>); unlike it, it also handles
