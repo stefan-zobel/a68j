@@ -736,8 +736,9 @@ round:
 for i to 3 do fs[i] := int: i od;
 for i to 3 do print (fs[i]) od    { prints 3 three times }
 \end{lstlisting}
-Since such a program gives wrong results in a68j itself, a68j warns
-about it by default:
+The program breaks the scope rule as \code|compose| does; ga68 prints 4
+three times, and Algol 68 Genie stops. Since a68j cannot make up for it
+here, it warns by default:
 \begin{lstlisting}[style=output]
 warning: routine text captures 'i', which is shared by all iterations
   of the loop, and may outlive its iteration [-Wframe-scope]

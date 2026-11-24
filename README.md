@@ -195,7 +195,7 @@ Common options (as in ga68 where ga68 has them):
 | `-fmodules-map=…`, `-fmodules-map-file=…` | map module names to files, as in ga68 |
 | `-fno-assert` | do not elaborate the assertions (`assert`) of the program (default: `-fassert`) |
 | `-Wscope`, `-Wvoiding`, `-Wextensions`, `-Wunused`, `-Wuninitialized`, `-Whidden-declarations[=none\|prelude\|all]` | optional warnings of ga68, all off by default; `-Wno-…` turns one off, `-Wall` and `-Wextra` turn on groups of them as in ga68 |
-| `-Wframe-scope` | warn about a procedure that outlives the elaboration it belongs to where a68j gives wrong results: a routine text of a loop that captures a declaration of the loop, or a jump to a label whose serial clause has been left (a68j warning, on by default; `-Wno-frame-scope` turns it off) |
+| `-Wframe-scope` | warn about a scope violation that a68j does not make up for: a routine text of a loop that captures a declaration of the loop, or a jump to a label whose serial clause has been left (a68j warning, on by default; `-Wno-frame-scope` turns it off) |
 | `-d dir` | output directory; `-d libX.jar` adds a module to a library jar, `-d prog.jar` makes an executable jar of a program |
 | `-run` | compile in memory and run |
 | `--version` | the version of a68j |

@@ -213,24 +213,28 @@ not make the name of the element or field at all (§1).
   routines that have a frame, so the static chain stays correct. Jumps need
   the frame of the routine that declares the label, so such routines keep
   theirs.
-- **Scope of routine texts (`-Wframe-scope`):** as frames are heap objects,
-  a routine text that outlives its range (returned by its procedure,
-  assigned to an outer variable) keeps the values it uses and gives the
-  right result, unlike in ga68, where this is undefined and `-Wscope` warns
-  about it. Two cases are wrong in a68j too:
+- **Scope of routine texts (`-Wframe-scope`):** a routine text that
+  outlives its range (returned by its procedure, assigned to an outer
+  variable) breaks the scope rule of Algol 68 (RR 5.2.1.2, 7.2.2). The
+  result is undefined: ga68 warns about it with `-Wscope`, and Algol 68
+  Genie stops with a runtime error. As frames are heap objects, such a
+  routine text keeps the values it uses in a68j and gives the expected
+  result, except in two cases:
   - A range that is elaborated more than once in one activation of a
     routine — the FOR identifier and the ranges in the WHILE and DO parts of
     a loop, the ranges after the first label of a serial clause when a jump
     goes back — keeps its captured identifiers in the same frame slots each
     time. A routine text made in one iteration that is called after the
     next sees the values of the latest iteration (`for i to 3 do fs[i] :=
-    int: i od` gives 3 3 3); one that calls a procedure of the loop body can
+    int: i od` gives 3 3 3, ga68 4 4 4); one that calls a procedure of the loop body can
     call itself without end and stop with status 139.
   - A procedure that jumps to a label (a procedured jump, or a routine text
     with a jump out of it) cannot be called after the serial clause of the
     label has been left: no handler catches the `Jump` any more.
 
-  `FrameScope`, after `Capture`, warns about both (on by default,
+  Both are scope violations as well: a declaration cannot follow a label
+  in a serial clause, so what a jump back elaborates again lies in an
+  inner range. `FrameScope`, after `Capture`, warns about both (on by default,
   `-Wno-frame-scope`). Every value whose mode can hold a procedure gets a
   danger level, a symbol table level: storing the value in a name whose
   scope (as in `a68j.front.Scope`) is at most that level is wrong. A loop
