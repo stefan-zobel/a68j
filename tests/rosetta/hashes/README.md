@@ -85,6 +85,12 @@ apart by `max abs char` (255 in Algol 68 Genie, 1114111 in a68j), so
 | `join (a, b)` | the bytes of `a` followed by those of `b` |
 | `hex (b)` | the bytes in lower case hexadecimal digits |
 
+The bytes of a file, unchanged, come from `read bytes` of the module
+`Files` of a68j ([docs/files.md](../../../docs/files.md)), which
+`-fgenie` makes available: `hex (sha256 (read bytes ("title.png")))`.
+Algol 68 Genie has no such procedure, and reading a file with `get`
+there loses the byte 255.
+
 ## Hash functions
 
 | | |

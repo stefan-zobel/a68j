@@ -306,14 +306,55 @@ public final class Filesystem {
         write("write", s, b.toString(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
+    /**
+     * The bytes of the file S, each as a value from 0 to 255. A file of
+     * 2^31 bytes or more does not fit into a row (readAllBytes throws an
+     * OutOfMemoryError).
+     */
+    public static int[] readBytes(String s) {
+        Path p = path("read", s);
+        if (Files.isDirectory(p)) {
+            throw JavaObject.error("cannot read " + quote(s) + ": is a directory");
+        }
+        byte[] b;
+        try {
+            b = Files.readAllBytes(p);
+        } catch (IOException e) {
+            throw failure("read", quote(s), e);
+        }
+        int[] r = new int[b.length];
+        for (int i = 0; i < b.length; i++) {
+            r[i] = b[i] & 0xff;
+        }
+        return r;
+    }
+
+    /**
+     * Creates or replaces the file S with the bytes DATA, values from 0 to
+     * 255; another value is an error before the file is touched.
+     */
+    public static void writeBytes(String s, int[] data) {
+        byte[] b = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] < 0 || data[i] > 255) {
+                throw JavaObject.error("cannot write " + quote(s) + ": " + data[i] + " is not a byte");
+            }
+            b[i] = (byte) data[i];
+        }
+        write("write", s, b, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
     private static void write(String what, String s, String t, StandardOpenOption mode) {
+        write(what, s, t.getBytes(StandardCharsets.UTF_8), mode);
+    }
+
+    private static void write(String what, String s, byte[] b, StandardOpenOption mode) {
         Path p = path(what, s);
         if (Files.isDirectory(p)) {
             throw JavaObject.error("cannot " + what + " " + quote(s) + ": is a directory");
         }
         try {
-            Files.write(p, t.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE, StandardOpenOption.WRITE, mode);
+            Files.write(p, b, StandardOpenOption.CREATE, StandardOpenOption.WRITE, mode);
         } catch (IOException e) {
             throw failure(what, quote(s), e);
         }

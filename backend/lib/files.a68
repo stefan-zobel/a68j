@@ -49,7 +49,11 @@
   append_file (path, text)    appends, creating the file if needed.
   write_lines (path, lines)   creates or replaces the file, each line
                               followed by "'n".
-  list_directory (dir)        the names in dir, sorted, without "." and "..".
+  read_bytes (path)           the bytes of the file, a [] int of values
+                              0 .. 255.
+  write_bytes (path, data)    creates or replaces the file with the bytes
+                              data.
+  list_directory (dir)       the names in dir, sorted, without "." and "..".
   walk_directory (dir)        every file and directory below dir, as paths
                               that start with dir, depth first and sorted.
   make_directory (dir)        creates dir and its parents, if needed.
@@ -94,6 +98,8 @@ def
     pub proc (string, string) void write_file = nest Java "a68j.jlib.Filesystem.writeFile";
     pub proc (string, string) void append_file = nest Java "a68j.jlib.Filesystem.appendFile";
     pub proc (string, [] string) void write_lines = nest Java "a68j.jlib.Filesystem.writeLines";
+    pub proc (string) [] int read_bytes = nest Java "a68j.jlib.Filesystem.readBytes";
+    pub proc (string, [] int) void write_bytes = nest Java "a68j.jlib.Filesystem.writeBytes";
 
     { Directories. }
     pub proc (string) [] string list_directory = nest Java "a68j.jlib.Filesystem.list";

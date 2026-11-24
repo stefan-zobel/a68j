@@ -1,0 +1,2 @@
+tests/java/files-error-7.a68:5: runtime error: cannot write "tests/java/no-such-directory/b.bin": 256 is not a byte
+exit 134

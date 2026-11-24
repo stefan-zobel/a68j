@@ -1,0 +1,6 @@
+{ The module Files: write_bytes with a value that is not a byte is a
+  runtime error, found before the file is opened: the directory of the
+  path does not exist, and the error is not about that. }
+access Files (
+   write_bytes ("tests/java/no-such-directory/b.bin", (1, 2, 256))
+)

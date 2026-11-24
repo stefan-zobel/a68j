@@ -1,5 +1,5 @@
 { a68j-options: -fgenie }
-# -fgenie: get directory and file is directory come from the module Files, grep in string from Regex.  The program declares its own file exists, which hides the one of Files. #
+# -fgenie: get directory, file is directory, read bytes and write bytes come from the module Files, grep in string from Regex.  The program declares its own file exists, which hides the one of Files. #
 PROC file exists = (STRING name) BOOL: name = "mine";
 print ((file exists ("mine"), file exists ("tests"), newline));
 print ((file is directory ("tests/options"), file is directory ("tests/options/genie-files.a68"), newline));
@@ -8,4 +8,10 @@ INT java files := 0;
 FOR i TO UPB names DO
    IF grep in string ("[.]java$", names[i], NIL, NIL) = 0 THEN java files +:= 1 FI
 OD;
-print ((names[1], " ", names[2], " ", java files > 0, newline))
+print ((names[1], " ", names[2], " ", java files > 0, newline));
+STRING tmp = make temp directory ("a68j-genie-files-");
+write bytes (tmp + "/b.bin", (0, 255, 10));
+[] INT b = read bytes (tmp + "/b.bin");
+print ((UPB b, b[1], b[2], b[3], newline));
+delete file (tmp + "/b.bin");
+delete file (tmp)

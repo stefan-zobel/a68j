@@ -40,6 +40,33 @@ access Files (
    puts (whole (file_size (d + "/u.txt"), 0) + " bytes, " + whole (UPB read_file (d + "/u.txt"), 0) + " characters, "
          + (read_file (d + "/u.txt") = u | "equal" | "different") + "'n");
 
+   { Bytes: written and read unchanged, as values from 0 to 255. }
+   string b = d + "/b.bin";
+   proc codes = ([] int x) string:
+      begin string r := "";
+            for i from LWB x to UPB x do r +:= " " + whole (x[i], 0) od;
+            r
+      end;
+   [256] int all_bytes;
+   for i to 256 do all_bytes[i] := i - 1 od;
+   write_bytes (b, all_bytes);
+   [] int back = read_bytes (b);
+   bool same := UPB back = 256;
+   for i to UPB back do same := same AND back[i] = all_bytes[i] od;
+   puts ("bytes " + whole (LWB back, 0) + " to " + whole (UPB back, 0) + ", " + whole (file_size (b), 0)
+         + " in the file, " + (same | "equal" | "different") + "'n");
+   [1 : 0] int none;
+   write_bytes (b, none);
+   puts ("empty: " + whole (UPB read_bytes (b), 0) + " bytes, size " + whole (file_size (b), 0) + "'n");
+   write_file (b, "a" + REPR 228 + REPR 8364);
+   puts ("UTF-8 of text:" + codes (read_bytes (b)) + "'n");
+   write_bytes (b, (99, 97, 102, 233));
+   string latin = read_file (b);
+   [UPB latin] int latin_codes;
+   for i to UPB latin do latin_codes[i] := ABS latin[i] od;
+   puts ("Latin-1 as text:" + codes (latin_codes) + "'n");
+   delete_file (b);
+
    { Directories. }
    make_directory (d + "/sub/deep/deeper");
    make_directory (d + "/sub/deep");

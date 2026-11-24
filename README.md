@@ -70,7 +70,7 @@ Hello, world!
 | a68j's own differential tests (`tests/extra`) | 56 of 56 |
 | Rosetta Code programs that ga68 runs | 699 identical (642 of them end normally), 6 equal up to floating-point rounding, 11 open, of 716 |
 | Module tests built as library jars | 25 of 25 |
-| Java interop and bundled modules (`tests/java`) | 94 of 94, JDK 25 and JDK 28 |
+| Java interop and bundled modules (`tests/java`) | 95 of 95, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 16 of 16 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
 | Command-line options and compiler messages (`tests/options`, `tests/scope`) | 40 of 40, JDK 25 and JDK 28 |

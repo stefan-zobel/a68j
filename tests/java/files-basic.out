@@ -8,6 +8,10 @@ short 5
 made by append
 time ok
 7 bytes, 3 characters, equal
+bytes 1 to 256, 256 in the file, equal
+empty: 0 bytes, size 0
+UTF-8 of text: 97 195 164 226 130 172
+Latin-1 as text: 99 97 102 65533
 list: a.txt new.txt sub u.txt
 list sub: B.txt deep
 walk: a.txt new.txt sub sub/B.txt sub/deep sub/deep/c.txt sub/deep/deeper u.txt
