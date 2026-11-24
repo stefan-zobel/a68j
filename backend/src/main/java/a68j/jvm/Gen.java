@@ -75,6 +75,20 @@ public final class Gen {
     }
 
     /**
+     * An error that a68j finds while it generates code, where the front
+     * end has accepted the program (such as a denotation of -fgenie that
+     * does not fit into its representation): the message has the form of
+     * the messages of the front end, and the compiler stops with status 1.
+     */
+    public static final class CompileError extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public CompileError(Node p, String msg) {
+            super(a68j.front.Location.of(p) + ": error: " + msg);
+        }
+    }
+
+    /**
      * As a68_get_skip_tree: ga68 has no SKIP value for the modes FILE,
      * CHANNEL, BYTES and LONG BYTES (nor for a structure with a field of
      * such a mode, or a union whose first alternative is one), and stops

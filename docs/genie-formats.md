@@ -274,7 +274,10 @@ the tool with `--ga68` does by hand:
   - A denotation that is widened has the value of its text at the longer
     length. `long int n := 3000000000` does not wrap at 32 bits, and
     `long real r := 0.1` is the `long real` nearest to 0.1, not a widened
-    `real`.
+    `real`. An `int` or `bits` denotation widened to `long int`, `long long
+    int` or `long bits` that does not fit into their 64 bits is an error
+    when the program is compiled (Algol 68 Genie has multiple precision
+    there); widened to `long real`, it is the nearest `long real`.
 
 Messages of the compiler and run-time errors give the lines of the source
 files. Their columns can differ where the tool changed a line (a doubled

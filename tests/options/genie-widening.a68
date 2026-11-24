@@ -25,4 +25,10 @@ print ((fixed (re OF c, 0, 3), " ", fixed (re OF lw, 0, 3), " ", fixed (im OF lw
 BITS bt = 16r80000000;
 LONG BITS b := bt;
 LONG BITS lb := 16r80000000;
-print ((whole (ABS b, 0), " ", whole (ABS lb, 0), newline))
+print ((whole (ABS b, 0), " ", whole (ABS lb, 0), newline));
+# the limits of the 64 bits of LONG INT and LONG BITS in a68j, and an INT denotation beyond them widened to LONG REAL #
+LONG INT lmax = 9223372036854775807;
+LONG INT lmin = -9223372036854775808;
+LONG BITS ones = 16rffffffffffffffff;
+LONG REAL e20 = 100000000000000000000;
+print ((whole (lmax, 0), " ", whole (lmin, 0), " ", whole (ABS ones, 0), " ", fixed (e20, 0, 0), newline))

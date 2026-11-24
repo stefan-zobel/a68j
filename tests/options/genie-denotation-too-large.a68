@@ -1,0 +1,4 @@
+{ a68j-options: -fgenie }
+# -fgenie: a denotation widened to LONG INT that does not fit into its 64 bits is a compile-time error (Algol 68 Genie has multiple precision there). #
+LONG INT x = 9223372036854775808;
+print ((whole (x, 0), newline))
