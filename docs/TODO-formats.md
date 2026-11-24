@@ -297,8 +297,9 @@ stages do not depend on it, nor it on them.
    - ga68 compiles 81 of the 175, and 76 of them end within the time limit.
      Of these, 71 give the same result on the JVM, and 3 the same up to
      rounding. The others: `command-line-arguments` prints the path of
-     the program, and `y-combinator-2` crashes natively only (a procedure
-     that outlives the procedure that created it).
+     the program, and `y-combinator-2` crashes natively only (partial
+     parametrization, entry 19 of `docs/ga68-bug-reports.md`; it is
+     compared with its result in `tests/rosetta/fixed`).
    - 23 of the 76 stopped with `format item ... is not supported yet`, on
      both sides: they needed stage 2.
    - Most of the 94 solutions that ga68 does not compile fail for reasons

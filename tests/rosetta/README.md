@@ -127,20 +127,20 @@ a format for which ga68 reports the errors in a different order).
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
 | ga68 compiles and runs them | 716 |
-| **of these identical to ga68 on the JVM** | **699** |
-| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 27 |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 642 |
+| **of these identical to ga68 on the JVM** | **705** |
+| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 31 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 650 |
 | of these the same up to rounding (`approx`) | 6 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
 Preparation): of the 175, ga68 compiles 87 (5 of them since `Genie_Formats`
-provides formatted input). Among them is
-`knapsack-problem-unbounded`, which crashes natively (entry 26 of
-[`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
-compared with its result in `fixed`. Three of them are the same only up to
+provides formatted input). Among them are
+`knapsack-problem-unbounded` and `y-combinator-2`, which crash natively
+(entries 26 and 19 of
+[`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and are
+compared with their results in `fixed`. Three of them are the same only up to
 rounding, because ga68 writes wrong digits of a `REAL` (entries 4 and 5),
-`command-line-arguments` prints the path of the program, and
-`y-combinator-2` crashes natively only.
+and `command-line-arguments` prints the path of the program.
 
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol
@@ -212,22 +212,36 @@ The remaining differences (details in `notes.tsv`):
   not specify whether the destination or the source of an assignation is
   elaborated first, nor the order of the operands of a formula. Here ga68
   follows the rules of GCC, which depend on the shape of the expression.
-- **ga68 crashes, a68j does not** (`inner-classes`, `y-combinator-1`,
-  `compiler-simple-file-inclusion-pre-processor`: procedures that outlive
-  the procedure in which they were created;
-  `successive-prime-differences`: ga68 needs more than 4.7 GB and is
-  killed; `yin-and-yang`: partial parametrization, which a68j implements
-  as Algol 68 Genie does, see `tests/partial`).
-- **Both fail** (`self-numbers`: a row with 2 * 10^9 elements).
+  a68j elaborates the destination first, as Algol 68 Genie does, and
+  gives its output for `tree-traversal`. In `ulam-numbers` both stop with
+  a bound error, at different bounds, because ga68 gives
+  `flex [1 : n] char` the bounds `[1 : 0]`, which a68j reproduces (entry
+  10 of the bug reports).
 - **80-bit `long long real`** (`infinity`): ga68 prints
   `long long max real` of its 80-bit `long long real`, a68j that of a
   double.
-- **Not reproducible natively** (`amb`): the solution yields routines that
-  use the parameters of an operator after the operator has returned. The
-  source marks this as a scope violation, and Algol 68 Genie stops with
-  a scope error. Compiled with ga68, the program reads dead stack frames
-  and fails with a different bound in every run; on the JVM it prints the
-  answer, `that thing grows slowly`.
+- **`argv (1)`** (`command-line-arguments`): the path of the executable
+  natively, the name of the program on the JVM.
+- **Scope violations** (`amb`, `y-combinator-1`): the solutions yield
+  routines that use the parameters of a procedure or operator after it
+  has returned, and Algol 68 Genie stops with a scope error. Compiled with
+  ga68, the programs read dead stack frames: `amb` fails with a different
+  bound in every run and is not reproducible natively, `y-combinator-1`
+  crashes. On the JVM the frames stay alive, and the programs print the
+  answer (`that thing grows slowly`) and the Fibonacci numbers.
+
+Six solutions that differed in earlier versions are identical now. ga68
+crashes on four of them, which are compared with their results in
+`fixed/`: `inner-classes` and
+`compiler-simple-file-inclusion-pre-processor` call routine texts after
+the procedure that created them has returned, which is valid here, since
+the routines use only names of an outer range (entry 9 of the bug
+reports), and `yin-and-yang` and `y-combinator-2` use partial
+parametrization, which a68j implements as Algol 68 Genie does (entry 19,
+`tests/partial`). All four give the output of Algol 68 Genie 3.13.4.
+The other two need conditions for the native run (see Running):
+`self-numbers` a stack large enough for a row of 2 * 10^9 `bool`, and
+`successive-prime-differences` a libga68 with a garbage collector.
 
 `ruth-aaron-numbers` used to need too much memory on the JVM (rows of
 `INT` as `Object[]` of `Integer`); with the unboxed rows it runs as
@@ -302,7 +316,7 @@ python3 tools/rosetta_report.py --dir tests/rosetta --native /tmp/native-rc --jv
 Every run of a program starts in a new empty directory, natively and on
 the JVM, since programs may create files. In a virtual machine with little
 memory, limit the parallel runs (`-j`): a solution such as
-`successive-prime-differences` takes gigabytes natively, and slow solutions
+`self-numbers` takes gigabytes natively and on the JVM, and slow solutions
 exceed the time limit when several run at once. Run the solutions that
 timed out again with a longer limit (`--timeout 120 -j 1`) into a second
 directory and give it to `rosetta_report.py` as a second `--native` and
@@ -312,3 +326,20 @@ use large local rows. `run_jvm.py` compares
 floating-point numbers in the output with a tolerance (`--rel-eps`, default
 1e-4, `--abs-eps` 1e-6); programs that differ only in this way count as
 "the same up to rounding" (`approx`), not as identical.
+
+The native results need a libga68 with the Boehm garbage collector.
+Without it, libga68 never frees memory on the heap, and a program that
+allocates a lot is killed: `successive-prime-differences` takes a slice
+of a row of 78 498 primes in a loop, and each slice costs as much memory
+as the whole row. The configure script of libga68 uses the collector if
+it finds it (package `libgc-dev` on Debian and Ubuntu). For a GCC build
+made without it, libga68 alone can be configured and built in a
+directory of its own with the same `configure` line (`config.log` of
+the existing build) and the variables `CC` and `A68` set to `xgcc` and
+`ga68` of that build; `--libdir` then names its `.libs`.
+
+`self-numbers` needs `--stack unlimited` for its row of 2 * 10^9 `bool`,
+in a second directory as above (the stack limit of the first run stays,
+since `find-limit-of-recursion` depends on it), and the JVM a heap of
+more than 2 GB; `run_jvm.py` uses the default heap, a quarter of the
+physical memory, so the machine needs at least 9 GB.

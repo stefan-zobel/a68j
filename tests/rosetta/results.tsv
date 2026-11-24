@@ -197,7 +197,7 @@ common-list-elements	Common-list-elements	exit 0	pass
 common-sorted-list	Common-sorted-list	missing include sort.incl.a68 rows.incl.a68	-	
 compare-a-list-of-strings	Compare-a-list-of-strings	exit 0	pass	
 compare-length-of-two-strings	Compare-length-of-two-strings	exit 0	pass	
-compiler-simple-file-inclusion-pre-processor	Compiler-Simple-file-inclusion-pre-processor	exit -11	fail: exit 0 (native -11)	ga68 crashes (segmentation fault): the logical file end handler is a routine text inside a procedure that has returned when the handler is called; ga68 makes it a GCC nested function with a trampoline in the stack frame of that procedure, and the call jumps into the dead frame. By Algol 68 the call is valid (the routine uses only names of the outer range); a68j runs it
+compiler-simple-file-inclusion-pre-processor	Compiler-Simple-file-inclusion-pre-processor	exit -11	fixed: docs/ga68-bug-reports.md, entry 9 (a routine called after the procedure that yielded it has returned): ga68 crashes when the logical file end handler is called after the procedure that installed it has returned	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 9): the logical file end handler is a routine text inside a procedure that has returned when the handler is called; ga68 makes it a GCC nested function with a trampoline in the stack frame of that procedure, and the call jumps into the dead frame. By Algol 68 the call is valid (the routine uses only names of the outer range); a68j runs it as Algol 68 Genie does (tests/rosetta/fixed)
 compiler-code-generator	Compiler-code-generator	exit 1	pass	
 compiler-lexical-analyzer	Compiler-lexical-analyzer	compile error: error: dyadic operator long int * int has not been declared	-	
 composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k	Composite-numbers-k-with-no-single-digit-factors-whose-factors-are-all-substrings-of-k	exit 0	pass	
@@ -538,7 +538,7 @@ inconsummate-numbers-in-base-10	Inconsummate-numbers-in-base-10	exit 0	pass
 increasing-gaps-between-consecutive-niven-numbers	Increasing-gaps-between-consecutive-Niven-numbers	exit 0	pass	
 increment-a-numerical-string	Increment-a-numerical-string	exit 0	pass	
 infinity	Infinity	exit 0	fail: stdout differs	long long real has 80 bits in ga68 and 64 bits in a68j, so long long max real differs; ga68 also prints wrong last digits of max real and long max real (docs/ga68-bug-reports.md, entries 4 and 5)
-inner-classes	Inner-classes	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): a routine text stored in a heap structure uses a parameter of a procedure that has already returned (no scope check in ga68); a68j keeps the frame alive
+inner-classes	Inner-classes	exit -11	fixed: docs/ga68-bug-reports.md, entry 9 (a routine called after the procedure that yielded it has returned): ga68 crashes when a print method stored in a heap structure is called	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 9): the constructors store routine texts in heap structures, and ga68 crashes (segmentation fault) when one is called after the constructor has returned; by Algol 68 the calls are valid (the routines use only their own parameters), and a68j prints what Algol 68 Genie prints (tests/rosetta/fixed)
 input-output-for-lines-of-text	Input-Output-for-lines-of-text	exit 1	pass	
 input-output-for-pairs-of-numbers-1	Input-Output-for-pairs-of-numbers	exit 1	pass	
 input-output-for-pairs-of-numbers-2	Input-Output-for-pairs-of-numbers	exit 1	pass	
@@ -1023,7 +1023,7 @@ selective-file-copy	Selective-file-copy	compile error: error: tag 'getf' has not
 selectively-replace-multiple-instances-of-a-character-within-a-string	Selectively-replace-multiple-instances-of-a-character-within-a-string	exit 0	pass	
 self-contained-numbers	Self-contained-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 self-describing-numbers	Self-describing-numbers	exit 0	pass	
-self-numbers	Self-numbers	exit -11	crash: Exception in thread "main" java.lang.OutOfMemoryError: Java heap space	a row of 2*10^9 BOOL: ga68 crashes (the row is on the stack), a68j runs out of memory (even unboxed as boolean[] the row needs 2 GB, more than the default JVM heap)
+self-numbers	Self-numbers	exit 0	pass	
 semiprime	Semiprime	exit 0	pass	
 semordnilap	Semordnilap	missing include files.incl.a68	-	
 separate-the-house-number-from-the-street-name	Separate-the-house-number-from-the-street-name	exit 0	pass	
@@ -1177,7 +1177,7 @@ substring	Substring	exit 0	pass
 substring-top-and-tail	Substring-Top-and-tail	exit 0	pass	
 substring-primes	Substring-primes	missing include primes.incl.a68	-	
 subtractive-generator	Subtractive-generator	exit -6	fixed: docs/ga68-bug-reports.md, entry 11 (MODAB)	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 11): ga68 computes MODAB with the C remainder, so "sgi -:= 1 MODAB max_state" gives -1 and the program stops with a bound error; a68j computes MOD and prints the numbers of the task (tests/rosetta/fixed)
-successive-prime-differences	Successive-prime-differences	exit -9	fail: exit 0 (native -9); stdout differs	the ga68 program was killed (status -9, out of memory: it allocates its rows on the stack); a68j gives the expected result
+successive-prime-differences	Successive-prime-differences	exit 0	pass	
 sudan-function	Sudan-function	exit 0	pass	
 sudoku	Sudoku	compile error: error: dyadic operator int UP int has not been declared	-	
 sum-and-product-of-an-array	Sum-and-product-of-an-array	exit 0	pass	
@@ -1236,7 +1236,7 @@ totient-function	Totient-function	exit 0	pass
 towers-of-hanoi-1	Towers-of-Hanoi	exit 0	pass	
 towers-of-hanoi-2	Towers-of-Hanoi	exit 0	pass	
 trabb-pardo-knuth-algorithm	Trabb-Pardo-Knuth-algorithm	exit 1	pass	
-tree-traversal	Tree-traversal	exit 0	fail: stdout differs	evaluation order: in the assignation "IF ... FI := end OF queue := qnode" ga68 (GCC) elaborates the source before the destination, a68j the destination first; Algol 68 leaves the order open
+tree-traversal	Tree-traversal	exit 0	fail: stdout differs	evaluation order: in the assignation "IF ... FI := end OF queue := qnode" ga68 (GCC) elaborates the source before the destination, a68j the destination first, as Algol 68 Genie does, and gives its output; Algol 68 leaves the order open
 triangular-numbers	Triangular-numbers	compile error: error: int cannot be coerced to long int in a strong-unit	-	
 trigonometric-functions	Trigonometric-functions	exit 0	pass	
 triplet-of-three-numbers	Triplet-of-three-numbers	missing include primes.incl.a68	-	
@@ -1318,10 +1318,10 @@ write-entire-file	Write-entire-file	exit 0	pass
 write-float-arrays-to-a-text-file	Write-float-arrays-to-a-text-file	exit 0	pass	
 xml-output-1	XML-Output	exit 0	pass	
 xml-output-2	XML-Output	compile error: error: indicant C has not been declared properly	-	
-y-combinator-1	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
-y-combinator-2	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	ga68 crashes (segmentation fault): procedures that outlive the procedure that created them (ga68 uses GCC nested functions); a68j keeps the frame alive
+y-combinator-1	Y-combinator	exit -11	fail: exit 0 (native -11); stdout differs	scope violation: the routines that y yields use its parameters after it has returned; Algol 68 Genie stops with "F value is exported out of its scope", ga68 crashes (segmentation fault), a68j keeps the frame alive and prints the numbers
+y-combinator-2	Y-combinator	exit -11	fixed: docs/ga68-bug-reports.md, entry 19 (partial parametrization): ga68 compiles the calls with missing arguments, and the program crashes	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 19): the generators use partial parametrization ((F fac, int n) int: ...)(fac, ), which ga68 compiles, and the program crashes (segmentation fault); a68j prints what Algol 68 Genie prints (tests/rosetta/fixed)
 yellowstone-sequence	Yellowstone-sequence	exit 0	pass	
-yin-and-yang	Yin-and-yang	exit -11	fail: exit 0 (native -11); stdout differs	partial parametrization (in circle (0, 0, radius, , )), an Algol 68 Genie extension: ga68 compiles the calls with missing arguments and crashes; a68j runs it and prints what Algol 68 Genie prints (tests/partial)
+yin-and-yang	Yin-and-yang	exit -11	fixed: docs/ga68-bug-reports.md, entry 19 (partial parametrization): ga68 compiles the calls with missing arguments, and the program crashes	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 19): partial parametrization (in circle (0, 0, radius, , )), an Algol 68 Genie extension; ga68 compiles the calls with missing arguments and crashes, a68j prints what Algol 68 Genie prints (tests/rosetta/fixed, tests/partial)
 zebra-puzzle	Zebra-puzzle	exit 0	pass	
 zeckendorf-number-representation	Zeckendorf-number-representation	exit 0	pass	
 zero-to-the-zero-power	Zero-to-the-zero-power	exit 0	pass	

@@ -62,7 +62,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 16 | ga68 `a68-low.cc` | a row display assigned to a row variable whose mode is a mode indicant (`Vec v := (1.0, 2.0, 3.0)`): internal compiler error in `a68_low_assignation` | correct |
 | 17 | ga68 | a procedure of the standard prelude (`sin`) as an argument or in a row display: internal compiler error in `a68_type_moid` | correct |
 | 18 | ga68 | assigning a `[] [] int` to a `flex [] flex [] int`: internal compiler error in `fold_convert_loc` | correct |
-| 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end | correct (as Algol 68 Genie) |
+| 19 | ga68 | partial parametrization is accepted by the front end and crashes the back end or the compiled program | correct (as Algol 68 Genie) |
 | 20 | libga68 `ga68.map` | the operators on `compl` are not exported from the shared libga68 | correct |
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
@@ -491,7 +491,10 @@ The call to `deep` is only there to overwrite the dead frame; without it
 the program may happen to work. The Rosetta Code solution
 `compiler-simple-file-inclusion-pre-processor` crashes the same way: it
 installs a logical-file-end handler in a procedure and the handler is
-called later (see `tests/rosetta/notes.tsv`).
+called later (see `tests/rosetta/notes.tsv`). So does `inner-classes`,
+whose constructors store routine texts in heap structures that are
+called after the constructor has returned. Both are compared with their
+results in `tests/rosetta/fixed`.
 
 Possible fix: lift a routine text that uses no names of the enclosing
 procedure out of it (give it the static chain of the range it really
@@ -717,7 +720,7 @@ a68g gives, is `3`. The same happens when `jag` is the initial value of
 `rag`. Assigning the row display itself, `rag := ((1, 2), (3, 4, 5))`,
 works. The cause has not been examined.
 
-## 19. Partial parametrization crashes the back end
+## 19. Partial parametrization crashes the back end or the program
 
 ```
 begin proc add = (real x, y) real: x + y;
@@ -732,6 +735,21 @@ missing argument. The back end then stops with `internal compiler error:
 in fold_convert_loc, at fold-const.cc:2620`. a68g, which implements the
 extension, prints `7.0`. ga68 should either implement it or reject the
 program with a message. The cause has not been examined.
+
+Other forms compile, and the program crashes when it calls the result:
+
+```
+begin mode F = proc (int) int;
+      F add3 = ((int k, int n) int: k + n) (3, );
+      puts (whole (add3 (4), 0) + "'n")
+end
+```
+
+- ga68: segmentation fault (exit status 139).
+- a68g and a68j: `7`.
+
+The Rosetta Code solutions `yin-and-yang` and `y-combinator-2` crash
+this way; they are compared with their results in `tests/rosetta/fixed`.
 
 ## 20. The operators on `compl` are not exported from the shared libga68
 

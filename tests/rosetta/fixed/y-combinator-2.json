@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "y-combinator-2.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 19 (partial parametrization): ga68 compiles the calls with missing arguments, and the program crashes",
+ "stderr": "",
+ "stdout": "\nHere are the first 12 factorials.\n  1  2  6  24  120  720  5040  40320  362880  3628800  39916800  479001600\n\nHere are the first 12 fibonacci numbers.\n  1  1  2  3  5  8  13  21  34  55  89  144\n"
+}
