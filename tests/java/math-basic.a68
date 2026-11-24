@@ -1,0 +1,43 @@
+{ The module Math without -fgenie: values, the other names of Algol 68
+  Genie, and NaN and infinity where Algol 68 Genie stops with an error. }
+access Math (
+   proc f = (real x) string:
+      if x /= x then "nan"
+      elif x > max_real then "inf"
+      elif x < -max_real then "-inf"
+      else fixed (x, 0, 4)
+      fi;
+   proc c = (compl z) string: f (RE z) + " " + f (IM z);
+   proc same = (real x, y) string: (x = y | "same" | "differ");
+   proc small = (compl z) string: (ABS z < 1e-5 | "0" | c (z));
+
+   puts ("acos asin atan: " + f (acos (-1)) + " " + f (asin (1)) + " " + f (atan (-1)) + "'n");
+   puts ("arctan2: " + f (arctan2 (1, 0)) + " " + f (arctan2 (0, 1)) + " " +
+         f (arctan2 (0, -1)) + " " + f (arctan2 (-1, 0)) + " " + same (arctan2 (2, 3), atan2 (2, 3)) + "'n");
+   puts ("hyperbolic: " + f (sinh (1)) + " " + f (cosh (1)) + " " + f (tanh (1)) + " " +
+         f (tanh (100)) + " " + f (sinh (100)) + "'n");
+   puts ("inverses: " + f (arcsinh (sinh (0.75))) + " " + f (arccosh (cosh (0.75))) + " " +
+         f (arctanh (tanh (0.75))) + " " + f (asinh (1e30)) + " " + f (acosh (1e30)) + " " +
+         same (arcsinh (0.3), asinh (0.3)) + " " + same (arccosh (1.3), acosh (1.3)) + " " +
+         same (arctanh (0.3), atanh (0.3)) + "'n");
+   puts ("outside: " + f (arccosh (0.5)) + " " + f (arctanh (2)) + " " + f (arctanh (1)) + " " +
+         f (arctanh (-1)) + "'n");
+   puts ("cbrt: " + f (cbrt (-27)) + " " + f (cbrt (0.001)) + "'n");
+   puts ("gamma: " + f (gamma (1)) + " " + f (gamma (2)) + " " + f (gamma (7)) + " " +
+         f (gamma (0.5) * gamma (0.5)) + " " + f (gamma (-0.5)) + " " + f (gamma (1.5)) + "'n");
+   puts ("gamma at poles and far out: " + f (gamma (0)) + " " + f (gamma (-0.0)) + " " + f (gamma (-3)) + " " +
+         f (gamma (40)) + " " + f (gamma (200)) + "'n");
+   puts ("lgamma: " + f (lgamma (1)) + " " + f (lgamma (2)) + " " + f (lgamma (100)) + " " +
+         f (lgamma (-2.5)) + " " + f (lgamma (0)) + " " + f (lgamma (-4)) + "'n");
+   puts ("ln_gamma: " + f (ln_gamma (5)) + " " + f (ln_gamma (-0.5)) + " " + f (ln_gamma (-1.5)) + "'n");
+   compl w = -0.3 I 0.8;
+   puts ("exp ln: " + c (complex_exp (complex_ln (w))) + " " + c (cln (cexp (w))) + "'n");
+   puts ("sqrt: " + c (csqrt (w) * csqrt (w)) + " " + c (complex_sqrt (0 I 2)) + " " +
+         c (complex_sqrt (-1 I 0)) + " " + c (complex_sqrt (0 I 0)) + "'n");
+   puts ("sin cos: " + small (csin (w) * csin (w) + ccos (w) * ccos (w) - 1) + " " +
+         small (complex_tan (w) - csin (w) / ccos (w)) + "'n");
+   puts ("sinh cosh: " + small (ccosh (w) * ccosh (w) - csinh (w) * csinh (w) - 1) + " " +
+         small (complex_tanh (w) - complex_sinh (w) / complex_cosh (w)) + "'n");
+   puts ("real axis: " + c (complex_sin (0.5 I 0)) + " " + f (sin (0.5)) + " " +
+         c (ctanh (0.5 I 0)) + " " + f (tanh (0.5)) + "'n")
+)

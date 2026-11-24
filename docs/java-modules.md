@@ -952,6 +952,7 @@ that access them (`-I tests/java/lib`).
 | `times-basic` | the module `Times`: construction, fields, days, periods and month ends, durations, comparisons, assigning operators, ISO text and patterns, seconds since 1970 in fixed zones across changes of daylight saving time ([times.md](times.md)) |
 | `times-now` | the clock: `today`, `now`, `now_in`, `local_time`, `utc_time`, `cpu_time`, `wall_time` and `sleep` checked for their ranges and their agreement |
 | `times-error-1` … `-5` | an invalid date, a text that does not fit its pattern, an invalid pattern, an unknown zone, `nil`: runtime errors with the position in the program |
+| `math-basic` | the module `Math`: values, the other names of Algol 68 Genie, inverse functions against functions, identities of the functions of a `compl`, NaN and infinities ([math.md](math.md)) |
 
 Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
 

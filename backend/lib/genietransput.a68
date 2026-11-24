@@ -78,6 +78,8 @@
                                consider ASCII letters and digits only
       next_random, rnd         random numbers (Algol 68 Genie): ga68
                                declares them, but does not implement them
+      null_char                the character REPR 0 (Algol 68 Genie;
+                               null_character in ga68)
 
   The layout of printed values follows Algol 68 Genie: integers are
   right-aligned with a sign in a field of int width + 1 characters, reals
@@ -999,6 +1001,11 @@ def
 
     pub proc next_random = real: random;
     pub proc rnd = real: 2 * random - 1;
+
+    { The null character under its name in Algol 68 Genie; ga68 calls it
+      null_character. }
+
+    pub char null_char = REPR 0;
 
     skip
 fed

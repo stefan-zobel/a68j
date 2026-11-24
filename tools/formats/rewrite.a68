@@ -55,6 +55,8 @@
       ga68, and DOWNTO becomes BY -1 TO, which is what Algol 68 Genie does
       in a loop without a BY part; DOWNTO in a loop with a BY part is an
       error of the tool;
+    * in UPPER stropping COMPLEX, a synonym of COMPL in Algol 68 Genie,
+      becomes COMPL and two blanks, which keep the columns of the line;
     * in UPPER stropping a pragmat PR read "file" PR (read or include, in
       any case) becomes PR include "file" PR, and any other pragmat becomes
       blanks with the same lines (ga68 rejects pragmats it does not know).
@@ -550,6 +552,9 @@ PROC bold word = (INT i, lim, REF BUF out) INT:
            e
       ELIF for ga68 AND upper AND (w = "ANDF" OR w = "ORF")
       THEN adds (out, IF w = "ANDF" THEN "ANDTH" ELSE "OREL" FI);
+           e
+      ELIF for ga68 AND upper AND w = "COMPLEX"
+      THEN adds (out, "COMPL  ");
            e
       ELIF for ga68 AND upper AND w = "DOWNTO"
       THEN IF after by THEN error ("DOWNTO after BY is not supported", i) FI;

@@ -212,7 +212,7 @@ A Duration divided by 0 is `division by zero`.
 ## `-fgenie`
 
 With `-fgenie` the program is put into an access clause of
-`Genie_Transput`, `Genie_Formats`, `Regex`, `Files` and `Times`
+`Genie_Transput`, `Genie_Formats`, `Regex`, `Files`, `Times` and `Math`
 ([genie-formats.md](genie-formats.md)), so a program written for
 Algol 68 Genie can call `local time`, `utc time`, `cpu time`,
 `wall time` and `sleep` as it is. A declaration of the program with the same name hides the one of the

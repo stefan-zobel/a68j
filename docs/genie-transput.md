@@ -119,6 +119,7 @@ and `GCHANNEL` without a module of its own.
 | `char_in_string`, `last_char_in_string`, `string_in_string` | string searching (RR 10.3.2.4, Algol 68 Genie); `pos` may be `nil` |
 | `is_upper`, `is_lower`, `is_alpha`, `is_digit`, `is_alnum`, `is_space`, `is_xdigit`, `to_upper`, `to_lower` | character classes of Algol 68 Genie; they consider ASCII letters and digits only |
 | `next_random`, `rnd` | random numbers of Algol 68 Genie: `next_random` is `random`, `rnd` is `2 * random - 1`, in [-1, 1). ga68 declares both in its standard prelude without implementing them ("no lowering routine installed"); the declarations of the module hide those. The numbers come from the generator of ga68 (a68j has the same), so they are not those of Algol 68 Genie |
+| `null_char` | the character `REPR 0`, the name of Algol 68 Genie for `null_character` of the standard prelude |
 
 `print` and `put` accept `int`, `long int`, `long long int`, `real`,
 `long real`, `long long real`, `compl`, `long compl`, `long long compl`,

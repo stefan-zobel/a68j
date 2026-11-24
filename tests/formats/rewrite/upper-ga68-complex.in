@@ -1,0 +1,15 @@
+# COMPLEX becomes COMPL and two blanks; not in strings, comments or
+  longer words: COMPLEX #
+BEGIN
+   MODE VECTOR = COMPLEX;
+   COMPLEX z = 1 I 2;
+   LONG COMPLEX lz = 3 I 4;
+   LONG LONG COMPLEX llz = 5 I 6;
+   []COMPLEX row = (z, z);
+   REF COMPLEX r = LOC COMPLEX := z;
+   PROC f = (COMPLEX a)COMPLEX: a;
+   COMPLEX complexz = f(z);
+   COMPLEXx = 0 I 0;
+   MODE COMPLEXITY = INT, COMPLEX2 = INT;
+   print (("COMPLEX", RE complexz, newline))
+END
