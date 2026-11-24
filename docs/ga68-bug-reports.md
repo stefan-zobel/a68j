@@ -30,7 +30,9 @@ written. Entry 26 was found with a Rosetta Code solution that stage 2 of
 measurement only. Entry 27 was found when a68j included a file from a
 directory with a Windows short name (`STEFAN~1`). Entry 28 was found
 with the Rosetta Code solution `matrix-multiplication`, which a68j
-compiles with `-fgenie` since structures are items of `print`.
+compiles with `-fgenie` since structures are items of `print`. Entry 29
+was found when the hash functions of `tests/rosetta/hashes` were tried on
+the bytes of files.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -70,6 +72,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
 | 27 | ga68 `a68-parser-scanner.cc` | an included file is not found when its path has a `~` anywhere in it, also in the name of a directory | reproduces; correct with `-fgenie`, and for Windows short names |
 | 28 | libga68 `standard.a68.in` | `fixed` writes a "0" before the point when a value below 1 rounds up to 1, e.g. "01.00" | fixed |
+| 29 | libga68 `ga68-posix.c` | `fgetc` takes the bytes after an invalid UTF-8 byte into the same character without checking them, so a newline or a letter after it is lost, and a sequence cut off by the end of the file gives the end of the file | reproduces |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -1147,6 +1150,148 @@ makes this test (fixed). For 10 values (0.999999, 0.996, 0.994, 0.3,
 1 and 2 digits after the point, a68j then gives the results of Algol 68
 Genie in all 300 cases. `tests/java/standard-prelude-defects.a68` checks
 the fix.
+
+## 29. `fgetc` loses the bytes after an invalid UTF-8 byte
+
+```
+begin
+    string s := "";
+    do int c = ABS getchar;
+       if c = -1 then finish fi;
+       s +:= " " + whole (c, 0)
+    od;
+    finish: puts (s + "'n")
+end
+```
+
+The program prints the code of each character it reads from standard
+input. The input is given with `printf`, e.g.
+`printf 'caf\351\nab\n' | ./prog` for "café" in Latin-1:
+
+| Input | ga68 | expected |
+|---|---|---|
+| `caf\351\nab\n` | ` 99 97 102 65533 98 10` | ` 99 97 102 65533 10 97 98 10` |
+| `\377\nA\n` | ` 65533` | ` 65533 10 65 10` |
+| `\200A\n` | ` 65533 10` | ` 65533 65 10` |
+| `x\342\202` (the euro sign without its last byte) | ` 120` | ` 120 65533` |
+| `\360\237\230\200\n` (U+1F600) | ` 128512 10` | ` 128512 10` |
+
+The expected results replace each maximal subpart of an invalid sequence
+with one U+FFFD, as the Unicode Standard recommends (chapter 3, "U+FFFD
+Substitution of Maximal Subparts"); Python's `decode ("utf-8",
+"replace")` gives them. Valid UTF-8 is read correctly.
+
+Measured with GCC trunk at commit bb5c3bfcb28b; the line numbers refer
+to that commit. `_libga68_posixfgetc` (`libga68/ga68-posix.c`, line 263)
+takes the number of bytes of a character from its first byte alone: one
+more for every byte from 128 to 223, two for 224 to 239, three for 240
+to 255. It then reads that many bytes with `read` without looking at
+them and decodes the group with `_libga68_u8_mbtouc`; if the group is not
+a valid character, it returns U+FFFD for all of it (line 298). So:
+
+- A byte that cannot start a character (a continuation byte 128 to 191,
+  192, 193, or 245 to 255) still takes the next one to three bytes, and
+  they are lost even when they are a newline or an ASCII letter. A text
+  in Latin-1 loses one to three characters after each letter with an
+  accent.
+- A first byte followed by a byte that is not a continuation byte loses
+  that byte as well.
+- When the input ends within the group, `fgetc` returns the end of file
+  character (line 291), and the bytes read before are lost without a
+  U+FFFD.
+
+`fgets` and `gets` (lines 315 and 361) read with `fgetc`, so a newline
+taken into a group does not end the line: two lines are read as one.
+
+Suggested fix: read a byte as part of a character only if it can
+continue it, and keep a byte that cannot for the next call. `read` has
+no way to put a byte back, so `fgetc` keeps it itself, one byte for each
+descriptor:
+
+```c
+#define MAX_PUSHED_BACK 1024
+
+/* For each descriptor, the byte that ended an invalid sequence, plus 1,
+   or 0.  */
+static int pushed_back[MAX_PUSHED_BACK];
+
+static int
+read_byte (int fd)
+{
+  uint8_t c;
+  if (fd >= 0 && fd < MAX_PUSHED_BACK && pushed_back[fd] != 0)
+    {
+      int b = pushed_back[fd] - 1;
+      pushed_back[fd] = 0;
+      return b;
+    }
+  return read (fd, &c, 1) == 1 ? c : -1;
+}
+
+uint32_t
+_libga68_posixfgetc (int fd)
+{
+  int c = read_byte (fd);
+  if (c < 0)
+    return EOF_PSEUDO_CHARACTER;
+  if (c < 0x80)
+    return c;
+
+  int more, lo = 0x80, hi = 0xBF;
+  uint32_t res;
+  if (c >= 0xC2 && c <= 0xDF)
+    more = 1, res = c & 0x1F;
+  else if (c >= 0xE0 && c <= 0xEF)
+    {
+      more = 2, res = c & 0x0F;
+      if (c == 0xE0)
+        lo = 0xA0;
+      else if (c == 0xED)
+        hi = 0x9F;
+    }
+  else if (c >= 0xF0 && c <= 0xF4)
+    {
+      more = 3, res = c & 0x07;
+      if (c == 0xF0)
+        lo = 0x90;
+      else if (c == 0xF4)
+        hi = 0x8F;
+    }
+  else
+    return REPLACEMENT_CHARACTER;
+
+  for (int i = 0; i < more; ++i)
+    {
+      int d = read_byte (fd);
+      if (d < 0)
+        return REPLACEMENT_CHARACTER;
+      if (d < lo || d > hi)
+        {
+          if (fd >= 0 && fd < MAX_PUSHED_BACK)
+            pushed_back[fd] = d + 1;
+          return REPLACEMENT_CHARACTER;
+        }
+      res = (res << 6) | (d & 0x3F);
+      lo = 0x80, hi = 0xBF;
+    }
+  return res;
+}
+```
+
+The limits `lo` and `hi` of the second byte leave out overlong forms,
+surrogates and values above U+10FFFF, which are not valid UTF-8. A sequence cut off by the end of the input gives U+FFFD, and
+the next call the end of file. `lseek` (line 446) and `fclose` must
+then drop a byte kept for the descriptor, and `lseek` with `SEEK_CUR`
+must count it. Compiled on its own, this `fgetc` gives the expected
+results of the table, and for `x\300\200y\n`, `\355\240\200z` and
+`\342\202\254` the same results as Python.
+
+a68j reproduces the defect: `fgetc` of its POSIX prelude
+(`backend/src/main/java/a68j/rt/Posix.java`) is a port of the code above
+and gives the results of ga68 in the table. The module `Genie_Transput`
+reads with `fgetc` as well, so with `-fgenie` a line of Latin-1 text
+loses characters, and a line that ends within a group is lost. (Algol 68
+Genie, where a `char` is a byte, reads the bytes 128 to 254 unchanged.)
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 
