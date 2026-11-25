@@ -1,0 +1,6 @@
+{ a68j-options: -fstropping=supper }
+{ A file name that the file system cannot name (on Windows a name with a
+  ':', '*' or '?') is a file that is not found, as in ga68. }
+begin [[include "a:b*c?.a68"]]
+   puts ("not run'n")
+end

@@ -240,7 +240,7 @@ The other two need conditions for the native run (see Running):
 `self-numbers` a stack large enough for a row of 2 * 10^9 `bool`, and
 `successive-prime-differences` a libga68 with a garbage collector.
 
-Since version 0.9.1 a `flex [1 : n] char` has the bounds of its declarer
+Since version 1.0.0 a `flex [1 : n] char` has the bounds of its declarer
 on the JVM; ga68 creates it empty (entry 10). Two solutions declare such
 a row and assign to its elements, and are compared with their results in
 `fixed/`: `ulam-numbers`, which ga68 stops with a bound error and which
@@ -273,7 +273,7 @@ again with ga68 at GCC commit 3f35c3d2d116.
   "gimplification failed".
 - `FLEX [1 : n] CHAR x` has the bounds `[1 : 0]` instead of `[1 : n]`
   (entry 10; a68j reproduced this until version 0.9.0 and gives the
-  bounds of the declarer since version 0.9.1). `ulam-numbers` and
+  bounds of the declarer since version 1.0.0). `ulam-numbers` and
   `evolutionary-algorithm` now run as on Algol 68 Genie and are compared
   with their results in `fixed`.
 - `MODAB` (`%*:=`) computes with the C remainder (negative for a negative

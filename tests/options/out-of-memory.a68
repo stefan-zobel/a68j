@@ -1,0 +1,10 @@
+{ a68j-options: -fstropping=supper }
+{ A program that runs out of memory ends as a native ga68 program whose
+  malloc fails: "Virtual memory exhausted" and status 134.  A row of
+  max_int elements exceeds the limit of the JVM for arrays whatever the
+  size of the heap. }
+begin
+   puts ("before'n");
+   ref [] int a = heap [1 : max_int] int;
+   puts ("not reached'n")
+end

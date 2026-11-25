@@ -258,8 +258,8 @@ public final class Scanner {
 
     /** read_source_file: read FILENAME and make the internal copy. */
     private boolean readSourceFile(String filename) {
-        Path path = Paths.get(filename);
-        if (!Files.exists(path)) {
+        Path path = pathOf(filename);
+        if (path == null || !Files.exists(path)) {
             throw diag.fatal("could not open source file " + filename);
         }
         if (Files.isDirectory(path)) {
@@ -729,9 +729,30 @@ public final class Scanner {
         }
     }
 
+    /**
+     * a68j: the path FILENAME names, or null if the file system cannot
+     * name it (Paths.get throws for a NUL character, and on Windows also
+     * for a ':', '*', '?', '<', '>' or '|' out of place). In C the name
+     * just names no file, so such a file is not found, as in ga68.
+     */
+    private static Path pathOf(String filename) {
+        try {
+            return Paths.get(filename);
+        } catch (java.nio.file.InvalidPathException e) {
+            return null;
+        }
+    }
+
+    /** a68j: whether FILENAME is an absolute path (false for one {@link #pathOf} cannot make). */
+    private static boolean isAbsolute(String filename) {
+        Path path = pathOf(filename);
+        return path != null && path.isAbsolute();
+    }
+
     /** file_read_p */
     private static boolean fileReadP(String filename) {
-        return filename != null && Files.isReadable(Paths.get(filename));
+        Path path = filename != null ? pathOf(filename) : null;
+        return path != null && Files.isReadable(path);
     }
 
     /** find_include_file */
@@ -739,7 +760,7 @@ public final class Scanner {
         String fnbdir = ldirname(filename);
         String incfile = lbasename(filename);
         // isAbsolute instead of a test for a leading '/', for Windows paths.
-        if (!Paths.get(filename).isAbsolute()) {
+        if (!isAbsolute(filename)) {
             String sourcedir = ldirname(curfile);
             // Sic: if the including file has no directory but the filename
             // has one, the path becomes "/dir/file", absolute, and the file
@@ -755,7 +776,7 @@ public final class Scanner {
             }
             for (String includeDir : a68.includePaths) {
                 tmpfpath = relpath(includeDir, fnbdir, incfile);
-                if (tmpfpath == null || !Paths.get(tmpfpath).isAbsolute()) {
+                if (tmpfpath == null || !isAbsolute(tmpfpath)) {
                     tmpfpath = relpath(sourcedir, fnbdir, incfile);
                 }
                 if (fileReadP(tmpfpath)) {

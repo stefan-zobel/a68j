@@ -541,7 +541,7 @@ for the indicant `string`, and let the branch `m == M_STRING` take a
 pair of bounds as the branch for rows does (or remove the branch, so
 that a string is generated as any other flexible row).
 
-a68j reproduced the defect until version 0.9.0. Since version 0.9.1 a
+a68j reproduced the defect until version 0.9.0. Since version 1.0.0 a
 `flex [1 : n] char` has the bounds of its declarer (fixed); its elements
 are NUL characters, as those of a new `[1 : n] char`.
 `tests/extra/flex-char-bounds-1.a68` and `flex-char-bounds-2.a68` check
@@ -1348,7 +1348,7 @@ a68j reproduced the defect until version 0.9.0: `fgetc` of its POSIX
 prelude (`backend/src/main/java/a68j/rt/Posix.java`) was a port of the
 code above, and the module `Genie_Transput`, which reads with `fgetc`,
 lost characters of a line of Latin-1 text, also with `-fgenie`, and
-lost a line that ended within a group. Since version 0.9.1 `fgetc`
+lost a line that ended within a group. Since version 1.0.0 `fgetc`
 reads as the suggested fix does (fixed): it keeps the byte that ends an
 invalid sequence for the next read, `lseek` counts that byte as not yet
 read, and `lseek` and `fclose` drop it. It gives the expected results of
@@ -1419,7 +1419,7 @@ find such cases.
 
 a68j reproduced the misplaced bounds until version 0.9.0, and gave the
 fields of a shared declarer the bounds of the following declarers (`b`
-5:6 and `c` 1:0 above). Since version 0.9.1 every row of a structure has
+5:6 and `c` 1:0 above). Since version 1.0.0 every row of a structure has
 the bounds of its own declarer (fixed), and the units of a shared
 declarer are elaborated once. The compiler counts the pairs of bounds
 that the mode takes and those that the declarer yields; where the two
@@ -1432,7 +1432,7 @@ check it; both give the output of Algol 68 Genie, and so does
 error before.
 
 Two related defects were in a68j alone, also corrected in version
-0.9.1: a union field whose first mode (in the order of the compiler) is
+1.0.0: a union field whose first mode (in the order of the compiler) is
 a row, as in `struct (union ([] int, ref int) u, [2 : 4] int b)`, took
 the bounds of the next row, and a field of a row mode of an accessed
 module took none, so that the bounds of the following rows moved

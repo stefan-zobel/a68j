@@ -1,9 +1,10 @@
 #!/bin/sh
 # Tests of the command-line options and the messages of the compiler:
 # tests/options (the -W options of ga68, -fassert/-fno-assert, -fgenie with
-# its widening between lengths, -fformats, an include path with a ~, the
-# error for an unknown option and the message of an internal compiler
-# error) and tests/scope (the warning -Wframe-scope).
+# its widening between lengths, -fformats, an include path with a ~ or a
+# name the file system cannot name, the error for an unknown option, the
+# message of an internal compiler error and that of a program that runs
+# out of memory) and tests/scope (the warning -Wframe-scope).
 # Every program X.a68 is compiled and run with the options of its first
 # line "{ a68j-options: ... }" and the environment variables of a second
 # line "{ a68j-env: NAME=VALUE ... }" if there is one, and the messages of

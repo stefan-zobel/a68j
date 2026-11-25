@@ -747,7 +747,8 @@ public final class Rt {
      * Run the program (the class's run0) in a thread with a large stack.
      * A stack overflow ends the program like the segmentation fault of a
      * native ga68 program (status 139, no message); so does the use of an
-     * undefined value, with a message ({@link #undefinedValue}).
+     * undefined value, with a message ({@link #undefinedValue}). Running
+     * out of memory ends it as {@link #outOfMemory} says.
      */
     public static void start(java.lang.invoke.MethodHandle run0) throws Throwable {
         ClassLoader loader = WALKER.getCallerClass().getClassLoader();
@@ -767,8 +768,31 @@ public final class Rt {
         t.start();
         t.join();
         if (failure[0] != null) {
+            outOfMemory(failure[0]);
             undefinedValue(failure[0], loader);
             throw failure[0];
+        }
+    }
+
+    /**
+     * If the exception T (or one of its causes, for a failure in the
+     * prelude of a module or in a unit of a parallel clause) is an
+     * OutOfMemoryError, the program ends as a native ga68 program whose
+     * malloc fails (_libga68_malloc_internal): with the message
+     * {@code Virtual memory exhausted} and status 134. (A row of a local
+     * generator, which ga68 places on the stack, ends the native program
+     * with a segmentation fault instead; a68j places it on the heap.)
+     * Returns if T is no such exception.
+     */
+    private static void outOfMemory(Throwable t) {
+        java.util.Set<Throwable> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Throwable c = t; c != null && seen.add(c); c = c.getCause()) {
+            if (c instanceof OutOfMemoryError) {
+                OUT.flush();
+                System.err.print("Virtual memory exhausted\n");
+                System.err.flush();
+                Runtime.getRuntime().halt(134);
+            }
         }
     }
 

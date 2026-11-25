@@ -442,7 +442,8 @@ routine (`LOWERER_UNIMPL` in a68-parser-prelude.cc: the SEMA operators
 `long infinity` ...; 93 entries, `Tag.unimplemented`, set by
 `Prelude.idfUnimpl/opUnimpl`) are a compile-time error as in ga68
 (`a68_lower_unimplemented`): `FILE:LINE:COL: fatal error: no lowering
-routine installed for construct.  jemarch has been lazy`, then
+routine installed for construct.` (ga68 adds a second sentence, a remark
+of its author, which a68j leaves out since version 1.0.0), then
 `compilation terminated.`, status 1 (`Gen.Fatal`, checked in tree order
 before code generation). The 5 Rosetta solutions ga68 rejects this way
 are rejected by a68j at the same line and column. The module
@@ -579,7 +580,7 @@ declarer, and must agree in the number and the order of the pairs of
 bounds. In ga68 they do not always agree (docs/ga68-bug-reports.md,
 entries 10 and 30): a `FLEX [1 : n] CHAR` yields bounds that the string
 does not take, and fields that share a declarer yield its bounds once.
-Since version 0.9.1 `GenRows.declarerBounds` collects one pair for every
+Since version 1.0.0 `GenRows.declarerBounds` collects one pair for every
 pair that the description takes: `[1 : 0]` for the indicant `STRING` and
 for the rows of a mode of an accessed module (whose declarer is not at
 hand), and the pairs of a shared declarer once for each field (its units

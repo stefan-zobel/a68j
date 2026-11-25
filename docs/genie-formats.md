@@ -127,7 +127,7 @@ ga68 and a68j:
   loop. In a loop with a `BY` part, `DOWNTO` is an error of the tool
   ("DOWNTO after BY is not supported");
 - in UPPER stropping, `COMPLEX` becomes `COMPL` and two blanks, which
-  keep the columns of the line (since version 0.9.1). In Algol 68 Genie
+  keep the columns of the line (since version 1.0.0). In Algol 68 Genie
   `COMPLEX` is a reserved word with the meaning of `COMPL`, also after
   `LONG` and `LONG LONG`;
 - in UPPER stropping, a pragmat `PR read "file" PR` (`read` or `include`,

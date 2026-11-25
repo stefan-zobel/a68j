@@ -102,7 +102,8 @@ public final class Gen {
      *
      * <p>As a68_lower_unimplemented: a use of a standard identifier or
      * operator that ga68 declares without a lowering routine
-     * (Tag#unimplemented) is a fatal error too.
+     * (Tag#unimplemented) is a fatal error too, with the message of ga68
+     * without its second sentence, a remark of the author.
      *
      * <p>Both are checked in one walk in tree order before the code is
      * generated, a declaration before the units inside it, so that the
@@ -116,7 +117,7 @@ public final class Gen {
             Node dyadic = p.attribute == Attribute.FORMULA && p.sub != null ? p.sub.next : null;
             if ((p.attribute == Attribute.IDENTIFIER || p.attribute == Attribute.OPERATOR) && unimplemented(p.tag)
                     || dyadic != null && dyadic.attribute == Attribute.OPERATOR && unimplemented(dyadic.tag)) {
-                throw new Fatal(p, "no lowering routine installed for construct.  jemarch has been lazy");
+                throw new Fatal(p, "no lowering routine installed for construct.");
             }
             switch (p.attribute) {
                 case IDENTITY_DECLARATION -> {

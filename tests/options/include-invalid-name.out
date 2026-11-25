@@ -1,0 +1,2 @@
+tests/options/include-invalid-name.a68:4:9: error: included file not found
+exit 1

@@ -14,6 +14,10 @@
   29).
 - Corrected: `flex [1 : n] char` got the bounds 1:0, and rows in a
   structure could get the bounds of another field.
+- Corrected: a program that runs out of memory ends with the message of
+  ga68 (`Virtual memory exhausted`) instead of a Java stack trace, and an
+  include file name that the file system cannot name gives "included
+  file not found" instead of an internal compiler error.
 
 ## 0.9.0
 

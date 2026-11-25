@@ -17,8 +17,8 @@ ga68 does not do this:
   them stops at compile time with
   `fatal error: no lowering routine installed for construct.  jemarch has been lazy`.
 
-Without the option a68j does exactly the same (the same message, the
-same line and column). With `-fpar-threads` the units run in threads of
+Without the option a68j does the same (the same message without its
+second sentence, the same line and column). With `-fpar-threads` the units run in threads of
 their own, and SEMA is available.
 
 ## Usage
