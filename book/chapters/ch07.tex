@@ -671,6 +671,16 @@ collector, which costs time and memory. The distinction is the one
 between the stack and the heap in C++ and Rust (\texttt{Box}); Java and
 Python allocate every object on the heap.
 
+\begin{implnote}
+a68j uses the garbage collector of the Java virtual machine, Algol 68
+Genie its own. ga68 reclaims heap cells only if its run-time library
+libga68 was built with the Boehm garbage collector, which it uses when it
+finds it at build time; otherwise heap cells are never freed, and a
+program that allocates a lot in a loop can run out of memory. ga68 also
+allocates on the heap where the program does not say \code|heap|, for
+example for a slice of an array.
+\end{implnote}
+
 \section{Lifetimes of functions}\label{sec-proc-lifetimes}
 
 The lifetime rule also applies to functions, and this is where Algol 68
@@ -721,6 +731,18 @@ be kept, a record that holds the state together with a function that
 takes the state as a parameter does the job of a closure. Algol 68 Genie
 and a68j offer a further way out, partial parametrization, an extension of
 the language that Appendix~\ref{app-partial} describes.
+
+\begin{implnote}
+ga68 crashes when such a function is written as a routine text inside a
+procedure with parameters, as in the constructor
+\code|(int start) Counter: (heap int := start, (ref int c) int: c +:= 1)|,
+and is called after the procedure has returned, although the program is
+valid: the function uses no name of the procedure. ga68 makes the routine
+text a function nested in the procedure, and its call needs the stack
+frame of the procedure, which is gone. Declaring the function outside the
+procedure and storing only its name, \code|(heap int := start, step)|,
+avoids the crash; a68j and Algol 68 Genie run both forms.
+\end{implnote}
 
 \begin{implnote}
 With the option \code|-Wscope|, ga68 and a68j warn at compile time about
