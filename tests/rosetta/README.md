@@ -117,7 +117,7 @@ if ga68 rejects a program, it rejects both versions, almost always with
 the first error on the same line (exception: `flow-control-structures-4`,
 a format for which ga68 reports the errors in a different order).
 
-## Results (a68j 0.8.1, programs in SUPPER)
+## Results (a68j 1.0.0, programs in SUPPER)
 
 | | Solutions |
 |---|---|
@@ -198,7 +198,12 @@ of the others rely on the multiple precision of `LONG LONG INT` or on the
 64-bit `INT` and `REAL` of Algol 68 Genie. The list is in `results.tsv`. Since `Genie_Transput` provides
 reading and files (since version 0.5.0), 60 more solutions compile; 59 of them give
 the same result on the JVM. With `associate` (transput to a string), 6
-more compile, and all 6 give the same result.
+more compile, and all 6 give the same result. Since version 1.0.0
+`-fgenie` provides `COMPLEX`, `null char` and the procedures of the
+bundled module `Math` (`arctan2`, `sinh`, `complex exp` ...): 11 more
+originals compile (894 before, 905 now, of 1328) and end normally, among
+them `discrete-fourier-transform`, `roots-of-unity` and
+`roots-of-a-quadratic-function`.
 
 The remaining differences (details in `notes.tsv`):
 
