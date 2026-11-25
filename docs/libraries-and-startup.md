@@ -143,9 +143,10 @@ example `dividuus-numbers` in 0.45 s instead of 0.63 s (ga68 0.43 s).
   Further class path entries may follow the jar, such as module
   directories or library jars.
 - If the cache does not fit, for example because the jar was rebuilt or
-  a different JDK is running, the JVM silently ignores it. The program
-  then runs normally, just without the time saving. `-Xlog:aot` shows the
-  reason.
+  moved or a different JDK is running, the JVM does not use it and
+  prints a warning on standard output (`[warning][aot] ...`). The program
+  then runs normally, just without the time saving. `-Xlog:aot=off`
+  suppresses the warning, `-Xlog:aot` shows the reason in detail.
 - The cache is not put into the source zip (16 MB, and it depends on the
   machine); `backend/build.sh` creates it anew.
 
