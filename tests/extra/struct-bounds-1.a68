@@ -1,0 +1,57 @@
+{ The rows of a structure get the bounds of their own declarers when a
+  field is a flexible row of characters with bounds, a STRING, a name, a
+  procedure or a union. ga68 gives the bounds of a FLEX [1 : n] CHAR field
+  to the next row (docs/ga68-bug-reports.md, entry 30). }
+begin
+  proc b = (string t, int l, u) void: puts (t + " " + whole (l, 0) + ":" + whole (u, 0) + "'n");
+
+  struct (flex [1:50] char a, [2:4] int b) s1;
+  b ("s1 a", LWB a of s1, UPB a of s1); b ("s1 b", LWB b of s1, UPB b of s1);
+  struct (string a, [2:4] int b) s2;
+  b ("s2 a", LWB a of s2, UPB a of s2); b ("s2 b", LWB b of s2, UPB b of s2);
+  struct ([2:4] int b, string a) s3;
+  b ("s3 a", LWB a of s3, UPB a of s3); b ("s3 b", LWB b of s3, UPB b of s3);
+  struct (flex [1:5] char a, b, [2:4] int c) s5;
+  b ("s5 a", LWB a of s5, UPB a of s5); b ("s5 b", LWB b of s5, UPB b of s5);
+  b ("s5 c", LWB c of s5, UPB c of s5);
+  struct (ref string r, [2:4] int b) s8;
+  b ("s8 b", LWB b of s8, UPB b of s8);
+  struct (proc (string) void p, [2:4] int b) s9;
+  b ("s9 b", LWB b of s9, UPB b of s9);
+  struct (struct (flex [1:7] char a, [3:5] int i) inner, [2:4] int b) s10;
+  b ("s10 a", LWB a of inner of s10, UPB a of inner of s10); b ("s10 i", LWB i of inner of s10, UPB i of inner of s10);
+  b ("s10 b", LWB b of s10, UPB b of s10);
+  [1:2] struct (flex [1:7] char a, [3:5] int i) r;
+  b ("r", LWB r, UPB r);
+  b ("r[1] a", LWB a of r[1], UPB a of r[1]); b ("r[1] i", LWB i of r[1], UPB i of r[1]);
+  b ("r[2] a", LWB a of r[2], UPB a of r[2]); b ("r[2] i", LWB i of r[2], UPB i of r[2]);
+  mode R = struct (flex [1:7] char a, [3:5] int i);
+  mode Q = struct (R r, string t, [2:4] int b);
+  Q q;
+  b ("q a", LWB a of r of q, UPB a of r of q); b ("q i", LWB i of r of q, UPB i of r of q);
+  b ("q t", LWB t of q, UPB t of q); b ("q b", LWB b of q, UPB b of q);
+  mode S = string, V = [1:3] int;
+  struct (S a, V v, [2:4] int b) s15;
+  b ("s15 a", LWB a of s15, UPB a of s15); b ("s15 v", LWB v of s15, UPB v of s15);
+  b ("s15 b", LWB b of s15, UPB b of s15);
+  struct ([1:2] string a, [2:4] int b) s16;
+  b ("s16 a", LWB a of s16, UPB a of s16); b ("s16 a[1]", LWB (a of s16)[1], UPB (a of s16)[1]);
+  b ("s16 b", LWB b of s16, UPB b of s16);
+  ref Q hq = heap Q;
+  b ("hq a", LWB a of r of hq, UPB a of r of hq); b ("hq b", LWB b of hq, UPB b of hq);
+
+  { Unions: their declarers have no bounds. }
+  struct (union ([] int, bool) u, [2:4] int b) u1;
+  b ("u1 b", LWB b of u1, UPB b of u1);
+  struct (union (string, int) u, [2:4] int b) u2;
+  b ("u2 b", LWB b of u2, UPB b of u2);
+  struct (union ([] int, ref int) u, [2:4] int b) u3;
+  b ("u3 b", LWB b of u3, UPB b of u3);
+  struct (union (string, flex [] bool) u, [2:4] int b) u4;
+  b ("u4 b", LWB b of u4, UPB b of u4);
+  struct (flex [1:3] char a, union ([] int, ref int) u, [2:4] int b) u5;
+  b ("u5 a", LWB a of u5, UPB a of u5); b ("u5 b", LWB b of u5, UPB b of u5);
+
+  a of s1 := "world";
+  puts (a of s1 + " "); b ("s1 a", LWB a of s1, UPB a of s1)
+end

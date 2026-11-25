@@ -24,9 +24,11 @@ package a68j.rt;
  *   i  int-like (0)        l  long (0)         f  float (0.0)   d  double (0.0)
  *   b  bool (false)        c  char (" ")       n  NIL / null proc
  *   s  string (empty)      v  void (null)
+ *   t          string with bounds: consumes 2 bounds
  *   R k e      row of k dimensions with element e: consumes 2k bounds
  *   S k e...   structure with k fields
- *   U m e      union whose SKIP is a value of mode number m described by e
+ *   U m e      union whose SKIP is a value of mode number m described by e;
+ *              e consumes no bounds (the declarer of a union has none)
  *   z e        a structure or union e without rows: a generator fills it
  *              with zeroes (ga68's fill_in_buffer memsets modes without
  *              rows), so its CHARs are NUL and a union is united with its
@@ -35,7 +37,9 @@ package a68j.rt;
  *
  * <p>As in ga68, a generated row of INT, BOOL, CHAR, REAL or names is
  * filled with zeroes too (CHAR elements are NUL, not blank), while a
- * generated CHAR outside such a row is a blank (its SKIP value).
+ * generated CHAR outside such a row is a blank (its SKIP value). Unlike
+ * ga68, which creates every STRING empty, a string with bounds
+ * (FLEX [1 : n] CHAR) gets them, and its elements are NUL as well.
  *
  * <p>k and m are decimal numbers followed by ':'. Row bounds are taken
  * from {@code bounds} in the order of the description; the bounds of the
@@ -97,6 +101,10 @@ public final class Gen {
             }
             case 'n', 'v': return null;
             case 's': return Row.ofString("");
+            case 't': {
+                long lwb = bound(1);
+                return Row.make1(lwb, bound(0), 'i');
+            }
             case 'R': {
                 int k = num();
                 long[] lwb = new long[k];
@@ -149,7 +157,11 @@ public final class Gen {
             }
             case 'U': {
                 int m = num();
+                // The declarer of a union has no bounds: its rows are empty.
+                int save = bpos;
+                bpos = bounds.length;
                 Object v = value();
+                bpos = save;
                 return zero ? new Union(m, v) : generator ? new Union(-1, null) : new Union(m, v);
             }
             default:

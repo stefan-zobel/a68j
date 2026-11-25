@@ -345,7 +345,7 @@ eulers-sum-of-powers-conjecture	Eulers-sum-of-powers-conjecture	compile error: e
 evaluate-binomial-coefficients	Evaluate-binomial-coefficients	exit 0	pass	
 even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	Even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes	exit 0	pass	
 even-or-odd	Even-or-odd	exit 1	pass	
-evolutionary-algorithm	Evolutionary-algorithm	exit 0	pass	
+evolutionary-algorithm	Evolutionary-algorithm	exit 0	fixed: docs/ga68-bug-reports.md, entry 10 (flex [1 : n] char gets the bounds [1 : 0]): with ga68 the parent string is empty and the program ends at once	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 10): ga68 gives "flex [UPB target] char parent" the bounds [1 : 0], so the empty parent has the fitness 100 % at once; a68j gives the bounds of the declarer and evolves the string (tests/rosetta/fixed)
 exactly-three-adjacent-3-in-lists	Exactly-three-adjacent-3-in-lists	exit 0	pass	
 exceptions-1	Exceptions	compile error: error: indicant OBJ has not been declared properly	-	
 exceptions-2	Exceptions	missing include prelude/event_base(obj).a68	-	
@@ -1254,7 +1254,7 @@ upc	UPC	exit 0	pass
 url-decoding	URL-decoding	exit 0	pass	
 url-encoding	URL-encoding	exit 0	pass	
 url-parser	URL-parser	missing include uriParser.a68	-	
-ulam-numbers	Ulam-numbers	exit -6	fail: runtime error 'ulam-numbers.a68:17: runtime error: bound 3 out of range [1:0]' (native 'ulam-numbers.a68:17: runtime error: bound 1 out of range [1:0]')	evaluation order: in "ulam[3] := ulam[2] := ulam[1] := one" ga68 checks the bound of the inner assignation first; both stop with a bound error because ga68 ignores the bounds of FLEX [1 : n] CHAR (a ga68 bug that a68j reproduces)
+ulam-numbers	Ulam-numbers	exit -6	fixed: docs/ga68-bug-reports.md, entry 10 (flex [1 : n] char gets the bounds [1 : 0]): ga68 stops with a bound error	ga68 defect not reproduced (docs/ga68-bug-reports.md, entry 10): ga68 gives "flex [1 : ulam_size] char ulam" the bounds [1 : 0], and the program stops with a bound error; a68j gives the bounds of the declarer and prints the Ulam numbers, as Algol 68 Genie does (tests/rosetta/fixed)
 ulam-spiral-for-primes-	Ulam-spiral-for-primes-	missing include primes.incl.a68	-	
 ultra-useful-primes	Ultra-useful-primes	missing include primes.incl.a68	-	
 undefined-values	Undefined-values	exit 0	pass	

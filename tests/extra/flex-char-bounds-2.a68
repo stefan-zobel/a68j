@@ -1,0 +1,14 @@
+{ The elements of a new flexible row of characters with bounds are NUL
+  characters, as those of a new [1 : n] CHAR are, and a mode indicant for
+  such a row gives its bounds. ga68 creates the row empty
+  (docs/ga68-bug-reports.md, entry 10). }
+begin
+  flex [1:3] char x;
+  [1:3] char y;
+  for i to 3 do puts (whole (ABS x[i], 0) + " " + whole (ABS y[i], 0) + " ") od;
+  struct (flex [1:2] char a, char c) s;
+  puts (whole (ABS (a of s)[2], 0) + " " + whole (UPB a of s, 0) + "'n");
+  mode S = flex [1:10] char;
+  S t; [1:2] S u;
+  puts (whole (LWB t, 0) + ":" + whole (UPB t, 0) + " " + whole (UPB u[2], 0) + "'n")
+end

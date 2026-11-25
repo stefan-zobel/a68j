@@ -127,9 +127,9 @@ a format for which ga68 reports the errors in a different order).
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
 | ga68 compiles and runs them | 716 |
-| **of these identical to ga68 on the JVM** | **705** |
-| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 31 |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 650 |
+| **of these identical to ga68 on the JVM** | **706** |
+| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 33 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 651 |
 | of these the same up to rounding (`approx`) | 6 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
@@ -208,15 +208,12 @@ The remaining differences (details in `notes.tsv`):
   `java.lang.Math` (pure Java, deliberately without C calls). The result
   differs in the last digit; in `particle-swarm-optimization` the
   optimization method amplifies the difference to about 10^-4.
-- **Order of evaluation** (`tree-traversal`, `ulam-numbers`): Algol 68 does
+- **Order of evaluation** (`tree-traversal`): Algol 68 does
   not specify whether the destination or the source of an assignation is
   elaborated first, nor the order of the operands of a formula. Here ga68
   follows the rules of GCC, which depend on the shape of the expression.
   a68j elaborates the destination first, as Algol 68 Genie does, and
-  gives its output for `tree-traversal`. In `ulam-numbers` both stop with
-  a bound error, at different bounds, because ga68 gives
-  `flex [1 : n] char` the bounds `[1 : 0]`, which a68j reproduces (entry
-  10 of the bug reports).
+  gives its output for `tree-traversal`.
 - **80-bit `long long real`** (`infinity`): ga68 prints
   `long long max real` of its 80-bit `long long real`, a68j that of a
   double.
@@ -243,6 +240,20 @@ The other two need conditions for the native run (see Running):
 `self-numbers` a stack large enough for a row of 2 * 10^9 `bool`, and
 `successive-prime-differences` a libga68 with a garbage collector.
 
+Since version 0.9.1 a `flex [1 : n] char` has the bounds of its declarer
+on the JVM; ga68 creates it empty (entry 10). Two solutions declare such
+a row and assign to its elements, and are compared with their results in
+`fixed/`: `ulam-numbers`, which ga68 stops with a bound error and which
+now gives the output of Algol 68 Genie, and `evolutionary-algorithm`.
+The latter ended at once natively, with an empty parent string that had
+a fitness of 100 %; it now evolves the string `METHINKS IT IS LIKE A
+WEASEL` in 142 generations as on Algol 68 Genie, whose random numbers,
+and therefore generations, differ. `straddling-checkerboard`, whose
+structure has three fields with one declarer
+(`[0 : 9] char first, second, third`), stops ga68 with an internal
+compiler error (entry 30); with `-fgenie` the original stopped with a
+bound error and now gives the output of Algol 68 Genie.
+
 `ruth-aaron-numbers` used to need too much memory on the JVM (rows of
 `INT` as `Object[]` of `Integer`); with the unboxed rows it runs as
 fast as natively (14.5 s, ga68 13.1 s).
@@ -261,7 +272,10 @@ again with ga68 at GCC commit 3f35c3d2d116.
   selection on such a clause as the destination of an assignation causes
   "gimplification failed".
 - `FLEX [1 : n] CHAR x` has the bounds `[1 : 0]` instead of `[1 : n]`
-  (a68j reproduces this).
+  (entry 10; a68j reproduced this until version 0.9.0 and gives the
+  bounds of the declarer since version 0.9.1). `ulam-numbers` and
+  `evolutionary-algorithm` now run as on Algol 68 Genie and are compared
+  with their results in `fixed`.
 - `MODAB` (`%*:=`) computes with the C remainder (negative for a negative
   left operand), whereas `MOD` is correct. a68j reproduced this until
   version 0.6.0 and computes `MOD` since version 0.7.0;

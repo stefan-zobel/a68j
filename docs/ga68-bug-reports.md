@@ -17,7 +17,7 @@ obvious expected result. Line numbers refer to the commit above.
 Entries 2 to 4 have been filed in the GCC Bugzilla (PR 128380, PR 128382
 and PR 128383, linked at the entries); the others have not. Entry 1 was
 filed as PR 128378 and has been fixed in GCC; it has been removed, and
-the other entries keep their numbers. Entries 10
+the other entries keep their numbers. Entries 11
 to 13 have reproducers and the measured behavior, but their causes in the
 sources have not been examined yet. Entries 16 to 22 were found while the
 examples of the book were checked; the causes of 16 to
@@ -32,7 +32,8 @@ directory with a Windows short name (`STEFAN~1`). Entry 28 was found
 with the Rosetta Code solution `matrix-multiplication`, which a68j
 compiles with `-fgenie` since structures are items of `print`. Entry 29
 was found when the hash functions of `tests/rosetta/hashes` were tried on
-the bytes of files.
+the bytes of files. Entry 30 was found when the cause of entry 10 was
+examined.
 
 The last column of the summary says what a68j does: it reproduces the
 behavior of ga68 where the output is still deterministic, and is correct
@@ -53,7 +54,7 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 7 | libga68 `ga68-posix.c` | `argv (0)` reads `argv[-1]` and crashes | returns "" |
 | 8 | ga68 `a68-low-strings.cc` | `a68_string_from_char` allocates 1 byte for a 4-byte character | not affected |
 | 9 | ga68 | a routine text that is called after the procedure that yielded it has returned jumps into a dead stack frame | correct |
-| 10 | ga68 | `flex [1 : n] char x` gets the bounds `[1 : 0]` | reproduces |
+| 10 | ga68 `a68-low-generator.cc` | `flex [1 : n] char x` gets the bounds `[1 : 0]`, and the units of its bounds are not elaborated | fixed |
 | 11 | ga68 | `%*:=` (`MODAB`) computes the C remainder, unlike `MOD` | fixed |
 | 12 | ga68 | a `string` value that is not a variable, united into a union of `string` or `[] char` and `[,] char`: internal compiler error in `verify_gimple`, or the value becomes the `[,] char` component | correct |
 | 13 | ga68 | a subscript, or the clause of a selection that is assigned to, with statements in it: internal compiler error | correct |
@@ -67,12 +68,13 @@ the place of the results of ga68 (`tools/run_jvm.py --fixed`).
 | 21 | ga68 `a68-low.cc` | a row variable declared in a module lives on the stack of the module's prelude | correct |
 | 22 | ga68 `a68-low.cc` | the postlude of a module is never executed | fixed |
 | 23 | ga68 `a68-parser-bottom-up.cc` | the text of an invalid phrase is used as a format string, so an operator with `%` in it (`%*:=`) breaks the syntax error message | fixed |
-| 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
+| 24 | ga68 `a68-low-generator.cc` | a variable of a mode exported by a module that is, or contains, a row with bounds or a flexible row (other than `string`): internal compiler error in `fill_in_buffer` | correct |
 | 25 | ga68 `a68-parser-scanner.cc` | `PR include "dir/file" PR` in a file given without a directory looks for `/dir/file` | reproduces; correct with `-fgenie` |
 | 26 | ga68 | a field of mode `string` selected from a row of structures (`name of items`) crashes the program when the selection is bound to an identifier or passed as an argument | correct |
 | 27 | ga68 `a68-parser-scanner.cc` | an included file is not found when its path has a `~` anywhere in it, also in the name of a directory | reproduces; correct with `-fgenie`, and for Windows short names |
 | 28 | libga68 `standard.a68.in` | `fixed` writes a "0" before the point when a value below 1 rounds up to 1, e.g. "01.00" | fixed |
 | 29 | libga68 `ga68-posix.c` | `fgetc` takes the bytes after an invalid UTF-8 byte into the same character without checking them, so a newline or a letter after it is lost, and a sequence cut off by the end of the file gives the end of the file | fixed |
+| 30 | ga68 `a68-low-generator.cc` | in a structure, the bounds of a `flex [1 : n] char` field go to the next row; fields that share a declarer with bounds (`struct ([1 : 3] int a, b) s`): internal compiler error in `fill_in_buffer` | fixed |
 
 ## 2. `string_to_real` ignores the exponent part
 
@@ -509,7 +511,41 @@ end
 ```
 
 ga68 prints `1 0`; a68g gives the bounds 1 and 5, as the declarer says.
-The cause has not been examined.
+The same holds for `heap flex [1 : n] char`, for a mode indicant
+declared as `flex [1 : n] char`, for the elements of
+`[1 : 3] flex [1 : 5] char` and for a field of a structure. A program
+that assigns to the elements of such a variable, as
+`for i to n do x[i] := "a" od`, stops with `bound 1 out of range [1:0]`.
+The units of the bounds are not elaborated at all:
+
+```
+begin int m := 0; flex [m +:= 1] char y, z;
+      puts (whole (m, 0) + "'n")
+end
+```
+
+ga68 prints `0`; a68g prints `1`.
+
+Cause: `fill_in_buffer` (a68-low-generator.cc, line 83) has a branch
+`m == M_STRING` before the branch for rows, with the comment "Strings
+are rows but handled especially as they are created empty and don't
+feature bounds in the formal declarer". It writes the bounds 1 and 0 and
+no elements, and takes nothing from the list of bounds. But the declarer
+of a generator is an actual declarer, `flex [1 : n] char` is the mode
+`string`, and `collect_declarer_bounds_1` (line 385) does put its bounds
+into the list (only the indicant `string` adds none). The bounds that
+are left over go to the next row (entry 30).
+
+Suggested fix: let `collect_declarer_bounds_1` add the bounds 1 and 0
+for the indicant `string`, and let the branch `m == M_STRING` take a
+pair of bounds as the branch for rows does (or remove the branch, so
+that a string is generated as any other flexible row).
+
+a68j reproduced the defect until version 0.9.0. Since version 0.9.1 a
+`flex [1 : n] char` has the bounds of its declarer (fixed); its elements
+are NUL characters, as those of a new `[1 : n] char`.
+`tests/extra/flex-char-bounds-1.a68` and `flex-char-bounds-2.a68` check
+it; the first gives the output of Algol 68 Genie.
 
 ## 11. `%*:=` computes the C remainder
 
@@ -978,8 +1014,12 @@ a68-low-decls.cc:334). The expected output is `3`. The same happens for
 `ref Vec v = heap Vec` and for a structure exported by a module with a
 field `flex [1 : 0] int` or `flex [1 : 0] proc int`; a field `string`
 works, and so do all these modes when they are declared in the program
-itself. Measured with GCC trunk 17.0.0 20261104; the cause in the
-sources has not been examined.
+itself. Measured with GCC trunk 17.0.0 20261104. A mode with fixed
+bounds fails in the same way (`pub mode V = [1 : 3] int`, then `V v`).
+The cause is that of entry 30: the declarer of a mode of a module is not
+in the tree of the program, so `collect_declarer_bounds_1` finds no
+bounds for its rows, and `fill_in_buffer` reads past the end of the
+list. The interface of a module does not have the bounds of its modes.
 
 The module `Genie_Formats` (`backend/lib/genieformats.a68`) avoids
 flexible rows in its exported mode `Gformat` for this reason.
@@ -1317,6 +1357,88 @@ invalid sequences made from valid UTF-8, also with `lseek` and `fgets`,
 and `tests/java/fgetc-bytes.a68` with files written byte by byte, read
 with `fgetc` and with `get` of `Genie_Transput`. (Algol 68 Genie, where
 a `char` is a byte, reads the bytes 128 to 254 unchanged.)
+
+## 30. The rows of a structure get the bounds of other fields
+
+```
+begin proc b = (string t, int l, u) void:
+         puts (t + " " + whole (l, 0) + ":" + whole (u, 0) + "'n");
+      struct (flex [1 : 50] char a, [2 : 4] int b) s;
+      b ("a", LWB a of s, UPB a of s); b ("b", LWB b of s, UPB b of s)
+end
+```
+
+ga68 prints `a 1:0` and `b 1:50`; a68g prints `a 1:50` and `b 2:4`. The
+bounds of the field `a` go to the field `b`, and the bounds of `b` are
+lost. The same happens in a structure inside a structure, in a row of
+structures and through mode indicants:
+
+```
+mode R = struct (flex [1 : 7] char a, [3 : 5] int i);
+mode Q = struct (R r, string t, [2 : 4] int b);
+Q q
+```
+
+gives `i of r of q` the bounds 1:7 and `b of q` the bounds 3:5. A field
+`string` before a row does no harm.
+
+Cause: `collect_declarer_bounds_1` (a68-low-generator.cc, line 385)
+puts the bounds of every `BOUNDS` node of the declarer into one list,
+those of `flex [1 : 50] char` too, and `fill_in_buffer` takes them from
+the list in the order of the fields of the mode. Its branch for a string
+(line 83) takes none (entry 10), so every row after such a field gets
+the bounds of the row before it.
+
+The list and the mode also disagree when several fields share a
+declarer:
+
+```
+begin struct ([1 : 3] int a, b, [5 : 6] int c) s;
+      skip
+end
+```
+
+ga68 stops with `internal compiler error: Segmentation fault` in
+`fill_in_buffer` (line 147, `tsi_stmt (*bounds)`), also for
+`struct ([n] int a, b) s`: the declarer `[1 : 3] int` is in the tree
+once, so the list has two pairs of bounds, but the mode has three rows,
+and the third reads past the end of the list. a68g gives `a` and `b` the
+bounds 1:3 and `c` the bounds 5:6. A variable of a mode with rows that
+is exported by a module (entry 24) fails at the same place for the same
+reason; so does the Rosetta Code solution `straddling-checkerboard`,
+whose structure has the fields `[0 : 9] char first, second, third`: the declarer of such a mode is not in the tree, so the list is
+empty.
+
+Suggested fix: in `collect_declarer_bounds_1`, add the pairs of the
+declarer of a `STRUCTURED_FIELD` once for each of its field identifiers
+(as `save_expr`s, so that the units are elaborated once), and correct
+entry 10, so that the list has exactly the pairs that `fill_in_buffer`
+takes. An assertion in `fill_in_buffer` that the list is not at its end,
+and one in `a68_low_generator` that it is at its end afterwards, would
+find such cases.
+
+a68j reproduced the misplaced bounds until version 0.9.0, and gave the
+fields of a shared declarer the bounds of the following declarers (`b`
+5:6 and `c` 1:0 above). Since version 0.9.1 every row of a structure has
+the bounds of its own declarer (fixed), and the units of a shared
+declarer are elaborated once. The compiler counts the pairs of bounds
+that the mode takes and those that the declarer yields; where the two
+numbers differ, it compiles the generator as before (with the
+environment variable `A68J_GEN_CHECK=error` this is an internal compiler
+error, for the tests; no program of the test suites has such a
+declarer). `tests/extra/struct-bounds-1.a68` and `struct-bounds-2.a68`
+check it; both give the output of Algol 68 Genie, and so does
+`straddling-checkerboard` with `-fgenie`, which stopped with a bound
+error before.
+
+Two related defects were in a68j alone, also corrected in version
+0.9.1: a union field whose first mode (in the order of the compiler) is
+a row, as in `struct (union ([] int, ref int) u, [2 : 4] int b)`, took
+the bounds of the next row, and a field of a row mode of an accessed
+module took none, so that the bounds of the following rows moved
+(`tests/extra/modules-bounds-1.a68`). The rows of a mode of an accessed
+module are empty, because the interface of a module does not have the
+bounds of its modes.
 
 ## Not a ga68 bug: Rosetta Code "Amb"
 

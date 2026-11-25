@@ -15,7 +15,10 @@ import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 /** Rows, structures and generators. */
 final class GenRows {
@@ -27,14 +30,20 @@ final class GenRows {
     // Mode descriptions for a68j.rt.Gen.
     // ------------------------------------------------------------------
 
-    /** The description of mode M for {@link a68j.rt.Gen} (see there). */
-    static String desc(Gen g, Moid m) {
+    /**
+     * The description of mode M for {@link a68j.rt.Gen} (see there). BOUNDS
+     * are the pairs of bounds known to match the description
+     * ({@link #declarerBounds}), or null: a STRING whose pair has bounds
+     * takes them ('t'); any other STRING is empty and takes none ('s'), and
+     * its pair is removed from BOUNDS.
+     */
+    static String desc(Gen g, Moid m, List<Node[]> bounds) {
         StringBuilder sb = new StringBuilder();
-        desc(g, m, sb, 0);
+        desc(g, m, sb, 0, bounds == null ? null : bounds.listIterator());
         return sb.toString();
     }
 
-    private static void desc(Gen g, Moid m, StringBuilder sb, int depth) {
+    private static void desc(Gen g, Moid m, StringBuilder sb, int depth, ListIterator<Node[]> bounds) {
         m = JType.base(m);
         if (depth > 50) {
             // A recursive mode can only recurse through REF or PROC.
@@ -43,7 +52,16 @@ final class GenRows {
         }
         var md = g.a68.modes;
         if (m == md.STRING) {
-            sb.append('s');
+            // The pair of the indicant STRING says nothing: an empty string
+            // that takes no bounds, as without BOUNDS.
+            if (bounds != null && bounds.next() != NO_BOUNDS) {
+                sb.append('t');
+            } else {
+                if (bounds != null) {
+                    bounds.remove();
+                }
+                sb.append('s');
+            }
             return;
         }
         if (m == md.CHAR) {
@@ -61,7 +79,10 @@ final class GenRows {
             case ROW -> {
                 Moid r = m.attribute == Attribute.FLEX_SYMBOL ? JType.base(m.sub) : m;
                 sb.append('R').append(r.dim).append(':');
-                desc(g, r.sub, sb, depth + 1);
+                for (int i = 0; bounds != null && i < r.dim; i++) {
+                    bounds.next();
+                }
+                desc(g, r.sub, sb, depth + 1, bounds);
             }
             case STRUCT -> {
                 if (!m.hasRows) {
@@ -73,7 +94,7 @@ final class GenRows {
                 }
                 sb.append('S').append(k).append(':');
                 for (Pack q = m.pack; q != null; q = q.next) {
-                    desc(g, q.type, sb, depth + 1);
+                    desc(g, q.type, sb, depth + 1, bounds);
                 }
             }
             case UNION -> {
@@ -82,9 +103,46 @@ final class GenRows {
                 }
                 Moid first = JType.base(m.pack.type);
                 sb.append('U').append(JType.unionTag(g, first)).append(':');
-                desc(g, first, sb, depth + 1);
+                // A union takes no bounds.
+                desc(g, first, sb, depth + 1, null);
             }
             default -> sb.append('n');
+        }
+    }
+
+    /**
+     * The number of bounds pairs that the description of mode M with
+     * bounds ({@link #desc} with BOUNDS, before pairs are removed) takes:
+     * one for each dimension of a row, one for a STRING, none for a union
+     * or a name.
+     */
+    private static int pairs(Gen g, Moid m, int depth) {
+        m = JType.base(m);
+        if (depth > 50) {
+            return 0;
+        }
+        var md = g.a68.modes;
+        if (m == md.STRING) {
+            return 1;
+        }
+        if (m == md.CHAR) {
+            return 0;
+        }
+        switch (JType.of(g.a68, m)) {
+            case ROW -> {
+                Moid r = m.attribute == Attribute.FLEX_SYMBOL ? JType.base(m.sub) : m;
+                return r.dim + pairs(g, r.sub, depth + 1);
+            }
+            case STRUCT -> {
+                int n = 0;
+                for (Pack q = m.pack; q != null; q = q.next) {
+                    n += pairs(g, q.type, depth + 1);
+                }
+                return n;
+            }
+            default -> {
+                return 0;
+            }
         }
     }
 
@@ -93,7 +151,7 @@ final class GenRows {
         JType t = JType.of(g.a68, m);
         switch (t) {
             case ROW, STRUCT, UNION -> {
-                Gen.constant(g.cb, desc(g, m));
+                Gen.constant(g.cb, desc(g, m, null));
                 g.cb.invokestatic(CD_GEN, "skip", MethodTypeDesc.of(CD_Object, CD_String));
                 g.cb.checkcast(t.desc);
             }
@@ -119,11 +177,12 @@ final class GenRows {
         }
         g.cb.new_(Gen.CD_CELL);
         g.cb.dup();
-        if (t == JType.ROW && generateRow1(g, declarer, desc(g, m))) {
+        if (t == JType.ROW && generateRow1(g, declarer, desc(g, m, null))) {
             // Done: a one-dimensional row of a primitive mode.
         } else if (t == JType.ROW || t == JType.STRUCT || t == JType.UNION) {
-            Gen.constant(g.cb, desc(g, m));
-            pushBounds(g, declarer);
+            List<Node[]> bounds = declarerBounds(g, declarer, m);
+            Gen.constant(g.cb, desc(g, m, bounds));
+            pushBounds(g, declarer, bounds);
             g.cb.invokestatic(CD_GEN, "gen", MethodTypeDesc.of(CD_Object, CD_String, CD_long.arrayType()));
         } else {
             GenUnits.pushSkip(g, m);
@@ -191,7 +250,7 @@ final class GenRows {
             return false;
         }
         List<Node[]> bounds = new ArrayList<>();
-        collectDeclarerBounds(declarer.sub, bounds, 0);
+        collectDeclarerBounds(g, declarer.sub, bounds, 0, true);
         if (bounds.size() != 1) {
             return false;
         }
@@ -222,12 +281,53 @@ final class GenRows {
         return true;
     }
 
+    /** The bounds pair of a row whose declarer gives none: [1:0], an empty row. */
+    private static final Node[] NO_BOUNDS = {null, null};
+
+    /** The test switch A68J_GEN_CHECK=error: see {@link #declarerBounds}. */
+    private static final boolean CHECK = "error".equals(System.getenv("A68J_GEN_CHECK"));
+
+    /**
+     * The bounds pairs of the actual declarer for a generator of mode M,
+     * one for each pair that the description of M takes ({@link #pairs}),
+     * in its order, or null if the declarer does not yield exactly these
+     * (with A68J_GEN_CHECK=error an internal compiler error instead, for
+     * the tests). With null the generator is compiled as ga68 compiles it:
+     * a STRING is empty and takes no bounds, and the bounds are those of
+     * collect_declarer_bounds.
+     *
+     * <p>ga68 collects the bounds of FLEX [1 : n] CHAR but creates every
+     * STRING empty, so that the bounds go to the next row of a structure,
+     * and it collects the bounds of a declarer shared by several fields
+     * once (docs/ga68-bug-reports.md, entries 10 and 30). Here every row
+     * gets the bounds that its declarer says.
+     */
+    private static List<Node[]> declarerBounds(Gen g, Node declarer, Moid m) {
+        if (declarer == null) {
+            return null;
+        }
+        List<Node[]> bounds = new ArrayList<>();
+        if (JType.base(m).attribute != Attribute.UNION_SYMBOL) {
+            collectDeclarerBounds(g, declarer.sub, bounds, 0, false);
+        }
+        int expected = pairs(g, m, 0);
+        if (bounds.size() != expected) {
+            if (CHECK) {
+                throw new IllegalStateException("generator of " + desc(g, m, null) + ": " + bounds.size()
+                        + " bounds pairs collected, " + expected + " expected");
+            }
+            return null;
+        }
+        return bounds;
+    }
+
     /**
      * Push a long[] with the bounds of the actual declarer (collect_declarer_bounds):
      * evaluated once per declarer node, as the language prescribes for
-     * {@code [n +:= 1] REAL a, b}.
+     * {@code [n +:= 1] REAL a, b}. BOUNDS are the pairs of
+     * {@link #declarerBounds}, or null for those that ga68 collects.
      */
-    private static void pushBounds(Gen g, Node declarer) {
+    private static void pushBounds(Gen g, Node declarer, List<Node[]> bounds) {
         if (declarer == null) {
             g.cb.iconst_0();
             g.cb.newarray(TypeKind.LONG);
@@ -239,20 +339,53 @@ final class GenRows {
             g.cb.aload(slot);
             return;
         }
-        List<Node[]> bounds = new ArrayList<>();
-        collectDeclarerBounds(declarer == null ? null : declarer.sub, bounds, 0);
+        if (bounds == null) {
+            bounds = new ArrayList<>();
+            collectDeclarerBounds(g, declarer.sub, bounds, 0, true);
+        } else {
+            // Missing bounds are [1:0] (a68j.rt.Gen): the last pairs need
+            // not be passed if they say that.
+            int n = bounds.size();
+            while (n > 0 && bounds.get(n - 1) == NO_BOUNDS) {
+                n--;
+            }
+            bounds = bounds.subList(0, n);
+        }
+        // A pair that occurs more than once (a declarer shared by several
+        // fields of a structure) is elaborated once.
+        Map<Node[], Integer> times = new IdentityHashMap<>();
+        for (Node[] b : bounds) {
+            times.merge(b, 1, Integer::sum);
+        }
+        Map<Node[], int[]> kept = new IdentityHashMap<>();
         Gen.constant(g.cb, 2 * bounds.size());
         g.cb.newarray(TypeKind.LONG);
         int i = 0;
         for (Node[] b : bounds) {
+            int[] slots = kept.get(b);
+            if (slots == null && b != NO_BOUNDS && times.get(b) > 1) {
+                slots = new int[] {-1, -1};
+                kept.put(b, slots);
+            }
             for (int j = 0; j < 2; j++) {
                 g.cb.dup();
                 Gen.constant(g.cb, i++);
                 if (b[j] == null) {
-                    g.cb.lconst_1();
+                    if (j == 0) {
+                        g.cb.lconst_1();
+                    } else {
+                        g.cb.lconst_0();
+                    }
+                } else if (slots != null && slots[j] >= 0) {
+                    g.cb.lload(slots[j]);
                 } else {
                     g.unit(b[j]);
                     g.cb.i2l();
+                    if (slots != null) {
+                        slots[j] = g.cb.allocateLocal(TypeKind.LONG);
+                        g.cb.dup2();
+                        g.cb.lstore(slots[j]);
+                    }
                 }
                 g.cb.lastore();
             }
@@ -265,22 +398,54 @@ final class GenRows {
         }
     }
 
-    /** collect_declarer_bounds_1: pairs {lower or null, upper}. */
-    private static void collectDeclarerBounds(Node p, List<Node[]> out, int depth) {
+    /**
+     * collect_declarer_bounds_1: pairs {lower or null, upper}. With GA68
+     * exactly the pairs that ga68 collects; otherwise the pairs that the
+     * description of the mode takes ({@link #declarerBounds}): also
+     * {@link #NO_BOUNDS} for a STRING and for the rows of a mode whose
+     * declarer is not at hand (a mode of an accessed module), and the pairs
+     * of a declarer shared by several fields once for each field.
+     */
+    private static void collectDeclarerBounds(Gen g, Node p, List<Node[]> out, int depth, boolean ga68) {
         for (; p != null; p = p.next) {
             if (p.attribute == Attribute.BOUNDS) {
                 collectBounds(p.sub, out);
             } else if (p.attribute == Attribute.INDICANT && "STRING".equals(p.info.symbol)) {
+                if (!ga68) {
+                    out.add(NO_BOUNDS);
+                }
                 return;
             } else if (p.attribute == Attribute.INDICANT) {
                 if (p.tag != null && p.tag.type != null && p.tag.type.hasRows && depth < 50) {
-                    collectDeclarerBounds(p.tag.node.next.next, out, depth + 1);
+                    Node declarer = p.tag.node.next.next;
+                    if (!ga68 && declarer.attribute != Attribute.DECLARER) {
+                        // The mode comes from a module, whose interface has
+                        // no bounds: empty rows.
+                        for (int n = pairs(g, p.tag.type, 0); n > 0; n--) {
+                            out.add(NO_BOUNDS);
+                        }
+                    } else {
+                        collectDeclarerBounds(g, declarer, out, depth + 1, ga68);
+                    }
                 }
             } else if (p.attribute == Attribute.DECLARER && p.type != null
                     && (JType.base(p.type).attribute == Attribute.UNION_SYMBOL || !p.type.hasRows)) {
                 return;
+            } else if (!ga68 && p.attribute == Attribute.STRUCTURED_FIELD) {
+                // DECLARER a, b, c: the pairs of the declarer for each field.
+                int fields = 1;
+                Node f = p;
+                while (f.sub != null && f.sub.attribute == Attribute.STRUCTURED_FIELD) {
+                    f = f.sub;
+                    fields++;
+                }
+                List<Node[]> one = new ArrayList<>();
+                collectDeclarerBounds(g, f.sub, one, depth, false);
+                for (int k = 0; k < fields; k++) {
+                    out.addAll(one);
+                }
             } else {
-                collectDeclarerBounds(p.sub, out, depth);
+                collectDeclarerBounds(g, p.sub, out, depth, ga68);
             }
         }
     }

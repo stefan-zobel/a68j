@@ -8,7 +8,7 @@ reproduce a defect of ga68 (*identical (corrected)*, see `fixed/`), or the
 same output up to the rounding of floating-point numbers (*same up to
 rounding*, see README).
 
-650 solutions: 619 identical, 25 identical to the corrected result and 6 the same up to rounding.
+650 solutions: 618 identical, 26 identical to the corrected result and 6 the same up to rounding.
 
 | No. | Program | Rosetta Code task | Result |
 |---:|---|---|---|
@@ -181,7 +181,7 @@ rounding*, see README).
 | 167 | [euler-method](euler-method.a68) | [Euler method](https://rosettacode.org/wiki/Euler_method) | identical |
 | 168 | [evaluate-binomial-coefficients](evaluate-binomial-coefficients.a68) | [Evaluate binomial coefficients](https://rosettacode.org/wiki/Evaluate_binomial_coefficients) | identical |
 | 169 | [even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes](even-numbers-which-cannot-be-expressed-as-the-sum-of-two-twin-primes.a68) | [Even numbers which cannot be expressed as the sum of two twin primes](https://rosettacode.org/wiki/Even_numbers_which_cannot_be_expressed_as_the_sum_of_two_twin_primes) | identical |
-| 170 | [evolutionary-algorithm](evolutionary-algorithm.a68) | [Evolutionary algorithm](https://rosettacode.org/wiki/Evolutionary_algorithm) | identical |
+| 170 | [evolutionary-algorithm](evolutionary-algorithm.a68) | [Evolutionary algorithm](https://rosettacode.org/wiki/Evolutionary_algorithm) | identical (corrected) |
 | 171 | [exactly-three-adjacent-3-in-lists](exactly-three-adjacent-3-in-lists.a68) | [Exactly three adjacent 3 in lists](https://rosettacode.org/wiki/Exactly_three_adjacent_3_in_lists) | identical |
 | 172 | [exceptions-catch-an-exception-thrown-in-a-nested-call](exceptions-catch-an-exception-thrown-in-a-nested-call.a68) | [Catch an exception thrown in a nested call](https://rosettacode.org/wiki/Exceptions/Catch_an_exception_thrown_in_a_nested_call) | identical |
 | 173 | [execute-brain--3](execute-brain--3.a68) | [Execute Brain****](https://rosettacode.org/wiki/Execute_Brain****) | identical |

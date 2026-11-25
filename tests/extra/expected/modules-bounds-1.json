@@ -1,0 +1,5 @@
+{
+ "cerr": "In function '__algol68_main':\na681: internal compiler error: Segmentation fault\n",
+ "compile": 1,
+ "file": "modules-bounds-1.a68"
+}

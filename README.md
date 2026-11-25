@@ -18,7 +18,7 @@ It is verified by differential testing against ga68. Every program in the
 test corpora must produce the same output and exit status on the JVM as
 with **ga68**:
 - the ga68 test suite,
-- almost 650 Rosetta Code programs,
+- 651 Rosetta Code programs,
 - the project's own tests.
 
 [![hello.a68](images/hello.svg)](examples/hello.a68)
@@ -67,8 +67,8 @@ Hello, world!
 |---|---|
 | Front end vs. ga68 | trees after semantic analysis identical node by node; same diagnostics (up to the ga68 commits listed in `docs/PORTING.md`) |
 | ga68 test suite (execution tests) | 524 of 525 (the other one prints `argv (1)`, the path of the executable, which necessarily differs) |
-| a68j's own differential tests (`tests/extra`) | 57 of 57 |
-| Rosetta Code programs that ga68 runs | 705 identical (650 of them end normally), 6 equal up to floating-point rounding, 5 open, of 716 |
+| a68j's own differential tests (`tests/extra`) | 62 of 62 |
+| Rosetta Code programs that ga68 runs | 706 identical (651 of them end normally), 6 equal up to floating-point rounding, 4 open, of 716 |
 | Module tests built as library jars | 25 of 25 |
 | Java interop and bundled modules (`tests/java`) | 96 of 96, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |

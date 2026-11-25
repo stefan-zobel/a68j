@@ -1,0 +1,61 @@
+{ A flexible row of characters with bounds in its declarer has these
+  bounds, as a variable, from a generator and as
+  the element of a row; the bounds are elaborated once for all variables
+  of a declaration. ga68 creates every such row empty
+  (docs/ga68-bug-reports.md, entry 10). }
+begin
+  proc b = (string t, int l, u) void: puts (t + " " + whole (l, 0) + ":" + whole (u, 0) + "'n");
+
+  int n = 5;
+  flex [1:n] char x;
+  b ("x", LWB x, UPB x);
+  flex [0:4] char x0; flex [3] char x3;
+  b ("x0", LWB x0, UPB x0); b ("x3", LWB x3, UPB x3);
+  ref string h = heap flex [1:5] char;
+  ref string l = loc flex [2:6] char;
+  b ("h", LWB h, UPB h); b ("l", LWB l, UPB l);
+  [1:3] flex [1:5] char a;
+  b ("a", LWB a, UPB a); b ("a[2]", LWB a[2], UPB a[2]);
+  flex [2] flex [3] flex [4] char k;
+  b ("k", LWB k, UPB k); b ("k[1]", LWB k[1], UPB k[1]); b ("k[2][3]", LWB k[2][3], UPB k[2][3]);
+  string e; [1:3] string t;
+  b ("e", LWB e, UPB e); b ("t", LWB t, UPB t); b ("t[3]", LWB t[3], UPB t[3]);
+
+  int m := 0;
+  flex [m +:= 1] char y, z;
+  puts (whole (m, 0) + "'n");
+  b ("y", LWB y, UPB y); b ("z", LWB z, UPB z);
+
+  flex [1:3] char v;
+  v[1] := "a"; v[2] := "b"; v[3] := "c";
+  puts (v + "'n");
+  v := "a longer string";
+  puts (v + "'n"); b ("v", LWB v, UPB v);
+  v := "s";
+  b ("v", LWB v, UPB v);
+  v +:= "yz";
+  puts (v + "'n"); b ("v", LWB v, UPB v);
+
+  proc p = (ref string r) void: r +:= "!";
+  flex [1:2] char w;
+  w[1] := "h"; w[2] := "i";
+  p (w);
+  puts (w + " " + w[2:3] + "'n"); b ("w", LWB w, UPB w);
+
+  flex [2:4] char q;
+  q[2:3] := "ab"; q[4] := "c";
+  puts (q + "'n"); b ("q", LWB q, UPB q);
+  string c := q;
+  b ("c", LWB c, UPB c);
+  q := c;
+  b ("q", LWB q, UPB q);
+
+  flex [1:3] char i := "hello";
+  b ("i", LWB i, UPB i);
+  for j to 3
+  do flex [1:j] char f;
+     for d to j do f[d] := REPR (ABS "a" + d) od;
+     puts (f + " ")
+  od;
+  puts ("'n")
+end

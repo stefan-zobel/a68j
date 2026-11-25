@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "modules-bounds-1.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 24 (a variable of a mode with rows exported by a module: internal compiler error)",
+ "stderr": "",
+ "stdout": "s 1:0\nv 1:0\na of r 1:0\nf 1:0\nw of w 1:0\nt of w 1:0\nx1 2:4\nx2 2:4\nx3 2:4\nx4 2:4\nx5 2:4\nw of a of x5 1:0\n"
+}

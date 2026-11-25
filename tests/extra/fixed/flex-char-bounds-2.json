@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "flex-char-bounds-2.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 10 (flex [1 : n] char gets the bounds [1 : 0])",
+ "stderr": "",
+ "stdout": "0 0 0 0 0 0 0 2\n1:10 10\n"
+}

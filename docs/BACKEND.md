@@ -574,6 +574,26 @@ a68-low-generator.cc and evaluated once per declarer. SKIP values are as
 `a68_get_skip_tree`: 0, `" "` for CHAR, NIL, the first union alternative,
 empty rows.
 
+The description and the bounds come from two trees, the mode and the
+declarer, and must agree in the number and the order of the pairs of
+bounds. In ga68 they do not always agree (docs/ga68-bug-reports.md,
+entries 10 and 30): a `FLEX [1 : n] CHAR` yields bounds that the string
+does not take, and fields that share a declarer yield its bounds once.
+Since version 0.9.1 `GenRows.declarerBounds` collects one pair for every
+pair that the description takes: `[1 : 0]` for the indicant `STRING` and
+for the rows of a mode of an accessed module (whose declarer is not at
+hand), and the pairs of a shared declarer once for each field (its units
+are still elaborated once). It compares their number with
+`GenRows.pairs`, the number that the description takes. If the two
+agree, a string with bounds is described by `t` and takes them (a
+`string` stays `s` and its pair is dropped, so that a program without
+such declarers compiles to the same code as before); if not, the
+generator is compiled as ga68 compiles it (`s`, an empty string that
+takes no bounds, and the bounds of `collect_declarer_bounds`). With the
+environment variable `A68J_GEN_CHECK=error` the second case is an
+internal compiler error; no program of the test suites reaches it. The
+description of a union takes no bounds, as in ga68.
+
 Generated values follow ga68's `fill_in_buffer`: INT, BOOL, CHAR, REAL and
 names get their SKIP value; any other mode without rows is filled with
 zeroes (`memset`), marked `z` in the description, so its CHARs are NUL and a
