@@ -409,6 +409,11 @@ sh tools/options_tests.sh         # -W options, -fno-assert, -fgenie, -fformats,
 python3 tools/formats_tests.py    # formats: the rewrite tool, Genie_Formats, -fgenie with and without the lowering (--a68g, --ga68)
 ```
 
+## Changelog
+
+The changes from release to release are listed in
+[docs/CHANGELOG.md](docs/CHANGELOG.md).
+
 ## License
 
 a68j is a derived work of ga68 (GCC) and of Algol 68 Genie and is licensed
