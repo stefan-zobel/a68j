@@ -22,8 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The warning -Wframe-scope: the escapes of procedure values that are wrong
- * in a68j, unlike most of those that -Wscope of ga68 reports.
+ * The warning -Wframe-scope: the escapes of procedure values that break the
+ * scope rule of Algol 68 and that a68j, unlike most of those that -Wscope of
+ * ga68 reports, does not make up for.
  *
  * <p>A frame holds the captured identifiers of one activation of a routine
  * (docs/BACKEND.md section 3), so a routine text that outlives its range

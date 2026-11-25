@@ -44,10 +44,16 @@ import java.util.List;
  * their own, see Outline; -floop-methods is the default), -fgenie (a
  * program written for Algol 68 Genie: UPPER stropping, each source file
  * prepared by the format rewrite tool, see GenieRewrite, the program put
- * into an access clause of Genie_Transput, Genie_Formats, Regex, Files and Times, and the
+ * into an access clause of Genie_Transput, Genie_Formats, Regex, Files, Times and Math, and the
  * format texts lowered as with -fformats) and -fformats (the front end parses format texts and the mode FORMAT, the
  * mode Gformat of the module Genie_Formats, and GenFormats lowers each
  * format text to a call of that module; in either stropping).
+ *
+ * <p>Exit status: 0, 1 for errors in the program and fatal errors (such as
+ * an output file that cannot be written), 2 for a missing source file name,
+ * 3 for a construct that a68j does not support yet, and 4 for an internal
+ * compiler error ({@link #internalError}, as ICE_EXIT_CODE of GCC). With
+ * -run, the exit status of the program.
  */
 public final class Compile {
     private Compile() {}
@@ -137,10 +143,21 @@ public final class Compile {
         // is only reserved, its pages are used as needed.
         Throwable[] failure = new Throwable[1];
         Thread t = new Thread(null, () -> {
+            A68 a68 = new A68();
+            String[] file = new String[1];
             try {
-                compile(args);
+                compile(args, a68, file);
+            } catch (ProgramFailure e) {
+                // -run: the program failed, not the compiler.
+                failure[0] = e.getCause();
+            } catch (OutOfMemoryError e) {
+                System.out.flush();
+                System.err.println("a68j: fatal error: out of memory (java -Xmx... gives the compiler more heap)");
+                System.err.println("compilation terminated.");
+                System.err.flush();
+                Runtime.getRuntime().halt(1);
             } catch (Throwable e) {
-                failure[0] = e;
+                internalError(a68, file[0], e);
             }
         }, "a68j", COMPILER_STACK_SIZE);
         t.start();
@@ -153,8 +170,114 @@ public final class Compile {
     /** The stack size of the compiler thread. */
     private static final long COMPILER_STACK_SIZE = 512L << 20;
 
-    private static void compile(String[] args) throws Throwable {
-        A68 a68 = new A68();
+    /** Where internal compiler errors are reported. */
+    static final String BUG_REPORT_URL = "https://github.com/stefan-zobel/a68j/issues";
+
+    /** The exit status of an internal compiler error (ICE_EXIT_CODE of GCC). */
+    static final int ICE_EXIT_STATUS = 4;
+
+    /**
+     * Under -run, the Throwable of the program itself (its cause), which is
+     * not an internal compiler error: main throws it on as before.
+     */
+    private static final class ProgramFailure extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        ProgramFailure(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    /**
+     * An internal compiler error, as GCC reports it (diagnostic.cc): the
+     * exception E that the compiler did not expect, the innermost frame of
+     * a68j code, where to report the error, the version, and the Java stack
+     * trace; status 4. The diagnostics collected so far are printed first;
+     * if there are errors among them, the compiler only says that it is
+     * confused by them. FILE is the source file, or null if none was given
+     * yet.
+     */
+    private static void internalError(A68 a68, String file, Throwable e) {
+        String where = file != null ? file : "a68j";
+        try {
+            print(a68);
+        } catch (Throwable ignored) {
+            // The diagnostics are a help, not a must.
+        }
+        System.out.flush();
+        PrintStream err = System.err;
+        if (a68.job.errorCount != 0) {
+            err.println(where + ": confused by earlier errors, bailing out");
+        } else {
+            err.println(where + ": internal compiler error: " + e);
+            StackTraceElement frame = innermostFrame(e);
+            if (frame != null) {
+                err.println("  in " + frame.getClassName() + "." + frame.getMethodName()
+                        + ", at " + frame.getFileName() + ":" + frame.getLineNumber());
+            }
+            err.println("Please submit a full bug report, with the program, its include files and");
+            err.println("the command line, at <" + BUG_REPORT_URL + ">.");
+            err.println((Gen.VERSION != null ? "a68j " + Gen.VERSION : "a68j (no version)")
+                    + ", Java " + System.getProperty("java.version")
+                    + " (" + System.getProperty("java.vendor") + ")");
+            err.println("Java stack trace:");
+            e.printStackTrace(err);
+        }
+        err.flush();
+        System.exit(ICE_EXIT_STATUS);
+    }
+
+    /**
+     * The innermost frame of a68j code in the stack trace of E, without the
+     * assertions of the front end (Parser.gccAssert, gccUnreachable), or
+     * null.
+     */
+    private static StackTraceElement innermostFrame(Throwable e) {
+        for (StackTraceElement f : e.getStackTrace()) {
+            if (f.getClassName().startsWith("a68j.")
+                    && !(f.getClassName().equals("a68j.front.Parser")
+                         && (f.getMethodName().equals("gccAssert") || f.getMethodName().equals("gccUnreachable")))) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A fatal error for the I/O exception E while the compiler writes its
+     * output or its library cache: the file and the reason, status 1.
+     */
+    private static void ioError(String what, java.io.IOException e) {
+        String reason;
+        String path;
+        if (e instanceof java.nio.file.FileSystemException fe) {
+            path = fe.getFile();
+            reason = fe.getReason() != null ? fe.getReason()
+                    : fe instanceof java.nio.file.NoSuchFileException ? "no such file or directory"
+                    : fe instanceof java.nio.file.AccessDeniedException ? "permission denied"
+                    : fe instanceof java.nio.file.FileAlreadyExistsException ? "exists and is not a directory"
+                    : e.getClass().getSimpleName();
+        } else {
+            path = null;
+            reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+        }
+        System.out.flush();
+        System.err.println("a68j: fatal error: " + what + (path != null ? " '" + path + "'" : "") + ": " + reason);
+        System.err.println("compilation terminated.");
+        System.exit(1);
+    }
+
+    /**
+     * The test hook A68J_ICE=front|back: an internal compiler error before
+     * the front end, or before the code generation, if PHASE is the value.
+     */
+    private static void testHook(String phase) {
+        if (phase.equals(System.getenv("A68J_ICE"))) {
+            throw new IllegalStateException("A68J_ICE=" + phase);
+        }
+    }
+
+    private static void compile(String[] args, A68 a68, String[] fileOut) throws Throwable {
         String file = null;
         Path outDir = Path.of(".");
         List<String> libDirs = new ArrayList<>();
@@ -283,15 +406,21 @@ public final class Compile {
             }
             System.exit(1);
         }
+        fileOut[0] = file;
         a68.importPaths.addAll(a68.includePaths);
         a68.importPaths.addAll(libDirs);
-        a68.importPaths.add(bundledLibDir());
+        try {
+            a68.importPaths.add(bundledLibDir());
+        } catch (java.io.IOException e) {
+            ioError("cannot write the library cache", e);
+        }
         if (file == null) {
             System.err.println("usage: Compile [options] file.a68 [-d outdir]\n       Compile [options] -run file.a68 [program arguments]");
             System.exit(2);
         }
         System.setErr(new PrintStream(System.err, true, StandardCharsets.ISO_8859_1));
         try {
+            testHook("front");
             ParserDriver.parse(a68, file);
         } catch (Diagnostics.ScanError e) {
             print(a68);
@@ -314,8 +443,12 @@ public final class Compile {
         String base = Path.of(file).getFileName().toString().replaceFirst("\\.a68$", "");
         boolean toJar = outDir.toString().endsWith(".jar");
         if (exports.length > 0 && !run && !toJar) {
-            Files.createDirectories(outDir);
-            Files.write(outDir.resolve(base + ".m68"), exports);
+            try {
+                Files.createDirectories(outDir);
+                Files.write(outDir.resolve(base + ".m68"), exports);
+            } catch (java.io.IOException e) {
+                ioError("cannot write", e);
+            }
         }
         try {
             // The classes of Java formal holes (nest Java) are looked up in
@@ -330,16 +463,20 @@ public final class Compile {
                 }
                 GenJava.loader = new java.net.URLClassLoader(urls, Compile.class.getClassLoader());
             }
-            byte[] bytes = Gen.compileClass(a68, name, file, loopMethods);
+            // The class of the program (or module) and the classes of its procedure values.
+            testHook("back");
+            java.util.Map<String, byte[]> classes = Gen.compileClass(a68, name, file, loopMethods);
             print(a68); // the warnings of the back end (-Wframe-scope)
             if (run) {
-                runClass(name, bytes, progArgs, jars);
+                runClass(name, classes, progArgs, jars);
                 return;
             }
             if (toJar) {
                 // -d libX.jar: a library jar (the analogue of libX.so), see Imports#libraryJar.
                 java.util.Map<String, byte[]> entries = new java.util.LinkedHashMap<>();
-                entries.put(name.replace('.', '/') + ".class", bytes);
+                for (var c : classes.entrySet()) {
+                    entries.put(c.getKey().replace('.', '/') + ".class", c.getValue());
+                }
                 if (exports.length > 0) {
                     entries.put(a68j.front.Imports.LIBRARY_JAR_EXPORTS + base + ".m68", exports);
                 }
@@ -347,16 +484,29 @@ public final class Compile {
                     // A program: the jar becomes executable.
                     entries.put("META-INF/MANIFEST.MF", programManifest(name, outDir, jars));
                 }
-                updateJar(outDir, entries);
+                try {
+                    updateJar(outDir, entries);
+                } catch (java.io.IOException e) {
+                    ioError("cannot write", e);
+                }
                 return;
             }
-            Path out = outDir.resolve(name.replace('.', '/') + ".class");
-            Files.createDirectories(out.getParent());
-            Files.write(out, bytes);
+            try {
+                for (var c : classes.entrySet()) {
+                    Path out = outDir.resolve(c.getKey().replace('.', '/') + ".class");
+                    Files.createDirectories(out.getParent());
+                    Files.write(out, c.getValue());
+                }
+            } catch (java.io.IOException e) {
+                ioError("cannot write", e);
+            }
         } catch (Gen.Unsupported e) {
             System.err.println(e.getMessage());
             System.exit(3);
         } catch (Gen.TooLarge e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (Gen.CompileError e) {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (Gen.Fatal e) {
@@ -485,11 +635,24 @@ public final class Compile {
     }
 
     /**
-     * -run: define the class in memory and call its main with the program
+     * -run: define the classes in memory (CLASSES by binary name, see
+     * Gen#compileClass) and call the main of the class NAME with the program
      * arguments. The library jars JARS ({@link #runJars}) are added to the
-     * class path.
+     * class path. A Throwable of the program, or of loading its classes, is
+     * thrown as a ProgramFailure, so that it is not taken for an internal
+     * compiler error.
      */
-    private static void runClass(String name, byte[] bytes, List<String> progArgs, List<String> jars) throws Throwable {
+    private static void runClass(String name, java.util.Map<String, byte[]> classes, List<String> progArgs,
+                                 List<String> jars) throws Throwable {
+        try {
+            runClass0(name, classes, progArgs, jars);
+        } catch (Throwable e) {
+            throw new ProgramFailure(e);
+        }
+    }
+
+    private static void runClass0(String name, java.util.Map<String, byte[]> classes, List<String> progArgs,
+                                  List<String> jars) throws Throwable {
         ClassLoader parent = Compile.class.getClassLoader();
         if (!jars.isEmpty()) {
             java.net.URL[] urls = new java.net.URL[jars.size()];
@@ -501,7 +664,8 @@ public final class Compile {
         ClassLoader loader = new ClassLoader(parent) {
             @Override
             protected Class<?> findClass(String n) throws ClassNotFoundException {
-                if (n.equals(name)) {
+                byte[] bytes = classes.get(n);
+                if (bytes != null) {
                     return defineClass(n, bytes, 0, bytes.length);
                 }
                 throw new ClassNotFoundException(n);

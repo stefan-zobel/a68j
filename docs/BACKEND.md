@@ -123,8 +123,16 @@ not make the name of the element or field at all (§1).
 
 - Each routine text (and the particular program) is compiled to a private
   static method `r<N>(Frame env, Object[] args) -> Object` of the program
-  class. A procedure value is `new Closure(MethodHandle, Frame)`; the
-  `MethodHandle` is loaded with `ldc` of a `DirectMethodHandleDesc`.
+  class. A procedure value is an instance of a small class of its own for
+  each such method, `<class>$r<N> extends Proc` with the frame in a field,
+  whose `call` invokes `r<N>` directly (`Gen.newProc`). These classes are
+  nest members of the program class, so they may call its private methods;
+  the compiler writes them next to it (`Gen.compileClass` returns all class
+  files). Since each routine has a class of its own, the JIT profiles the
+  receivers of `Proc.call` at each call site and can inline the routine
+  there (see docs/optimizations.md, section 13). Values that are rarely made
+  (the public procedures of a module asked for by `pub()` and `pub$v`) are
+  `new Closure(MethodHandle, Frame)` instead, without a class of their own.
 - `a68j.rt.Frame { final Frame up; final Object[] s; }`. One frame per
   invocation of a routine, holding every identifier of that routine that is
   **captured** (used inside a nested routine text). `up` is the frame of the
@@ -153,20 +161,26 @@ not make the name of the element or field at all (§1).
   bound without uniting the row to ROWS.
 - Operators declared by the user are procedures (the OP tag holds a Proc).
 - **Direct calls:** a procedure or brief operator declared with a routine
-  text (`proc f = (int n) int: ...`, `op X = ...`; `Gen.staticProcs`) is
-  elaborated when its range is entered and cannot change, so a call of it
-  (`f (x)`, `X y`, `a X b`, deproceduring `f`) invokes its method directly
-  with the frame the routine text would have captured (`GenUnits.directCall`,
-  found by walking the static chain). Such a routine has a typed entry
+  text (`proc f = (int n) int: ...`, `op X = ...`; `Gen.staticProcs`)
+  cannot change, so a call of it (`f (x)`, `X y`, `a X b`, deproceduring
+  `f`) invokes its method directly with the frame the routine text would
+  have captured (`GenUnits.directCall`, found by walking the static chain).
+  Such a routine has a typed entry
   `r<N>t(Frame env, <parameters unboxed>) -> <result unboxed>`; the boxed
-  `r<N>(Frame, Object[])` only unboxes and calls it, for closures. The order
-  of evaluation is unchanged (the procedure value has no side effects).
+  `r<N>(Frame, Object[])` only unboxes and calls it, for procedure values.
+  The order of evaluation is unchanged (the procedure value has no side
+  effects). Its value is not made when its range is entered but where it
+  is used as a value (`Gen.load`, `Gen.lazyValue`), with the same frame:
+  procedure values have no identity, and most such procedures are only
+  called, so a value made in advance would load its class for nothing.
 - **Direct calls of Java formal holes** (-fnest-java): an identifier or
   operator declared with a Java formal hole of a procedure mode
   (`Gen.javaProcs`, found by `Capture`) is called with invokestatic of the
   Java method itself, the arguments unboxed and converted as in the bridge
   method (`GenJava.directCall`); a Row parameter gets a copy as before.
-  Used as a value it is the closure over the bridge as before.
+  Used as a value it is a procedure value over the bridge, made where it is
+  used, as for the procedures above (the declaration only asks for the
+  bridge, `GenJava.bridge`, so that the errors of the hole are reported).
 - **Typed entries of modules:** a module class has for every public
   procedure or operator declared with a routine text at the top of the DEF
   part a `public static pub$i(parameters unboxed) -> result unboxed`
@@ -199,24 +213,28 @@ not make the name of the element or field at all (§1).
   routines that have a frame, so the static chain stays correct. Jumps need
   the frame of the routine that declares the label, so such routines keep
   theirs.
-- **Scope of routine texts (`-Wframe-scope`):** as frames are heap objects,
-  a routine text that outlives its range (returned by its procedure,
-  assigned to an outer variable) keeps the values it uses and gives the
-  right result, unlike in ga68, where this is undefined and `-Wscope` warns
-  about it. Two cases are wrong in a68j too:
+- **Scope of routine texts (`-Wframe-scope`):** a routine text that
+  outlives its range (returned by its procedure, assigned to an outer
+  variable) breaks the scope rule of Algol 68 (RR 5.2.1.2, 7.2.2). The
+  result is undefined: ga68 warns about it with `-Wscope`, and Algol 68
+  Genie stops with a runtime error. As frames are heap objects, such a
+  routine text keeps the values it uses in a68j and gives the expected
+  result, except in two cases:
   - A range that is elaborated more than once in one activation of a
     routine — the FOR identifier and the ranges in the WHILE and DO parts of
     a loop, the ranges after the first label of a serial clause when a jump
     goes back — keeps its captured identifiers in the same frame slots each
     time. A routine text made in one iteration that is called after the
     next sees the values of the latest iteration (`for i to 3 do fs[i] :=
-    int: i od` gives 3 3 3); one that calls a procedure of the loop body can
+    int: i od` gives 3 3 3, ga68 4 4 4); one that calls a procedure of the loop body can
     call itself without end and stop with status 139.
   - A procedure that jumps to a label (a procedured jump, or a routine text
     with a jump out of it) cannot be called after the serial clause of the
     label has been left: no handler catches the `Jump` any more.
 
-  `FrameScope`, after `Capture`, warns about both (on by default,
+  Both are scope violations as well: a declaration cannot follow a label
+  in a serial clause, so what a jump back elaborates again lies in an
+  inner range. `FrameScope`, after `Capture`, warns about both (on by default,
   `-Wno-frame-scope`). Every value whose mode can hold a procedure gets a
   danger level, a symbol table level: storing the value in a name whose
   scope (as in `a68j.front.Scope`) is at most that level is wrong. A loop
@@ -355,7 +373,10 @@ to 2 (a redirected file has its size and position, a pipe or a terminal
 size 0 and ESPIPE), and `fcreate` gives a new file the permission bits of
 its mode less the umask, as creat (the bits 07000 by the "unix" attribute
 view of the JDK); `lseek` on a device that ignores the position, such as
-`/dev/null`, yields 0 for any offset, as in Linux.
+`/dev/null`, yields 0 for any offset, as in Linux. Unlike libga68, `fgetc`
+replaces each maximal subpart of an invalid UTF-8 sequence with U+FFFD
+and keeps the byte that ended it for the next read, so no valid byte is
+lost (`docs/ga68-bug-reports.md`, entry 29).
 
 ## 5. Code generator structure
 
@@ -480,7 +501,8 @@ Objects of classes that do not extend
 `Ref` are wrapped in an `a68j.rt.JavaHandle`. For a
 method it emits a bridge `(Frame, Object[]) -> Object` (unbox, convert with
 `a68j.rt.JavaConv`, invokestatic, convert back, box), emitted after the
-routines (`Gen.javaBridges`); the value of the hole is a `Closure` over it.
+routines (`Gen.javaBridges`); the value of the hole is a procedure value
+over it (`Gen.newProc`, section 3).
 A Java object is a name that refers to nothing: its class extends
 `a68j.rt.JavaObject` (a `Ref` whose `get`/`set` are runtime errors). Modes
 like `REF STRUCT (INT intlist java object)` differ only in the field name,
@@ -526,6 +548,23 @@ does not grow with its size (`Tables`, `a68j.rt.Table`, section 12), so
 only a display of thousands of elements that are not constants is such
 a unit.
 
+The exit status of the compiler itself (`Compile`): 1 for errors in the
+program and for fatal errors, 2 without a source file, 3 for a construct
+that is not supported yet, and 4 for an internal compiler error, as
+`ICE_EXIT_CODE` of GCC. A file that cannot be written (`-d`, the cache of
+the bundled interface files) is a fatal error: `a68j: fatal error: cannot
+write 'PATH': REASON`, `compilation terminated.`; so is a lack of memory.
+Any other exception of the compiler is an internal compiler error, reported
+as GCC reports one: `FILE: internal compiler error:
+EXCEPTION`, the innermost frame of a68j code (`in CLASS.METHOD, at
+FILE.java:LINE`), where to report it, the versions of a68j and Java, and
+the Java stack trace. If errors were reported before, the message is only
+`FILE: confused by earlier errors, bailing out`. With `-run`, an exception
+of the program is not an internal compiler error; it is printed by the JVM
+as before. The environment variable `A68J_ICE=front` (or `back`) causes an
+internal compiler error before the front end (or before the code
+generation), for the tests `tests/options/ice-*.a68`.
+
 ## 7. Values of generators and SKIP
 
 `a68j.rt.Gen` builds fresh values from a compact description of the mode
@@ -534,6 +573,26 @@ bounds of the actual declarer, collected like `collect_declarer_bounds` in
 a68-low-generator.cc and evaluated once per declarer. SKIP values are as
 `a68_get_skip_tree`: 0, `" "` for CHAR, NIL, the first union alternative,
 empty rows.
+
+The description and the bounds come from two trees, the mode and the
+declarer, and must agree in the number and the order of the pairs of
+bounds. In ga68 they do not always agree (docs/ga68-bug-reports.md,
+entries 10 and 30): a `FLEX [1 : n] CHAR` yields bounds that the string
+does not take, and fields that share a declarer yield its bounds once.
+Since version 0.9.1 `GenRows.declarerBounds` collects one pair for every
+pair that the description takes: `[1 : 0]` for the indicant `STRING` and
+for the rows of a mode of an accessed module (whose declarer is not at
+hand), and the pairs of a shared declarer once for each field (its units
+are still elaborated once). It compares their number with
+`GenRows.pairs`, the number that the description takes. If the two
+agree, a string with bounds is described by `t` and takes them (a
+`string` stays `s` and its pair is dropped, so that a program without
+such declarers compiles to the same code as before); if not, the
+generator is compiled as ga68 compiles it (`s`, an empty string that
+takes no bounds, and the bounds of `collect_declarer_bounds`). With the
+environment variable `A68J_GEN_CHECK=error` the second case is an
+internal compiler error; no program of the test suites reaches it. The
+description of a union takes no bounds, as in ga68.
 
 Generated values follow ga68's `fill_in_buffer`: INT, BOOL, CHAR, REAL and
 names get their SKIP value; any other mode without rows is filled with

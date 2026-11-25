@@ -45,7 +45,7 @@ public final class Scanner {
     // on lines of the environ, so that the lines of the program keep their
     // numbers and a file included by a pragmat on the first line, which
     // goes before that line, is inside the clause too.
-    private static final String[] GENIE_PRELUDE = {"ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES, TIMES ("};
+    private static final String[] GENIE_PRELUDE = {"ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES, TIMES, MATH ("};
     private static final String[] GENIE_POSTLUDE = {")"};
 
     static final char NULL_CHAR = '\0';

@@ -1,0 +1,22 @@
+ok    word mask: ffffffff
+ok    ffffffff + 1: 00000000
+ok    ffffffff + ffffffff: fffffffe
+ok    80000001 ROTL 1: 00000003
+ok    12345678 ROTL 4: 23456781
+ok    12345678 ROTR 8: 78123456
+ok    80000000 ROTR 31: 00000001
+ok    NOT 0f0f0f0f: f0f0f0f0
+ok    deadbeef SHR 28: 0000000d
+ok    deadbeef SHL 4: eadbeef0
+ok    big endian word: 102030ff
+ok    little endian word: ff302010
+ok    little endian bytes: efbeadde
+ok    join: 2030102030ff
+ok    bytes of ASCII: 526f7365747461
+ok    bytes of UTF-8: 61c3a4e282acf09d849e
+ok    padded length: 64
+ok    padded big endian: 61626380 0000000000000018
+ok    padded little endian: 1800000000000000
+ok    padded 56 bytes: 128
+0 wrong
+exit 0

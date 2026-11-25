@@ -126,6 +126,10 @@ ga68 and a68j:
   step of a loop with `DOWNTO`, whose default is 1, so this is the same
   loop. In a loop with a `BY` part, `DOWNTO` is an error of the tool
   ("DOWNTO after BY is not supported");
+- in UPPER stropping, `COMPLEX` becomes `COMPL` and two blanks, which
+  keep the columns of the line (since version 0.9.1). In Algol 68 Genie
+  `COMPLEX` is a reserved word with the meaning of `COMPL`, also after
+  `LONG` and `LONG LONG`;
 - in UPPER stropping, a pragmat `PR read "file" PR` (`read` or `include`,
   in any case) becomes `PR include "file" PR`, and any other pragmat,
   such as `PR precision=100 PR`, becomes a blank with the newlines of the
@@ -238,16 +242,18 @@ the tool with `--ga68` does by hand:
 - The compiler parses the format texts and lowers them as with
   `-fformats` (since version 0.9.0).
 - The program is put into
-  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES, TIMES ( ... )` by the
-  compiler, on lines of its own that belong to the environ, like the
+  `ACCESS GENIE_TRANSPUT, GENIE_FORMATS, REGEX, FILES, TIMES, MATH ( ... )`
+  by the compiler, on lines of its own that belong to the environ, like the
   prelude. A file included by a pragmat on the first line, which goes
   before that line, is inside the access clause too, and the lines of the
-  program keep their numbers. `Regex`, `Files` and `Times` give the
-  procedures of Algol 68 Genie for regular expressions (`grep in string`),
-  files (`get directory`, `file is directory`) and the clock
-  (`local time`, `utc time`, `cpu time`, `sleep`), see [regex.md](regex.md),
-  [files.md](files.md) and [times.md](times.md); a declaration of the program with the same name
-  hides the one of the module.
+  program keep their numbers. `Regex`, `Files`, `Times` and `Math` give
+  the procedures of Algol 68 Genie for regular expressions
+  (`grep in string`), files (`get directory`, `file is directory`), the
+  clock (`local time`, `utc time`, `cpu time`, `sleep`) and mathematics
+  (`arctan2`, `sinh`, `gamma`, `complex exp`), see [regex.md](regex.md),
+  [files.md](files.md), [times.md](times.md) and [math.md](math.md); a
+  declaration of the program with the same name hides the one of the
+  module. `Genie_Transput` gives `null char` as well.
 - `PR read "file" PR` and `PR READ "file" PR` include the file once, the
   first time. The file is looked for relative to the file that reads it,
   then in the `-I` directories. ga68 does not find a file with a
@@ -274,7 +280,10 @@ the tool with `--ga68` does by hand:
   - A denotation that is widened has the value of its text at the longer
     length. `long int n := 3000000000` does not wrap at 32 bits, and
     `long real r := 0.1` is the `long real` nearest to 0.1, not a widened
-    `real`.
+    `real`. An `int` or `bits` denotation widened to `long int`, `long long
+    int` or `long bits` that does not fit into their 64 bits is an error
+    when the program is compiled (Algol 68 Genie has multiple precision
+    there); widened to `long real`, it is the nearest `long real`.
 
 Messages of the compiler and run-time errors give the lines of the source
 files. Their columns can differ where the tool changed a line (a doubled
@@ -297,12 +306,24 @@ or of a row an item of `read` and `readf`, as in Algol 68 Genie (see
 "Differences and limits").
 
 These remain differences to Algol 68 Genie, with or without `-fgenie`:
-`long long` modes without multiple precision, the 32-bit `int` and
-`real` (a `real` variable widened to `long real` keeps the precision of
-its 32 bits), `_` in
-tags (not significant in ga68), no QUOTE stropping, and the parts of
-formats that are not supported
-yet (see "Differences and limits").
+
+- `long long` modes without multiple precision, and the 32-bit `int` and
+  `real` (a `real` variable widened to `long real` keeps the precision of
+  its 32 bits).
+- `short int` and `short short int`, and the `short` modes of `real`,
+  `bits` and `compl`, are modes of their own, as in ga68; in Algol 68
+  Genie they are the modes without `short`. A program that mixes them with
+  `int` gets errors from the compiler (no coercion, no operator for the
+  two modes), and `print` and `printf` take no `short` value.
+- There is no operator `&`, which Algol 68 Genie has as another
+  spelling of `AND`. A program that declares `OP &` for modes of its own
+  needs `PRIO & = 3` too.
+- `ORDER ... REDRO` is a pragmat and `NOTE ... ETON` a comment, as in ga68
+  with UPPER stropping, which `-fgenie` implies. An operator or mode with
+  one of these names gives the error "unterminated comment or pragmat".
+- `_` in tags is not significant in ga68.
+- There is no QUOTE stropping.
+- Parts of formats are not supported yet (see "Differences and limits").
 
 The option replaces the pre-processor on the Rosetta Code page about
 a68j (<https://rosettacode.org/wiki/A68j>); unlike it, it also handles

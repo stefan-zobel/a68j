@@ -1,0 +1,78 @@
+# Rosetta Code task "MD5/Implementation": MD5 (RFC 1321) implemented      #
+# with the 32-bit words of hashes.incl.a68, which needs bits.incl.a68     #
+# (Category:ALGOL 68-bits). The message is padded as for SHA-256 but with #
+# the length in little endian order, and read as little endian words.     #
+# The constants k are the integer parts of 2^32 * ABS sin (i), i = 1..64; #
+# they are given as in RFC 1321, since their computation would depend on  #
+# the precision of REAL.                                                  #
+BEGIN
+   PR read "../include/bits.incl.a68" PR
+   PR read "hashes.incl.a68" PR
+
+   # the MD5 digest of a message of bytes: 16 bytes #
+   PROC md5 = ([] INT message) [] INT:
+      BEGIN
+         [] INT k = (TOINT 16rd76aa478, TOINT 16re8c7b756, TOINT 16r242070db, TOINT 16rc1bdceee,
+                     TOINT 16rf57c0faf, TOINT 16r4787c62a, TOINT 16ra8304613, TOINT 16rfd469501,
+                     TOINT 16r698098d8, TOINT 16r8b44f7af, TOINT 16rffff5bb1, TOINT 16r895cd7be,
+                     TOINT 16r6b901122, TOINT 16rfd987193, TOINT 16ra679438e, TOINT 16r49b40821,
+                     TOINT 16rf61e2562, TOINT 16rc040b340, TOINT 16r265e5a51, TOINT 16re9b6c7aa,
+                     TOINT 16rd62f105d, TOINT 16r02441453, TOINT 16rd8a1e681, TOINT 16re7d3fbc8,
+                     TOINT 16r21e1cde6, TOINT 16rc33707d6, TOINT 16rf4d50d87, TOINT 16r455a14ed,
+                     TOINT 16ra9e3e905, TOINT 16rfcefa3f8, TOINT 16r676f02d9, TOINT 16r8d2a4c8a,
+                     TOINT 16rfffa3942, TOINT 16r8771f681, TOINT 16r6d9d6122, TOINT 16rfde5380c,
+                     TOINT 16ra4beea44, TOINT 16r4bdecfa9, TOINT 16rf6bb4b60, TOINT 16rbebfbc70,
+                     TOINT 16r289b7ec6, TOINT 16reaa127fa, TOINT 16rd4ef3085, TOINT 16r04881d05,
+                     TOINT 16rd9d4d039, TOINT 16re6db99e5, TOINT 16r1fa27cf8, TOINT 16rc4ac5665,
+                     TOINT 16rf4292244, TOINT 16r432aff97, TOINT 16rab9423a7, TOINT 16rfc93a039,
+                     TOINT 16r655b59c3, TOINT 16r8f0ccc92, TOINT 16rffeff47d, TOINT 16r85845dd1,
+                     TOINT 16r6fa87e4f, TOINT 16rfe2ce6e0, TOINT 16ra3014314, TOINT 16r4e0811a1,
+                     TOINT 16rf7537e82, TOINT 16rbd3af235, TOINT 16r2ad7d2bb, TOINT 16reb86d391);
+         # the rotation of each step, four per round #
+         [] INT shift = (7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21);
+         [1 : 4] INT h := (TOINT 16r67452301, TOINT 16refcdab89, TOINT 16r98badcfe, TOINT 16r10325476);
+         [] INT p = padded (message, FALSE);
+         [0 : 15] INT x;
+         FOR block FROM LWB p BY 64 TO UPB p DO
+            FOR j FROM 0 TO 15 DO x[j] := little endian word (p, block + 4 * j) OD;
+            INT a := h[1], b := h[2], c := h[3], d := h[4];
+            FOR i FROM 0 TO 63 DO
+               INT round = i OVER 16;
+               INT f, g;
+               CASE round + 1 IN
+                  (f := (b AND c) OR ((NOT b) AND d);  g := i),
+                  (f := (d AND b) OR ((NOT d) AND c);  g := (5 * i + 1) MOD 16),
+                  (f := b XOR c XOR d;                 g := (3 * i + 5) MOD 16),
+                  (f := c XOR (b OR NOT d);            g := (7 * i) MOD 16)
+               ESAC;
+               INT sum = ((f AND word mask) + a + k[i + 1] + x[g]) AND word mask;
+               a := d;
+               d := c;
+               c := b;
+               b := (b + (sum ROTL shift[4 * round + i MOD 4 + 1])) AND word mask
+            OD;
+            [] INT v = (a, b, c, d);
+            FOR i TO 4 DO h[i] := (h[i] + v[i]) AND word mask OD
+         OD;
+         [1 : 16] INT digest;
+         FOR i TO 4 DO digest[4 * i - 3 : 4 * i] := little endian bytes (h[i]) OD;
+         digest
+      END # md5 # ;
+
+   # the test suite of RFC 1321 #
+   [] STRUCT (STRING message, digest) tests =
+      (("", "d41d8cd98f00b204e9800998ecf8427e"),
+       ("a", "0cc175b9c0f1b6a831c399e269772661"),
+       ("abc", "900150983cd24fb0d6963f7d28e17f72"),
+       ("message digest", "f96b697d7cb7938d525a2f31aaf161d0"),
+       ("abcdefghijklmnopqrstuvwxyz", "c3fcd3d76192e4007dfb496cca67e13b"),
+       ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        "d174ab98d277d9f5a5611c2c9f419d9f"),
+       ("12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+        "57edf4a22be3c955ac49da2e2107b67a"));
+   FOR i FROM LWB tests TO UPB tests DO
+      STRING digest = hex (md5 (bytes (message OF tests[i])));
+      print ((digest, IF digest = digest OF tests[i] THEN "  ok  " ELSE "  WRONG  " FI,
+              """", message OF tests[i], """", newline))
+   OD
+END

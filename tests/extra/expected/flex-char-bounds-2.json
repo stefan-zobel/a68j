@@ -1,0 +1,8 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": -6,
+ "file": "flex-char-bounds-2.a68",
+ "stderr": "flex-char-bounds-2.a68:8: runtime error: bound 1 out of range [1:0]\n",
+ "stdout": ""
+}

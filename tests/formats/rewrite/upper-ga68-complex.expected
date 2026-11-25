@@ -1,0 +1,15 @@
+ACCESS GENIE_TRANSPUT (# COMPLEX becomes COMPL and two blanks; not in strings, comments or
+  longer words: COMPLEX #
+BEGIN
+   MODE VECTOR = COMPL  ;
+   COMPL   z = 1 I 2;
+   LONG COMPL   lz = 3 I 4;
+   LONG LONG COMPL   llz = 5 I 6;
+   []COMPL   row = (z, z);
+   REF COMPL   r = LOC COMPL   := z;
+   PROC f = (COMPL   a)COMPL  : a;
+   COMPL   complexz = f(z);
+   COMPL  x = 0 I 0;
+   MODE COMPLEXITY = INT, COMPLEX2 = INT;
+   print (("COMPLEX", RE complexz, newline))
+END )

@@ -1,0 +1,653 @@
+# graphs.incl.a68: graphs, a priority queue and disjoint sets.            #
+# The program declares before it, as for the templates of Rosetta Code:   #
+#   MODE WEIGHT = INT;  (or LONG INT, REAL, LONG REAL)                    #
+#   WEIGHT infinite weight = max int;                                     #
+# The library needs only +, - and < of WEIGHT.                            #
+# Vertices are 1 .. n OF g, edges 1 .. m OF g. An edge of an undirected   #
+# graph is stored once and appears among the out edges of both ends.      #
+# Identifiers of the library that programs do not need start with "graph" #
+# (graph error, graph find, ...); graph index (g), which builds the out   #
+# edges first OF g and adjacent OF g, serves loops over many vertices.    #
+# Description: README.md next to this file.                               #
+
+WEIGHT graph zero = infinite weight - infinite weight;
+
+PROC graph error = (STRING message) VOID:
+   BEGIN
+      print ((newline, "graphs: ", message, newline));
+      stop
+   END # graph error # ;
+
+PROC graph zeros = (INT k) REF [] INT:
+   BEGIN
+      REF [] INT r = HEAP [1 : k] INT;
+      FOR i TO k DO r[i] := 0 OD;
+      r
+   END # graph zeros # ;
+
+# ---------------------------------------------------------------- graphs  #
+MODE EDGE     = STRUCT (INT tail, head, WEIGHT weight);
+MODE LABELLED = STRUCT (STRING tail, head, WEIGHT weight);
+MODE GRAPH    = STRUCT (BOOL directed,
+                        INT n, m,                   # vertices, edges      #
+                        INT named,                  # vertices with names  #
+                        REF [] STRING name,         # up to the last named #
+                                                    # vertex, "" unnamed   #
+                        REF [] EDGE edge,
+                        REF [] INT slot,            # hash table of names  #
+                        REF [] INT first, adjacent, # out edges, CSR form, #
+                        BOOL indexed);              # rebuilt when needed  #
+
+# Rows on the heap are bound to identifiers before they go into a          #
+# structure display: with the rows only in the display, the garbage        #
+# collector of Algol 68 Genie 3.13.4 lost one of them (new partition with  #
+# 40000 elements after a large graph).                                     #
+PROC new graph = (BOOL directed) REF GRAPH:
+   BEGIN
+      REF [] STRING names = HEAP [1 : 0] STRING;
+      REF [] EDGE edges = HEAP [1 : 8] EDGE;
+      REF [] INT slots = graph zeros (16);
+      REF GRAPH g = HEAP GRAPH;
+      g := (directed, 0, 0, 0, names, edges, slots, NIL, NIL, FALSE);
+      g
+   END # new graph # ;
+
+PROC graph hash = (STRING s, INT size) INT:
+   BEGIN
+      INT h := 0;
+      FOR i FROM LWB s TO UPB s DO h := (h * 31 + ABS s[i]) MOD size OD;
+      h + 1
+   END # graph hash # ;
+
+# The slot of name s: the one that holds its vertex, or the empty one     #
+# where it belongs.                                                       #
+PROC graph find = (REF GRAPH g, STRING s) INT:
+   BEGIN
+      REF [] INT t = slot OF g;
+      INT size = UPB t;
+      INT i := graph hash (s, size);
+      BOOL searching := TRUE;
+      WHILE searching DO
+         IF t[i] = 0 THEN searching := FALSE
+         ELIF (name OF g)[t[i]] = s THEN searching := FALSE
+         ELSE i := i MOD size + 1
+         FI
+      OD;
+      i
+   END # graph find # ;
+
+PROC add vertices = (REF GRAPH g, INT count) INT:
+   BEGIN
+      INT first new = n OF g + 1;
+      n OF g +:= count;
+      indexed OF g := FALSE;
+      first new
+   END # add vertices # ;
+
+# The name of vertex v, "" if it has none. Only graphs with names have a  #
+# row of names: in Algol 68 Genie, each string of a row is an object of   #
+# its own on the heap.                                                    #
+PROC graph name = (REF GRAPH g, INT v) STRING:
+   IF v <= UPB name OF g THEN (name OF g)[v] ELSE "" FI;
+
+PROC vertex = (REF GRAPH g, STRING s) INT:
+   IF s = "" THEN add vertices (g, 1)
+   ELSE
+      IF 2 * (named OF g + 1) > UPB slot OF g THEN
+         slot OF g := graph zeros (4 * UPB slot OF g);
+         FOR v TO UPB name OF g DO
+            IF (name OF g)[v] /= "" THEN (slot OF g)[graph find (g, (name OF g)[v])] := v FI
+         OD
+      FI;
+      INT i = graph find (g, s);
+      IF (slot OF g)[i] /= 0 THEN (slot OF g)[i]
+      ELSE
+         INT v = add vertices (g, 1);
+         IF v > UPB name OF g THEN
+            INT old = UPB name OF g;
+            REF [] STRING names = HEAP [1 : 2 * v] STRING;
+            names[1 : old] := (name OF g)[1 : old];
+            FOR k FROM old + 1 TO 2 * v DO names[k] := "" OD;
+            name OF g := names
+         FI;
+         (name OF g)[v] := s;
+         (slot OF g)[i] := v;
+         named OF g +:= 1;
+         v
+      FI
+   FI # vertex # ;
+
+PROC add edge = (REF GRAPH g, INT tail, head, WEIGHT weight) VOID:
+   BEGIN
+      IF tail < 1 OR tail > n OF g OR head < 1 OR head > n OF g THEN
+         graph error ("add edge: no vertex " + whole (tail, 0) + " or " + whole (head, 0))
+      FI;
+      IF m OF g = UPB edge OF g THEN
+         REF [] EDGE edges = HEAP [1 : 2 * m OF g] EDGE;
+         edges[1 : m OF g] := (edge OF g)[1 : m OF g];
+         edge OF g := edges
+      FI;
+      m OF g +:= 1;
+      (edge OF g)[m OF g] := (tail, head, weight);
+      indexed OF g := FALSE
+   END # add edge # ;
+
+PROC add edges = (REF GRAPH g, [] LABELLED edges) VOID:
+   FOR i FROM LWB edges TO UPB edges DO
+      INT t = vertex (g, tail OF edges[i]);
+      add edge (g, t, vertex (g, head OF edges[i]), weight OF edges[i])
+   OD # add edges # ;
+
+PROC vertex name = (REF GRAPH g, INT v) STRING:
+   IF STRING s = graph name (g, v); s = "" THEN whole (v, 0) ELSE s FI;
+
+# Builds the out edges of all vertices in CSR form if the graph changed.  #
+PROC graph index = (REF GRAPH g) VOID:
+   IF NOT indexed OF g THEN
+      INT n = n OF g, m = m OF g;
+      BOOL both = NOT directed OF g;
+      REF [] INT start = graph zeros (n + 1);
+      FOR e TO m DO
+         EDGE x = (edge OF g)[e];
+         start[tail OF x] +:= 1;
+         IF both AND head OF x /= tail OF x THEN start[head OF x] +:= 1 FI
+      OD;
+      INT position := 1;
+      FOR v TO n + 1 DO
+         INT count = start[v];
+         start[v] := position;
+         position +:= count
+      OD;
+      REF [] INT adj = HEAP [1 : position - 1] INT;
+      [1 : n] INT next := start[1 : n];
+      FOR e TO m DO
+         EDGE x = (edge OF g)[e];
+         adj[next[tail OF x]] := e;
+         next[tail OF x] +:= 1;
+         IF both AND head OF x /= tail OF x THEN
+            adj[next[head OF x]] := e;
+            next[head OF x] +:= 1
+         FI
+      OD;
+      first OF g := start;
+      adjacent OF g := adj;
+      indexed OF g := TRUE
+   FI # graph index # ;
+
+# A slice of the out edges of all vertices, not a copy: bind it with       #
+# REF [] INT, a copy costs much time in Algol 68 Genie with a large graph. #
+PROC out edges = (REF GRAPH g, INT v) REF [] INT:
+   BEGIN
+      graph index (g);
+      (adjacent OF g)[(first OF g)[v] : (first OF g)[v + 1] - 1]
+   END # out edges # ;
+
+PROC other end = (REF GRAPH g, INT e, v) INT:
+   IF tail OF (edge OF g)[e] = v THEN head OF (edge OF g)[e] ELSE tail OF (edge OF g)[e] FI;
+
+PROC reversed = (REF GRAPH g) REF GRAPH:
+   BEGIN
+      REF GRAPH r = new graph (directed OF g);
+      FOR v TO n OF g DO VOID (vertex (r, graph name (g, v))) OD;
+      FOR e TO m OF g DO
+         EDGE x = (edge OF g)[e];
+         add edge (r, head OF x, tail OF x, weight OF x)
+      OD;
+      r
+   END # reversed # ;
+
+# -------------------------------------------------------- priority queue #
+# A binary min-heap of (key, item), ordered by key and then by item; no   #
+# decrease-key: push again and skip stale entries when they are popped.   #
+MODE ENTRY   = STRUCT (WEIGHT key, INT item);
+MODE MINHEAP = STRUCT (REF [] ENTRY entry, INT size);
+
+PROC new heap = REF MINHEAP:
+   BEGIN
+      REF [] ENTRY entries = HEAP [1 : 16] ENTRY;
+      REF MINHEAP h = HEAP MINHEAP;
+      h := (entries, 0);
+      h
+   END # new heap # ;
+
+PROC graph before = (ENTRY a, b) BOOL:
+   IF key OF a < key OF b THEN TRUE
+   ELIF key OF b < key OF a THEN FALSE
+   ELSE item OF a < item OF b
+   FI # graph before # ;
+
+PROC heap push = (REF MINHEAP h, WEIGHT key, INT item) VOID:
+   BEGIN
+      IF size OF h = UPB entry OF h THEN
+         REF [] ENTRY entries = HEAP [1 : 2 * size OF h] ENTRY;
+         entries[1 : size OF h] := (entry OF h)[1 : size OF h];
+         entry OF h := entries
+      FI;
+      REF [] ENTRY e = entry OF h;
+      ENTRY x = (key, item);
+      INT i := size OF h +:= 1;
+      BOOL rising := TRUE;
+      WHILE rising DO
+         IF i = 1 THEN rising := FALSE
+         ELIF graph before (x, e[i OVER 2]) THEN
+            e[i] := e[i OVER 2];
+            i := i OVER 2
+         ELSE rising := FALSE
+         FI
+      OD;
+      e[i] := x
+   END # heap push # ;
+
+PROC heap top = (REF MINHEAP h) ENTRY:
+   BEGIN
+      IF size OF h = 0 THEN graph error ("heap top: the heap is empty") FI;
+      (entry OF h)[1]
+   END # heap top # ;
+
+PROC heap pop = (REF MINHEAP h) ENTRY:
+   BEGIN
+      ENTRY top = heap top (h);
+      REF [] ENTRY e = entry OF h;
+      ENTRY x = e[size OF h];
+      INT size = size OF h -:= 1;
+      INT i := 1;
+      BOOL sinking := size > 0;
+      WHILE sinking DO
+         INT c := 2 * i;
+         IF c > size THEN sinking := FALSE
+         ELSE
+            IF c < size THEN
+               IF graph before (e[c + 1], e[c]) THEN c +:= 1 FI
+            FI;
+            IF graph before (e[c], x) THEN
+               e[i] := e[c];
+               i := c
+            ELSE sinking := FALSE
+            FI
+         FI
+      OD;
+      IF size > 0 THEN e[i] := x FI;
+      top
+   END # heap pop # ;
+
+PROC heap size = (REF MINHEAP h) INT: size OF h;
+
+# --------------------------------------------------------- disjoint sets #
+MODE PARTITION = STRUCT (REF [] INT parent, rank, INT count);
+
+PROC new partition = (INT n) REF PARTITION:
+   BEGIN
+      REF [] INT parent = graph zeros (n), rank = graph zeros (n);
+      REF PARTITION p = HEAP PARTITION;
+      p := (parent, rank, n);
+      FOR i TO n DO parent[i] := i OD;
+      p
+   END # new partition # ;
+
+PROC find set = (REF PARTITION p, INT x) INT:
+   BEGIN
+      REF [] INT up = parent OF p;
+      INT y := x;
+      WHILE up[y] /= y DO
+         up[y] := up[up[y]];
+         y := up[y]
+      OD;
+      y
+   END # find set # ;
+
+PROC unite = (REF PARTITION p, INT x, y) BOOL:
+   BEGIN
+      INT a = find set (p, x), b = find set (p, y);
+      IF a = b THEN FALSE
+      ELSE
+         REF [] INT rank = rank OF p;
+         IF rank[a] < rank[b] THEN (parent OF p)[a] := b
+         ELIF rank[b] < rank[a] THEN (parent OF p)[b] := a
+         ELSE (parent OF p)[b] := a; rank[a] +:= 1
+         FI;
+         count OF p -:= 1;
+         TRUE
+      FI
+   END # unite # ;
+
+# ------------------------------------------------------------ traversal  #
+# via: the edge by which a vertex was reached, 0 for the start and for    #
+# unreached vertices; depth: -1 for unreached vertices.                   #
+MODE SEARCH     = STRUCT (REF [] INT order, via, depth);
+MODE COMPONENTS = STRUCT (INT count, REF [] INT component);
+
+PROC breadth first = (REF GRAPH g, INT start) SEARCH:
+   BEGIN
+      graph index (g);
+      INT n = n OF g;
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      REF [] INT via = graph zeros (n), depth = graph zeros (n);
+      FOR v TO n DO depth[v] := -1 OD;
+      [1 : n] INT queue;
+      INT front := 1, back := 1;
+      queue[1] := start;
+      depth[start] := 0;
+      WHILE front <= back DO
+         INT v = queue[front];
+         front +:= 1;
+         FOR k FROM first[v] TO first[v + 1] - 1 DO
+            INT e = adj[k];
+            INT w = other end (g, e, v);
+            IF depth[w] < 0 THEN
+               depth[w] := depth[v] + 1;
+               via[w] := e;
+               queue[back +:= 1] := w
+            FI
+         OD
+      OD;
+      REF [] INT order = HEAP [1 : back] INT := queue[1 : back];
+      (order, via, depth)
+   END # breadth first # ;
+
+PROC unseen = (REF GRAPH g) REF [] BOOL:
+   BEGIN
+      REF [] BOOL seen = HEAP [1 : n OF g] BOOL;
+      FOR v TO n OF g DO seen[v] := FALSE OD;
+      seen
+   END # unseen # ;
+
+# Visits the vertices reachable from start that are not seen yet, marks   #
+# them as seen, calls enter when it reaches a vertex and leave when all   #
+# its out edges are done; iterative.                                      #
+PROC depth first = (REF GRAPH g, INT start, REF [] BOOL seen,
+                     PROC (INT) VOID enter, leave) VOID:
+   IF NOT seen[start] THEN
+      graph index (g);
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      [1 : n OF g] INT stack, position;
+      INT top := 1;
+      stack[1] := start;
+      position[1] := first[start];
+      seen[start] := TRUE;
+      enter (start);
+      WHILE top > 0 DO
+         INT v = stack[top];
+         IF position[top] < first[v + 1] THEN
+            INT w = other end (g, adj[position[top]], v);
+            position[top] +:= 1;
+            IF NOT seen[w] THEN
+               seen[w] := TRUE;
+               enter (w);
+               top +:= 1;
+               stack[top] := w;
+               position[top] := first[w]
+            FI
+         ELSE
+            leave (v);
+            top -:= 1
+         FI
+      OD
+   FI # depth first # ;
+
+# Kahn's algorithm, the vertices without predecessors in the order of     #
+# their numbers; FALSE if there is a cycle, then order holds the vertices #
+# that could be ordered.                                                  #
+PROC topological order = (REF GRAPH g, REF FLEX [] INT order) BOOL:
+   BEGIN
+      IF NOT directed OF g THEN graph error ("topological order: undirected graph") FI;
+      graph index (g);
+      INT n = n OF g;
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      [1 : n] INT before;
+      FOR v TO n DO before[v] := 0 OD;
+      FOR e TO m OF g DO before[head OF (edge OF g)[e]] +:= 1 OD;
+      [1 : n] INT queue;
+      INT front := 1, back := 0;
+      FOR v TO n DO
+         IF before[v] = 0 THEN queue[back +:= 1] := v FI
+      OD;
+      WHILE front <= back DO
+         INT v = queue[front];
+         front +:= 1;
+         FOR k FROM first[v] TO first[v + 1] - 1 DO
+            INT w = head OF (edge OF g)[adj[k]];
+            IF (before[w] -:= 1) = 0 THEN queue[back +:= 1] := w FI
+         OD
+      OD;
+      order := queue[1 : back];
+      back = n
+   END # topological order # ;
+
+# Weakly connected components of a directed graph; numbered in the order  #
+# of their smallest vertex.                                               #
+PROC connected components = (REF GRAPH g) COMPONENTS:
+   BEGIN
+      INT n = n OF g;
+      REF PARTITION p = new partition (n);
+      FOR e TO m OF g DO
+         VOID (unite (p, tail OF (edge OF g)[e], head OF (edge OF g)[e]))
+      OD;
+      REF [] INT component = graph zeros (n);
+      [1 : n] INT label;
+      FOR v TO n DO label[v] := 0 OD;
+      INT count := 0;
+      FOR v TO n DO
+         INT root = find set (p, v);
+         IF label[root] = 0 THEN label[root] := count +:= 1 FI;
+         component[v] := label[root]
+      OD;
+      (count, component)
+   END # connected components # ;
+
+# Tarjan's algorithm, iterative; the components are numbered in the order #
+# in which they are completed, a reverse topological order.               #
+PROC strong components = (REF GRAPH g) COMPONENTS:
+   BEGIN
+      graph index (g);
+      INT n = n OF g;
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      REF [] INT component = graph zeros (n);
+      [1 : n] INT index, low, stack, call, position;
+      [1 : n] BOOL on stack;
+      FOR v TO n DO index[v] := 0; on stack[v] := FALSE OD;
+      INT counter := 0, count := 0, top := 0, calls := 0;
+      PROC visit = (INT v) VOID:
+         BEGIN
+            index[v] := low[v] := counter +:= 1;
+            stack[top +:= 1] := v;
+            on stack[v] := TRUE;
+            call[calls +:= 1] := v;
+            position[calls] := first[v]
+         END # visit # ;
+      FOR root TO n DO
+         IF index[root] = 0 THEN
+            visit (root);
+            WHILE calls > 0 DO
+               INT v = call[calls];
+               IF position[calls] < first[v + 1] THEN
+                  INT w = other end (g, adj[position[calls]], v);
+                  position[calls] +:= 1;
+                  IF index[w] = 0 THEN visit (w)
+                  ELIF on stack[w] THEN
+                     IF index[w] < low[v] THEN low[v] := index[w] FI
+                  FI
+               ELSE
+                  IF low[v] = index[v] THEN
+                     count +:= 1;
+                     BOOL popping := TRUE;
+                     WHILE popping DO
+                        INT w = stack[top];
+                        top -:= 1;
+                        on stack[w] := FALSE;
+                        component[w] := count;
+                        popping := w /= v
+                     OD
+                  FI;
+                  calls -:= 1;
+                  IF calls > 0 THEN
+                     INT u = call[calls];
+                     IF low[v] < low[u] THEN low[u] := low[v] FI
+                  FI
+               FI
+            OD
+         FI
+      OD;
+      (count, component)
+   END # strong components # ;
+
+# -------------------------------------------------------- shortest paths #
+# distance: infinite weight for unreachable vertices.                     #
+MODE PATHS = STRUCT (INT source, REF [] WEIGHT distance, REF [] INT via);
+
+PROC graph no paths = (REF GRAPH g, INT source) PATHS:
+   BEGIN
+      REF [] WEIGHT distance = HEAP [1 : n OF g] WEIGHT;
+      FOR v TO n OF g DO distance[v] := infinite weight OD;
+      distance[source] := graph zero;
+      REF [] INT via = graph zeros (n OF g);
+      (source, distance, via)
+   END # graph no paths # ;
+
+# Dijkstra's algorithm with the weight of edge e given by weight (e),     #
+# which must not be negative.                                             #
+PROC shortest paths by = (REF GRAPH g, INT source,
+                          PROC (INT) WEIGHT weight) PATHS:
+   BEGIN
+      graph index (g);
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      PATHS p = graph no paths (g, source);
+      REF [] WEIGHT distance = distance OF p;
+      REF [] INT via = via OF p;
+      REF MINHEAP queue = new heap;
+      heap push (queue, graph zero, source);
+      WHILE heap size (queue) > 0 DO
+         ENTRY x = heap pop (queue);
+         INT v = item OF x;
+         IF NOT (distance[v] < key OF x) THEN
+            FOR k FROM first[v] TO first[v + 1] - 1 DO
+               INT e = adj[k];
+               INT w = other end (g, e, v);
+               WEIGHT d = distance[v] + weight (e);
+               IF d < distance[w] THEN
+                  distance[w] := d;
+                  via[w] := e;
+                  heap push (queue, d, w)
+               FI
+            OD
+         FI
+      OD;
+      p
+   END # shortest paths by # ;
+
+PROC shortest paths = (REF GRAPH g, INT source) PATHS:
+   shortest paths by (g, source, (INT e) WEIGHT: weight OF (edge OF g)[e]);
+
+# FALSE if a negative cycle can be reached from source.                   #
+PROC bellman ford = (REF GRAPH g, INT source, REF PATHS p) BOOL:
+   BEGIN
+      p := graph no paths (g, source);
+      REF [] WEIGHT distance = distance OF p;
+      REF [] INT via = via OF p;
+      BOOL changed := TRUE;
+      PROC relax = (INT e, v, w) VOID:
+         IF distance[v] < infinite weight THEN
+            WEIGHT d = distance[v] + weight OF (edge OF g)[e];
+            IF d < distance[w] THEN
+               distance[w] := d;
+               via[w] := e;
+               changed := TRUE
+            FI
+         FI # relax # ;
+      INT rounds := 0;
+      WHILE changed AND rounds <= n OF g DO
+         changed := FALSE;
+         rounds +:= 1;
+         FOR e TO m OF g DO
+            EDGE x = (edge OF g)[e];
+            relax (e, tail OF x, head OF x);
+            IF NOT directed OF g THEN relax (e, head OF x, tail OF x) FI
+         OD
+      OD;
+      NOT changed
+   END # bellman ford # ;
+
+# The vertices of a shortest path from source to target, empty if target  #
+# cannot be reached.                                                      #
+PROC path to = (REF GRAPH g, PATHS p, INT target) [] INT:
+   IF NOT ((distance OF p)[target] < infinite weight) THEN
+      [1 : 0] INT none;
+      none
+   ELSE
+      INT length := 1, v := target;
+      WHILE v /= source OF p DO
+         v := other end (g, (via OF p)[v], v);
+         length +:= 1
+      OD;
+      [1 : length] INT path;
+      v := target;
+      FOR i FROM length BY -1 TO 1 DO
+         path[i] := v;
+         IF i > 1 THEN v := other end (g, (via OF p)[v], v) FI
+      OD;
+      path
+   FI # path to # ;
+
+# A* with an estimate that never overestimates and is consistent; the     #
+# vertices of a shortest path from start to goal, empty if there is none. #
+PROC a star = (REF GRAPH g, INT start, goal,
+               PROC (INT) WEIGHT estimate) [] INT:
+   BEGIN
+      graph index (g);
+      REF [] INT first = first OF g, adj = adjacent OF g;
+      PATHS p = graph no paths (g, start);
+      REF [] WEIGHT distance = distance OF p;
+      REF [] INT via = via OF p;
+      [1 : n OF g] BOOL closed;
+      FOR v TO n OF g DO closed[v] := FALSE OD;
+      REF MINHEAP queue = new heap;
+      heap push (queue, estimate (start), start);
+      WHILE heap size (queue) > 0 DO
+         INT v = item OF heap pop (queue);
+         IF v = goal THEN
+            size OF queue := 0
+         ELIF NOT closed[v] THEN
+            closed[v] := TRUE;
+            FOR k FROM first[v] TO first[v + 1] - 1 DO
+               INT e = adj[k];
+               INT w = other end (g, e, v);
+               WEIGHT d = distance[v] + weight OF (edge OF g)[e];
+               IF d < distance[w] THEN
+                  distance[w] := d;
+                  via[w] := e;
+                  heap push (queue, d + estimate (w), w)
+               FI
+            OD
+         FI
+      OD;
+      path to (g, p, goal)
+   END # a star # ;
+
+# ------------------------------------------------------- spanning trees  #
+# Kruskal's algorithm; the edges of a minimum spanning forest, by weight  #
+# and then by number. The direction of edges is ignored.                  #
+PROC minimum spanning tree = (REF GRAPH g) [] INT:
+   BEGIN
+      REF MINHEAP queue = new heap;
+      FOR e TO m OF g DO heap push (queue, weight OF (edge OF g)[e], e) OD;
+      REF PARTITION p = new partition (n OF g);
+      [1 : n OF g] INT tree;
+      INT count := 0;
+      WHILE heap size (queue) > 0 DO
+         INT e = item OF heap pop (queue);
+         IF unite (p, tail OF (edge OF g)[e], head OF (edge OF g)[e]) THEN
+            tree[count +:= 1] := e
+         FI
+      OD;
+      tree[1 : count]
+   END # minimum spanning tree # ;
+
+# --------------------------------------------------------------- output #
+PROC path text = (REF GRAPH g, [] INT path) STRING:
+   BEGIN
+      STRING s := "";
+      FOR i FROM LWB path TO UPB path DO
+         IF i > LWB path THEN s +:= " -> " FI;
+         s +:= vertex name (g, path[i])
+      OD;
+      s
+   END # path text # ;

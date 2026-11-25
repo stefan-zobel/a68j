@@ -17,7 +17,8 @@
  * The Java side of the bundled modules: the lists of {@code Lists}, the maps of
  * {@code Hashmaps}, the integers of {@code Bigints}, the decimals of
  * {@code Bigdecimals}, the regular expressions of {@code Regex}, the files
- * and directories of {@code Files} and the dates, times and durations of
- * {@code Times}.
+ * and directories of {@code Files}, the dates, times and durations of
+ * {@code Times} and the gamma and inverse hyperbolic functions of
+ * {@code Math}.
  */
 package a68j.jlib;

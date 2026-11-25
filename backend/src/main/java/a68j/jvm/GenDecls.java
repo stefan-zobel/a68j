@@ -47,9 +47,27 @@ final class GenDecls {
         }
         Node unit = defId.next.next;
         g.line(unit);
+        if (lazyJavaProc(g, defId.tag)) {
+            return;
+        }
         g.unit(unit);
         GenUnits.copyIfValue(g, unit, unit.type);
         g.defineAndStore(defId.tag);
+    }
+
+    /**
+     * Whether T is a procedure declared with a Java formal hole
+     * (Gen#javaProcs), whose value is made where it is used (Gen#load):
+     * then only its bridge method is requested here, so that the errors of
+     * the hole are reported even if T is never used.
+     */
+    private static boolean lazyJavaProc(Gen g, Tag t) {
+        Node hole = t == null ? null : g.javaProcs.get(t);
+        if (hole == null) {
+            return false;
+        }
+        GenJava.bridge(g, hole);
+        return true;
     }
 
     /** a68_lower_variable_declaration: [QUALIFIER] DECLARER DEFINING_IDENTIFIER [:= UNIT]. */
@@ -141,6 +159,9 @@ final class GenDecls {
         for (Node defOp : defs) {
             Node unit = defOp.next.next;
             g.line(unit);
+            if (lazyJavaProc(g, defOp.tag)) {
+                continue;
+            }
             g.unit(unit);
             g.adjust(Gen.mode(unit), defOp.tag.type, unit);
             g.store(defOp.tag);
@@ -268,6 +289,10 @@ final class GenDecls {
                 List<Node> defs = new ArrayList<>();
                 definitions(d, defs);
                 for (Node q : defs) {
+                    if (g.lazyProc(q.tag) != null || lazyJavaProc(g, q.tag)) {
+                        // Its value is made where it is used (Gen#lazyValue).
+                        continue;
+                    }
                     g.unit(q.next.next);
                     g.store(q.tag);
                 }

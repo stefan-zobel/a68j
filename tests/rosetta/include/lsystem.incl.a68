@@ -1,0 +1,42 @@
+# BEGIN lsystem.incl.a68: modes and operators related to L-System evaluation #
+
+    MODE LRULE   = STRUCT( CHAR symbol, STRING replacement );
+    MODE LSYSTEM = STRUCT( STRING axiom, FLEX[ 1 : 0 ]LRULE rules );
+
+    PRIO -> = 9;           # constructs an LRULE from symbol and replacement #
+    OP   -> = ( CHAR ls symbol, STRING ls replacement )LRULE: ( ls symbol, ls replacement );
+    OP   -> = ( CHAR ls symbol, CHAR   ls replacement )LRULE: ( ls symbol, ls replacement );
+
+    PRIO EVAL = 9;               # executes the rewriting rules of l n times #
+    OP   EVAL = ( LSYSTEM lsl, INT lsn )STRING:
+         BEGIN
+            STRING ls result := axiom OF lsl;
+            TO lsn DO
+                STRING ls next := "";
+                FOR ls pos FROM LWB ls result TO UPB ls result DO
+                    CHAR ls symbol = ls result[ ls pos ];
+                    BOOL ls found := FALSE;
+                    FOR ls r pos FROM LWB rules OF lsl TO UPB rules OF lsl WHILE NOT ls found DO
+                        LRULE ls rule = ( rules OF lsl )[ ls r pos ];
+                        IF ls found := ls symbol = symbol OF ls rule THEN
+                            ls next +:= replacement OF ls rule
+                        FI
+                    OD;
+                    IF NOT ls found THEN ls next +:= ls symbol FI
+                OD;
+                ls result := ls next
+            OD;
+            ls result
+         END # EVAL # ;
+
+    PRIO INTERPRET = 9;   # interprets the results of EVALuating an L-System #
+    OP   INTERPRET = ( STRING ls results, PROC(CHAR)VOID ls exec )VOID:
+         FOR ls c pos FROM LWB ls results TO UPB ls results DO ls exec( ls results[ ls c pos ] ) OD;
+
+    IF FALSE THEN # ensure everything appears to be used                     #
+        LSYSTEM q32m1ls = ( "A", ( "A" -> "B", "B" -> "MNOP" ) );
+        STRING q321result = q32m1ls EVAL 5;
+        q321result INTERPRET ( ( CHAR q32m1c )VOID: SKIP )
+    FI;
+
+# END lsystem.incl.a68 #

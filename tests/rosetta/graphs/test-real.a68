@@ -1,0 +1,41 @@
+BEGIN # WEIGHT = REAL: Euclidean distances #
+   MODE WEIGHT = REAL;
+   WEIGHT infinite weight = max real;
+   PR read "graphs.incl.a68" PR
+
+   [] STRUCT (STRING name, REAL x, y) points =
+      (("A", 0, 0), ("B", 3, 1), ("C", 6, 0), ("D", 2, 4), ("E", 7, 5),
+       ("F", 4, 7), ("G", 1, 9), ("H", 9, 8));
+   REF GRAPH g = new graph (FALSE);
+   FOR i FROM LWB points TO UPB points DO VOID (vertex (g, name OF points[i])) OD;
+   FOR i FROM LWB points TO UPB points DO
+      FOR j FROM i + 1 TO UPB points DO
+         REAL dx = x OF points[i] - x OF points[j], dy = y OF points[i] - y OF points[j];
+         # only edges shorter than 6, so that shortest paths are not direct #
+         REAL d = sqrt (dx * dx + dy * dy);
+         IF d < 6 THEN add edge (g, i, j, d) FI
+      OD
+   OD;
+   print (("edges: ", whole (m OF g, 0), newline));
+   [] INT tree = minimum spanning tree (g);
+   REAL total := 0;
+   FOR i FROM LWB tree TO UPB tree DO
+      EDGE e = (edge OF g)[tree[i]];
+      print ((vertex name (g, tail OF e), vertex name (g, head OF e), " ",
+              fixed (weight OF e, 0, 3), newline));
+      total +:= weight OF e
+   OD;
+   print (("total ", fixed (total, 0, 3), newline));
+   PATHS p = shortest paths (g, vertex (g, "A"));
+   FOR t TO n OF g DO
+      print ((vertex name (g, t), " ", fixed ((distance OF p)[t], 0, 3), "  ",
+              path text (g, path to (g, p, t)), newline))
+   OD;
+   PROC straight = (INT v) REAL:
+      BEGIN
+         REAL dx = x OF points[v] - x OF points[vertex (g, "H")],
+              dy = y OF points[v] - y OF points[vertex (g, "H")];
+         sqrt (dx * dx + dy * dy)
+      END # straight # ;
+   print (("A*: ", path text (g, a star (g, vertex (g, "A"), vertex (g, "H"), straight)), newline))
+END

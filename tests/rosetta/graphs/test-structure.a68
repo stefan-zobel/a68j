@@ -1,0 +1,185 @@
+BEGIN # components, topological order, traversal, spanning trees, heap #
+   MODE WEIGHT = INT;
+   WEIGHT infinite weight = max int;
+   PR read "graphs.incl.a68" PR
+
+   PROC show components = (REF GRAPH g, COMPONENTS c) VOID:
+      BEGIN
+         print ((whole (count OF c, 0), " components:"));
+         FOR k TO count OF c DO
+            print ((" {"));
+            BOOL first := TRUE;
+            FOR v TO n OF g DO
+               IF (component OF c)[v] = k THEN
+                  print ((IF first THEN "" ELSE " " FI, vertex name (g, v)));
+                  first := FALSE
+               FI
+            OD;
+            print (("}"))
+         OD;
+         print (newline)
+      END # show components # ;
+
+   # Tarjan, the graph of the Rosetta Code task #
+   print (("Tarjan", newline));
+   REF GRAPH t = new graph (TRUE);
+   FOR i FROM 0 TO 7 DO VOID (vertex (t, whole (i, 0))) OD;
+   add edges (t, (("0", "1", 0), ("1", "2", 0), ("2", "0", 0), ("3", "1", 0),
+                  ("3", "2", 0), ("3", "4", 0), ("4", "3", 0), ("4", "5", 0),
+                  ("5", "2", 0), ("5", "6", 0), ("6", "5", 0), ("7", "4", 0),
+                  ("7", "6", 0), ("7", "7", 0)));
+   show components (t, strong components (t));
+
+   # Kosaraju with depth first and reversed #
+   print (("Kosaraju", newline));
+   BEGIN
+      [1 : n OF t] INT finished;
+      INT done := 0;
+      REF [] BOOL seen = unseen (t);
+      FOR v TO n OF t DO
+         depth first (t, v, seen, (INT w) VOID: SKIP,
+                      (INT w) VOID: finished[done +:= 1] := w)
+      OD;
+      REF GRAPH r = reversed (t);
+      REF [] BOOL seen again = unseen (r);
+      REF [] INT component = graph zeros (n OF r);
+      INT count := 0;
+      FOR i FROM n OF t BY -1 TO 1 DO
+         INT v = finished[i];
+         IF NOT seen again[v] THEN
+            count +:= 1;
+            depth first (r, v, seen again, (INT w) VOID: component[w] := count,
+                         (INT w) VOID: SKIP)
+         FI
+      OD;
+      show components (t, (count, component))
+   END;
+
+   # Topological sort, the libraries of the Rosetta Code task #
+   print (("Topological sort", newline));
+   [] STRING libraries = (
+      "des_system_lib std synopsys std_cell_lib des_system_lib dw02 dw01 ramlib ieee",
+      "dw01 ieee dw01 dware gtech",
+      "dw02 ieee dw02 dware",
+      "dw03 std synopsys dware dw03 dw02 dw01 ieee gtech",
+      "dw04 dw04 ieee dw01 dware gtech",
+      "dw05 dw05 ieee dware",
+      "dw06 dw06 ieee dware",
+      "dw07 ieee dware",
+      "dware ieee dware",
+      "gtech ieee gtech",
+      "ramlib std ieee",
+      "std_cell_lib ieee std_cell_lib",
+      "synopsys");
+   REF GRAPH d = new graph (TRUE);
+   FOR i FROM LWB libraries TO UPB libraries DO
+      STRING line = libraries[i] + " ";
+      INT library := 0;
+      STRING word := "";
+      FOR k FROM LWB line TO UPB line DO
+         IF line[k] /= " " THEN word +:= line[k]
+         ELIF word /= "" THEN
+            INT w = vertex (d, word);
+            IF library = 0 THEN library := w
+            ELIF w /= library THEN add edge (d, w, library, 0)
+            FI;
+            word := ""
+         FI
+      OD
+   OD;
+   PROC show order = VOID:
+      BEGIN
+         FLEX [1 : 0] INT order;
+         BOOL complete = topological order (d, order);
+         FOR i FROM LWB order TO UPB order DO print ((vertex name (d, order[i]), " ")) OD;
+         print (newline);
+         IF NOT complete THEN
+            print (("not orderable:"));
+            FOR v TO n OF d DO
+               BOOL found := FALSE;
+               FOR i FROM LWB order TO UPB order DO
+                  IF order[i] = v THEN found := TRUE FI
+               OD;
+               IF NOT found THEN print ((" ", vertex name (d, v))) FI
+            OD;
+            print (newline)
+         FI
+      END # show order # ;
+   show order;
+   add edge (d, vertex (d, "dw04"), vertex (d, "dw01"), 0);
+   show order;
+
+   # Breadth first and depth first on an undirected graph #
+   print (("Breadth first", newline));
+   REF GRAPH u = new graph (FALSE);
+   add edges (u, (("a", "b", 1), ("a", "c", 1), ("b", "d", 1), ("c", "d", 1),
+                  ("d", "e", 1), ("f", "g", 1), ("h", "h", 1)));
+   SEARCH s = breadth first (u, vertex (u, "a"));
+   FOR i FROM LWB order OF s TO UPB order OF s DO
+      INT v = (order OF s)[i];
+      print ((vertex name (u, v), " depth ", whole ((depth OF s)[v], 0),
+              IF (via OF s)[v] = 0 THEN ""
+              ELSE " from " + vertex name (u, other end (u, (via OF s)[v], v))
+              FI, newline))
+   OD;
+   print (("unreached:"));
+   FOR v TO n OF u DO
+      IF (depth OF s)[v] < 0 THEN print ((" ", vertex name (u, v))) FI
+   OD;
+   print (newline);
+   print (("Depth first:"));
+   depth first (u, vertex (u, "a"), unseen (u),
+                (INT v) VOID: print ((" +", vertex name (u, v))),
+                (INT v) VOID: print ((" -", vertex name (u, v))));
+   print (newline);
+   print (("out edges of d:"));
+   [] INT out = out edges (u, vertex (u, "d"));
+   FOR i FROM LWB out TO UPB out DO
+      print ((" ", vertex name (u, other end (u, out[i], vertex (u, "d")))))
+   OD;
+   print (newline);
+   show components (u, connected components (u));
+   show components (u, strong components (u));
+
+   # Kruskal, the graph of Wikipedia's article #
+   print (("Minimum spanning tree", newline));
+   REF GRAPH k = new graph (FALSE);
+   add edges (k, (("A", "B", 7), ("A", "D", 5), ("B", "C", 8), ("B", "D", 9),
+                  ("B", "E", 7), ("C", "E", 5), ("D", "E", 15), ("D", "F", 6),
+                  ("E", "F", 8), ("E", "G", 9), ("F", "G", 11)));
+   [] INT tree = minimum spanning tree (k);
+   INT total := 0;
+   FOR i FROM LWB tree TO UPB tree DO
+      EDGE x = (edge OF k)[tree[i]];
+      print ((vertex name (k, tail OF x), vertex name (k, head OF x), " ",
+              whole (weight OF x, 0), newline));
+      total +:= weight OF x
+   OD;
+   print (("total ", whole (total, 0), newline));
+
+   # Heap and partition #
+   print (("Heap:"));
+   REF MINHEAP h = new heap;
+   [] INT keys = (5, 3, 9, 1, 3, 7, 2, 8, 6, 4, 0, 9, 1, 5, 3, 2, 7, 6, 8, 4);
+   FOR i FROM LWB keys TO UPB keys DO heap push (h, keys[i], i) OD;
+   print ((" top ", whole (key OF heap top (h), 0), "/", whole (item OF heap top (h), 0)));
+   WHILE heap size (h) > 0 DO
+      ENTRY x = heap pop (h);
+      print ((" ", whole (key OF x, 0), "/", whole (item OF x, 0)))
+   OD;
+   print (newline);
+   REF PARTITION p = new partition (10);
+   print ((unite (p, 1, 2), unite (p, 3, 4), unite (p, 2, 4), unite (p, 1, 3),
+           " sets ", whole (count OF p, 0),
+           " same ", find set (p, 1) = find set (p, 4), find set (p, 1) = find set (p, 5),
+           newline));
+
+   # Many named vertices: the hash table grows #
+   REF GRAPH big = new graph (TRUE);
+   FOR i TO 5000 DO
+      add edge (big, vertex (big, "v" + whole (i, 0)), vertex (big, "v" + whole (i * 7 MOD 5000 + 1, 0)), i)
+   OD;
+   print (("named: ", whole (n OF big, 0), " vertices, ", whole (m OF big, 0), " edges, v123 is ",
+           whole (vertex (big, "v123"), 0), ", ",
+           whole (count OF strong components (big), 0), " strong components", newline))
+END

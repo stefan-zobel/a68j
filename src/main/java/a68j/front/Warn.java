@@ -22,10 +22,11 @@ public enum Warn {
     /** OPT_Wuninitialized */
     UNINITIALIZED("-Wuninitialized"),
     /**
-     * a68j: escapes that are wrong in a68j itself (a routine text that
-     * outlives an elaboration of a range whose frame slots it shares, a jump
-     * that outlives its serial clause); ga68 has no such option. Reported by
-     * the back end (a68j.jvm.FrameScope); on by default.
+     * a68j: escapes that break the scope rule and that a68j does not make
+     * up for (a routine text that outlives an elaboration of a range whose
+     * frame slots it shares, a jump that outlives its serial clause); ga68
+     * has no such option. Reported by the back end (a68j.jvm.FrameScope); on
+     * by default.
      */
     FRAME_SCOPE("-Wframe-scope"),
     /** Similar codes not listed here can be added as needed. */

@@ -34,7 +34,8 @@ import java.util.Map;
 /**
  * Code generator: compiles the tree of a particular program (after semantic
  * analysis) into one class with a {@code main} method and one static method
- * per routine text.
+ * per routine text, and a small class for each routine that becomes a
+ * procedure value ({@link #newProc}).
  */
 public final class Gen {
     public static final ClassDesc CD_REF = ClassDesc.of("a68j.rt.Ref");
@@ -70,6 +71,20 @@ public final class Gen {
 
         public Fatal(Node p, String msg) {
             super(a68j.front.Location.of(p) + ": fatal error: " + msg);
+        }
+    }
+
+    /**
+     * An error that a68j finds while it generates code, where the front
+     * end has accepted the program (such as a denotation of -fgenie that
+     * does not fit into its representation): the message has the form of
+     * the messages of the front end, and the compiler stops with status 1.
+     */
+    public static final class CompileError extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public CompileError(Node p, String msg) {
+            super(a68j.front.Location.of(p) + ": error: " + msg);
         }
     }
 
@@ -485,8 +500,12 @@ public final class Gen {
      * first mark the phrases of the methods being remedied for measuring
      * (Cut#begin); if the last attempt has such marks, the class is
      * generated once more without them, with the same remedies.
+     *
+     * <p>Returns the class files by binary name: the class of the program
+     * (or module) first, then the classes of its procedure values
+     * ({@link #newProc}).
      */
-    public static byte[] compileClass(A68 a68, String className, String sourceFile, boolean loopMethods) {
+    public static Map<String, byte[]> compileClass(A68 a68, String className, String sourceFile, boolean loopMethods) {
         java.util.Set<Node> split = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
         java.util.Set<Node> compact = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
         Map<Node, java.util.TreeSet<Integer>> cuts = new IdentityHashMap<>();
@@ -520,7 +539,7 @@ public final class Gen {
                 throw t;
             }
             if (clean) {
-                return bytes;
+                return g.classes(bytes);
             }
             split.addAll(g.splitRoots);
             compact.addAll(g.compactRoots);
@@ -539,7 +558,7 @@ public final class Gen {
             }
             if (!more) {
                 if (g.recs.isEmpty()) {
-                    return bytes;
+                    return g.classes(bytes);
                 }
                 clean = true;  // once more, without the marks for measuring
             }
@@ -730,7 +749,8 @@ public final class Gen {
         numberNodes(top);
         program.scheduled = true;
         work.add(program);
-        ClassHierarchyResolver resolver = ClassHierarchyResolver.defaultResolver()
+        ClassHierarchyResolver procs = this::procClassInfo;
+        ClassHierarchyResolver resolver = procs.orElse(ClassHierarchyResolver.defaultResolver())
                 .orElse(ClassHierarchyResolver.ofClassLoading(Gen.class.getClassLoader()));
         return ClassFile.of(ClassFile.ClassHierarchyResolverOption.of(resolver)).build(thisClass, clb -> {
             clb.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL);
@@ -791,7 +811,22 @@ public final class Gen {
                 javaBridges.get(i).accept(clb);
             }
             Tables.emit(this, clb);
+            if (!procClasses.isEmpty()) {
+                List<ClassDesc> members = new ArrayList<>();
+                for (String n : procClasses.keySet()) {
+                    members.add(ClassDesc.of(n));
+                }
+                clb.with(java.lang.classfile.attribute.NestMembersAttribute.ofSymbols(members));
+            }
         });
+    }
+
+    /** The class file MAIN of this class and the classes of its procedure values, by binary name. */
+    private Map<String, byte[]> classes(byte[] main) {
+        Map<String, byte[]> all = new java.util.LinkedHashMap<>();
+        all.put(binaryName(), main);
+        all.putAll(procClasses);
+        return all;
     }
 
     /** Position of every node in a pre-order walk of the tree (textual order). */
@@ -849,6 +884,8 @@ public final class Gen {
 
     /** The bridge methods of Java formal holes (GenJava), emitted after the routines. */
     final List<java.util.function.Consumer<ClassBuilder>> javaBridges = new ArrayList<>();
+    /** The name of the bridge method of each Java formal hole (GenJava#bridge). */
+    final Map<Node, String> javaBridgeNames = new IdentityHashMap<>();
 
     /** The MODULE_TEXT of a module packet, or null. */
     Node moduleText;
@@ -990,6 +1027,17 @@ public final class Gen {
                 });
         emitPubValue(clb, program);
         emitTypedPubEntries(clb, program);
+        // pub$e(): elaborate the module if that has not happened yet (under
+        // the lock of the class, as pub()), without making the values.
+        clb.withMethodBody("pub$e", MethodTypeDesc.of(CD_void),
+                ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC | ClassFile.ACC_SYNCHRONIZED, code -> {
+                    java.lang.classfile.Label done = code.newLabel();
+                    code.getstatic(thisClass, "frame", CD_FRAME);
+                    code.ifnonnull(done);
+                    code.invokestatic(thisClass, "prelude", MethodTypeDesc.of(CD_void));
+                    code.labelBinding(done);
+                    code.return_();
+                });
         clb.withMethodBody("pub", MethodTypeDesc.of(CD_OBJECTS),
                 ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC | ClassFile.ACC_SYNCHRONIZED, code -> {
                     java.lang.classfile.Label done = code.newLabel();
@@ -1002,14 +1050,50 @@ public final class Gen {
                     for (int i = 0; i < pubTags.size(); i++) {
                         code.dup();
                         Gen.constant(code, i);
-                        code.getstatic(thisClass, "frame", CD_FRAME);
-                        code.getfield(CD_FRAME, "s", CD_OBJECTS);
-                        Gen.constant(code, program.frameSlots.get(pubTags.get(i)));
-                        code.aaload();
+                        pubValue(code, program, pubTags.get(i));
                         code.aastore();
                     }
                     code.areturn();
                 });
+    }
+
+    /**
+     * Whether the value of T is made where it is used instead of when its
+     * range is entered: a procedure declared with a routine text
+     * ({@link #lazyProc}) or with a Java formal hole (javaProcs).
+     */
+    boolean lazyValue(Tag t) {
+        return t != null && (javaProcs.containsKey(t) || staticProcs.containsKey(t));
+    }
+
+    /**
+     * Push the value (boxed) of the public tag T of the module in its frame:
+     * read from the frame, or made if its value is made where it is used
+     * ({@link #lazyValue}). Such a value is a Closure over the method
+     * handle of the routine or bridge, not a procedure value with a class of
+     * its own ({@link #newProc}): code of other compilations calls the
+     * procedures of a module through the typed entries, and the value is
+     * rarely asked for, so the classes of all public procedures would
+     * mostly be made for nothing.
+     */
+    private void pubValue(CodeBuilder code, Routine program, Tag t) {
+        Node hole = javaProcs.get(t);
+        if (hole != null) {
+            newClosure(code, GenJava.bridge(this, hole), code::aconst_null);
+            return;
+        }
+        Routine lazy = lazyProc(t);
+        if (lazy != null) {
+            if (lazy.parent != program) {
+                throw new IllegalStateException("public procedure not declared in the module: " + t);
+            }
+            newClosure(code, lazy.method, () -> code.getstatic(thisClass, "frame", CD_FRAME));
+            return;
+        }
+        code.getstatic(thisClass, "frame", CD_FRAME);
+        code.getfield(CD_FRAME, "s", CD_OBJECTS);
+        Gen.constant(code, program.frameSlots.get(t));
+        code.aaload();
     }
 
     /**
@@ -1097,6 +1181,13 @@ public final class Gen {
                     code.tableswitch(0, pubTags.size() - 1, none, cases);
                     for (int i = 0; i < pubTags.size(); i++) {
                         code.labelBinding(cases.get(i).target());
+                        if (lazyValue(pubTags.get(i))) {
+                            // A procedure whose value is made where it is used.
+                            code.pop();
+                            pubValue(code, program, pubTags.get(i));
+                            code.areturn();
+                            continue;
+                        }
                         Gen.constant(code, program.frameSlots.get(pubTags.get(i)));
                         code.goto_(load);
                     }
@@ -1113,14 +1204,15 @@ public final class Gen {
 
     /**
      * Elaborate the module if that has not happened yet, as pub() does (its
-     * frame is set at the end of the elaboration); used by the typed entries.
+     * frame is set at the end of the elaboration); used by the typed entries
+     * and pub$v. It calls pub$e(), not pub(), which would make the values of
+     * all public procedures and so load all their classes.
      */
     private void elaborateModule(CodeBuilder code) {
         java.lang.classfile.Label ready = code.newLabel();
         code.getstatic(thisClass, "frame", CD_FRAME);
         code.ifnonnull(ready);
-        code.invokestatic(thisClass, "pub", MethodTypeDesc.of(CD_OBJECTS));
-        code.pop();
+        code.invokestatic(thisClass, "pub$e", MethodTypeDesc.of(CD_void));
         code.labelBinding(ready);
     }
 
@@ -1463,6 +1555,21 @@ public final class Gen {
 
     /** Load TAG's value (JType of tag mode). */
     public void load(Tag t, Node at) {
+        Node hole = t == null ? null : javaProcs.get(t);
+        if (hole != null) {
+            // A procedure declared with a Java formal hole: its value is made
+            // where it is used, as for lazyProc.
+            newProc(GenJava.bridge(this, hole), false);
+            return;
+        }
+        Routine lazy = lazyProc(t);
+        if (lazy != null) {
+            if (!inside(lazy.parent)) {
+                throw new Fatal(at, "a68j: internal error: the value of a procedure made outside its range");
+            }
+            newProc(cb, lazy.method, () -> loadFrame(lazy.parent));
+            return;
+        }
         Routine owner = owner(t);
         Integer fs = owner == null ? null : owner.frameSlots.get(t);
         JType jt = JType.of(a68, t.type);
@@ -1575,9 +1682,129 @@ public final class Gen {
         return labelNumbers.computeIfAbsent(label, k -> labelNumbers.size());
     }
 
-    /** MethodHandle constant for a routine method. */
-    public DirectMethodHandleDesc handle(Routine r) {
-        return MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, thisClass, r.method, MT_ROUTINE);
+    /**
+     * The classes of the procedure values (see {@link #newProc}), by binary
+     * name, in the order they were made. They are written next to the class
+     * of the program (or module), whose nest they belong to.
+     */
+    final Map<String, byte[]> procClasses = new java.util.LinkedHashMap<>();
+
+    /** The binary name of the class being compiled (a.b.C). */
+    String binaryName() {
+        return thisClass.packageName().isEmpty() ? thisClass.displayName()
+                : thisClass.packageName() + "." + thisClass.displayName();
+    }
+
+    /**
+     * Push a new procedure value that calls the static method METHOD
+     * (Frame, Object[]) -> Object of this class with the current frame (or
+     * with null if WITH_FRAME is false, for the bridges of Java formal holes).
+     *
+     * <p>Each such method gets a small class of its own,
+     * {@code <class>$<method> extends Proc}, whose {@code call} invokes the
+     * method directly. As each procedure value has a class of its own, the
+     * JIT profiles the receivers of a call of a procedure value at each call
+     * site and can inline the routine there; a jump out of an inlined routine
+     * to a label of the caller then becomes a branch instead of an exception
+     * unwound through the frames. The class is a nest member of this class,
+     * so it may call the private method.
+     */
+    void newProc(String method, boolean withFrame) {
+        newProc(cb, method, () -> {
+            if (withFrame) {
+                cb.aload(frameLocal);
+            } else {
+                cb.aconst_null();
+            }
+        });
+    }
+
+    /**
+     * Push a new Closure over the method handle of the static method METHOD
+     * (Frame, Object[]) -> Object of this class and the frame pushed by
+     * PUSH_ENV: a procedure value without a class of its own, for values
+     * that are rarely made (see #pubValue).
+     */
+    private void newClosure(CodeBuilder code, String method, Runnable pushEnv) {
+        code.new_(CD_CLOSURE);
+        code.dup();
+        Gen.constant(code, MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, thisClass, method, MT_ROUTINE));
+        pushEnv.run();
+        code.invokespecial(CD_CLOSURE, INIT_NAME, MethodTypeDesc.of(CD_void, CD_MethodHandle, CD_FRAME));
+    }
+
+    /** The same into CODE, with the frame pushed by PUSH_ENV. */
+    void newProc(CodeBuilder code, String method, Runnable pushEnv) {
+        ClassDesc cd = procClass(method);
+        code.new_(cd);
+        code.dup();
+        pushEnv.run();
+        code.invokespecial(cd, INIT_NAME, MethodTypeDesc.of(CD_void, CD_FRAME));
+    }
+
+    /**
+     * The routine of T if T is a procedure or brief operator declared with a
+     * routine text (staticProcs), whose value is made where it is used
+     * ({@link #load}, the module's pub() and pub$v) instead of when its range
+     * is entered (GenDecls#prologue): its calls are mostly direct, and a
+     * value made in advance would load the class of the value for nothing.
+     * Null otherwise.
+     */
+    Routine lazyProc(Tag t) {
+        Node text = t == null ? null : staticProcs.get(t);
+        return text == null ? null : routineFor(text);
+    }
+
+    /** Whether the current method is in the routine OWNER or one nested in it. */
+    boolean inside(Routine owner) {
+        for (Routine x = cur; x != null; x = x.parent) {
+            if (x == owner) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The class hierarchy of the classes of the procedure values of this
+     * class (they do not exist yet while the class is generated): for the
+     * stack maps, where two procedure values meet.
+     */
+    private java.lang.classfile.ClassHierarchyResolver.ClassHierarchyInfo procClassInfo(ClassDesc cd) {
+        String prefix = thisClass.descriptorString();
+        prefix = prefix.substring(0, prefix.length() - 1) + "$";
+        return cd.descriptorString().startsWith(prefix)
+                ? java.lang.classfile.ClassHierarchyResolver.ClassHierarchyInfo.ofClass(CD_PROC) : null;
+    }
+
+    /** The class of the procedure values of METHOD (see {@link #newProc}), made on first use. */
+    private ClassDesc procClass(String method) {
+        String name = binaryName() + "$" + method;
+        ClassDesc cd = ClassDesc.of(name);
+        procClasses.computeIfAbsent(name, n -> ClassFile.of().build(cd, clb -> {
+            clb.withFlags(ClassFile.ACC_FINAL | ClassFile.ACC_SUPER);
+            clb.withSuperclass(CD_PROC);
+            clb.with(java.lang.classfile.attribute.NestHostAttribute.of(thisClass));
+            clb.with(java.lang.classfile.attribute.SourceFileAttribute.of(new java.io.File(sourceFile).getName()));
+            clb.withField("env", CD_FRAME, ClassFile.ACC_PRIVATE | ClassFile.ACC_FINAL);
+            clb.withMethodBody(INIT_NAME, MethodTypeDesc.of(CD_void, CD_FRAME), 0, code -> {
+                code.aload(0);
+                code.invokespecial(CD_PROC, INIT_NAME, MTD_void);
+                code.aload(0);
+                code.aload(1);
+                code.putfield(cd, "env", CD_FRAME);
+                code.return_();
+            });
+            clb.withMethodBody("call", MethodTypeDesc.of(CD_Object, CD_OBJECTS),
+                    ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL, code -> {
+                code.aload(0);
+                code.getfield(cd, "env", CD_FRAME);
+                code.aload(1);
+                code.invokestatic(thisClass, method, MT_ROUTINE);
+                code.areturn();
+            });
+        }));
+        return cd;
     }
 
     // ------------------------------------------------------------------

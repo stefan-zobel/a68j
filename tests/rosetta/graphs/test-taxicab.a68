@@ -1,0 +1,39 @@
+BEGIN # taxicab numbers with the heap, WEIGHT = LONG INT #
+   MODE WEIGHT = LONG INT;
+   WEIGHT infinite weight = long max int;
+   PR read "graphs.incl.a68" PR
+
+   INT limit = 1200, code = 2048;          # item = a * code + b, a <= b #
+   PROC cube = (INT a) LONG INT: LENG a * LENG a * LENG a;
+   REF MINHEAP h = new heap;
+   FOR a TO limit DO heap push (h, cube (a) + cube (a), a * code + a) OD;
+   INT found := 0;
+   LONG INT previous := 0;
+   [1 : 10] INT pairs;
+   INT count := 0;
+   PROC report = VOID:
+      IF count > 1 THEN
+         found +:= 1;
+         IF found <= 25 OR found >= 2000 AND found <= 2006 THEN
+            print ((whole (found, -4), ": ", whole (previous, -10)));
+            FOR i TO count DO
+               print ((" = ", whole (pairs[i] OVER code, 0), "^3 + ",
+                       whole (pairs[i] MOD code, 0), "^3"))
+            OD;
+            print (newline)
+         FI
+      FI # report # ;
+   WHILE found < 2006 DO
+      ENTRY x = heap pop (h);
+      INT a = item OF x OVER code, b = item OF x MOD code;
+      IF key OF x = previous THEN
+         pairs[count +:= 1] := item OF x
+      ELSE
+         report;
+         previous := key OF x;
+         count := 1;
+         pairs[1] := item OF x
+      FI;
+      IF b < limit THEN heap push (h, cube (a) + cube (b + 1), a * code + b + 1) FI
+   OD
+END

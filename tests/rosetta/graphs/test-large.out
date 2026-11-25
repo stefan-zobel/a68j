@@ -1,0 +1,7 @@
+vertices 40000, edges 132749
+distance to the far corner 8914, path of 413 vertices
+strong components 2
+reached by breadth first 40000
+spanning tree edges 39999
+sum of the weights through out edges 6619022
+exit 0

@@ -1,0 +1,189 @@
+{ dg-options "-fstropping=supper -fnest-java" }
+
+{ Copyright (C) 2026 The a68j authors
+  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+
+  This file is part of a68j. It is licensed under the GNU General Public
+  License, version 3 or later. Under Section 7 of GPL version 3, you are
+  granted additional permissions described in the GCC Runtime Library
+  Exception, version 3.1, as published by the Free Software Foundation; see
+  the files COPYING and COPYING.RUNTIME.
+
+  Additional permission under GNU GPL version 3 section 7: for this file, a
+  Compilation Process done with a68j, alone or with other GPL-compatible
+  software, is an Eligible Compilation Process in the sense of the GCC
+  Runtime Library Exception, version 3.1. }
+
+{ math.a68 - the module Math of a68j: the mathematical procedures of
+  Algol 68 Genie that the standard prelude of ga68 does not have, on top of
+  java.lang.Math (a68j.jlib.MathFunctions).
+
+      access Math (
+          puts (fixed (arctan2 (1, 1), 0, 4) + " " + fixed (gamma (5), 0, 1) + "'n")
+      )                                                     { .7854 24.0 }
+
+  The procedures of Algol 68 Genie, with its names and modes; a name after
+  a slash is another name of Algol 68 Genie for the same procedure:
+
+  acos, asin, atan            arccos, arcsin and arctan of the prelude.
+  arctan2 / atan2 (y, x)      the angle of the point (x, y), in (-pi, pi].
+  sinh, cosh, tanh            the hyperbolic functions.
+  arcsinh / asinh, arccosh / acosh, arctanh / atanh
+                              their inverses.
+  cbrt (x)                    the cube root, negative for a negative x.
+  gamma (x)                   the gamma function, (x - 1)! for the
+                              positive integers.
+  lgamma (x)                  ln ABS gamma (x).
+  ln_gamma (x)                ln gamma (x).
+  complex_exp / cexp, complex_ln / cln, complex_sqrt / csqrt,
+  complex_sin / csin, complex_cos / ccos, complex_tan / ctan,
+  complex_sinh / csinh, complex_cosh / ccosh, complex_tanh / ctanh
+                              the functions of a compl, with the principal
+                              values (the imaginary part of complex_ln in
+                              (-pi, pi], the real part of complex_sqrt not
+                              negative).
+
+  The procedures take and yield real and compl; they are computed in
+  double precision and rounded to real at the end.  An argument outside
+  the domain gives NaN and a pole an infinity, as with arccos and ln of the
+  prelude, where Algol 68 Genie stops with a runtime error (docs/math.md).
+
+  Bundled with a68j-backend.jar; a program needs no -fnest-java to access
+  this module.  It runs with a68j only, as it needs Java. }
+
+module Math =
+def
+    { Other names of the procedures of the prelude. }
+    pub proc acos = (real x) real: arccos (x);
+    pub proc asin = (real x) real: arcsin (x);
+    pub proc atan = (real x) real: arctan (x);
+
+    { Angles and hyperbolic functions. }
+    pub proc (real, real) real arctan2 = nest Java "java.lang.Math.atan2";
+    pub proc (real, real) real atan2 = nest Java "java.lang.Math.atan2";
+    pub proc (real) real sinh = nest Java "java.lang.Math.sinh";
+    pub proc (real) real cosh = nest Java "java.lang.Math.cosh";
+    pub proc (real) real tanh = nest Java "java.lang.Math.tanh";
+    pub proc (real) real arcsinh = nest Java "a68j.jlib.MathFunctions.asinh";
+    pub proc (real) real asinh = nest Java "a68j.jlib.MathFunctions.asinh";
+    pub proc (real) real arccosh = nest Java "a68j.jlib.MathFunctions.acosh";
+    pub proc (real) real acosh = nest Java "a68j.jlib.MathFunctions.acosh";
+    pub proc (real) real arctanh = nest Java "a68j.jlib.MathFunctions.atanh";
+    pub proc (real) real atanh = nest Java "a68j.jlib.MathFunctions.atanh";
+    pub proc (real) real cbrt = nest Java "java.lang.Math.cbrt";
+
+    { The gamma function. }
+    pub proc (real) real gamma = nest Java "a68j.jlib.MathFunctions.gamma";
+    pub proc (real) real lgamma = nest Java "a68j.jlib.MathFunctions.lgamma";
+    pub proc (real) real ln_gamma = nest Java "a68j.jlib.MathFunctions.lnGamma";
+
+    { Helpers in double precision for the functions of a compl, which
+      follow them. }
+    proc (long real) long real d_sinh = nest Java "java.lang.Math.sinh";
+    proc (long real) long real d_cosh = nest Java "java.lang.Math.cosh";
+    proc (long real, long real) long real d_hypot = nest Java "java.lang.Math.hypot";
+    proc (long real, long real) long real d_atan2 = nest Java "java.lang.Math.atan2";
+
+    proc c = (long real x, y) compl: SHORTEN x I SHORTEN y;
+    long real zero = LENG 0, one = LENG 1, two = LENG 2, four = LENG 4,
+              large = LENG 20;
+
+
+    { e^x (cos y + i sin y) }
+    pub proc complex_exp = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          long real e = long_exp (x);
+          if y = zero then c (e, y) else c (e * long_cos (y), e * long_sin (y)) fi
+       end;
+
+    { ln ABS z + i arg z }
+    pub proc complex_ln = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          c (long_ln (d_hypot (x, y)), d_atan2 (y, x))
+       end;
+
+    { The root with a real part that is not negative; the imaginary part
+      has the sign of y. }
+    pub proc complex_sqrt = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          if x = zero AND y = zero
+          then c (zero, y)
+          else long real t = long_sqrt ((ABS x + d_hypot (x, y)) / two);
+               if x >= zero
+               then c (t, y / (two * t))
+               else c (ABS y / (two * t), (y < zero | -t | t))
+               fi
+          fi
+       end;
+
+    { sin x cosh y + i cos x sinh y }
+    pub proc complex_sin = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          c (long_sin (x) * d_cosh (y), long_cos (x) * d_sinh (y))
+       end;
+
+    { cos x cosh y - i sin x sinh y }
+    pub proc complex_cos = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          c (long_cos (x) * d_cosh (y), - long_sin (x) * d_sinh (y))
+       end;
+
+    { (sin 2x + i sinh 2y) / (cos 2x + cosh 2y); for a large y the real
+      part is 4 sin x cos x e^(-2 ABS y) and the imaginary part the sign
+      of y, where cosh 2y would overflow. }
+    pub proc complex_tan = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          if ABS y > large
+          then c (four * long_sin (x) * long_cos (x) * long_exp (-two * ABS y),
+                  (y < zero | -one | one))
+          else long real d = long_cos (two * x) + d_cosh (two * y);
+               c (long_sin (two * x) / d, d_sinh (two * y) / d)
+          fi
+       end;
+
+    { sinh x cos y + i cosh x sin y }
+    pub proc complex_sinh = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          c (d_sinh (x) * long_cos (y), d_cosh (x) * long_sin (y))
+       end;
+
+    { cosh x cos y + i sinh x sin y }
+    pub proc complex_cosh = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          c (d_cosh (x) * long_cos (y), d_sinh (x) * long_sin (y))
+       end;
+
+    { (sinh 2x + i sin 2y) / (cosh 2x + cos 2y), with the same care for a
+      large x as complex_tan for a large y. }
+    pub proc complex_tanh = (compl z) compl:
+       begin
+          long real x = LENG RE z, y = LENG IM z;
+          if ABS x > large
+          then c ((x < zero | -one | one),
+                  four * long_sin (y) * long_cos (y) * long_exp (-two * ABS x))
+          else long real d = d_cosh (two * x) + long_cos (two * y);
+               c (d_sinh (two * x) / d, long_sin (two * y) / d)
+          fi
+       end;
+
+    { The short names of Algol 68 Genie. }
+    pub proc cexp = (compl z) compl: complex_exp (z);
+    pub proc cln = (compl z) compl: complex_ln (z);
+    pub proc csqrt = (compl z) compl: complex_sqrt (z);
+    pub proc csin = (compl z) compl: complex_sin (z);
+    pub proc ccos = (compl z) compl: complex_cos (z);
+    pub proc ctan = (compl z) compl: complex_tan (z);
+    pub proc csinh = (compl z) compl: complex_sinh (z);
+    pub proc ccosh = (compl z) compl: complex_cosh (z);
+    pub proc ctanh = (compl z) compl: complex_tanh (z);
+
+    skip
+fed

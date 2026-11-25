@@ -89,8 +89,8 @@ arrays, stored back) and Java objects for plain values.
 For every formal hole of a procedure a68j generates a **bridge method**
 `(Frame, Object[]) → Object` in the class of the program. It unpacks the
 arguments, converts them, calls the Java method with `invokestatic` and
-converts the result back. The value of the formal hole is a closure over
-this method, that is, an ordinary procedure value: it can be passed on,
+converts the result back. The value of the formal hole is a procedure
+value over this method, an ordinary one: it can be passed on,
 stored in variables and so on (`backend/.../jvm/GenJava.java`, runtime
 helpers in `a68j.rt.JavaConv`). A call of the identifier itself does not
 go through the closure but calls the Java method directly
@@ -872,7 +872,7 @@ The formal holes can also be public themselves, for example `pub proc
 has a typed entry for each of them (`pub$i`, `docs/optimizations.md`,
 section 2). A program calls it without boxing, as it calls a public
 procedure with a routine text. The procedure value of the hole is still
-the closure over the bridge method. `tests/java/modules/jholes.a68` is
+a procedure value over the bridge method. `tests/java/modules/jholes.a68` is
 such a module.
 
 ## 6. Tests
@@ -952,6 +952,7 @@ that access them (`-I tests/java/lib`).
 | `times-basic` | the module `Times`: construction, fields, days, periods and month ends, durations, comparisons, assigning operators, ISO text and patterns, seconds since 1970 in fixed zones across changes of daylight saving time ([times.md](times.md)) |
 | `times-now` | the clock: `today`, `now`, `now_in`, `local_time`, `utc_time`, `cpu_time`, `wall_time` and `sleep` checked for their ranges and their agreement |
 | `times-error-1` … `-5` | an invalid date, a text that does not fit its pattern, an invalid pattern, an unknown zone, `nil`: runtime errors with the position in the program |
+| `math-basic` | the module `Math`: values, the other names of Algol 68 Genie, inverse functions against functions, identities of the functions of a `compl`, NaN and infinities ([math.md](math.md)) |
 
 Result with version 0.6.0: 57 of 57 with JDK 25 and JDK 28 ea+21.
 

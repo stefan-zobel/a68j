@@ -306,7 +306,9 @@ final class Tables {
      * taken from the text of the denotation at the wider length, as Algol 68
      * Genie gives it (its INT and REAL have 64 bits). So `LONG INT n :=
      * 3000000000` does not wrap at 32 bits and `LONG REAL r := 0.1` is the
-     * double nearest to 0.1, not a float widened. Null otherwise. Without
+     * double nearest to 0.1, not a float widened. An INT or BITS denotation
+     * that does not fit into 64 bits is a compile-time error. Null
+     * otherwise. Without
      * -fgenie no widening leads from such a denotation to a wider
      * representation, so the code is the same as before.
      */
@@ -351,18 +353,28 @@ final class Tables {
         String x = d.info.symbol.replace(" ", "");
         switch (d.attribute) {
             case INT_DENOTATION -> {
-                long v = Long.parseUnsignedLong(x);
+                java.math.BigInteger v = new java.math.BigInteger(x);
                 if (negate) {
-                    v = -v;
+                    v = v.negate();
                 }
-                return t == JType.LONG ? (Object) v : (Object) (double) v;
+                if (t == JType.DOUBLE) {
+                    return v.doubleValue();
+                }
+                if (v.bitLength() > 63) {
+                    throw tooLarge(g, d, x, p.type);
+                }
+                return v.longValue();
             }
             case BITS_DENOTATION -> {
                 if (negate || t != JType.LONG) {
                     return null;
                 }
                 int r = x.toLowerCase().indexOf('r');
-                return Long.parseUnsignedLong(x.substring(r + 1), Integer.parseInt(x.substring(0, r)));
+                java.math.BigInteger v = new java.math.BigInteger(x.substring(r + 1), Integer.parseInt(x.substring(0, r)));
+                if (v.bitLength() > 64) {
+                    throw tooLarge(g, d, x, p.type);
+                }
+                return v.longValue();
             }
             case REAL_DENOTATION -> {
                 if (t != JType.DOUBLE) {
@@ -379,6 +391,19 @@ final class Tables {
                 return null;
             }
         }
+    }
+
+    /**
+     * The error for the denotation D with the text X, widened to the mode
+     * M, whose value does not fit into the 64 bits of its representation
+     * (Algol 68 Genie has multiple precision there). A long text is
+     * shortened to its first 20 digits.
+     */
+    private static Gen.CompileError tooLarge(Gen g, Node d, String x, Moid m) {
+        String text = x.length() > 24 ? x.substring(0, 20) + "..." : x;
+        return new Gen.CompileError(d, "the denotation " + text + " does not fit into '"
+                + a68j.front.MoidsToString.moidToString(g.a68, m, a68j.front.Parser.MOID_ERROR_WIDTH, null)
+                + "', which has 64 bits in a68j");
     }
 
     /** P without the wrappers and widenings above it (single sons only). */

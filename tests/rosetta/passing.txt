@@ -491,6 +491,7 @@ search-a-list-2
 search-a-list-of-records
 selectively-replace-multiple-instances-of-a-character-within-a-string
 self-describing-numbers
+self-numbers
 semiprime
 send-+-more-=-money
 separate-the-house-number-from-the-street-name
@@ -584,6 +585,7 @@ subleq
 substitution-cipher
 substring
 substring-top-and-tail
+successive-prime-differences
 sudan-function
 sum-and-product-of-an-array
 sum-and-product-puzzle

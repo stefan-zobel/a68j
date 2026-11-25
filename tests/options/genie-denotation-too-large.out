@@ -1,0 +1,2 @@
+tests/options/genie-denotation-too-large.a68:3:14: error: the denotation 9223372036854775808 does not fit into 'LONG INT', which has 64 bits in a68j
+exit 1

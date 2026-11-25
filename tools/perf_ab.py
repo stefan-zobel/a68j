@@ -19,7 +19,7 @@ KEYS=os.environ.get('VARIANTS', 'A,B').split(',')
 V={k: (os.environ[k + '_JAR'], os.environ[k + '_DIR']) for k in KEYS}
 names=sys.argv[1:]
 def run(jar,d,n):
-    cls=[c[:-6] for c in os.listdir(d) if c.endswith('.class')][0]
+    cls=[c[:-6] for c in os.listdir(d) if c.endswith('.class') and '$' not in c][0]
     t0=time.monotonic(); subprocess.run(['java','-XX:+UseSerialGC','-cp',jar + (':' + RCMOD if RCMOD else '') + ':' + d,cls],capture_output=True,stdin=subprocess.DEVNULL,cwd=R,env=env); return time.monotonic()-t0
 tot={k:0 for k in KEYS}
 for n in names:

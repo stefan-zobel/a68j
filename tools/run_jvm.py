@@ -35,7 +35,8 @@ the expected result of a68j is in the directory of --fixed, by default
 `fixed` next to the directory of --native (tests/extra/fixed for
 tests/extra/expected): FIXED/<name>.json has the fields of a native result
 (exit, stdout, stderr) and `fixes`, the entry of the defect. It takes the
-place of the native result, which stays as ga68 recorded it.  When the
+place of the native result, which stays as ga68 recorded it; with a fixed
+result a program is also run if ga68 did not compile it.  When the
 native result equals the fixed one (ga68 has been corrected), this is
 reported, and the fixed result can be removed.
 Details per program go to OUT/<name>.json when --out is given.
@@ -112,6 +113,9 @@ def classify(nat, rc, out, err, src_dir=""):
         return "unsupported", m.group(1)
     if rc == 1 and re.search(r": (error|fatal error): ", err):
         return "frontend", err.strip().splitlines()[0]
+    m = re.search(r"internal compiler error: .*", err)
+    if rc == 4 and m:
+        return "crash", m.group(0)[:160]
     if re.search(r"^(Exception in thread|Error: |java\.lang\.)", err, re.M) or "at java.base/" in err:
         lines = [l for l in err.splitlines() if l.strip()]
         first = next((l for l in lines if "Exception" in l or "Error" in l), lines[0] if lines else "")
@@ -196,10 +200,13 @@ def main():
         if not os.path.exists(npath):
             return None
         nat = json.load(open(npath))
-        if nat.get("compile") != 0 or nat.get("exit") == "timeout" or nat.get("nondeterministic"):
-            return None
         fixed = None
         fpath = os.path.join(a.fixed, name + ".json") if a.fixed else None
+        # A program that ga68 does not compile is run only if it has a fixed
+        # result (ga68 stops with an internal compiler error).
+        if (nat.get("compile") != 0 and not (fpath and os.path.exists(fpath))
+                or nat.get("exit") == "timeout" or nat.get("nondeterministic")):
+            return None
         if fpath and os.path.exists(fpath):
             fixed = json.load(open(fpath))
             same = all(fixed.get(k, "") == nat.get(k, "") for k in ("exit", "stdout", "stderr"))

@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*- #
+
+line OF class image := (REF IMAGE picture, POINT start p, stop p, PIXEL color)VOID:
+BEGIN
+   REAL dx = ABS (x OF stop p - x OF start p),
+        dy = ABS (y OF stop p - y OF start p);
+   REAL err;
+   POINT here := start p,
+         step := (1, 1);
+   IF x OF start p > x OF stop p THEN
+      x OF step := -1
+   FI;
+   IF y OF start p > y OF stop p THEN
+      y OF step := -1
+   FI;
+   IF dx > dy THEN
+      err := dx / 2;
+      WHILE x OF here /= x OF stop p DO
+         picture[x OF here, y OF here] := color;
+         err -:= dy;
+         IF err < 0 THEN
+            y OF here +:= y OF step;
+            err +:= dx
+         FI;
+         x OF here +:= x OF step
+      OD
+   ELSE
+      err := dy / 2;
+      WHILE y OF here /= y OF stop p DO
+         picture[x OF here, y OF here] := color;
+         err -:= dx;
+         IF err < 0 THEN
+            x OF here +:= x OF step;
+            err +:= dy
+         FI;
+         y OF here +:= y OF step
+      OD
+   FI;
+   picture[x OF here, y OF here] := color # ensure dots to be drawn #
+END # line #;
+
+SKIP

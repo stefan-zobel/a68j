@@ -1,0 +1,35 @@
+# -fgenie: null char, COMPLEX and the mathematical procedures of Algol 68
+  Genie (the module Math); four decimals, so that the 32 bits of real in
+  a68j do not show. #
+BEGIN
+   PROC f = (REAL x) STRING: fixed (x, 0, 4);
+   PROC c = (COMPLEX z) STRING: f (RE z) + " " + f (IM z);
+   print (("null char: ", whole (ABS null char, 0), newline));
+   COMPLEX z = 1 I 2;
+   LONG COMPLEX lz = 3 I 4;
+   [2]COMPLEX row := (z, CONJ z);
+   print (("COMPLEX: ", c (z), " ", c (row[2]), " ", fixed (RE lz, 0, 1), newline));
+   print (("acos asin atan: ", f (acos (0.5)), " ", f (asin (0.5)), " ", f (atan (1)), newline));
+   print (("arctan2: ", f (arctan2 (1, 1)), " ", f (arctan2 (1, -1)), " ",
+           f (arctan2 (-1, -1)), " ", f (atan2 (0, -1)), " ", f (arctan2 (1, 0)), newline));
+   print (("sinh cosh tanh: ", f (sinh (0.5)), " ", f (cosh (-1.5)), " ", f (tanh (0.75)), newline));
+   print (("inverses: ", f (arcsinh (1.5)), " ", f (asinh (-2)), " ", f (arccosh (2)), " ",
+           f (acosh (1)), " ", f (arctanh (0.5)), " ", f (atanh (-0.25)), newline));
+   print (("cbrt: ", f (cbrt (27)), " ", f (cbrt (-8)), " ", f (cbrt (2)), newline));
+   print (("gamma: ", f (gamma (5)), " ", f (gamma (0.5)), " ", f (gamma (-1.5)), " ",
+           f (gamma (4.5)), " ", f (gamma (1)), newline));
+   print (("lgamma: ", f (lgamma (0.5)), " ", f (lgamma (-0.5)), " ", f (lgamma (10)), newline));
+   print (("ln gamma: ", f (ln gamma (3.5)), " ", f (ln gamma (10)), newline));
+   COMPLEX w = 0.5 I -1.2;
+   print (("exp: ", c (complex exp (w)), " ", c (cexp (1 I 0)), newline));
+   print (("ln: ", c (complex ln (w)), " ", c (cln (-1 I 0)), newline));
+   print (("sqrt: ", c (complex sqrt (w)), " ", c (csqrt (-4 I 0)), " ", c (csqrt (-3 I -4)), newline));
+   print (("sin cos tan: ", c (complex sin (w)), " ", c (ccos (w)), " ", c (ctan (w)), newline));
+   print (("sinh cosh tanh: ", c (complex sinh (w)), " ", c (ccosh (w)), " ", c (ctanh (w)), newline));
+   print (("tan, tanh far out: ", c (complex tan (1 I 30)), " ", c (complex tanh (-30 I 1)), newline));
+   BEGIN
+      # a declaration of the program hides the procedure of Algol 68 Genie #
+      PROC sinh = (REAL x) REAL: 100 + x;
+      print (("own sinh: ", f (sinh (1)), newline))
+   END
+END

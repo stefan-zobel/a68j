@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "inner-classes.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 9 (a routine called after the procedure that yielded it has returned): ga68 crashes when a print method stored in a heap structure is called",
+ "stderr": "",
+ "stdout": "<<-><27>>[27]\n<<!><42>>[42]\n<<$><42>>[42]\n<<?><91>>[91]\n<<$><91>>[91]\n"
+}

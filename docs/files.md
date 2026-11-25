@@ -66,6 +66,8 @@ for `file_is_link`, they follow symbolic links, as `stat` does.
 | `write_file (string path, text) void` | creates the file or replaces its contents |
 | `append_file (string path, text) void` | appends to the file, which is created if needed |
 | `write_lines (string path, [] string lines) void` | creates the file or replaces its contents, each line followed by `"'n"` |
+| `read_bytes (string path) [] int` | the bytes of the file, each a value from 0 to 255 |
+| `write_bytes (string path, [] int data) void` | creates the file or replaces its contents with the bytes `data`; a value outside 0 to 255 is an error, and the file is not touched |
 | `list_directory (string dir) [] string` | the names in `dir`, sorted, without `.` and `..` |
 | `walk_directory (string dir) [] string` | every file and directory below `dir`, as paths that begin with `dir` and `/`: depth first, the entries of each directory sorted, a directory before its entries; symbolic links to directories are not followed |
 | `make_directory (string dir) void` | creates `dir` and its parents; nothing if it exists |
@@ -101,6 +103,7 @@ prog.a68:5: runtime error: cannot read "data.txt": no such file or directory
 prog.a68:9: runtime error: cannot delete "out": directory not empty
 prog.a68:12: runtime error: cannot list "notes.txt": not a directory
 prog.a68:14: runtime error: cannot copy "out": is a directory
+prog.a68:16: runtime error: cannot write "b.bin": 256 is not a byte
 ```
 
 The reasons are `no such file or directory`, `permission denied`,
@@ -120,6 +123,10 @@ gives. A program that must not stop tests first with `file_exists`,
 - Text is UTF-8: a character of Algol 68 (a code point) is one to four
   bytes in the file. Bytes that are not UTF-8 are read as U+FFFD.
   `file_size` counts bytes, so `"a" + REPR 228` is 3 bytes.
+- `read_bytes` and `write_bytes` read and write the bytes unchanged, for
+  files that are not UTF-8 text, such as images, or for hashing a file.
+  `read_bytes` of a text yields its UTF-8 bytes. A file of 2^31 bytes or
+  more does not fit into a row.
 - No line end is added or changed: `write_file` writes the text as it is,
   and `read_file` yields the bytes of the file, CR included.
 
@@ -143,7 +150,7 @@ gives. A program that must not stop tests first with `file_exists`,
 ## `-fgenie`
 
 With `-fgenie` the program is put into an access clause of
-`Genie_Transput`, `Genie_Formats`, `Regex`, `Files` and `Times`
+`Genie_Transput`, `Genie_Formats`, `Regex`, `Files`, `Times` and `Math`
 ([genie-formats.md](genie-formats.md)), so a program written for
 Algol 68 Genie can call `get directory` and `file is directory` as it is.
 A declaration of the program with the same name hides the one of the
@@ -165,13 +172,15 @@ above with `JavaObject.error`. `file_mode` reads the attribute
 
 - `tests/java/files-basic.a68`: reading, writing and appending, lines
   with `"'r'n"` and `"'r"`, sizes and times, characters beyond ASCII,
-  listing and walking, moving, copying and deleting, all in a temporary
-  directory.
+  the bytes 0 to 255, an empty file, the bytes of a text and a file in
+  Latin-1 read as text, listing and walking, moving, copying and
+  deleting, all in a temporary directory.
 - `tests/java/files-genie.a68`: the procedures of Algol 68 Genie on a
   directory, a file and a missing path.
-- `tests/java/files-error-1.a68` … `-6`: a missing file, a directory that
-  is not empty, a file listed as a directory, a directory copied, and
-  `get_directory` of a missing directory and of a file.
+- `tests/java/files-error-1.a68` … `-7`: a missing file, a directory that
+  is not empty, a file listed as a directory, a directory copied,
+  `get_directory` of a missing directory and of a file, and
+  `write_bytes` of a value that is not a byte.
 - `tests/options/genie-files.a68`: `-fgenie` with `get directory`,
-  `file is directory`, `grep in string` and a declaration that hides one
-  of `Files`.
+  `file is directory`, `write bytes`, `read bytes`, `grep in string` and
+  a declaration that hides one of `Files`.

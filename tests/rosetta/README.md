@@ -13,12 +13,20 @@ The sources come from [RosettaCodeData](https://github.com/acmeism/RosettaCodeDa
 The texts of Rosetta Code are licensed under the
 [GNU Free Documentation License 1.3](https://www.gnu.org/licenses/fdl-1.3.html);
 the authors are recorded in the version history of the respective Rosetta
-Code page (linked in the header of each prepared file).
+Code page (linked in the header of each prepared file). The files in
+`include/` come from the pages and revisions listed in
+`include/SOURCES.tsv`, under the same license. `tools/rosetta_includes.py`
+fetches them again; four files that solutions read are not on Rosetta
+Code (`postlude/exception.a68`, `prelude/gcd.a68`,
+`prelude/iterator.a68`, `prelude/math_lib.a68`).
 
 ## Contents
 
 ```
 orig/<name>.a68     the solution unchanged, as on Rosetta Code
+include/            the files that solutions read (PR read "primes.incl.a68"
+                    PR), unchanged, as on Rosetta Code; include/SOURCES.tsv
+                    names the page and revision of each
 <name>.a68          the same solution, prepared for ga68, in GNU notation (SUPPER)
 index.tsv           all solutions with task and result of the preparation
 results.tsv         result per solution: what ga68 does, what the JVM does, note
@@ -26,6 +34,12 @@ notes.tsv           explanation of the known differences (for results.tsv)
 passing.md          list of the solutions that run normally with ga68 and a68j
                     and give the same result (with links to Rosetta Code)
 passing.txt         the same names, one per line (e.g. for run_jvm.py)
+graphs/             a graph library in the notation of Algol 68 Genie, with
+                    tests and new solutions to tasks without an ALGOL 68
+                    solution (graphs/README.md); not prepared for ga68
+hashes/             32-bit words, bytes, SHA-256 and HMAC in the notation of
+                    Algol 68 Genie, on top of include/bits.incl.a68
+                    (hashes/README.md); not prepared for ga68
 ```
 
 `tools/rosetta_list.py --dir tests/rosetta -o tests/rosetta/passing.md`
@@ -113,20 +127,20 @@ a format for which ga68 reports the errors in a different order).
 | ga68 compiles them, but the output is not reproducible (`amb`: a scope violation, see below) | 1 |
 | ga68 compiles them, but natively they run longer than 2 minutes (3 of them loop forever by design) | 7 |
 | ga68 compiles and runs them | 716 |
-| **of these identical to ga68 on the JVM** | **699** |
-| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 27 |
-| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 642 |
+| **of these identical to ga68 on the JVM** | **706** |
+| of these compared with the corrected result in `fixed/` (a68j does not reproduce a defect of ga68, see below) | 33 |
+| of these end normally (exit status 0); the others end with the same runtime error or signal as natively | 651 |
 | of these the same up to rounding (`approx`) | 6 |
 
 The solutions with formats are rewritten by the format rewrite tool (see
 Preparation): of the 175, ga68 compiles 87 (5 of them since `Genie_Formats`
-provides formatted input). Among them is
-`knapsack-problem-unbounded`, which crashes natively (entry 26 of
-[`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and is
-compared with its result in `fixed`. Three of them are the same only up to
+provides formatted input). Among them are
+`knapsack-problem-unbounded` and `y-combinator-2`, which crash natively
+(entries 26 and 19 of
+[`docs/ga68-bug-reports.md`](../../docs/ga68-bug-reports.md)) and are
+compared with their results in `fixed`. Three of them are the same only up to
 rounding, because ga68 writes wrong digits of a `REAL` (entries 4 and 5),
-`command-line-arguments` prints the path of the program, and
-`y-combinator-2` crashes natively only.
+and `command-line-arguments` prints the path of the program.
 
 The most common reasons why ga68 does not compile a solution: formats
 (`FORMAT`, `printf`), the automatic widening `INT` → `LONG INT` of Algol
@@ -193,27 +207,52 @@ The remaining differences (details in `notes.tsv`):
   `ln` etc. with the C library (`sinf`, `tanf` …), a68j with
   `java.lang.Math` (pure Java, deliberately without C calls). The result
   differs in the last digit; in `particle-swarm-optimization` the
-  optimization method amplifies the difference to about 10⁻⁴.
-- **Order of evaluation** (`tree-traversal`, `ulam-numbers`): Algol 68 does
+  optimization method amplifies the difference to about 10^-4.
+- **Order of evaluation** (`tree-traversal`): Algol 68 does
   not specify whether the destination or the source of an assignation is
   elaborated first, nor the order of the operands of a formula. Here ga68
   follows the rules of GCC, which depend on the shape of the expression.
-- **ga68 crashes, a68j does not** (`inner-classes`, `y-combinator-1`,
-  `compiler-simple-file-inclusion-pre-processor`: procedures that outlive
-  the procedure in which they were created;
-  `successive-prime-differences`: ga68 needs more than 4.7 GB and is
-  killed; `yin-and-yang`: partial parametrization, which a68j implements
-  as Algol 68 Genie does, see `tests/partial`).
-- **Both fail** (`self-numbers`: a row with 2·10⁹ elements).
+  a68j elaborates the destination first, as Algol 68 Genie does, and
+  gives its output for `tree-traversal`.
 - **80-bit `long long real`** (`infinity`): ga68 prints
   `long long max real` of its 80-bit `long long real`, a68j that of a
   double.
-- **Not reproducible natively** (`amb`): the solution yields routines that
-  use the parameters of an operator after the operator has returned. The
-  source marks this as a scope violation, and Algol 68 Genie stops with
-  a scope error. Compiled with ga68, the program reads dead stack frames
-  and fails with a different bound in every run; on the JVM it prints the
-  answer, `that thing grows slowly`.
+- **`argv (1)`** (`command-line-arguments`): the path of the executable
+  natively, the name of the program on the JVM.
+- **Scope violations** (`amb`, `y-combinator-1`): the solutions yield
+  routines that use the parameters of a procedure or operator after it
+  has returned, and Algol 68 Genie stops with a scope error. Compiled with
+  ga68, the programs read dead stack frames: `amb` fails with a different
+  bound in every run and is not reproducible natively, `y-combinator-1`
+  crashes. On the JVM the frames stay alive, and the programs print the
+  answer (`that thing grows slowly`) and the Fibonacci numbers.
+
+Six solutions that differed in earlier versions are identical now. ga68
+crashes on four of them, which are compared with their results in
+`fixed/`: `inner-classes` and
+`compiler-simple-file-inclusion-pre-processor` call routine texts after
+the procedure that created them has returned, which is valid here, since
+the routines use only names of an outer range (entry 9 of the bug
+reports), and `yin-and-yang` and `y-combinator-2` use partial
+parametrization, which a68j implements as Algol 68 Genie does (entry 19,
+`tests/partial`). All four give the output of Algol 68 Genie 3.13.4.
+The other two need conditions for the native run (see Running):
+`self-numbers` a stack large enough for a row of 2 * 10^9 `bool`, and
+`successive-prime-differences` a libga68 with a garbage collector.
+
+Since version 0.9.1 a `flex [1 : n] char` has the bounds of its declarer
+on the JVM; ga68 creates it empty (entry 10). Two solutions declare such
+a row and assign to its elements, and are compared with their results in
+`fixed/`: `ulam-numbers`, which ga68 stops with a bound error and which
+now gives the output of Algol 68 Genie, and `evolutionary-algorithm`.
+The latter ended at once natively, with an empty parent string that had
+a fitness of 100 %; it now evolves the string `METHINKS IT IS LIKE A
+WEASEL` in 142 generations as on Algol 68 Genie, whose random numbers,
+and therefore generations, differ. `straddling-checkerboard`, whose
+structure has three fields with one declarer
+(`[0 : 9] char first, second, third`), stops ga68 with an internal
+compiler error (entry 30); with `-fgenie` the original stopped with a
+bound error and now gives the output of Algol 68 Genie.
 
 `ruth-aaron-numbers` used to need too much memory on the JVM (rows of
 `INT` as `Object[]` of `Integer`); with the unboxed rows it runs as
@@ -233,7 +272,10 @@ again with ga68 at GCC commit 3f35c3d2d116.
   selection on such a clause as the destination of an assignation causes
   "gimplification failed".
 - `FLEX [1 : n] CHAR x` has the bounds `[1 : 0]` instead of `[1 : n]`
-  (a68j reproduces this).
+  (entry 10; a68j reproduced this until version 0.9.0 and gives the
+  bounds of the declarer since version 0.9.1). `ulam-numbers` and
+  `evolutionary-algorithm` now run as on Algol 68 Genie and are compared
+  with their results in `fixed`.
 - `MODAB` (`%*:=`) computes with the C remainder (negative for a negative
   left operand), whereas `MOD` is correct. a68j reproduced this until
   version 0.6.0 and computes `MOD` since version 0.7.0;
@@ -272,6 +314,9 @@ program that shows it, are in [`docs/ga68-bug-reports.md`](../../docs/ga68-bug-r
 git clone --filter=blob:none --no-checkout --depth 1 https://github.com/acmeism/RosettaCodeData rcd
 (cd rcd && git sparse-checkout set --no-cone '/Task/*/ALGOL-68/*' '/Task/*/00-META.yaml' && git checkout)
 python3 tools/rosetta_prep.py --data rcd --out tests/rosetta
+# the include files that index.tsv lists as missing, then prepare again
+python3 tools/rosetta_includes.py
+python3 tools/rosetta_prep.py --data rcd --out tests/rosetta
 
 # reference with ga68, then comparison on the JVM
 python3 tools/run_native.py --ga68 .../xgcc --libdir .../libga68/.libs --out /tmp/native-rc \
@@ -285,7 +330,7 @@ python3 tools/rosetta_report.py --dir tests/rosetta --native /tmp/native-rc --jv
 Every run of a program starts in a new empty directory, natively and on
 the JVM, since programs may create files. In a virtual machine with little
 memory, limit the parallel runs (`-j`): a solution such as
-`successive-prime-differences` takes gigabytes natively, and slow solutions
+`self-numbers` takes gigabytes natively and on the JVM, and slow solutions
 exceed the time limit when several run at once. Run the solutions that
 timed out again with a longer limit (`--timeout 120 -j 1`) into a second
 directory and give it to `rosetta_report.py` as a second `--native` and
@@ -295,3 +340,20 @@ use large local rows. `run_jvm.py` compares
 floating-point numbers in the output with a tolerance (`--rel-eps`, default
 1e-4, `--abs-eps` 1e-6); programs that differ only in this way count as
 "the same up to rounding" (`approx`), not as identical.
+
+The native results need a libga68 with the Boehm garbage collector.
+Without it, libga68 never frees memory on the heap, and a program that
+allocates a lot is killed: `successive-prime-differences` takes a slice
+of a row of 78 498 primes in a loop, and each slice costs as much memory
+as the whole row. The configure script of libga68 uses the collector if
+it finds it (package `libgc-dev` on Debian and Ubuntu). For a GCC build
+made without it, libga68 alone can be configured and built in a
+directory of its own with the same `configure` line (`config.log` of
+the existing build) and the variables `CC` and `A68` set to `xgcc` and
+`ga68` of that build; `--libdir` then names its `.libs`.
+
+`self-numbers` needs `--stack unlimited` for its row of 2 * 10^9 `bool`,
+in a second directory as above (the stack limit of the first run stays,
+since `find-limit-of-recursion` depends on it), and the JVM a heap of
+more than 2 GB; `run_jvm.py` uses the default heap, a quarter of the
+physical memory, so the machine needs at least 9 GB.

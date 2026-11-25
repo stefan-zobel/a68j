@@ -18,7 +18,7 @@ files=open(LIST).read().split() if LIST else sorted(glob.glob(os.path.join(R, '*
 for f in files:
     n=os.path.basename(f)[:-4]; d=f'{O}/c.{n}'
     if not os.path.isdir(d): continue
-    cls=[c[:-6] for c in os.listdir(d) if c.endswith('.class')]
+    cls=[c[:-6] for c in os.listdir(d) if c.endswith('.class') and '$' not in c]
     if not cls: continue
     t0=time.monotonic()
     try:

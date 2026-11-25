@@ -1,0 +1,79 @@
+# Rosetta Code task "Topological sort": a compile order of VHDL libraries  #
+# from their dependencies, with the graph library graphs.incl.a68.         #
+# A library and the libraries it depends on are a line of the data; an     #
+# edge leads from a dependency to the library that needs it, and           #
+# dependencies of a library on itself are ignored. topological order uses  #
+# Kahn's algorithm and returns FALSE if the libraries cannot be ordered.   #
+BEGIN
+   MODE WEIGHT = INT;
+   WEIGHT infinite weight = max int;
+   PR read "graphs.incl.a68" PR
+
+   # the dependencies of the libraries: name, then the libraries it needs #
+   [] STRING data = (
+      "des_system_lib   std synopsys std_cell_lib des_system_lib dw02 dw01 ramlib ieee",
+      "dw01             ieee dw01 dware gtech",
+      "dw02             ieee dw02 dware",
+      "dw03             std synopsys dware dw03 dw02 dw01 ieee gtech",
+      "dw04             dw04 ieee dw01 dware gtech",
+      "dw05             dw05 ieee dware",
+      "dw06             dw06 ieee dware",
+      "dw07             ieee dware",
+      "dware            ieee dware",
+      "gtech            ieee gtech",
+      "ramlib           std ieee",
+      "std_cell_lib     ieee std_cell_lib",
+      "synopsys");
+
+   # adds the dependencies of one line to g #
+   PROC add dependencies = (REF GRAPH g, STRING line) VOID:
+      BEGIN
+         STRING text = line + " ";
+         INT library := 0;
+         STRING word := "";
+         FOR i FROM LWB text TO UPB text DO
+            IF text[i] /= " " THEN
+               word +:= text[i]
+            ELIF word /= "" THEN
+               INT w = vertex (g, word);
+               IF library = 0 THEN
+                  library := w
+               ELIF w /= library THEN
+                  add edge (g, w, library, 0)
+               FI;
+               word := ""
+            FI
+         OD
+      END # add dependencies # ;
+
+   # prints a compile order of the libraries of g, or the libraries that  #
+   # cannot be ordered                                                    #
+   PROC show compile order = (REF GRAPH g) VOID:
+      BEGIN
+         FLEX [1 : 0] INT order;
+         IF topological order (g, order) THEN
+            print (("compile order:"));
+            FOR i FROM LWB order TO UPB order DO
+               print ((" ", vertex name (g, order[i])))
+            OD;
+            print (newline)
+         ELSE
+            [1 : n OF g] BOOL ordered;
+            FOR v TO n OF g DO ordered[v] := FALSE OD;
+            FOR i FROM LWB order TO UPB order DO ordered[order[i]] := TRUE OD;
+            print (("un-orderable:"));
+            FOR v TO n OF g DO
+               IF NOT ordered[v] THEN print ((" ", vertex name (g, v))) FI
+            OD;
+            print (newline)
+         FI
+      END # show compile order # ;
+
+   REF GRAPH libraries = new graph (TRUE);
+   FOR i FROM LWB data TO UPB data DO add dependencies (libraries, data[i]) OD;
+   show compile order (libraries);
+
+   # with dw04 added to the dependencies of dw01 there is a cycle #
+   add dependencies (libraries, "dw01 dw04");
+   show compile order (libraries)
+END

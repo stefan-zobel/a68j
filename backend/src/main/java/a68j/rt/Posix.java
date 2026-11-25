@@ -71,8 +71,11 @@ import java.util.Map;
  * <p>fsize and lseek also work on descriptors 0 to 2, as fstat and lseek
  * do: a redirected file has its size and position, a pipe or a terminal
  * size 0 and no position (ESPIPE). Standard input is buffered here, and
- * lseek on it accounts for the bytes read ahead. fcreate gives a new file
- * the permission bits of its mode less the umask, as creat.
+ * lseek on it accounts for the bytes read ahead. fgetc reads invalid UTF-8
+ * as U+FFFD without losing the bytes after it, unlike libga68; the byte
+ * that ends an invalid sequence is kept for the next read, and lseek
+ * counts it. fcreate gives a new file the permission bits of its mode less
+ * the umask, as creat.
  */
 public final class Posix {
     private Posix() {}
@@ -121,6 +124,11 @@ public final class Posix {
     private static final FileInputStream STDIN = new FileInputStream(FileDescriptor.in);
     private static final byte[] INBUF = new byte[8192];
     private static int inPos, inLim;
+    /**
+     * For each descriptor, the byte that ended an invalid UTF-8 sequence in
+     * fgetc; it is the first byte of the next read.
+     */
+    private static final Map<Integer, Integer> PUSHED_BACK = new HashMap<>();
     /** Channels of descriptors 0 to 2 for fsize and lseek (fstat and lseek of the descriptor). */
     private static final FileChannel[] STD = new FileChannel[3];
     private static final ByteBuffer ONE = ByteBuffer.allocate(1);
@@ -366,6 +374,7 @@ public final class Posix {
     }
 
     public static synchronized int fclose(int fd) {
+        PUSHED_BACK.remove(fd);
         FileChannel f = FILES.remove(fd);
         try {
             if (f == null) {
@@ -434,8 +443,10 @@ public final class Posix {
      * whatever the arguments, and a negative position with EINVAL. For
      * descriptor 0 the position is that of the next byte the program
      * reads, so the bytes read ahead into the buffer are subtracted, and
-     * a successful seek drops them. A device that ignores the position,
-     * such as /dev/null, accepts any offset and yields 0, as in Linux.
+     * a successful seek drops them. In the same way a byte that fgetc
+     * keeps for the next read counts as not yet read, and a successful
+     * seek drops it. A device that ignores the position, such as
+     * /dev/null, accepts any offset and yields 0, as in Linux.
      */
     public static synchronized long lseek(int fd, long offset, int whence) {
         FileChannel f = channel(fd);
@@ -445,7 +456,7 @@ public final class Posix {
                 return -1;
             }
             long raw = f.position();
-            long cur = fd == 0 ? raw - (inLim - inPos) : raw;
+            long cur = (fd == 0 ? raw - (inLim - inPos) : raw) - (PUSHED_BACK.containsKey(fd) ? 1 : 0);
             long pos = switch (whence) {
                 case 0 -> cur + offset;
                 case 1 -> f.size() + offset;
@@ -466,6 +477,7 @@ public final class Posix {
             if (fd == 0) {
                 inPos = inLim = 0;
             }
+            PUSHED_BACK.remove(fd);
             f.position(pos);
             return f.position();
         } catch (IOException e) {
@@ -482,6 +494,10 @@ public final class Posix {
 
     /** read(2) of one byte: the byte, or -1 at end of file or on an error (which sets sysErrno). */
     private static synchronized int readByte(int fd) {
+        Integer kept = PUSHED_BACK.remove(fd);
+        if (kept != null) {
+            return kept;
+        }
         try {
             if (fd == 0) {
                 Rt.OUT.flush();
@@ -543,25 +559,60 @@ public final class Posix {
         }
     }
 
-    /** fgetc: one UTF-8 encoded character; EOF gives -1, a bad sequence U+FFFD. */
-    public static int fgetc(int fd) {
+    /**
+     * fgetc: one UTF-8 encoded character, or -1 at the end of the file.
+     * Each maximal subpart of an invalid sequence gives one U+FFFD, as the
+     * Unicode Standard recommends: a byte that cannot start a character
+     * gives U+FFFD alone, a byte that cannot continue the sequence ends it
+     * and is kept for the next call, and the end of the file within a
+     * sequence gives U+FFFD and then -1. The limits of the second byte
+     * leave out overlong forms, surrogates and values above U+10FFFF.
+     * libga68 instead takes as many bytes as the first byte announces
+     * without looking at them, and gives -1 at the end of the file within
+     * a sequence (docs/ga68-bug-reports.md, entry 29).
+     */
+    public static synchronized int fgetc(int fd) {
         int c = readByte(fd);
-        if (c < 0) {
-            return -1;
+        if (c < 0x80) {
+            return c;
         }
-        int more = c < 128 ? 0 : c < 224 ? 1 : c < 240 ? 2 : 3;
-        byte[] u = new byte[more + 1];
-        u[0] = (byte) c;
+        int more, lo = 0x80, hi = 0xbf, cp;
+        if (c >= 0xc2 && c <= 0xdf) {
+            more = 1;
+            cp = c & 0x1f;
+        } else if (c >= 0xe0 && c <= 0xef) {
+            more = 2;
+            cp = c & 0x0f;
+            if (c == 0xe0) {
+                lo = 0xa0;
+            } else if (c == 0xed) {
+                hi = 0x9f;
+            }
+        } else if (c >= 0xf0 && c <= 0xf4) {
+            more = 3;
+            cp = c & 0x07;
+            if (c == 0xf0) {
+                lo = 0x90;
+            } else if (c == 0xf4) {
+                hi = 0x8f;
+            }
+        } else {
+            return 0xfffd;
+        }
         for (int i = 0; i < more; i++) {
             int d = readByte(fd);
             if (d < 0) {
-                return -1;
+                return 0xfffd;
             }
-            u[i + 1] = (byte) d;
+            if (d < lo || d > hi) {
+                PUSHED_BACK.put(fd, d);
+                return 0xfffd;
+            }
+            cp = (cp << 6) | (d & 0x3f);
+            lo = 0x80;
+            hi = 0xbf;
         }
-        String s = new String(u, StandardCharsets.UTF_8);
-        int cp = s.codePointAt(0);
-        return s.length() != Character.charCount(cp) ? 0xfffd : cp;
+        return cp;
     }
 
     public static int getchar() { return fgetc(0); }

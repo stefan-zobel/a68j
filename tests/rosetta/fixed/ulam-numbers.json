@@ -1,0 +1,9 @@
+{
+ "cerr": "",
+ "compile": 0,
+ "exit": 0,
+ "file": "ulam-numbers.a68",
+ "fixes": "docs/ga68-bug-reports.md, entry 10 (flex [1 : n] char gets the bounds [1 : 0]): ga68 stops with a bound error",
+ "stderr": "",
+ "stdout": " 1 2 3 4 6 8 11 13 16 18 26 28 36 38 47 48 53 57 62 69...\nThe    100th Ulam number is: 690\nThe   1000th Ulam number is: 12294\nThe  10000th Ulam number is: 132788\n"
+}

@@ -1,0 +1,53 @@
+Dijkstra
+a -> a: 0  a
+a -> b: 7  a -> b
+a -> c: 9  a -> c
+a -> f: 11  a -> c -> f
+a -> d: 20  a -> c -> d
+a -> e: 26  a -> c -> d -> e
+d -> a: unreachable
+d -> b: unreachable
+d -> c: unreachable
+d -> f: 15  d -> e -> f
+d -> d: 0  d
+d -> e: 6  d -> e
+Bellman-Ford
+a -> a: 0  a
+a -> b: 7  a -> b
+a -> c: 9  a -> c
+a -> f: 11  a -> c -> f
+a -> d: 20  a -> c -> d
+a -> e: 26  a -> c -> d -> e
+Dijkstra, undirected
+e -> a: 20  e -> f -> c -> a
+e -> b: 21  e -> d -> b
+e -> c: 11  e -> f -> c
+e -> f: 9  e -> f
+e -> d: 6  e -> d
+e -> e: 0  e
+Johnson
+w -> z: 2  w -> z
+w -> x: -5  w -> z -> x
+w -> y: -2  w -> z -> x -> y
+z -> w: -1  z -> x -> w
+z -> x: -7  z -> x
+z -> y: -4  z -> x -> y
+x -> w: 6  x -> w
+x -> z: 8  x -> w -> z
+x -> y: 3  x -> y
+y -> w: 4  y -> w
+y -> z: 5  y -> z
+y -> x: -2  y -> z -> x
+negative cycle
+A*
+path: (0,0) (1,1) (2,2) (3,1) (4,1) (5,1) (6,2) (6,3) (6,4) (6,5) (6,6) (7,7)
+cost: 11, Dijkstra: 11
+x.......
+.x.xxx..
+..x###x.
+.....#x.
+..#..#x.
+..#..#x.
+..####x.
+.......x
+exit 0

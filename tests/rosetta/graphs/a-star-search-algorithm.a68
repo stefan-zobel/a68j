@@ -1,0 +1,78 @@
+# Rosetta Code task "A* search algorithm": a route across an 8 x 8 grid   #
+# from (0, 0) to (7, 7), with the graph library graphs.incl.a68.          #
+# A square is a vertex; there is an edge from each square to each of its  #
+# up to eight neighbours, of cost 1, or 100 if the neighbour belongs to   #
+# the barrier. The estimate is the Chebyshev distance to the end, the     #
+# number of king moves without the barrier: it never overestimates, and   #
+# it changes by at most 1 from a square to its neighbour.                 #
+BEGIN
+   MODE WEIGHT = INT;
+   WEIGHT infinite weight = max int;
+   PR read "graphs.incl.a68" PR
+
+   INT size = 8;
+   [0 : size - 1, 0 : size - 1] BOOL barrier;
+   FOR x FROM 0 TO size - 1 DO
+      FOR y FROM 0 TO size - 1 DO barrier[x, y] := FALSE OD
+   OD;
+   [] STRUCT (INT x, y) barrier squares =
+      ((2, 4), (2, 5), (2, 6), (3, 6), (4, 6), (5, 6),
+       (5, 5), (5, 4), (5, 3), (5, 2), (4, 2), (3, 2));
+   FOR i FROM LWB barrier squares TO UPB barrier squares DO
+      barrier[x OF barrier squares[i], y OF barrier squares[i]] := TRUE
+   OD;
+
+   # the vertex of square (x, y), and the coordinates of vertex v #
+   PROC square = (INT x, y) INT: y * size + x + 1;
+   PROC x coord = (INT v) INT: (v - 1) MOD size;
+   PROC y coord = (INT v) INT: (v - 1) OVER size;
+   PROC cost = (INT v) INT: IF barrier[x coord (v), y coord (v)] THEN 100 ELSE 1 FI;
+
+   REF GRAPH grid = new graph (TRUE);
+   VOID (add vertices (grid, size * size));
+   FOR x FROM 0 TO size - 1 DO
+      FOR y FROM 0 TO size - 1 DO
+         FOR dx FROM -1 TO 1 DO
+            FOR dy FROM -1 TO 1 DO
+               INT nx = x + dx, ny = y + dy;
+               IF dx /= 0 OR dy /= 0 THEN
+                  IF nx >= 0 AND nx < size AND ny >= 0 AND ny < size THEN
+                     add edge (grid, square (x, y), square (nx, ny), cost (square (nx, ny)))
+                  FI
+               FI
+            OD
+         OD
+      OD
+   OD;
+
+   INT start = square (0, 0), end = square (size - 1, size - 1);
+   PROC chebyshev = (INT v) WEIGHT:
+      BEGIN
+         INT dx = ABS (x coord (v) - x coord (end)), dy = ABS (y coord (v) - y coord (end));
+         IF dx > dy THEN dx ELSE dy FI
+      END # chebyshev # ;
+
+   [] INT route = a star (grid, start, end, chebyshev);
+   INT total := 0;
+   print (("route:"));
+   FOR i FROM LWB route TO UPB route DO
+      print ((" (", whole (x coord (route[i]), 0), ", ", whole (y coord (route[i]), 0), ")"));
+      IF i > LWB route THEN total +:= cost (route[i]) FI
+   OD;
+   print ((newline, "cost: ", whole (total, 0), newline, newline));
+
+   # the grid with the route (x, S for the start and E for the end) and    #
+   # the barrier, y downwards                                              #
+   [0 : size - 1, 0 : size - 1] CHAR picture;
+   FOR x FROM 0 TO size - 1 DO
+      FOR y FROM 0 TO size - 1 DO picture[x, y] := IF barrier[x, y] THEN "#" ELSE "." FI OD
+   OD;
+   FOR i FROM LWB route TO UPB route DO
+      picture[x coord (route[i]), y coord (route[i])] :=
+         IF i = LWB route THEN "S" ELIF i = UPB route THEN "E" ELSE "x" FI
+   OD;
+   FOR y FROM 0 TO size - 1 DO
+      FOR x FROM 0 TO size - 1 DO print ((" ", picture[x, y])) OD;
+      print (newline)
+   OD
+END

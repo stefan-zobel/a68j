@@ -1,0 +1,31 @@
+Tarjan
+4 components: {0 1 2} {5 6} {3 4} {7}
+Kosaraju
+4 components: {7} {3 4} {5 6} {0 1 2}
+Topological sort
+std synopsys ieee dware gtech ramlib std_cell_lib dw02 dw05 dw06 dw07 dw01 des_system_lib dw03 dw04 
+std synopsys ieee dware gtech ramlib std_cell_lib dw02 dw05 dw06 dw07 
+not orderable: des_system_lib dw01 dw03 dw04
+Breadth first
+a depth 0
+b depth 1 from a
+c depth 1 from a
+d depth 2 from b
+e depth 3 from d
+unreached: f g h
+Depth first: +a +b +d +c -c +e -e -d -b -a
+out edges of d: b c e
+3 components: {a b c d e} {f g} {h}
+3 components: {a b c d e} {f g} {h}
+Minimum spanning tree
+AD 5
+CE 5
+DF 6
+AB 7
+BE 7
+EG 9
+total 39
+Heap: top 0/11 0/11 1/4 1/13 2/7 2/16 3/2 3/5 3/15 4/10 4/20 5/1 5/14 6/9 6/18 7/6 7/17 8/8 8/19 9/3 9/12
+TTTF sets 7 same TF
+named: 5000 vertices, 5000 edges, v123 is 228, 132 strong components
+exit 0

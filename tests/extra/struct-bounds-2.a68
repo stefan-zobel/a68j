@@ -1,0 +1,26 @@
+{ Several fields of a structure that share a declarer with bounds: each
+  field gets these bounds, and the bounds are elaborated once. ga68 stops
+  with an internal compiler error (docs/ga68-bug-reports.md, entry 30). }
+begin
+  proc b = (string t, int l, u) void: puts (t + " " + whole (l, 0) + ":" + whole (u, 0) + "'n");
+
+  struct ([1:3] int a, b, [5:6] int c) s;
+  b ("s a", LWB a of s, UPB a of s); b ("s b", LWB b of s, UPB b of s); b ("s c", LWB c of s, UPB c of s);
+  int n := 0;
+  struct ([n +:= 1] int a, b) t, u;
+  puts (whole (n, 0) + "'n");
+  b ("t a", LWB a of t, UPB a of t); b ("t b", LWB b of t, UPB b of t);
+  b ("u a", LWB a of u, UPB a of u); b ("u b", LWB b of u, UPB b of u);
+  mode M = struct ([n +:= 2, 0:1] real a, b, c, string t, [7:8] bool d, e);
+  M m;
+  puts (whole (n, 0) + "'n");
+  b ("m a", 1 LWB a of m, 1 UPB a of m); b ("m b", 1 LWB b of m, 1 UPB b of m);
+  b ("m c", 1 LWB c of m, 1 UPB c of m); b ("m c2", 2 LWB c of m, 2 UPB c of m);
+  b ("m d", LWB d of m, UPB d of m); b ("m e", LWB e of m, UPB e of m);
+  [1:2] struct ([2:3] int a, b, flex [4:5] char f, g, [6:7] int c) r;
+  b ("r[2] a", LWB a of r[2], UPB a of r[2]); b ("r[2] b", LWB b of r[2], UPB b of r[2]);
+  b ("r[2] f", LWB f of r[2], UPB f of r[2]); b ("r[2] g", LWB g of r[2], UPB g of r[2]);
+  b ("r[2] c", LWB c of r[2], UPB c of r[2]);
+  (b of s)[2] := 7; (a of s)[2] := 8;
+  puts (whole ((b of s)[2], 0) + " " + whole ((a of s)[2], 0) + "'n")
+end

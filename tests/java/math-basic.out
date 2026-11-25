@@ -1,0 +1,16 @@
+acos asin atan: 3.1416 1.5708 -.7854
+arctan2: 1.5708 .0000 3.1416 -1.5708 same
+hyperbolic: 1.1752 1.5431 .7616 1.0000 inf
+inverses: .7500 .7500 .7500 69.7707 69.7707 same same same
+outside: nan nan inf -inf
+cbrt: -3.0000 .1000
+gamma: 1.0000 1.0000 720.0000 3.1416 -3.5449 .8862
+gamma at poles and far out: inf -inf nan inf inf
+lgamma: .0000 .0000 359.1342 -.0562 inf inf
+ln_gamma: 3.1781 nan .8600
+exp ln: -.3000 .8000 -.3000 .8000
+sqrt: -.3000 .8000 1.0000 1.0000 .0000 1.0000 .0000 .0000
+sin cos: 0 0
+sinh cosh: 0 0
+real axis: .4794 .0000 .4794 .4621 .0000 .4621
+exit 0

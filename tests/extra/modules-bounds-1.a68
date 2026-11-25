@@ -1,0 +1,18 @@
+{ dg-modules "modbounds" }
+{ Modes of an accessed module as fields of a structure: the rows after
+  them get the bounds of their own declarers. The interface of a module
+  does not have the bounds of its modes, so the rows of these modes are
+  empty. ga68 stops with an internal compiler error at a variable of such
+  a mode. }
+access Mod_Bounds
+begin proc b = (string t, int l, u) void: puts (t + " " + whole (l, 0) + ":" + whole (u, 0) + "'n");
+      S s; V v; Rec r; F f; W w;
+      b ("s", LWB s, UPB s); b ("v", LWB v, UPB v); b ("a of r", LWB a of r, UPB a of r);
+      b ("f", LWB f, UPB f); b ("w of w", LWB w of w, UPB w of w); b ("t of w", LWB t of w, UPB t of w);
+      struct (S a, [2:4] int b) x1; b ("x1", LWB b of x1, UPB b of x1);
+      struct (V a, [2:4] int b) x2; b ("x2", LWB b of x2, UPB b of x2);
+      struct (Rec a, [2:4] int b) x3; b ("x3", LWB b of x3, UPB b of x3);
+      struct (F a, [2:4] int b) x4; b ("x4", LWB b of x4, UPB b of x4);
+      struct (W a, [2:4] int b) x5; b ("x5", LWB b of x5, UPB b of x5);
+      b ("w of a of x5", LWB w of a of x5, UPB w of a of x5)
+end
