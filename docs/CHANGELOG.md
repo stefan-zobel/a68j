@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (in development)
+## 1.0.0
 
 - Procedure values are compiled to classes of their own: calls through
   them are faster, and programs start faster.

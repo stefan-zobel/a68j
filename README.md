@@ -73,7 +73,7 @@ Hello, world!
 | Java interop and bundled modules (`tests/java`) | 96 of 96, JDK 25 and JDK 28 |
 | Parallel clauses with real threads (`tests/par`) | 14 of 14, JDK 25 and JDK 28 |
 | Partial parametrization, compared with Algol 68 Genie (`tests/partial`) | 16 of 16 (7 of them up to the widths and the rounding of numbers), JDK 25 and JDK 28 |
-| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 43 of 43, JDK 25 and JDK 28 |
+| Command-line options and compiler messages (`tests/options`, `tests/scope`) | 45 of 45, JDK 25 and JDK 28 |
 | Formats: rewrite tool, `Genie_Formats`, `-fgenie`, `-fformats` (`tests/formats`) | 89 of 89 on a68j, with `-fgenie`, and with `-fgenie` and the rewrite of format texts; also on ga68 and Algol 68 Genie where they apply (7 deliberate differences from Algol 68 Genie excepted) |
 
 Not supported, as in ga68: the transput of the Revised Report (`print`,
