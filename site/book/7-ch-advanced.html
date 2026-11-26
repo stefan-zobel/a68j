@@ -1011,6 +1011,16 @@ left to the garbage collector, which costs time and memory. The
 distinction is the one between the stack and the heap in C++ and Rust
 (<code>Box</code>); Java and Python allocate every object on the
 heap.</p>
+<blockquote>
+<p><strong>Implementation note.</strong>  a68j uses the garbage
+collector of the Java virtual machine, Algol 68 Genie its own. ga68
+reclaims heap cells only if its run-time library libga68 was built with
+the Boehm garbage collector, which it uses when it finds it at build
+time; otherwise heap cells are never freed, and a program that allocates
+a lot in a loop can run out of memory. ga68 also allocates on the heap
+where the program does not say <code><b>heap</b></code>, for example for
+a slice of an array.</p>
+</blockquote>
 <h2 data-number="7.16" id="sec-proc-lifetimes"><span
 class="header-section-number">7.16</span> Lifetimes of functions</h2>
 <p>The lifetime rule also applies to functions, and this is where Algol
@@ -1069,6 +1079,19 @@ the language that Appendix <a href="-app-partial.html#app-partial"
 data-reference-type="ref" data-reference="app-partial">F</a>
 describes.</p>
 <blockquote>
+<p><strong>Implementation note.</strong>  ga68 crashes when such a
+function is written as a routine text inside a procedure with
+parameters, as in the constructor
+<code>(<b>int</b> start) Counter: (<b>heap</b> <b>int</b> := start, (<b>ref</b> <b>int</b> c) <b>int</b>: c +:= 1)</code>,
+and is called after the procedure has returned, although the program is
+valid: the function uses no name of the procedure. ga68 makes the
+routine text a function nested in the procedure, and its call needs the
+stack frame of the procedure, which is gone. Declaring the function
+outside the procedure and storing only its name,
+<code>(<b>heap</b> <b>int</b> := start, step)</code>, avoids the crash;
+a68j and Algol 68 Genie run both forms.</p>
+</blockquote>
+<blockquote>
 <p><strong>Implementation note.</strong>  With the option
 <code>-Wscope</code>, ga68 and a68j warn at compile time about a
 function that may outlive the names it uses, <code>compose</code>
@@ -1081,8 +1104,9 @@ loop sees the values of the last round:</p>
 <pre class="algol68"><code>[3] <b>proc</b> <b>int</b> fs;
 <b>for</b> i <b>to</b> 3 <b>do</b> fs[i] := <b>int</b>: i <b>od</b>;
 <b>for</b> i <b>to</b> 3 <b>do</b> print (fs[i]) <b>od</b>    <span class="comment">{ prints 3 three times }</span></code></pre>
-<p>Since such a program gives wrong results in a68j itself, a68j warns
-about it by default:</p>
+<p>The program breaks the scope rule as <code>compose</code> does; ga68
+prints 4 three times, and Algol 68 Genie stops. Since a68j cannot make
+up for it here, it warns by default:</p>
 <pre class="output"><code>warning: routine text captures 'i', which is shared by all iterations
   of the loop, and may outlive its iteration [-Wframe-scope]</code></pre>
 <p>a68j warns in the same way about a function that jumps to a label and
